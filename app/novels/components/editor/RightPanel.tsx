@@ -1,12 +1,19 @@
 import { Sparkles, Send, MessageSquare, Plus, History, AtSign, ChevronDown } from "lucide-react";
-import { Icon } from "@/components/ui/icon";
 import { useState, useRef } from "react";
+import Image from "next/image";
 
 type AiMode = "agent" | "ask" | "continue" | "polish";
 type AiModel = "gpt-4" | "claude-3.5-sonnet" | "gpt-3.5-turbo";
 
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: number;
+}
+
 export function RightPanel() {
-  const [messages, setMessages] = useState<any[]>([]); // 对话消息列表，空数组表示没有对话
+  const [messages] = useState<Message[]>([]); // 对话消息列表，空数组表示没有对话
   const [mode, setMode] = useState<AiMode>("ask");
   const [model, setModel] = useState<AiModel>("claude-3.5-sonnet");
   const [input, setInput] = useState("");
@@ -52,10 +59,16 @@ export function RightPanel() {
       <div className="h-10 flex px-2 items-center justify-between border-b border-gray-200 dark:border-gray-800">
         <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">AI 助手</h2>
         <div className="flex items-center gap-1">
-          <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors" title="新建对话">
+          <button
+            className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+            title="新建对话"
+          >
             <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </button>
-          <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors" title="历史记录">
+          <button
+            className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+            title="历史记录"
+          >
             <History className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
@@ -69,13 +82,29 @@ export function RightPanel() {
             <div className="mb-6 relative">
               {/* AI 图标背景 */}
               <div className="w-20 h-20 rounded-full dark:from-purple-900/30 dark:to-blue-900/30 flex items-center justify-center">
-                <Icon name="logo-dark" size={50} className="dark:hidden" />
-                <Icon name="logo-light" size={50} className="hidden dark:block" />
+                <Image
+                  src="/assets/svg/logo-dark.svg"
+                  width={50}
+                  height={50}
+                  alt="Logo"
+                  className="dark:hidden"
+                />
+                <Image
+                  src="/assets/svg/logo-light.svg"
+                  width={50}
+                  height={50}
+                  alt="Logo"
+                  className="hidden dark:block"
+                />
               </div>
             </div>
 
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">AI 写作助手</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs">我可以帮你续写剧情、优化文字、润色对话，让创作更轻松</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              AI 写作助手
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs">
+              我可以帮你续写剧情、优化文字、润色对话，让创作更轻松
+            </p>
 
             {/* 功能卡片 */}
             <div className="w-full max-w-sm space-y-2 mb-6">
@@ -85,8 +114,12 @@ export function RightPanel() {
                     <span className="text-xs text-blue-600 dark:text-blue-400">✨</span>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">续写故事</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">根据上下文智能续写</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      续写故事
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      根据上下文智能续写
+                    </div>
                   </div>
                 </div>
               </div>
@@ -97,7 +130,9 @@ export function RightPanel() {
                     <span className="text-xs text-purple-600 dark:text-purple-400">✍️</span>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">优化润色</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      优化润色
+                    </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">让文字表达更精彩</div>
                   </div>
                 </div>
@@ -109,8 +144,12 @@ export function RightPanel() {
                     <span className="text-xs text-green-600 dark:text-green-400">💡</span>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">创作建议</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">提供专业的写作指导</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      创作建议
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      提供专业的写作指导
+                    </div>
                   </div>
                 </div>
               </div>
@@ -210,7 +249,9 @@ export function RightPanel() {
                           setShowModeMenu(false);
                         }}
                         className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                          mode === m.value ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" : "text-gray-700 dark:text-gray-300"
+                          mode === m.value
+                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                            : "text-gray-700 dark:text-gray-300"
                         }`}
                       >
                         {typeof IconComp === "string" ? (
@@ -233,7 +274,9 @@ export function RightPanel() {
               onClick={() => setShowModelMenu(!showModelMenu)}
               className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors border border-gray-200 dark:border-gray-700"
             >
-              <span className="text-gray-900 dark:text-gray-100 truncate">{models.find((m) => m.value === model)?.label}</span>
+              <span className="text-gray-900 dark:text-gray-100 truncate">
+                {models.find((m) => m.value === model)?.label}
+              </span>
               <ChevronDown className="w-3 h-3 text-gray-500 flex-shrink-0" />
             </button>
             {showModelMenu && (
@@ -248,7 +291,9 @@ export function RightPanel() {
                         setShowModelMenu(false);
                       }}
                       className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                        model === m.value ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" : "text-gray-700 dark:text-gray-300"
+                        model === m.value
+                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                          : "text-gray-700 dark:text-gray-300"
                       }`}
                     >
                       {m.label}

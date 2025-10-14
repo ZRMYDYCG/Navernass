@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { List, Briefcase, Database, Image } from "lucide-react";
+import { List, Briefcase, Database, Image as ImageIcon } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { ChaptersTab } from "./ChaptersTab";
 import { WorkspaceTab } from "./WorkspaceTab";
@@ -113,7 +113,7 @@ export function LeftPanel({ chapters, selectedChapter, onSelectChapter }: LeftPa
                   : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
             >
-              <Image className="w-5 h-5" />
+              <ImageIcon className="w-5 h-5" />
             </button>
           </Tooltip.Trigger>
           <Tooltip.Portal>

@@ -6,7 +6,10 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { GripHorizontal, Pin } from "lucide-react";
 
 export function meta() {
-  return [{ title: "仪表盘 - NarraVerse" }, { name: "description", content: "查看您的创作统计和最近活动" }];
+  return [
+    { title: "仪表盘 - NarraVerse" },
+    { name: "description", content: "查看您的创作统计和最近活动" },
+  ];
 }
 
 interface DashboardCard {
@@ -71,7 +74,7 @@ function DraggableCard({ card, index, moveCard, togglePin }: DraggableCardProps)
         </button>
         {!card.isPinned && (
           <div
-            ref={drag as any}
+            ref={drag as unknown as React.LegacyRef<HTMLDivElement>}
             className="cursor-move p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <GripHorizontal className="w-4 h-4" />
@@ -107,7 +110,9 @@ export default function Dashboard() {
   };
 
   const togglePin = (id: string) => {
-    setCards((prevCards) => prevCards.map((card) => (card.id === id ? { ...card, isPinned: !card.isPinned } : card)));
+    setCards((prevCards) =>
+      prevCards.map((card) => (card.id === id ? { ...card, isPinned: !card.isPinned } : card))
+    );
   };
 
   return (
@@ -115,7 +120,13 @@ export default function Dashboard() {
       <div className="p-6 min-h-screen bg-white dark:bg-gray-900 transition-colors">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card, index) => (
-            <DraggableCard key={card.id} card={card} index={index} moveCard={moveCard} togglePin={togglePin} />
+            <DraggableCard
+              key={card.id}
+              card={card}
+              index={index}
+              moveCard={moveCard}
+              togglePin={togglePin}
+            />
           ))}
         </div>
       </div>

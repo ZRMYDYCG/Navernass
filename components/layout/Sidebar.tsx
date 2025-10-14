@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Gauge, Book, Database, Folder, Trash2, Workflow } from "lucide-react";
+import { Gauge, Book, Database, Trash2 } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import Image from "next/image";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -22,7 +23,20 @@ export function Sidebar() {
         {/* Logo 区域 */}
         <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
           <Link href="/" className="text-2xl font-bold">
-            N
+            <Image
+              src="/assets/svg/logo-dark.svg"
+              width={50}
+              height={50}
+              alt="Logo"
+              className="dark:hidden"
+            />
+            <Image
+              src="/assets/svg/logo-light.svg"
+              width={50}
+              height={50}
+              alt="Logo"
+              className="hidden dark:block"
+            />
           </Link>
         </div>
 

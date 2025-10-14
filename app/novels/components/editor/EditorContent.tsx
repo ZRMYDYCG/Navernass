@@ -17,15 +17,23 @@ interface EditorContentProps {
   wordCount: string;
 }
 
-export function EditorContent({ openTabs, activeTab, onTabChange, onTabClose, novelTitle, chapterTitle }: EditorContentProps) {
+export function EditorContent({
+  openTabs,
+  activeTab,
+  onTabChange,
+  onTabClose,
+  novelTitle,
+  chapterTitle,
+}: EditorContentProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
 
-  const handleUpdate = async (content: string) => {
+  const handleUpdate = async () => {
     setIsSaving(true);
     // 这里实现保存逻辑
+    // TODO: 使用 content 参数保存数据
     await new Promise((resolve) => setTimeout(resolve, 500));
     setIsSaving(false);
     setLastSaved(new Date());
@@ -96,7 +104,13 @@ export function EditorContent({ openTabs, activeTab, onTabChange, onTabClose, no
           <span>•</span>
           <span>字符：{charCount.toLocaleString()}</span>
           <span>•</span>
-          {isSaving ? <span className="text-blue-600 dark:text-blue-400">保存中...</span> : lastSaved ? <span>已保存</span> : <span>未保存</span>}
+          {isSaving ? (
+            <span className="text-blue-600 dark:text-blue-400">保存中...</span>
+          ) : lastSaved ? (
+            <span>已保存</span>
+          ) : (
+            <span>未保存</span>
+          )}
         </div>
       </div>
     </div>

@@ -326,7 +326,7 @@ export default function RegisterPage() {
             {/* 评价内容 */}
             <div className="mb-8">
               <blockquote className="text-2xl font-medium leading-relaxed mb-6">
-                "{testimonials[currentTestimonial].quote}"
+                &ldquo;{testimonials[currentTestimonial].quote}&rdquo;
               </blockquote>
               <div>
                 <div className="font-semibold">{testimonials[currentTestimonial].author}</div>

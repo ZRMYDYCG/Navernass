@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import * as Tooltip from "@radix-ui/react-tooltip";
-import { EditorHeader, LeftPanel, EditorContent, RightPanel } from "@/app/(main)/novels/components/editor";
-import { Icon } from "@/components/ui/icon";
+import { EditorHeader, LeftPanel, EditorContent, RightPanel } from "@/app/novels/components/editor";
 import { Kbd } from "@/components/ui/kbd";
 
 // 章节数据
@@ -88,7 +88,11 @@ export default function NovelsEdit() {
             {showLeftPanel && (
               <>
                 <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
-                  <LeftPanel chapters={chapters} selectedChapter={selectedChapter} onSelectChapter={handleSelectChapter} />
+                  <LeftPanel
+                    chapters={chapters}
+                    selectedChapter={selectedChapter}
+                    onSelectChapter={handleSelectChapter}
+                  />
                 </ResizablePanel>
 
                 <ResizableHandle withHandle />
@@ -101,7 +105,13 @@ export default function NovelsEdit() {
                 // 未选择章节时显示欢迎界面
                 <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
                   <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
-                    <Icon name="logo-eye" size={120} className="opacity-40" />
+                    <Image
+                      src="/assets/svg/logo-eye.svg"
+                      width={120}
+                      height={120}
+                      alt="Logo"
+                      className="opacity-40"
+                    />
                     <p className="text-sm">选择一个章节开始编辑</p>
                     <span className="flex items-center gap-1">
                       <Kbd>Ctrl</Kbd>
@@ -125,7 +135,9 @@ export default function NovelsEdit() {
                   onTabChange={setActiveTab}
                   onTabClose={closeTab}
                   novelTitle="星际迷航：无尽边界"
-                  chapterTitle={chapters.find((c) => c.id === activeTab)?.title || "第一章：新的征程"}
+                  chapterTitle={
+                    chapters.find((c) => c.id === activeTab)?.title || "第一章：新的征程"
+                  }
                   wordCount="3,245"
                 />
               )}
