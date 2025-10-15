@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { MoreHorizontal } from 'lucide-react';
-import type { ConversationItemProps } from '../types';
-import { STYLES } from '../config';
+import { useState } from "react";
+import { MoreHorizontal } from "lucide-react";
+import type { ConversationItemProps } from "../types";
+import { STYLES } from "../config";
 
 /**
  * 对话项组件
@@ -35,11 +35,9 @@ export function ConversationItem({
     >
       <div className="flex justify-between items-center">
         <div className="flex-1">
-          <h3 className={STYLES.conversationItem.title}>
-            {conversation.title}
-          </h3>
+          <h3 className={STYLES.conversationItem.title}>{conversation.title}</h3>
           <p className={STYLES.conversationItem.time}>
-            {conversation.time}
+            {conversation.timeText || new Date(conversation.updated_at).toLocaleDateString()}
           </p>
         </div>
         {isHovered && (
@@ -55,4 +53,3 @@ export function ConversationItem({
     </div>
   );
 }
-

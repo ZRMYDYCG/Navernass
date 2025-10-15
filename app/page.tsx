@@ -1,14 +1,15 @@
-"use client";
+import { Navbar, Hero, Features, CTA, Footer } from "./landing/components";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-export default function RootPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/home");
-  }, [router]);
-
-  return null;
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1">
+        <Hero />
+        <Features />
+        <CTA />
+      </main>
+      <Footer />
+    </div>
+  );
 }

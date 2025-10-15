@@ -2,35 +2,20 @@
  * Home 模块类型定义
  */
 
+import type { Conversation as ApiConversation, Message as ApiMessage } from "@/lib/api";
+
 /**
- * 对话会话类型
+ * 对话会话类型 (UI 层)
  */
-export interface Conversation {
-  /** 会话唯一标识 */
-  id: number;
-  /** 会话标题 */
-  title: string;
-  /** 最后更新时间 */
-  time: string;
-  /** 会话创建时间戳 (可选) */
-  createdAt?: number;
-  /** 会话更新时间戳 (可选) */
-  updatedAt?: number;
+export interface Conversation extends ApiConversation {
+  /** 显示用的时间文本 */
+  timeText?: string;
 }
 
 /**
- * 对话消息类型
+ * 对话消息类型 (UI 层)
  */
-export interface Message {
-  /** 消息唯一标识 */
-  id: string;
-  /** 消息内容 */
-  content: string;
-  /** 消息角色：用户/助手 */
-  role: 'user' | 'assistant';
-  /** 消息时间戳 */
-  timestamp: number;
-}
+export type Message = ApiMessage;
 
 /**
  * 对话列表侧边栏 Props
@@ -39,9 +24,9 @@ export interface ConversationListProps {
   /** 对话列表数据 */
   conversations: Conversation[];
   /** 当前选中的对话ID */
-  selectedId: number | null;
+  selectedId: string | null;
   /** 选择对话的回调 */
-  onSelect: (id: number) => void;
+  onSelect: (id: string) => void;
   /** 创建新对话的回调 */
   onCreateNew?: () => void;
 }
@@ -55,9 +40,9 @@ export interface ConversationItemProps {
   /** 是否选中 */
   isSelected: boolean;
   /** 点击回调 */
-  onClick: (id: number) => void;
+  onClick: (id: string) => void;
   /** 更多操作回调 */
-  onMoreAction?: (id: number) => void;
+  onMoreAction?: (id: string) => void;
 }
 
 /**
@@ -65,9 +50,13 @@ export interface ConversationItemProps {
  */
 export interface ChatAreaProps {
   /** 当前选中的对话ID */
-  selectedConversationId: number | null;
+  selectedConversationId: string | null;
   /** 消息列表 */
   messages?: Message[];
+  /** 发送消息的回调 */
+  onSendMessage?: (content: string) => void;
+  /** 加载状态 */
+  loading?: boolean;
 }
 
 /**
@@ -91,4 +80,3 @@ export interface ChatInputProps {
   /** 是否禁用 */
   disabled?: boolean;
 }
-
