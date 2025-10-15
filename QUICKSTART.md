@@ -7,15 +7,43 @@ cd narraverse-next-mvp
 pnpm install
 ```
 
-## 2. 配置环境变量 (可选)
+## 2. 配置环境变量 (必需)
 
 创建 `.env.local` 文件：
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
+# Supabase 配置
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-> 如果不配置，默认使用 `http://localhost:8000/api`
+### 获取 Supabase 配置
+
+1. 访问 [Supabase](https://supabase.com) 并创建一个新项目
+2. 在项目设置 > API 中找到：
+   - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
+   - `anon public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. 复制到 `.env.local` 文件中
+
+### 设置数据库表
+
+在 Supabase SQL Editor 中执行以下 SQL（参见 README.md 中的完整表结构）：
+
+```sql
+-- 创建 novels 表
+create table novels (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  title text not null,
+  description text,
+  status text default 'draft',
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+-- 启用行级安全
+alter table novels enable row level security;
+```
 
 ## 3. 启动开发服务器
 
@@ -30,11 +58,8 @@ pnpm dev
 打开浏览器访问以下页面：
 
 - 🏠 **首页 (AI 对话)**: http://localhost:3000
-- 📊 **仪表盘**: http://localhost:3000/dashboard
 - 📚 **小说列表**: http://localhost:3000/novels
 - 🗂️ **知识库**: http://localhost:3000/knowledge
-- 📁 **素材库**: http://localhost:3000/materials
-- 🔄 **编排**: http://localhost:3000/composition
 - 🗑️ **回收站**: http://localhost:3000/trash
 
 ## 5. 主要功能
@@ -80,17 +105,24 @@ export default function NewPage() {
 }
 ```
 
-### 使用 API
+### 使用 Supabase API
 
 ```tsx
-import { useQuery } from "@tanstack/react-query";
+"use client";
+
+import { useEffect, useState } from "react";
 import { novelsApi } from "@/lib/api/novels";
 
 function MyComponent() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["novels"],
-    queryFn: () => novelsApi.getList(),
-  });
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    novelsApi.getList().then((result) => {
+      setData(result);
+      setLoading(false);
+    });
+  }, []);
 
   // ...
 }
@@ -146,9 +178,9 @@ pnpm install
 
 ## 9. 更多帮助
 
-- 查看 [README.md](./README.md) 了解项目概览
-- 查看 [MIGRATION.md](./MIGRATION.md) 了解迁移详情
+- 查看 [README.md](./README.md) 了解项目概览和完整的数据库设置
 - 访问 [Next.js 文档](https://nextjs.org/docs)
+- 访问 [Supabase 文档](https://supabase.com/docs)
 
 ---
 

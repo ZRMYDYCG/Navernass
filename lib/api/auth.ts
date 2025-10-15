@@ -1,4 +1,4 @@
-import { api } from "../axios";
+import { supabase } from "../supabase";
 
 export interface LoginDto {
   email: string;
@@ -6,29 +6,62 @@ export interface LoginDto {
 }
 
 export interface RegisterDto {
-  name: string;
   email: string;
   password: string;
+  name?: string;
 }
 
 export const authApi = {
   /**
    * 用户登录
    */
-  login: (data: LoginDto) => api.post("/user/login", data),
+  login: async (data: LoginDto) => {
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    });
+
+    if (error) throw error;
+    return authData;
+  },
 
   /**
    * 用户注册
    */
-  register: (data: RegisterDto) => api.post("/user/register", data),
+  register: async (data: RegisterDto) => {
+    const { data: authData, error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: {
+          name: data.name,
+        },
+      },
+    });
+
+    if (error) throw error;
+    return authData;
+  },
 
   /**
    * 获取当前用户信息
    */
-  getCurrentUser: () => api.get("/user/profile"),
+  getCurrentUser: async () => {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) throw error;
+    return user;
+  },
 
   /**
    * 退出登录
    */
-  logout: () => api.post("/user/logout", {}),
+  logout: async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) throw error;
+  },
 };
