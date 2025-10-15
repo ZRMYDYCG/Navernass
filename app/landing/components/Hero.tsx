@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Star, GitFork } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -19,7 +19,7 @@ export function Hero() {
           <div className="flex justify-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">AI 驱动的智能创作平台</span>
+              <span className="text-sm font-medium text-primary">开源 AI 智能创作平台</span>
             </div>
           </div>
 
@@ -48,24 +48,47 @@ export function Hero() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="min-w-[200px]">
-              <Link href="/auth/login">登录账号</Link>
+            <Button size="lg" variant="outline" asChild className="min-w-[200px] group">
+              <a
+                href="https://github.com/narraverse/narraverse-next-mvp"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Star className="w-4 h-4 group-hover:fill-yellow-400 group-hover:text-yellow-400 transition-colors" />
+                Star on GitHub
+              </a>
             </Button>
           </div>
 
-          {/* 特性标签 */}
-          <div className="flex flex-wrap justify-center gap-4 mt-12 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              <span>免费开始</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              <span>AI 智能辅助</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-              <span>云端同步</span>
+          {/* 开源统计 */}
+          <div className="flex flex-wrap justify-center gap-6 mt-12">
+            <a
+              href="https://github.com/narraverse/narraverse-next-mvp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+            >
+              <Star className="w-4 h-4 text-yellow-500" />
+              <span className="text-sm font-medium">
+                <span className="text-foreground">1.2k</span>
+                <span className="text-muted-foreground ml-1">Stars</span>
+              </span>
+            </a>
+            <a
+              href="https://github.com/narraverse/narraverse-next-mvp/fork"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+            >
+              <GitFork className="w-4 h-4 text-blue-500" />
+              <span className="text-sm font-medium">
+                <span className="text-foreground">230</span>
+                <span className="text-muted-foreground ml-1">Forks</span>
+              </span>
+            </a>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="text-sm font-medium text-muted-foreground">MIT License</span>
             </div>
           </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Github, Heart } from "lucide-react";
 import Link from "next/link";
 
 export function CTA() {
@@ -23,33 +23,43 @@ export function CTA() {
               {/* 图标 */}
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-primary" />
+                  <Heart className="w-8 h-8 text-primary" />
                 </div>
               </div>
 
               {/* 标题 */}
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">准备好开始你的创作之旅了吗？</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">加入开源社区，共同打造未来</h2>
 
               {/* 描述 */}
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                加入数千位作家的行列，使用 AI 驱动的创作工具，让你的故事更加精彩
+                Narraverse
+                是一个完全开源的项目，我们欢迎所有开发者和创作者加入，一起创造更好的创作工具
               </p>
 
               {/* 按钮组 */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button size="lg" asChild className="min-w-[200px] shadow-lg shadow-primary/25">
-                  <Link href="/auth/register">
-                    免费开始
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  <a
+                    href="https://github.com/narraverse/narraverse-next-mvp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Github className="w-4 h-4" />
+                    贡献代码
+                  </a>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="min-w-[200px]">
-                  <Link href="/home">体验 Demo</Link>
+                  <Link href="/auth/register">
+                    免费使用
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </Button>
               </div>
 
               {/* 提示文字 */}
-              <p className="mt-6 text-sm text-muted-foreground">无需信用卡 · 免费试用所有功能</p>
+              <p className="mt-6 text-sm text-muted-foreground">
+                MIT 开源协议 · 永久免费 · 社区驱动
+              </p>
             </div>
           </div>
         </div>
