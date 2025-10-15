@@ -14,12 +14,13 @@ import type {
 
 export const knowledgeBasesApi = {
   /**
-   * 获取所有知识库
+   * 获取所有知识库（未删除的）
    */
   getList: async (): Promise<KnowledgeBase[]> => {
     const { data, error } = await supabase
       .from("knowledge_bases")
       .select("*")
+      .or("is_deleted.is.null,is_deleted.eq.false")
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -84,7 +85,51 @@ export const knowledgeBasesApi = {
   },
 
   /**
-   * 删除知识库
+   * 删除知识库（软删除）
+   */
+  archive: async (id: string): Promise<KnowledgeBase> => {
+    const { data, error } = await supabase
+      .from("knowledge_bases")
+      .update({ is_deleted: true })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * 获取回收站中的知识库列表
+   */
+  getArchived: async (): Promise<KnowledgeBase[]> => {
+    const { data, error } = await supabase
+      .from("knowledge_bases")
+      .select("*")
+      .eq("is_deleted", true)
+      .order("updated_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  /**
+   * 恢复知识库（从归档状态恢复）
+   */
+  restore: async (id: string): Promise<KnowledgeBase> => {
+    const { data, error } = await supabase
+      .from("knowledge_bases")
+      .update({ is_deleted: false })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * 删除知识库（硬删除）
    */
   delete: async (id: string): Promise<void> => {
     const { error } = await supabase.from("knowledge_bases").delete().eq("id", id);

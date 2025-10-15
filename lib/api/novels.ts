@@ -112,6 +112,35 @@ export const novelsApi = {
   },
 
   /**
+   * 获取回收站中的小说列表
+   */
+  getArchived: async (): Promise<Novel[]> => {
+    const { data, error } = await supabase
+      .from("novels")
+      .select("*")
+      .eq("status", "archived")
+      .order("updated_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  /**
+   * 恢复小说（从归档状态恢复）
+   */
+  restore: async (id: string): Promise<Novel> => {
+    const { data, error } = await supabase
+      .from("novels")
+      .update({ status: "draft" })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
    * 删除小说（硬删除）
    */
   delete: async (id: string): Promise<void> => {

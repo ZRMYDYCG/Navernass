@@ -80,15 +80,15 @@ export default function Novels() {
     setDialogOpen(true);
   };
 
-  // 删除小说
+  // 删除小说（移到回收站）
   const handleDeleteNovel = async (novel: Novel) => {
-    if (!confirm(`确定要删除小说《${novel.title}》吗？`)) {
+    if (!confirm(`确定要将小说《${novel.title}》移到回收站吗？`)) {
       return;
     }
 
     try {
-      await novelsApi.delete(novel.id);
-      toast.success("小说已删除");
+      await novelsApi.archive(novel.id);
+      toast.success("小说已移到回收站");
       loadNovels();
     } catch (error) {
       console.error("删除小说失败:", error);
