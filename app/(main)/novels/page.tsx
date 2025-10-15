@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -14,205 +14,188 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import { novelsApi, type Novel } from "@/lib/api";
+import { toast } from "sonner";
+import Image from "next/image";
 
 export default function Novels() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
+  const [novels, setNovels] = useState<Novel[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"all" | "draft" | "published">("all");
   const itemsPerPage = 8;
 
-  // 示例小说数据（更多数据用于分页演示）
-  const allNovels = [
-    {
-      id: 1,
-      title: "星际迷航：无尽边界",
-      description: "在浩瀚宇宙的深处，文明的交锋开启了一个全新的纪元。星际殖民者与外星巨人的战争中，见证人类文明的兴衰。",
-      category: "科幻·奇幻",
-      tags: ["科幻", "冒险", "太空歌剧"],
-      coverImage: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&q=80",
-      wordCount: "12.3k",
-      updatedAt: "3小时前",
-      chapters: 45,
-    },
-    {
-      id: 2,
-      title: "末世纪元",
-      description: "当末日降临，人类文明化为灰烬。在废墟中求生的幸存者们，将如何重建新的世界秩序？",
-      category: "末世·生存",
-      tags: ["末世", "生存", "冒险"],
-      coverImage: "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?w=800&q=80",
-      wordCount: "8.7k",
-      updatedAt: "1天前",
-      chapters: 32,
-    },
-    {
-      id: 3,
-      title: "修真之路",
-      description: "从凡人到仙人，历经九九八十一劫。看少年如何在修真界中逆天改命，成就无上大道。",
-      category: "玄幻·修真",
-      tags: ["修真", "热血", "升级"],
-      coverImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-      wordCount: "156k",
-      updatedAt: "2天前",
-      chapters: 521,
-    },
-    {
-      id: 4,
-      title: "都市之巅",
-      description: "重生回到十年前，手握先知优势的他，将如何在都市中书写属于自己的传奇？",
-      category: "都市·重生",
-      tags: ["都市", "重生", "商战"],
-      coverImage: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&q=80",
-      wordCount: "67k",
-      updatedAt: "5小时前",
-      chapters: 234,
-    },
-    {
-      id: 5,
-      title: "龙族秘闻",
-      description: "混血种与纯血龙族的千年恩怨，在这个时代即将迎来最终的审判。",
-      category: "奇幻·冒险",
-      tags: ["龙族", "热血", "冒险"],
-      coverImage: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&q=80",
-      wordCount: "89k",
-      updatedAt: "12小时前",
-      chapters: 312,
-    },
-    {
-      id: 6,
-      title: "灵异笔记",
-      description: "世界上真的有鬼吗？当我翻开这本笔记的时候，才发现真相远比想象中更加可怕。",
-      category: "悬疑·灵异",
-      tags: ["悬疑", "灵异", "惊悚"],
-      coverImage: "https://images.unsplash.com/photo-1465146633011-14f8e0781093?w=800&q=80",
-      wordCount: "34k",
-      updatedAt: "8小时前",
-      chapters: 128,
-    },
-    {
-      id: 7,
-      title: "剑仙传说",
-      description: "一剑破万法，剑道巅峰之上，唯有孤独相伴。少年剑客的成长之路，充满坎坷与奇遇。",
-      category: "武侠·仙侠",
-      tags: ["剑修", "仙侠", "热血"],
-      coverImage: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80",
-      wordCount: "198k",
-      updatedAt: "6小时前",
-      chapters: 678,
-    },
-    {
-      id: 8,
-      title: "机甲战纪",
-      description: "在机甲称霸的时代，驾驶员是唯一的希望。热血少年与他的机甲搭档，将守护这片星空。",
-      category: "科幻·机甲",
-      tags: ["机甲", "热血", "战斗"],
-      coverImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80",
-      wordCount: "45k",
-      updatedAt: "1天前",
-      chapters: 167,
-    },
-    {
-      id: 9,
-      title: "魔法学院",
-      description: "在魔法的世界里，天赋决定一切。但这位少年用努力证明，没有魔法天赋也能成为强者。",
-      category: "奇幻·魔法",
-      tags: ["魔法", "学院", "成长"],
-      coverImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-      wordCount: "112k",
-      updatedAt: "4小时前",
-      chapters: 389,
-    },
-  ];
+  // 加载小说列表
+  const loadNovels = useCallback(async () => {
+    try {
+      setLoading(true);
+      const result = await novelsApi.getList({
+        page: currentPage,
+        pageSize: itemsPerPage,
+        status: filter === "all" ? undefined : filter,
+      });
+      setNovels(result.data);
+      setTotal(result.total);
+    } catch (error) {
+      console.error("加载小说失败:", error);
+      const message = error instanceof Error ? error.message : "加载小说列表失败";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, filter]);
 
-  // 分页逻辑
-  const totalPages = Math.ceil(allNovels.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentNovels = allNovels.slice(startIndex, endIndex);
+  useEffect(() => {
+    loadNovels();
+  }, [loadNovels]);
+
+  // 创建新小说
+  const handleCreateNovel = async () => {
+    try {
+      const novel = await novelsApi.create({
+        title: "未命名小说",
+        description: "开始你的创作之旅...",
+      });
+      toast.success("小说创建成功！");
+      router.push(`/novels/editor?id=${novel.id}`);
+    } catch (error) {
+      console.error("创建小说失败:", error);
+      const message = error instanceof Error ? error.message : "创建小说失败";
+      toast.error(message);
+    }
+  };
+
+  const totalPages = Math.ceil(total / itemsPerPage);
 
   return (
     <div className="flex flex-col dark:bg-gray-900 transition-colors h-auto">
       {/* 顶部区域 */}
       <section className="relative flex justify-center items-center px-6 pt-6 pb-4 flex-shrink-0">
-        <Button className="absolute cursor-pointer left-6 bg-black dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700">
+        <Button
+          onClick={handleCreateNovel}
+          className="absolute cursor-pointer left-6 bg-black dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700"
+        >
           <Plus className="w-4 h-4" />
           新建小说
         </Button>
 
-        <SegmentedControl defaultValue="option1" className="w-fit">
-          <SegmentedControlItem value="option1">全部</SegmentedControlItem>
-          <SegmentedControlItem value="option2">我的小说</SegmentedControlItem>
-          <SegmentedControlItem value="option3">收藏</SegmentedControlItem>
+        <SegmentedControl
+          value={filter}
+          onValueChange={(value) => setFilter(value as "all" | "draft" | "published")}
+          className="w-fit"
+        >
+          <SegmentedControlItem value="all">全部</SegmentedControlItem>
+          <SegmentedControlItem value="draft">草稿</SegmentedControlItem>
+          <SegmentedControlItem value="published">已发布</SegmentedControlItem>
         </SegmentedControl>
       </section>
 
       {/* 小说列表区域 */}
       <div className="flex-1 px-6 py-2">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {currentNovels.map((novel) => (
-            <div
-              key={novel.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow border border-gray-100 dark:border-gray-700"
-            >
-              {/* 封面图片 */}
-              <div className="relative h-[280px] overflow-hidden">
-                <img src={novel.coverImage} alt={novel.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute top-2 left-2">
-                  <span className="inline-block px-2.5 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-xs font-medium text-gray-700 dark:text-gray-200 rounded-full">
-                    {novel.category}
-                  </span>
-                </div>
-              </div>
-
-              {/* 内容区域 */}
-              <div className="p-4">
-                {/* 标题 */}
-                <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">{novel.title}</h3>
-
-                {/* 描述 */}
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{novel.description}</p>
-
-                {/* 标签 */}
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  {novel.tags.slice(0, 3).map((tag) => (
-                    <span key={tag} className="px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-md">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* 统计信息 */}
-                <div className="flex items-center justify-between mb-3 text-xs text-gray-500 dark:text-gray-400">
-                  <div className="flex items-center gap-2">
-                    <span>{novel.chapters} 章</span>
-                    <span>·</span>
-                    <span>{novel.wordCount}</span>
-                  </div>
-                  <span className="text-gray-500 dark:text-gray-400">{novel.updatedAt}</span>
-                </div>
-
-                {/* 开始创作按钮 */}
-                <Button
-                  className="w-full bg-black dark:bg-gray-700 text-white h-8 text-sm hover:bg-gray-800 dark:hover:bg-gray-600"
-                  onClick={() => {
-                    router.push("/novels/editor");
-                  }}
-                >
-                  开始创作
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* 空状态 */}
-        {currentNovels.length === 0 && (
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-gray-500 dark:text-gray-400">加载中...</div>
+          </div>
+        ) : novels.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
             <p className="text-lg mb-4">还没有小说</p>
-            <Button className="bg-black dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700">
+            <Button
+              onClick={handleCreateNovel}
+              className="bg-black dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700"
+            >
               <Plus className="w-4 h-4" />
               创建第一部小说
             </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {novels.map((novel) => (
+              <div
+                key={novel.id}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow border border-gray-100 dark:border-gray-700"
+              >
+                {/* 封面图片 */}
+                <div className="relative h-[280px] overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/20 dark:from-purple-500/10 dark:to-pink-500/10">
+                  {novel.cover ? (
+                    <Image src={novel.cover} alt={novel.title} fill className="object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-6xl opacity-20">📖</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  {novel.category && (
+                    <div className="absolute top-2 left-2">
+                      <span className="inline-block px-2.5 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-xs font-medium text-gray-700 dark:text-gray-200 rounded-full">
+                        {novel.category}
+                      </span>
+                    </div>
+                  )}
+                  <div className="absolute top-2 right-2">
+                    <span
+                      className={`inline-block px-2.5 py-1 backdrop-blur-sm text-xs font-medium rounded-full ${
+                        novel.status === "published"
+                          ? "bg-green-500/90 text-white"
+                          : "bg-gray-500/90 text-white"
+                      }`}
+                    >
+                      {novel.status === "published" ? "已发布" : "草稿"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 内容区域 */}
+                <div className="p-4">
+                  {/* 标题 */}
+                  <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
+                    {novel.title}
+                  </h3>
+
+                  {/* 描述 */}
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                    {novel.description || "暂无简介"}
+                  </p>
+
+                  {/* 标签 */}
+                  {novel.tags && novel.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {novel.tags.slice(0, 3).map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-md"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 统计信息 */}
+                  <div className="flex items-center justify-between mb-3 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-2">
+                      <span>{novel.chapter_count || 0} 章</span>
+                      <span>·</span>
+                      <span>{(novel.word_count / 1000).toFixed(1)}k 字</span>
+                    </div>
+                    <span className="text-gray-500 dark:text-gray-400">
+                      {new Date(novel.updated_at).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  {/* 开始创作按钮 */}
+                  <Button
+                    className="w-full bg-black dark:bg-gray-700 text-white h-8 text-sm hover:bg-gray-800 dark:hover:bg-gray-600"
+                    onClick={() => {
+                      router.push(`/novels/editor?id=${novel.id}`);
+                    }}
+                  >
+                    开始创作
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -225,16 +208,26 @@ export default function Novels() {
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  className={
+                    currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"
+                  }
                 />
               </PaginationItem>
 
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
                 // 显示当前页、首页、末页以及当前页附近的页码
-                if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                if (
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1)
+                ) {
                   return (
                     <PaginationItem key={page}>
-                      <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer">
+                      <PaginationLink
+                        onClick={() => setCurrentPage(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                      >
                         {page}
                       </PaginationLink>
                     </PaginationItem>
@@ -252,7 +245,9 @@ export default function Novels() {
               <PaginationItem>
                 <PaginationNext
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  className={
+                    currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"
+                  }
                 />
               </PaginationItem>
             </PaginationContent>

@@ -1,36 +1,19 @@
 import { supabase } from "../supabase";
-
-export interface Novel {
-  id: string;
-  title: string;
-  description?: string;
-  cover?: string;
-  category?: string;
-  tags?: string[];
-  word_count?: number;
-  chapters?: number;
-  status?: "draft" | "published" | "archived";
-  created_at?: string;
-  updated_at?: string;
-  user_id?: string;
-}
-
-export interface CreateNovelDto {
-  title: string;
-  description?: string;
-  category?: string;
-  tags?: string[];
-}
-
-export interface UpdateNovelDto extends Partial<CreateNovelDto> {
-  id: string;
-}
+import type {
+  Novel,
+  CreateNovelDto,
+  UpdateNovelDto,
+  PaginationParams,
+  PaginationResult,
+} from "./types";
 
 export const novelsApi = {
   /**
    * 获取小说列表
    */
-  getList: async (params?: { page?: number; pageSize?: number; status?: string }) => {
+  getList: async (
+    params?: PaginationParams & { status?: string }
+  ): Promise<PaginationResult<Novel>> => {
     const page = params?.page || 1;
     const pageSize = params?.pageSize || 10;
     const from = (page - 1) * pageSize;
@@ -51,7 +34,7 @@ export const novelsApi = {
     if (error) throw error;
 
     return {
-      data,
+      data: data || [],
       total: count || 0,
       page,
       pageSize,
@@ -61,7 +44,7 @@ export const novelsApi = {
   /**
    * 获取小说详情
    */
-  getById: async (id: string) => {
+  getById: async (id: string): Promise<Novel> => {
     const { data, error } = await supabase.from("novels").select("*").eq("id", id).single();
 
     if (error) throw error;
@@ -71,12 +54,20 @@ export const novelsApi = {
   /**
    * 创建小说
    */
-  create: async (novelData: CreateNovelDto) => {
+  create: async (novelData: CreateNovelDto): Promise<Novel> => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) throw new Error("未登录");
+
     const { data, error } = await supabase
       .from("novels")
       .insert({
+        user_id: user.id,
         title: novelData.title,
         description: novelData.description,
+        cover: novelData.cover,
         category: novelData.category,
         tags: novelData.tags,
         status: "draft",
@@ -91,7 +82,7 @@ export const novelsApi = {
   /**
    * 更新小说
    */
-  update: async (novelData: UpdateNovelDto) => {
+  update: async (novelData: UpdateNovelDto): Promise<Novel> => {
     const { id, ...updates } = novelData;
 
     const { data, error } = await supabase
@@ -106,11 +97,59 @@ export const novelsApi = {
   },
 
   /**
-   * 删除小说
+   * 删除小说（软删除 - 归档）
    */
-  delete: async (id: string) => {
+  archive: async (id: string): Promise<Novel> => {
+    const { data, error } = await supabase
+      .from("novels")
+      .update({ status: "archived" })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * 删除小说（硬删除）
+   */
+  delete: async (id: string): Promise<void> => {
     const { error } = await supabase.from("novels").delete().eq("id", id);
 
     if (error) throw error;
+  },
+
+  /**
+   * 发布小说
+   */
+  publish: async (id: string): Promise<Novel> => {
+    const { data, error } = await supabase
+      .from("novels")
+      .update({
+        status: "published",
+        published_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * 取消发布
+   */
+  unpublish: async (id: string): Promise<Novel> => {
+    const { data, error } = await supabase
+      .from("novels")
+      .update({ status: "draft" })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   },
 };

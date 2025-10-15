@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { authApi } from "@/lib/api";
 
 const testimonials = [
   {
@@ -29,33 +32,24 @@ const testimonials = [
 // 注册表单验证 schema
 const registerSchema = z.object({
   email: z.string().min(1, "请输入邮箱").email("请输入有效的邮箱地址"),
-  verificationCode: z.string().min(6, "验证码为6位数字").max(6, "验证码为6位数字"),
-  password: z
-    .string()
-    .min(8, "密码至少需要8个字符")
-    .regex(/[A-Z]/, "密码必须包含至少一个大写字母")
-    .regex(/[a-z]/, "密码必须包含至少一个小写字母")
-    .regex(/[0-9]/, "密码必须包含至少一个数字"),
+  password: z.string().min(6, "密码至少需要6个字符"),
+  name: z.string().optional(),
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const [countdown, setCountdown] = useState(0);
-  const [isSending, setIsSending] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
-
-  const email = watch("email");
 
   const nextTestimonial = () => {
     setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
@@ -70,57 +64,24 @@ export default function RegisterPage() {
     console.log("Google signup");
   };
 
-  const handleSendCode = async () => {
-    if (!email || !email.includes("@") || countdown > 0) return;
-
-    setIsSending(true);
-    try {
-      // TODO: 调用发送验证码接口
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 模拟API调用
-      console.log("发送验证码到:", email);
-
-      // 开始60秒倒计时
-      setCountdown(60);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      timerRef.current = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            if (timerRef.current) {
-              clearInterval(timerRef.current);
-              timerRef.current = null;
-            }
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } catch (error) {
-      console.error("发送验证码失败:", error);
-    } finally {
-      setIsSending(false);
-    }
-  };
-
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // TODO: 实现注册逻辑
-      console.log("Register submitted", data);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 模拟API调用
+      setIsLoading(true);
+      await authApi.register({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+      });
+      toast.success("注册成功！请登录");
+      router.push("/auth/login");
     } catch (error) {
       console.error("注册失败:", error);
+      const message = error instanceof Error ? error.message : "注册失败，请重试";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  // 清理定时器
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
 
   return (
     <main className="h-screen flex overflow-hidden">
@@ -190,6 +151,28 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              {/* 用户名输入框（可选） */}
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  用户名（可选）
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  {...register("name")}
+                  placeholder="请输入用户名"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition-all"
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+
               {/* Email 输入框 */}
               <div>
                 <label
@@ -212,39 +195,6 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              {/* 验证码输入框 */}
-              <div>
-                <label
-                  htmlFor="verificationCode"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  验证码
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    id="verificationCode"
-                    type="text"
-                    {...register("verificationCode")}
-                    placeholder="请输入6位验证码"
-                    maxLength={6}
-                    className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleSendCode}
-                    disabled={!email || !email.includes("@") || countdown > 0 || isSending}
-                    className="px-4 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white disabled:text-gray-500 dark:disabled:text-gray-400 font-medium rounded-lg transition-colors whitespace-nowrap disabled:cursor-not-allowed"
-                  >
-                    {isSending ? "发送中..." : countdown > 0 ? `${countdown}秒` : "发送验证码"}
-                  </button>
-                </div>
-                {errors.verificationCode && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {errors.verificationCode.message}
-                  </p>
-                )}
-              </div>
-
               {/* Password 输入框 */}
               <div>
                 <label
@@ -257,7 +207,7 @@ export default function RegisterPage() {
                   id="password"
                   type="password"
                   {...register("password")}
-                  placeholder="至少8位，包含大小写字母和数字"
+                  placeholder="请输入密码（至少6位）"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition-all"
                 />
                 {errors.password && (
@@ -265,18 +215,15 @@ export default function RegisterPage() {
                     {errors.password.message}
                   </p>
                 )}
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  密码必须包含至少8个字符，包括大写字母、小写字母和数字
-                </p>
               </div>
 
               {/* 注册按钮 */}
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isLoading}
                 className="w-full px-4 py-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "注册中..." : "注册"}
+                {isLoading ? "注册中..." : "注册"}
               </button>
 
               {/* 登录链接 */}

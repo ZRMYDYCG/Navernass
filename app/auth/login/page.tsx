@@ -8,9 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { authApi } from "@/lib/api/auth";
+import { authApi } from "@/lib/api";
 
 const testimonials = [
   {
@@ -41,6 +40,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const {
@@ -51,22 +51,6 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       rememberMe: false,
-    },
-  });
-
-  // 登录 mutation
-  const loginMutation = useMutation({
-    mutationFn: authApi.login,
-    onSuccess: () => {
-      // 显示成功提示
-      toast.success("登录成功！");
-
-      // 跳转到首页
-      router.push("/");
-    },
-    onError: (error) => {
-      // Axios 拦截器已经显示了错误 toast
-      console.error("登录失败:", error);
     },
   });
 
@@ -83,12 +67,22 @@ export default function LoginPage() {
     console.log("Google login");
   };
 
-  const onSubmit = (data: LoginFormData) => {
-    loginMutation.mutate({
-      email: data.email,
-      password: data.password,
-      rememberMe: data.rememberMe,
-    });
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      setIsLoading(true);
+      await authApi.login({
+        email: data.email,
+        password: data.password,
+      });
+      toast.success("登录成功！");
+      router.push("/home");
+    } catch (error) {
+      console.error("登录失败:", error);
+      const message = error instanceof Error ? error.message : "登录失败，请检查邮箱和密码";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -224,10 +218,10 @@ export default function LoginPage() {
               {/* 登录按钮 */}
               <button
                 type="submit"
-                disabled={loginMutation.isPending}
+                disabled={isLoading}
                 className="w-full px-4 py-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loginMutation.isPending ? "登录中..." : "登录"}
+                {isLoading ? "登录中..." : "登录"}
               </button>
 
               {/* 注册链接 */}
