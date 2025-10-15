@@ -24,8 +24,8 @@ export function Navbar() {
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/assets/svg/logo-eye.svg"
-              width={32}
-              height={32}
+              width={15}
+              height={15}
               alt="Narraverse"
               className="dark:invert"
             />

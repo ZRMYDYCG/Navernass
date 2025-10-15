@@ -225,6 +225,12 @@ export default function NovelsEdit() {
                     <span className="flex items-center gap-1">
                       <Kbd>Ctrl</Kbd>
                       <Kbd>+</Kbd>
+                      <Kbd>S</Kbd>
+                      <span>保存内容</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Kbd>Ctrl</Kbd>
+                      <Kbd>+</Kbd>
                       <Kbd>E</Kbd>
                       <span>切换左侧面板</span>
                     </span>

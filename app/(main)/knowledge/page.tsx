@@ -238,17 +238,29 @@ export default function Knowledge() {
 
   // 保存文件内容
   const handleSaveContent = async (content: string) => {
-    if (!selectedItem || !selectedItemData || selectedItemData.type !== "file") return;
+    if (!selectedItem || !selectedItemData || selectedItemData.type !== "file") {
+      console.warn("无法保存：未选中文件或选中的不是文件类型");
+      return;
+    }
 
     try {
+      console.log("开始保存文件内容...", { id: selectedItem, contentLength: content.length });
       await knowledgeItemsApi.update({
         id: selectedItem,
         content,
       });
-      // 不显示保存成功提示，因为是自动保存
+      console.log("✅ 内容已自动保存");
     } catch (error) {
-      console.error("保存失败:", error);
-      toast.error("保存失败");
+      console.error("❌ 保存失败:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" && error !== null
+            ? JSON.stringify(error)
+            : typeof error === "string"
+              ? error
+              : "保存失败，请稍后重试";
+      toast.error(errorMessage);
     }
   };
 

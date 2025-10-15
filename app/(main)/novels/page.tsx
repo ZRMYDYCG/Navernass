@@ -26,19 +26,15 @@ export default function Novels() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "draft" | "published">("all");
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [newNovelTitle, setNewNovelTitle] = useState("");
-  const [newNovelDescription, setNewNovelDescription] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingNovel, setEditingNovel] = useState<Novel | null>(null);
+  const [novelTitle, setNovelTitle] = useState("");
+  const [novelDescription, setNovelDescription] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(
     null
   );
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingNovel, setEditingNovel] = useState<Novel | null>(null);
-  const [editNovelTitle, setEditNovelTitle] = useState("");
-  const [editNovelDescription, setEditNovelDescription] = useState("");
-  const [isUpdating, setIsUpdating] = useState(false);
   const itemsPerPage = 8;
 
   // 加载小说列表
@@ -78,34 +74,10 @@ export default function Novels() {
 
   // 打开创建对话框
   const handleOpenCreateDialog = () => {
-    setNewNovelTitle("");
-    setNewNovelDescription("");
-    setCreateDialogOpen(true);
-  };
-
-  // 创建新小说
-  const handleCreateNovel = async () => {
-    if (!newNovelTitle.trim()) {
-      toast.error("请输入小说标题");
-      return;
-    }
-
-    try {
-      setIsCreating(true);
-      const novel = await novelsApi.create({
-        title: newNovelTitle.trim(),
-        description: newNovelDescription.trim() || undefined,
-      });
-      toast.success("小说创建成功！");
-      setCreateDialogOpen(false);
-      router.push(`/novels/editor?id=${novel.id}`);
-    } catch (error) {
-      console.error("创建小说失败:", error);
-      const message = error instanceof Error ? error.message : "创建小说失败";
-      toast.error(message);
-    } finally {
-      setIsCreating(false);
-    }
+    setEditingNovel(null);
+    setNovelTitle("");
+    setNovelDescription("");
+    setDialogOpen(true);
   };
 
   // 删除小说
@@ -130,45 +102,57 @@ export default function Novels() {
     router.push(`/novels/editor?id=${novel.id}`);
   };
 
-  // 编辑小说信息
+  // 打开编辑对话框
   const handleEditNovel = (novel: Novel) => {
     setEditingNovel(novel);
-    setEditNovelTitle(novel.title);
-    setEditNovelDescription(novel.description || "");
-    setEditDialogOpen(true);
+    setNovelTitle(novel.title);
+    setNovelDescription(novel.description || "");
+    setDialogOpen(true);
   };
 
-  // 更新小说信息
-  const handleUpdateNovel = async () => {
-    if (!editingNovel) return;
-    if (!editNovelTitle.trim()) {
+  // 保存小说（创建或更新）
+  const handleSaveNovel = async () => {
+    if (!novelTitle.trim()) {
       toast.error("请输入小说标题");
       return;
     }
 
     try {
-      setIsUpdating(true);
-      await novelsApi.update({
-        id: editingNovel.id,
-        title: editNovelTitle.trim(),
-        description: editNovelDescription.trim() || undefined,
-      });
-      toast.success("小说信息已更新！");
-      setEditDialogOpen(false);
-      loadNovels();
+      setIsSaving(true);
+      if (editingNovel) {
+        // 更新模式
+        await novelsApi.update({
+          id: editingNovel.id,
+          title: novelTitle.trim(),
+          description: novelDescription.trim() || undefined,
+        });
+        toast.success("小说信息已更新！");
+        setDialogOpen(false);
+        loadNovels();
+      } else {
+        // 创建模式
+        const novel = await novelsApi.create({
+          title: novelTitle.trim(),
+          description: novelDescription.trim() || undefined,
+        });
+        toast.success("小说创建成功！");
+        setDialogOpen(false);
+        router.push(`/novels/editor?id=${novel.id}`);
+      }
     } catch (error) {
-      console.error("更新小说失败:", error);
-      const message = error instanceof Error ? error.message : "更新小说失败";
+      console.error(editingNovel ? "更新小说失败:" : "创建小说失败:", error);
+      const message =
+        error instanceof Error ? error.message : editingNovel ? "更新小说失败" : "创建小说失败";
       toast.error(message);
     } finally {
-      setIsUpdating(false);
+      setIsSaving(false);
     }
   };
 
   const totalPages = Math.ceil(total / itemsPerPage);
 
   return (
-    <div className="flex flex-col dark:bg-gray-900 transition-colors h-auto">
+    <div className="flex flex-col dark:bg-gray-900 transition-colors h-full">
       {/* 顶部区域 */}
       <section className="relative flex justify-center items-center px-6 pt-6 pb-4 flex-shrink-0">
         <Button
@@ -409,14 +393,14 @@ export default function Novels() {
         </div>
       )}
 
-      {/* 创建小说对话框 */}
-      <Dialog.Root open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+      {/* 创建/编辑小说对话框 */}
+      <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
           <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6">
               <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                创建新小说
+                {editingNovel ? "编辑小说信息" : "创建新小说"}
               </Dialog.Title>
 
               <div className="space-y-4">
@@ -427,8 +411,8 @@ export default function Novels() {
                   </label>
                   <input
                     type="text"
-                    value={newNovelTitle}
-                    onChange={(e) => setNewNovelTitle(e.target.value)}
+                    value={novelTitle}
+                    onChange={(e) => setNovelTitle(e.target.value)}
                     placeholder="请输入小说标题"
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
                     autoFocus
@@ -441,8 +425,8 @@ export default function Novels() {
                     简介（可选）
                   </label>
                   <textarea
-                    value={newNovelDescription}
-                    onChange={(e) => setNewNovelDescription(e.target.value)}
+                    value={novelDescription}
+                    onChange={(e) => setNovelDescription(e.target.value)}
                     placeholder="请输入小说简介"
                     rows={3}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 resize-none"
@@ -456,82 +440,23 @@ export default function Novels() {
                   <Button
                     type="button"
                     className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
-                    disabled={isCreating}
+                    disabled={isSaving}
                   >
                     取消
                   </Button>
                 </Dialog.Close>
                 <Button
-                  onClick={handleCreateNovel}
+                  onClick={handleSaveNovel}
                   className="flex-1 bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
-                  disabled={isCreating || !newNovelTitle.trim()}
+                  disabled={isSaving || !novelTitle.trim()}
                 >
-                  {isCreating ? "创建中..." : "创建"}
-                </Button>
-              </div>
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-
-      {/* 编辑小说对话框 */}
-      <Dialog.Root open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
-          <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-              <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                编辑小说信息
-              </Dialog.Title>
-
-              <div className="space-y-4">
-                {/* 标题输入 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    小说标题 <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={editNovelTitle}
-                    onChange={(e) => setEditNovelTitle(e.target.value)}
-                    placeholder="请输入小说标题"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
-                    autoFocus
-                  />
-                </div>
-
-                {/* 描述输入 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    简介（可选）
-                  </label>
-                  <textarea
-                    value={editNovelDescription}
-                    onChange={(e) => setEditNovelDescription(e.target.value)}
-                    placeholder="请输入小说简介"
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 resize-none"
-                  />
-                </div>
-              </div>
-
-              {/* 按钮组 */}
-              <div className="flex gap-3 mt-6">
-                <Dialog.Close asChild>
-                  <Button
-                    type="button"
-                    className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
-                    disabled={isUpdating}
-                  >
-                    取消
-                  </Button>
-                </Dialog.Close>
-                <Button
-                  onClick={handleUpdateNovel}
-                  className="flex-1 bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
-                  disabled={isUpdating || !editNovelTitle.trim()}
-                >
-                  {isUpdating ? "保存中..." : "保存"}
+                  {isSaving
+                    ? editingNovel
+                      ? "保存中..."
+                      : "创建中..."
+                    : editingNovel
+                      ? "保存"
+                      : "创建"}
                 </Button>
               </div>
             </div>

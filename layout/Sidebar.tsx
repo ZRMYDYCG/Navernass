@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Book, Database, Trash2 } from "lucide-react";
+import { Book, Bot, Database, Trash2 } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import Image from "next/image";
 
@@ -10,6 +10,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   const menuItems = [
+    { path: "/home", label: "新建对话", icon: Bot },
     { path: "/novels", label: "我的小说", icon: Book },
     { path: "/knowledge", label: "知识库", icon: Database },
   ];

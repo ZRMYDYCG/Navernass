@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { X, ChevronRight } from "lucide-react";
 import { TiptapEditor } from "@/components/tiptap";
 import { chaptersApi, type Chapter } from "@/lib/api";
@@ -34,6 +34,8 @@ export function EditorContent({
   const [charCount, setCharCount] = useState(0);
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState(true);
+  const editorContentRef = useRef<string>("");
+  const isSavingRef = useRef(false);
 
   // 加载章节内容
   useEffect(() => {
@@ -57,6 +59,7 @@ export function EditorContent({
   }, [chapterId]);
 
   const handleUpdate = async (content: string) => {
+    editorContentRef.current = content;
     if (!chapterId) return;
 
     try {
@@ -72,10 +75,44 @@ export function EditorContent({
     }
   };
 
+  // 手动保存
+  const handleManualSave = useCallback(async () => {
+    if (!chapterId || isSavingRef.current) return;
+
+    try {
+      isSavingRef.current = true;
+      setIsSaving(true);
+      await chaptersApi.update(chapterId, { content: editorContentRef.current });
+      setLastSaved(new Date());
+      toast.success("保存成功", { duration: 1500 });
+    } catch (error) {
+      console.error("保存失败:", error);
+      const message = error instanceof Error ? error.message : "保存失败";
+      toast.error(message);
+    } finally {
+      setIsSaving(false);
+      isSavingRef.current = false;
+    }
+  }, [chapterId]);
+
   const handleStatsChange = (stats: { words: number; characters: number }) => {
     setWordCount(stats.words);
     setCharCount(stats.characters);
   };
+
+  // 监听 Ctrl+S 快捷键
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+S (Windows/Linux) 或 Cmd+S (Mac)
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        handleManualSave();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleManualSave]);
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-900">
