@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
@@ -17,6 +17,8 @@ import {
 import { novelsApi, type Novel } from "@/lib/api";
 import { toast } from "sonner";
 import Image from "next/image";
+import * as Dialog from "@radix-ui/react-dialog";
+import * as Popover from "@radix-ui/react-popover";
 
 export default function Novels() {
   const router = useRouter();
@@ -25,6 +27,10 @@ export default function Novels() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "draft" | "published">("all");
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newNovelTitle, setNewNovelTitle] = useState("");
+  const [newNovelDescription, setNewNovelDescription] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
   const itemsPerPage = 8;
 
   // 加载小说列表
@@ -51,20 +57,58 @@ export default function Novels() {
     loadNovels();
   }, [loadNovels]);
 
+  // 打开创建对话框
+  const handleOpenCreateDialog = () => {
+    setNewNovelTitle("");
+    setNewNovelDescription("");
+    setCreateDialogOpen(true);
+  };
+
   // 创建新小说
   const handleCreateNovel = async () => {
+    if (!newNovelTitle.trim()) {
+      toast.error("请输入小说标题");
+      return;
+    }
+
     try {
+      setIsCreating(true);
       const novel = await novelsApi.create({
-        title: "未命名小说",
-        description: "开始你的创作之旅...",
+        title: newNovelTitle.trim(),
+        description: newNovelDescription.trim() || undefined,
       });
       toast.success("小说创建成功！");
+      setCreateDialogOpen(false);
       router.push(`/novels/editor?id=${novel.id}`);
     } catch (error) {
       console.error("创建小说失败:", error);
       const message = error instanceof Error ? error.message : "创建小说失败";
       toast.error(message);
+    } finally {
+      setIsCreating(false);
     }
+  };
+
+  // 删除小说
+  const handleDeleteNovel = async (novel: Novel) => {
+    if (!confirm(`确定要删除小说《${novel.title}》吗？`)) {
+      return;
+    }
+
+    try {
+      await novelsApi.delete(novel.id);
+      toast.success("小说已删除");
+      loadNovels();
+    } catch (error) {
+      console.error("删除小说失败:", error);
+      const message = error instanceof Error ? error.message : "删除小说失败";
+      toast.error(message);
+    }
+  };
+
+  // 编辑小说
+  const handleEditNovel = (novel: Novel) => {
+    router.push(`/novels/editor?id=${novel.id}`);
   };
 
   const totalPages = Math.ceil(total / itemsPerPage);
@@ -74,7 +118,7 @@ export default function Novels() {
       {/* 顶部区域 */}
       <section className="relative flex justify-center items-center px-6 pt-6 pb-4 flex-shrink-0">
         <Button
-          onClick={handleCreateNovel}
+          onClick={handleOpenCreateDialog}
           className="absolute cursor-pointer left-6 bg-black dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700"
         >
           <Plus className="w-4 h-4" />
@@ -102,7 +146,7 @@ export default function Novels() {
           <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
             <p className="text-lg mb-4">还没有小说</p>
             <Button
-              onClick={handleCreateNovel}
+              onClick={handleOpenCreateDialog}
               className="bg-black dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700"
             >
               <Plus className="w-4 h-4" />
@@ -114,8 +158,39 @@ export default function Novels() {
             {novels.map((novel) => (
               <div
                 key={novel.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow border border-gray-100 dark:border-gray-700"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow border border-gray-100 dark:border-gray-700 relative"
               >
+                {/* 右键菜单 */}
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <button className="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-colors">
+                      <MoreVertical className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                    </button>
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content
+                      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+                      sideOffset={5}
+                      align="end"
+                    >
+                      <button
+                        onClick={() => handleEditNovel(novel)}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                      >
+                        <Edit className="w-4 h-4" />
+                        编辑
+                      </button>
+                      <button
+                        onClick={() => handleDeleteNovel(novel)}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        删除
+                      </button>
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+
                 {/* 封面图片 */}
                 <div className="relative h-[280px] overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/20 dark:from-purple-500/10 dark:to-pink-500/10">
                   {novel.cover ? (
@@ -133,7 +208,7 @@ export default function Novels() {
                       </span>
                     </div>
                   )}
-                  <div className="absolute top-2 right-2">
+                  <div className="absolute top-2 left-2">
                     <span
                       className={`inline-block px-2.5 py-1 backdrop-blur-sm text-xs font-medium rounded-full ${
                         novel.status === "published"
@@ -254,6 +329,71 @@ export default function Novels() {
           </Pagination>
         </div>
       )}
+
+      {/* 创建小说对话框 */}
+      <Dialog.Root open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
+          <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+              <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                创建新小说
+              </Dialog.Title>
+
+              <div className="space-y-4">
+                {/* 标题输入 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    小说标题 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newNovelTitle}
+                    onChange={(e) => setNewNovelTitle(e.target.value)}
+                    placeholder="请输入小说标题"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
+                    autoFocus
+                  />
+                </div>
+
+                {/* 描述输入 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    简介（可选）
+                  </label>
+                  <textarea
+                    value={newNovelDescription}
+                    onChange={(e) => setNewNovelDescription(e.target.value)}
+                    placeholder="请输入小说简介"
+                    rows={3}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* 按钮组 */}
+              <div className="flex gap-3 mt-6">
+                <Dialog.Close asChild>
+                  <Button
+                    type="button"
+                    className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
+                    disabled={isCreating}
+                  >
+                    取消
+                  </Button>
+                </Dialog.Close>
+                <Button
+                  onClick={handleCreateNovel}
+                  className="flex-1 bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+                  disabled={isCreating || !newNovelTitle.trim()}
+                >
+                  {isCreating ? "创建中..." : "创建"}
+                </Button>
+              </div>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }

@@ -1,20 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, ChevronRight } from "lucide-react";
 import { TiptapEditor } from "@/components/tiptap";
+import { chaptersApi, type Chapter } from "@/lib/api";
+import { toast } from "sonner";
 
 interface Tab {
-  id: number;
+  id: string;
   title: string;
 }
 
 interface EditorContentProps {
   openTabs: Tab[];
-  activeTab: number;
-  onTabChange: (id: number) => void;
-  onTabClose: (id: number) => void;
+  activeTab: string;
+  onTabChange: (id: string) => void;
+  onTabClose: (id: string) => void;
   novelTitle: string;
   chapterTitle: string;
-  wordCount: string;
+  chapterId: string;
 }
 
 export function EditorContent({
@@ -24,19 +26,50 @@ export function EditorContent({
   onTabClose,
   novelTitle,
   chapterTitle,
+  chapterId,
 }: EditorContentProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
+  const [chapter, setChapter] = useState<Chapter | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleUpdate = async () => {
-    setIsSaving(true);
-    // 这里实现保存逻辑
-    // TODO: 使用 content 参数保存数据
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setIsSaving(false);
-    setLastSaved(new Date());
+  // 加载章节内容
+  useEffect(() => {
+    if (!chapterId) return;
+
+    const loadChapter = async () => {
+      try {
+        setLoading(true);
+        const data = await chaptersApi.getById(chapterId);
+        setChapter(data);
+      } catch (error) {
+        console.error("加载章节失败:", error);
+        const message = error instanceof Error ? error.message : "加载章节失败";
+        toast.error(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadChapter();
+  }, [chapterId]);
+
+  const handleUpdate = async (content: string) => {
+    if (!chapterId) return;
+
+    try {
+      setIsSaving(true);
+      await chaptersApi.update(chapterId, { content });
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error("保存失败:", error);
+      const message = error instanceof Error ? error.message : "保存失败";
+      toast.error(message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleStatsChange = (stats: { words: number; characters: number }) => {
@@ -74,22 +107,23 @@ export function EditorContent({
 
       {/* 编辑器内容区域 */}
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full p-8">
-        <TiptapEditor
-          content={`
-            <h1>${chapterTitle}</h1>
-            <p>星际殖民地的晨曦透过巨大的圆顶玻璃洒进城市，艾伦站在高塔之上俯瞰着这座人类在遥远星球上建立的最后据点。远处的地平线上，三颗恒星正在缓缓升起，将天空染成了奇异的紫红色。</p>
-            <p>"艾伦，我们又收到了来自主星的通讯请求。"身后传来助手的声音，打断了他的思绪。</p>
-            <p>他转过身，看着面前这个年轻的女孩。ARIA，一个被设计成拥有完美外表的人工智能助手，却拥有着人类难以企及的计算能力。</p>
-            <p>"告诉他们，"艾伦淡淡地说，"我们不需要主星的干涉。这里已经是一个独立的世界了。"</p>
-          `}
-          placeholder="开始写作..."
-          onUpdate={handleUpdate}
-          onStatsChange={handleStatsChange}
-          autoSave={true}
-          autoSaveDelay={3000}
-          className="max-w-4xl mx-auto"
-          editable={true}
-        />
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-gray-500 dark:text-gray-400">加载中...</div>
+          </div>
+        ) : (
+          <TiptapEditor
+            key={chapterId}
+            content={chapter?.content || `<h1>${chapterTitle}</h1><p>开始写作...</p>`}
+            placeholder="开始写作..."
+            onUpdate={handleUpdate}
+            onStatsChange={handleStatsChange}
+            autoSave={true}
+            autoSaveDelay={3000}
+            className="max-w-4xl mx-auto"
+            editable={true}
+          />
+        )}
       </div>
 
       {/* 底部状态栏 */}

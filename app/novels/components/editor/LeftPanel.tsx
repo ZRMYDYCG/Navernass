@@ -9,7 +9,7 @@ import { MaterialsTab } from "./MaterialsTab";
 type LeftTabType = "chapters" | "workspace" | "knowledge" | "materials";
 
 interface Chapter {
-  id: number;
+  id: string;
   title: string;
   wordCount: string;
   status: string;
@@ -17,11 +17,19 @@ interface Chapter {
 
 interface LeftPanelProps {
   chapters: Chapter[];
-  selectedChapter: number | null;
-  onSelectChapter: (id: number) => void;
+  selectedChapter: string | null;
+  onSelectChapter: (id: string) => void;
+  onCreateChapter?: () => void;
+  onCreateVolume?: () => void;
 }
 
-export function LeftPanel({ chapters, selectedChapter, onSelectChapter }: LeftPanelProps) {
+export function LeftPanel({
+  chapters,
+  selectedChapter,
+  onSelectChapter,
+  onCreateChapter,
+  onCreateVolume,
+}: LeftPanelProps) {
   const [leftTab, setLeftTab] = useState<LeftTabType>("chapters");
 
   return (
@@ -136,6 +144,8 @@ export function LeftPanel({ chapters, selectedChapter, onSelectChapter }: LeftPa
             chapters={chapters}
             selectedChapter={selectedChapter}
             onSelectChapter={onSelectChapter}
+            onCreateChapter={onCreateChapter}
+            onCreateVolume={onCreateVolume}
           />
         )}
 
