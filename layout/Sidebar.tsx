@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Gauge, Book, Database, Trash2 } from "lucide-react";
+import { Book, Database, Trash2 } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import Image from "next/image";
 
@@ -10,7 +10,6 @@ export function Sidebar() {
   const pathname = usePathname();
 
   const menuItems = [
-    { path: "/dashboard", label: "仪表盘", icon: Gauge },
     { path: "/novels", label: "我的小说", icon: Book },
     { path: "/knowledge", label: "知识库", icon: Database },
   ];
@@ -22,7 +21,7 @@ export function Sidebar() {
       <aside className="w-16 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors">
         {/* Logo 区域 */}
         <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
-          <Link href="/" className="text-2xl font-bold">
+          <Link href="/">
             <Image
               src="/assets/svg/logo-dark.svg"
               width={50}

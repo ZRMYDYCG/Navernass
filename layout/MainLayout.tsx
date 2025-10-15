@@ -4,16 +4,12 @@ import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
-
-export function MainLayout({ children }: MainLayoutProps) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isCompositionPage = pathname === "/composition";
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex h-screen bg-gray-50">
       {/* 侧边栏 */}
       <Sidebar />
 
