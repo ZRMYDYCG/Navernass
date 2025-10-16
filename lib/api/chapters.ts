@@ -69,6 +69,12 @@ export const chaptersApi = {
       updateData.word_count = updates.content.replace(/<[^>]*>/g, "").length;
     }
 
+    console.log("📝 准备更新章节到数据库:", {
+      chapterId: id,
+      contentLength: updates.content?.length || 0,
+      wordCount: updateData.word_count,
+    });
+
     const { data, error } = await supabase
       .from("chapters")
       .update(updateData)
@@ -76,7 +82,17 @@ export const chaptersApi = {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("❌ 数据库更新失败:", error);
+      throw error;
+    }
+
+    console.log("✅ 数据库更新成功:", {
+      chapterId: data.id,
+      contentLength: data.content?.length || 0,
+      wordCount: data.word_count,
+    });
+
     return data;
   },
 

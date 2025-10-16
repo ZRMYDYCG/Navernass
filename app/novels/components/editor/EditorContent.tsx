@@ -41,13 +41,25 @@ export function EditorContent({
   useEffect(() => {
     if (!chapterId) return;
 
+    // 重置状态
+    setLastSaved(null);
+    editorContentRef.current = "";
+
     const loadChapter = async () => {
       try {
         setLoading(true);
+        console.log("📖 开始加载章节:", chapterId);
         const data = await chaptersApi.getById(chapterId);
+        console.log("✅ 章节加载成功:", {
+          chapterId: data.id,
+          title: data.title,
+          contentLength: data.content?.length || 0,
+          wordCount: data.word_count,
+        });
         setChapter(data);
+        editorContentRef.current = data.content; // 初始化 ref
       } catch (error) {
-        console.error("加载章节失败:", error);
+        console.error("❌ 加载章节失败:", error);
         const message = error instanceof Error ? error.message : "加载章节失败";
         toast.error(message);
       } finally {
@@ -60,14 +72,18 @@ export function EditorContent({
 
   const handleUpdate = async (content: string) => {
     editorContentRef.current = content;
+    console.log("🔄 自动保存触发:", { chapterId, contentLength: content?.length || 0 });
     if (!chapterId) return;
 
     try {
       setIsSaving(true);
-      await chaptersApi.update(chapterId, { content });
+      await chaptersApi.update({ id: chapterId, content });
+      // 更新本地 chapter state，确保切换章节后能加载最新内容
+      setChapter((prev) => (prev ? { ...prev, content } : null));
       setLastSaved(new Date());
+      console.log("✅ 自动保存完成");
     } catch (error) {
-      console.error("保存失败:", error);
+      console.error("❌ 保存失败:", error);
       const message = error instanceof Error ? error.message : "保存失败";
       toast.error(message);
     } finally {
@@ -82,11 +98,19 @@ export function EditorContent({
     try {
       isSavingRef.current = true;
       setIsSaving(true);
-      await chaptersApi.update(chapterId, { content: editorContentRef.current });
+      const content = editorContentRef.current;
+      console.log("💾 手动保存触发 (Ctrl+S):", { chapterId, contentLength: content?.length || 0 });
+      await chaptersApi.update({
+        id: chapterId,
+        content,
+      });
+      // 更新本地 chapter state，确保切换章节后能加载最新内容
+      setChapter((prev) => (prev ? { ...prev, content } : null));
       setLastSaved(new Date());
+      console.log("✅ 手动保存完成");
       toast.success("保存成功", { duration: 1500 });
     } catch (error) {
-      console.error("保存失败:", error);
+      console.error("❌ 手动保存失败:", error);
       const message = error instanceof Error ? error.message : "保存失败";
       toast.error(message);
     } finally {
@@ -113,6 +137,25 @@ export function EditorContent({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleManualSave]);
+
+  // 页面刷新前提醒保存
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // 如果正在保存或者最近刚保存过（5秒内），则不提示
+      const timeSinceLastSave = lastSaved ? Date.now() - lastSaved.getTime() : Infinity;
+      if (isSaving || timeSinceLastSave < 5000) {
+        return;
+      }
+
+      // 如果有未保存的内容，提示用户
+      e.preventDefault();
+      e.returnValue = "您有未保存的内容，确定要离开吗？";
+      return e.returnValue;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isSaving, lastSaved]);
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-900">

@@ -5,7 +5,10 @@ import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
 import { FloatingMenu } from "./FloatingMenu";
+import { DragHandle } from "./DragHandle";
 
 export interface TiptapEditorStats {
   words: number;
@@ -51,6 +54,8 @@ export function TiptapEditor({
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
+      TextStyle,
+      Color,
     ],
     content,
     editable,
@@ -97,7 +102,6 @@ export function TiptapEditor({
   // 动态更新编辑器的可编辑状态
   useEffect(() => {
     if (editor) {
-      console.log("Setting editable to:", editable);
       editor.setEditable(editable);
       // 添加视觉提示 - 使用 setAttribute 避免 immutability 问题
       const editorElement = editor.view.dom;
@@ -114,8 +118,13 @@ export function TiptapEditor({
   }
 
   return (
-    <div className={className}>
-      {editable && <FloatingMenu editor={editor} />}
+    <div className={`${className} relative`}>
+      {editable && (
+        <>
+          <FloatingMenu editor={editor} />
+          <DragHandle editor={editor} />
+        </>
+      )}
       <EditorContent editor={editor} />
     </div>
   );

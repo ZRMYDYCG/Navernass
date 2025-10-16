@@ -27,6 +27,9 @@ export const novelsApi = {
 
     if (params?.status) {
       query = query.eq("status", params.status);
+    } else {
+      // 默认排除已归档的小说
+      query = query.neq("status", "archived");
     }
 
     const { data, error, count } = await query;
