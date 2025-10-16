@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Moon, Sun } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 
 const navLinks = [
   { name: "功能", href: "#features" },
@@ -15,6 +16,11 @@ const navLinks = [
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg">
@@ -63,6 +69,11 @@ export function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">切换主题</span>
+            </Button>
             <Button variant="ghost" asChild>
               <Link href="/auth/login">登录</Link>
             </Button>
@@ -114,6 +125,11 @@ export function Navbar() {
                 );
               })}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
+                <Button variant="ghost" onClick={toggleTheme} className="w-full justify-start">
+                  <Sun className="h-5 w-5 mr-2 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-5 w-5 ml-10 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <span className="ml-2">切换主题</span>
+                </Button>
                 <Button variant="ghost" asChild className="w-full">
                   <Link href="/auth/login">登录</Link>
                 </Button>

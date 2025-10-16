@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ImageCompare } from "@/components/ui/image-compare";
 import { ArrowRight, Sparkles, Star, GitFork } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -92,20 +93,15 @@ export function Hero() {
             </div>
           </div>
 
-          {/* 产品预览 */}
+          {/* 产品预览 - 明暗主题对比 */}
           <div className="mt-16 relative">
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none" />
-            <div className="relative rounded-xl overflow-hidden border border-border shadow-2xl bg-background">
-              <div className="aspect-video w-full bg-gradient-to-br from-muted/50 to-muted flex items-center justify-center">
-                <Image
-                  src="/assets/svg/logo-eye.svg"
-                  width={120}
-                  height={120}
-                  alt="Narraverse Preview"
-                  className="opacity-40"
-                />
-              </div>
-            </div>
+            <ImageCompare
+              beforeImage="/assets/svg/logo-light.svg"
+              afterImage="/assets/svg/logo-dark.svg"
+              beforeLabel="亮色主题"
+              afterLabel="暗色主题"
+              className="max-w-4xl mx-auto"
+            />
           </div>
         </div>
       </div>
