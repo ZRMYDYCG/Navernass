@@ -5,6 +5,7 @@ import { ImageCompare } from "@/components/ui/image-compare";
 import { ArrowRight, Sparkles, Star, GitFork } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 export function Hero() {
   return (
@@ -17,15 +18,25 @@ export function Hero() {
       <div className="relative container mx-auto px-4 py-24 lg:py-32">
         <div className="max-w-5xl mx-auto">
           {/* 标签 */}
-          <div className="flex justify-center mb-8">
+          <motion.div
+            className="flex justify-center mb-8"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30">
               <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-primary">开源 AI 智能创作平台</span>
             </div>
-          </div>
+          </motion.div>
 
           {/* 主标题 */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6 leading-tight">
+          <motion.h1
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6 leading-tight"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
             <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
               让 AI 成为你的
             </span>
@@ -33,16 +44,26 @@ export function Hero() {
             <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 dark:from-purple-400 dark:via-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
               小说创作助手
             </span>
-          </h1>
+          </motion.h1>
 
           {/* 副标题 */}
-          <p className="text-lg md:text-xl text-muted-foreground text-center mb-10 max-w-2xl mx-auto leading-relaxed">
+          <motion.p
+            className="text-lg md:text-xl text-muted-foreground text-center mb-10 max-w-2xl mx-auto leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             从灵感迸发到作品完成，Narraverse
             为你提供智能写作建议、角色管理、情节规划等全方位创作支持
-          </p>
+          </motion.p>
 
           {/* CTA 按钮 */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
             <Button size="lg" asChild className="min-w-[200px] shadow-lg shadow-primary/25">
               <Link href="/auth/register">
                 开始创作
@@ -59,10 +80,15 @@ export function Hero() {
                 Star on GitHub
               </a>
             </Button>
-          </div>
+          </motion.div>
 
           {/* 开源统计 */}
-          <div className="flex flex-wrap justify-center gap-6 mt-12">
+          <motion.div
+            className="flex flex-wrap justify-center gap-6 mt-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
             <a
               href="https://github.com/narraverse/narraverse-next-mvp"
               target="_blank"
@@ -91,10 +117,15 @@ export function Hero() {
               <div className="w-2 h-2 rounded-full bg-green-500" />
               <span className="text-sm font-medium text-muted-foreground">MIT License</span>
             </div>
-          </div>
+          </motion.div>
 
           {/* 产品预览 - 明暗主题对比 */}
-          <div className="mt-16 relative">
+          <motion.div
+            className="mt-16 relative"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+          >
             <ImageCompare
               beforeImage="/assets/svg/logo-light.svg"
               afterImage="/assets/svg/logo-dark.svg"
@@ -102,7 +133,7 @@ export function Hero() {
               afterLabel="暗色主题"
               className="max-w-4xl mx-auto"
             />
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
