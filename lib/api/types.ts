@@ -15,26 +15,6 @@ export interface PaginationResult<T> {
 }
 
 // =============================================
-// 用户类型
-// =============================================
-
-export interface Profile {
-  id: string;
-  email: string;
-  username?: string;
-  avatar_url?: string;
-  bio?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface UpdateProfileDto {
-  username?: string;
-  avatar_url?: string;
-  bio?: string;
-}
-
-// =============================================
 // 小说类型
 // =============================================
 

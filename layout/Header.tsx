@@ -1,6 +1,5 @@
 "use client";
 
-import { AvatarSection } from "./components/avatarSection";
 import { ThemeSection } from "./components/themeSection";
 
 export function Header() {
@@ -15,8 +14,6 @@ export function Header() {
       <div className="flex items-center gap-4">
         {/* 主题 */}
         <ThemeSection />
-        {/* 头像 */}
-        <AvatarSection />
       </div>
     </header>
   );

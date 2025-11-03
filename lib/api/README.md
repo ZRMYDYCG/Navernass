@@ -8,7 +8,6 @@
 lib/api/
 ├── index.ts           # 统一导出入口
 ├── types.ts           # TypeScript 类型定义
-├── profiles.ts        # 用户信息 API
 ├── novels.ts          # 小说 API
 ├── chapters.ts        # 章节 API
 ├── conversations.ts   # 对话 API
@@ -28,24 +27,6 @@ import * as api from "@/lib/api";
 ```
 
 ### 2. 使用示例
-
-#### 用户信息
-
-```typescript
-import { profilesApi } from "@/lib/api";
-
-// 获取当前用户 profile
-const profile = await profilesApi.getCurrent();
-
-// 更新 profile
-const updated = await profilesApi.update({
-  username: "新用户名",
-  bio: "个人简介",
-});
-
-// 上传头像
-const avatarUrl = await profilesApi.uploadAvatar(file);
-```
 
 #### 小说管理
 

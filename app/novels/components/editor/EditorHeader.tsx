@@ -1,6 +1,5 @@
 import { ArrowLeft, PanelLeft, PanelRight } from "lucide-react";
 import { ThemeSection } from "@/layout/components/themeSection";
-import { AvatarSection } from "@/layout/components/avatarSection";
 
 interface EditorHeaderProps {
   novelTitle: string;
@@ -60,7 +59,6 @@ export function EditorHeader({
         </div>
 
         <ThemeSection />
-        <AvatarSection />
       </div>
     </header>
   );
