@@ -11,7 +11,6 @@ lib/api/
 ├── profiles.ts        # 用户信息 API
 ├── novels.ts          # 小说 API
 ├── chapters.ts        # 章节 API
-├── knowledge.ts       # 知识库 API
 ├── conversations.ts   # 对话 API
 └── messages.ts        # 消息 API
 ```
@@ -115,47 +114,6 @@ await chaptersApi.updateOrder([
 
 // 删除章节
 await chaptersApi.delete(chapter.id);
-```
-
-#### 知识库管理
-
-```typescript
-import { knowledgeBasesApi, knowledgeItemsApi } from "@/lib/api";
-
-// 创建知识库
-const kb = await knowledgeBasesApi.create({
-  name: "世界观设定",
-  description: "我的小说世界观",
-  icon: "🌍",
-  color: "#3B82F6",
-});
-
-// 获取所有知识库
-const kbs = await knowledgeBasesApi.getList();
-
-// 创建文件夹
-const folder = await knowledgeItemsApi.create({
-  knowledge_base_id: kb.id,
-  type: "folder",
-  name: "角色设定",
-  order_index: 0,
-});
-
-// 创建文件
-const file = await knowledgeItemsApi.create({
-  knowledge_base_id: kb.id,
-  parent_id: folder.id,
-  type: "file",
-  name: "主角设定",
-  content: "# 主角\n\n姓名：张三",
-  order_index: 0,
-});
-
-// 获取树形结构
-const tree = await knowledgeItemsApi.getTreeByKnowledgeBaseId(kb.id);
-
-// 移动条目
-await knowledgeItemsApi.move(file.id, newParentId);
 ```
 
 #### 对话管理
@@ -315,7 +273,7 @@ try {
 所有类型定义都在 `types.ts` 中，可以直接导入使用：
 
 ```typescript
-import type { Novel, Chapter, KnowledgeBase, Conversation, Message } from "@/lib/api";
+import type { Novel, Chapter, Conversation, Message } from "@/lib/api";
 ```
 
 ## 🎨 最佳实践

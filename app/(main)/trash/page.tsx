@@ -1,35 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
-import { novelsApi, knowledgeBasesApi, type Novel, type KnowledgeBase } from "@/lib/api";
+import { novelsApi, type Novel } from "@/lib/api";
 import { toast } from "sonner";
-import { FileText, FolderOpen, MoreVertical, RotateCcw, Trash2, BookOpen } from "lucide-react";
+import { MoreVertical, RotateCcw, Trash2, BookOpen } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
-
-type TabType = "all" | "novels" | "knowledge";
 
 interface ContextMenuState {
   show: boolean;
   x: number;
   y: number;
-  item: Novel | KnowledgeBase | null;
-  type: "novel" | "knowledge" | null;
+  item: Novel | null;
 }
 
 export default function Trash() {
-  const [selectedTab, setSelectedTab] = useState<TabType>("all");
   const [novels, setNovels] = useState<Novel[]>([]);
-  const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
   const [loading, setLoading] = useState(true);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     show: false,
     x: 0,
     y: 0,
     item: null,
-    type: null,
   });
 
   // 加载数据
@@ -41,7 +34,7 @@ export default function Trash() {
   useEffect(() => {
     const handleClick = () => {
       if (contextMenu.show) {
-        setContextMenu({ show: false, x: 0, y: 0, item: null, type: null });
+        setContextMenu({ show: false, x: 0, y: 0, item: null });
       }
     };
 
@@ -52,12 +45,8 @@ export default function Trash() {
   const loadTrashData = async () => {
     try {
       setLoading(true);
-      const [novelsData, knowledgeData] = await Promise.all([
-        novelsApi.getArchived(),
-        knowledgeBasesApi.getArchived(),
-      ]);
+      const novelsData = await novelsApi.getArchived();
       setNovels(novelsData);
-      setKnowledgeBases(knowledgeData);
     } catch (error) {
       console.error("加载回收站数据失败:", error);
       const message = error instanceof Error ? error.message : "加载回收站数据失败";
@@ -97,42 +86,8 @@ export default function Trash() {
     }
   };
 
-  // 恢复知识库
-  const handleRestoreKnowledgeBase = async (kb: KnowledgeBase) => {
-    try {
-      await knowledgeBasesApi.restore(kb.id);
-      toast.success(`知识库"${kb.name}"已恢复`);
-      loadTrashData();
-    } catch (error) {
-      console.error("恢复知识库失败:", error);
-      const message = error instanceof Error ? error.message : "恢复知识库失败";
-      toast.error(message);
-    }
-  };
-
-  // 永久删除知识库
-  const handlePermanentDeleteKnowledgeBase = async (kb: KnowledgeBase) => {
-    if (!confirm(`确定要永久删除知识库"${kb.name}"吗？此操作无法撤销！`)) {
-      return;
-    }
-
-    try {
-      await knowledgeBasesApi.delete(kb.id);
-      toast.success("知识库已永久删除");
-      loadTrashData();
-    } catch (error) {
-      console.error("永久删除知识库失败:", error);
-      const message = error instanceof Error ? error.message : "永久删除知识库失败";
-      toast.error(message);
-    }
-  };
-
   // 右键菜单处理
-  const handleContextMenu = (
-    e: React.MouseEvent,
-    item: Novel | KnowledgeBase,
-    type: "novel" | "knowledge"
-  ) => {
+  const handleContextMenu = (e: React.MouseEvent, item: Novel) => {
     e.preventDefault();
     e.stopPropagation();
     setContextMenu({
@@ -140,67 +95,29 @@ export default function Trash() {
       x: e.clientX,
       y: e.clientY,
       item,
-      type,
     });
   };
 
   // 处理恢复
   const handleRestore = () => {
-    if (!contextMenu.item || !contextMenu.type) return;
-
-    if (contextMenu.type === "novel") {
-      handleRestoreNovel(contextMenu.item as Novel);
-    } else {
-      handleRestoreKnowledgeBase(contextMenu.item as KnowledgeBase);
-    }
-    setContextMenu({ show: false, x: 0, y: 0, item: null, type: null });
+    if (!contextMenu.item) return;
+    handleRestoreNovel(contextMenu.item);
+    setContextMenu({ show: false, x: 0, y: 0, item: null });
   };
 
   // 处理永久删除
   const handlePermanentDelete = () => {
-    if (!contextMenu.item || !contextMenu.type) return;
-
-    if (contextMenu.type === "novel") {
-      handlePermanentDeleteNovel(contextMenu.item as Novel);
-    } else {
-      handlePermanentDeleteKnowledgeBase(contextMenu.item as KnowledgeBase);
-    }
-    setContextMenu({ show: false, x: 0, y: 0, item: null, type: null });
+    if (!contextMenu.item) return;
+    handlePermanentDeleteNovel(contextMenu.item);
+    setContextMenu({ show: false, x: 0, y: 0, item: null });
   };
-
-  // 过滤数据
-  const getFilteredData = () => {
-    const allItems: Array<{ type: "novel" | "knowledge"; data: Novel | KnowledgeBase }> = [];
-
-    if (selectedTab === "all" || selectedTab === "novels") {
-      allItems.push(...novels.map((novel) => ({ type: "novel" as const, data: novel })));
-    }
-
-    if (selectedTab === "all" || selectedTab === "knowledge") {
-      allItems.push(...knowledgeBases.map((kb) => ({ type: "knowledge" as const, data: kb })));
-    }
-
-    return allItems.sort((a, b) => {
-      const aTime = new Date(a.data.updated_at).getTime();
-      const bTime = new Date(b.data.updated_at).getTime();
-      return bTime - aTime;
-    });
-  };
-
-  const filteredData = getFilteredData();
 
   return (
     <div className="dark:bg-gray-900 w-full h-full">
-      <section className="flex justify-center items-center">
-        <SegmentedControl
-          value={selectedTab}
-          onValueChange={(value) => setSelectedTab(value as TabType)}
-          className="w-fit my-4"
-        >
-          <SegmentedControlItem value="all">全部</SegmentedControlItem>
-          <SegmentedControlItem value="novels">我的小说</SegmentedControlItem>
-          <SegmentedControlItem value="knowledge">知识库</SegmentedControlItem>
-        </SegmentedControl>
+      {/* 标题 */}
+      <section className="px-6 py-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">回收站</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">已归档的小说会显示在这里</p>
       </section>
 
       {/* 内容区域 */}
@@ -209,63 +126,50 @@ export default function Trash() {
           <div className="flex items-center justify-center py-12">
             <div className="text-gray-500 dark:text-gray-400">加载中...</div>
           </div>
-        ) : filteredData.length === 0 ? (
+        ) : novels.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
             <Trash2 className="w-16 h-16 mb-4 opacity-40" />
             <p className="text-lg">回收站是空的</p>
-            <p className="text-sm mt-2">删除的内容会保留在这里</p>
+            <p className="text-sm mt-2">归档的小说会保留在这里</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredData.map((item) => (
+            {novels.map((novel) => (
               <div
-                key={`${item.type}-${item.data.id}`}
-                onContextMenu={(e) => handleContextMenu(e, item.data, item.type)}
+                key={novel.id}
+                onContextMenu={(e) => handleContextMenu(e, novel)}
                 className="group relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all cursor-pointer"
               >
                 {/* 图标和类型 */}
                 <div className="flex items-start gap-3 mb-3">
-                  <div
-                    className={`p-2 rounded-lg ${
-                      item.type === "novel"
-                        ? "bg-blue-100 dark:bg-blue-900/30"
-                        : "bg-green-100 dark:bg-green-900/30"
-                    }`}
-                  >
-                    {item.type === "novel" ? (
-                      <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    ) : (
-                      <FolderOpen className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    )}
+                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                    <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                      {item.type === "novel"
-                        ? (item.data as Novel).title
-                        : (item.data as KnowledgeBase).name}
+                      {novel.title}
                     </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {item.type === "novel" ? "小说" : "知识库"}
-                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">小说</p>
                   </div>
                 </div>
 
                 {/* 描述 */}
-                {item.type === "novel" && (item.data as Novel).description && (
+                {novel.description && (
                   <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
-                    {(item.data as Novel).description}
-                  </p>
-                )}
-                {item.type === "knowledge" && (item.data as KnowledgeBase).description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
-                    {(item.data as KnowledgeBase).description}
+                    {novel.description}
                   </p>
                 )}
 
+                {/* 统计信息 */}
+                <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
+                  <span>{novel.word_count.toLocaleString()} 字</span>
+                  <span>{novel.chapter_count} 章节</span>
+                </div>
+
                 {/* 时间信息 */}
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  删除于{" "}
-                  {formatDistanceToNow(new Date(item.data.updated_at), {
+                  归档于{" "}
+                  {formatDistanceToNow(new Date(novel.updated_at), {
                     addSuffix: true,
                     locale: zhCN,
                   })}
@@ -291,11 +195,7 @@ export default function Trash() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (item.type === "novel") {
-                              handleRestoreNovel(item.data as Novel);
-                            } else {
-                              handleRestoreKnowledgeBase(item.data as KnowledgeBase);
-                            }
+                            handleRestoreNovel(novel);
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                         >
@@ -305,11 +205,7 @@ export default function Trash() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (item.type === "novel") {
-                              handlePermanentDeleteNovel(item.data as Novel);
-                            } else {
-                              handlePermanentDeleteKnowledgeBase(item.data as KnowledgeBase);
-                            }
+                            handlePermanentDeleteNovel(novel);
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
                         >

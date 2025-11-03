@@ -8,7 +8,6 @@
 - ✅ `lib/api/profiles.ts` - 用户信息 API
 - ✅ `lib/api/novels.ts` - 小说 API（完整 CRUD + 发布/归档）
 - ✅ `lib/api/chapters.ts` - 章节 API（完整 CRUD + 排序）
-- ✅ `lib/api/knowledge.ts` - 知识库 API（树形结构支持）
 - ✅ `lib/api/conversations.ts` - 对话 API
 - ✅ `lib/api/messages.ts` - 消息 API
 - ✅ `lib/api/index.ts` - 统一导出
@@ -26,15 +25,7 @@
 
 ## 📝 待完成
 
-### 4. 知识库页面
-
-- ⏳ `app/(main)/knowledge/page.tsx`
-  - 需要对接 `knowledgeBasesApi` 和 `knowledgeItemsApi`
-  - 实现知识库的增删改查
-  - 实现文件夹/文件的树形结构
-  - 实现拖拽排序
-
-### 5. AI 对话页面
+### 4. AI 对话页面
 
 - ⏳ `app/(main)/home/page.tsx`
   - 需要对接 `conversationsApi` 和 `messagesApi`
@@ -42,7 +33,7 @@
   - 实现消息发送和接收
   - 对接 AI 接口（需要后端支持）
 
-### 6. 小说编辑器
+### 5. 小说编辑器
 
 - ⏳ `app/novels/editor/page.tsx`
   - 需要对接 `chaptersApi`
@@ -50,7 +41,7 @@
   - 实现章节内容保存（自动保存）
   - 对接 Tiptap 编辑器
 
-### 7. 其他页面
+### 6. 其他页面
 
 - ⏳ `app/(main)/trash/page.tsx` - 回收站（可使用已归档的小说）
 - ⏳ `app/page.tsx` - 首页（重定向逻辑）
@@ -97,10 +88,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 1. ✅ `profiles` - 用户信息
 2. ✅ `novels` - 小说
 3. ✅ `chapters` - 章节
-4. ✅ `knowledge_bases` - 知识库集合
-5. ✅ `knowledge_items` - 知识库条目
-6. ✅ `conversations` - 对话
-7. ✅ `messages` - 消息
+4. ✅ `conversations` - 对话
+5. ✅ `messages` - 消息
 
 ## 🚀 下一步
 
@@ -114,7 +103,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
    - 测试小说列表分页和筛选
 
 3. **继续对接剩余页面**
-   - 对接知识库页面
    - 对接对话页面
    - 对接编辑器页面
 

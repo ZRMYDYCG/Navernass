@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { List, Briefcase, Database, Image as ImageIcon } from "lucide-react";
+import { List, Briefcase, Image as ImageIcon } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { ChaptersTab } from "./ChaptersTab";
 import { WorkspaceTab } from "./WorkspaceTab";
-import { KnowledgeTab } from "./KnowledgeTab";
 import { MaterialsTab } from "./MaterialsTab";
 
-type LeftTabType = "chapters" | "workspace" | "knowledge" | "materials";
+type LeftTabType = "chapters" | "workspace" | "materials";
 
 interface Chapter {
   id: string;
@@ -89,31 +88,6 @@ export function LeftPanel({
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <button
-              onClick={() => setLeftTab("knowledge")}
-              className={`w-10 h-10 flex items-center justify-center rounded-md transition-colors ${
-                leftTab === "knowledge"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-              }`}
-            >
-              <Database className="w-5 h-5" />
-            </button>
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content
-              side="bottom"
-              className="bg-gray-900 dark:bg-gray-700 text-white text-xs px-2 py-1 rounded"
-              sideOffset={5}
-            >
-              知识库
-              <Tooltip.Arrow className="fill-gray-900 dark:fill-gray-700" />
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
-
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <button
               onClick={() => setLeftTab("materials")}
               className={`w-10 h-10 flex items-center justify-center rounded-md transition-colors ${
                 leftTab === "materials"
@@ -150,8 +124,6 @@ export function LeftPanel({
         )}
 
         {leftTab === "workspace" && <WorkspaceTab />}
-
-        {leftTab === "knowledge" && <KnowledgeTab />}
 
         {leftTab === "materials" && <MaterialsTab />}
       </div>

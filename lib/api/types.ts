@@ -105,68 +105,6 @@ export interface UpdateChapterDto {
 }
 
 // =============================================
-// 知识库类型
-// =============================================
-
-export interface KnowledgeBase {
-  id: string;
-  user_id: string;
-  name: string;
-  description?: string;
-  icon?: string;
-  color?: string;
-  is_deleted?: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateKnowledgeBaseDto {
-  name: string;
-  description?: string;
-  icon?: string;
-  color?: string;
-}
-
-export interface UpdateKnowledgeBaseDto {
-  id: string;
-  name?: string;
-  description?: string;
-  icon?: string;
-  color?: string;
-}
-
-export interface KnowledgeItem {
-  id: string;
-  knowledge_base_id: string;
-  user_id: string;
-  parent_id?: string;
-  type: "folder" | "file";
-  name: string;
-  content?: string;
-  order_index: number;
-  created_at: string;
-  updated_at: string;
-  children?: KnowledgeItem[]; // 用于前端树形结构
-}
-
-export interface CreateKnowledgeItemDto {
-  knowledge_base_id: string;
-  parent_id?: string;
-  type: "folder" | "file";
-  name: string;
-  content?: string;
-  order_index?: number;
-}
-
-export interface UpdateKnowledgeItemDto {
-  id: string;
-  name?: string;
-  content?: string;
-  order_index?: number;
-  parent_id?: string;
-}
-
-// =============================================
 // 对话类型
 // =============================================
 

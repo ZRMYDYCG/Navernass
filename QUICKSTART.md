@@ -59,7 +59,6 @@ pnpm dev
 
 - 🏠 **首页 (AI 对话)**: http://localhost:3000
 - 📚 **小说列表**: http://localhost:3000/novels
-- 🗂️ **知识库**: http://localhost:3000/knowledge
 - 🗑️ **回收站**: http://localhost:3000/trash
 
 ## 5. 主要功能
