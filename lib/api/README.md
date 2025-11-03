@@ -8,7 +8,6 @@
 lib/api/
 ├── index.ts           # 统一导出入口
 ├── types.ts           # TypeScript 类型定义
-├── auth.ts            # 用户认证 API
 ├── profiles.ts        # 用户信息 API
 ├── novels.ts          # 小说 API
 ├── chapters.ts        # 章节 API
@@ -23,38 +22,13 @@ lib/api/
 
 ```typescript
 // 方式 1: 导入特定 API
-import { authApi, novelsApi, chaptersApi } from "@/lib/api";
+import { novelsApi, chaptersApi } from "@/lib/api";
 
 // 方式 2: 导入所有
 import * as api from "@/lib/api";
 ```
 
 ### 2. 使用示例
-
-#### 用户认证
-
-```typescript
-import { authApi } from "@/lib/api";
-
-// 登录
-const { user, session } = await authApi.login({
-  email: "user@example.com",
-  password: "password123",
-});
-
-// 注册
-const { user } = await authApi.register({
-  email: "user@example.com",
-  password: "password123",
-  name: "用户名",
-});
-
-// 获取当前用户
-const user = await authApi.getCurrentUser();
-
-// 登出
-await authApi.logout();
-```
 
 #### 用户信息
 
@@ -342,23 +316,6 @@ try {
 
 ```typescript
 import type { Novel, Chapter, KnowledgeBase, Conversation, Message } from "@/lib/api";
-```
-
-## 🔑 认证状态
-
-大部分 API 需要用户登录，确保在调用前用户已认证：
-
-```typescript
-import { supabase } from "@/lib/supabase";
-
-// 检查登录状态
-const {
-  data: { session },
-} = await supabase.auth.getSession();
-if (!session) {
-  // 重定向到登录页
-  router.push("/auth/login");
-}
 ```
 
 ## 🎨 最佳实践

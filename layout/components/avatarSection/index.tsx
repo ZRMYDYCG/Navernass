@@ -59,11 +59,11 @@ export function AvatarSection() {
           {/* 菜单项 */}
           <div className="space-y-1">
             <Link
-              href="/auth/login"
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 dark:text-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              href="/settings"
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <LogOut className="w-4 h-4" />
-              <span>退出登录</span>
+              <Settings className="w-4 h-4" />
+              <span>设置</span>
             </Link>
           </div>
 

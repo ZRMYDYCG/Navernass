@@ -65,7 +65,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <Button size="lg" asChild className="min-w-[200px] shadow-lg shadow-primary/25">
-              <Link href="/auth/register">
+              <Link href="/home">
                 开始创作
                 <ArrowRight className="w-4 h-4" />
               </Link>

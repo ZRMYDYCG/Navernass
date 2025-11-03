@@ -107,11 +107,8 @@ export function Navbar() {
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">切换主题</span>
             </Button>
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">登录</Link>
-            </Button>
             <Button asChild>
-              <Link href="/auth/register">免费开始</Link>
+              <Link href="/home">进入应用</Link>
             </Button>
           </motion.div>
 
@@ -170,11 +167,8 @@ export function Navbar() {
                     <Moon className="absolute h-5 w-5 ml-10 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                     <span className="ml-2">切换主题</span>
                   </Button>
-                  <Button variant="ghost" asChild className="w-full">
-                    <Link href="/auth/login">登录</Link>
-                  </Button>
                   <Button asChild className="w-full">
-                    <Link href="/auth/register">免费开始</Link>
+                    <Link href="/home">进入应用</Link>
                   </Button>
                 </div>
               </div>

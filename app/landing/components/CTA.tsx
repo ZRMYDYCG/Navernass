@@ -115,8 +115,8 @@ export function CTA() {
                   </a>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="min-w-[200px]">
-                  <Link href="/auth/register">
-                    免费使用
+                  <Link href="/home">
+                    立即使用
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
