@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Sidebar } from "./Sidebar";
-import { Header } from "./Header";
+import { Sidebar } from "../mac-dock";
+import { Header } from "./header";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -24,7 +24,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         {children}
       </main>
 
-      {/* 底部 macOS Dock 风格侧边栏 */}
+      {/* 底部  风格侧边栏 */}
       <Sidebar />
     </div>
   );
