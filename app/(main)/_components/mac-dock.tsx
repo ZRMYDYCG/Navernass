@@ -1,46 +1,49 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Book, Bot, Trash2, ChevronUp, ChevronDown } from "lucide-react";
-import * as Tooltip from "@radix-ui/react-tooltip";
+import * as Tooltip from '@radix-ui/react-tooltip'
+import { Book, Bot, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 
 export function Sidebar() {
-  const pathname = usePathname();
-  const [isVisible, setIsVisible] = useState(true);
+  const pathname = usePathname()
+  const [isVisible, setIsVisible] = useState(true)
 
   const menuItems = [
-    { path: "/home", label: "新建对话", icon: Bot },
-    { path: "/novels", label: "我的小说", icon: Book },
-    { path: "/trash", label: "回收站", icon: Trash2 },
-  ];
+    { path: '/home', label: '新建对话', icon: Bot },
+    { path: '/novels', label: '我的小说', icon: Book },
+    { path: '/trash', label: '回收站', icon: Trash2 },
+  ]
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => pathname === path
 
   return (
     <Tooltip.Provider delayDuration={150}>
       <aside
         className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-          isVisible ? "pb-4" : "pb-0 translate-y-[calc(100%-3rem)]"
+          isVisible ? 'pb-4' : 'pb-0 translate-y-[calc(100%-3rem)]'
         }`}
       >
         {/* 切换按钮 - 精致设计 */}
         <div className="flex justify-center mb-1.5">
           <button
+            type="button"
             onClick={() => setIsVisible(!isVisible)}
             className="group relative bg-white/98 dark:bg-gray-900/98 backdrop-blur-2xl border-t border-x border-white/40 dark:border-gray-700/40 rounded-t-[20px] px-6 py-2.5 hover:py-3 transition-all duration-300 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_-6px_30px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_-6px_30px_rgba(0,0,0,0.4)]"
-            aria-label={isVisible ? "隐藏导航栏" : "显示导航栏"}
+            aria-label={isVisible ? '隐藏导航栏' : '显示导航栏'}
           >
             {/* 顶部高光 */}
             <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/60 dark:via-white/20 to-transparent" />
 
             <div className="relative flex items-center justify-center">
-              {isVisible ? (
-                <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110" />
-              ) : (
-                <ChevronUp className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110" />
-              )}
+              {isVisible
+                ? (
+                    <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110" />
+                  )
+                : (
+                    <ChevronUp className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110" />
+                  )}
             </div>
           </button>
         </div>
@@ -49,8 +52,8 @@ export function Sidebar() {
         <div
           className={`relative transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
             isVisible
-              ? "translate-y-0 opacity-100 scale-100"
-              : "translate-y-full opacity-0 scale-90 pointer-events-none"
+              ? 'translate-y-0 opacity-100 scale-100'
+              : 'translate-y-full opacity-0 scale-90 pointer-events-none'
           }`}
         >
           {/* Dock 容器 */}
@@ -63,9 +66,9 @@ export function Sidebar() {
               {/* 导航菜单 */}
               <nav className="flex items-center gap-3">
                 {menuItems.map((item, index) => {
-                  const Icon = item.icon;
-                  const active = isActive(item.path);
-                  const isTrash = item.path === "/trash";
+                  const Icon = item.icon
+                  const active = isActive(item.path)
+                  const isTrash = item.path === '/trash'
 
                   return (
                     <Tooltip.Root key={item.path}>
@@ -74,8 +77,8 @@ export function Sidebar() {
                           href={item.path}
                           className={`group relative flex items-center justify-center w-[68px] h-[68px] rounded-[22px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                             active
-                              ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white text-white dark:text-gray-900 shadow-[0_8px_24px_rgba(0,0,0,0.25),0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_2px_rgba(255,255,255,0.1)] dark:shadow-[0_8px_24px_rgba(255,255,255,0.3),0_2px_8px_rgba(255,255,255,0.2)] scale-[1.15] -translate-y-1"
-                              : "text-gray-600 dark:text-gray-400 hover:scale-[1.2] hover:-translate-y-3 active:scale-95"
+                              ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white text-white dark:text-gray-900 shadow-[0_8px_24px_rgba(0,0,0,0.25),0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_2px_rgba(255,255,255,0.1)] dark:shadow-[0_8px_24px_rgba(255,255,255,0.3),0_2px_8px_rgba(255,255,255,0.2)] scale-[1.15] -translate-y-1'
+                              : 'text-gray-600 dark:text-gray-400 hover:scale-[1.2] hover:-translate-y-3 active:scale-95'
                           }`}
                           style={{
                             animationDelay: `${index * 50}ms`,
@@ -98,10 +101,10 @@ export function Sidebar() {
                           <Icon
                             className={`relative z-10 w-8 h-8 transition-all duration-300 ${
                               active
-                                ? "drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] scale-105"
+                                ? 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] scale-105'
                                 : isTrash && !active
-                                  ? "text-red-500 dark:text-red-400 group-hover:text-red-600 dark:group-hover:text-red-300 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(239,68,68,0.4)]"
-                                  : "group-hover:text-gray-900 dark:group-hover:text-gray-100 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)]"
+                                  ? 'text-red-500 dark:text-red-400 group-hover:text-red-600 dark:group-hover:text-red-300 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(239,68,68,0.4)]'
+                                  : 'group-hover:text-gray-900 dark:group-hover:text-gray-100 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)]'
                             }`}
                           />
 
@@ -127,7 +130,7 @@ export function Sidebar() {
                         </Tooltip.Content>
                       </Tooltip.Portal>
                     </Tooltip.Root>
-                  );
+                  )
                 })}
               </nav>
             </div>
@@ -141,5 +144,5 @@ export function Sidebar() {
         </div>
       </aside>
     </Tooltip.Provider>
-  );
+  )
 }

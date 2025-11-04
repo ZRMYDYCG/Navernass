@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { ThemeSection } from "@/components/theme-select";
+import { ThemeSection } from '@/components/theme-select'
 
 export function Header() {
   return (
@@ -12,5 +12,5 @@ export function Header() {
         <ThemeSection />
       </div>
     </header>
-  );
+  )
 }
