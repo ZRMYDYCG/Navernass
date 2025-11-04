@@ -1,5 +1,5 @@
 import { ArrowLeft, PanelLeft, PanelRight } from "lucide-react";
-import { ThemeSection } from "@/layout/components/themeSection";
+import { ThemeSection } from "@/components/theme-select";
 
 interface EditorHeaderProps {
   novelTitle: string;

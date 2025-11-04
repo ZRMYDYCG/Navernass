@@ -32,7 +32,6 @@ export function ThemeSection() {
           <div className="mb-3">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Theme</h3>
           </div>
-          {/* 主题区域 */}
           <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
             {themeOptions.map((option) => {
               const Icon = option.icon;
