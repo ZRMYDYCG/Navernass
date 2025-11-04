@@ -22,10 +22,8 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased h-full`}>
-        <ThemeProvider>
-          {children}
-          <Toaster position="top-right" richColors closeButton />
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );

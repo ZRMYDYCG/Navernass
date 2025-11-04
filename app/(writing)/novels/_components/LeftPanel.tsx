@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { List, Briefcase, Image as ImageIcon } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
-import { ChaptersTab } from "./ChaptersTab";
+import { ChaptersTab } from "../../../(writing)/novels/_components/ChaptersTab";
 import { WorkspaceTab } from "./WorkspaceTab";
 import { MaterialsTab } from "./MaterialsTab";
 
