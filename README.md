@@ -117,10 +117,4 @@ create policy "Users can delete own novels"
   using (auth.uid() = user_id);
 ```
 
-## 📄 License
 
-MIT
-
----
-
-**基于**: [narraverse-react-client](../narraverse-react-client)
