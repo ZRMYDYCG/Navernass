@@ -1,12 +1,14 @@
 <div align="center">
 
+<img src="./public/assets/svg/logo-dark.svg" alt="Narraverse Logo" width="120" />
+
 # Narraverse - 小说创作平台
 
 </div>
 
 ## 核心目标
 
-我们专注为才华横溢的创作者打造舒适的创作环境，降低优质内容被看见、被发掘、被分享的门槛。
+我们专注为才华横溢的创作者打造舒适的创作环境，降低优质内容被看见、被分享、被发掘的门槛。
 
 同时也为新手提供AI辅助，降低直面感受创作、学习创作、走进创作的门槛。
 
@@ -31,56 +33,77 @@ SILICON_FLOW_MODEL=
 
 ```json
 {
-  // 编辑器基础配置
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Disable the default formatter, use eslint instead
+  "prettier.enable": false,
+  "editor.formatOnSave": false,
+
+  // Auto fix
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
-  "editor.tabSize": 2,
-  "editor.insertSpaces": true,
-  "editor.detectIndentation": false,
-
-  // 文件配置
-  "files.eol": "\n",
-  "files.trimTrailingWhitespace": true,
-  "files.insertFinalNewline": true,
-
-  // TypeScript/JavaScript 特定配置
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "never"
   },
 
-  // ESLint 配置
-  "eslint.enable": true,
+  // Silent the stylistic rules in you IDE, but still auto fix them
+  "eslint.rules.customizations": [
+    { "rule": "style/*", "severity": "off", "fixable": true },
+    { "rule": "format/*", "severity": "off", "fixable": true },
+    { "rule": "*-indent", "severity": "off", "fixable": true },
+    { "rule": "*-spacing", "severity": "off", "fixable": true },
+    { "rule": "*-spaces", "severity": "off", "fixable": true },
+    { "rule": "*-order", "severity": "off", "fixable": true },
+    { "rule": "*-dangle", "severity": "off", "fixable": true },
+    { "rule": "*-newline", "severity": "off", "fixable": true },
+    { "rule": "*quotes", "severity": "off", "fixable": true },
+    { "rule": "*semi", "severity": "off", "fixable": true }
+  ],
+
+  // Enable eslint for all supported languages
   "eslint.validate": [
     "javascript",
     "javascriptreact",
     "typescript",
-    "typescriptreact"
-  ],
-
-  // Prettier 配置
-  "prettier.enable": true,
-  "prettier.requireConfig": true,
-
-  // 其他推荐配置
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+    "typescriptreact",
+    "vue",
+    "html",
+    "markdown",
+    "json",
+    "jsonc",
+    "yaml",
+    "toml",
+    "xml",
+    "gql",
+    "graphql",
+    "astro",
+    "svelte",
+    "css",
+    "less",
+    "scss",
+    "pcss",
+    "postcss"
+  ]
 }
 ```
+
+## 开发规范工具链
+
+Git Hooks 管理
+
+lefthook
+
+代码质量检查
+
+eslint @antfu/eslint-config eslint-plugin-tailwindcss
+
+Commit 规范
+
+@commitlint/cli @commitlint/config-conventional
+
+commitizen cz-git
+
+暂存区代码检查
+
+lint-staged
+
+版本发布自动化
+
+release-it @release-it/conventional-changelog

@@ -1,0 +1,42 @@
+# Pre-commit: 提交前检查
+pre-commit:
+  parallel: true
+  commands:
+    # 1. Lint staged files
+    lint-staged:
+      glob: "*.{js,ts,jsx,tsx,css,md,json}"
+      run: pnpm lint-staged
+      stage_fixed: true
+
+    # 2. 类型检查
+    # typecheck:
+    #   glob: "*.{ts,tsx}"
+    #   run: pnpm tsc --noEmit
+
+# Commit-msg: 检查 commit 信息
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm commitlint --edit {1}
+
+# Pre-push: 推送前检查（可选）
+pre-push:
+  parallel: false
+  commands:
+    # 完整 lint 检查
+    lint:
+      run: pnpm lint
+    
+    # 完整类型检查
+    # typecheck:
+    #   run: pnpm tsc --noEmit
+    
+    # 运行测试
+    # test:
+    #   run: pnpm test
+
+# 安装后自动设置 hooks
+install:
+  scripts:
+    enable-auto-install:
+      run: echo "Lefthook hooks installed successfully ❤️"
