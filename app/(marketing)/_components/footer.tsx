@@ -56,7 +56,7 @@ const footerLinks = {
   ],
 };
 
-export function Footer() {
+export default function Footer() {
   return (
     <footer className="border-t border-border bg-background">
       <div className="container mx-auto px-4 py-12 md:py-16">

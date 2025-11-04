@@ -5,7 +5,7 @@ import { ArrowRight, Github, Heart } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-export function CTA() {
+export default function CTA() {
   return (
     <section className="relative py-24 overflow-hidden">
       {/* 背景渐变 */}

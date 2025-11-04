@@ -15,7 +15,7 @@ const navLinks = [
   { name: "GitHub", href: "https://github.com/narraverse/narraverse-next-mvp", target: "_blank" },
 ];
 
-export function Navbar() {
+export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 

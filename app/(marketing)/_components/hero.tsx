@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 import { ImageCompare } from "@/components/ui/image-compare";
 import { ArrowRight, Sparkles, Star, GitFork } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 
-export function Hero() {
+export default function Hero() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
       {/* 背景装饰 */}
@@ -80,43 +79,6 @@ export function Hero() {
                 Star on GitHub
               </a>
             </Button>
-          </motion.div>
-
-          {/* 开源统计 */}
-          <motion.div
-            className="flex flex-wrap justify-center gap-6 mt-12"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <a
-              href="https://github.com/narraverse/narraverse-next-mvp"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <Star className="w-4 h-4 text-yellow-500" />
-              <span className="text-sm font-medium">
-                <span className="text-foreground">1.2k</span>
-                <span className="text-muted-foreground ml-1">Stars</span>
-              </span>
-            </a>
-            <a
-              href="https://github.com/narraverse/narraverse-next-mvp/fork"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <GitFork className="w-4 h-4 text-blue-500" />
-              <span className="text-sm font-medium">
-                <span className="text-foreground">230</span>
-                <span className="text-muted-foreground ml-1">Forks</span>
-              </span>
-            </a>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-              <span className="text-sm font-medium text-muted-foreground">MIT License</span>
-            </div>
           </motion.div>
 
           {/* 产品预览 - 明暗主题对比 */}
