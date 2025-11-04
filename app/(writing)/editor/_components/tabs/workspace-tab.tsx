@@ -1,7 +1,7 @@
 import { Download, ScanEye, Upload } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 
-export function WorkspaceTab() {
+export default function WorkspaceTab() {
   return (
     <div className="h-full flex flex-col">
       <div className="h-12 px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">

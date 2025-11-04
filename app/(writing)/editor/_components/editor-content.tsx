@@ -19,7 +19,7 @@ interface EditorContentProps {
   chapterId: string;
 }
 
-export function EditorContent({
+export default function EditorContent({
   openTabs,
   activeTab,
   onTabChange,

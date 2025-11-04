@@ -10,7 +10,7 @@ interface EditorHeaderProps {
   onBack?: () => void;
 }
 
-export function EditorHeader({
+export default function EditorHeader({
   novelTitle,
   showLeftPanel,
   showRightPanel,

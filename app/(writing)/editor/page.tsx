@@ -6,12 +6,10 @@ import Image from "next/image";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as Dialog from "@radix-ui/react-dialog";
-import {
-  EditorHeader,
-  LeftPanel,
-  EditorContent,
-  RightPanel,
-} from "@/app/(writing)/novels/_components";
+import EditorHeader from "./_components/editor-header";
+import LeftPanel from "./_components/left-panel";
+import EditorContent from "./_components/editor-content";
+import RightPanel from "./_components/right-panel";
 import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
 import { novelsApi, chaptersApi, type Novel, type Chapter } from "@/lib/api";

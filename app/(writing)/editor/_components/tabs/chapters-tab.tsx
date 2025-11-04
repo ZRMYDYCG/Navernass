@@ -148,7 +148,7 @@ function SortableChapterItem({
   );
 }
 
-export function ChaptersTab({
+export default function ChaptersTab({
   chapters,
   selectedChapter,
   onSelectChapter,

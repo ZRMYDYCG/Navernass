@@ -12,7 +12,7 @@ interface Message {
   timestamp: number;
 }
 
-export function RightPanel() {
+export default function RightPanel() {
   const [messages] = useState<Message[]>([]); // 对话消息列表，空数组表示没有对话
   const [mode, setMode] = useState<AiMode>("ask");
   const [model, setModel] = useState<AiModel>("claude-3.5-sonnet");

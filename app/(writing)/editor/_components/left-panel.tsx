@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { List, Briefcase, Image as ImageIcon } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
-import { ChaptersTab } from "../../../(writing)/novels/_components/ChaptersTab";
-import { WorkspaceTab } from "./WorkspaceTab";
-import { MaterialsTab } from "./MaterialsTab";
+import ChaptersTab from "./tabs/chapters-tab";
+import WorkspaceTab from "./tabs/workspace-tab";
+import MaterialsTab from "./tabs/materials-tab";
 
 type LeftTabType = "chapters" | "workspace" | "materials";
 
@@ -22,7 +22,7 @@ interface LeftPanelProps {
   onCreateVolume?: () => void;
 }
 
-export function LeftPanel({
+export default function LeftPanel({
   chapters,
   selectedChapter,
   onSelectChapter,
