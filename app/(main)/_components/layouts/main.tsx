@@ -7,11 +7,11 @@ import { Header } from './header'
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isCompositionPage = pathname === '/composition'
-  const isHomePage = pathname === '/home'
+  const isChatPage = pathname.includes('/chat')
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      {!isHomePage && <Header />}
+      {!isChatPage && <Header />}
 
       <main
         className={`flex-1 h-auto pb-24 ${
