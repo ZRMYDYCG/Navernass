@@ -107,3 +107,115 @@ lint-staged
 版本发布自动化
 
 release-it @release-it/conventional-changelog
+
+### 服务端设计
+
+> RESTful API 架构
+
+基于 Next.js App Router 的 Route Handlers 实现:
+
+```bash
+lib/supabase/sdk
+├── utils/
+│   ├── response.ts          # 统一响应格式
+│   ├── handler.ts           # 错误处理中间件
+├── services/                # 业务逻辑层
+│   ├── novels.service.ts
+│   ├── chapters.service.ts
+│   ├── conversations.service.ts
+│   └── messages.service.ts
+├── client.ts                # 客户端 API 调用工具
+├── types.ts                 # 类型定义
+├── novels.ts                # Novels 客户端 API
+├── chapters.ts              # Chapters 客户端 API
+├── conversations.ts         # Conversations 客户端 API
+├── messages.ts              # Messages 客户端 API
+└── index.ts                 # 统一导出
+
+app/api/                     # API 路由
+├── novels/
+│   ├── route.ts             # GET /api/novels, POST /api/novels
+│   ├── [id]/
+│   │   ├── route.ts         # GET/PUT/DELETE /api/novels/:id
+│   │   ├── archive/route.ts
+│   │   ├── restore/route.ts
+│   │   ├── publish/route.ts
+│   │   └── chapters/route.ts
+│   └── archived/route.ts
+├── chapters/
+│   ├── route.ts
+│   ├── [id]/route.ts
+│   └── reorder/route.ts
+├── conversations/
+│   ├── route.ts
+│   ├── [id]/route.ts
+│   └── recent/route.ts
+└── messages/
+    ├── batch/route.ts
+    └── [id]/route.ts
+```
+
+## 创建一个 api 服务
+
+1. **创建 Service**
+
+```typescript
+// lib/api/services/new-feature.service.ts
+export class NewFeatureService {
+  async getList() {}
+  async create(data) {}
+}
+```
+
+2. **创建 Route Handler**
+
+```typescript
+// app/api/new-feature/route.ts
+export const GET = withErrorHandler(async (req) => {
+  const service = new NewFeatureService()
+  const data = await service.getList()
+  return ApiResponseBuilder.success(data)
+})
+```
+
+3. **创建客户端 API**
+
+```typescript
+// lib/api/new-feature.ts
+export const newFeatureApi = {
+  getList: () => apiClient.get('/api/new-feature'),
+}
+```
+
+## 响应格式规范
+
+### 成功响应
+
+```json
+{
+  "success": true,
+  "data": {},
+  "meta": {
+    "page": 1,
+    "pageSize": 10,
+    "total": 100
+  }
+}
+```
+
+### 错误响应
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "NOVEL_NOT_FOUND",
+    "message": "Novel not found",
+    "details": {}
+  }
+}
+```
+
+## 接口文档
+
+[文档](./app/api/api-doc.md)
