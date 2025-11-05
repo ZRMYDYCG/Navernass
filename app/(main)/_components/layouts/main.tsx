@@ -7,13 +7,12 @@ import { Header } from './header'
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isCompositionPage = pathname === '/composition'
+  const isHomePage = pathname === '/home'
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      {/* 头部 */}
-      <Header />
+      {!isHomePage && <Header />}
 
-      {/* 主体内容 */}
       <main
         className={`flex-1 h-auto pb-24 ${
           isCompositionPage
@@ -24,7 +23,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         {children}
       </main>
 
-      {/* 底部  风格侧边栏 */}
       <Sidebar />
     </div>
   )
