@@ -1,11 +1,11 @@
-import { supabase } from "../supabase";
-import type { Conversation, CreateConversationDto, UpdateConversationDto } from "./types";
+import { supabase } from "@/lib/supabase";
+import type { Conversation, CreateConversationDto, UpdateConversationDto } from "../types";
 
-export const conversationsApi = {
+export class ConversationsService {
   /**
    * 获取所有对话
    */
-  getList: async (params?: { novelId?: string }): Promise<Conversation[]> => {
+  async getList(params?: { novelId?: string }) {
     let query = supabase
       .from("conversations")
       .select("*")
@@ -20,32 +20,39 @@ export const conversationsApi = {
 
     if (error) throw error;
     return data || [];
-  },
+  }
 
   /**
    * 获取对话详情
    */
-  getById: async (id: string): Promise<Conversation> => {
-    const { data, error } = await supabase.from("conversations").select("*").eq("id", id).single();
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === "PGRST116") {
+        throw {
+          statusCode: 404,
+          code: "CONVERSATION_NOT_FOUND",
+          message: "Conversation not found",
+        };
+      }
+      throw error;
+    }
+
     return data;
-  },
+  }
 
   /**
    * 创建对话
    */
-  create: async (conversationData: CreateConversationDto): Promise<Conversation> => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) throw new Error("未登录");
-
+  async create(conversationData: CreateConversationDto) {
     const { data, error } = await supabase
       .from("conversations")
       .insert({
-        user_id: user.id,
         title: conversationData.title,
         novel_id: conversationData.novel_id,
       })
@@ -54,13 +61,13 @@ export const conversationsApi = {
 
     if (error) throw error;
     return data;
-  },
+  }
 
   /**
    * 更新对话
    */
-  update: async (conversationData: UpdateConversationDto): Promise<Conversation> => {
-    const { id, ...updates } = conversationData;
+  async update(id: string, updates: Partial<UpdateConversationDto>) {
+    await this.getById(id);
 
     const { data, error } = await supabase
       .from("conversations")
@@ -71,21 +78,23 @@ export const conversationsApi = {
 
     if (error) throw error;
     return data;
-  },
+  }
 
   /**
    * 删除对话
    */
-  delete: async (id: string): Promise<void> => {
+  async delete(id: string) {
+    await this.getById(id);
+
     const { error } = await supabase.from("conversations").delete().eq("id", id);
 
     if (error) throw error;
-  },
+  }
 
   /**
    * 获取最近的对话列表
    */
-  getRecent: async (limit: number = 10): Promise<Conversation[]> => {
+  async getRecent(limit: number = 10) {
     const { data, error } = await supabase
       .from("conversations")
       .select("*")
@@ -94,5 +103,6 @@ export const conversationsApi = {
 
     if (error) throw error;
     return data || [];
-  },
-};
+  }
+}
+

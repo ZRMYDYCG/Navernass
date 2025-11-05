@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { novelsApi, type Novel } from "@/lib/api";
+import { novelsApi, type Novel } from "@/lib/supabase/sdk";
 import { toast } from "sonner";
 import { MoreVertical, RotateCcw, Trash2, BookOpen } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";

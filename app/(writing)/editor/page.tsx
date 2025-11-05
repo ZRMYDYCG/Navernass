@@ -12,7 +12,7 @@ import EditorContent from "./_components/editor-content";
 import RightPanel from "./_components/right-panel";
 import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
-import { novelsApi, chaptersApi, type Novel, type Chapter } from "@/lib/api";
+import { novelsApi, chaptersApi, type Novel, type Chapter } from "@/lib/supabase/sdk";
 import { toast } from "sonner";
 
 export default function NovelsEdit() {

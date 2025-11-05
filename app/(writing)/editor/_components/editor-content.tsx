@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, ChevronRight } from "lucide-react";
 import { TiptapEditor } from "@/components/tiptap";
-import { chaptersApi, type Chapter } from "@/lib/api";
+import { chaptersApi, type Chapter } from "@/lib/supabase/sdk";
 import { toast } from "sonner";
 
 interface Tab {

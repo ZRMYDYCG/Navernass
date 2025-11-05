@@ -1,11 +1,11 @@
-import { supabase } from "../supabase";
-import type { Chapter, CreateChapterDto, UpdateChapterDto } from "./types";
+import { supabase } from "@/lib/supabase";
+import type { Chapter, CreateChapterDto, UpdateChapterDto } from "../types";
 
-export const chaptersApi = {
+export class ChaptersService {
   /**
    * 获取小说的所有章节
    */
-  getByNovelId: async (novelId: string): Promise<Chapter[]> => {
+  async getByNovelId(novelId: string) {
     const { data, error } = await supabase
       .from("chapters")
       .select("*")
@@ -14,35 +14,44 @@ export const chaptersApi = {
 
     if (error) throw error;
     return data || [];
-  },
+  }
 
   /**
-   * 获取单个章节详情
+   * 获取单个章节
    */
-  getById: async (id: string): Promise<Chapter> => {
-    const { data, error } = await supabase.from("chapters").select("*").eq("id", id).single();
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from("chapters")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === "PGRST116") {
+        throw {
+          statusCode: 404,
+          code: "CHAPTER_NOT_FOUND",
+          message: "Chapter not found",
+        };
+      }
+      throw error;
+    }
+
     return data;
-  },
+  }
 
   /**
    * 创建章节
    */
-  create: async (chapterData: CreateChapterDto): Promise<Chapter> => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) throw new Error("未登录");
-
+  async create(chapterData: CreateChapterDto) {
     // 计算字数
-    const wordCount = chapterData.content ? chapterData.content.replace(/<[^>]*>/g, "").length : 0;
+    const wordCount = chapterData.content
+      ? chapterData.content.replace(/<[^>]*>/g, "").length
+      : 0;
 
     const { data, error } = await supabase
       .from("chapters")
       .insert({
-        user_id: user.id,
         novel_id: chapterData.novel_id,
         title: chapterData.title,
         content: chapterData.content || "",
@@ -55,16 +64,17 @@ export const chaptersApi = {
 
     if (error) throw error;
     return data;
-  },
+  }
 
   /**
    * 更新章节
    */
-  update: async (chapterData: UpdateChapterDto): Promise<Chapter> => {
-    const { id, ...updates } = chapterData;
+  async update(id: string, updates: Partial<UpdateChapterDto>) {
+    await this.getById(id);
+
+    const updateData: Record<string, unknown> = { ...updates };
 
     // 如果更新了内容，重新计算字数
-    const updateData: Record<string, unknown> = { ...updates };
     if (updates.content !== undefined) {
       updateData.word_count = updates.content.replace(/<[^>]*>/g, "").length;
     }
@@ -94,21 +104,23 @@ export const chaptersApi = {
     });
 
     return data;
-  },
+  }
 
   /**
    * 删除章节
    */
-  delete: async (id: string): Promise<void> => {
+  async delete(id: string) {
+    await this.getById(id);
+
     const { error } = await supabase.from("chapters").delete().eq("id", id);
 
     if (error) throw error;
-  },
+  }
 
   /**
    * 批量更新章节顺序
    */
-  updateOrder: async (chapters: Array<{ id: string; order_index: number }>): Promise<void> => {
+  async updateOrder(chapters: Array<{ id: string; order_index: number }>) {
     const promises = chapters.map(({ id, order_index }) =>
       supabase.from("chapters").update({ order_index }).eq("id", id)
     );
@@ -117,37 +129,26 @@ export const chaptersApi = {
     const errors = results.filter((r) => r.error);
 
     if (errors.length > 0) {
-      throw new Error("批量更新章节顺序失败");
+      throw {
+        statusCode: 400,
+        code: "UPDATE_ORDER_FAILED",
+        message: "Failed to update chapter order",
+      };
     }
-  },
+  }
 
   /**
    * 发布章节
    */
-  publish: async (id: string): Promise<Chapter> => {
-    const { data, error } = await supabase
-      .from("chapters")
-      .update({ status: "published" })
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
+  async publish(id: string) {
+    return this.update(id, { status: "published" });
+  }
 
   /**
    * 取消发布章节
    */
-  unpublish: async (id: string): Promise<Chapter> => {
-    const { data, error } = await supabase
-      .from("chapters")
-      .update({ status: "draft" })
-      .eq("id", id)
-      .select()
-      .single();
+  async unpublish(id: string) {
+    return this.update(id, { status: "draft" });
+  }
+}
 
-    if (error) throw error;
-    return data;
-  },
-};

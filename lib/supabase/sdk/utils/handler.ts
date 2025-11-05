@@ -4,12 +4,16 @@ import { ApiResponseBuilder } from './response'
 /**
  * 错误处理包装器
  */
+
 export function withErrorHandler(
+  // eslint-disable-next-line ts/no-explicit-any
   handler: (req: NextRequest, context?: any) => Promise<any>,
 ) {
+  // eslint-disable-next-line ts/no-explicit-any
   return async (req: NextRequest, context?: any) => {
     try {
       return await handler(req, context)
+    // eslint-disable-next-line ts/no-explicit-any
     } catch (error: any) {
       console.error('API Error:', error)
 

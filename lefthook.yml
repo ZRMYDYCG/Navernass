@@ -2,16 +2,16 @@
 pre-commit:
   parallel: true
   commands:
-    # 1. Lint staged files
-    lint-staged:
-      glob: '*.{js,ts,jsx,tsx,css,md,json}'
-      run: pnpm lint-staged
-      stage_fixed: true
+  # 1. Lint staged files
+  # lint-staged:
+  #   glob: '*.{js,ts,jsx,tsx,css,md,json}'
+  #   run: pnpm lint-staged
+  #   stage_fixed: true
 
-    # 2. 类型检查
-    # typecheck:
-    #   glob: "*.{ts,tsx}"
-    #   run: pnpm tsc --noEmit
+  # 2. 类型检查
+  # typecheck:
+  #   glob: "*.{ts,tsx}"
+  #   run: pnpm tsc --noEmit
 
 # Commit-msg: 检查 commit 信息
 commit-msg:

@@ -1,6 +1,6 @@
 'use client'
 
-import type { Novel } from '@/lib/api'
+import type { Novel } from '@/lib/supabase/sdk'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Edit, ExternalLink, Plus, Trash2 } from 'lucide-react'
 import Image from 'next/image'
@@ -18,7 +18,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
-import { novelsApi } from '@/lib/api'
+import { novelsApi } from '@/lib/supabase/sdk'
 
 export default function Novels() {
   const router = useRouter()
