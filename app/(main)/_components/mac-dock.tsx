@@ -11,7 +11,7 @@ export function Sidebar() {
   const [isVisible, setIsVisible] = useState(true)
 
   const menuItems = [
-    { path: '/home', label: '新建对话', icon: Bot },
+    { path: '/chat', label: '新建对话', icon: Bot },
     { path: '/novels', label: '我的小说', icon: Book },
     { path: '/trash', label: '回收站', icon: Trash2 },
   ]

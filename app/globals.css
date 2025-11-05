@@ -10,6 +10,50 @@
     'Noto Color Emoji';
 }
 
+/* 全局滚动条样式优化 */
+::-webkit-scrollbar {
+  width: 3px; /* 垂直滚动条宽度（变纤细） */
+  height: 3px; /* 水平滚动条高度 */
+}
+
+/* 滚动条轨道背景 */
+::-webkit-scrollbar-track {
+  background: transparent; /* 透明轨道，减少视觉干扰 */
+  border-radius: 1px; /* 轨道圆角，与滚动条匹配 */
+}
+
+/* 滚动条滑块（可拖动部分） */
+::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5); /* 浅灰色半透明 */
+  border-radius: 1px; /* 滑块圆角，更圆润 */
+  transition: background-color 0.2s ease; /* hover时平滑过渡 */
+}
+
+/* 滚动条滑块hover状态 */
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.7); /* 加深颜色，提升交互感 */
+}
+
+/* 滚动条角落（水平+垂直滚动条交汇处） */
+::-webkit-scrollbar-corner {
+  background: transparent; /* 透明处理，避免出现方块 */
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 85, 99, 0.5); /* 深色模式下的滑块颜色 */
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(107, 114, 128, 0.7); /* 深色模式hover颜色 */
+  }
+}
+
+/* 为滚动容器添加过渡效果（可选） */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
 /* 自定义阴影 */
 .shadow-active {
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
@@ -212,6 +256,18 @@
 }
 
 .dark .ProseMirror p.is-editor-empty:first-child::before {
+  color: #6b7280;
+}
+
+/* ContentEditable Placeholder Styles */
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+  position: absolute;
+}
+
+.dark [contenteditable][data-placeholder]:empty::before {
   color: #6b7280;
 }
 
