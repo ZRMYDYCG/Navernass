@@ -1,116 +1,118 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { novelsApi, type Novel } from "@/lib/supabase/sdk";
-import { toast } from "sonner";
-import { MoreVertical, RotateCcw, Trash2, BookOpen } from "lucide-react";
-import * as Popover from "@radix-ui/react-popover";
-import { formatDistanceToNow } from "date-fns";
-import { zhCN } from "date-fns/locale";
+import type { Novel } from '@/lib/supabase/sdk'
+import * as Popover from '@radix-ui/react-popover'
+import { formatDistanceToNow } from 'date-fns'
+import { zhCN } from 'date-fns/locale'
+import { BookOpen, MoreVertical, RotateCcw, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { InlineLoading } from '@/components/loading'
+import { novelsApi } from '@/lib/supabase/sdk'
 
 interface ContextMenuState {
-  show: boolean;
-  x: number;
-  y: number;
-  item: Novel | null;
+  show: boolean
+  x: number
+  y: number
+  item: Novel | null
 }
 
 export default function Trash() {
-  const [novels, setNovels] = useState<Novel[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [novels, setNovels] = useState<Novel[]>([])
+  const [loading, setLoading] = useState(true)
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     show: false,
     x: 0,
     y: 0,
     item: null,
-  });
+  })
 
   // 加载数据
   useEffect(() => {
-    loadTrashData();
-  }, []);
+    loadTrashData()
+  }, [])
 
   // 点击其他地方关闭右键菜单
   useEffect(() => {
     const handleClick = () => {
       if (contextMenu.show) {
-        setContextMenu({ show: false, x: 0, y: 0, item: null });
+        setContextMenu({ show: false, x: 0, y: 0, item: null })
       }
-    };
+    }
 
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, [contextMenu.show]);
+    document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
+  }, [contextMenu.show])
 
   const loadTrashData = async () => {
     try {
-      setLoading(true);
-      const novelsData = await novelsApi.getArchived();
-      setNovels(novelsData);
+      setLoading(true)
+      const novelsData = await novelsApi.getArchived()
+      setNovels(novelsData)
     } catch (error) {
-      console.error("加载回收站数据失败:", error);
-      const message = error instanceof Error ? error.message : "加载回收站数据失败";
-      toast.error(message);
+      console.error('加载回收站数据失败:', error)
+      const message = error instanceof Error ? error.message : '加载回收站数据失败'
+      toast.error(message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // 恢复小说
   const handleRestoreNovel = async (novel: Novel) => {
     try {
-      await novelsApi.restore(novel.id);
-      toast.success(`小说《${novel.title}》已恢复`);
-      loadTrashData();
+      await novelsApi.restore(novel.id)
+      toast.success(`小说《${novel.title}》已恢复`)
+      loadTrashData()
     } catch (error) {
-      console.error("恢复小说失败:", error);
-      const message = error instanceof Error ? error.message : "恢复小说失败";
-      toast.error(message);
+      console.error('恢复小说失败:', error)
+      const message = error instanceof Error ? error.message : '恢复小说失败'
+      toast.error(message)
     }
-  };
+  }
 
   // 永久删除小说
   const handlePermanentDeleteNovel = async (novel: Novel) => {
     if (!confirm(`确定要永久删除小说《${novel.title}》吗？此操作无法撤销！`)) {
-      return;
+      return
     }
 
     try {
-      await novelsApi.delete(novel.id);
-      toast.success("小说已永久删除");
-      loadTrashData();
+      await novelsApi.delete(novel.id)
+      toast.success('小说已永久删除')
+      loadTrashData()
     } catch (error) {
-      console.error("永久删除小说失败:", error);
-      const message = error instanceof Error ? error.message : "永久删除小说失败";
-      toast.error(message);
+      console.error('永久删除小说失败:', error)
+      const message = error instanceof Error ? error.message : '永久删除小说失败'
+      toast.error(message)
     }
-  };
+  }
 
   // 右键菜单处理
   const handleContextMenu = (e: React.MouseEvent, item: Novel) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
     setContextMenu({
       show: true,
       x: e.clientX,
       y: e.clientY,
       item,
-    });
-  };
+    })
+  }
 
   // 处理恢复
   const handleRestore = () => {
-    if (!contextMenu.item) return;
-    handleRestoreNovel(contextMenu.item);
-    setContextMenu({ show: false, x: 0, y: 0, item: null });
-  };
+    if (!contextMenu.item) return
+    handleRestoreNovel(contextMenu.item)
+    setContextMenu({ show: false, x: 0, y: 0, item: null })
+  }
 
   // 处理永久删除
   const handlePermanentDelete = () => {
-    if (!contextMenu.item) return;
-    handlePermanentDeleteNovel(contextMenu.item);
-    setContextMenu({ show: false, x: 0, y: 0, item: null });
-  };
+    if (!contextMenu.item) return
+    handlePermanentDeleteNovel(contextMenu.item)
+    setContextMenu({ show: false, x: 0, y: 0, item: null })
+  }
 
   return (
     <div className="dark:bg-gray-900 w-full h-full">
@@ -124,7 +126,7 @@ export default function Trash() {
       <section className="px-6 pb-6">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500 dark:text-gray-400">加载中...</div>
+            <InlineLoading text="加载中..." />
           </div>
         ) : novels.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
@@ -134,10 +136,10 @@ export default function Trash() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {novels.map((novel) => (
+            {novels.map(novel => (
               <div
                 key={novel.id}
-                onContextMenu={(e) => handleContextMenu(e, novel)}
+                onContextMenu={e => handleContextMenu(e, novel)}
                 className="group relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all cursor-pointer"
               >
                 {/* 图标和类型 */}
@@ -162,13 +164,22 @@ export default function Trash() {
 
                 {/* 统计信息 */}
                 <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
-                  <span>{novel.word_count.toLocaleString()} 字</span>
-                  <span>{novel.chapter_count} 章节</span>
+                  <span>
+                    {novel.word_count.toLocaleString()}
+                    {' '}
+                    字
+                  </span>
+                  <span>
+                    {novel.chapter_count}
+                    {' '}
+                    章节
+                  </span>
                 </div>
 
                 {/* 时间信息 */}
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  归档于{" "}
+                  归档于
+                  {' '}
                   {formatDistanceToNow(new Date(novel.updated_at), {
                     addSuffix: true,
                     locale: zhCN,
@@ -180,7 +191,7 @@ export default function Trash() {
                   <Popover.Root>
                     <Popover.Trigger asChild>
                       <button
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={e => e.stopPropagation()}
                         className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                       >
                         <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -194,8 +205,8 @@ export default function Trash() {
                       >
                         <button
                           onClick={(e) => {
-                            e.stopPropagation();
-                            handleRestoreNovel(novel);
+                            e.stopPropagation()
+                            handleRestoreNovel(novel)
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                         >
@@ -204,8 +215,8 @@ export default function Trash() {
                         </button>
                         <button
                           onClick={(e) => {
-                            e.stopPropagation();
-                            handlePermanentDeleteNovel(novel);
+                            e.stopPropagation()
+                            handlePermanentDeleteNovel(novel)
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
                         >
@@ -230,7 +241,7 @@ export default function Trash() {
             left: `${contextMenu.x}px`,
             top: `${contextMenu.y}px`,
           }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           <button
             onClick={handleRestore}
@@ -249,5 +260,5 @@ export default function Trash() {
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { InlineLoading } from '@/components/loading'
 import { Button } from '@/components/ui/button'
 import {
   Pagination,
@@ -188,7 +189,7 @@ export default function Novels() {
         {loading
           ? (
               <div className="flex items-center justify-center py-20">
-                <div className="text-gray-500 dark:text-gray-400">加载中...</div>
+                <InlineLoading text="加载中..." />
               </div>
             )
           : novels.length === 0

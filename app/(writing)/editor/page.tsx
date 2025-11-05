@@ -1,167 +1,169 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import Image from "next/image";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import * as Tooltip from "@radix-ui/react-tooltip";
-import * as Dialog from "@radix-ui/react-dialog";
-import EditorHeader from "./_components/editor-header";
-import LeftPanel from "./_components/left-panel";
-import EditorContent from "./_components/editor-content";
-import RightPanel from "./_components/right-panel";
-import { Kbd } from "@/components/ui/kbd";
-import { Button } from "@/components/ui/button";
-import { novelsApi, chaptersApi, type Novel, type Chapter } from "@/lib/supabase/sdk";
-import { toast } from "sonner";
+import type { Chapter, Novel } from '@/lib/supabase/sdk'
+import * as Dialog from '@radix-ui/react-dialog'
+import * as Tooltip from '@radix-ui/react-tooltip'
+import Image from 'next/image'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { PageLoading } from '@/components/loading'
+import { Button } from '@/components/ui/button'
+import { Kbd } from '@/components/ui/kbd'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import { chaptersApi, novelsApi } from '@/lib/supabase/sdk'
+import EditorContent from './_components/editor-content'
+import EditorHeader from './_components/editor-header'
+import LeftPanel from './_components/left-panel'
+import RightPanel from './_components/right-panel'
 
 export default function NovelsEdit() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const novelId = searchParams.get("id");
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const novelId = searchParams.get('id')
 
-  const [novel, setNovel] = useState<Novel | null>(null);
-  const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedChapter, setSelectedChapter] = useState<string | null>(null);
-  const [openTabs, setOpenTabs] = useState<Array<{ id: string; title: string }>>([]);
-  const [activeTab, setActiveTab] = useState<string | null>(null);
-  const [showLeftPanel, setShowLeftPanel] = useState(true);
-  const [showRightPanel, setShowRightPanel] = useState(true);
-  const [createChapterDialogOpen, setCreateChapterDialogOpen] = useState(false);
-  const [newChapterTitle, setNewChapterTitle] = useState("");
-  const [isCreatingChapter, setIsCreatingChapter] = useState(false);
+  const [novel, setNovel] = useState<Novel | null>(null)
+  const [chapters, setChapters] = useState<Chapter[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedChapter, setSelectedChapter] = useState<string | null>(null)
+  const [openTabs, setOpenTabs] = useState<Array<{ id: string, title: string }>>([])
+  const [activeTab, setActiveTab] = useState<string | null>(null)
+  const [showLeftPanel, setShowLeftPanel] = useState(true)
+  const [showRightPanel, setShowRightPanel] = useState(true)
+  const [createChapterDialogOpen, setCreateChapterDialogOpen] = useState(false)
+  const [newChapterTitle, setNewChapterTitle] = useState('')
+  const [isCreatingChapter, setIsCreatingChapter] = useState(false)
 
   // 加载小说和章节数据
   useEffect(() => {
     if (!novelId) {
-      toast.error("缺少小说ID");
-      router.push("/novels");
-      return;
+      toast.error('缺少小说ID')
+      router.push('/novels')
+      return
     }
 
     const loadData = async () => {
       try {
-        setLoading(true);
+        setLoading(true)
         const [novelData, chaptersData] = await Promise.all([
           novelsApi.getById(novelId),
           chaptersApi.getByNovelId(novelId),
-        ]);
-        setNovel(novelData);
-        setChapters(chaptersData);
+        ])
+        setNovel(novelData)
+        setChapters(chaptersData)
       } catch (error) {
-        console.error("加载数据失败:", error);
-        const message = error instanceof Error ? error.message : "加载数据失败";
-        toast.error(message);
+        console.error('加载数据失败:', error)
+        const message = error instanceof Error ? error.message : '加载数据失败'
+        toast.error(message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    loadData();
-  }, [novelId, router]);
+    loadData()
+  }, [novelId, router])
 
   // 键盘快捷键监听
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ctrl+E 切换左侧面板
-      if (e.ctrlKey && e.key === "e") {
-        e.preventDefault();
-        setShowLeftPanel((prev) => !prev);
+      if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault()
+        setShowLeftPanel(prev => !prev)
       }
       // Ctrl+L 切换右侧面板
-      if (e.ctrlKey && e.key === "l") {
-        e.preventDefault();
-        setShowRightPanel((prev) => !prev);
+      if (e.ctrlKey && e.key === 'l') {
+        e.preventDefault()
+        setShowRightPanel(prev => !prev)
       }
-    };
+    }
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // 处理章节选择
   const handleSelectChapter = (chapterId: string) => {
-    const chapter = chapters.find((c) => c.id === chapterId);
-    if (!chapter) return;
+    const chapter = chapters.find(c => c.id === chapterId)
+    if (!chapter) return
 
-    setSelectedChapter(chapterId);
+    setSelectedChapter(chapterId)
 
     // 如果该章节不在已打开的标签页中，添加它
-    if (!openTabs.find((tab) => tab.id === chapterId)) {
-      setOpenTabs([...openTabs, { id: chapter.id, title: chapter.title }]);
+    if (!openTabs.find(tab => tab.id === chapterId)) {
+      setOpenTabs([...openTabs, { id: chapter.id, title: chapter.title }])
     }
 
     // 设置为当前活动标签
-    setActiveTab(chapterId);
-  };
+    setActiveTab(chapterId)
+  }
 
   const closeTab = (tabId: string) => {
-    const newTabs = openTabs.filter((tab) => tab.id !== tabId);
-    setOpenTabs(newTabs);
+    const newTabs = openTabs.filter(tab => tab.id !== tabId)
+    setOpenTabs(newTabs)
     if (activeTab === tabId) {
       if (newTabs.length > 0) {
-        setActiveTab(newTabs[newTabs.length - 1].id);
-        setSelectedChapter(newTabs[newTabs.length - 1].id);
+        setActiveTab(newTabs[newTabs.length - 1].id)
+        setSelectedChapter(newTabs[newTabs.length - 1].id)
       } else {
-        setActiveTab(null);
-        setSelectedChapter(null);
+        setActiveTab(null)
+        setSelectedChapter(null)
       }
     }
-  };
+  }
 
   // 打开创建章节对话框
   const handleOpenCreateChapterDialog = () => {
-    setNewChapterTitle("");
-    setCreateChapterDialogOpen(true);
-  };
+    setNewChapterTitle('')
+    setCreateChapterDialogOpen(true)
+  }
 
   // 创建新章节
   const handleCreateChapter = async () => {
-    if (!novelId) return;
+    if (!novelId) return
     if (!newChapterTitle.trim()) {
-      toast.error("请输入章节标题");
-      return;
+      toast.error('请输入章节标题')
+      return
     }
 
     try {
-      setIsCreatingChapter(true);
+      setIsCreatingChapter(true)
       const newChapter = await chaptersApi.create({
         novel_id: novelId,
         title: newChapterTitle.trim(),
         order_index: chapters.length,
-        content: "",
-      });
+        content: '',
+      })
 
-      toast.success("章节创建成功！");
-      setCreateChapterDialogOpen(false);
+      toast.success('章节创建成功！')
+      setCreateChapterDialogOpen(false)
 
       // 重新加载章节列表
-      const updatedChapters = await chaptersApi.getByNovelId(novelId);
-      setChapters(updatedChapters);
+      const updatedChapters = await chaptersApi.getByNovelId(novelId)
+      setChapters(updatedChapters)
 
       // 自动打开新创建的章节
-      handleSelectChapter(newChapter.id);
+      handleSelectChapter(newChapter.id)
     } catch (error) {
-      console.error("创建章节失败:", error);
-      const message = error instanceof Error ? error.message : "创建章节失败";
-      toast.error(message);
+      console.error('创建章节失败:', error)
+      const message = error instanceof Error ? error.message : '创建章节失败'
+      toast.error(message)
     } finally {
-      setIsCreatingChapter(false);
+      setIsCreatingChapter(false)
     }
-  };
+  }
 
   // 创建卷（暂未实现）
   const handleCreateVolume = () => {
-    toast.info("卷功能即将推出！");
-  };
+    toast.info('卷功能即将推出！')
+  }
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-white dark:bg-gray-900">
-        <div className="text-gray-500 dark:text-gray-400">加载中...</div>
+      <div className="h-screen">
+        <PageLoading text="加载中..." />
       </div>
-    );
+    )
   }
 
   if (!novel) {
@@ -169,16 +171,16 @@ export default function NovelsEdit() {
       <div className="h-screen flex items-center justify-center bg-white dark:bg-gray-900">
         <div className="text-gray-500 dark:text-gray-400">小说不存在</div>
       </div>
-    );
+    )
   }
 
   // 格式化章节数据以适配组件
-  const formattedChapters = chapters.map((chapter) => ({
+  const formattedChapters = chapters.map(chapter => ({
     id: chapter.id,
     title: chapter.title,
     wordCount: `${(chapter.word_count / 1000).toFixed(1)}k字`,
-    status: chapter.status === "published" ? "已发布" : "草稿",
-  }));
+    status: chapter.status === 'published' ? '已发布' : '草稿',
+  }))
 
   return (
     <Tooltip.Provider>
@@ -253,7 +255,7 @@ export default function NovelsEdit() {
                   onTabChange={setActiveTab}
                   onTabClose={closeTab}
                   novelTitle={novel.title}
-                  chapterTitle={chapters.find((c) => c.id === activeTab)?.title || ""}
+                  chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
                   chapterId={activeTab}
                 />
               )}
@@ -286,19 +288,21 @@ export default function NovelsEdit() {
                   {/* 标题输入 */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      章节标题 <span className="text-red-500">*</span>
+                      章节标题
+                      {' '}
+                      <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={newChapterTitle}
-                      onChange={(e) => setNewChapterTitle(e.target.value)}
+                      onChange={e => setNewChapterTitle(e.target.value)}
                       placeholder="例如：第一章 新的开始"
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
                       autoFocus
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          handleCreateChapter();
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          handleCreateChapter()
                         }
                       }}
                     />
@@ -321,7 +325,7 @@ export default function NovelsEdit() {
                     className="flex-1 bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
                     disabled={isCreatingChapter || !newChapterTitle.trim()}
                   >
-                    {isCreatingChapter ? "创建中..." : "创建"}
+                    {isCreatingChapter ? '创建中...' : '创建'}
                   </Button>
                 </div>
               </div>
@@ -330,5 +334,5 @@ export default function NovelsEdit() {
         </Dialog.Root>
       </div>
     </Tooltip.Provider>
-  );
+  )
 }

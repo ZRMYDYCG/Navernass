@@ -219,3 +219,17 @@ export const newFeatureApi = {
 ## 接口文档
 
 [文档](./app/api/api-doc.md)
+
+## 项目 Loaidng 统一
+
+请不要自定义 loading, 需要保证项目 loading 风格
+
+[具体查看](./components/loading.tsx)
+
+提供：
+
+页面级 Loading（整页加载）
+
+内联 Loading（局部加载）
+
+全屏 Loading（重要操作）
