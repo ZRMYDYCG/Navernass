@@ -23,7 +23,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         {children}
       </main>
 
-      {!isChatPage && <Sidebar /> }
+      {!isChatPage && <Sidebar />}
     </div>
   )
 }
