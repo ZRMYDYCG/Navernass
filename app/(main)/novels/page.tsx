@@ -109,7 +109,7 @@ export default function Novels() {
 
   // 打开小说编辑器
   const handleOpenNovel = (novel: Novel) => {
-    router.push(`/novels/editor?id=${novel.id}`)
+    router.push(`/editor?id=${novel.id}`)
   }
 
   // 打开编辑对话框
@@ -147,7 +147,7 @@ export default function Novels() {
         })
         toast.success('小说创建成功！')
         setDialogOpen(false)
-        router.push(`/novels/editor?id=${novel.id}`)
+        router.push(`/editor?id=${novel.id}`)
       }
     } catch (error) {
       console.error(editingNovel ? '更新小说失败:' : '创建小说失败:', error)
@@ -299,7 +299,7 @@ export default function Novels() {
                           <Button
                             className="w-full bg-black dark:bg-gray-700 text-white h-8 text-sm hover:bg-gray-800 dark:hover:bg-gray-600"
                             onClick={() => {
-                              router.push(`/novels/editor?id=${novel.id}`)
+                              router.push(`/editor?id=${novel.id}`)
                             }}
                           >
                             开始创作
