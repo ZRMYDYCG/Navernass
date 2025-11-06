@@ -21,7 +21,7 @@ import { useChatSidebar } from './chat-sidebar-provider'
 import { EditChatTitleDialog } from './edit-chat-title-dialog'
 
 export function ChatWelcomeHeader() {
-  const { isOpen, open, updateConversationTitle } = useChatSidebar()
+  const { isOpen, open, updateConversationTitle, onTitleUpdate } = useChatSidebar()
   const pathname = usePathname()
   const params = useParams()
   const router = useRouter()
@@ -55,6 +55,20 @@ export function ChatWelcomeHeader() {
 
     loadConversationTitle()
   }, [conversationId])
+
+  // 监听标题更新（侧边栏修改标题时同步）
+  useEffect(() => {
+    if (!conversationId) return
+
+    const unsubscribe = onTitleUpdate((updatedConvId, newTitle) => {
+      // 只更新当前对话的标题
+      if (updatedConvId === conversationId) {
+        setChatTitle(newTitle)
+      }
+    })
+
+    return unsubscribe
+  }, [conversationId, onTitleUpdate])
 
   const handleSaveTitle = useCallback(async (id: string, newTitle: string) => {
     try {

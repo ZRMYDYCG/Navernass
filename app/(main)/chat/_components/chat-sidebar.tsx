@@ -57,7 +57,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const router = useRouter()
   const params = useParams()
   const { theme } = useTheme()
-  const { onTitleUpdate } = useChatSidebar()
+  const { onTitleUpdate, updateConversationTitle } = useChatSidebar()
   const currentId = params?.id as string | undefined
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
   const [chatHistory, setChatHistory] = useState<ChatHistoryData[]>([])
@@ -160,6 +160,8 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
       setChatHistory(prev =>
         prev.map(chat => (chat.id === chatId ? { ...chat, title: newTitle } : chat)),
       )
+      // 通知会话区域更新标题
+      updateConversationTitle(chatId, newTitle)
     } catch (error) {
       console.error('Failed to rename conversation:', error)
       // TODO: 显示错误提示
