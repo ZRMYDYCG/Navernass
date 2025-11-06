@@ -7,7 +7,7 @@ import {
   Share2,
 } from 'lucide-react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -15,6 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { conversationsApi } from '@/lib/supabase/sdk'
 import { useChatSidebar } from './chat-sidebar-provider'
 import { EditChatTitleDialog } from './edit-chat-title-dialog'
 
@@ -31,18 +32,37 @@ export function ChatWelcomeHeader() {
   // 对话标题编辑状态
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [chatTitle, setChatTitle] = useState('新建对话')
+  const [isLoadingTitle, setIsLoadingTitle] = useState(false)
 
-  // TODO: 从 API 获取对话标题
-  // useEffect(() => {
-  //   if (conversationId) {
-  //     fetchConversationTitle(conversationId).then(setChatTitle)
-  //   }
-  // }, [conversationId])
+  useEffect(() => {
+    const loadConversationTitle = async () => {
+      if (!conversationId) return
+
+      try {
+        setIsLoadingTitle(true)
+        const conversation = await conversationsApi.getById(conversationId)
+        if (conversation) {
+          setChatTitle(conversation.title)
+        }
+      } catch (error) {
+        console.error('Failed to load conversation title:', error)
+        setChatTitle('对话')
+      } finally {
+        setIsLoadingTitle(false)
+      }
+    }
+
+    loadConversationTitle()
+  }, [conversationId])
 
   const handleSaveTitle = useCallback(async (id: string, newTitle: string) => {
-    // TODO: 调用 API 更新标题
-    console.warn('更新对话标题:', id, newTitle)
-    setChatTitle(newTitle)
+    try {
+      await conversationsApi.update({ id, title: newTitle })
+      setChatTitle(newTitle)
+    } catch (error) {
+      console.error('Failed to update conversation title:', error)
+      throw error
+    }
   }, [])
 
   const handleShareClick = useCallback(() => {
@@ -80,8 +100,9 @@ export function ChatWelcomeHeader() {
                   variant="ghost"
                   className="text-lg font-semibold text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
                   onClick={() => setIsEditDialogOpen(true)}
+                  disabled={isLoadingTitle}
                 >
-                  {chatTitle}
+                  {isLoadingTitle ? '加载中...' : chatTitle}
                 </Button>
               )
             : (
@@ -142,6 +163,7 @@ export function ChatWelcomeHeader() {
       {/* 编辑标题弹窗 */}
       {conversationId && (
         <EditChatTitleDialog
+          key={`${conversationId}-${chatTitle}`}
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
           currentTitle={chatTitle}
