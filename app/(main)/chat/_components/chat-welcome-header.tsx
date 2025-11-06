@@ -21,7 +21,7 @@ import { useChatSidebar } from './chat-sidebar-provider'
 import { EditChatTitleDialog } from './edit-chat-title-dialog'
 
 export function ChatWelcomeHeader() {
-  const { isOpen, open } = useChatSidebar()
+  const { isOpen, open, updateConversationTitle } = useChatSidebar()
   const pathname = usePathname()
   const params = useParams()
   const router = useRouter()
@@ -60,11 +60,13 @@ export function ChatWelcomeHeader() {
     try {
       await conversationsApi.update({ id, title: newTitle })
       setChatTitle(newTitle)
+      // 通知侧边栏更新标题
+      updateConversationTitle(id, newTitle)
     } catch (error) {
       console.error('Failed to update conversation title:', error)
       throw error
     }
-  }, [])
+  }, [updateConversationTitle])
 
   const handleShareClick = useCallback(() => {
     // TODO: 实现分享功能

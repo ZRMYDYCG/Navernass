@@ -39,6 +39,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { conversationsApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
+import { useChatSidebar } from './chat-sidebar-provider'
 
 interface ChatHistoryData {
   id: string
@@ -56,12 +57,26 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const router = useRouter()
   const params = useParams()
   const { theme } = useTheme()
+  const { onTitleUpdate } = useChatSidebar()
   const currentId = params?.id as string | undefined
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
   const [chatHistory, setChatHistory] = useState<ChatHistoryData[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
+
+  // 监听标题更新
+  useEffect(() => {
+    const unsubscribe = onTitleUpdate((conversationId, newTitle) => {
+      setChatHistory(prev =>
+        prev.map(chat =>
+          chat.id === conversationId ? { ...chat, title: newTitle } : chat,
+        ),
+      )
+    })
+
+    return unsubscribe
+  }, [onTitleUpdate])
 
   // 加载对话历史
   useEffect(() => {
