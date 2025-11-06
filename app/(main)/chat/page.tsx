@@ -48,7 +48,7 @@ export default function ChatPage() {
 
         <ChatInputBox onSend={handleSendMessage} />
 
-        <PromptButtons />
+        <PromptButtons onPromptClick={handleSendMessage} />
       </div>
     </div>
   )
