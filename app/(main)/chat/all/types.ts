@@ -2,6 +2,7 @@ export interface ChatItem {
   id: string
   title: string
   createdAt: Date
+  updatedAt?: Date
   isPinned?: boolean
 }
 

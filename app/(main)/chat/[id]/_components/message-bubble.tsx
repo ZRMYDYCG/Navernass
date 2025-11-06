@@ -1,6 +1,6 @@
 'use client'
 
-import type { Message } from '../types'
+import type { Message } from '@/lib/supabase/sdk/types'
 import { useTheme } from 'next-themes'
 
 import { useEffect, useState } from 'react'
@@ -64,7 +64,7 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
             isUser
               ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
               : 'dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-          } ${message.status === 'error' ? 'border-2 border-red-500' : ''}`}
+          }`}
         >
           {isUser
             ? (
@@ -78,12 +78,9 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
                   )}
                 </div>
               )}
-
-          {message.error && (
-            <p className="text-xs text-red-300 mt-2">{message.error}</p>
-          )}
         </div>
       </div>
     </div>
   )
 }
+

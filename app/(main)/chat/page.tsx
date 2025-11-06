@@ -1,18 +1,35 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { ChatInputBox } from './_components/chat-input-box'
 import { ChatWelcomeHeader } from './_components/chat-welcome-header'
 import { PromptButtons } from './_components/prompt-buttons'
+import { chatApi } from '@/lib/supabase/sdk'
 
 export default function ChatPage() {
   const router = useRouter()
+  const [isSending, setIsSending] = useState(false)
 
-  const handleSendMessage = (content: string) => {
-    const conversationId = Date.now().toString()
-    // 将消息内容编码为 base64 并作为 URL 参数传递
-    const encodedMessage = btoa(encodeURIComponent(content))
-    router.push(`/chat/${conversationId}?message=${encodedMessage}`)
+  const handleSendMessage = async (content: string) => {
+    if (!content.trim() || isSending) return
+
+    try {
+      setIsSending(true)
+      
+      // 直接调用API创建对话并发送消息
+      const response = await chatApi.sendMessage({
+        message: content.trim(),
+      })
+
+      // 使用真实的conversationId导航
+      router.push(`/chat/${response.conversationId}`)
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      // TODO: 显示错误提示
+    } finally {
+      setIsSending(false)
+    }
   }
 
   return (

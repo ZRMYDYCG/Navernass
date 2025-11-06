@@ -18,6 +18,8 @@ interface ChatListHeaderProps {
   handleBatchDelete: () => void
   handleBatchPin: () => void
   handleBatchShare: () => void
+  isLoading?: boolean
+  chatCount?: number
 }
 
 export function ChatListHeader({
@@ -31,6 +33,8 @@ export function ChatListHeader({
   handleBatchDelete,
   handleBatchPin,
   handleBatchShare,
+  isLoading = false,
+  chatCount = 0,
 }: ChatListHeaderProps) {
   const router = useRouter()
 
@@ -47,6 +51,11 @@ export function ChatListHeader({
         </Button>
         <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {title}
+          {!isLoading && (
+            <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+              ({chatCount})
+            </span>
+          )}
         </h1>
       </div>
       <ChatListToolbar

@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
-import { withErrorHandler } from "@/lib/supabase/sdk/utils/handler";
-import { ApiResponseBuilder } from "@/lib/supabase/sdk/utils/response";
-import { MessagesService } from "@/lib/supabase/sdk/services/messages.service";
+import type { NextRequest } from 'next/server'
+import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
+import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
+import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
 
-const messagesService = new MessagesService();
+const messagesService = new MessagesService()
 
 /**
  * DELETE /api/conversations/:id/messages/clear
@@ -11,8 +11,7 @@ const messagesService = new MessagesService();
  */
 export const DELETE = withErrorHandler(
   async (req: NextRequest, { params }: { params: { id: string } }) => {
-    await messagesService.clearByConversationId(params.id);
-    return ApiResponseBuilder.success({ message: "Messages cleared successfully" });
-  }
-);
-
+    await messagesService.clearByConversationId(params.id)
+    return ApiResponseBuilder.success({ message: 'Messages cleared successfully' })
+  },
+)

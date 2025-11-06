@@ -1,7 +1,9 @@
 export * from './chapters'
+export * from './chat'
 export * from './client'
 export * from './conversations'
 export * from './messages'
+export * from './news'
 export * from './novels'
 
 export * from './types'

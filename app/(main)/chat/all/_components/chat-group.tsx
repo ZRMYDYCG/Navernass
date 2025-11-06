@@ -10,6 +10,7 @@ interface ChatGroupProps {
   isSelectionMode: boolean
   selectedChats: Set<string>
   onToggleSelect: (chatId: string) => void
+  onChatClick: (chatId: string) => void
 }
 
 export function ChatGroup({
@@ -17,6 +18,7 @@ export function ChatGroup({
   isSelectionMode,
   selectedChats,
   onToggleSelect,
+  onChatClick,
 }: ChatGroupProps) {
   return (
     <div className="space-y-2">

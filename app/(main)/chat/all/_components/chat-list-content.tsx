@@ -11,6 +11,7 @@ interface ChatListContentProps {
   isSelectionMode: boolean
   selectedChats: Set<string>
   toggleChatSelection: (chatId: string) => void
+  onChatClick: (chatId: string) => void
 }
 
 export function ChatListContent({
@@ -18,6 +19,7 @@ export function ChatListContent({
   isSelectionMode,
   selectedChats,
   toggleChatSelection,
+  onChatClick,
 }: ChatListContentProps) {
   if (groupedChats.length === 0) {
     return (
@@ -38,6 +40,7 @@ export function ChatListContent({
             isSelectionMode={isSelectionMode}
             selectedChats={selectedChats}
             onToggleSelect={toggleChatSelection}
+            onChatClick={onChatClick}
           />
         ))}
       </div>

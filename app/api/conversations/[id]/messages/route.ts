@@ -1,10 +1,10 @@
-import { NextRequest } from "next/server";
-import { withErrorHandler } from "@/lib/supabase/sdk/utils/handler";
-import { ApiResponseBuilder } from "@/lib/supabase/sdk/utils/response";
-import { MessagesService } from "@/lib/supabase/sdk/services/messages.service";
-import type { CreateMessageDto } from "@/lib/supabase/sdk/types";
+import type { NextRequest } from 'next/server'
+import type { CreateMessageDto } from '@/lib/supabase/sdk/types'
+import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
+import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
+import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
 
-const messagesService = new MessagesService();
+const messagesService = new MessagesService()
 
 /**
  * GET /api/conversations/:id/messages
@@ -12,10 +12,10 @@ const messagesService = new MessagesService();
  */
 export const GET = withErrorHandler(
   async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const messages = await messagesService.getByConversationId(params.id);
-    return ApiResponseBuilder.success(messages);
-  }
-);
+    const messages = await messagesService.getByConversationId(params.id)
+    return ApiResponseBuilder.success(messages)
+  },
+)
 
 /**
  * POST /api/conversations/:id/messages
@@ -23,13 +23,12 @@ export const GET = withErrorHandler(
  */
 export const POST = withErrorHandler(
   async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const body: Omit<CreateMessageDto, "conversation_id"> = await req.json();
+    const body: Omit<CreateMessageDto, 'conversation_id'> = await req.json()
     const messageData: CreateMessageDto = {
       ...body,
       conversation_id: params.id,
-    };
-    const message = await messagesService.create(messageData);
-    return ApiResponseBuilder.success(message);
-  }
-);
-
+    }
+    const message = await messagesService.create(messageData)
+    return ApiResponseBuilder.success(message)
+  },
+)

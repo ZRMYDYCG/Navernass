@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
-import { withErrorHandler } from "@/lib/supabase/sdk/utils/handler";
-import { ApiResponseBuilder } from "@/lib/supabase/sdk/utils/response";
-import { ChaptersService } from "@/lib/supabase/sdk/services/chapters.service";
+import type { NextRequest } from 'next/server'
+import { ChaptersService } from '@/lib/supabase/sdk/services/chapters.service'
+import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
+import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
 
-const chaptersService = new ChaptersService();
+const chaptersService = new ChaptersService()
 
 /**
  * GET /api/novels/:id/chapters
@@ -11,8 +11,7 @@ const chaptersService = new ChaptersService();
  */
 export const GET = withErrorHandler(
   async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const chapters = await chaptersService.getByNovelId(params.id);
-    return ApiResponseBuilder.success(chapters);
-  }
-);
-
+    const chapters = await chaptersService.getByNovelId(params.id)
+    return ApiResponseBuilder.success(chapters)
+  },
+)

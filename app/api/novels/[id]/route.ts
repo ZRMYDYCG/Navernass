@@ -1,10 +1,10 @@
-import { NextRequest } from "next/server";
-import { withErrorHandler } from "@/lib/supabase/sdk/utils/handler";
-import { ApiResponseBuilder } from "@/lib/supabase/sdk/utils/response";
-import { NovelsService } from "@/lib/supabase/sdk/services/novels.service";
-import type { UpdateNovelDto } from "@/lib/supabase/sdk/types";
+import type { NextRequest } from 'next/server'
+import type { UpdateNovelDto } from '@/lib/supabase/sdk/types'
+import { NovelsService } from '@/lib/supabase/sdk/services/novels.service'
+import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
+import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
 
-const novelsService = new NovelsService();
+const novelsService = new NovelsService()
 
 /**
  * GET /api/novels/:id
@@ -12,10 +12,10 @@ const novelsService = new NovelsService();
  */
 export const GET = withErrorHandler(
   async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const novel = await novelsService.getById(params.id);
-    return ApiResponseBuilder.success(novel);
-  }
-);
+    const novel = await novelsService.getById(params.id)
+    return ApiResponseBuilder.success(novel)
+  },
+)
 
 /**
  * PUT /api/novels/:id
@@ -23,11 +23,11 @@ export const GET = withErrorHandler(
  */
 export const PUT = withErrorHandler(
   async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const body: Partial<UpdateNovelDto> = await req.json();
-    const novel = await novelsService.update(params.id, body);
-    return ApiResponseBuilder.success(novel);
-  }
-);
+    const body: Partial<UpdateNovelDto> = await req.json()
+    const novel = await novelsService.update(params.id, body)
+    return ApiResponseBuilder.success(novel)
+  },
+)
 
 /**
  * DELETE /api/novels/:id
@@ -35,8 +35,7 @@ export const PUT = withErrorHandler(
  */
 export const DELETE = withErrorHandler(
   async (req: NextRequest, { params }: { params: { id: string } }) => {
-    await novelsService.delete(params.id);
-    return ApiResponseBuilder.success({ message: "Novel deleted successfully" });
-  }
-);
-
+    await novelsService.delete(params.id)
+    return ApiResponseBuilder.success({ message: 'Novel deleted successfully' })
+  },
+)

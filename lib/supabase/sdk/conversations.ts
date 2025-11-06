@@ -5,8 +5,8 @@ export const conversationsApi = {
   /**
    * 获取所有对话
    */
-  getList: async (params?: { novelId?: string }): Promise<Conversation[]> => {
-    return apiClient.get<Conversation[]>('/api/conversations', { params })
+  getList: async (): Promise<Conversation[]> => {
+    return apiClient.get<Conversation[]>('/api/conversations')
   },
 
   /**
