@@ -50,13 +50,20 @@ export function ChatListToolbar({
       <div className="flex items-center gap-2">
         {/* 搜索框 */}
         <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-[999]">
+            <Search className="w-4 h-4 text-gray-400 drop-shadow-sm" />
+          </div>
           <Input
             type="text"
             placeholder={UI_CONFIG.search.placeholder}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className={`pl-9 ${UI_CONFIG.search.width} bg-gray-100 dark:bg-gray-700 border-0 focus:border-0 focus:outline-none focus:ring-0 focus:shadow-none`}
+            className={`pl-9 ${UI_CONFIG.search.width}
+              bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10
+              border border-gray-200/50 dark:border-gray-700/50
+              focus:border-0 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none
+              hover:border-gray-300/70 dark:hover:border-gray-600/70
+              backdrop-blur-sm`}
           />
         </div>
 

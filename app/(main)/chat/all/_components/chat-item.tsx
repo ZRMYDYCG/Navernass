@@ -47,7 +47,7 @@ export function ChatItemComponent({
       )}
 
       <div className="flex items-start gap-3 flex-1 min-w-0">
-        <MessageCircle className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
+        <MessageCircle className="w-5 h-5 text-gray-700 dark:text-gray-200 mt-0.5 flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
