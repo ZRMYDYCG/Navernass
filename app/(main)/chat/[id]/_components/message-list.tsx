@@ -1,9 +1,10 @@
 'use client'
 
-import type { Message } from '../types'
+import type { Message } from '@/lib/supabase/sdk/types'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
+import { InlineLoading } from '@/components/loading'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { CHAT_CONFIG } from '../config'
 import { MessageBubble } from './message-bubble'
@@ -21,7 +22,7 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
   const [showScrollButton, setShowScrollButton] = useState(false)
-  const [isUserScrolling, setIsUserScrolling] = useState(false)
+  const [_isUserScrolling, setIsUserScrolling] = useState(false)
   const isNearBottomRef = useRef(true)
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth', resetUserScrolling = false) => {
@@ -109,7 +110,13 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
           {messages.length === 0
             ? (
                 <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                  <p>开始对话吧...</p>
+                  {isLoading
+                    ? (
+                        <InlineLoading text="加载对话历史..." />
+                      )
+                    : (
+                        <p>开始对话吧...</p>
+                      )}
                 </div>
               )
             : (

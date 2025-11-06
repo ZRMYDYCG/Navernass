@@ -1,13 +1,14 @@
 'use client'
 
 import type { ChatItem } from './types'
-import { useCallback, useState, useEffect } from 'react'
+import type { Conversation } from '@/lib/supabase/sdk/types'
 import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+import { PageLoading } from '@/components/loading'
+import { conversationsApi } from '@/lib/supabase/sdk'
 import { ChatListContent } from './_components/chat-list-content'
 import { ChatListHeader } from './_components/chat-list-header'
 import { filterChats, groupChatsByDate } from './_utils'
-import { conversationsApi } from '@/lib/supabase/sdk'
-import type { Conversation } from '@/lib/supabase/sdk/types'
 
 export default function AllChatsPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -129,14 +130,19 @@ export default function AllChatsPage() {
       />
 
       {/* 对话列表 */}
-      <ChatListContent
-        groupedChats={groupedChats}
-        isSelectionMode={isSelectionMode}
-        selectedChats={selectedChats}
-        toggleChatSelection={toggleChatSelection}
-        onChatClick={handleChatClick}
-      />
+      {isLoading
+        ? (
+            <PageLoading text="加载对话列表..." />
+          )
+        : (
+            <ChatListContent
+              groupedChats={groupedChats}
+              isSelectionMode={isSelectionMode}
+              selectedChats={selectedChats}
+              toggleChatSelection={toggleChatSelection}
+              onChatClick={handleChatClick}
+            />
+          )}
     </div>
   )
 }
-
