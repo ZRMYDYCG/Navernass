@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
-import { ThemeProvider } from '@/providers/theme-provider'
 import { FaviconProvider } from '@/providers/favicon-provider'
+import { ThemeProvider } from '@/providers/theme-provider'
 import './globals.css'
-import Head from 'next/head'
 
 const inter = Inter({
   subsets: ['latin'],
