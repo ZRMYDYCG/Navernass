@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { chatApi } from '@/lib/supabase/sdk'
 import { ChatInputBox } from './_components/chat-input-box'
 import { ChatWelcomeHeader } from './_components/chat-welcome-header'
@@ -11,6 +11,15 @@ export default function ChatPage() {
   const router = useRouter()
   const [isSending, setIsSending] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
+
+  // 清理函数：组件卸载时取消请求
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isSending) return
@@ -35,6 +44,8 @@ export default function ChatPage() {
             sessionStorage.setItem('newChatMessage', content.trim())
             sessionStorage.setItem('newConversationId', id)
             router.push(`/chat/${id}`)
+            // 跳转后重置状态（即使组件可能立即卸载）
+            setIsSending(false)
           },
           onError: (error) => {
             console.error('Failed to create conversation:', error)
@@ -58,13 +69,24 @@ export default function ChatPage() {
             晚上好，一勺
           </h1>
           <p className="text-lg text-gray-500 dark:text-gray-400">
-            开始创作你的故事吧
+            {isSending ? '正在创建对话...' : '开始创作你的故事吧'}
           </p>
         </div>
 
-        <ChatInputBox onSend={handleSendMessage} />
+        {isSending && (
+          <div className="mb-4 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+            <div className="flex gap-1">
+              <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"></div>
+            </div>
+            <span>正在准备对话空间...</span>
+          </div>
+        )}
 
-        <PromptButtons onPromptClick={handleSendMessage} />
+        <ChatInputBox onSend={handleSendMessage} disabled={isSending} />
+
+        <PromptButtons onPromptClick={handleSendMessage} disabled={isSending} />
       </div>
     </div>
   )

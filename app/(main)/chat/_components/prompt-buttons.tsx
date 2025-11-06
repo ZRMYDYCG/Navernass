@@ -2,9 +2,10 @@
 
 interface PromptButtonsProps {
   onPromptClick?: (prompt: string) => void
+  disabled?: boolean
 }
 
-export function PromptButtons({ onPromptClick }: PromptButtonsProps) {
+export function PromptButtons({ onPromptClick, disabled = false }: PromptButtonsProps) {
   const prompts = [
     { label: '帮我构思一个悬疑推理小说的开篇情节' },
     { label: '如何塑造一个令人印象深刻的反派角色？' },
@@ -15,7 +16,7 @@ export function PromptButtons({ onPromptClick }: PromptButtonsProps) {
   ]
 
   const handleClick = (prompt: string) => {
-    if (onPromptClick) {
+    if (onPromptClick && !disabled) {
       onPromptClick(prompt)
     }
   }
@@ -28,7 +29,12 @@ export function PromptButtons({ onPromptClick }: PromptButtonsProps) {
             key={prompt.label}
             type="button"
             onClick={() => handleClick(prompt.label)}
-            className="px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-800 dark:text-gray-200 transition-all duration-200 text-sm font-medium hover:shadow-md hover:scale-[1.02] active:scale-[0.98] cursor-pointer backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
+            disabled={disabled}
+            className={`px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-800 dark:text-gray-200 transition-all duration-200 text-sm font-medium hover:shadow-md hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 ${
+              disabled
+                ? 'opacity-50 cursor-not-allowed hover:scale-100 active:scale-100 hover:shadow-none'
+                : 'cursor-pointer'
+            }`}
           >
             {prompt.label}
           </button>
