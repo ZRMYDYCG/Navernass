@@ -12,7 +12,9 @@ export default function ConversationPage() {
       </div>
 
       {/* 输入框区域 */}
-      <ChatInputBox />
+      <div className="mb-3">
+        <ChatInputBox />
+      </div>
     </div>
   )
 }

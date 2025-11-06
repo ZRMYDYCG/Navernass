@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 interface ChatHistoryData {
@@ -83,94 +84,103 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   }
 
   return (
-    <>
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40 lg:hidden"
-          onClick={onClose}
-          aria-label="关闭侧边栏"
-        />
-      )}
-
-      <aside
-        className={cn(
-          'fixed lg:relative top-0 left-0 h-full bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50 flex flex-col',
-          // 移动端：固定宽度 + transform
-          'w-72 transition-transform duration-300',
-          // 桌面端：宽度变化动画
-          'lg:transition-all lg:duration-300',
-          // 显示/隐藏控制
-          isOpen
-            ? 'translate-x-0 lg:w-72'
-            : '-translate-x-full lg:w-0 lg:translate-x-0 lg:overflow-hidden',
-        )}
-      >
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="w-8 h-8">
-              <AvatarImage src="/assets/svg/logo-dark.svg" alt="Narraverse" />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-sm">
-                N
-              </AvatarFallback>
-            </Avatar>
-            <span className="font-medium text-gray-800 dark:text-gray-100">Narraverse</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+    <TooltipProvider>
+      <>
+        {isOpen && (
+          <div
+            className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40 lg:hidden"
             onClick={onClose}
-            aria-label="收起侧边栏"
-          >
-            <PanelLeftClose className="w-5 h-5" />
-          </Button>
-        </div>
+            aria-label="关闭侧边栏"
+          />
+        )}
 
-        <div className="p-3">
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-2.5 font-normal relative overflow-hidden group
+        <aside
+          className={cn(
+            'fixed lg:relative top-0 left-0 h-full bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50 flex flex-col',
+            // 移动端：固定宽度 + transform
+            'w-72 transition-transform duration-300',
+            // 桌面端：宽度变化动画
+            'lg:transition-all lg:duration-300',
+            // 显示/隐藏控制
+            isOpen
+              ? 'translate-x-0 lg:w-72'
+              : '-translate-x-full lg:w-0 lg:translate-x-0 lg:overflow-hidden',
+          )}
+        >
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="w-8 h-8">
+                <AvatarImage src="/assets/svg/logo-dark.svg" alt="Narraverse" />
+                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-sm">
+                  N
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-medium text-gray-800 dark:text-gray-100">Narraverse</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              onClick={onClose}
+              aria-label="收起侧边栏"
+            >
+              <PanelLeftClose className="w-5 h-5" />
+            </Button>
+          </div>
+
+          <div className="p-3">
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-2.5 font-normal relative overflow-hidden group
               bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10
               hover:from-blue-500/15 hover:via-purple-500/15 hover:to-pink-500/15
               backdrop-blur-sm
               border border-gray-200/50 dark:border-gray-700/50
               text-gray-700 dark:text-gray-200
               transition-all duration-200"
-            onClick={() => window.location.href = '/chat'}
-          >
-            <Edit3 className="w-4 h-4 relative z-10" />
-            <span className="relative z-10">新对话</span>
-            <span className="ml-auto text-xs text-gray-400 dark:text-gray-400 font-normal relative z-10">Ctrl K</span>
-          </Button>
-        </div>
-
-        <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 group">
-          <span>历史对话</span>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-          >
-            <AlertCircle className="w-3.5 h-3.5" />
-          </Button>
-        </div>
-
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-0.5">
-            {chatHistory.map(chat => (
-              <ChatHistoryItem
-                key={chat.id}
-                chat={chat}
-                isActive={activeId === chat.id}
-                isMenuOpen={menuOpenId === chat.id}
-                onChatClick={handleChatClick}
-                onMenuOpenChange={isOpen => setMenuOpenId(isOpen ? chat.id : null)}
-              />
-            ))}
+              onClick={() => window.location.href = '/chat'}
+            >
+              <Edit3 className="w-4 h-4 relative z-10" />
+              <span className="relative z-10">新对话</span>
+              <span className="ml-auto text-xs text-gray-400 dark:text-gray-400 font-normal relative z-10">Ctrl K</span>
+            </Button>
           </div>
-        </ScrollArea>
-      </aside>
-    </>
+
+          <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 group">
+            <span>历史对话</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  <AlertCircle className="w-3.5 h-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p>查看全部对话</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          <ScrollArea className="flex-1">
+            <div className="p-2 space-y-0.5">
+              {chatHistory.map(chat => (
+                <ChatHistoryItem
+                  key={chat.id}
+                  chat={chat}
+                  isActive={activeId === chat.id}
+                  isMenuOpen={menuOpenId === chat.id}
+                  onChatClick={handleChatClick}
+                  onMenuOpenChange={isOpen => setMenuOpenId(isOpen ? chat.id : null)}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+        </aside>
+      </>
+    </TooltipProvider>
   )
 }
 
