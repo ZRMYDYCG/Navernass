@@ -1,10 +1,20 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { ChatInputBox } from './_components/chat-input-box'
 import { ChatWelcomeHeader } from './_components/chat-welcome-header'
 import { PromptButtons } from './_components/prompt-buttons'
 
 export default function ChatPage() {
+  const router = useRouter()
+
+  const handleSendMessage = (content: string) => {
+    const conversationId = Date.now().toString()
+    // 将消息内容编码为 base64 并作为 URL 参数传递
+    const encodedMessage = btoa(encodeURIComponent(content))
+    router.push(`/chat/${conversationId}?message=${encodedMessage}`)
+  }
+
   return (
     <div className="flex flex-col h-full">
       <ChatWelcomeHeader />
@@ -19,7 +29,7 @@ export default function ChatPage() {
           </p>
         </div>
 
-        <ChatInputBox />
+        <ChatInputBox onSend={handleSendMessage} />
 
         <PromptButtons />
       </div>

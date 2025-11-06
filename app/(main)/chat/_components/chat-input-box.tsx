@@ -110,7 +110,7 @@ export function ChatInputBox({
               onClick={handleSend}
               disabled={isEmpty}
               size="icon"
-              className="h-9 w-9 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-9 w-9 bg-gradient-to-r from-blue-500/15 via-purple-500/15 to-pink-500/15 hover:from-blue-500/25 hover:via-purple-500/25 hover:to-pink-500/25 dark:from-blue-500/15 dark:via-purple-500/15 dark:to-pink-500/15 dark:hover:from-blue-500/25 dark:hover:via-purple-500/25 dark:hover:to-pink-500/25 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="w-5 h-5" />
             </Button>
