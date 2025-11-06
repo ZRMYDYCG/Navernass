@@ -19,18 +19,15 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
   const { theme } = useTheme()
 
   const [displayedContent, setDisplayedContent] = useState(message.content)
-  const [isTyping, setIsTyping] = useState(false)
 
   useEffect(() => {
     // 如果不是 AI 消息或者不需要打字机效果，直接显示全部内容
     if (!isAssistant || !isStreaming) {
       setDisplayedContent(message.content)
-      setIsTyping(false)
       return
     }
 
     // 启动打字机效果
-    setIsTyping(true)
     setDisplayedContent('')
 
     let currentIndex = 0
@@ -42,7 +39,6 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
         currentIndex++
         setDisplayedContent(text.slice(0, currentIndex))
       } else {
-        setIsTyping(false)
         clearInterval(timer)
       }
     }, speed)
@@ -51,7 +47,6 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
       clearInterval(timer)
       // 清理时确保显示完整内容
       setDisplayedContent(message.content)
-      setIsTyping(false)
     }
   }, [message.content, isStreaming, isAssistant])
 
@@ -83,9 +78,6 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
             : (
                 <div className="text-sm">
                   <MarkdownRenderer content={displayedContent || message.content} />
-                  {isTyping && (
-                    <span className="inline-block w-1 h-4 ml-1 bg-current animate-pulse" />
-                  )}
                 </div>
               )}
         </div>
