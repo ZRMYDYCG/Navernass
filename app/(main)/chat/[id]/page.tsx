@@ -235,7 +235,8 @@ export default function ConversationPage() {
 
   // 加载现有对话的历史记录
   useEffect(() => {
-    if (isNewConversation || !conversationId || hasInitializedRef.current) return
+    // 如果是新对话、没有conversationId、已经初始化过、或者已经有消息了，就不加载
+    if (isNewConversation || !conversationId || hasInitializedRef.current || messages.length > 0) return
 
     hasInitializedRef.current = true
 
@@ -251,7 +252,7 @@ export default function ConversationPage() {
     }
 
     loadConversation()
-  }, [conversationId, isNewConversation])
+  }, [conversationId, isNewConversation, messages.length])
 
   // 清理函数
   useEffect(() => {
