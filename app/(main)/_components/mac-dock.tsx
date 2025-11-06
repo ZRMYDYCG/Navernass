@@ -4,11 +4,12 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import { Book, Bot, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export function Sidebar() {
   const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
 
   const menuItems = [
     { path: '/chat', label: '新建对话', icon: Bot },
@@ -16,13 +17,27 @@ export function Sidebar() {
     { path: '/trash', label: '回收站', icon: Trash2 },
   ]
 
-  const isActive = (path: string) => pathname === path
+  // 组件挂载时触发入场动画
+  useEffect(() => {
+    const timer = setTimeout(() => setIsMounted(true), 100)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const isActive = (path: string) => {
+    // 精确匹配路径
+    if (path === '/chat') {
+      return pathname === '/chat'
+    }
+    return pathname === path || pathname.startsWith(`${path}/`)
+  }
 
   return (
     <Tooltip.Provider delayDuration={150}>
       <aside
         className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
           isVisible ? 'pb-4' : 'pb-0 translate-y-[calc(100%-3rem)]'
+        } ${
+          isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
         <div className="flex justify-center mb-1.5 relative z-30">

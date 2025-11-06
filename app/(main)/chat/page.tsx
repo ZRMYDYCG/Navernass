@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { chatApi } from '@/lib/supabase/sdk'
 import { ChatInputBox } from './_components/chat-input-box'
 import { ChatWelcomeHeader } from './_components/chat-welcome-header'
 import { PromptButtons } from './_components/prompt-buttons'
-import { chatApi } from '@/lib/supabase/sdk'
 
 export default function ChatPage() {
   const router = useRouter()
@@ -16,7 +16,7 @@ export default function ChatPage() {
 
     try {
       setIsSending(true)
-      
+
       // 直接调用API创建对话并发送消息
       const response = await chatApi.sendMessage({
         message: content.trim(),
@@ -36,7 +36,7 @@ export default function ChatPage() {
     <div className="flex flex-col h-full">
       <ChatWelcomeHeader />
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-gray-100 mb-3">
             晚上好，一勺

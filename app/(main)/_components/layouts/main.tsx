@@ -9,6 +9,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const isCompositionPage = pathname === '/composition'
   const isChatPage = pathname.includes('/chat')
 
+  const isNewChatPage = pathname === '/chat'
+  const shouldShowSidebar = isNewChatPage || !isChatPage
+
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {!isChatPage && <Header />}
@@ -23,7 +26,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         {children}
       </main>
 
-      {!isChatPage && <Sidebar />}
+      {shouldShowSidebar && <Sidebar />}
     </div>
   )
 }
