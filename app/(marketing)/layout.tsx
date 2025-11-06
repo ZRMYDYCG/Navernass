@@ -1,5 +1,5 @@
-import Navbar from "./_components/navbar";
-import Footer from "./_components/footer";
+import Footer from './_components/footer'
+import Navbar from './_components/navbar'
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,5 +8,5 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <main className="flex-1">{children}</main>
       <Footer />
     </div>
-  );
+  )
 }

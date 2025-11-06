@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/ui/button";
-import { ImageCompare } from "@/components/ui/image-compare";
-import { ArrowRight, Sparkles, Star, GitFork } from "lucide-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion'
+import { ArrowRight, Sparkles, Star } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { ImageCompare } from '@/components/ui/image-compare'
 
 export default function Hero() {
   return (
@@ -99,5 +99,5 @@ export default function Hero() {
         </div>
       </div>
     </section>
-  );
+  )
 }

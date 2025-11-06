@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Github, Heart } from "lucide-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion'
+import { ArrowRight, Github, Heart } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export default function CTA() {
   return (
@@ -19,7 +19,7 @@ export default function CTA() {
             className="relative rounded-2xl border border-border bg-card/50 backdrop-blur-sm p-8 md:p-12 shadow-xl"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.6 }}
           >
             {/* 装饰性光效 */}
@@ -32,7 +32,7 @@ export default function CTA() {
               transition={{
                 duration: 4,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             />
             <motion.div
@@ -45,7 +45,7 @@ export default function CTA() {
                 duration: 4,
                 delay: 2,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             />
 
@@ -56,7 +56,7 @@ export default function CTA() {
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2, type: "spring", stiffness: 200 }}
+                transition={{ duration: 0.5, delay: 0.2, type: 'spring', stiffness: 200 }}
               >
                 <motion.div
                   className="w-16 h-16 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center"
@@ -66,7 +66,7 @@ export default function CTA() {
                   transition={{
                     duration: 2,
                     repeat: Infinity,
-                    ease: "easeInOut",
+                    ease: 'easeInOut',
                   }}
                 >
                   <Heart className="w-8 h-8 text-primary" />
@@ -137,5 +137,5 @@ export default function CTA() {
         </div>
       </div>
     </section>
-  );
+  )
 }

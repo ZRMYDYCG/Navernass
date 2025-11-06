@@ -1,60 +1,60 @@
-import Link from "next/link";
-import Image from "next/image";
-import { Github, Twitter } from "lucide-react";
+import { Github, Twitter } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 const footerLinks = {
   product: [
-    { name: "功能特性", href: "#features" },
+    { name: '功能特性', href: '#features' },
     {
-      name: "更新日志",
-      href: "https://github.com/narraverse/narraverse-next-mvp/releases",
-      target: "_blank",
+      name: '更新日志',
+      href: 'https://github.com/narraverse/narraverse-next-mvp/releases',
+      target: '_blank',
     },
     {
-      name: "路线图",
-      href: "https://github.com/narraverse/narraverse-next-mvp/projects",
-      target: "_blank",
+      name: '路线图',
+      href: 'https://github.com/narraverse/narraverse-next-mvp/projects',
+      target: '_blank',
     },
     {
-      name: "问题反馈",
-      href: "https://github.com/narraverse/narraverse-next-mvp/issues",
-      target: "_blank",
+      name: '问题反馈',
+      href: 'https://github.com/narraverse/narraverse-next-mvp/issues',
+      target: '_blank',
     },
   ],
   community: [
-    { name: "GitHub", href: "https://github.com/narraverse/narraverse-next-mvp", target: "_blank" },
+    { name: 'GitHub', href: 'https://github.com/narraverse/narraverse-next-mvp', target: '_blank' },
     {
-      name: "贡献指南",
-      href: "https://github.com/narraverse/narraverse-next-mvp/blob/main/CONTRIBUTING.md",
-      target: "_blank",
+      name: '贡献指南',
+      href: 'https://github.com/narraverse/narraverse-next-mvp/blob/main/CONTRIBUTING.md',
+      target: '_blank',
     },
     {
-      name: "行为准则",
-      href: "https://github.com/narraverse/narraverse-next-mvp/blob/main/CODE_OF_CONDUCT.md",
-      target: "_blank",
+      name: '行为准则',
+      href: 'https://github.com/narraverse/narraverse-next-mvp/blob/main/CODE_OF_CONDUCT.md',
+      target: '_blank',
     },
     {
-      name: "讨论区",
-      href: "https://github.com/narraverse/narraverse-next-mvp/discussions",
-      target: "_blank",
+      name: '讨论区',
+      href: 'https://github.com/narraverse/narraverse-next-mvp/discussions',
+      target: '_blank',
     },
   ],
   resources: [
-    { name: "文档", href: "#docs" },
-    { name: "API 文档", href: "#api" },
-    { name: "开发指南", href: "#dev-guide" },
-    { name: "常见问题", href: "#faq" },
+    { name: '文档', href: '#docs' },
+    { name: 'API 文档', href: '#api' },
+    { name: '开发指南', href: '#dev-guide' },
+    { name: '常见问题', href: '#faq' },
   ],
   legal: [
     {
-      name: "MIT 许可证",
-      href: "https://github.com/narraverse/narraverse-next-mvp/blob/main/LICENSE",
-      target: "_blank",
+      name: 'MIT 许可证',
+      href: 'https://github.com/narraverse/narraverse-next-mvp/blob/main/LICENSE',
+      target: '_blank',
     },
-    { name: "隐私政策", href: "#privacy" },
-    { name: "服务条款", href: "#terms" },
+    { name: '隐私政策', href: '#privacy' },
+    { name: '服务条款', href: '#terms' },
   ],
-};
+}
 
 export default function Footer() {
   return (
@@ -104,28 +104,30 @@ export default function Footer() {
             <h3 className="font-semibold mb-4 text-sm">产品</h3>
             <ul className="space-y-3">
               {footerLinks.product.map((link) => {
-                const isExternal = link.target === "_blank";
+                const isExternal = link.target === '_blank'
                 return (
                   <li key={link.name}>
-                    {isExternal ? (
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.name}
-                      </a>
-                    ) : (
-                      <Link
-                        href={link.href}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.name}
-                      </Link>
-                    )}
+                    {isExternal
+                      ? (
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {link.name}
+                          </a>
+                        )
+                      : (
+                          <Link
+                            href={link.href}
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        )}
                   </li>
-                );
+                )
               })}
             </ul>
           </div>
@@ -135,28 +137,30 @@ export default function Footer() {
             <h3 className="font-semibold mb-4 text-sm">社区</h3>
             <ul className="space-y-3">
               {footerLinks.community.map((link) => {
-                const isExternal = link.target === "_blank";
+                const isExternal = link.target === '_blank'
                 return (
                   <li key={link.name}>
-                    {isExternal ? (
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.name}
-                      </a>
-                    ) : (
-                      <Link
-                        href={link.href}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.name}
-                      </Link>
-                    )}
+                    {isExternal
+                      ? (
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {link.name}
+                          </a>
+                        )
+                      : (
+                          <Link
+                            href={link.href}
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        )}
                   </li>
-                );
+                )
               })}
             </ul>
           </div>
@@ -165,7 +169,7 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold mb-4 text-sm">资源</h3>
             <ul className="space-y-3">
-              {footerLinks.resources.map((link) => (
+              {footerLinks.resources.map(link => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
@@ -183,28 +187,30 @@ export default function Footer() {
             <h3 className="font-semibold mb-4 text-sm">法律</h3>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => {
-                const isExternal = link.target === "_blank";
+                const isExternal = link.target === '_blank'
                 return (
                   <li key={link.name}>
-                    {isExternal ? (
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.name}
-                      </a>
-                    ) : (
-                      <Link
-                        href={link.href}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.name}
-                      </Link>
-                    )}
+                    {isExternal
+                      ? (
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {link.name}
+                          </a>
+                        )
+                      : (
+                          <Link
+                            href={link.href}
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        )}
                   </li>
-                );
+                )
               })}
             </ul>
           </div>
@@ -213,7 +219,11 @@ export default function Footer() {
         {/* 底部版权 */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Narraverse. Open source under MIT License.
+            ©
+            {' '}
+            {new Date().getFullYear()}
+            {' '}
+            Narraverse. Open source under MIT License.
           </p>
           <div className="flex gap-6 text-sm text-muted-foreground">
             <a
@@ -231,5 +241,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  );
+  )
 }

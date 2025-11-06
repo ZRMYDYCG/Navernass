@@ -1,6 +1,6 @@
-import Hero from "./_components/hero";
-import Features from "./_components/features";
-import CTA from "./_components/cta";
+import CTA from './_components/cta'
+import Features from './_components/features'
+import Hero from './_components/hero'
 
 export default function MarketingPage() {
   return (
@@ -9,5 +9,5 @@ export default function MarketingPage() {
       <Features />
       <CTA />
     </>
-  );
+  )
 }

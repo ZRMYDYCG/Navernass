@@ -1,27 +1,27 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import Image from "next/image";
-import { Menu, X, Moon, Sun } from "lucide-react";
-import { useState } from "react";
-import { useTheme } from "next-themes";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from 'framer-motion'
+import { Menu, Moon, Sun, X } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 
 const navLinks = [
-  { name: "功能", href: "#features" },
-  { name: "文档", href: "#docs" },
-  { name: "社区", href: "#community" },
-  { name: "GitHub", href: "https://github.com/narraverse/narraverse-next-mvp", target: "_blank" },
-];
+  { name: '功能', href: '#features' },
+  { name: '文档', href: '#docs' },
+  { name: '社区', href: '#community' },
+  { name: 'GitHub', href: 'https://github.com/narraverse/narraverse-next-mvp', target: '_blank' },
+]
 
 export default function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+    setTheme(theme === 'dark' ? 'light' : 'dark')
+  }
 
   return (
     <motion.nav
@@ -58,7 +58,7 @@ export default function Navbar() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             {navLinks.map((link, index) => {
-              const isExternal = link.target === "_blank";
+              const isExternal = link.target === '_blank'
               if (isExternal) {
                 return (
                   <motion.a
@@ -74,7 +74,7 @@ export default function Navbar() {
                   >
                     {link.name}
                   </motion.a>
-                );
+                )
               }
               return (
                 <motion.div
@@ -91,7 +91,7 @@ export default function Navbar() {
                     {link.name}
                   </Link>
                 </motion.div>
-              );
+              )
             })}
           </motion.div>
 
@@ -114,6 +114,7 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <button
+            type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 hover:bg-accent rounded-md transition-colors"
           >
@@ -128,14 +129,14 @@ export default function Navbar() {
           <motion.div
             className="md:hidden border-t border-border bg-background"
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
+            animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
             <div className="container mx-auto px-4 py-4">
               <div className="flex flex-col gap-4">
                 {navLinks.map((link) => {
-                  const isExternal = link.target === "_blank";
+                  const isExternal = link.target === '_blank'
                   if (isExternal) {
                     return (
                       <a
@@ -148,7 +149,7 @@ export default function Navbar() {
                       >
                         {link.name}
                       </a>
-                    );
+                    )
                   }
                   return (
                     <Link
@@ -159,7 +160,7 @@ export default function Navbar() {
                     >
                       {link.name}
                     </Link>
-                  );
+                  )
                 })}
                 <div className="flex flex-col gap-2 pt-4 border-t border-border">
                   <Button variant="ghost" onClick={toggleTheme} className="w-full justify-start">
@@ -177,5 +178,5 @@ export default function Navbar() {
         )}
       </AnimatePresence>
     </motion.nav>
-  );
+  )
 }
