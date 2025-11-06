@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -56,9 +56,11 @@ interface ChatSidebarProps {
 export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const router = useRouter()
   const params = useParams()
+  const pathname = usePathname()
   const { theme } = useTheme()
   const { onTitleUpdate, updateConversationTitle } = useChatSidebar()
   const currentId = params?.id as string | undefined
+  const isNewChatPage = pathname === '/chat'
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
   const [chatHistory, setChatHistory] = useState<ChatHistoryData[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -222,6 +224,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
               text-gray-700 dark:text-gray-200
               transition-all duration-200"
               onClick={() => window.location.href = '/chat'}
+              disabled={isNewChatPage}
             >
               <Edit3 className="w-4 h-4 relative z-10" />
               <span className="relative z-10">新对话</span>
