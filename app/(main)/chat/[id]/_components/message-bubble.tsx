@@ -76,7 +76,13 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
                 <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
               )
             : (
-                <div className="text-sm">
+                <div
+                  className={`text-sm relative ${
+                    isStreaming && displayedContent !== message.content
+                      ? 'after:content-[""] after:absolute after:bottom-0 after:right-0 after:w-12 after:h-6 after:bg-gradient-to-r after:from-transparent after:to-gray-100 dark:after:to-gray-800 after:animate-pulse after:pointer-events-none'
+                      : ''
+                  }`}
+                >
                   <MarkdownRenderer content={displayedContent || message.content} />
                 </div>
               )}
