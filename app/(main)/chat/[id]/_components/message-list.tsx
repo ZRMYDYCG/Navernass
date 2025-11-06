@@ -22,6 +22,7 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
   const lastMessageCountRef = useRef(0)
   const [showScrollButton, setShowScrollButton] = useState(false)
   const [isUserScrolling, setIsUserScrolling] = useState(false)
+  const isNearBottomRef = useRef(true)
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth', resetUserScrolling = false) => {
     messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' })
@@ -43,6 +44,7 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
 
   const handleScroll = useCallback(() => {
     const isNearBottom = checkIfNearBottom()
+    isNearBottomRef.current = isNearBottom
 
     // 如果用户向上滚动且不在底部附近，显示"回到底部"按钮
     if (!isNearBottom) {
@@ -54,34 +56,35 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
     }
   }, [checkIfNearBottom])
 
-  // 当有新消息时，自动滚动到底部（如果用户没有在查看历史消息）
+  // 当有新消息时，自动滚动到底部
+  // 规则：总是自动滚动到底部，因为用户发送消息后想看到最新内容
   useEffect(() => {
     if (messages.length > lastMessageCountRef.current && messages.length > 0) {
       // 有新消息
       lastMessageCountRef.current = messages.length
 
-      if (!isUserScrolling) {
-        // 用户没有在查看历史消息，自动滚动到底部
-        const timer = setTimeout(() => {
-          scrollToBottom('smooth')
-        }, 100)
-        return () => clearTimeout(timer)
-      }
+      // 总是滚动到底部
+      const timer = setTimeout(() => {
+        scrollToBottom('smooth')
+      }, 100)
+      return () => clearTimeout(timer)
     }
-  }, [messages.length, isUserScrolling])
+  }, [messages.length])
 
-  // 当开始流式传输时，如果不在滚动状态，跟随内容
+  // 当开始流式传输时，如果用户在底部附近，跟随内容
+  // 如果用户向上滚动查看历史，则停止跟随
   useEffect(() => {
-    if (isStreaming && !isUserScrolling) {
+    if (isStreaming) {
       const interval = setInterval(() => {
-        if (!isUserScrolling) {
+        // 只有在用户接近底部时才跟随内容
+        if (isNearBottomRef.current) {
           scrollToBottom('auto')
         }
       }, 100) // 每100ms检查一次
 
       return () => clearInterval(interval)
     }
-  }, [isStreaming, isUserScrolling])
+  }, [isStreaming])
 
   useEffect(() => {
     const timer = setTimeout(() => {
