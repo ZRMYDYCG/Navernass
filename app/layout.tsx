@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning className="h-full">
       <head>
         <link
           rel="icon"
@@ -29,7 +29,7 @@ export default function RootLayout({
           type="image/svg+xml"
         />
       </head>
-      <body className={`${inter.variable} antialiased h-full`}>
+      <body className={`${inter.variable} antialiased h-full overflow-hidden`}>
         <ThemeProvider>
           <FaviconProvider />
           {children}
