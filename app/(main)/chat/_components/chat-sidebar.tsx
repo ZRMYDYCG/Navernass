@@ -12,9 +12,10 @@ import {
   Share2,
   Trash2,
 } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -41,8 +42,11 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const router = useRouter()
+  const { theme } = useTheme()
   const [activeId, setActiveId] = useState<string | null>(null)
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
+
+  const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
   const [chatHistory] = useState<ChatHistoryData[]>(() => [
     { id: '1', title: '创建故事了背景', isPinned: false, createdAt: new Date() },
     { id: '2', title: '实现故事了背景效果', isPinned: false, createdAt: new Date() },
@@ -110,10 +114,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
               <Avatar className="w-8 h-8">
-                <AvatarImage src="/assets/svg/logo-dark.svg" alt="Narraverse" />
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-sm">
-                  N
-                </AvatarFallback>
+                <AvatarImage src={avatarSrc} alt="Narraverse" />
               </Avatar>
               <span className="font-medium text-gray-800 dark:text-gray-100">Narraverse</span>
             </div>
