@@ -12,7 +12,7 @@ export function Sidebar() {
   const [isMounted, setIsMounted] = useState(false)
 
   const menuItems = [
-    { path: '/chat', label: '新建对话', icon: Bot },
+    { path: '/chat', label: 'Narraverse AI', icon: Bot },
     { path: '/novels', label: '我的小说', icon: Book },
     { path: '/trash', label: '回收站', icon: Trash2 },
   ]
