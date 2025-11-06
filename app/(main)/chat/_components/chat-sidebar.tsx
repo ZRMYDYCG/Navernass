@@ -16,6 +16,7 @@ import {
 import { useTheme } from 'next-themes'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { InlineLoading } from '@/components/loading'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -234,9 +235,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
             <div className="p-2 space-y-0.5">
               {isLoading
                 ? (
-                    <div className="text-center py-8 text-gray-400 text-sm">
-                      加载中...
-                    </div>
+                    <InlineLoading text="加载中..." />
                   )
                 : chatHistory.length === 0
                   ? (
