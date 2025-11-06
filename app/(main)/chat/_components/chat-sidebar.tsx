@@ -154,6 +154,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
                   variant="ghost"
                   size="icon-sm"
                   className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  onClick={() => router.push('/chat/all')}
                 >
                   <AlertCircle className="w-3.5 h-3.5" />
                 </Button>
