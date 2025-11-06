@@ -371,7 +371,11 @@ function ChatHistoryItem({
     >
       {isEditing
         ? (
-            <div className="flex items-center gap-1 px-3 py-2">
+            <div className={cn(
+              'flex items-center gap-1 px-3 py-2 relative',
+              chat.isPinned && 'before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-gradient-to-b before:from-blue-500 before:to-purple-500 before:rounded-full',
+            )}
+            >
               <MessageCircle className="w-4 h-4 flex-shrink-0 text-gray-400" />
               <Input
                 value={editTitle}
@@ -408,10 +412,11 @@ function ChatHistoryItem({
               className={cn(
                 'w-full justify-start px-3 py-2 h-auto text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 relative transition-colors',
                 isActive && 'bg-white dark:bg-gray-700/70 hover:bg-gray-50 dark:hover:bg-gray-700',
+                chat.isPinned && 'before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-gradient-to-b before:from-blue-500 before:to-purple-500 before:rounded-full',
               )}
               onClick={handleClick}
             >
-              <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-1 min-w-0 pr-8">
                 <MessageCircle className={cn(
                   'w-4 h-4 flex-shrink-0',
                   isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400',
@@ -424,61 +429,61 @@ function ChatHistoryItem({
                 >
                   {chat.title}
                 </span>
-                {chat.isPinned && (
-                  <Pin className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 flex-shrink-0" />
-                )}
               </div>
             </Button>
           )}
 
-      <DropdownMenu modal={false} onOpenChange={onMenuOpenChange}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className={cn(
-              'absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-opacity duration-200',
-              shouldShowButton ? 'opacity-100' : 'opacity-0 pointer-events-none',
-            )}
-            onClick={e => e.stopPropagation()}
-          >
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40">
-          <DropdownMenuItem className="gap-2" onClick={handlePinClick}>
-            {chat.isPinned
-              ? (
-                  <>
-                    <PinOff className="w-4 h-4" />
-                    <span>取消置顶</span>
-                  </>
-                )
-              : (
-                  <>
-                    <Pin className="w-4 h-4" />
-                    <span>置顶</span>
-                  </>
-                )}
-          </DropdownMenuItem>
-          <DropdownMenuItem className="gap-2">
-            <Share2 className="w-4 h-4" />
-            <span>分享</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="gap-2" onClick={handleRenameClick}>
-            <Edit3 className="w-4 h-4" />
-            <span>重命名</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="gap-2 text-red-600 dark:text-red-400"
-            onClick={handleDeleteClick}
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>删除</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* 更多按钮 - 编辑模式下隐藏 */}
+      {!isEditing && (
+        <DropdownMenu modal={false} onOpenChange={onMenuOpenChange}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className={cn(
+                'absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-opacity duration-200',
+                shouldShowButton ? 'opacity-100' : 'opacity-0 pointer-events-none',
+              )}
+              onClick={e => e.stopPropagation()}
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem className="gap-2" onClick={handlePinClick}>
+              {chat.isPinned
+                ? (
+                    <>
+                      <PinOff className="w-4 h-4" />
+                      <span>取消置顶</span>
+                    </>
+                  )
+                : (
+                    <>
+                      <Pin className="w-4 h-4" />
+                      <span>置顶</span>
+                    </>
+                  )}
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2">
+              <Share2 className="w-4 h-4" />
+              <span>分享</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2" onClick={handleRenameClick}>
+              <Edit3 className="w-4 h-4" />
+              <span>重命名</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="gap-2 text-red-600 dark:text-red-400"
+              onClick={handleDeleteClick}
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>删除</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       {/* 删除确认对话框 */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
