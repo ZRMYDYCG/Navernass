@@ -4,10 +4,10 @@ import type { Message } from '@/lib/supabase/sdk/types'
 import { useParams } from 'next/navigation'
 
 import { useEffect, useState } from 'react'
+import { chatApi, messagesApi } from '@/lib/supabase/sdk'
 import { ChatInputBox } from '../_components/chat-input-box'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
 import { MessageList } from './_components/message-list'
-import { messagesApi, chatApi } from '@/lib/supabase/sdk'
 
 export default function ConversationPage() {
   const params = useParams()
@@ -15,7 +15,7 @@ export default function ConversationPage() {
 
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [isStreaming, setIsStreaming] = useState(false)
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
 
   // 加载对话历史
   const loadConversationHistory = async (id: string) => {
@@ -45,10 +45,9 @@ export default function ConversationPage() {
 
       setMessages(prev => [...prev, userMessage])
       setIsLoading(true)
-      setIsStreaming(true)
 
       // 调用 API 发送消息（多轮对话）
-      const response = await chatApi.sendMessage({
+      await chatApi.sendMessage({
         conversationId,
         message: content.trim(),
       })
@@ -57,6 +56,19 @@ export default function ConversationPage() {
       const updatedMessages = await messagesApi.getByConversationId(conversationId)
       setMessages(updatedMessages)
 
+      // 找到最新的 AI 消息并启用打字机效果
+      const latestAiMessage = updatedMessages
+        .filter(msg => msg.role === 'assistant')
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
+
+      if (latestAiMessage) {
+        setStreamingMessageId(latestAiMessage.id)
+        // 根据消息长度计算打字机效果持续时间，然后清除
+        const typingDuration = latestAiMessage.content.length * 30 + 500
+        setTimeout(() => {
+          setStreamingMessageId(null)
+        }, typingDuration)
+      }
     } catch (error) {
       console.error('Failed to send message:', error)
       // 移除临时消息
@@ -64,7 +76,6 @@ export default function ConversationPage() {
       // TODO: 显示错误提示
     } finally {
       setIsLoading(false)
-      setIsStreaming(false)
     }
   }
 
@@ -95,7 +106,7 @@ export default function ConversationPage() {
         <MessageList
           messages={messages}
           isLoading={isLoading}
-          isStreaming={isStreaming}
+          streamingMessageId={streamingMessageId}
         />
       </div>
 
@@ -106,4 +117,3 @@ export default function ConversationPage() {
     </div>
   )
 }
-

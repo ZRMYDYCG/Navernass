@@ -18,31 +18,41 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
 
-  const [displayedContent, setDisplayedContent] = useState('')
-  const [isTyping, setIsTyping] = useState(isStreaming)
+  const [displayedContent, setDisplayedContent] = useState(message.content)
+  const [isTyping, setIsTyping] = useState(false)
 
   useEffect(() => {
-    if (!isStreaming || !isAssistant) {
+    // 如果不是 AI 消息或者不需要打字机效果，直接显示全部内容
+    if (!isAssistant || !isStreaming) {
       setDisplayedContent(message.content)
       setIsTyping(false)
       return
     }
 
+    // 启动打字机效果
     setIsTyping(true)
+    setDisplayedContent('')
+
     let currentIndex = 0
     const text = message.content
+    const speed = 30 // 每个字符的显示间隔（毫秒）
 
     const timer = setInterval(() => {
       if (currentIndex < text.length) {
-        setDisplayedContent(text.slice(0, currentIndex + 1))
         currentIndex++
+        setDisplayedContent(text.slice(0, currentIndex))
       } else {
         setIsTyping(false)
         clearInterval(timer)
       }
-    }, 30) // 30ms per character
+    }, speed)
 
-    return () => clearInterval(timer)
+    return () => {
+      clearInterval(timer)
+      // 清理时确保显示完整内容
+      setDisplayedContent(message.content)
+      setIsTyping(false)
+    }
   }, [message.content, isStreaming, isAssistant])
 
   const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
@@ -83,4 +93,3 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
     </div>
   )
 }
-

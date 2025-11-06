@@ -14,10 +14,10 @@ import { TypingIndicator } from './typing-indicator'
 interface MessageListProps {
   messages: Message[]
   isLoading?: boolean
-  isStreaming?: boolean
+  streamingMessageId?: string | null
 }
 
-export function MessageList({ messages, isLoading = false, isStreaming = false }: MessageListProps) {
+export function MessageList({ messages, isLoading = false, streamingMessageId = null }: MessageListProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
@@ -75,7 +75,7 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
   // 当开始流式传输时，如果用户在底部附近，跟随内容
   // 如果用户向上滚动查看历史，则停止跟随
   useEffect(() => {
-    if (isStreaming) {
+    if (streamingMessageId) {
       const interval = setInterval(() => {
         // 只有在用户接近底部时才跟随内容
         if (isNearBottomRef.current) {
@@ -85,7 +85,7 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
 
       return () => clearInterval(interval)
     }
-  }, [isStreaming])
+  }, [streamingMessageId])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -184,11 +184,11 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
                 <MessageBubble
                   key={message.id}
                   message={message}
-                  isStreaming={isStreaming && message.id === messages[messages.length - 1].id}
+                  isStreaming={streamingMessageId === message.id}
                 />
               ))}
 
-              {isLoading && <TypingIndicator />}
+              {isLoading && !streamingMessageId && <TypingIndicator />}
 
               <div ref={messagesEndRef} className="h-1" />
             </div>
