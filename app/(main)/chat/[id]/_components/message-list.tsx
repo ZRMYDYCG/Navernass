@@ -107,100 +107,92 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
     <div className="relative flex-1 h-full">
       <ScrollArea ref={scrollAreaRef} className="h-full w-full">
         <div className="max-w-4xl mx-auto">
-          {messages.length === 0
-            ? (
-                <div className="flex flex-col items-center justify-center h-full px-4">
-                  {isLoading
-                    ? (
-                        <div className="w-full space-y-6 py-4">
-                          <div className="flex justify-end">
-                            <div className="flex flex-col items-end gap-2 w-[88%]">
-                              <Skeleton className="h-3 w-16" />
-                              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 w-full space-y-2">
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-[95%]" />
-                                <Skeleton className="h-4 w-[88%]" />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex justify-start">
-                            <div className="flex gap-3 w-[95%]">
-                              <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
-                              <div className="flex flex-col gap-3 flex-1">
-                                <Skeleton className="h-3 w-20" />
-                                <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 space-y-3">
-                                  <div className="space-y-2">
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-[93%]" />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-[96%]" />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex justify-end">
-                            <div className="flex flex-col items-end gap-2 w-[82%]">
-                              <Skeleton className="h-3 w-16" />
-                              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 w-full space-y-2">
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-[80%]" />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex justify-start">
-                            <div className="flex gap-3 w-[95%]">
-                              <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
-                              <div className="flex flex-col gap-3 flex-1">
-                                <Skeleton className="h-3 w-20" />
-                                <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 space-y-3">
-                                  <div className="space-y-2">
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-[88%]" />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-[92%]" />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    : (
-                        <p className="text-gray-500 dark:text-gray-400">开始对话吧...</p>
-                      )}
+          {messages.length === 0 && isLoading && (
+            <div className="w-full space-y-6 py-4">
+              <div className="flex justify-end">
+                <div className="flex flex-col items-end gap-2 w-[88%]">
+                  <Skeleton className="h-3 w-16" />
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 w-full space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-[95%]" />
+                    <Skeleton className="h-4 w-[88%]" />
+                  </div>
                 </div>
-              )
-            : (
-                <div className="space-y-1">
-                  {messages.map(message => (
-                    <MessageBubble
-                      key={message.id}
-                      message={message}
-                      isStreaming={isStreaming && message.id === messages[messages.length - 1].id}
-                    />
-                  ))}
+              </div>
 
-                  {isLoading && <TypingIndicator />}
-
-                  <div ref={messagesEndRef} className="h-1" />
+              <div className="flex justify-start">
+                <div className="flex gap-3 w-[95%]">
+                  <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+                  <div className="flex flex-col gap-3 flex-1">
+                    <Skeleton className="h-3 w-20" />
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 space-y-3">
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-[93%]" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-[96%]" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
+
+              <div className="flex justify-end">
+                <div className="flex flex-col items-end gap-2 w-[82%]">
+                  <Skeleton className="h-3 w-16" />
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 w-full space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-[80%]" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-start">
+                <div className="flex gap-3 w-[95%]">
+                  <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+                  <div className="flex flex-col gap-3 flex-1">
+                    <Skeleton className="h-3 w-20" />
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 space-y-3">
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-[88%]" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-[92%]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {messages.length > 0 && (
+            <div className="space-y-1">
+              {messages.map(message => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isStreaming={isStreaming && message.id === messages[messages.length - 1].id}
+                />
+              ))}
+
+              {isLoading && <TypingIndicator />}
+
+              <div ref={messagesEndRef} className="h-1" />
+            </div>
+          )}
         </div>
       </ScrollArea>
 
