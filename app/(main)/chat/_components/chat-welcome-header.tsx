@@ -128,16 +128,18 @@ export function ChatWelcomeHeader() {
                     )
               )
             : (
-                // 首页显示新建对话按钮
-                <Button
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => router.push('/chat')}
-                  disabled={isNewChatPage}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>新建对话</span>
-                </Button>
+                // 首页：侧边栏打开时不显示新建按钮（避免重复），侧边栏关闭时显示
+                !isOpen && (
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => router.push('/chat')}
+                    disabled={isNewChatPage}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>新建对话</span>
+                  </Button>
+                )
               )}
         </div>
 
