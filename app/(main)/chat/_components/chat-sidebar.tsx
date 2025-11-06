@@ -16,7 +16,6 @@ import {
 import { useTheme } from 'next-themes'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { InlineLoading } from '@/components/loading'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -36,6 +35,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { conversationsApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
@@ -235,7 +235,14 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
             <div className="p-2 space-y-0.5">
               {isLoading
                 ? (
-                    <InlineLoading text="加载中..." />
+                    <div className="space-y-1">
+                      {Array.from({ length: 8 }).map((_, i) => (
+                        <div key={`skeleton-${i}`} className="flex items-center gap-2 px-3 py-2">
+                          <Skeleton className="w-4 h-4 rounded-sm flex-shrink-0" />
+                          <Skeleton className="h-4 flex-1" />
+                        </div>
+                      ))}
+                    </div>
                   )
                 : chatHistory.length === 0
                   ? (

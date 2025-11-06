@@ -4,8 +4,8 @@ import type { Message } from '@/lib/supabase/sdk/types'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import { InlineLoading } from '@/components/loading'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
 import { CHAT_CONFIG } from '../config'
 import { MessageBubble } from './message-bubble'
 import { ScrollToBottomButton } from './scroll-to-bottom-button'
@@ -109,13 +109,80 @@ export function MessageList({ messages, isLoading = false, isStreaming = false }
         <div className="max-w-4xl mx-auto">
           {messages.length === 0
             ? (
-                <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                <div className="flex flex-col items-center justify-center h-full px-4">
                   {isLoading
                     ? (
-                        <InlineLoading text="加载对话历史..." />
+                        <div className="w-full space-y-6 py-4">
+                          <div className="flex justify-end">
+                            <div className="flex flex-col items-end gap-2 w-[88%]">
+                              <Skeleton className="h-3 w-16" />
+                              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 w-full space-y-2">
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-[95%]" />
+                                <Skeleton className="h-4 w-[88%]" />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-start">
+                            <div className="flex gap-3 w-[95%]">
+                              <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+                              <div className="flex flex-col gap-3 flex-1">
+                                <Skeleton className="h-3 w-20" />
+                                <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 space-y-3">
+                                  <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-[93%]" />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-[96%]" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end">
+                            <div className="flex flex-col items-end gap-2 w-[82%]">
+                              <Skeleton className="h-3 w-16" />
+                              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 w-full space-y-2">
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-[80%]" />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-start">
+                            <div className="flex gap-3 w-[95%]">
+                              <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+                              <div className="flex flex-col gap-3 flex-1">
+                                <Skeleton className="h-3 w-20" />
+                                <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 space-y-3">
+                                  <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-[88%]" />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-[92%]" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       )
                     : (
-                        <p>开始对话吧...</p>
+                        <p className="text-gray-500 dark:text-gray-400">开始对话吧...</p>
                       )}
                 </div>
               )

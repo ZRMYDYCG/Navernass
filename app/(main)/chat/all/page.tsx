@@ -4,7 +4,8 @@ import type { ChatItem } from './types'
 import type { Conversation } from '@/lib/supabase/sdk/types'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
-import { PageLoading } from '@/components/loading'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
 import { conversationsApi } from '@/lib/supabase/sdk'
 import { ChatListContent } from './_components/chat-list-content'
 import { ChatListHeader } from './_components/chat-list-header'
@@ -132,7 +133,40 @@ export default function AllChatsPage() {
       {/* 对话列表 */}
       {isLoading
         ? (
-            <PageLoading text="加载对话列表..." />
+            <ScrollArea className="flex-1">
+              <div className="max-w-5xl mx-auto p-6 space-y-8">
+                {Array.from({ length: 3 }).map((_, groupIndex) => (
+                  <div key={`skeleton-group-${groupIndex}`} className="space-y-4">
+                    <Skeleton className="h-7 w-32" />
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {Array.from({ length: groupIndex === 0 ? 6 : 3 }).map((_, itemIndex) => (
+                        <div
+                          key={`skeleton-item-${groupIndex}-${itemIndex}`}
+                          className="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                        >
+                          <div className="space-y-4">
+                            <div className="flex items-start justify-between">
+                              <Skeleton className="h-6 w-4/5" />
+                              <Skeleton className="w-9 h-9 rounded-md" />
+                            </div>
+                            <div className="space-y-2.5">
+                              <Skeleton className="h-4 w-full" />
+                              <Skeleton className="h-4 w-full" />
+                              <Skeleton className="h-4 w-[92%]" />
+                              <Skeleton className="h-4 w-[85%]" />
+                            </div>
+                            <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+                              <Skeleton className="h-3.5 w-24" />
+                              <Skeleton className="h-3.5 w-20" />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           )
         : (
             <ChatListContent
