@@ -144,12 +144,12 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
           </Button>
         </div>
 
-        <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+        <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 group">
           <span>历史对话</span>
           <Button
             variant="ghost"
             size="icon-sm"
-            className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           >
             <AlertCircle className="w-3.5 h-3.5" />
           </Button>
