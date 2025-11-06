@@ -7,13 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-
-const navLinks = [
-  { name: '功能', href: '#features' },
-  { name: '文档', href: '#docs' },
-  { name: '社区', href: '#community' },
-  { name: 'GitHub', href: 'https://github.com/narraverse/narraverse-next-mvp', target: '_blank' },
-]
+import { navbarConfig } from '../config'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -40,13 +34,13 @@ export default function Navbar() {
           >
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src="/assets/svg/logo-eye.svg"
-                width={15}
-                height={15}
-                alt="Narraverse"
+                src={navbarConfig.logo.src}
+                width={navbarConfig.logo.width}
+                height={navbarConfig.logo.height}
+                alt={navbarConfig.logo.alt}
                 className="dark:invert"
               />
-              <span className="text-xl font-bold">Narraverse</span>
+              <span className="text-xl font-bold">{navbarConfig.logo.alt}</span>
             </Link>
           </motion.div>
 
@@ -57,7 +51,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {navLinks.map((link, index) => {
+            {navbarConfig.navLinks.map((link, index) => {
               const isExternal = link.target === '_blank'
               if (isExternal) {
                 return (
@@ -105,10 +99,10 @@ export default function Navbar() {
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">切换主题</span>
+              <span className="sr-only">{navbarConfig.themeToggleLabel}</span>
             </Button>
             <Button asChild>
-              <Link href="/home">进入应用</Link>
+              <Link href="/home">{navbarConfig.ctaText}</Link>
             </Button>
           </motion.div>
 
@@ -135,7 +129,7 @@ export default function Navbar() {
           >
             <div className="container mx-auto px-4 py-4">
               <div className="flex flex-col gap-4">
-                {navLinks.map((link) => {
+                {navbarConfig.navLinks.map((link) => {
                   const isExternal = link.target === '_blank'
                   if (isExternal) {
                     return (
@@ -166,10 +160,10 @@ export default function Navbar() {
                   <Button variant="ghost" onClick={toggleTheme} className="w-full justify-start">
                     <Sun className="h-5 w-5 mr-2 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                     <Moon className="absolute h-5 w-5 ml-10 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                    <span className="ml-2">切换主题</span>
+                    <span className="ml-2">{navbarConfig.themeToggleLabel}</span>
                   </Button>
                   <Button asChild className="w-full">
-                    <Link href="/home">进入应用</Link>
+                    <Link href="/home">{navbarConfig.ctaText}</Link>
                   </Button>
                 </div>
               </div>

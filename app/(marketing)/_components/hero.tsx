@@ -1,10 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles, Star } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ImageCompare } from '@/components/ui/image-compare'
+import { heroConfig } from '../config'
 
 export default function Hero() {
   return (
@@ -24,8 +24,8 @@ export default function Hero() {
             transition={{ duration: 0.5 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">开源 AI 智能创作平台</span>
+              <heroConfig.badge.icon className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">{heroConfig.badge.text}</span>
             </div>
           </motion.div>
 
@@ -37,11 +37,11 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
           >
             <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
-              让 AI 成为你的
+              {heroConfig.title.primary}
             </span>
             <br />
             <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 dark:from-purple-400 dark:via-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
-              小说创作助手
+              {heroConfig.title.secondary}
             </span>
           </motion.h1>
 
@@ -52,8 +52,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            从灵感迸发到作品完成，Narraverse
-            为你提供智能写作建议、角色管理、情节规划等全方位创作支持
+            {heroConfig.subtitle}
           </motion.p>
 
           {/* CTA 按钮 */}
@@ -64,19 +63,19 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <Button size="lg" asChild className="min-w-[200px] shadow-lg shadow-primary/25">
-              <Link href="/home">
-                开始创作
-                <ArrowRight className="w-4 h-4" />
+              <Link href={heroConfig.ctaButtons.primary.href}>
+                {heroConfig.ctaButtons.primary.text}
+                <heroConfig.ctaButtons.primary.icon className="w-4 h-4" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="min-w-[200px] group">
               <a
-                href="https://github.com/narraverse/narraverse-next-mvp"
+                href={heroConfig.ctaButtons.secondary.href}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Star className="w-4 h-4 group-hover:fill-yellow-400 group-hover:text-yellow-400 transition-colors" />
-                Star on GitHub
+                <heroConfig.ctaButtons.secondary.icon className="w-4 h-4 group-hover:fill-yellow-400 group-hover:text-yellow-400 transition-colors" />
+                {heroConfig.ctaButtons.secondary.text}
               </a>
             </Button>
           </motion.div>
@@ -89,10 +88,10 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.5 }}
           >
             <ImageCompare
-              beforeImage="/assets/svg/logo-light.svg"
-              afterImage="/assets/svg/logo-dark.svg"
-              beforeLabel="亮色主题"
-              afterLabel="暗色主题"
+              beforeImage={heroConfig.images.light}
+              afterImage={heroConfig.images.dark}
+              beforeLabel={heroConfig.images.labels.light}
+              afterLabel={heroConfig.images.labels.dark}
               className="max-w-4xl mx-auto"
             />
           </motion.div>

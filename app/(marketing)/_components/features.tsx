@@ -1,52 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { BookOpen, Brain, Database, FileText, MessageSquare, Zap } from 'lucide-react'
-
-const features = [
-  {
-    icon: Brain,
-    title: 'AI 智能写作',
-    description: '智能续写、情节建议、角色对话生成，让创作更加流畅自然',
-    color: 'text-purple-600 dark:text-purple-400',
-    bgColor: 'bg-purple-50 dark:bg-purple-950/30',
-  },
-  {
-    icon: BookOpen,
-    title: '章节管理',
-    description: '清晰的章节结构、便捷的编辑器、实时保存，专注于创作本身',
-    color: 'text-blue-600 dark:text-blue-400',
-    bgColor: 'bg-blue-50 dark:bg-blue-950/30',
-  },
-  {
-    icon: Database,
-    title: '知识库系统',
-    description: '构建你的世界观、角色档案、设定资料，随时调用灵感素材',
-    color: 'text-cyan-600 dark:text-cyan-400',
-    bgColor: 'bg-cyan-50 dark:bg-cyan-950/30',
-  },
-  {
-    icon: MessageSquare,
-    title: 'AI 对话助手',
-    description: '随时与 AI 讨论情节、咨询建议，获得创作灵感和写作指导',
-    color: 'text-green-600 dark:text-green-400',
-    bgColor: 'bg-green-50 dark:bg-green-950/30',
-  },
-  {
-    icon: FileText,
-    title: '富文本编辑',
-    description: '强大的编辑器支持格式化、快捷键、字数统计，提升写作效率',
-    color: 'text-orange-600 dark:text-orange-400',
-    bgColor: 'bg-orange-50 dark:bg-orange-950/30',
-  },
-  {
-    icon: Zap,
-    title: '云端同步',
-    description: '多设备无缝同步，随时随地继续创作，永不丢失你的灵感',
-    color: 'text-pink-600 dark:text-pink-400',
-    bgColor: 'bg-pink-50 dark:bg-pink-950/30',
-  },
-]
+import { featuresConfig } from '../config'
 
 export default function Features() {
   const containerVariants = {
@@ -93,7 +48,7 @@ export default function Features() {
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
         >
-          {features.map((feature) => {
+          {featuresConfig.map((feature) => {
             const Icon = feature.icon
             return (
               <motion.div
