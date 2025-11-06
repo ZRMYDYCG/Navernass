@@ -13,19 +13,16 @@ export default function ConversationPage() {
   const params = useParams()
   const router = useRouter()
   const conversationId = params.id as string
-  const isNewConversation = conversationId === 'new'
 
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
-  const [realConversationId, setRealConversationId] = useState<string>(
-    isNewConversation ? '' : conversationId,
-  )
 
   // 使用 ref 避免重复处理
   const isProcessingRef = useRef(false)
-  const hasInitializedRef = useRef(false)
   const abortControllerRef = useRef<AbortController | null>(null)
+  // 记录是否已初始化
+  const hasInitializedRef = useRef(false)
 
   // 加载对话历史
   const loadConversationHistory = async (id: string) => {
@@ -41,15 +38,7 @@ export default function ConversationPage() {
   // 处理用户发送消息
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isLoading || isProcessingRef.current) return
-
-    // 如果是新对话且没有真实ID，不允许发送
-    if (isNewConversation && !realConversationId) {
-      console.warn('Cannot send message: conversation not yet created')
-      return
-    }
-
-    const convId = realConversationId
-    if (!convId) return
+    if (!conversationId) return
 
     // 设置处理标志
     isProcessingRef.current = true
@@ -67,7 +56,7 @@ export default function ConversationPage() {
     // 添加用户消息到UI
     const tempUserMessage: Message = {
       id: `temp-user-${Date.now()}`,
-      conversation_id: convId,
+      conversation_id: conversationId,
       user_id: 'default-user',
       role: 'user',
       content: content.trim(),
@@ -78,7 +67,7 @@ export default function ConversationPage() {
     try {
       await chatApi.sendMessageStream(
         {
-          conversationId: convId,
+          conversationId,
           message: content.trim(),
         },
         {
@@ -88,7 +77,7 @@ export default function ConversationPage() {
             if (!aiMessageId) {
               const tempAiMessage: Message = {
                 id: `temp-ai-${Date.now()}`,
-                conversation_id: convId,
+                conversation_id: conversationId,
                 user_id: 'default-user',
                 role: 'assistant',
                 content: accumulatedContent,
@@ -129,130 +118,105 @@ export default function ConversationPage() {
     }
   }
 
-  // 处理新对话的初始化
+  // 统一的初始化逻辑
   useEffect(() => {
-    if (!isNewConversation || hasInitializedRef.current) return
-
+    if (hasInitializedRef.current || !conversationId) return
     hasInitializedRef.current = true
 
-    const initNewConversation = async () => {
+    const initialize = async () => {
+      // 检查是否是从新建对话页面跳转过来的
       const initialMessage = sessionStorage.getItem('newChatMessage')
-      if (!initialMessage) {
-        // 没有初始消息，跳转回主页
-        router.replace('/chat')
-        return
-      }
+      const storedConvId = sessionStorage.getItem('newConversationId')
 
-      // 清除 sessionStorage
-      sessionStorage.removeItem('newChatMessage')
+      if (initialMessage && storedConvId === conversationId) {
+        // 从新建对话页面跳转过来，需要继续流式输出
+        sessionStorage.removeItem('newChatMessage')
+        sessionStorage.removeItem('newConversationId')
 
-      // 设置处理标志
-      isProcessingRef.current = true
-      setIsLoading(true)
-
-      let aiMessageId: string | null = null
-      let accumulatedContent = ''
-      let newConvId: string | null = null
-
-      // 添加用户消息到UI
-      const tempUserMessage: Message = {
-        id: `temp-user-${Date.now()}`,
-        conversation_id: 'temp',
-        user_id: 'default-user',
-        role: 'user',
-        content: initialMessage,
-        created_at: new Date().toISOString(),
-      }
-      setMessages([tempUserMessage])
-
-      try {
-        await chatApi.sendMessageStream(
-          {
-            message: initialMessage,
-          },
-          {
-            onConversationId: (id) => {
-              newConvId = id
-              setRealConversationId(id)
-            },
-            onContent: (chunk) => {
-              accumulatedContent += chunk
-
-              if (!aiMessageId) {
-                const tempAiMessage: Message = {
-                  id: `temp-ai-${Date.now()}`,
-                  conversation_id: 'temp',
-                  user_id: 'default-user',
-                  role: 'assistant',
-                  content: accumulatedContent,
-                  created_at: new Date().toISOString(),
-                }
-                aiMessageId = tempAiMessage.id
-                setStreamingMessageId(aiMessageId)
-                setMessages(prev => [...prev, tempAiMessage])
-              } else {
-                setMessages(prev =>
-                  prev.map(msg =>
-                    msg.id === aiMessageId ? { ...msg, content: accumulatedContent } : msg,
-                  ),
-                )
-              }
-            },
-            onDone: async () => {
-              setStreamingMessageId(null)
-              setIsLoading(false)
-              isProcessingRef.current = false
-
-              // 流式完成后再更新 URL
-              if (newConvId) {
-                // 使用 queueMicrotask 确保状态完全更新后再导航
-                queueMicrotask(() => {
-                  router.replace(`/chat/${newConvId}`, { scroll: false })
-                })
-              }
-            },
-            onError: (error) => {
-              console.error('Streaming error:', error)
-              setIsLoading(false)
-              setStreamingMessageId(null)
-              isProcessingRef.current = false
-              // 发生错误时跳转回主页
-              router.replace('/chat')
-            },
-          },
-        )
-      } catch (error) {
-        console.error('Failed to start new conversation:', error)
-        setIsLoading(false)
-        isProcessingRef.current = false
-        // 发生错误时跳转回主页
-        router.replace('/chat')
-      }
-    }
-
-    initNewConversation()
-  }, [isNewConversation, router])
-
-  // 加载现有对话的历史记录
-  useEffect(() => {
-    // 如果是新对话、没有conversationId、已经初始化过、或者已经有消息了，就不加载
-    if (isNewConversation || !conversationId || hasInitializedRef.current || messages.length > 0) return
-
-    hasInitializedRef.current = true
-
-    const loadConversation = async () => {
-      try {
+        isProcessingRef.current = true
         setIsLoading(true)
-        await loadConversationHistory(conversationId)
-      } catch (error) {
-        console.error('Failed to load conversation:', error)
-      } finally {
-        setIsLoading(false)
+
+        let aiMessageId: string | null = null
+        let accumulatedContent = ''
+
+        // 添加用户消息到UI
+        const tempUserMessage: Message = {
+          id: `temp-user-${Date.now()}`,
+          conversation_id: conversationId,
+          user_id: 'default-user',
+          role: 'user',
+          content: initialMessage,
+          created_at: new Date().toISOString(),
+        }
+        setMessages([tempUserMessage])
+
+        try {
+          await chatApi.sendMessageStream(
+            {
+              conversationId,
+              message: initialMessage,
+            },
+            {
+              onContent: (chunk) => {
+                accumulatedContent += chunk
+
+                if (!aiMessageId) {
+                  const tempAiMessage: Message = {
+                    id: `temp-ai-${Date.now()}`,
+                    conversation_id: conversationId,
+                    user_id: 'default-user',
+                    role: 'assistant',
+                    content: accumulatedContent,
+                    created_at: new Date().toISOString(),
+                  }
+                  aiMessageId = tempAiMessage.id
+                  setStreamingMessageId(aiMessageId)
+                  setMessages(prev => [...prev, tempAiMessage])
+                } else {
+                  setMessages(prev =>
+                    prev.map(msg =>
+                      msg.id === aiMessageId ? { ...msg, content: accumulatedContent } : msg,
+                    ),
+                  )
+                }
+              },
+              onDone: async () => {
+                setStreamingMessageId(null)
+                setIsLoading(false)
+                isProcessingRef.current = false
+                abortControllerRef.current = null
+              },
+              onError: (error) => {
+                console.error('Streaming error:', error)
+                setIsLoading(false)
+                setStreamingMessageId(null)
+                isProcessingRef.current = false
+                abortControllerRef.current = null
+                router.replace('/chat')
+              },
+            },
+          )
+        } catch (error) {
+          console.error('Failed to continue conversation:', error)
+          setIsLoading(false)
+          isProcessingRef.current = false
+          router.replace('/chat')
+        }
+      } else {
+        // 正常加载现有对话的历史记录
+        try {
+          setIsLoading(true)
+          await loadConversationHistory(conversationId)
+        } catch (error) {
+          console.error('Failed to load conversation:', error)
+        } finally {
+          setIsLoading(false)
+        }
       }
     }
 
-    loadConversation()
-  }, [conversationId, isNewConversation, messages.length])
+    initialize()
+  }, [conversationId, router])
 
   // 清理函数
   useEffect(() => {
@@ -280,7 +244,7 @@ export default function ConversationPage() {
       <div className="mb-3">
         <ChatInputBox
           onSend={handleSendMessage}
-          disabled={isLoading || (isNewConversation && !realConversationId)}
+          disabled={isLoading}
         />
       </div>
     </div>

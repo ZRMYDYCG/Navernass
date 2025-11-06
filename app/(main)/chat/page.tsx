@@ -1,7 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { chatApi } from '@/lib/supabase/sdk'
 import { ChatInputBox } from './_components/chat-input-box'
 import { ChatWelcomeHeader } from './_components/chat-welcome-header'
 import { PromptButtons } from './_components/prompt-buttons'
@@ -9,16 +10,42 @@ import { PromptButtons } from './_components/prompt-buttons'
 export default function ChatPage() {
   const router = useRouter()
   const [isSending, setIsSending] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isSending) return
 
     setIsSending(true)
 
-    // 直接跳转到新对话页面，传递消息
-    // 使用 sessionStorage 避免 URL 参数问题
-    sessionStorage.setItem('newChatMessage', content.trim())
-    router.push(`/chat/new`)
+    // 取消之前的请求
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    abortControllerRef.current = new AbortController()
+
+    try {
+      // 先开始流式请求，等待获取 conversation_id
+      await chatApi.sendMessageStream(
+        {
+          message: content.trim(),
+        },
+        {
+          onConversationId: (id) => {
+            // 🎯 获取到对话ID后，立即跳转并传递消息
+            sessionStorage.setItem('newChatMessage', content.trim())
+            sessionStorage.setItem('newConversationId', id)
+            router.push(`/chat/${id}`)
+          },
+          onError: (error) => {
+            console.error('Failed to create conversation:', error)
+            setIsSending(false)
+          },
+        },
+      )
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      setIsSending(false)
+    }
   }
 
   return (
