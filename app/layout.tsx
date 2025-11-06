@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/providers/theme-provider'
+import { FaviconProvider } from '@/providers/favicon-provider'
 import './globals.css'
+import Head from 'next/head'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,9 +23,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
+      <head>
+        <link
+          rel="icon"
+          href="/assets/svg/logo-dark.svg"
+          type="image/svg+xml"
+        />
+      </head>
       <body className={`${inter.variable} antialiased h-full`}>
-        <ThemeProvider>{children}</ThemeProvider>
-        <Toaster position="top-right" richColors closeButton />
+        <ThemeProvider>
+          <FaviconProvider />
+          {children}
+          <Toaster position="top-right" richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   )
