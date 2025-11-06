@@ -3,8 +3,6 @@
 import type { Message } from '@/lib/supabase/sdk/types'
 import { useTheme } from 'next-themes'
 
-import { useEffect, useState } from 'react'
-
 import { Avatar } from '@/components/ui/avatar'
 import { MarkdownRenderer } from './markdown-renderer'
 
@@ -18,37 +16,8 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
 
-  const [displayedContent, setDisplayedContent] = useState(message.content)
-
-  useEffect(() => {
-    // 如果不是 AI 消息或者不需要打字机效果，直接显示全部内容
-    if (!isAssistant || !isStreaming) {
-      setDisplayedContent(message.content)
-      return
-    }
-
-    // 启动打字机效果
-    setDisplayedContent('')
-
-    let currentIndex = 0
-    const text = message.content
-    const speed = 30 // 每个字符的显示间隔（毫秒）
-
-    const timer = setInterval(() => {
-      if (currentIndex < text.length) {
-        currentIndex++
-        setDisplayedContent(text.slice(0, currentIndex))
-      } else {
-        clearInterval(timer)
-      }
-    }, speed)
-
-    return () => {
-      clearInterval(timer)
-      // 清理时确保显示完整内容
-      setDisplayedContent(message.content)
-    }
-  }, [message.content, isStreaming, isAssistant])
+  // 流式消息直接显示 message.content（实时更新，不需要打字机效果特殊处理，因为流式本身就是逐字输出）
+  const displayedContent = message.content
 
   const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
 
@@ -78,12 +47,12 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
             : (
                 <div
                   className={`text-sm relative ${
-                    isStreaming && displayedContent !== message.content
+                    isStreaming
                       ? 'after:content-[""] after:absolute after:bottom-0 after:right-0 after:w-12 after:h-6 after:bg-gradient-to-r after:from-transparent after:to-gray-100 dark:after:to-gray-800 after:animate-pulse after:pointer-events-none'
                       : ''
                   }`}
                 >
-                  <MarkdownRenderer content={displayedContent || message.content} />
+                  <MarkdownRenderer content={displayedContent} />
                 </div>
               )}
         </div>

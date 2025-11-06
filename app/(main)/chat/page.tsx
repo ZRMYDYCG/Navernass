@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { chatApi } from '@/lib/supabase/sdk'
 import { ChatInputBox } from './_components/chat-input-box'
 import { ChatWelcomeHeader } from './_components/chat-welcome-header'
 import { PromptButtons } from './_components/prompt-buttons'
@@ -14,22 +13,12 @@ export default function ChatPage() {
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isSending) return
 
-    try {
-      setIsSending(true)
+    setIsSending(true)
 
-      // 直接调用API创建对话并发送消息
-      const response = await chatApi.sendMessage({
-        message: content.trim(),
-      })
-
-      // 使用真实的conversationId导航
-      router.push(`/chat/${response.conversationId}`)
-    } catch (error) {
-      console.error('Failed to send message:', error)
-      // TODO: 显示错误提示
-    } finally {
-      setIsSending(false)
-    }
+    // 直接跳转到新对话页面，传递消息
+    // 使用 sessionStorage 避免 URL 参数问题
+    sessionStorage.setItem('newChatMessage', content.trim())
+    router.push(`/chat/new`)
   }
 
   return (

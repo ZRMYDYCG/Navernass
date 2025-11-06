@@ -11,8 +11,9 @@ const messagesService = new MessagesService()
  * 获取对话的所有消息
  */
 export const GET = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const messages = await messagesService.getByConversationId(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    const messages = await messagesService.getByConversationId(id)
     return ApiResponseBuilder.success(messages)
   },
 )
@@ -22,11 +23,12 @@ export const GET = withErrorHandler(
  * 创建新消息
  */
 export const POST = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
     const body: Omit<CreateMessageDto, 'conversation_id'> = await req.json()
     const messageData: CreateMessageDto = {
       ...body,
-      conversation_id: params.id,
+      conversation_id: id,
     }
     const message = await messagesService.create(messageData)
     return ApiResponseBuilder.success(message)

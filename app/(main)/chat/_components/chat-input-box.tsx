@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button'
 interface ChatInputBoxProps {
   onSend?: (message: string) => void
   placeholder?: string
+  disabled?: boolean
 }
 
 export function ChatInputBox({
   onSend,
   placeholder = '和 AI 一起创作你的小说世界...',
+  disabled = false,
 }: ChatInputBoxProps) {
   const [isRecording, setIsRecording] = useState(false)
   const [isEmpty, setIsEmpty] = useState(true)
@@ -53,7 +55,7 @@ export function ChatInputBox({
   }
 
   const handleSend = () => {
-    if (!editorRef.current) return
+    if (!editorRef.current || disabled) return
     const message = editorRef.current.textContent?.trim() || ''
     if (!message) return
 
@@ -83,11 +85,13 @@ export function ChatInputBox({
       <div className="bg-white dark:bg-gray-800 rounded-[5px] shadow-lg border border-gray-200 dark:border-gray-700 transition-all flex flex-col min-h-[120px]">
         <div
           ref={editorRef}
-          contentEditable
+          contentEditable={!disabled}
           onInput={handleInput}
           onKeyDown={handleKeyDown}
-          className="relative w-full px-3 py-4 bg-transparent border-none outline-none text-gray-800 dark:text-gray-200 flex-1 overflow-y-auto break-words max-h-[180px]"
-          data-placeholder={placeholder}
+          className={`relative w-full px-3 py-4 bg-transparent border-none outline-none text-gray-800 dark:text-gray-200 flex-1 overflow-y-auto break-words max-h-[180px] ${
+            disabled ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          data-placeholder={disabled ? '等待对话创建...' : placeholder}
           suppressContentEditableWarning
         />
 
@@ -108,7 +112,7 @@ export function ChatInputBox({
             <Button
               type="button"
               onClick={handleSend}
-              disabled={isEmpty}
+              disabled={isEmpty || disabled}
               size="icon"
               className="h-9 w-9 bg-gradient-to-r from-blue-500/15 via-purple-500/15 to-pink-500/15 hover:from-blue-500/25 hover:via-purple-500/25 hover:to-pink-500/25 dark:from-blue-500/15 dark:via-purple-500/15 dark:to-pink-500/15 dark:hover:from-blue-500/25 dark:hover:via-purple-500/25 dark:hover:to-pink-500/25 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
