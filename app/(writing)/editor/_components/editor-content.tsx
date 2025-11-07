@@ -2,8 +2,8 @@ import type { Chapter } from '@/lib/supabase/sdk'
 import { ChevronRight, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { InlineLoading } from '@/components/loading'
 import { TiptapEditor } from '@/components/tiptap'
+import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi } from '@/lib/supabase/sdk'
 
 interface Tab {
@@ -191,8 +191,9 @@ export default function EditorContent({
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full p-8">
         {loading
           ? (
-              <div className="flex items-center justify-center h-full">
-                <InlineLoading text="加载中..." />
+              <div className="flex flex-col items-center justify-center h-full gap-3">
+                <Spinner className="w-8 h-8" />
+                <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
               </div>
             )
           : (
