@@ -1,5 +1,6 @@
 'use client'
 
+import type { ViewMode } from './_components/view-switcher'
 import type { Novel } from '@/lib/supabase/sdk'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
@@ -19,6 +20,8 @@ import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import { NovelContextMenu } from './_components/novel-context-menu'
 import { NovelDialog } from './_components/novel-dialog'
 import { NovelList } from './_components/novel-list'
+import { NovelTable } from './_components/novel-table'
+import { ViewSwitcher } from './_components/view-switcher'
 
 const ITEMS_PER_PAGE = 8
 
@@ -32,6 +35,7 @@ export default function Novels() {
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [filter, setFilter] = useState<'all' | 'draft' | 'published'>('all')
+  const [viewMode, setViewMode] = useState<ViewMode>('grid')
 
   // 对话框状态
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -180,27 +184,44 @@ export default function Novels() {
   return (
     <div className="flex flex-col dark:bg-gray-900 transition-colors h-full">
       {/* 顶部区域 */}
-      <section className="flex justify-center items-center px-6 pt-6 pb-4 flex-shrink-0">
+      <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex-shrink-0">
+        <div className="flex-1 hidden sm:block" />
         <SegmentedControl
           value={filter}
           onValueChange={value => setFilter(value as 'all' | 'draft' | 'published')}
-          className="w-fit"
+          className="w-full sm:w-fit"
         >
           <SegmentedControlItem value="all">全部</SegmentedControlItem>
           <SegmentedControlItem value="draft">草稿</SegmentedControlItem>
           <SegmentedControlItem value="published">已发布</SegmentedControlItem>
         </SegmentedControl>
+        <div className="flex-1 flex justify-end">
+          <ViewSwitcher value={viewMode} onChange={setViewMode} />
+        </div>
       </section>
 
       {/* 小说列表区域 */}
-      <div className="flex-1 px-6 py-2">
-        <NovelList
-          novels={novels}
-          loading={loading}
-          onOpenNovel={handleOpenNovel}
-          onContextMenu={handleContextMenu}
-          onCreateNovel={handleOpenCreateDialog}
-        />
+      <div className="flex-1 py-2 px-4 sm:px-6">
+        {viewMode === 'grid'
+          ? (
+              <NovelList
+                novels={novels}
+                loading={loading}
+                onOpenNovel={handleOpenNovel}
+                onContextMenu={handleContextMenu}
+                onCreateNovel={handleOpenCreateDialog}
+              />
+            )
+          : (
+              <NovelTable
+                novels={novels}
+                loading={loading}
+                onOpenNovel={handleOpenNovel}
+                onEditNovel={handleEditNovel}
+                onDeleteNovel={handleDeleteNovel}
+                onContextMenu={handleContextMenu}
+              />
+            )}
 
         {/* 右键菜单 */}
         {contextMenuNovel && contextMenuPosition && (
@@ -220,7 +241,7 @@ export default function Novels() {
 
       {/* 底部分页 */}
       {totalPages > 1 && (
-        <div className="flex-shrink-0 py-4 px-6 border-t border-gray-200 dark:border-gray-800" data-pagination>
+        <div className="flex-shrink-0 py-3 sm:py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-gray-800" data-pagination>
           <Pagination>
             <PaginationContent>
               <PaginationItem>
