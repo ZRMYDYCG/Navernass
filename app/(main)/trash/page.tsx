@@ -1,6 +1,7 @@
 'use client'
 
 import type { Novel } from '@/lib/supabase/sdk'
+import { Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { novelsApi } from '@/lib/supabase/sdk'
@@ -189,18 +190,25 @@ export default function Trash() {
 
   return (
     <div className="flex flex-col dark:bg-gray-900 transition-colors h-full">
-      {/* 标题区域 */}
-      <section className="px-6 pt-6 pb-4 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">回收站</h1>
-            {!loading && novels.length > 0 && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                共
-                {' '}
-                {novels.length}
-                {' '}
-                部已归档的小说
+      {/* 顶部区域 */}
+      <section className="flex justify-between items-center px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex-shrink-0">
+        {/* 左侧占位 */}
+        <div className="flex-1" />
+
+        {/* 右侧：回收站标识 */}
+        <div className="flex items-center gap-3">
+          {/* 回收站图标 */}
+          <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+            <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+          </div>
+          {/* 标题和统计 */}
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight">
+              回收站
+            </h1>
+            {!loading && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                {novels.length > 0 ? `${novels.length} 部已归档` : '暂无归档内容'}
               </p>
             )}
           </div>
@@ -208,7 +216,7 @@ export default function Trash() {
       </section>
 
       {/* 列表区域 */}
-      <div className="flex-1 px-6 py-2">
+      <div className="flex-1 px-4 sm:px-6 py-2">
         <TrashList
           novels={novels}
           loading={loading}
