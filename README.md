@@ -220,19 +220,12 @@ export const newFeatureApi = {
 
 [文档](./app/api/api-doc.md)
 
-## 项目 Loaidng 统一
+## 项目 Spinner、骨架屏 统一
 
-请不要自定义 loading, 需要保证项目 loading 风格
+请不要自定义 loading, 需要保证项目 loading 风格, 特殊业务场景除外
 
-[具体查看](./components/loading.tsx)
-
-提供：
-
-页面级 Loading（整页加载）
-
-内联 Loading（局部加载）
-
-全屏 Loading（重要操作）
+[Spinner](./components/ui/spinner.tsx)
+[骨架屏](./components/ui/secection.tsx)
 
 ## 项目提示词整理
 
