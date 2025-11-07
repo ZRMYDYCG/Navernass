@@ -32,9 +32,7 @@ function ResizableHandle({
         'relative flex items-center justify-center bg-gray-200 dark:bg-gray-800 transition-colors',
         'hover:bg-gray-300 dark:hover:bg-gray-700',
         'focus-visible:outline-none',
-        // 水平方向：宽度4px，扩大点击区域到8px
         'w-1 after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-2 after:cursor-col-resize',
-        // 垂直方向
         'data-[panel-group-direction=vertical]:h-1 data-[panel-group-direction=vertical]:w-full',
         'data-[panel-group-direction=vertical]:after:inset-x-0 data-[panel-group-direction=vertical]:after:top-1/2 data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:h-2 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:cursor-row-resize',
         '[&[data-panel-group-direction=vertical]>div]:rotate-90',
