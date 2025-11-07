@@ -4,7 +4,7 @@ import type { Novel } from '@/lib/supabase/sdk'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Edit, ExternalLink, Plus, Trash2 } from 'lucide-react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -23,6 +23,7 @@ import { novelsApi } from '@/lib/supabase/sdk'
 
 export default function Novels() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)
   const [novels, setNovels] = useState<Novel[]>([])
   const [total, setTotal] = useState(0)
@@ -65,6 +66,24 @@ export default function Novels() {
     loadNovels()
   }, [loadNovels])
 
+  // 打开创建对话框
+  const handleOpenCreateDialog = useCallback(() => {
+    setEditingNovel(null)
+    setNovelTitle('')
+    setNovelDescription('')
+    setDialogOpen(true)
+  }, [])
+
+  // 监听 URL 参数，处理创建动作
+  useEffect(() => {
+    const action = searchParams.get('action')
+    if (action === 'create') {
+      handleOpenCreateDialog()
+      // 清除 URL 参数
+      router.replace('/novels')
+    }
+  }, [searchParams, router, handleOpenCreateDialog])
+
   // 点击其他地方关闭右键菜单
   useEffect(() => {
     const handleClick = () => {
@@ -75,14 +94,6 @@ export default function Novels() {
     document.addEventListener('click', handleClick)
     return () => document.removeEventListener('click', handleClick)
   }, [openPopoverId])
-
-  // 打开创建对话框
-  const handleOpenCreateDialog = () => {
-    setEditingNovel(null)
-    setNovelTitle('')
-    setNovelDescription('')
-    setDialogOpen(true)
-  }
 
   // 删除小说（移到回收站）
   const handleDeleteNovel = (novel: Novel) => {
@@ -164,15 +175,7 @@ export default function Novels() {
   return (
     <div className="flex flex-col dark:bg-gray-900 transition-colors h-full">
       {/* 顶部区域 */}
-      <section className="relative flex justify-center items-center px-6 pt-6 pb-4 flex-shrink-0">
-        <Button
-          onClick={handleOpenCreateDialog}
-          className="absolute cursor-pointer left-6 bg-black dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700"
-        >
-          <Plus className="w-4 h-4" />
-          新建小说
-        </Button>
-
+      <section className="flex justify-center items-center px-6 pt-6 pb-4 flex-shrink-0">
         <SegmentedControl
           value={filter}
           onValueChange={value => setFilter(value as 'all' | 'draft' | 'published')}
