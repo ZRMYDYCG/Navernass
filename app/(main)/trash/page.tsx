@@ -1,31 +1,56 @@
 'use client'
 
 import type { Novel } from '@/lib/supabase/sdk'
-import * as Popover from '@radix-ui/react-popover'
-import { formatDistanceToNow } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
-import { BookOpen, MoreVertical, RotateCcw, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Spinner } from '@/components/ui/spinner'
 import { novelsApi } from '@/lib/supabase/sdk'
+import { BulkActionsBar } from './_components/bulk-actions-bar'
+import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
+import { TrashContextMenu } from './_components/trash-context-menu'
+import { TrashList } from './_components/trash-list'
 
 interface ContextMenuState {
-  show: boolean
-  x: number
-  y: number
-  item: Novel | null
+  novel: Novel | null
+  position: { x: number, y: number } | null
+}
+
+interface DeleteDialogState {
+  open: boolean
+  type: 'single' | 'bulk'
+  novel: Novel | null
+  count: number
 }
 
 export default function Trash() {
   const [novels, setNovels] = useState<Novel[]>([])
   const [loading, setLoading] = useState(true)
+  const [deleting, setDeleting] = useState(false)
+  const [selectedIds, setSelectedIds] = useState(() => new Set<string>())
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
-    show: false,
-    x: 0,
-    y: 0,
-    item: null,
+    novel: null,
+    position: null,
   })
+  const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState>({
+    open: false,
+    type: 'single',
+    novel: null,
+    count: 0,
+  })
+
+  const loadTrashData = async () => {
+    try {
+      setLoading(true)
+      const novelsData = await novelsApi.getArchived()
+      setNovels(novelsData)
+      setSelectedIds(new Set()) // 重新加载后清空选择
+    } catch (error) {
+      console.error('加载回收站数据失败:', error)
+      const message = error instanceof Error ? error.message : '加载回收站数据失败'
+      toast.error(message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // 加载数据
   useEffect(() => {
@@ -35,27 +60,36 @@ export default function Trash() {
   // 点击其他地方关闭右键菜单
   useEffect(() => {
     const handleClick = () => {
-      if (contextMenu.show) {
-        setContextMenu({ show: false, x: 0, y: 0, item: null })
+      if (contextMenu.novel) {
+        setContextMenu({ novel: null, position: null })
       }
     }
 
     document.addEventListener('click', handleClick)
     return () => document.removeEventListener('click', handleClick)
-  }, [contextMenu.show])
+  }, [contextMenu.novel])
 
-  const loadTrashData = async () => {
-    try {
-      setLoading(true)
-      const novelsData = await novelsApi.getArchived()
-      setNovels(novelsData)
-    } catch (error) {
-      console.error('加载回收站数据失败:', error)
-      const message = error instanceof Error ? error.message : '加载回收站数据失败'
-      toast.error(message)
-    } finally {
-      setLoading(false)
-    }
+  // 切换选择
+  const handleToggleSelect = (novel: Novel) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(novel.id)) {
+        next.delete(novel.id)
+      } else {
+        next.add(novel.id)
+      }
+      return next
+    })
+  }
+
+  // 全选
+  const handleSelectAll = () => {
+    setSelectedIds(new Set(novels.map(n => n.id)))
+  }
+
+  // 取消全选
+  const handleDeselectAll = () => {
+    setSelectedIds(new Set())
   }
 
   // 恢复小说
@@ -72,198 +106,156 @@ export default function Trash() {
   }
 
   // 永久删除小说
-  const handlePermanentDeleteNovel = async (novel: Novel) => {
-    if (!confirm(`确定要永久删除小说《${novel.title}》吗？此操作无法撤销！`)) {
-      return
+  const handlePermanentDeleteNovel = (novel: Novel) => {
+    setDeleteDialog({
+      open: true,
+      type: 'single',
+      novel,
+      count: 1,
+    })
+  }
+
+  // 确认永久删除
+  const handleConfirmDelete = async () => {
+    if (deleteDialog.type === 'single' && deleteDialog.novel) {
+      try {
+        setDeleting(true)
+        await novelsApi.delete(deleteDialog.novel.id)
+        toast.success('小说已永久删除')
+        setDeleteDialog({ open: false, type: 'single', novel: null, count: 0 })
+        loadTrashData()
+      } catch (error) {
+        console.error('永久删除小说失败:', error)
+        const message = error instanceof Error ? error.message : '永久删除小说失败'
+        toast.error(message)
+      } finally {
+        setDeleting(false)
+      }
+    } else if (deleteDialog.type === 'bulk') {
+      try {
+        setDeleting(true)
+        await Promise.all(Array.from(selectedIds).map(id => novelsApi.delete(id)))
+        toast.success(`已永久删除 ${deleteDialog.count} 部小说`)
+        setDeleteDialog({ open: false, type: 'bulk', novel: null, count: 0 })
+        loadTrashData()
+      } catch (error) {
+        console.error('批量删除失败:', error)
+        const message = error instanceof Error ? error.message : '批量删除失败'
+        toast.error(message)
+      } finally {
+        setDeleting(false)
+      }
     }
+  }
+
+  // 批量恢复
+  const handleBulkRestore = async () => {
+    const count = selectedIds.size
+    if (count === 0) return
 
     try {
-      await novelsApi.delete(novel.id)
-      toast.success('小说已永久删除')
+      await Promise.all(Array.from(selectedIds).map(id => novelsApi.restore(id)))
+      toast.success(`已恢复 ${count} 部小说`)
       loadTrashData()
     } catch (error) {
-      console.error('永久删除小说失败:', error)
-      const message = error instanceof Error ? error.message : '永久删除小说失败'
+      console.error('批量恢复失败:', error)
+      const message = error instanceof Error ? error.message : '批量恢复失败'
       toast.error(message)
     }
   }
 
-  // 右键菜单处理
-  const handleContextMenu = (e: React.MouseEvent, item: Novel) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setContextMenu({
-      show: true,
-      x: e.clientX,
-      y: e.clientY,
-      item,
+  // 批量永久删除
+  const handleBulkDelete = () => {
+    const count = selectedIds.size
+    if (count === 0) return
+
+    setDeleteDialog({
+      open: true,
+      type: 'bulk',
+      novel: null,
+      count,
     })
   }
 
-  // 处理恢复
-  const handleRestore = () => {
-    if (!contextMenu.item) return
-    handleRestoreNovel(contextMenu.item)
-    setContextMenu({ show: false, x: 0, y: 0, item: null })
-  }
-
-  // 处理永久删除
-  const handlePermanentDelete = () => {
-    if (!contextMenu.item) return
-    handlePermanentDeleteNovel(contextMenu.item)
-    setContextMenu({ show: false, x: 0, y: 0, item: null })
+  // 右键菜单处理
+  const handleContextMenu = (e: React.MouseEvent, novel: Novel) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setContextMenu({
+      novel,
+      position: { x: e.clientX, y: e.clientY },
+    })
   }
 
   return (
-    <div className="dark:bg-gray-900 w-full h-full">
-      {/* 标题 */}
-      <section className="px-6 py-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">回收站</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">已归档的小说会显示在这里</p>
-      </section>
-
-      {/* 内容区域 */}
-      <section className="px-6 pb-6">
-        {loading
-          ? (
-              <div className="flex flex-col items-center justify-center py-12 gap-3">
-                <Spinner className="w-8 h-8" />
-                <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
-              </div>
-            )
-          : novels.length === 0
-            ? (
-                <div className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
-                  <Trash2 className="w-16 h-16 mb-4 opacity-40" />
-                  <p className="text-lg">回收站是空的</p>
-                  <p className="text-sm mt-2">归档的小说会保留在这里</p>
-                </div>
-              )
-            : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {novels.map(novel => (
-                    <div
-                      key={novel.id}
-                      onContextMenu={e => handleContextMenu(e, novel)}
-                      className="group relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all cursor-pointer"
-                    >
-                      {/* 图标和类型 */}
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                          <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                            {novel.title}
-                          </h3>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">小说</p>
-                        </div>
-                      </div>
-
-                      {/* 描述 */}
-                      {novel.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
-                          {novel.description}
-                        </p>
-                      )}
-
-                      {/* 统计信息 */}
-                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
-                        <span>
-                          {novel.word_count.toLocaleString()}
-                          {' '}
-                          字
-                        </span>
-                        <span>
-                          {novel.chapter_count}
-                          {' '}
-                          章节
-                        </span>
-                      </div>
-
-                      {/* 时间信息 */}
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        归档于
-                        {' '}
-                        {formatDistanceToNow(new Date(novel.updated_at), {
-                          addSuffix: true,
-                          locale: zhCN,
-                        })}
-                      </p>
-
-                      {/* 右上角的操作按钮 */}
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Popover.Root>
-                          <Popover.Trigger asChild>
-                            <button
-                              onClick={e => e.stopPropagation()}
-                              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                            >
-                              <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            </button>
-                          </Popover.Trigger>
-                          <Popover.Portal>
-                            <Popover.Content
-                              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
-                              sideOffset={5}
-                              align="end"
-                            >
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleRestoreNovel(novel)
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                              >
-                                <RotateCcw className="w-4 h-4" />
-                                恢复
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handlePermanentDeleteNovel(novel)
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                永久删除
-                              </button>
-                            </Popover.Content>
-                          </Popover.Portal>
-                        </Popover.Root>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-      </section>
-
-      {/* 右键菜单 */}
-      {contextMenu.show && (
-        <div
-          className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
-          style={{
-            left: `${contextMenu.x}px`,
-            top: `${contextMenu.y}px`,
-          }}
-          onClick={e => e.stopPropagation()}
-        >
-          <button
-            onClick={handleRestore}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-            恢复
-          </button>
-          <button
-            onClick={handlePermanentDelete}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-            永久删除
-          </button>
+    <div className="flex flex-col dark:bg-gray-900 transition-colors h-full">
+      {/* 标题区域 */}
+      <section className="px-6 pt-6 pb-4 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">回收站</h1>
+            {!loading && novels.length > 0 && (
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                共
+                {' '}
+                {novels.length}
+                {' '}
+                部已归档的小说
+              </p>
+            )}
+          </div>
         </div>
-      )}
+      </section>
+
+      {/* 列表区域 */}
+      <div className="flex-1 px-6 py-2">
+        <TrashList
+          novels={novels}
+          loading={loading}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onContextMenu={handleContextMenu}
+        />
+
+        {/* 右键菜单 */}
+        {contextMenu.novel && contextMenu.position && (
+          <TrashContextMenu
+            novel={contextMenu.novel}
+            position={contextMenu.position}
+            onRestore={handleRestoreNovel}
+            onPermanentDelete={handlePermanentDeleteNovel}
+            onClose={() => setContextMenu({ novel: null, position: null })}
+          />
+        )}
+      </div>
+
+      {/* 批量操作工具栏 */}
+      <BulkActionsBar
+        selectedCount={selectedIds.size}
+        totalCount={novels.length}
+        onSelectAll={handleSelectAll}
+        onDeselectAll={handleDeselectAll}
+        onBulkRestore={handleBulkRestore}
+        onBulkDelete={handleBulkDelete}
+      />
+
+      {/* 删除确认对话框 */}
+      <DeleteConfirmDialog
+        open={deleteDialog.open}
+        title={deleteDialog.type === 'single' ? '永久删除小说' : '批量永久删除'}
+        description={
+          deleteDialog.type === 'single'
+            ? `确定要永久删除小说《${deleteDialog.novel?.title}》吗？此操作无法撤销！`
+            : `确定要永久删除选中的 ${deleteDialog.count} 部小说吗？此操作无法撤销！`
+        }
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteDialog({ open: false, type: 'single', novel: null, count: 0 })
+          }
+        }}
+        onConfirm={handleConfirmDelete}
+        loading={deleting}
+      />
     </div>
   )
 }
