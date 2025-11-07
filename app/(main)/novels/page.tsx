@@ -7,7 +7,6 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { InlineLoading } from '@/components/loading'
 import { Button } from '@/components/ui/button'
 import {
   Pagination,
@@ -19,6 +18,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
+import { Spinner } from '@/components/ui/spinner'
 import { novelsApi } from '@/lib/supabase/sdk'
 
 export default function Novels() {
@@ -188,8 +188,9 @@ export default function Novels() {
       <div className="flex-1 px-6 py-2">
         {loading
           ? (
-              <div className="flex items-center justify-center py-20">
-                <InlineLoading text="加载中..." />
+              <div className="flex flex-col items-center justify-center py-20 gap-3">
+                <Spinner className="w-8 h-8" />
+                <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
               </div>
             )
           : novels.length === 0
