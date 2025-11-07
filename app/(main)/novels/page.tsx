@@ -220,7 +220,7 @@ export default function Novels() {
 
       {/* 底部分页 */}
       {totalPages > 1 && (
-        <div className="flex-shrink-0 py-4 px-6 border-t border-gray-200 dark:border-gray-800">
+        <div className="flex-shrink-0 py-4 px-6 border-t border-gray-200 dark:border-gray-800" data-pagination>
           <Pagination>
             <PaginationContent>
               <PaginationItem>
