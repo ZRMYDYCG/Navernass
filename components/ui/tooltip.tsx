@@ -11,7 +11,9 @@ const Tooltip = TooltipPrimitive.Root
 
 const TooltipTrigger = TooltipPrimitive.Trigger
 
-function TooltipContent({ ref, className, sideOffset = 4, ...props }: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & { ref?: React.RefObject<React.ElementRef<typeof TooltipPrimitive.Content> | null> }) {
+const TooltipArrow = TooltipPrimitive.Arrow
+
+function TooltipContent({ ref, className, sideOffset = 4, children, ...props }: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & { ref?: React.RefObject<React.ElementRef<typeof TooltipPrimitive.Content> | null> }) {
   return (
     <TooltipPrimitive.Content
       ref={ref}
@@ -21,9 +23,12 @@ function TooltipContent({ ref, className, sideOffset = 4, ...props }: React.Comp
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      <TooltipPrimitive.Arrow className="fill-gray-900 dark:fill-gray-800" />
+    </TooltipPrimitive.Content>
   )
 }
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
-export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }
+export { Tooltip, TooltipArrow, TooltipContent, TooltipProvider, TooltipTrigger }
