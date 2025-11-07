@@ -7,10 +7,10 @@ import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { PageLoading } from '@/components/loading'
 import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/ui/kbd'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi, novelsApi } from '@/lib/supabase/sdk'
 import EditorContent from './_components/editor-content'
 import EditorHeader from './_components/editor-header'
@@ -160,8 +160,9 @@ export default function NovelsEdit() {
 
   if (loading) {
     return (
-      <div className="h-screen">
-        <PageLoading text="加载中..." />
+      <div className="h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 gap-3">
+        <Spinner className="w-8 h-8" />
+        <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
       </div>
     )
   }
@@ -215,50 +216,52 @@ export default function NovelsEdit() {
 
             {/* 中间：编辑器 */}
             <ResizablePanel defaultSize={60} minSize={40}>
-              {selectedChapter === null || activeTab === null ? (
-                // 未选择章节时显示欢迎界面
-                <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
-                  <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
-                    <Image
-                      src="/assets/svg/logo-eye.svg"
-                      width={120}
-                      height={120}
-                      alt="Logo"
-                      className="opacity-40"
+              {selectedChapter === null || activeTab === null
+                ? (
+                  // 未选择章节时显示欢迎界面
+                    <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
+                      <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
+                        <Image
+                          src="/assets/svg/logo-eye.svg"
+                          width={120}
+                          height={120}
+                          alt="Logo"
+                          className="opacity-40"
+                        />
+                        <p className="text-sm">选择一个章节开始编辑</p>
+                        <span className="flex items-center gap-1">
+                          <Kbd>Ctrl</Kbd>
+                          <Kbd>+</Kbd>
+                          <Kbd>S</Kbd>
+                          <span>保存内容</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Kbd>Ctrl</Kbd>
+                          <Kbd>+</Kbd>
+                          <Kbd>E</Kbd>
+                          <span>切换左侧面板</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Kbd>Ctrl</Kbd>
+                          <Kbd>+</Kbd>
+                          <Kbd>L</Kbd>
+                          <span>切换右侧面板</span>
+                        </span>
+                      </div>
+                    </div>
+                  )
+                : (
+                  // 选择章节后显示编辑器
+                    <EditorContent
+                      openTabs={openTabs}
+                      activeTab={activeTab}
+                      onTabChange={setActiveTab}
+                      onTabClose={closeTab}
+                      novelTitle={novel.title}
+                      chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
+                      chapterId={activeTab}
                     />
-                    <p className="text-sm">选择一个章节开始编辑</p>
-                    <span className="flex items-center gap-1">
-                      <Kbd>Ctrl</Kbd>
-                      <Kbd>+</Kbd>
-                      <Kbd>S</Kbd>
-                      <span>保存内容</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Kbd>Ctrl</Kbd>
-                      <Kbd>+</Kbd>
-                      <Kbd>E</Kbd>
-                      <span>切换左侧面板</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Kbd>Ctrl</Kbd>
-                      <Kbd>+</Kbd>
-                      <Kbd>L</Kbd>
-                      <span>切换右侧面板</span>
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                // 选择章节后显示编辑器
-                <EditorContent
-                  openTabs={openTabs}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                  onTabClose={closeTab}
-                  novelTitle={novel.title}
-                  chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
-                  chapterId={activeTab}
-                />
-              )}
+                  )}
             </ResizablePanel>
 
             {showRightPanel && (
