@@ -23,24 +23,22 @@ export function BulkActionsBar({
   const allSelected = selectedCount === totalCount
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center gap-3">
+    <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-300 w-[calc(100%-2rem)] sm:w-auto max-w-2xl">
+      <div className="bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-3">
         {/* 选择信息 */}
-        <div className="flex items-center gap-2 px-2">
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            已选择
-            {' '}
+        <div className="flex items-center gap-1.5 sm:gap-2 px-1 sm:px-2">
+          <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+            <span className="hidden sm:inline">已选择 </span>
             {selectedCount}
-            {' '}
-            项
+            <span className="hidden sm:inline"> 项</span>
           </span>
           {!allSelected && (
             <>
-              <span className="text-gray-300 dark:text-gray-600">|</span>
+              <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">|</span>
               <button
                 type="button"
                 onClick={onSelectAll}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
               >
                 全选
               </button>
@@ -48,40 +46,40 @@ export function BulkActionsBar({
           )}
         </div>
 
-        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
+        <div className="h-5 sm:h-6 w-px bg-gray-200 dark:bg-gray-700" />
 
         {/* 批量操作按钮 */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <Button
             onClick={onBulkRestore}
             variant="ghost"
             size="sm"
-            className="h-8 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            className="h-7 sm:h-8 px-2 sm:px-3 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
           >
-            <RotateCcw className="w-4 h-4 mr-1.5" />
-            恢复
+            <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">恢复</span>
           </Button>
           <Button
             onClick={onBulkDelete}
             variant="ghost"
             size="sm"
-            className="h-8 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+            className="h-7 sm:h-8 px-2 sm:px-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
           >
-            <Trash2 className="w-4 h-4 mr-1.5" />
-            永久删除
+            <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">永久删除</span>
           </Button>
         </div>
 
-        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
+        <div className="h-5 sm:h-6 w-px bg-gray-200 dark:bg-gray-700" />
 
         {/* 取消选择 */}
         <button
           type="button"
           onClick={onDeselectAll}
-          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+          className="p-1 sm:p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
           aria-label="取消选择"
         >
-          <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400" />
         </button>
       </div>
     </div>
