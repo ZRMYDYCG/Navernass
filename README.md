@@ -1,120 +1,235 @@
-# Narraverse Next.js MVP
+<div align="center">
 
-基于 Next.js 的 AI 小说创作平台 MVP 版本，用于快速验证 MCP (Model Context Protocol) 功能。
+<img src="./public/assets/svg/logo-dark.svg" alt="Narraverse Logo" width="120" />
 
-## 🚀 快速开始
+# Narraverse - 小说创作平台
+
+</div>
+
+## 核心目标
+
+我们专注为才华横溢的创作者打造舒适的创作环境，降低优质内容被看见、被分享、被发掘的门槛。
+
+同时也为新手提供AI辅助，降低直面感受创作、学习创作、走进创作的门槛。
+
+## 开发模式
+
+环境变量配置
 
 ```bash
-# 安装依赖
-pnpm install
+# SUPABASE 配置
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
-# 启动开发服务器
-pnpm dev
-
-# 构建生产版本
-pnpm build
-
-# 启动生产服务器
-pnpm start
+# 硅基流动 AI 配置
+SILICON_FLOW_API_KEY=
+SILICON_FLOW_BASE_URL=
+SILICON_FLOW_MODEL=
 ```
 
-访问: http://localhost:3000
+代码格式化配置
 
-## ✨ 功能特性
+新建 .vscode/settings.json
 
-- 🤖 **AI 对话助手** - 智能辅助小说创作
-- 📚 **小说管理** - 完整的小说 CRUD 操作
-- 🗂️ **知识库** - 创作知识管理
-- 🗑️ **回收站** - 已删除内容管理
-- 🌓 **深色模式** - 支持亮色/暗色主题切换
+```json
+{
+  // Disable the default formatter, use eslint instead
+  "prettier.enable": false,
+  "editor.formatOnSave": false,
 
-## 🛠️ 技术栈
+  // Auto fix
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "never"
+  },
 
-- **Next.js 15.5.5** - React 框架
-- **TypeScript** - 类型安全
-- **Supabase** - 后端服务（数据库 + 认证）
-- **Tailwind CSS** - 样式系统
-- **Radix UI** - 无障碍组件库
-- **Tiptap** - 富文本编辑器
-- **next-themes** - 主题切换
+  // Silent the stylistic rules in you IDE, but still auto fix them
+  "eslint.rules.customizations": [
+    { "rule": "style/*", "severity": "off", "fixable": true },
+    { "rule": "format/*", "severity": "off", "fixable": true },
+    { "rule": "*-indent", "severity": "off", "fixable": true },
+    { "rule": "*-spacing", "severity": "off", "fixable": true },
+    { "rule": "*-spaces", "severity": "off", "fixable": true },
+    { "rule": "*-order", "severity": "off", "fixable": true },
+    { "rule": "*-dangle", "severity": "off", "fixable": true },
+    { "rule": "*-newline", "severity": "off", "fixable": true },
+    { "rule": "*quotes", "severity": "off", "fixable": true },
+    { "rule": "*semi", "severity": "off", "fixable": true }
+  ],
 
-## 📁 项目结构
-
-```
-narraverse-next-mvp/
-├── app/              # Next.js 应用页面
-├── components/       # React 组件
-│   ├── layout/      # 布局组件
-│   └── ui/          # UI 组件库
-├── lib/             # 工具函数和 API
-│   ├── api/         # API 层
-│   ├── supabase.ts  # Supabase 客户端
-│   └── utils.ts     # 工具函数
-├── providers/       # React Context 提供者
-└── public/          # 静态资源
-```
-
-## 🔧 环境变量
-
-创建 `.env.local` 文件：
-
-```env
-# Supabase 配置
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
-
-### 获取 Supabase 配置
-
-1. 访问 [Supabase](https://supabase.com) 并创建一个新项目
-2. 在项目设置中找到 API 配置
-3. 复制 `Project URL` 和 `anon/public` key
-4. 粘贴到 `.env.local` 文件中
-
-## 📊 数据库设置
-
-### Supabase 表结构
-
-#### novels 表
-
-```sql
-create table novels (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users not null,
-  title text not null,
-  description text,
-  cover text,
-  category text,
-  tags text[],
-  word_count integer default 0,
-  chapters integer default 0,
-  status text default 'draft' check (status in ('draft', 'published', 'archived')),
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
-
--- 启用行级安全策略
-alter table novels enable row level security;
-
--- 用户只能查看自己的小说
-create policy "Users can view own novels"
-  on novels for select
-  using (auth.uid() = user_id);
-
--- 用户只能插入自己的小说
-create policy "Users can insert own novels"
-  on novels for insert
-  with check (auth.uid() = user_id);
-
--- 用户只能更新自己的小说
-create policy "Users can update own novels"
-  on novels for update
-  using (auth.uid() = user_id);
-
--- 用户只能删除自己的小说
-create policy "Users can delete own novels"
-  on novels for delete
-  using (auth.uid() = user_id);
+  // Enable eslint for all supported languages
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue",
+    "html",
+    "markdown",
+    "json",
+    "jsonc",
+    "yaml",
+    "toml",
+    "xml",
+    "gql",
+    "graphql",
+    "astro",
+    "svelte",
+    "css",
+    "less",
+    "scss",
+    "pcss",
+    "postcss"
+  ]
+}
 ```
 
+## 开发规范工具链
 
+Git Hooks 管理
+
+lefthook
+
+代码质量检查
+
+eslint @antfu/eslint-config eslint-plugin-tailwindcss
+
+Commit 规范
+
+@commitlint/cli @commitlint/config-conventional
+
+commitizen cz-git
+
+暂存区代码检查
+
+lint-staged
+
+版本发布自动化
+
+release-it @release-it/conventional-changelog
+
+### 服务端设计
+
+> RESTful API 架构
+
+基于 Next.js App Router 的 Route Handlers 实现:
+
+```bash
+lib/supabase/sdk
+├── utils/
+│   ├── response.ts          # 统一响应格式
+│   ├── handler.ts           # 错误处理中间件
+├── services/                # 业务逻辑层
+│   ├── novels.service.ts
+│   ├── chapters.service.ts
+│   ├── conversations.service.ts
+│   └── messages.service.ts
+├── client.ts                # 客户端 API 调用工具
+├── types.ts                 # 类型定义
+├── novels.ts                # Novels 客户端 API
+├── chapters.ts              # Chapters 客户端 API
+├── conversations.ts         # Conversations 客户端 API
+├── messages.ts              # Messages 客户端 API
+└── index.ts                 # 统一导出
+
+app/api/                     # API 路由
+├── novels/
+│   ├── route.ts             # GET /api/novels, POST /api/novels
+│   ├── [id]/
+│   │   ├── route.ts         # GET/PUT/DELETE /api/novels/:id
+│   │   ├── archive/route.ts
+│   │   ├── restore/route.ts
+│   │   ├── publish/route.ts
+│   │   └── chapters/route.ts
+│   └── archived/route.ts
+├── chapters/
+│   ├── route.ts
+│   ├── [id]/route.ts
+│   └── reorder/route.ts
+├── conversations/
+│   ├── route.ts
+│   ├── [id]/route.ts
+│   └── recent/route.ts
+└── messages/
+    ├── batch/route.ts
+    └── [id]/route.ts
+```
+
+## 创建一个 api 服务
+
+1. **创建 Service**
+
+```typescript
+// lib/api/services/new-feature.service.ts
+export class NewFeatureService {
+  async getList() {}
+  async create(data) {}
+}
+```
+
+2. **创建 Route Handler**
+
+```typescript
+// app/api/new-feature/route.ts
+export const GET = withErrorHandler(async (req) => {
+  const service = new NewFeatureService()
+  const data = await service.getList()
+  return ApiResponseBuilder.success(data)
+})
+```
+
+3. **创建客户端 API**
+
+```typescript
+// lib/api/new-feature.ts
+export const newFeatureApi = {
+  getList: () => apiClient.get('/api/new-feature'),
+}
+```
+
+## 响应格式规范
+
+### 成功响应
+
+```json
+{
+  "success": true,
+  "data": {},
+  "meta": {
+    "page": 1,
+    "pageSize": 10,
+    "total": 100
+  }
+}
+```
+
+### 错误响应
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "NOVEL_NOT_FOUND",
+    "message": "Novel not found",
+    "details": {}
+  }
+}
+```
+
+## 接口文档
+
+[文档](./app/api/api-doc.md)
+
+## 项目 Spinner、骨架屏 统一
+
+请不要自定义 loading, 需要保证项目 loading 风格, 特殊业务场景除外
+
+[Spinner](./components/ui/spinner.tsx)
+
+[骨架屏](./components/ui/secection.tsx)
+
+## 项目提示词整理
+
+当你实现了某一个还算复杂，需要描述很久才可以出来的交互，那你的这份提示词是不是可以考虑将其留下呢？未来也许会有相似的场景，你留下的词就派上用场了
+
+[提示词文档](./prompts.md)

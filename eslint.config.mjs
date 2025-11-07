@@ -1,25 +1,35 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import antfu from '@antfu/eslint-config'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+export default antfu(
   {
+    typescript: true,
+    react: true,
+    
+    formatters: {
+      css: true,
+      html: true,
+      markdown: 'prettier',
+    },
+
     ignores: [
-      "node_modules/**",
-      ".next/**",
-      "out/**",
-      "build/**",
-      "next-env.d.ts",
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.next/**',
+      '**/out/**',
+      '**/coverage/**',
+      '**/.turbo/**',
+      '**/pnpm-lock.yaml',
     ],
   },
-];
-
-export default eslintConfig;
+  {
+    rules: {
+      'react/react-in-jsx-scope': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'antfu/if-newline': 'off',
+      'style/brace-style': ['error', '1tbs'],
+    },
+  },
+)
