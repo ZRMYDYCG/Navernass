@@ -1,6 +1,6 @@
 'use client'
 
-import type { ViewMode } from './_components/view-switcher'
+import type { NovelFilterType, NovelFormData, ViewMode } from './types'
 import type { Novel } from '@/lib/supabase/sdk'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
@@ -22,8 +22,7 @@ import { NovelDialog } from './_components/novel-dialog'
 import { NovelList } from './_components/novel-list'
 import { NovelTable } from './_components/novel-table'
 import { ViewSwitcher } from './_components/view-switcher'
-
-const ITEMS_PER_PAGE = 8
+import { DEFAULT_FILTER, DEFAULT_VIEW_MODE, ITEMS_PER_PAGE, TOAST_MESSAGES } from './config'
 
 export default function Novels() {
   const router = useRouter()
@@ -34,8 +33,8 @@ export default function Novels() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-  const [filter, setFilter] = useState<'all' | 'draft' | 'published'>('all')
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [filter, setFilter] = useState<NovelFilterType>(DEFAULT_FILTER)
+  const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
 
   // 对话框状态
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -62,7 +61,7 @@ export default function Novels() {
       setTotal(result.total)
     } catch (error) {
       console.error('加载小说失败:', error)
-      const message = error instanceof Error ? error.message : '加载小说列表失败'
+      const message = error instanceof Error ? error.message : TOAST_MESSAGES.LOAD_ERROR
       toast.error(message)
     } finally {
       setLoading(false)
@@ -73,15 +72,20 @@ export default function Novels() {
     loadNovels()
   }, [loadNovels])
 
+  // 处理创建对话框
+  const handleCreateAction = useCallback(() => {
+    setEditingNovel(null)
+    setDialogOpen(true)
+    router.replace('/novels')
+  }, [router])
+
   // 监听 URL 参数，处理创建动作
   useEffect(() => {
     const action = searchParams.get('action')
     if (action === 'create') {
-      setEditingNovel(null)
-      setDialogOpen(true)
-      router.replace('/novels')
+      handleCreateAction()
     }
-  }, [searchParams, router])
+  }, [searchParams, handleCreateAction])
 
   // 点击其他地方关闭右键菜单
   useEffect(() => {
@@ -120,9 +124,9 @@ export default function Novels() {
   }
 
   // 保存小说（创建或更新）
-  const handleSaveNovel = async (data: { title: string, description: string }) => {
+  const handleSaveNovel = async (data: NovelFormData) => {
     if (!data.title.trim()) {
-      toast.error('请输入小说标题')
+      toast.error(TOAST_MESSAGES.TITLE_REQUIRED)
       return
     }
 
@@ -134,7 +138,7 @@ export default function Novels() {
           title: data.title,
           description: data.description || undefined,
         })
-        toast.success('小说信息已更新！')
+        toast.success(TOAST_MESSAGES.UPDATE_SUCCESS)
         setDialogOpen(false)
         loadNovels()
       } else {
@@ -143,14 +147,18 @@ export default function Novels() {
           title: data.title,
           description: data.description || undefined,
         })
-        toast.success('小说创建成功！')
+        toast.success(TOAST_MESSAGES.CREATE_SUCCESS)
         setDialogOpen(false)
         router.push(`/editor?id=${novel.id}`)
       }
     } catch (error) {
       console.error(editingNovel ? '更新小说失败:' : '创建小说失败:', error)
       const message
-        = error instanceof Error ? error.message : editingNovel ? '更新小说失败' : '创建小说失败'
+        = error instanceof Error
+          ? error.message
+          : editingNovel
+            ? TOAST_MESSAGES.UPDATE_ERROR
+            : TOAST_MESSAGES.CREATE_ERROR
       toast.error(message)
       throw error
     }
@@ -168,13 +176,13 @@ export default function Novels() {
 
     try {
       await novelsApi.archive(novelToDelete.id)
-      toast.success('小说已移到回收站')
+      toast.success(TOAST_MESSAGES.DELETE_SUCCESS)
       setDeleteDialogOpen(false)
       setNovelToDelete(null)
       loadNovels()
     } catch (error) {
       console.error('删除小说失败:', error)
-      const message = error instanceof Error ? error.message : '删除小说失败'
+      const message = error instanceof Error ? error.message : TOAST_MESSAGES.DELETE_ERROR
       toast.error(message)
     }
   }
@@ -188,7 +196,7 @@ export default function Novels() {
         <div className="flex-1 hidden sm:block" />
         <SegmentedControl
           value={filter}
-          onValueChange={value => setFilter(value as 'all' | 'draft' | 'published')}
+          onValueChange={value => setFilter(value as NovelFilterType)}
           className="w-full sm:w-fit"
         >
           <SegmentedControlItem value="all">全部</SegmentedControlItem>

@@ -1,6 +1,5 @@
+import type { ViewMode } from '../types'
 import { LayoutGrid, Table } from 'lucide-react'
-
-export type ViewMode = 'grid' | 'table'
 
 interface ViewSwitcherProps {
   value: ViewMode
