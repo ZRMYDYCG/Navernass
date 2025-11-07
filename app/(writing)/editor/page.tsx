@@ -158,6 +158,11 @@ export default function NovelsEdit() {
     toast.info('卷功能即将推出！')
   }
 
+  // 返回小说列表
+  const handleBack = () => {
+    router.push('/novels')
+  }
+
   if (loading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 gap-3">
@@ -203,6 +208,7 @@ export default function NovelsEdit() {
           showRightPanel={showRightPanel}
           onToggleLeftPanel={() => setShowLeftPanel(!showLeftPanel)}
           onToggleRightPanel={() => setShowRightPanel(!showRightPanel)}
+          onBack={handleBack}
         />
 
         {/* 主题内容区域 */}
