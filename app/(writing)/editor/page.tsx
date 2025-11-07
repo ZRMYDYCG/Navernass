@@ -183,6 +183,17 @@ export default function NovelsEdit() {
     status: chapter.status === 'published' ? '已发布' : '草稿',
   }))
 
+  // 根据左右面板的显示状态动态计算中间编辑器的默认尺寸
+  const getEditorDefaultSize = () => {
+    if (showLeftPanel && showRightPanel) {
+      return 60 // 左右都显示
+    }
+    if (showLeftPanel || showRightPanel) {
+      return 80 // 只显示一侧
+    }
+    return 100 // 都不显示
+  }
+
   return (
     <Tooltip.Provider>
       <div className="h-screen flex flex-col overflow-hidden">
@@ -196,7 +207,11 @@ export default function NovelsEdit() {
 
         {/* 主题内容区域 */}
         <main className="flex-1 bg-white dark:bg-gray-900 transition-colors overflow-hidden">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="h-full"
+            key={`${showLeftPanel}-${showRightPanel}`}
+          >
             {/* 左侧：带Tab的侧边栏 */}
             {showLeftPanel && (
               <>
@@ -215,7 +230,7 @@ export default function NovelsEdit() {
             )}
 
             {/* 中间：编辑器 */}
-            <ResizablePanel defaultSize={60} minSize={40}>
+            <ResizablePanel defaultSize={getEditorDefaultSize()} minSize={40}>
               {selectedChapter === null || activeTab === null
                 ? (
                   // 未选择章节时显示欢迎界面
