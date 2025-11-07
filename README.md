@@ -225,6 +225,7 @@ export const newFeatureApi = {
 请不要自定义 loading, 需要保证项目 loading 风格, 特殊业务场景除外
 
 [Spinner](./components/ui/spinner.tsx)
+
 [骨架屏](./components/ui/secection.tsx)
 
 ## 项目提示词整理
