@@ -54,7 +54,7 @@ export function Sidebar() {
     return (
       <Tooltip.Provider delayDuration={150}>
         <aside
-          className={`fixed right-0 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          className={`fixed right-0 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] scale-75 sm:scale-90 md:scale-100 ${
             isVisible ? 'pr-4' : 'pr-0 translate-x-[calc(100%-3rem)]'
           } ${
             isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
@@ -180,7 +180,7 @@ export function Sidebar() {
   return (
     <Tooltip.Provider delayDuration={150}>
       <aside
-        className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+        className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] scale-75 sm:scale-90 md:scale-100 ${
           isVisible ? 'pb-4' : 'pb-0 translate-y-[calc(100%-3rem)]'
         } ${
           isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
