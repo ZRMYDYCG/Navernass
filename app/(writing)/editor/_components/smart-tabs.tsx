@@ -85,7 +85,9 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
 
     const { scrollLeft, scrollWidth, clientWidth } = container
 
+    // 如果没有横向滚动内容，隐藏滚动条
     if (scrollWidth <= clientWidth) {
+      setScrollbarWidth(0)
       return
     }
 
