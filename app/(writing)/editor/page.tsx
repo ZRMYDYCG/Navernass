@@ -1,11 +1,12 @@
 'use client'
 
+import type { ImperativePanelHandle } from 'react-resizable-panels'
 import type { Chapter, Novel } from '@/lib/supabase/sdk'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/ui/kbd'
@@ -33,6 +34,31 @@ export default function NovelsEdit() {
   const [createChapterDialogOpen, setCreateChapterDialogOpen] = useState(false)
   const [newChapterTitle, setNewChapterTitle] = useState('')
   const [isCreatingChapter, setIsCreatingChapter] = useState(false)
+
+  // 面板控制引用
+  const leftPanelRef = useRef<ImperativePanelHandle>(null)
+  const rightPanelRef = useRef<ImperativePanelHandle>(null)
+
+  // 切换面板的处理函数
+  const handleToggleLeftPanel = useCallback(() => {
+    if (leftPanelRef.current) {
+      if (leftPanelRef.current.isCollapsed()) {
+        leftPanelRef.current.expand()
+      } else {
+        leftPanelRef.current.collapse()
+      }
+    }
+  }, [])
+
+  const handleToggleRightPanel = useCallback(() => {
+    if (rightPanelRef.current) {
+      if (rightPanelRef.current.isCollapsed()) {
+        rightPanelRef.current.expand()
+      } else {
+        rightPanelRef.current.collapse()
+      }
+    }
+  }, [])
 
   // 加载小说和章节数据
   useEffect(() => {
@@ -69,18 +95,18 @@ export default function NovelsEdit() {
       // Ctrl+E 切换左侧面板
       if (e.ctrlKey && e.key === 'e') {
         e.preventDefault()
-        setShowLeftPanel(prev => !prev)
+        handleToggleLeftPanel()
       }
       // Ctrl+L 切换右侧面板
       if (e.ctrlKey && e.key === 'l') {
         e.preventDefault()
-        setShowRightPanel(prev => !prev)
+        handleToggleRightPanel()
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [handleToggleLeftPanel, handleToggleRightPanel])
 
   // 处理章节选择
   const handleSelectChapter = (chapterId: string) => {
@@ -195,8 +221,8 @@ export default function NovelsEdit() {
           novelTitle={`《${novel.title}》`}
           showLeftPanel={showLeftPanel}
           showRightPanel={showRightPanel}
-          onToggleLeftPanel={() => setShowLeftPanel(!showLeftPanel)}
-          onToggleRightPanel={() => setShowRightPanel(!showRightPanel)}
+          onToggleLeftPanel={handleToggleLeftPanel}
+          onToggleRightPanel={handleToggleRightPanel}
           onBack={handleBack}
         />
 
@@ -205,17 +231,22 @@ export default function NovelsEdit() {
           <ResizablePanelGroup
             direction="horizontal"
             className="h-full"
+            autoSaveId="editor-layout"
           >
             {/* 左侧：带Tab的侧边栏 */}
-            {showLeftPanel && (
-              <ResizablePanel
-                id="left-panel"
-                order={1}
-                defaultSize={20}
-                minSize={15}
-                maxSize={30}
-                collapsible={false}
-              >
+            <ResizablePanel
+              ref={leftPanelRef}
+              id="left-panel"
+              order={1}
+              defaultSize={20}
+              minSize={15}
+              maxSize={30}
+              collapsible={true}
+              collapsedSize={0}
+              onCollapse={() => setShowLeftPanel(false)}
+              onExpand={() => setShowLeftPanel(true)}
+            >
+              {showLeftPanel && (
                 <LeftPanel
                   chapters={formattedChapters}
                   selectedChapter={selectedChapter}
@@ -223,10 +254,10 @@ export default function NovelsEdit() {
                   onCreateChapter={handleOpenCreateChapterDialog}
                   onCreateVolume={handleCreateVolume}
                 />
-              </ResizablePanel>
-            )}
+              )}
+            </ResizablePanel>
 
-            {showLeftPanel && <ResizableHandle withHandle />}
+            <ResizableHandle withHandle />
 
             {/* 中间：编辑器 */}
             <ResizablePanel
@@ -283,21 +314,23 @@ export default function NovelsEdit() {
                   )}
             </ResizablePanel>
 
-            {showRightPanel && <ResizableHandle withHandle />}
+            <ResizableHandle withHandle />
 
             {/* 右侧：AI助手 */}
-            {showRightPanel && (
-              <ResizablePanel
-                id="right-panel"
-                order={3}
-                defaultSize={20}
-                minSize={15}
-                maxSize={30}
-                collapsible={false}
-              >
-                <RightPanel />
-              </ResizablePanel>
-            )}
+            <ResizablePanel
+              ref={rightPanelRef}
+              id="right-panel"
+              order={3}
+              defaultSize={20}
+              minSize={15}
+              maxSize={30}
+              collapsible={true}
+              collapsedSize={0}
+              onCollapse={() => setShowRightPanel(false)}
+              onExpand={() => setShowRightPanel(true)}
+            >
+              {showRightPanel && <RightPanel />}
+            </ResizablePanel>
           </ResizablePanelGroup>
         </main>
 
