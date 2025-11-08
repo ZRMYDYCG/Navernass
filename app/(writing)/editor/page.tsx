@@ -216,7 +216,6 @@ export default function NovelsEdit() {
           <ResizablePanelGroup
             direction="horizontal"
             className="h-full"
-            key={`${showLeftPanel}-${showRightPanel}`}
           >
             {/* 左侧：带Tab的侧边栏 */}
             {showLeftPanel && (
