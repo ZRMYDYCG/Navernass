@@ -23,7 +23,7 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
   const [scrollbarLeft, setScrollbarLeft] = useState(0)
 
   // 自动滚动到激活的 Tab
-  useEffect(() => {
+  const scrollToActiveTab = useCallback(() => {
     if (activeTabRef.current && scrollContainerRef.current) {
       const container = scrollContainerRef.current
       const activeElement = activeTabRef.current
@@ -38,7 +38,28 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
         container.scrollLeft += activeRect.right - containerRect.right + 20
       }
     }
-  }, [activeTab])
+  }, [])
+
+  // 当激活的 Tab 改变时滚动
+  useEffect(() => {
+    scrollToActiveTab()
+  }, [activeTab, scrollToActiveTab])
+
+  // 当容器宽度改变时，激活的 Tab 仍然可见，智能滚动到激活的 Tab
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const resizeObserver = new ResizeObserver(() => {
+      scrollToActiveTab()
+    })
+
+    resizeObserver.observe(container)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [scrollToActiveTab])
 
   // 鼠标滚轮水平滚动
   useEffect(() => {
