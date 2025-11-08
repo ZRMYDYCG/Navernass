@@ -102,7 +102,7 @@ export default function Navbar() {
               <span className="sr-only">{navbarConfig.themeToggleLabel}</span>
             </Button>
             <Button asChild>
-              <Link href="/home">{navbarConfig.ctaText}</Link>
+              <Link href="/novels">{navbarConfig.ctaText}</Link>
             </Button>
           </motion.div>
 
@@ -163,7 +163,7 @@ export default function Navbar() {
                     <span className="ml-2">{navbarConfig.themeToggleLabel}</span>
                   </Button>
                   <Button asChild className="w-full">
-                    <Link href="/home">{navbarConfig.ctaText}</Link>
+                    <Link href="/novels">{navbarConfig.ctaText}</Link>
                   </Button>
                 </div>
               </div>

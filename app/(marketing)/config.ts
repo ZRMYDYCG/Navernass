@@ -109,7 +109,7 @@ export const heroConfig: HeroConfig = {
   ctaButtons: {
     primary: {
       text: '开始创作',
-      href: '/home',
+      href: '/novels',
       icon: ArrowRight,
     },
     secondary: {
@@ -137,7 +137,7 @@ export const ctaConfig: CTAConfig = {
   subtitle:
     'Narraverse 是一个完全开源的项目，我们欢迎所有开发者和创作者加入，一起创造更好的创作工具',
   ctaText: '立即使用',
-  href: '/home',
+  href: '/novels',
 }
 
 // ============================================================================

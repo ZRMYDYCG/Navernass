@@ -115,7 +115,7 @@ export default function CTA() {
                   </a>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="min-w-[200px]">
-                  <Link href="/home">
+                  <Link href="/novels">
                     立即使用
                     <ArrowRight className="w-4 h-4" />
                   </Link>
