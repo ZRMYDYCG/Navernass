@@ -8,6 +8,11 @@
   --font-sans:
     'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     'Noto Color Emoji';
+
+  /* Q弹动画缓动函数 */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce-in: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  --ease-bounce-out: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* 全局滚动条样式优化 */
@@ -52,6 +57,20 @@
 /* 为滚动容器添加过渡效果（可选） */
 .scroll-smooth {
   scroll-behavior: smooth;
+}
+
+/* ResizablePanel Q弹动画 */
+[data-slot='resizable-panel'] {
+  transition:
+    flex-basis 0.5s var(--ease-bounce),
+    flex-grow 0.5s var(--ease-bounce),
+    width 0.5s var(--ease-bounce),
+    opacity 0.3s ease-in-out;
+}
+
+/* 面板内容的淡入淡出效果 */
+[data-slot='resizable-panel'] > * {
+  transition: opacity 0.3s ease-in-out;
 }
 
 /* 自定义阴影 */

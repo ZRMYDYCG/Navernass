@@ -14,8 +14,14 @@ function ResizablePanelGroup({ className, ...props }: React.ComponentProps<typeo
   )
 }
 
-function ResizablePanel({ ...props }: React.ComponentProps<typeof ResizablePrimitive.Panel>) {
-  return <ResizablePrimitive.Panel data-slot="resizable-panel" {...props} />
+function ResizablePanel({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.Panel>) {
+  return (
+    <ResizablePrimitive.Panel
+      data-slot="resizable-panel"
+      className={className}
+      {...props}
+    />
+  )
 }
 
 function ResizableHandle({
