@@ -8,6 +8,7 @@ import {
   KeyboardSensor,
   PointerSensor,
   pointerWithin,
+  useDroppable,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
@@ -20,6 +21,30 @@ import {
 import { useEffect, useState } from 'react'
 import { ChapterItem } from './chapter-item'
 import { VolumeItem } from './volume-item'
+
+// 根目录放置区组件
+function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver: boolean, isDraggingFromVolume: boolean }) {
+  const { setNodeRef } = useDroppable({ id })
+
+  if (!isDraggingFromVolume) {
+    return null
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`transition-all duration-200 ${
+        isOver
+          ? 'h-16 mb-2 border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-800/50'
+          : 'h-12 mb-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:border-gray-400 dark:hover:border-gray-500'
+      }`}
+    >
+      <span className="text-sm text-gray-500 dark:text-gray-400">
+        {isOver ? '松开以移出到根目录' : '拖到这里移出到根目录'}
+      </span>
+    </div>
+  )
+}
 
 interface ChapterListProps {
   chapters: Chapter[]
@@ -122,11 +147,18 @@ export function ChapterList({
     const activeChapter = localChapters.find(c => c.id === activeId)
     const overVolume = localVolumes.find(v => v.id === currentOverId)
 
-    // 如果拖拽的是章节到卷上 - 只展开卷，不做其他操作
-    if (activeChapter && overVolume) {
-      if (activeChapter.volume_id !== currentOverId) {
-        // 只是自动展开目标卷，不移动章节
-        setExpandedVolumes(prev => new Set(prev).add(currentOverId))
+    // 如果拖拽的是章节
+    if (activeChapter) {
+      // 拖到卷上 - 只展开卷，不做其他操作
+      if (overVolume) {
+        if (activeChapter.volume_id !== currentOverId) {
+          // 只是自动展开目标卷，不移动章节
+          setExpandedVolumes(prev => new Set(prev).add(currentOverId))
+        }
+      }
+      // 拖到根目录放置区
+      if (currentOverId === ROOT_DROP_ZONE_ID && activeChapter.volume_id) {
+        // 只显示视觉指示，不移动元素
       }
     }
     // 其他情况只显示视觉指示，不移动元素
@@ -165,6 +197,12 @@ export function ChapterList({
       }
     } else if (activeChapter) {
       // 拖拽章节
+      // 拖到根目录放置区 - 移出卷
+      if (overId === ROOT_DROP_ZONE_ID && activeChapter.volume_id) {
+        onMoveChapterToVolume?.(activeId, null)
+        return
+      }
+
       // 拖到卷上 - 移入卷（松开鼠标时才执行）
       if (overVolume) {
         if (activeChapter.volume_id !== overId) {
@@ -226,8 +264,12 @@ export function ChapterList({
     ? localChapters.find(c => c.id === activeId) || localVolumes.find(v => v.id === activeId)
     : null
 
+  // 根目录放置区 ID（用于将章节从卷中移出）
+  const ROOT_DROP_ZONE_ID = 'root-drop-zone'
+
   // 创建所有可拖拽项的ID列表
   const sortableIds = [
+    ROOT_DROP_ZONE_ID,
     ...localVolumes.map(v => v.id),
     ...localChapters.map(c => c.id),
   ]
@@ -243,6 +285,13 @@ export function ChapterList({
         onDragCancel={handleDragCancel}
       >
         <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+          {/* 根目录放置区 - 用于移出卷 */}
+          <RootDropZone
+            id={ROOT_DROP_ZONE_ID}
+            isOver={overId === ROOT_DROP_ZONE_ID}
+            isDraggingFromVolume={!!(activeId && localChapters.find(c => c.id === activeId && c.volume_id))}
+          />
+
           {/* 渲染卷和无卷的章节 */}
           {localVolumes.map(volume => (
             <div
