@@ -40,7 +40,9 @@ export function ChapterItem({
               type="button"
               {...attributes}
               {...listeners}
-              className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity"
+              className={`cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity ${
+                isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              }`}
               onClick={e => e.stopPropagation()}
             >
               <GripVertical className="w-4 h-4 text-gray-400" />
