@@ -1,13 +1,13 @@
-import { ArrowLeft, PanelLeft, PanelRight } from "lucide-react";
-import { ThemeSection } from "@/components/theme-select";
+import { ArrowLeft, PanelLeft, PanelRight } from 'lucide-react'
+import { ThemeSection } from '@/components/theme-select'
 
 interface EditorHeaderProps {
-  novelTitle: string;
-  showLeftPanel: boolean;
-  showRightPanel: boolean;
-  onToggleLeftPanel: () => void;
-  onToggleRightPanel: () => void;
-  onBack?: () => void;
+  novelTitle: string
+  showLeftPanel: boolean
+  showRightPanel: boolean
+  onToggleLeftPanel: () => void
+  onToggleRightPanel: () => void
+  onBack?: () => void
 }
 
 export default function EditorHeader({
@@ -23,6 +23,7 @@ export default function EditorHeader({
       {/* 左侧：返回按钮 + 小说标题 */}
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={onBack}
           className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
         >
@@ -35,24 +36,26 @@ export default function EditorHeader({
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1">
           <button
+            type="button"
             onClick={onToggleLeftPanel}
             className={`p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors ${
               showLeftPanel
-                ? "text-blue-600 dark:text-blue-400"
-                : "text-gray-400 dark:text-gray-600"
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-gray-400 dark:text-gray-600'
             }`}
-            title={showLeftPanel ? "隐藏左侧面板" : "显示左侧面板"}
+            title={showLeftPanel ? '隐藏左侧面板' : '显示左侧面板'}
           >
             <PanelLeft className="w-5 h-5" />
           </button>
           <button
+            type="button"
             onClick={onToggleRightPanel}
             className={`p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors ${
               showRightPanel
-                ? "text-blue-600 dark:text-blue-400"
-                : "text-gray-400 dark:text-gray-600"
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-gray-400 dark:text-gray-600'
             }`}
-            title={showRightPanel ? "隐藏右侧面板" : "显示右侧面板"}
+            title={showRightPanel ? '隐藏右侧面板' : '显示右侧面板'}
           >
             <PanelRight className="w-5 h-5" />
           </button>
@@ -61,5 +64,5 @@ export default function EditorHeader({
         <ThemeSection />
       </div>
     </header>
-  );
+  )
 }
