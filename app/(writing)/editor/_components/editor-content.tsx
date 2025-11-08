@@ -182,7 +182,7 @@ export default function EditorContent({
           : (
               <TiptapEditor
                 key={chapterId}
-                content={chapter?.content || `<h1>${chapterTitle}</h1><p>开始写作...</p>`}
+                content={chapter?.content || `<h1>${chapterTitle}</h1>`}
                 placeholder="开始写作..."
                 onUpdate={handleUpdate}
                 onStatsChange={handleStatsChange}
