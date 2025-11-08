@@ -1,7 +1,7 @@
 'use client'
 
 import type { ImperativePanelHandle } from 'react-resizable-panels'
-import type { Chapter, Novel } from '@/lib/supabase/sdk'
+import type { Chapter, Novel, Volume } from '@/lib/supabase/sdk'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -10,8 +10,9 @@ import { toast } from 'sonner'
 import { Kbd } from '@/components/ui/kbd'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
-import { chaptersApi, novelsApi } from '@/lib/supabase/sdk'
+import { chaptersApi, novelsApi, volumesApi } from '@/lib/supabase/sdk'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
+import { CreateVolumeDialog } from './_components/create-volume-dialog'
 import EditorContent from './_components/editor-content'
 import EditorHeader from './_components/editor-header'
 import LeftPanel from './_components/left-panel'
@@ -24,6 +25,7 @@ export default function NovelsEdit() {
 
   const [novel, setNovel] = useState<Novel | null>(null)
   const [chapters, setChapters] = useState<Chapter[]>([])
+  const [volumes, setVolumes] = useState<Volume[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedChapter, setSelectedChapter] = useState<string | null>(null)
   const [openTabs, setOpenTabs] = useState<Array<{ id: string, title: string }>>([])
@@ -33,6 +35,10 @@ export default function NovelsEdit() {
   const [createChapterDialogOpen, setCreateChapterDialogOpen] = useState(false)
   const [newChapterTitle, setNewChapterTitle] = useState('')
   const [isCreatingChapter, setIsCreatingChapter] = useState(false)
+  const [createVolumeDialogOpen, setCreateVolumeDialogOpen] = useState(false)
+  const [newVolumeTitle, setNewVolumeTitle] = useState('')
+  const [newVolumeDescription, setNewVolumeDescription] = useState('')
+  const [isCreatingVolume, setIsCreatingVolume] = useState(false)
 
   // 面板控制引用
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
@@ -70,12 +76,14 @@ export default function NovelsEdit() {
     const loadData = async () => {
       try {
         setLoading(true)
-        const [novelData, chaptersData] = await Promise.all([
+        const [novelData, chaptersData, volumesData] = await Promise.all([
           novelsApi.getById(novelId),
           chaptersApi.getByNovelId(novelId),
+          volumesApi.getByNovelId(novelId),
         ])
         setNovel(novelData)
         setChapters(chaptersData)
+        setVolumes(volumesData)
       } catch (error) {
         console.error('加载数据失败:', error)
         const message = error instanceof Error ? error.message : '加载数据失败'
@@ -178,9 +186,108 @@ export default function NovelsEdit() {
     }
   }
 
-  // 创建卷（暂未实现）
-  const handleCreateVolume = () => {
-    toast.info('卷功能即将推出！')
+  // 打开创建卷对话框
+  const handleOpenCreateVolumeDialog = () => {
+    setNewVolumeTitle('')
+    setNewVolumeDescription('')
+    setCreateVolumeDialogOpen(true)
+  }
+
+  // 创建新卷
+  const handleCreateVolume = async () => {
+    if (!novelId) return
+    if (!newVolumeTitle.trim()) {
+      toast.error('请输入卷标题')
+      return
+    }
+
+    try {
+      setIsCreatingVolume(true)
+      await volumesApi.create({
+        novel_id: novelId,
+        title: newVolumeTitle.trim(),
+        description: newVolumeDescription.trim() || undefined,
+        order_index: volumes.length,
+      })
+
+      toast.success('卷创建成功！')
+      setCreateVolumeDialogOpen(false)
+
+      // 重新加载卷列表
+      const updatedVolumes = await volumesApi.getByNovelId(novelId)
+      setVolumes(updatedVolumes)
+    } catch (error) {
+      console.error('创建卷失败:', error)
+      const message = error instanceof Error ? error.message : '创建卷失败'
+      toast.error(message)
+    } finally {
+      setIsCreatingVolume(false)
+    }
+  }
+
+  // 处理章节排序
+  const handleReorderChapters = async (reorderedChapters: Array<{ id: string, order_index: number }>) => {
+    try {
+      await chaptersApi.updateOrder(
+        reorderedChapters.map((c, index) => ({
+          id: c.id,
+          order_index: index,
+        })),
+      )
+      // 重新加载章节列表
+      if (novelId) {
+        const updatedChapters = await chaptersApi.getByNovelId(novelId)
+        setChapters(updatedChapters)
+      }
+    } catch (error) {
+      console.error('更新章节顺序失败:', error)
+      toast.error('更新章节顺序失败')
+    }
+  }
+
+  // 处理卷排序
+  const handleReorderVolumes = async (reorderedVolumes: Array<{ id: string, order_index: number }>) => {
+    try {
+      await volumesApi.updateOrder(
+        reorderedVolumes.map((v, index) => ({
+          id: v.id,
+          order_index: index,
+        })),
+      )
+      toast.success('卷顺序已更新')
+      // 重新加载卷列表以显示新顺序
+      if (novelId) {
+        const updatedVolumes = await volumesApi.getByNovelId(novelId)
+        setVolumes(updatedVolumes)
+      }
+    } catch (error) {
+      console.error('更新卷顺序失败:', error)
+      toast.error('更新卷顺序失败')
+      // 重新加载卷列表以恢复原状
+      if (novelId) {
+        const updatedVolumes = await volumesApi.getByNovelId(novelId)
+        setVolumes(updatedVolumes)
+      }
+    }
+  }
+
+  // 处理章节移动到卷
+  const handleMoveChapterToVolume = async (chapterId: string, volumeId: string | null) => {
+    try {
+      await chaptersApi.update({
+        id: chapterId,
+        volume_id: volumeId,
+      })
+      toast.success(volumeId ? '章节已移入卷' : '章节已移出卷')
+      // 重新加载章节列表
+      if (novelId) {
+        const updatedChapters = await chaptersApi.getByNovelId(novelId)
+        setChapters(updatedChapters)
+      }
+    } catch (error) {
+      console.error('移动章节失败:', error)
+      toast.error('移动章节失败')
+    }
   }
 
   // 返回小说列表
@@ -211,6 +318,7 @@ export default function NovelsEdit() {
     title: chapter.title,
     wordCount: `${(chapter.word_count / 1000).toFixed(1)}k字`,
     status: chapter.status === 'published' ? '已发布' : '草稿',
+    volume_id: chapter.volume_id,
   }))
 
   return (
@@ -248,10 +356,14 @@ export default function NovelsEdit() {
               {showLeftPanel && (
                 <LeftPanel
                   chapters={formattedChapters}
+                  volumes={volumes}
                   selectedChapter={selectedChapter}
                   onSelectChapter={handleSelectChapter}
                   onCreateChapter={handleOpenCreateChapterDialog}
-                  onCreateVolume={handleCreateVolume}
+                  onCreateVolume={handleOpenCreateVolumeDialog}
+                  onReorderChapters={handleReorderChapters}
+                  onReorderVolumes={handleReorderVolumes}
+                  onMoveChapterToVolume={handleMoveChapterToVolume}
                 />
               )}
             </ResizablePanel>
@@ -341,6 +453,18 @@ export default function NovelsEdit() {
           onTitleChange={setNewChapterTitle}
           onConfirm={handleCreateChapter}
           isCreating={isCreatingChapter}
+        />
+
+        {/* 创建卷对话框 */}
+        <CreateVolumeDialog
+          open={createVolumeDialogOpen}
+          onOpenChange={setCreateVolumeDialogOpen}
+          title={newVolumeTitle}
+          description={newVolumeDescription}
+          onTitleChange={setNewVolumeTitle}
+          onDescriptionChange={setNewVolumeDescription}
+          onConfirm={handleCreateVolume}
+          isCreating={isCreatingVolume}
         />
       </div>
     </Tooltip.Provider>

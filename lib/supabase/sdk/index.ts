@@ -5,5 +5,6 @@ export * from './conversations'
 export * from './messages'
 export * from './news'
 export * from './novels'
-
 export * from './types'
+
+export * from './volumes'

@@ -53,12 +53,42 @@ export interface UpdateNovelDto {
 }
 
 // =============================================
+// 卷类型
+// =============================================
+
+export interface Volume {
+  id: string
+  novel_id: string
+  user_id: string
+  title: string
+  description?: string
+  order_index: number
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateVolumeDto {
+  novel_id: string
+  title: string
+  description?: string
+  order_index: number
+}
+
+export interface UpdateVolumeDto {
+  id: string
+  title?: string
+  description?: string
+  order_index?: number
+}
+
+// =============================================
 // 章节类型
 // =============================================
 
 export interface Chapter {
   id: string
   novel_id: string
+  volume_id?: string // 所属卷ID，为空表示章节直接属于小说
   user_id: string
   title: string
   content: string
@@ -71,6 +101,7 @@ export interface Chapter {
 
 export interface CreateChapterDto {
   novel_id: string
+  volume_id?: string // 可选，指定章节所属的卷
   title: string
   content?: string
   order_index: number
@@ -81,6 +112,7 @@ export interface UpdateChapterDto {
   title?: string
   content?: string
   order_index?: number
+  volume_id?: string | null // 支持移动章节到卷或从卷中移出
   status?: 'draft' | 'published'
 }
 
