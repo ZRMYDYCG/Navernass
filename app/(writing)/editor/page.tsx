@@ -257,7 +257,7 @@ export default function NovelsEdit() {
               )}
             </ResizablePanel>
 
-            <ResizableHandle withHandle />
+            {showLeftPanel && <ResizableHandle withHandle />}
 
             {/* 中间：编辑器 */}
             <ResizablePanel
@@ -314,7 +314,7 @@ export default function NovelsEdit() {
                   )}
             </ResizablePanel>
 
-            <ResizableHandle withHandle />
+            {showRightPanel && <ResizableHandle withHandle />}
 
             {/* 右侧：AI助手 */}
             <ResizablePanel
