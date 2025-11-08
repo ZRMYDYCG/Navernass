@@ -10,8 +10,9 @@ const novelsService = new NovelsService()
  * 归档小说
  */
 export const POST = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const novel = await novelsService.archive(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    const novel = await novelsService.archive(id)
     return ApiResponseBuilder.success(novel)
   },
 )

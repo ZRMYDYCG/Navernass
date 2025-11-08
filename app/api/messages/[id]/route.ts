@@ -10,8 +10,9 @@ const messagesService = new MessagesService()
  * 删除消息
  */
 export const DELETE = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    await messagesService.delete(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    await messagesService.delete(id)
     return ApiResponseBuilder.success({ message: 'Message deleted successfully' })
   },
 )

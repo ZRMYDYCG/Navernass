@@ -11,8 +11,9 @@ const chaptersService = new ChaptersService();
  * 获取章节详情
  */
 export const GET = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const chapter = await chaptersService.getById(params.id);
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
+    const chapter = await chaptersService.getById(id);
     return ApiResponseBuilder.success(chapter);
   }
 );
@@ -22,9 +23,10 @@ export const GET = withErrorHandler(
  * 更新章节
  */
 export const PUT = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const body: Partial<UpdateChapterDto> = await req.json();
-    const chapter = await chaptersService.update(params.id, body);
+    const chapter = await chaptersService.update(id, body);
     return ApiResponseBuilder.success(chapter);
   }
 );
@@ -34,8 +36,9 @@ export const PUT = withErrorHandler(
  * 删除章节
  */
 export const DELETE = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    await chaptersService.delete(params.id);
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
+    await chaptersService.delete(id);
     return ApiResponseBuilder.success({ message: "Chapter deleted successfully" });
   }
 );

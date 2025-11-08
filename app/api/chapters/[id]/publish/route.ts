@@ -10,8 +10,9 @@ const chaptersService = new ChaptersService();
  * 发布章节
  */
 export const POST = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const chapter = await chaptersService.publish(params.id);
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
+    const chapter = await chaptersService.publish(id);
     return ApiResponseBuilder.success(chapter);
   }
 );
@@ -21,8 +22,9 @@ export const POST = withErrorHandler(
  * 取消发布章节
  */
 export const DELETE = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const chapter = await chaptersService.unpublish(params.id);
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
+    const chapter = await chaptersService.unpublish(id);
     return ApiResponseBuilder.success(chapter);
   }
 );

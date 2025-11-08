@@ -10,8 +10,9 @@ const novelsService = new NovelsService()
  * 恢复小说
  */
 export const POST = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const novel = await novelsService.restore(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    const novel = await novelsService.restore(id)
     return ApiResponseBuilder.success(novel)
   },
 )
