@@ -20,7 +20,7 @@ export function TabSwitcher({ activeTab, onChange }: TabSwitcherProps) {
                 onClick={() => onChange(tab.value)}
                 className={`w-10 h-10 flex items-center justify-center rounded-md transition-colors ${
                   activeTab === tab.value
-                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >

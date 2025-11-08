@@ -40,7 +40,7 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
                 }}
                 className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
                   value === model.value
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium'
                     : 'text-gray-700 dark:text-gray-300'
                 }`}
               >

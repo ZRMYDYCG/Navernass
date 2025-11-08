@@ -214,7 +214,7 @@ export default function EditorContent({
           <span>•</span>
           {isSaving
             ? (
-                <span className="text-blue-600 dark:text-blue-400">保存中...</span>
+                <span className="text-gray-700 dark:text-gray-300">保存中...</span>
               )
             : lastSaved
               ? (

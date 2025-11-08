@@ -5,22 +5,22 @@ const FEATURES = [
     icon: '✨',
     title: '续写故事',
     description: '根据上下文智能续写',
-    bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-    textColor: 'text-blue-600 dark:text-blue-400',
+    bgColor: 'bg-gray-100 dark:bg-gray-800',
+    textColor: 'text-gray-700 dark:text-gray-300',
   },
   {
     icon: '✍️',
     title: '优化润色',
     description: '让文字表达更精彩',
-    bgColor: 'bg-purple-100 dark:bg-purple-900/30',
-    textColor: 'text-purple-600 dark:text-purple-400',
+    bgColor: 'bg-gray-100 dark:bg-gray-800',
+    textColor: 'text-gray-700 dark:text-gray-300',
   },
   {
     icon: '💡',
     title: '创作建议',
     description: '提供专业的写作指导',
-    bgColor: 'bg-green-100 dark:bg-green-900/30',
-    textColor: 'text-green-600 dark:text-green-400',
+    bgColor: 'bg-gray-100 dark:bg-gray-800',
+    textColor: 'text-gray-700 dark:text-gray-300',
   },
 ]
 
@@ -28,7 +28,7 @@ export function EmptyState() {
   return (
     <div className="h-full flex flex-col items-center justify-center text-center px-6">
       <div className="mb-6 relative">
-        <div className="w-20 h-20 rounded-full dark:from-purple-900/30 dark:to-blue-900/30 flex items-center justify-center">
+        <div className="w-20 h-20 rounded-full flex items-center justify-center">
           <Image
             src="/assets/svg/logo-dark.svg"
             width={50}

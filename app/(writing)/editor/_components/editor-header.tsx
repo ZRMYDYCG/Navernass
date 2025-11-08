@@ -40,7 +40,7 @@ export default function EditorHeader({
             onClick={onToggleLeftPanel}
             className={`p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors ${
               showLeftPanel
-                ? 'text-blue-600 dark:text-blue-400'
+                ? 'text-gray-900 dark:text-gray-100'
                 : 'text-gray-400 dark:text-gray-600'
             }`}
             title={showLeftPanel ? '隐藏左侧面板' : '显示左侧面板'}
@@ -52,7 +52,7 @@ export default function EditorHeader({
             onClick={onToggleRightPanel}
             className={`p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors ${
               showRightPanel
-                ? 'text-blue-600 dark:text-blue-400'
+                ? 'text-gray-900 dark:text-gray-100'
                 : 'text-gray-400 dark:text-gray-600'
             }`}
             title={showRightPanel ? '隐藏右侧面板' : '显示右侧面板'}

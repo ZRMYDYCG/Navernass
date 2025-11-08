@@ -168,7 +168,7 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
               </button>
 
               {isActive && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 dark:bg-blue-400" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 dark:bg-gray-100" />
               )}
             </div>
           )

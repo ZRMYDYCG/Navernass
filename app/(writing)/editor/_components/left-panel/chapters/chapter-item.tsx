@@ -29,7 +29,7 @@ export function ChapterItem({
       ref={setNodeRef}
       style={style}
       className={`group px-4 py-3 cursor-pointer transition-colors ${
-        isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+        isSelected ? 'bg-gray-100 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
       }`}
     >
       <div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export function ChapterItem({
         {/* 章节信息 */}
         <div className="flex-1 min-w-0 flex items-center justify-between" onClick={onSelect}>
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <FileText className="w-4 h-4 flex-shrink-0 text-blue-500 dark:text-blue-400" />
+            <FileText className="w-4 h-4 flex-shrink-0 text-gray-600 dark:text-gray-400" />
             <h3
               className={`text-sm font-medium truncate ${
                 isSelected ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
