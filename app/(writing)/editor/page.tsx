@@ -2,17 +2,16 @@
 
 import type { ImperativePanelHandle } from 'react-resizable-panels'
 import type { Chapter, Novel } from '@/lib/supabase/sdk'
-import * as Dialog from '@radix-ui/react-dialog'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/ui/kbd'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi, novelsApi } from '@/lib/supabase/sdk'
+import { CreateChapterDialog } from './_components/create-chapter-dialog'
 import EditorContent from './_components/editor-content'
 import EditorHeader from './_components/editor-header'
 import LeftPanel from './_components/left-panel'
@@ -257,7 +256,7 @@ export default function NovelsEdit() {
               )}
             </ResizablePanel>
 
-            {showLeftPanel && <ResizableHandle withHandle />}
+            <ResizableHandle withHandle className={!showLeftPanel ? 'hidden' : ''} />
 
             {/* 中间：编辑器 */}
             <ResizablePanel
@@ -314,7 +313,7 @@ export default function NovelsEdit() {
                   )}
             </ResizablePanel>
 
-            {showRightPanel && <ResizableHandle withHandle />}
+            <ResizableHandle withHandle className={!showRightPanel ? 'hidden' : ''} />
 
             {/* 右侧：AI助手 */}
             <ResizablePanel
@@ -335,63 +334,14 @@ export default function NovelsEdit() {
         </main>
 
         {/* 创建章节对话框 */}
-        <Dialog.Root open={createChapterDialogOpen} onOpenChange={setCreateChapterDialogOpen}>
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
-            <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                  创建新章节
-                </Dialog.Title>
-
-                <div className="space-y-4">
-                  {/* 标题输入 */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      章节标题
-                      {' '}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={newChapterTitle}
-                      onChange={e => setNewChapterTitle(e.target.value)}
-                      placeholder="例如：第一章 新的开始"
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault()
-                          handleCreateChapter()
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* 按钮组 */}
-                <div className="flex gap-3 mt-6">
-                  <Dialog.Close asChild>
-                    <Button
-                      type="button"
-                      className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
-                      disabled={isCreatingChapter}
-                    >
-                      取消
-                    </Button>
-                  </Dialog.Close>
-                  <Button
-                    onClick={handleCreateChapter}
-                    className="flex-1 bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
-                    disabled={isCreatingChapter || !newChapterTitle.trim()}
-                  >
-                    {isCreatingChapter ? '创建中...' : '创建'}
-                  </Button>
-                </div>
-              </div>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
+        <CreateChapterDialog
+          open={createChapterDialogOpen}
+          onOpenChange={setCreateChapterDialogOpen}
+          title={newChapterTitle}
+          onTitleChange={setNewChapterTitle}
+          onConfirm={handleCreateChapter}
+          isCreating={isCreatingChapter}
+        />
       </div>
     </Tooltip.Provider>
   )
