@@ -52,6 +52,7 @@ export function ChapterList({
   const [localVolumes, setLocalVolumes] = useState(() => volumes || [])
   const [expandedVolumes, setExpandedVolumes] = useState<Set<string>>(() => new Set())
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [overId, setOverId] = useState<string | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -64,18 +65,18 @@ export function ChapterList({
     }),
   )
 
-  // 同步外部数据变化
+  // 同步外部数据变化（需要在 props 变化时更新本地状态）
+  // eslint-disable-next-line @typescript-eslint/no-base-to-string
   useEffect(() => {
-    if (JSON.stringify(chapters) !== JSON.stringify(localChapters)) {
-      setLocalChapters(chapters || [])
-    }
-  }, [chapters, localChapters])
+    setLocalChapters(chapters || [])
+    // eslint-disable-next-line react-compiler/react-compiler
+  }, [chapters])
 
+  // eslint-disable-next-line @typescript-eslint/no-base-to-string
   useEffect(() => {
-    if (JSON.stringify(volumes) !== JSON.stringify(localVolumes)) {
-      setLocalVolumes(volumes || [])
-    }
-  }, [volumes, localVolumes])
+    setLocalVolumes(volumes || [])
+    // eslint-disable-next-line react-compiler/react-compiler
+  }, [volumes])
 
   const toggleVolume = (volumeId: string) => {
     setExpandedVolumes((prev) => {
@@ -99,69 +100,43 @@ export function ChapterList({
 
   const handleDragStart = (event: DragEndEvent) => {
     setActiveId(String(event.active.id))
+    setOverId(null)
   }
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event
 
-    if (!over) return
+    if (!over) {
+      setOverId(null)
+      return
+    }
 
     const activeId = String(active.id)
-    const overId = String(over.id)
+    const currentOverId = String(over.id)
 
-    if (activeId === overId) return
+    // 更新 overId 用于显示插入指示（只做视觉反馈，不移动元素）
+    setOverId(currentOverId)
+
+    if (activeId === currentOverId) return
 
     const activeChapter = localChapters.find(c => c.id === activeId)
-    const overChapter = localChapters.find(c => c.id === overId)
-    const overVolume = localVolumes.find(v => v.id === overId)
+    const overVolume = localVolumes.find(v => v.id === currentOverId)
 
-    // 如果拖拽的是章节
-    if (activeChapter) {
-      // 拖到卷上 - 移入卷
-      if (overVolume) {
-        if (activeChapter.volume_id !== overId) {
-          // 立即移动章节到目标卷
-          onMoveChapterToVolume?.(activeId, overId)
-          // 自动展开目标卷
-          setExpandedVolumes(prev => new Set(prev).add(overId))
-        }
-      }
-      // 拖到另一个章节上
-      else if (overChapter) {
-        // 如果目标章节在根层级，且当前章节在卷内 - 移出卷
-        if (!overChapter.volume_id && activeChapter.volume_id) {
-          console.log('移出卷到根层级:', activeId)
-          onMoveChapterToVolume?.(activeId, null)
-          return
-        }
-
-        // 如果目标章节在卷内，且当前章节不在同一个卷 - 移入目标卷
-        if (overChapter.volume_id && activeChapter.volume_id !== overChapter.volume_id) {
-          console.log('移入目标卷:', activeId, '到', overChapter.volume_id)
-          onMoveChapterToVolume?.(activeId, overChapter.volume_id)
-          setExpandedVolumes(prev => new Set(prev).add(overChapter.volume_id!))
-          return
-        }
-
-        // 在同一容器内排序
-        const sameContainer = activeChapter.volume_id === overChapter.volume_id
-        if (sameContainer) {
-          const activeIndex = localChapters.findIndex(c => c.id === activeId)
-          const overIndex = localChapters.findIndex(c => c.id === overId)
-
-          if (activeIndex !== overIndex) {
-            const newChapters = arrayMove(localChapters, activeIndex, overIndex)
-            setLocalChapters(newChapters)
-          }
-        }
+    // 如果拖拽的是章节到卷上 - 只展开卷，不做其他操作
+    if (activeChapter && overVolume) {
+      if (activeChapter.volume_id !== currentOverId) {
+        // 只是自动展开目标卷，不移动章节
+        setExpandedVolumes(prev => new Set(prev).add(currentOverId))
       }
     }
+    // 其他情况只显示视觉指示，不移动元素
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
 
     setActiveId(null)
+    setOverId(null)
 
     if (!over || active.id === over.id) return
 
@@ -188,25 +163,27 @@ export function ChapterList({
         }))
         onReorderVolumes?.(volumesWithNewOrder)
       }
-    }
-    // 拖拽章节
-    else if (activeChapter) {
-      // 拖到卷上 - 移入卷（在 handleDragOver 中已处理）
+    } else if (activeChapter) {
+      // 拖拽章节
+      // 拖到卷上 - 移入卷（松开鼠标时才执行）
       if (overVolume) {
-        return // 已在 dragOver 中处理
+        if (activeChapter.volume_id !== overId) {
+          onMoveChapterToVolume?.(activeId, overId)
+        }
+        return
       }
 
       // 拖到章节上
       if (overChapter) {
         // 如果目标章节在根层级，且当前章节在卷内 - 移出卷
         if (!overChapter.volume_id && activeChapter.volume_id) {
-          // 已在 dragOver 中处理，这里不需要再次调用
+          onMoveChapterToVolume?.(activeId, null)
           return
         }
 
         // 如果目标章节在卷内，且当前章节不在同一个卷 - 移入目标卷
         if (overChapter.volume_id && activeChapter.volume_id !== overChapter.volume_id) {
-          // 已在 dragOver 中处理
+          onMoveChapterToVolume?.(activeId, overChapter.volume_id)
           return
         }
 
@@ -241,6 +218,7 @@ export function ChapterList({
 
   const handleDragCancel = () => {
     setActiveId(null)
+    setOverId(null)
   }
 
   // 获取当前拖拽的元素用于预览
@@ -267,57 +245,113 @@ export function ChapterList({
         <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
           {/* 渲染卷和无卷的章节 */}
           {localVolumes.map(volume => (
-            <VolumeItem
+            <div
               key={volume.id}
-              volume={volume}
-              isExpanded={expandedVolumes.has(volume.id)}
-              onToggle={() => toggleVolume(volume.id)}
-              onRename={onRenameVolume}
-              onDelete={onDeleteVolume}
+              className={overId === volume.id && activeId && localChapters.find(c => c.id === activeId)
+                ? 'border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg'
+                : ''}
             >
-              {/* 卷下的章节 */}
-              {getVolumeChapters(volume.id).map(chapter => (
-                <ChapterItem
-                  key={chapter.id}
-                  chapter={chapter}
-                  isSelected={selectedChapter === chapter.id}
-                  onSelect={() => onSelectChapter(chapter.id)}
-                  onRename={onRenameChapter}
-                  onDelete={onDeleteChapter}
-                />
-              ))}
-            </VolumeItem>
+              <VolumeItem
+                volume={volume}
+                isExpanded={expandedVolumes.has(volume.id)}
+                onToggle={() => toggleVolume(volume.id)}
+                onRename={onRenameVolume}
+                onDelete={onDeleteVolume}
+              >
+                {/* 卷下的章节 */}
+                {getVolumeChapters(volume.id).map((chapter, index) => {
+                  const isOver = overId === chapter.id && activeId !== chapter.id
+                  const activeChapter = localChapters.find(c => c.id === activeId)
+                  const sameContainer = activeChapter?.volume_id === chapter.volume_id
+
+                  return (
+                    <div key={chapter.id} className="relative">
+                      {/* 顶部插入指示线 */}
+                      {isOver && sameContainer && index === 0 && (
+                        <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10" />
+                      )}
+
+                      <div
+                        className={isOver
+                          ? 'bg-gray-100 dark:bg-gray-800 transition-colors'
+                          : ''}
+                      >
+                        <ChapterItem
+                          chapter={chapter}
+                          isSelected={selectedChapter === chapter.id}
+                          onSelect={() => onSelectChapter(chapter.id)}
+                          onRename={onRenameChapter}
+                          onDelete={onDeleteChapter}
+                        />
+                      </div>
+
+                      {/* 底部插入指示线 */}
+                      {isOver && sameContainer && (
+                        <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10" />
+                      )}
+                    </div>
+                  )
+                })}
+              </VolumeItem>
+            </div>
           ))}
 
           {/* 没有卷的章节 */}
-          {chaptersWithoutVolume.map(chapter => (
-            <ChapterItem
-              key={chapter.id}
-              chapter={chapter}
-              isSelected={selectedChapter === chapter.id}
-              onSelect={() => onSelectChapter(chapter.id)}
-              onRename={onRenameChapter}
-              onDelete={onDeleteChapter}
-            />
-          ))}
+          {chaptersWithoutVolume.map((chapter, index) => {
+            const isOver = overId === chapter.id && activeId !== chapter.id
+            const activeChapter = localChapters.find(c => c.id === activeId)
+            const sameContainer = !activeChapter?.volume_id && !chapter.volume_id
+
+            return (
+              <div key={chapter.id} className="relative">
+                {/* 顶部插入指示线 */}
+                {isOver && sameContainer && index === 0 && (
+                  <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10" />
+                )}
+
+                <div
+                  className={isOver
+                    ? 'bg-gray-100 dark:bg-gray-800 transition-colors'
+                    : ''}
+                >
+                  <ChapterItem
+                    chapter={chapter}
+                    isSelected={selectedChapter === chapter.id}
+                    onSelect={() => onSelectChapter(chapter.id)}
+                    onRename={onRenameChapter}
+                    onDelete={onDeleteChapter}
+                  />
+                </div>
+
+                {/* 底部插入指示线 */}
+                {isOver && sameContainer && (
+                  <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10" />
+                )}
+              </div>
+            )
+          })}
         </SortableContext>
 
         {/* 拖拽预览 */}
         <DragOverlay dropAnimation={null}>
           {activeItem && 'title' in activeItem && 'wordCount' in activeItem
             ? (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 border border-gray-200 dark:border-gray-700 opacity-90">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 border-2 border-dashed border-gray-400 dark:border-gray-600">
+                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                     {activeItem.title}
                   </div>
                 </div>
               )
             : activeItem && 'description' in activeItem
               ? (
-                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 border border-gray-200 dark:border-gray-700 opacity-90">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      📁
-                      {' '}
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 border-2 border-dashed border-gray-400 dark:border-gray-600">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      </svg>
                       {activeItem.title}
                     </div>
                   </div>
