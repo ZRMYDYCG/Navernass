@@ -1,10 +1,11 @@
 import type { Chapter } from '@/lib/supabase/sdk'
-import { ChevronRight, X } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { TiptapEditor } from '@/components/tiptap'
 import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi } from '@/lib/supabase/sdk'
+import { SmartTabs } from './smart-tabs'
 
 interface Tab {
   id: string
@@ -162,30 +163,12 @@ export default function EditorContent({
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-900">
       {/* 顶部页签区域 */}
-      <div className="flex items-center border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-        {openTabs.map(tab => (
-          <div
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`group flex items-center gap-2 px-4 py-2.5 border-r border-gray-200 dark:border-gray-800 cursor-pointer transition-colors ${
-              activeTab === tab.id
-                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50'
-            }`}
-          >
-            <span className="text-sm truncate max-w-[150px]">{tab.title}</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onTabClose(tab.id)
-              }}
-              className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all"
-            >
-              <X className="w-3 h-3" />
-            </button>
-          </div>
-        ))}
-      </div>
+      <SmartTabs
+        tabs={openTabs}
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        onTabClose={onTabClose}
+      />
 
       {/* 编辑器内容区域 */}
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full p-8">
