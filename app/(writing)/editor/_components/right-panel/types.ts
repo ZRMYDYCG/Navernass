@@ -2,7 +2,7 @@
  * AI 助手相关类型定义
  */
 
-export type AiMode = 'agent' | 'ask' | 'continue' | 'polish'
+export type AiMode = 'agent' | 'ask' | 'plan'
 export type AiModel = 'Qwen/Qwen2.5-7B-Instruct'
 
 export interface Message {
