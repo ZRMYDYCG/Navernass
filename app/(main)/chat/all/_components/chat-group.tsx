@@ -18,7 +18,6 @@ export function ChatGroup({
   isSelectionMode,
   selectedChats,
   onToggleSelect,
-  onChatClick,
 }: ChatGroupProps) {
   return (
     <div className="space-y-2">

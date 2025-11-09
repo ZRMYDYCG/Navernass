@@ -20,6 +20,9 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
 CREATE TABLE public.chapters (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   novel_id uuid NOT NULL,
@@ -31,8 +34,10 @@ CREATE TABLE public.chapters (
   status text DEFAULT 'draft'::text CHECK (status = ANY (ARRAY['draft'::text, 'published'::text])),
   created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  volume_id uuid,
   CONSTRAINT chapters_pkey PRIMARY KEY (id),
-  CONSTRAINT chapters_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id)
+  CONSTRAINT chapters_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id),
+  CONSTRAINT chapters_volume_id_fkey FOREIGN KEY (volume_id) REFERENCES public.volumes(id)
 );
 CREATE TABLE public.conversations (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -72,6 +77,33 @@ CREATE TABLE public.news (
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   CONSTRAINT news_pkey PRIMARY KEY (id)
 );
+CREATE TABLE public.novel_conversations (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  novel_id uuid NOT NULL,
+  user_id uuid DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  is_pinned boolean DEFAULT false,
+  pinned_at timestamp with time zone,
+  CONSTRAINT novel_conversations_pkey PRIMARY KEY (id),
+  CONSTRAINT novel_conversations_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id)
+);
+CREATE TABLE public.novel_messages (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  conversation_id uuid NOT NULL,
+  novel_id uuid NOT NULL,
+  user_id uuid DEFAULT gen_random_uuid(),
+  role text NOT NULL CHECK (role = ANY (ARRAY['user'::text, 'assistant'::text, 'system'::text])),
+  content text NOT NULL,
+  model text,
+  tokens integer,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  thinking text,
+  CONSTRAINT novel_messages_pkey PRIMARY KEY (id),
+  CONSTRAINT novel_messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES public.novel_conversations(id),
+  CONSTRAINT novel_messages_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id)
+);
 CREATE TABLE public.novels (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid DEFAULT gen_random_uuid(),
@@ -87,6 +119,18 @@ CREATE TABLE public.novels (
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   published_at timestamp with time zone,
   CONSTRAINT novels_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.volumes (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  novel_id uuid NOT NULL,
+  user_id uuid DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  description text,
+  order_index integer NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT volumes_pkey PRIMARY KEY (id),
+  CONSTRAINT volumes_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id)
 );
 
 -- =====================================================
