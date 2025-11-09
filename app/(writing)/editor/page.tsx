@@ -7,9 +7,11 @@ import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { Drawer, DrawerContent } from '@/components/ui/drawer'
 import { Kbd } from '@/components/ui/kbd'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
+import { useIsMobile } from '@/hooks/use-media-query'
 import { chaptersApi, novelsApi, volumesApi } from '@/lib/supabase/sdk'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
 import { CreateVolumeDialog } from './_components/create-volume-dialog'
@@ -30,8 +32,11 @@ export default function NovelsEdit() {
   const [selectedChapter, setSelectedChapter] = useState<string | null>(null)
   const [openTabs, setOpenTabs] = useState<Array<{ id: string, title: string }>>([])
   const [activeTab, setActiveTab] = useState<string | null>(null)
-  const [showLeftPanel, setShowLeftPanel] = useState(true)
-  const [showRightPanel, setShowRightPanel] = useState(true)
+  const isMobile = useIsMobile()
+  const [showLeftPanel, setShowLeftPanel] = useState(!isMobile)
+  const [showRightPanel, setShowRightPanel] = useState(false)
+  const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
+  const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [createChapterDialogOpen, setCreateChapterDialogOpen] = useState(false)
   const [newChapterTitle, setNewChapterTitle] = useState('')
   const [isCreatingChapter, setIsCreatingChapter] = useState(false)
@@ -46,24 +51,32 @@ export default function NovelsEdit() {
 
   // 切换面板的处理函数
   const handleToggleLeftPanel = useCallback(() => {
-    if (leftPanelRef.current) {
-      if (leftPanelRef.current.isCollapsed()) {
-        leftPanelRef.current.expand()
-      } else {
-        leftPanelRef.current.collapse()
+    if (isMobile) {
+      setLeftDrawerOpen(true)
+    } else {
+      if (leftPanelRef.current) {
+        if (leftPanelRef.current.isCollapsed()) {
+          leftPanelRef.current.expand()
+        } else {
+          leftPanelRef.current.collapse()
+        }
       }
     }
-  }, [])
+  }, [isMobile])
 
   const handleToggleRightPanel = useCallback(() => {
-    if (rightPanelRef.current) {
-      if (rightPanelRef.current.isCollapsed()) {
-        rightPanelRef.current.expand()
-      } else {
-        rightPanelRef.current.collapse()
+    if (isMobile) {
+      setRightDrawerOpen(true)
+    } else {
+      if (rightPanelRef.current) {
+        if (rightPanelRef.current.isCollapsed()) {
+          rightPanelRef.current.expand()
+        } else {
+          rightPanelRef.current.collapse()
+        }
       }
     }
-  }, [])
+  }, [isMobile])
 
   // 加载小说和章节数据
   useEffect(() => {
@@ -129,6 +142,11 @@ export default function NovelsEdit() {
 
     // 设置为当前活动标签
     setActiveTab(chapterId)
+
+    // 移动端选择章节后关闭左侧 Drawer
+    if (isMobile) {
+      setLeftDrawerOpen(false)
+    }
   }
 
   const closeTab = (tabId: string) => {
@@ -335,25 +353,165 @@ export default function NovelsEdit() {
 
         {/* 主题内容区域 */}
         <main className="flex-1 bg-white dark:bg-gray-900 transition-colors overflow-hidden">
-          <ResizablePanelGroup
-            direction="horizontal"
-            className="h-full"
-            autoSaveId="editor-layout"
-          >
-            {/* 左侧：带Tab的侧边栏 */}
-            <ResizablePanel
-              ref={leftPanelRef}
-              id="left-panel"
-              order={1}
-              defaultSize={20}
-              minSize={15}
-              maxSize={30}
-              collapsible={true}
-              collapsedSize={0}
-              onCollapse={() => setShowLeftPanel(false)}
-              onExpand={() => setShowLeftPanel(true)}
-            >
-              {showLeftPanel && (
+          {isMobile
+            ? (
+                // 移动端：编辑器全屏显示
+                <div className="h-full">
+                  {selectedChapter === null || activeTab === null
+                    ? (
+                        // 未选择章节时显示欢迎界面
+                        <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
+                          <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600 px-4">
+                            <Image
+                              src="/assets/svg/logo-eye.svg"
+                              width={120}
+                              height={120}
+                              alt="Logo"
+                              className="opacity-40"
+                            />
+                            <p className="text-sm text-center">选择一个章节开始编辑</p>
+                            <button
+                              type="button"
+                              onClick={() => setLeftDrawerOpen(true)}
+                              className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300"
+                            >
+                              打开章节列表
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    : (
+                        // 选择章节后显示编辑器
+                        <EditorContent
+                          openTabs={openTabs}
+                          activeTab={activeTab}
+                          onTabChange={setActiveTab}
+                          onTabClose={closeTab}
+                          novelTitle={novel.title}
+                          chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
+                          chapterId={activeTab}
+                        />
+                      )}
+                </div>
+              )
+            : (
+                // 桌面端：使用 ResizablePanelGroup
+                <ResizablePanelGroup
+                  direction="horizontal"
+                  className="h-full"
+                  autoSaveId="editor-layout"
+                >
+                  {/* 左侧：带Tab的侧边栏 */}
+                  <ResizablePanel
+                    ref={leftPanelRef}
+                    id="left-panel"
+                    order={1}
+                    defaultSize={20}
+                    minSize={15}
+                    maxSize={30}
+                    collapsible={true}
+                    collapsedSize={0}
+                    onCollapse={() => setShowLeftPanel(false)}
+                    onExpand={() => setShowLeftPanel(true)}
+                  >
+                    {showLeftPanel && (
+                      <LeftPanel
+                        chapters={formattedChapters}
+                        volumes={volumes}
+                        selectedChapter={selectedChapter}
+                        onSelectChapter={handleSelectChapter}
+                        onCreateChapter={handleOpenCreateChapterDialog}
+                        onCreateVolume={handleOpenCreateVolumeDialog}
+                        onReorderChapters={handleReorderChapters}
+                        onReorderVolumes={handleReorderVolumes}
+                        onMoveChapterToVolume={handleMoveChapterToVolume}
+                      />
+                    )}
+                  </ResizablePanel>
+
+                  <ResizableHandle withHandle className={!showLeftPanel ? 'hidden' : ''} />
+
+                  {/* 中间：编辑器 */}
+                  <ResizablePanel
+                    id="editor-panel"
+                    order={2}
+                    defaultSize={60}
+                    minSize={40}
+                  >
+                    {selectedChapter === null || activeTab === null
+                      ? (
+                          // 未选择章节时显示欢迎界面
+                          <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
+                            <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
+                              <Image
+                                src="/assets/svg/logo-eye.svg"
+                                width={120}
+                                height={120}
+                                alt="Logo"
+                                className="opacity-40"
+                              />
+                              <p className="text-sm">选择一个章节开始编辑</p>
+                              <span className="flex items-center gap-1">
+                                <Kbd>Ctrl</Kbd>
+                                <Kbd>+</Kbd>
+                                <Kbd>S</Kbd>
+                                <span>保存内容</span>
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Kbd>Ctrl</Kbd>
+                                <Kbd>+</Kbd>
+                                <Kbd>E</Kbd>
+                                <span>切换左侧面板</span>
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Kbd>Ctrl</Kbd>
+                                <Kbd>+</Kbd>
+                                <Kbd>L</Kbd>
+                                <span>切换右侧面板</span>
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      : (
+                          // 选择章节后显示编辑器
+                          <EditorContent
+                            openTabs={openTabs}
+                            activeTab={activeTab}
+                            onTabChange={setActiveTab}
+                            onTabClose={closeTab}
+                            novelTitle={novel.title}
+                            chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
+                            chapterId={activeTab}
+                          />
+                        )}
+                  </ResizablePanel>
+
+                  <ResizableHandle withHandle className={!showRightPanel ? 'hidden' : ''} />
+
+                  {/* 右侧：AI助手 */}
+                  <ResizablePanel
+                    ref={rightPanelRef}
+                    id="right-panel"
+                    order={3}
+                    defaultSize={20}
+                    minSize={15}
+                    maxSize={30}
+                    collapsible={true}
+                    collapsedSize={0}
+                    onCollapse={() => setShowRightPanel(false)}
+                    onExpand={() => setShowRightPanel(true)}
+                  >
+                    {showRightPanel && <RightPanel />}
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              )}
+        </main>
+
+        {/* 移动端：左侧 Drawer */}
+        {isMobile && (
+          <Drawer open={leftDrawerOpen} onOpenChange={setLeftDrawerOpen} direction="left">
+            <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
+              <div className="h-full overflow-hidden">
                 <LeftPanel
                   chapters={formattedChapters}
                   volumes={volumes}
@@ -365,85 +523,21 @@ export default function NovelsEdit() {
                   onReorderVolumes={handleReorderVolumes}
                   onMoveChapterToVolume={handleMoveChapterToVolume}
                 />
-              )}
-            </ResizablePanel>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        )}
 
-            <ResizableHandle withHandle className={!showLeftPanel ? 'hidden' : ''} />
-
-            {/* 中间：编辑器 */}
-            <ResizablePanel
-              id="editor-panel"
-              order={2}
-              defaultSize={60}
-              minSize={40}
-            >
-              {selectedChapter === null || activeTab === null
-                ? (
-                  // 未选择章节时显示欢迎界面
-                    <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
-                      <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
-                        <Image
-                          src="/assets/svg/logo-eye.svg"
-                          width={120}
-                          height={120}
-                          alt="Logo"
-                          className="opacity-40"
-                        />
-                        <p className="text-sm">选择一个章节开始编辑</p>
-                        <span className="flex items-center gap-1">
-                          <Kbd>Ctrl</Kbd>
-                          <Kbd>+</Kbd>
-                          <Kbd>S</Kbd>
-                          <span>保存内容</span>
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Kbd>Ctrl</Kbd>
-                          <Kbd>+</Kbd>
-                          <Kbd>E</Kbd>
-                          <span>切换左侧面板</span>
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Kbd>Ctrl</Kbd>
-                          <Kbd>+</Kbd>
-                          <Kbd>L</Kbd>
-                          <span>切换右侧面板</span>
-                        </span>
-                      </div>
-                    </div>
-                  )
-                : (
-                  // 选择章节后显示编辑器
-                    <EditorContent
-                      openTabs={openTabs}
-                      activeTab={activeTab}
-                      onTabChange={setActiveTab}
-                      onTabClose={closeTab}
-                      novelTitle={novel.title}
-                      chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
-                      chapterId={activeTab}
-                    />
-                  )}
-            </ResizablePanel>
-
-            <ResizableHandle withHandle className={!showRightPanel ? 'hidden' : ''} />
-
-            {/* 右侧：AI助手 */}
-            <ResizablePanel
-              ref={rightPanelRef}
-              id="right-panel"
-              order={3}
-              defaultSize={20}
-              minSize={15}
-              maxSize={30}
-              collapsible={true}
-              collapsedSize={0}
-              onCollapse={() => setShowRightPanel(false)}
-              onExpand={() => setShowRightPanel(true)}
-            >
-              {showRightPanel && <RightPanel />}
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </main>
+        {/* 移动端：右侧 Drawer */}
+        {isMobile && (
+          <Drawer open={rightDrawerOpen} onOpenChange={setRightDrawerOpen} direction="right">
+            <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
+              <div className="h-full overflow-hidden">
+                <RightPanel />
+              </div>
+            </DrawerContent>
+          </Drawer>
+        )}
 
         {/* 创建章节对话框 */}
         <CreateChapterDialog
