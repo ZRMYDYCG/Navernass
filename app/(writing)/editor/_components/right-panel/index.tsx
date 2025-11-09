@@ -1,19 +1,30 @@
+'use client'
+
 import type { AiMode, AiModel, Message } from './types'
+import type { Chapter } from '@/lib/supabase/sdk'
+import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { AtButton } from './at-button'
+import { ChapterSelector } from './chapter-selector'
 import { EmptyState } from './empty-state'
 import { Header } from './header'
 import { InputArea } from './input-area'
 import { MessageList } from './message-list'
 import { ModeSelector } from './mode-selector'
 import { ModelSelector } from './model-selector'
+import { SelectedChapters } from './selected-chapters'
 import { SendButton } from './send-button'
 
 export default function RightPanel() {
+  const searchParams = useSearchParams()
+  const novelId = searchParams.get('id') || ''
+
   const [messages] = useState<Message[]>([]) // 对话消息列表，空数组表示没有对话
   const [mode, setMode] = useState<AiMode>('ask')
   const [model, setModel] = useState<AiModel>('Qwen/Qwen2.5-7B-Instruct')
   const [input, setInput] = useState('')
+  const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([])
+  const [showChapterSelector, setShowChapterSelector] = useState(false)
 
   const handleSend = () => {
     if (!input.trim()) return
@@ -24,9 +35,19 @@ export default function RightPanel() {
   }
 
   const handleAtClick = () => {
-    // TODO: 打开章节选择器
-    // eslint-disable-next-line no-console
-    console.log('引用章节内容')
+    if (!novelId) {
+      console.warn('缺少小说ID')
+      return
+    }
+    setShowChapterSelector(true)
+  }
+
+  const handleChapterSelectionChange = (chapters: Chapter[]) => {
+    setSelectedChapters(chapters)
+  }
+
+  const handleRemoveChapter = (chapterId: string) => {
+    setSelectedChapters(prev => prev.filter(c => c.id !== chapterId))
   }
 
   const handleNewChat = () => {
@@ -59,6 +80,11 @@ export default function RightPanel() {
 
       {/* 输入区域 */}
       <div className="border-t border-gray-200 dark:border-gray-800 p-3 space-y-2">
+        {/* 选中的章节标签 */}
+        {selectedChapters.length > 0 && (
+          <SelectedChapters chapters={selectedChapters} onRemove={handleRemoveChapter} />
+        )}
+
         <div className="flex gap-2 items-end">
           <InputArea
             value={input}
@@ -75,6 +101,16 @@ export default function RightPanel() {
           <SendButton onClick={handleSend} disabled={!input.trim()} />
         </div>
       </div>
+
+      {/* 章节选择器 */}
+      {showChapterSelector && novelId && (
+        <ChapterSelector
+          novelId={novelId}
+          selectedChapters={selectedChapters}
+          onSelectionChange={handleChapterSelectionChange}
+          onClose={() => setShowChapterSelector(false)}
+        />
+      )}
     </div>
   )
 }

@@ -1,0 +1,124 @@
+import type { Chapter } from '@/lib/supabase/sdk'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+
+interface SelectedChaptersProps {
+  chapters: Chapter[]
+  onRemove: (chapterId: string) => void
+}
+
+export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  useEffect(() => {
+    const checkScrollability = () => {
+      const container = scrollContainerRef.current
+      if (!container) return
+
+      setCanScrollLeft(container.scrollLeft > 0)
+      setCanScrollRight(
+        container.scrollLeft < container.scrollWidth - container.clientWidth - 1,
+      )
+    }
+
+    checkScrollability()
+    const container = scrollContainerRef.current
+    if (container) {
+      container.addEventListener('scroll', checkScrollability)
+      window.addEventListener('resize', checkScrollability)
+      return () => {
+        container.removeEventListener('scroll', checkScrollability)
+        window.removeEventListener('resize', checkScrollability)
+      }
+    }
+  }, [chapters])
+
+  // 滚动函数
+  const scroll = (direction: 'left' | 'right') => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const scrollAmount = 200
+    const targetScroll
+      = direction === 'left'
+        ? container.scrollLeft - scrollAmount
+        : container.scrollLeft + scrollAmount
+
+    container.scrollTo({
+      left: targetScroll,
+      behavior: 'smooth',
+    })
+  }
+
+  if (chapters.length === 0) return null
+
+  return (
+    <div className="relative flex items-center gap-1">
+      {/* 左滚动按钮 */}
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => scroll('left')}
+          className="absolute left-0 z-10 p-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+          title="向左滚动"
+        >
+          <ChevronLeft className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+        </button>
+      )}
+
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        {chapters.map(chapter => (
+          <div
+            key={chapter.id}
+            className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md flex-shrink-0"
+          >
+            <span
+              className="text-xs text-gray-700 dark:text-gray-300 truncate max-w-[60px]"
+              title={chapter.title}
+              style={{ fontSize: '12px' }}
+            >
+              {chapter.title.length > 5 ? `${chapter.title.slice(0, 5)}...` : chapter.title}
+            </span>
+            <button
+              type="button"
+              onClick={() => onRemove(chapter.id)}
+              className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+              title="移除"
+            >
+              <X className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* 右滚动按钮 */}
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => scroll('right')}
+          className="absolute right-0 z-10 p-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+          title="向右滚动"
+        >
+          <ChevronRight className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+        </button>
+      )}
+
+      <style jsx>
+        {`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}
+      </style>
+    </div>
+  )
+}
