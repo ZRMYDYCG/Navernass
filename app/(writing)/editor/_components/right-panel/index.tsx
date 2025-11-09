@@ -1,11 +1,13 @@
 import type { AiMode, AiModel, Message } from './types'
 import { useState } from 'react'
+import { AtButton } from './at-button'
 import { EmptyState } from './empty-state'
 import { Header } from './header'
 import { InputArea } from './input-area'
 import { MessageList } from './message-list'
 import { ModeSelector } from './mode-selector'
 import { ModelSelector } from './model-selector'
+import { SendButton } from './send-button'
 
 export default function RightPanel() {
   const [messages] = useState<Message[]>([]) // 对话消息列表，空数组表示没有对话
@@ -57,17 +59,20 @@ export default function RightPanel() {
 
       {/* 输入区域 */}
       <div className="border-t border-gray-200 dark:border-gray-800 p-3 space-y-2">
-        <InputArea
-          value={input}
-          onChange={setInput}
-          onSend={handleSend}
-          onAtClick={handleAtClick}
-        />
+        <div className="flex gap-2 items-end">
+          <InputArea
+            value={input}
+            onChange={setInput}
+            onSend={handleSend}
+          />
+        </div>
 
-        {/* 工具栏：模式切换 + 模型选择 */}
+        {/* 工具栏：@ 按钮 + 模式切换 + 模型选择 + 发送按钮 */}
         <div className="flex items-center gap-2">
+          <AtButton onClick={handleAtClick} />
           <ModeSelector value={mode} onChange={setMode} />
           <ModelSelector value={model} onChange={setModel} />
+          <SendButton onClick={handleSend} disabled={!input.trim()} />
         </div>
       </div>
     </div>
