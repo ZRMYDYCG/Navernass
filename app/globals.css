@@ -356,3 +356,32 @@
 .dark .prose strong {
   color: #f9fafb;
 }
+
+/* 输入框滚动条样式 - 更细更淡 */
+.input-area-scrollbar::-webkit-scrollbar {
+  width: 2px; /* 更细的滚动条 */
+  height: 2px;
+}
+
+.input-area-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.input-area-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 1px;
+  transition: background-color 0.2s ease;
+}
+
+.input-area-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  .input-area-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 85, 99, 0.3);
+  }
+  .input-area-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(75, 85, 99, 0.5);
+  }
+}

@@ -40,9 +40,9 @@ export function InputArea({ value, onChange, onSend, onAtClick, disabled }: Inpu
         placeholder="询问 AI 助手..."
         rows={1}
         disabled={disabled}
-        className="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-all resize-none max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="input-area-scrollbar flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-all resize-none max-h-32 overflow-y-auto disabled:cursor-not-allowed"
         style={{
-          minHeight: '38px',
+          minHeight: '80px',
           height: 'auto',
         }}
       />
