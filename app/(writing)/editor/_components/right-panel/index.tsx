@@ -12,6 +12,7 @@ import { EmptyState } from './empty-state'
 import { Header } from './header'
 import { InputArea } from './input-area'
 import { MessageList } from './message-list'
+import { MessageListSkeleton } from './message-list-skeleton'
 import { ModeSelector } from './mode-selector'
 import { ModelSelector } from './model-selector'
 import { SelectedChapters } from './selected-chapters'
@@ -31,6 +32,7 @@ export default function RightPanel() {
   const [showChapterSelector, setShowChapterSelector] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false)
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
 
   const isProcessingRef = useRef(false)
@@ -49,12 +51,15 @@ export default function RightPanel() {
 
   // 加载会话消息
   const loadMessages = useCallback(async (conversationId: string) => {
+    setIsLoadingMessages(true)
     try {
       const data = await novelConversationsApi.getMessages(conversationId)
       setMessages(data)
     } catch (error) {
       console.error('Failed to load messages:', error)
       setMessages([])
+    } finally {
+      setIsLoadingMessages(false)
     }
   }, [])
 
@@ -83,26 +88,36 @@ export default function RightPanel() {
   useEffect(() => {
     if (currentConversationId) {
       let cancelled = false
+      // 使用 setTimeout 避免同步 setState
+      const loadingTimer = setTimeout(() => {
+        if (!cancelled) {
+          setIsLoadingMessages(true)
+        }
+      }, 0)
       void (async () => {
         try {
           const data = await novelConversationsApi.getMessages(currentConversationId)
           if (!cancelled) {
             setMessages(data)
+            setIsLoadingMessages(false)
           }
         } catch (error) {
           if (!cancelled) {
             console.error('Failed to load messages:', error)
             setMessages([])
+            setIsLoadingMessages(false)
           }
         }
       })()
       return () => {
         cancelled = true
+        clearTimeout(loadingTimer)
       }
     } else {
       // 使用 setTimeout 避免同步 setState
       const timer = setTimeout(() => {
         setMessages([])
+        setIsLoadingMessages(false)
       }, 0)
       return () => clearTimeout(timer)
     }
@@ -288,13 +303,17 @@ export default function RightPanel() {
 
       {/* 对话区域 */}
       <div className="flex-1 overflow-hidden p-4">
-        {messages.length === 0
+        {isLoadingMessages
           ? (
-              <EmptyState />
+              <MessageListSkeleton />
             )
-          : (
-              <MessageList messages={messages} streamingMessageId={streamingMessageId} />
-            )}
+          : messages.length === 0
+            ? (
+                <EmptyState />
+              )
+            : (
+                <MessageList messages={messages} streamingMessageId={streamingMessageId} />
+              )}
       </div>
 
       {/* 输入区域 */}
