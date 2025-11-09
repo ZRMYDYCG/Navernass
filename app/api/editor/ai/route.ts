@@ -109,8 +109,8 @@ export async function POST(req: NextRequest) {
                     encoder.encode(`data: ${JSON.stringify({ type: 'content', data: content })}\n\n`),
                   )
                 }
-              } catch (e) {
-                console.warn('Failed to parse SSE data:', trimmedLine)
+              } catch (error: any) {
+                console.warn('Failed to parse SSE data:', trimmedLine, error)
               }
             }
           }

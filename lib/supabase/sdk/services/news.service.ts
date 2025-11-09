@@ -1,52 +1,52 @@
-import { supabase } from "@/lib/supabase";
-import type { News, CreateNewsDto, UpdateNewsDto } from "../types";
+import type { CreateNewsDto, News, UpdateNewsDto } from '../types'
+import { supabase } from '@/lib/supabase'
 
 export class NewsService {
   /**
    * 获取新闻列表
    */
   async getList(params?: {
-    type?: string;
-    status?: string;
-    page?: number;
-    pageSize?: number;
+    type?: string
+    status?: string
+    page?: number
+    pageSize?: number
   }) {
     let query = supabase
-      .from("news")
-      .select("*")
-      .order("priority", { ascending: false })
-      .order("created_at", { ascending: false });
+      .from('news')
+      .select('*')
+      .order('priority', { ascending: false })
+      .order('created_at', { ascending: false })
 
     // 筛选类型
     if (params?.type) {
-      query = query.eq("type", params.type);
+      query = query.eq('type', params.type)
     }
 
     // 筛选状态
     if (params?.status) {
-      query = query.eq("status", params.status);
+      query = query.eq('status', params.status)
     } else {
       // 默认只显示已发布的
-      query = query.eq("status", "published");
+      query = query.eq('status', 'published')
     }
 
     // 分页
-    const page = params?.page || 1;
-    const pageSize = params?.pageSize || 20;
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
+    const page = params?.page || 1
+    const pageSize = params?.pageSize || 20
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
 
     const { data, error, count } = await query
-      .range(from, to);
+      .range(from, to)
 
-    if (error) throw error;
+    if (error) throw error
 
     return {
       data: data || [],
       total: count || 0,
       page,
       pageSize,
-    };
+    }
   }
 
   /**
@@ -54,23 +54,24 @@ export class NewsService {
    */
   async getById(id: string) {
     const { data, error } = await supabase
-      .from("news")
-      .select("*")
-      .eq("id", id)
-      .single();
+      .from('news')
+      .select('*')
+      .eq('id', id)
+      .single()
 
     if (error) {
-      if (error.code === "PGRST116") {
-        throw {
+      if (error.code === 'PGRST116') {
+        const notFoundError = new Error('News not found')
+        Object.assign(notFoundError, {
           statusCode: 404,
-          code: "NEWS_NOT_FOUND",
-          message: "News not found",
-        };
+          code: 'NEWS_NOT_FOUND',
+        })
+        throw notFoundError
       }
-      throw error;
+      throw error
     }
 
-    return data;
+    return data
   }
 
   /**
@@ -78,7 +79,7 @@ export class NewsService {
    */
   async create(newsData: CreateNewsDto) {
     const { data, error } = await supabase
-      .from("news")
+      .from('news')
       .insert({
         type: newsData.type,
         title: newsData.title,
@@ -90,20 +91,20 @@ export class NewsService {
         status: 'published',
       })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
    * 更新新闻
    */
   async update(id: string, updates: Partial<UpdateNewsDto>) {
-    await this.getById(id);
+    await this.getById(id)
 
     const { data, error } = await supabase
-      .from("news")
+      .from('news')
       .update({
         type: updates.type,
         title: updates.title,
@@ -114,26 +115,26 @@ export class NewsService {
         status: updates.status,
         priority: updates.priority,
       })
-      .eq("id", id)
+      .eq('id', id)
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
    * 删除新闻
    */
   async delete(id: string) {
-    await this.getById(id);
+    await this.getById(id)
 
     const { error } = await supabase
-      .from("news")
+      .from('news')
       .delete()
-      .eq("id", id);
+      .eq('id', id)
 
-    if (error) throw error;
+    if (error) throw error
   }
 
   /**
@@ -142,8 +143,8 @@ export class NewsService {
   async incrementReadCount(id: string) {
     const { error } = await supabase.rpc('increment_news_read_count', {
       news_id: id,
-    });
+    })
 
-    if (error) throw error;
+    if (error) throw error
   }
 }
