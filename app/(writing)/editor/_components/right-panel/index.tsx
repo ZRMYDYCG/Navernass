@@ -37,6 +37,7 @@ export default function RightPanel() {
 
   const isProcessingRef = useRef(false)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const isStreamingRef = useRef(false)
 
   // 加载会话列表
   const loadConversations = useCallback(async () => {
@@ -49,7 +50,7 @@ export default function RightPanel() {
     }
   }, [novelId])
 
-  // 加载会话消息
+  // 加载会话消息（显示骨架屏）
   const loadMessages = useCallback(async (conversationId: string) => {
     setIsLoadingMessages(true)
     try {
@@ -60,6 +61,16 @@ export default function RightPanel() {
       setMessages([])
     } finally {
       setIsLoadingMessages(false)
+    }
+  }, [])
+
+  // 静默加载会话消息（不显示骨架屏，用于流式传输完成后更新数据）
+  const loadMessagesSilently = useCallback(async (conversationId: string) => {
+    try {
+      const data = await novelConversationsApi.getMessages(conversationId)
+      setMessages(data)
+    } catch (error) {
+      console.error('Failed to load messages silently:', error)
     }
   }, [])
 
@@ -87,47 +98,25 @@ export default function RightPanel() {
   // 当选择会话时，加载消息
   useEffect(() => {
     if (currentConversationId) {
-      let cancelled = false
-      // 使用 setTimeout 避免同步 setState
-      const loadingTimer = setTimeout(() => {
-        if (!cancelled) {
-          setIsLoadingMessages(true)
-        }
-      }, 0)
-      void (async () => {
-        try {
-          const data = await novelConversationsApi.getMessages(currentConversationId)
-          if (!cancelled) {
-            setMessages(data)
-            setIsLoadingMessages(false)
-          }
-        } catch (error) {
-          if (!cancelled) {
-            console.error('Failed to load messages:', error)
-            setMessages([])
-            setIsLoadingMessages(false)
-          }
-        }
-      })()
-      return () => {
-        cancelled = true
-        clearTimeout(loadingTimer)
+      // 如果正在流式传输，不加载消息（避免显示骨架屏）
+      if (!isStreamingRef.current) {
+        void loadMessages(currentConversationId)
       }
     } else {
-      // 使用 setTimeout 避免同步 setState
       const timer = setTimeout(() => {
         setMessages([])
         setIsLoadingMessages(false)
       }, 0)
       return () => clearTimeout(timer)
     }
-  }, [currentConversationId])
+  }, [currentConversationId, loadMessages])
 
   const handleSend = async () => {
     if (!input.trim() || isLoading || isProcessingRef.current || !novelId) return
 
     isProcessingRef.current = true
     setIsLoading(true)
+    isStreamingRef.current = true // 标记开始流式传输
 
     // 取消之前的请求（如果有）
     if (abortControllerRef.current) {
@@ -210,9 +199,9 @@ export default function RightPanel() {
             setIsLoading(false)
             isProcessingRef.current = false
             abortControllerRef.current = null
-            // 重新加载消息以获取服务器保存的完整消息
+            isStreamingRef.current = false // 标记流式传输结束
             if (newConversationId) {
-              await loadMessages(newConversationId)
+              await loadMessagesSilently(newConversationId)
             }
             // 重新加载会话列表以更新更新时间
             await loadConversations()
@@ -223,6 +212,7 @@ export default function RightPanel() {
             setStreamingMessageId(null)
             isProcessingRef.current = false
             abortControllerRef.current = null
+            isStreamingRef.current = false // 标记流式传输结束
             // 移除临时消息
             setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id && msg.id !== aiMessageId))
           },
@@ -234,6 +224,7 @@ export default function RightPanel() {
       setStreamingMessageId(null)
       isProcessingRef.current = false
       abortControllerRef.current = null
+      isStreamingRef.current = false // 标记流式传输结束
       // 移除临时消息
       setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id && msg.id !== aiMessageId))
     }
@@ -256,6 +247,7 @@ export default function RightPanel() {
   }
 
   const handleNewChat = () => {
+    isStreamingRef.current = false // 重置流式传输标记
     setCurrentConversationId(null)
     setMessages([])
     setSelectedChapters([])
@@ -267,6 +259,7 @@ export default function RightPanel() {
   }
 
   const handleSelectConversation = async (conversation: NovelConversation) => {
+    isStreamingRef.current = false // 重置流式传输标记，确保能正常加载消息
     setCurrentConversationId(conversation.id)
     setShowHistory(false)
   }
