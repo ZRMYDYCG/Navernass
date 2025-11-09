@@ -4,6 +4,7 @@ export * from './client'
 export * from './conversations'
 export * from './messages'
 export * from './news'
+export * from './novel-conversations'
 export * from './novels'
 export * from './types'
 

@@ -1,11 +1,13 @@
 'use client'
 
-import type { AiMode, AiModel, Message } from './types'
-import type { Chapter } from '@/lib/supabase/sdk'
+import type { AiMode, AiModel } from './types'
+import type { Chapter, NovelConversation, NovelMessage } from '@/lib/supabase/sdk'
 import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { novelConversationsApi } from '@/lib/supabase/sdk'
 import { AtButton } from './at-button'
 import { ChapterSelector } from './chapter-selector'
+import { ConversationHistory } from './conversation-history'
 import { EmptyState } from './empty-state'
 import { Header } from './header'
 import { InputArea } from './input-area'
@@ -19,19 +21,207 @@ export default function RightPanel() {
   const searchParams = useSearchParams()
   const novelId = searchParams.get('id') || ''
 
-  const [messages] = useState<Message[]>([]) // 对话消息列表，空数组表示没有对话
+  const [messages, setMessages] = useState<NovelMessage[]>([])
+  const [conversations, setConversations] = useState<NovelConversation[]>([])
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [mode, setMode] = useState<AiMode>('ask')
   const [model, setModel] = useState<AiModel>('Qwen/Qwen2.5-7B-Instruct')
   const [input, setInput] = useState('')
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([])
   const [showChapterSelector, setShowChapterSelector] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
 
-  const handleSend = () => {
-    if (!input.trim()) return
-    // TODO: 发送消息
-    // eslint-disable-next-line no-console
-    console.log('发送:', input, '模式:', mode, '模型:', model)
+  const isProcessingRef = useRef(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
+
+  // 加载会话列表
+  const loadConversations = useCallback(async () => {
+    if (!novelId) return
+    try {
+      const data = await novelConversationsApi.getByNovelId(novelId)
+      setConversations(data)
+    } catch (error) {
+      console.error('Failed to load conversations:', error)
+    }
+  }, [novelId])
+
+  // 加载会话消息
+  const loadMessages = useCallback(async (conversationId: string) => {
+    try {
+      const data = await novelConversationsApi.getMessages(conversationId)
+      setMessages(data)
+    } catch (error) {
+      console.error('Failed to load messages:', error)
+      setMessages([])
+    }
+  }, [])
+
+  // 初始化：加载会话列表
+  useEffect(() => {
+    if (!novelId) return
+    let cancelled = false
+    void (async () => {
+      try {
+        const data = await novelConversationsApi.getByNovelId(novelId)
+        if (!cancelled) {
+          setConversations(data)
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Failed to load conversations:', error)
+        }
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [novelId])
+
+  // 当选择会话时，加载消息
+  useEffect(() => {
+    if (currentConversationId) {
+      let cancelled = false
+      void (async () => {
+        try {
+          const data = await novelConversationsApi.getMessages(currentConversationId)
+          if (!cancelled) {
+            setMessages(data)
+          }
+        } catch (error) {
+          if (!cancelled) {
+            console.error('Failed to load messages:', error)
+            setMessages([])
+          }
+        }
+      })()
+      return () => {
+        cancelled = true
+      }
+    } else {
+      // 使用 setTimeout 避免同步 setState
+      const timer = setTimeout(() => {
+        setMessages([])
+      }, 0)
+      return () => clearTimeout(timer)
+    }
+  }, [currentConversationId])
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading || isProcessingRef.current || !novelId) return
+
+    isProcessingRef.current = true
+    setIsLoading(true)
+
+    // 取消之前的请求（如果有）
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    abortControllerRef.current = new AbortController()
+
+    const messageContent = input.trim()
     setInput('')
+
+    // 添加用户消息到UI
+    const tempUserMessage: NovelMessage = {
+      id: `temp-user-${Date.now()}`,
+      conversation_id: currentConversationId || '',
+      novel_id: novelId,
+      user_id: 'default-user',
+      role: 'user',
+      content: messageContent,
+      created_at: new Date().toISOString(),
+    }
+    setMessages(prev => [...prev, tempUserMessage])
+
+    let aiMessageId: string | null = null
+    let accumulatedContent = ''
+    let newConversationId = currentConversationId
+
+    try {
+      await novelConversationsApi.sendMessageStream(
+        {
+          novelId,
+          conversationId: currentConversationId || undefined,
+          message: messageContent,
+          selectedChapterIds: selectedChapters.map(c => c.id),
+          mode,
+          model,
+        },
+        {
+          onConversationId: (id) => {
+            newConversationId = id
+            setCurrentConversationId(id)
+            // 如果创建了新会话，重新加载会话列表
+            if (!currentConversationId) {
+              loadConversations()
+            }
+          },
+          onUserMessageId: (id) => {
+            // 更新临时用户消息的ID
+            setMessages(prev =>
+              prev.map(msg =>
+                msg.id === tempUserMessage.id ? { ...msg, id } : msg,
+              ),
+            )
+          },
+          onContent: (chunk) => {
+            accumulatedContent += chunk
+
+            if (!aiMessageId) {
+              const tempAiMessage: NovelMessage = {
+                id: `temp-ai-${Date.now()}`,
+                conversation_id: newConversationId || '',
+                novel_id: novelId,
+                user_id: 'default-user',
+                role: 'assistant',
+                content: accumulatedContent,
+                created_at: new Date().toISOString(),
+              }
+              aiMessageId = tempAiMessage.id
+              setStreamingMessageId(aiMessageId)
+              setMessages(prev => [...prev, tempAiMessage])
+            } else {
+              setMessages(prev =>
+                prev.map(msg =>
+                  msg.id === aiMessageId ? { ...msg, content: accumulatedContent } : msg,
+                ),
+              )
+            }
+          },
+          onDone: async () => {
+            setStreamingMessageId(null)
+            setIsLoading(false)
+            isProcessingRef.current = false
+            abortControllerRef.current = null
+            // 重新加载消息以获取服务器保存的完整消息
+            if (newConversationId) {
+              await loadMessages(newConversationId)
+            }
+            // 重新加载会话列表以更新更新时间
+            await loadConversations()
+          },
+          onError: (error) => {
+            console.error('Streaming error:', error)
+            setIsLoading(false)
+            setStreamingMessageId(null)
+            isProcessingRef.current = false
+            abortControllerRef.current = null
+            // 移除临时消息
+            setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id && msg.id !== aiMessageId))
+          },
+        },
+      )
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      setIsLoading(false)
+      setStreamingMessageId(null)
+      isProcessingRef.current = false
+      abortControllerRef.current = null
+      // 移除临时消息
+      setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id && msg.id !== aiMessageId))
+    }
   }
 
   const handleAtClick = () => {
@@ -51,15 +241,44 @@ export default function RightPanel() {
   }
 
   const handleNewChat = () => {
-    // TODO: 新建对话
-    // eslint-disable-next-line no-console
-    console.log('新建对话')
+    setCurrentConversationId(null)
+    setMessages([])
+    setSelectedChapters([])
+    setInput('')
   }
 
   const handleShowHistory = () => {
-    // TODO: 显示历史记录
-    // eslint-disable-next-line no-console
-    console.log('显示历史记录')
+    setShowHistory(true)
+  }
+
+  const handleSelectConversation = async (conversation: NovelConversation) => {
+    setCurrentConversationId(conversation.id)
+    setShowHistory(false)
+  }
+
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      await novelConversationsApi.delete(conversationId)
+      // 如果删除的是当前会话，清空当前会话
+      if (currentConversationId === conversationId) {
+        setCurrentConversationId(null)
+        setMessages([])
+      }
+      // 重新加载会话列表
+      await loadConversations()
+    } catch (error) {
+      console.error('Failed to delete conversation:', error)
+    }
+  }
+
+  const handlePinConversation = async (conversationId: string, isPinned: boolean) => {
+    try {
+      await novelConversationsApi.update(conversationId, { is_pinned: isPinned })
+      // 重新加载会话列表
+      await loadConversations()
+    } catch (error) {
+      console.error('Failed to pin conversation:', error)
+    }
   }
 
   return (
@@ -68,13 +287,13 @@ export default function RightPanel() {
       <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 
       {/* 对话区域 */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full p-4">
+      <div className="flex-1 overflow-hidden p-4">
         {messages.length === 0
           ? (
               <EmptyState />
             )
           : (
-              <MessageList messages={messages} />
+              <MessageList messages={messages} streamingMessageId={streamingMessageId} />
             )}
       </div>
 
@@ -98,7 +317,7 @@ export default function RightPanel() {
           <AtButton onClick={handleAtClick} />
           <ModeSelector value={mode} onChange={setMode} />
           <ModelSelector value={model} onChange={setModel} />
-          <SendButton onClick={handleSend} disabled={!input.trim()} />
+          <SendButton onClick={handleSend} disabled={!input.trim() || isLoading} />
         </div>
       </div>
 
@@ -109,6 +328,18 @@ export default function RightPanel() {
           selectedChapters={selectedChapters}
           onSelectionChange={handleChapterSelectionChange}
           onClose={() => setShowChapterSelector(false)}
+        />
+      )}
+
+      {/* 历史对话 */}
+      {showHistory && (
+        <ConversationHistory
+          conversations={conversations}
+          currentConversationId={currentConversationId || undefined}
+          onSelect={handleSelectConversation}
+          onDelete={handleDeleteConversation}
+          onPin={handlePinConversation}
+          onClose={() => setShowHistory(false)}
         />
       )}
     </div>

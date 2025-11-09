@@ -219,3 +219,61 @@ export interface SendMessageResponse {
   userMessage: Message
   assistantMessage: Message
 }
+
+// =============================================
+// 小说 AI 会话类型
+// =============================================
+
+export interface NovelConversation {
+  id: string
+  novel_id: string
+  user_id: string
+  title: string
+  is_pinned?: boolean
+  pinned_at?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateNovelConversationDto {
+  novel_id: string
+  title: string
+}
+
+export interface UpdateNovelConversationDto {
+  id: string
+  title?: string
+  is_pinned?: boolean
+}
+
+export interface NovelMessage {
+  id: string
+  conversation_id: string
+  novel_id: string
+  user_id: string
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  model?: string
+  tokens?: number
+  thinking?: string
+  created_at: string
+}
+
+export interface CreateNovelMessageDto {
+  conversation_id: string
+  novel_id: string
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  model?: string
+  tokens?: number
+  thinking?: string
+}
+
+export interface SendNovelMessageRequest {
+  novelId: string
+  conversationId?: string
+  message: string
+  selectedChapterIds?: string[]
+  mode?: string
+  model?: string
+}
