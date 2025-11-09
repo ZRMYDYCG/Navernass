@@ -19,12 +19,9 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg"
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.3 }}
+      className="sticky top-0 z-50 w-full pointer-events-none"
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 pointer-events-auto">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <motion.div
@@ -96,12 +93,12 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full bg-transparent hover:bg-transparent">
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">{navbarConfig.themeToggleLabel}</span>
             </Button>
-            <Button asChild>
+            <Button asChild variant="outline" className="bg-transparent border-transparent hover:bg-transparent">
               <Link href="/novels">{navbarConfig.ctaText}</Link>
             </Button>
           </motion.div>
@@ -110,7 +107,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 hover:bg-accent rounded-md transition-colors"
+            className="md:hidden p-2 rounded-md transition-colors"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -121,7 +118,7 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="md:hidden border-t border-border bg-background"
+            className="md:hidden pointer-events-auto"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -156,15 +153,15 @@ export default function Navbar() {
                     </Link>
                   )
                 })}
-                <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                  <Button variant="ghost" onClick={toggleTheme} className="w-full justify-start relative">
+                <div className="flex flex-col gap-2 pt-4">
+                  <Button variant="ghost" onClick={toggleTheme} className="w-full justify-start relative bg-transparent hover:bg-transparent">
                     <div className="relative h-5 w-5 mr-2">
                       <Sun className="absolute h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                       <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                     </div>
                     <span>{navbarConfig.themeToggleLabel}</span>
                   </Button>
-                  <Button asChild className="w-full">
+                  <Button asChild variant="outline" className="w-full bg-transparent border-transparent hover:bg-transparent">
                     <Link href="/novels">{navbarConfig.ctaText}</Link>
                   </Button>
                 </div>

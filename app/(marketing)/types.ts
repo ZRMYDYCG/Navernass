@@ -22,10 +22,6 @@ export interface Feature {
 
 // Hero 区域配置类型
 export interface HeroConfig {
-  badge: {
-    text: string
-    icon: LucideIcon
-  }
   title: {
     primary: string
     secondary: string

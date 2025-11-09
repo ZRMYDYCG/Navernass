@@ -15,11 +15,8 @@ import {
   Brain,
   Database,
   FileText,
-  Heart,
   MessageSquare,
-  Sparkles,
   Star,
-  Twitter,
   Zap,
 } from 'lucide-react'
 
@@ -96,10 +93,7 @@ export const featuresConfig: Feature[] = [
 // Hero 区域配置
 // ============================================================================
 export const heroConfig: HeroConfig = {
-  badge: {
-    text: '开源 AI 智能创作平台',
-    icon: Sparkles,
-  },
+
   title: {
     primary: '让 AI 成为你的',
     secondary: '小说创作助手',
