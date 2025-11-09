@@ -71,9 +71,9 @@ export function ConversationHistory({
   const unpinnedConversations = conversations.filter(c => !c.is_pinned)
 
   return (
-    <div className="absolute inset-0 z-50 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 flex flex-col shadow-xl">
+    <div className="absolute inset-0 z-50 bg-background border-l border-border flex flex-col shadow-xl">
       {/* 头部 */}
-      <div className="h-12 flex px-4 items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+      <div className="h-12 flex px-4 items-center justify-between border-b border-border bg-muted/30">
         <div className="flex items-center gap-2">
           <MessageSquare className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">历史对话</h3>

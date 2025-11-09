@@ -352,7 +352,7 @@ export default function NovelsEdit() {
         />
 
         {/* 主题内容区域 */}
-        <main className="flex-1 bg-white dark:bg-gray-900 transition-colors overflow-hidden">
+        <main className="flex-1 bg-background transition-colors overflow-hidden">
           {isMobile
             ? (
                 // 移动端：编辑器全屏显示

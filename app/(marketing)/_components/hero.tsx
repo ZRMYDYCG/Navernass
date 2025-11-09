@@ -21,7 +21,7 @@ export default function Hero() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
       {/* Navbar - 融合到 Hero 中 */}
       <motion.nav
-        className="fixed top-0 left-0 right-0 z-50 w-full pointer-events-none"
+        className="absolute top-0 left-0 right-0 z-50 w-full pointer-events-none"
       >
         <div className="container mx-auto px-4 pointer-events-auto">
           <div className="flex h-16 items-center justify-between">
@@ -281,7 +281,7 @@ export default function Hero() {
 
           {/* 副标题 */}
           <motion.p
-            className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed"
+            className="text-base md:text-lg text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}

@@ -161,7 +161,7 @@ export default function EditorContent({
   }, [isSaving, lastSaved])
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-900">
+    <div className="h-full flex flex-col bg-background">
       {/* 顶部页签区域 */}
       <SmartTabs
         tabs={openTabs}
@@ -171,7 +171,7 @@ export default function EditorContent({
       />
 
       {/* 编辑器内容区域 */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full p-8">
+      <div className="flex-1 overflow-y-auto p-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {loading
           ? (
               <div className="flex flex-col items-center justify-center h-full gap-3">
@@ -195,7 +195,7 @@ export default function EditorContent({
       </div>
 
       {/* 底部状态栏 */}
-      <div className="h-10 px-6 flex items-center justify-between border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+      <div className="h-10 px-6 flex items-center justify-between border-t border-border bg-muted/30">
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500 dark:text-gray-400">{novelTitle}</span>
           <ChevronRight className="w-3 h-3 text-gray-400" />

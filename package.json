@@ -65,6 +65,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "19.1.0",
+    "react-fast-marquee": "^1.6.5",
     "react-hook-form": "^7.65.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^3.0.6",

@@ -15,7 +15,7 @@ interface ChapterHeaderProps {
 
 export function ChapterHeader({ onCreateChapter, onCreateVolume }: ChapterHeaderProps) {
   return (
-    <div className="h-12 px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
+    <div className="h-12 px-4 flex items-center justify-between border-b border-border">
       <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">目录</h2>
 
       <div className="flex items-center gap-1">

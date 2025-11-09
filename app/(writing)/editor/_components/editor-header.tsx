@@ -19,7 +19,7 @@ export default function EditorHeader({
   onBack,
 }: EditorHeaderProps) {
   return (
-    <header className="h-14 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+    <header className="h-14 flex items-center justify-between px-4 border-b border-border bg-background">
       {/* 左侧：返回按钮 + 小说标题 */}
       <div className="flex items-center gap-3">
         <button

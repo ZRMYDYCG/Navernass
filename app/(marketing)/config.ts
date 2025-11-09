@@ -95,11 +95,11 @@ export const featuresConfig: Feature[] = [
 export const heroConfig: HeroConfig = {
 
   title: {
-    primary: '让 AI 成为你的',
-    secondary: '小说创作助手',
+    primary: '为创作者打造',
+    secondary: '舒适的创作环境',
   },
   subtitle:
-    '从灵感迸发到作品完成，Narraverse 为你提供智能写作建议、角色管理、情节规划等全方位创作支持',
+    '我们专注为才华横溢的创作者打造舒适的创作环境，降低优质内容被看见、被分享、被发掘的门槛。同时也为新手提供AI辅助，降低直面感受创作、学习创作、走进创作的门槛。',
   ctaButtons: {
     primary: {
       text: '开始创作',
@@ -127,11 +127,11 @@ export const heroConfig: HeroConfig = {
 // CTA 配置
 // ============================================================================
 export const ctaConfig: CTAConfig = {
-  title: '加入开源社区，共同打造未来',
+  title: '加入我们，一群热爱开源的人',
   subtitle:
-    'Narraverse 是一个完全开源的项目，我们欢迎所有开发者和创作者加入，一起创造更好的创作工具',
-  ctaText: '立即使用',
-  href: '/novels',
+    '这个项目是我一个人从 0 到 1 创造的。一个人的精力有限，项目可能会存在一些隐藏的 BUG。希望大家能够及时在 GitHub 向我反馈，这样也好加以改正，不断改善，成为最佳！当然我更希望大家能够提交 PR 成为 Narraverse 的贡献者。大家一起参与进来，构建一个强大的小说创作平台！',
+  ctaText: '立即加入',
+  href: 'https://github.com/narraverse/narraverse-next-mvp',
 }
 
 // ============================================================================
