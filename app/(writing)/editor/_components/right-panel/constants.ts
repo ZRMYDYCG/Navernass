@@ -15,7 +15,5 @@ export const MODE_OPTIONS: ModeOption[] = [
  * AI 模型选项配置
  */
 export const MODEL_OPTIONS: ModelOption[] = [
-  { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' },
-  { value: 'gpt-4', label: 'GPT-4' },
-  { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
+  { value: 'Qwen/Qwen2.5-7B-Instruct', label: 'Qwen 2.5 7B' },
 ]

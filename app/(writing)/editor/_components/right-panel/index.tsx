@@ -12,7 +12,7 @@ import { SendButton } from './send-button'
 export default function RightPanel() {
   const [messages] = useState<Message[]>([]) // 对话消息列表，空数组表示没有对话
   const [mode, setMode] = useState<AiMode>('ask')
-  const [model, setModel] = useState<AiModel>('claude-3.5-sonnet')
+  const [model, setModel] = useState<AiModel>('Qwen/Qwen2.5-7B-Instruct')
   const [input, setInput] = useState('')
 
   const handleSend = () => {

@@ -3,7 +3,7 @@
  */
 
 export type AiMode = 'agent' | 'ask' | 'continue' | 'polish'
-export type AiModel = 'gpt-4' | 'claude-3.5-sonnet' | 'gpt-3.5-turbo'
+export type AiModel = 'Qwen/Qwen2.5-7B-Instruct'
 
 export interface Message {
   id: string
