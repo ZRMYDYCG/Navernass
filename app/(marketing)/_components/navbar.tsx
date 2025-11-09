@@ -157,10 +157,12 @@ export default function Navbar() {
                   )
                 })}
                 <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                  <Button variant="ghost" onClick={toggleTheme} className="w-full justify-start">
-                    <Sun className="h-5 w-5 mr-2 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                    <Moon className="absolute h-5 w-5 ml-10 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                    <span className="ml-2">{navbarConfig.themeToggleLabel}</span>
+                  <Button variant="ghost" onClick={toggleTheme} className="w-full justify-start relative">
+                    <div className="relative h-5 w-5 mr-2">
+                      <Sun className="absolute h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                    </div>
+                    <span>{navbarConfig.themeToggleLabel}</span>
                   </Button>
                   <Button asChild className="w-full">
                     <Link href="/novels">{navbarConfig.ctaText}</Link>
