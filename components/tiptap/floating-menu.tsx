@@ -3,9 +3,6 @@
 import type { Editor } from '@tiptap/react'
 import {
   Bold,
-  Heading1,
-  Heading2,
-  Heading3,
   Italic,
   Underline as UnderlineIcon,
 } from 'lucide-react'
@@ -258,45 +255,6 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
             title="下划线"
           >
             <UnderlineIcon className="w-4 h-4" />
-          </button>
-
-          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
-
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            className={`p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-              editor.isActive('heading', { level: 1 })
-                ? 'bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-400'
-                : 'text-gray-700 dark:text-gray-300'
-            }`}
-            title="标题 1"
-          >
-            <Heading1 className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            className={`p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-              editor.isActive('heading', { level: 2 })
-                ? 'bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-400'
-                : 'text-gray-700 dark:text-gray-300'
-            }`}
-            title="标题 2"
-          >
-            <Heading2 className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-            className={`p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-              editor.isActive('heading', { level: 3 })
-                ? 'bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-400'
-                : 'text-gray-700 dark:text-gray-300'
-            }`}
-            title="标题 3"
-          >
-            <Heading3 className="w-4 h-4" />
           </button>
 
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
