@@ -4,11 +4,12 @@ import type { Message } from '@/lib/supabase/sdk/types'
 import { Copy, Image as ImageIcon, Link2, X } from 'lucide-react'
 
 import { useParams, useRouter } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { chatApi, messagesApi } from '@/lib/supabase/sdk'
+import { copyTextToClipboard } from '@/lib/utils'
 import { ChatInputBox } from '../_components/chat-input-box'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
 import { MessageList } from './_components/message-list'
@@ -23,6 +24,13 @@ export default function ConversationPage() {
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
   const [isShareMode, setIsShareMode] = useState(false)
   const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([])
+
+  const validSelectedMessageIds = useMemo(() => {
+    if (!isShareMode) return []
+
+    const messageIdSet = new Set(messages.map(msg => msg.id))
+    return selectedMessageIds.filter(id => messageIdSet.has(id))
+  }, [isShareMode, messages, selectedMessageIds])
 
   // 使用 ref 避免重复处理
   const isProcessingRef = useRef(false)
@@ -237,7 +245,7 @@ export default function ConversationPage() {
     if (!message?.content) return
 
     try {
-      await navigator.clipboard.writeText(message.content)
+      await copyTextToClipboard(message.content)
       toast.success('消息内容已复制')
     } catch (error) {
       console.error('Failed to copy message:', error)
@@ -257,7 +265,7 @@ export default function ConversationPage() {
       if ('share' in navigator && typeof navigator.share === 'function') {
         await navigator.share(sharePayload)
       } else {
-        await navigator.clipboard.writeText(message.content)
+        await copyTextToClipboard(message.content)
         toast.success('已复制消息内容，粘贴即可分享')
       }
     } catch (error) {
@@ -293,7 +301,7 @@ export default function ConversationPage() {
   }, [])
 
   const handleCopySelectedText = useCallback(async () => {
-    const selectedMessages = messages.filter(msg => selectedMessageIds.includes(msg.id))
+    const selectedMessages = messages.filter(msg => validSelectedMessageIds.includes(msg.id))
     if (selectedMessages.length === 0) {
       toast.error('请先选择要复制的消息')
       return
@@ -304,13 +312,13 @@ export default function ConversationPage() {
       .join('\n\n')
 
     try {
-      await navigator.clipboard.writeText(formatted)
+      await copyTextToClipboard(formatted)
       toast.success('对话文本已复制')
     } catch (error) {
       console.error('Failed to copy conversation:', error)
       toast.error('复制失败，请重试')
     }
-  }, [messages, selectedMessageIds])
+  }, [messages, validSelectedMessageIds])
 
   const handleCopyConversationLink = useCallback(async () => {
     if (typeof window === 'undefined') return
@@ -318,7 +326,7 @@ export default function ConversationPage() {
     const shareUrl = `${window.location.origin}/chat/${conversationId}`
 
     try {
-      await navigator.clipboard.writeText(shareUrl)
+      await copyTextToClipboard(shareUrl)
       toast.success('链接已复制')
     } catch (error) {
       console.error('Failed to copy link:', error)
@@ -329,15 +337,6 @@ export default function ConversationPage() {
   const handleGenerateImage = useCallback(() => {
     toast('稍等一下，图片生成功能正在开发中～')
   }, [])
-
-  useEffect(() => {
-    if (!isShareMode) return
-
-    setSelectedMessageIds((prev) => {
-      const messageIdSet = new Set(messages.map(msg => msg.id))
-      return prev.filter(id => messageIdSet.has(id))
-    })
-  }, [isShareMode, messages])
 
   return (
     <div className="flex flex-col h-full">
@@ -355,7 +354,7 @@ export default function ConversationPage() {
           onCopyMessage={handleCopyMessage}
           onShareMessage={handleShareMessage}
           isShareMode={isShareMode}
-          selectedMessageIds={selectedMessageIds}
+          selectedMessageIds={validSelectedMessageIds}
           onToggleSelectMessage={handleToggleSelectMessage}
         />
       </div>
@@ -364,7 +363,7 @@ export default function ConversationPage() {
       {isShareMode
         ? (
             <ShareActionBar
-              selectedCount={selectedMessageIds.length}
+              selectedCount={validSelectedMessageIds.length}
               onCancel={handleCancelShareMode}
               onCopyText={handleCopySelectedText}
               onCopyLink={handleCopyConversationLink}
