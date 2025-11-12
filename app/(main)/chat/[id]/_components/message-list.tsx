@@ -15,9 +15,25 @@ interface MessageListProps {
   messages: Message[]
   isLoading?: boolean
   streamingMessageId?: string | null
+  onCopyMessage?: (message: Message) => void
+  onShareMessage?: (message: Message) => void
+  isShareMode?: boolean
+  selectedMessageIds?: string[]
+  onToggleSelectMessage?: (messageId: string) => void
 }
 
-export function MessageList({ messages, isLoading = false, streamingMessageId = null }: MessageListProps) {
+export function MessageList({
+  messages,
+  isLoading = false,
+  streamingMessageId = null,
+  onCopyMessage,
+  onShareMessage,
+  isShareMode = false,
+  selectedMessageIds: selectedMessageIdsProp,
+  onToggleSelectMessage,
+}: MessageListProps) {
+  const selectedMessageIds = selectedMessageIdsProp ?? []
+
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
@@ -185,6 +201,11 @@ export function MessageList({ messages, isLoading = false, streamingMessageId = 
                   key={message.id}
                   message={message}
                   isStreaming={streamingMessageId === message.id}
+                  onCopy={onCopyMessage}
+                  onShare={onShareMessage}
+                  isShareMode={isShareMode}
+                  isSelected={selectedMessageIds.includes(message.id)}
+                  onToggleSelect={onToggleSelectMessage}
                 />
               ))}
 

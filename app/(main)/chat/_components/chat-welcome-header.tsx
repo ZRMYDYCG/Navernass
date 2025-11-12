@@ -20,7 +20,13 @@ import { conversationsApi } from '@/lib/supabase/sdk'
 import { useChatSidebar } from './chat-sidebar-provider'
 import { EditChatTitleDialog } from './edit-chat-title-dialog'
 
-export function ChatWelcomeHeader() {
+interface ChatWelcomeHeaderProps {
+  onShareConversation?: () => void
+  isShareMode?: boolean
+}
+
+export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
+  const { onShareConversation, isShareMode = false } = props
   const { isOpen, open, updateConversationTitle, onTitleUpdate } = useChatSidebar()
   const pathname = usePathname()
   const params = useParams()
@@ -83,9 +89,13 @@ export function ChatWelcomeHeader() {
   }, [updateConversationTitle])
 
   const handleShareClick = useCallback(() => {
-    // TODO: 实现分享功能
+    if (onShareConversation) {
+      onShareConversation()
+      return
+    }
+
     console.warn('分享对话:', conversationId)
-  }, [conversationId])
+  }, [conversationId, onShareConversation])
 
   return (
     <TooltipProvider>
@@ -154,17 +164,18 @@ export function ChatWelcomeHeader() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="ghost"
+                        variant={isShareMode ? 'secondary' : 'ghost'}
                         size="icon-sm"
-                        className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer"
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer aria-pressed:text-primary"
                         onClick={handleShareClick}
                         aria-label="分享对话"
+                        aria-pressed={isShareMode}
                       >
                         <Share2 className="w-5 h-5" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>分享对话</p>
+                      <p>{isShareMode ? '退出分享模式' : '分享对话'}</p>
                     </TooltipContent>
                   </Tooltip>
                 )
