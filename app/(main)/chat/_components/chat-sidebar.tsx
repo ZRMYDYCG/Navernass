@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -35,6 +35,8 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
   const [chatHistory, setChatHistory] = useState<ChatHistoryData[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [showTopOverlay, setShowTopOverlay] = useState(false)
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
 
   const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
 
@@ -142,6 +144,24 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     }
   }
 
+  useEffect(() => {
+    if (!isOpen) {
+      setShowTopOverlay(false)
+    }
+
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null
+    if (!viewport)
+      return
+
+    const handleScroll = () => {
+      setShowTopOverlay(viewport.scrollTop > 4)
+    }
+
+    handleScroll()
+    viewport.addEventListener('scroll', handleScroll)
+    return () => viewport.removeEventListener('scroll', handleScroll)
+  }, [chatHistory.length, isOpen])
+
   return (
     <TooltipProvider>
       <>
@@ -216,8 +236,18 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
             </Tooltip>
           </div>
 
-          <ScrollArea className="flex-1">
-            <div className="p-2 space-y-0.5">
+          <ScrollArea
+            ref={scrollAreaRef}
+            className="flex-1 relative"
+          >
+            <div
+              className={cn(
+                'pointer-events-none absolute inset-x-0 top-0 h-6 transition-opacity duration-150 z-10 bg-gradient-to-b from-gray-100/95 to-transparent dark:from-gray-900/90',
+                showTopOverlay ? 'opacity-100' : 'opacity-0',
+              )}
+            />
+
+            <div className="p-2 space-y-0.5 relative">
               {isLoading
                 ? (
                     <div className="space-y-1">
