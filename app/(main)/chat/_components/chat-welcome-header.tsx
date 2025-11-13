@@ -140,15 +140,17 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
             : (
                 // 首页：侧边栏打开时不显示新建按钮（避免重复），侧边栏关闭时显示
                 !isOpen && (
-                  <Button
-                    variant="outline"
-                    className="gap-2"
-                    onClick={() => router.push('/chat')}
-                    disabled={isNewChatPage}
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>新建对话</span>
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => router.push('/chat')}
+                      disabled={isNewChatPage}
+                      className="flex items-center gap-2 rounded-md border border-transparent px-2 py-1 text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-black dark:hover:text-white transition-colors disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>新建对话</span>
+                    </button>
+                  </div>
                 )
               )}
         </div>

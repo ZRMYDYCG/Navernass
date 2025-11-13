@@ -185,22 +185,16 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
           </div>
 
           <div className="p-3">
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2.5 font-normal relative overflow-hidden group
-              bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10
-              hover:from-blue-500/15 hover:via-purple-500/15 hover:to-pink-500/15
-              backdrop-blur-sm
-              border border-gray-200/50 dark:border-gray-700/50
-              text-gray-700 dark:text-gray-200
-              transition-all duration-200"
-              onClick={() => window.location.href = '/chat'}
+            <button
+              type="button"
+              onClick={() => router.push('/chat')}
               disabled={isNewChatPage}
+              className="w-full flex items-center gap-2 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 hover:bg-gray-200/60 dark:hover:bg-gray-700/60 transition-colors disabled:text-gray-400 dark:disabled:text-gray-600 disabled:border-gray-200 dark:disabled:border-gray-700 disabled:cursor-not-allowed"
             >
-              <Edit3 className="w-4 h-4 relative z-10" />
-              <span className="relative z-10">新对话</span>
-              <span className="ml-auto text-xs text-gray-400 dark:text-gray-400 font-normal relative z-10">Ctrl K</span>
-            </Button>
+              <Edit3 className="w-4 h-4" />
+              <span>新对话</span>
+              <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">Ctrl K</span>
+            </button>
           </div>
 
           <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 group">
