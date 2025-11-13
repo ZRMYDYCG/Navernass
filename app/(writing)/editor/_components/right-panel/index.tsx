@@ -290,7 +290,7 @@ export default function RightPanel() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-background border-l border-border">
+    <div className="h-full flex flex-col bg-gray-100 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
       {/* 顶部标题 */}
       <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 
@@ -310,7 +310,7 @@ export default function RightPanel() {
       </div>
 
       {/* 输入区域 */}
-      <div className="border-t border-border p-3 space-y-2">
+      <div className="p-3 space-y-2">
         {/* 选中的章节标签 */}
         {selectedChapters.length > 0 && (
           <SelectedChapters chapters={selectedChapters} onRemove={handleRemoveChapter} />

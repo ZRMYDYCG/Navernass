@@ -7,8 +7,7 @@ interface HeaderProps {
 
 export function Header({ onNewChat, onShowHistory }: HeaderProps) {
   return (
-    <div className="h-10 flex px-2 items-center justify-between border-b border-gray-200 dark:border-gray-800">
-      <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">AI 助手</h2>
+    <div className="h-10 flex px-2 items-center justify-end">
       <div className="flex items-center gap-1">
         <button
           type="button"

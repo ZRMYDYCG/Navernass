@@ -9,7 +9,7 @@ interface TabSwitcherProps {
 
 export function TabSwitcher({ activeTab, onChange }: TabSwitcherProps) {
   return (
-    <div className="flex items-center gap-1 px-2 py-1 border-b border-border bg-muted/30">
+    <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800">
       {TAB_CONFIGS.map((tab) => {
         const Icon = tab.icon
         return (
@@ -20,8 +20,8 @@ export function TabSwitcher({ activeTab, onChange }: TabSwitcherProps) {
                 onClick={() => onChange(tab.value)}
                 className={`w-10 h-10 flex items-center justify-center rounded-md transition-colors ${
                   activeTab === tab.value
-                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700'
                 }`}
               >
                 <Icon className="w-5 h-5" />

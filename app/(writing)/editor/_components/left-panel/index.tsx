@@ -38,7 +38,7 @@ export default function LeftPanel({
   const [activeTab, setActiveTab] = useState<LeftTabType>('chapters')
 
   return (
-    <div className="h-full flex flex-col bg-background border-r border-border">
+    <div className="h-full flex flex-col bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
       <TabSwitcher activeTab={activeTab} onChange={setActiveTab} />
 
       <div className="flex-1 overflow-hidden">

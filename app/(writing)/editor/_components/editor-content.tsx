@@ -161,7 +161,7 @@ export default function EditorContent({
   }, [isSaving, lastSaved])
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-white dark:bg-gray-900">
       {/* 顶部页签区域 */}
       <SmartTabs
         tabs={openTabs}
@@ -195,7 +195,7 @@ export default function EditorContent({
       </div>
 
       {/* 底部状态栏 */}
-      <div className="h-10 px-6 flex items-center justify-between border-t border-border bg-muted/30">
+      <div className="h-10 px-6 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500 dark:text-gray-400">{novelTitle}</span>
           <ChevronRight className="w-3 h-3 text-gray-400" />

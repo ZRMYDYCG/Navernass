@@ -117,7 +117,7 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
 
   return (
     <div
-      className="group relative bg-muted/30 border-b border-border"
+      className="group relative bg-white dark:bg-gray-900"
       onMouseEnter={() => setShowScrollbar(true)}
       onMouseLeave={() => setShowScrollbar(false)}
     >
@@ -145,10 +145,10 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
               key={tab.id}
               ref={isActive ? activeTabRef : null}
               onClick={() => onTabChange(tab.id)}
-              className={`group relative flex items-center gap-0 px-4 py-2.5 border-r border-gray-200 dark:border-gray-800 cursor-pointer transition-all duration-200 flex-shrink-0 ${
+              className={`group relative flex items-center gap-0 px-4 py-2.5 border-r border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-200 flex-shrink-0 ${
                 isActive
-                  ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100'
+                  ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100'
               }`}
             >
               <span className="text-sm truncate max-w-[150px] transition-all duration-200 group-hover:max-w-[130px]">
@@ -166,20 +166,16 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
               >
                 <X className="w-3.5 h-3.5" />
               </button>
-
-              {isActive && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 dark:bg-gray-100" />
-              )}
             </div>
           )
         })}
       </div>
 
       {/* 渐变遮罩 - 左侧 */}
-      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-50 dark:from-gray-900/50 to-transparent pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-gray-900 to-transparent pointer-events-none" />
 
       {/* 渐变遮罩 - 右侧 */}
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 dark:from-gray-900/50 to-transparent pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-gray-900 to-transparent pointer-events-none" />
 
       <div
         className={`absolute bottom-0 left-0 right-0 h-0.5 transition-opacity duration-200 pointer-events-none ${
