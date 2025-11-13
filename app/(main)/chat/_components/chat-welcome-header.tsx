@@ -3,7 +3,7 @@
 import {
   Bell,
   PanelLeftOpen,
-  Plus,
+  PencilLine,
   Share2,
 } from 'lucide-react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
@@ -102,57 +102,63 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
       <header className="h-16 flex items-center justify-between px-4 transition-colors">
         <div className="flex items-center gap-3">
           {!isOpen && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer"
-                  onClick={open}
-                  aria-label="打开侧边栏"
-                >
-                  <PanelLeftOpen className="w-5 h-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>展开侧边栏</p>
-              </TooltipContent>
-            </Tooltip>
+            <div className="flex items-center gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer"
+                    onClick={open}
+                    aria-label="打开侧边栏"
+                  >
+                    <PanelLeftOpen className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>展开侧边栏</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => router.push('/chat')}
+                    disabled={isNewChatPage}
+                    className="text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white cursor-pointer disabled:cursor-not-allowed"
+                    aria-label="新建对话"
+                  >
+                    <PencilLine className="hidden sm:block w-5 h-5" />
+                    <PencilLine className="sm:hidden w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>新建对话</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           )}
 
-          {isConversationPage
-            ? (
-                // 对话页面显示标题
-                isLoadingTitle
-                  ? (
-                      <Skeleton className="h-8 w-32" />
-                    )
-                  : (
-                      <Button
-                        variant="ghost"
-                        className="text-lg font-semibold text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
-                        onClick={() => setIsEditDialogOpen(true)}
-                      >
-                        {chatTitle}
-                      </Button>
-                    )
-              )
-            : (
-                // 首页：侧边栏打开时不显示新建按钮（避免重复），侧边栏关闭时显示
-                !isOpen && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => router.push('/chat')}
-                      disabled={isNewChatPage}
-                      className="flex items-center gap-2 rounded-md border border-transparent px-2 py-1 text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-black dark:hover:text-white transition-colors disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed"
+          {isConversationPage && (
+            isLoadingTitle
+              ? (
+                  <Skeleton className="h-8 w-32" />
+                )
+              : (
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="ghost"
+                      className="text-lg font-semibold text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      onClick={() => setIsEditDialogOpen(true)}
                     >
-                      <Plus className="w-4 h-4" />
-                      <span>新建对话</span>
-                    </button>
+                      {chatTitle}
+                    </Button>
+
                   </div>
                 )
-              )}
+          )}
         </div>
 
         <div className="flex items-center gap-2">
