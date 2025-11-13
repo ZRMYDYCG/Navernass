@@ -147,7 +147,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
       <>
         {isOpen && (
           <div
-            className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40 lg:hidden cursor-pointer"
             onClick={onClose}
             aria-label="关闭侧边栏"
           />
@@ -176,7 +176,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
             <Button
               variant="ghost"
               size="icon-sm"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer"
               onClick={onClose}
               aria-label="收起侧边栏"
             >
@@ -189,7 +189,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
               type="button"
               onClick={() => router.push('/chat')}
               disabled={isNewChatPage}
-              className="w-full flex items-center gap-2 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 hover:bg-gray-200/60 dark:hover:bg-gray-700/60 transition-colors disabled:text-gray-400 dark:disabled:text-gray-600 disabled:border-gray-200 dark:disabled:border-gray-700 disabled:cursor-not-allowed"
+              className="w-full flex items-center gap-2 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 hover:bg-gray-200/60 dark:hover:bg-gray-700/60 transition-colors cursor-pointer disabled:text-gray-400 dark:disabled:text-gray-600 disabled:border-gray-200 dark:disabled:border-gray-700 disabled:cursor-not-allowed"
             >
               <Edit3 className="w-4 h-4" />
               <span>新对话</span>
@@ -204,7 +204,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
                   onClick={() => router.push('/chat/all')}
                 >
                   <AlertCircle className="w-3.5 h-3.5" />

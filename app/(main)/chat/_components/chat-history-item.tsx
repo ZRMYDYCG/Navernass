@@ -180,7 +180,7 @@ export function ChatHistoryItem({
                   size="icon-sm"
                   onClick={handleRenameSubmit}
                   disabled={isRenaming}
-                  className="h-7 w-7 flex-shrink-0"
+                  className="h-7 w-7 flex-shrink-0 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <Check className="w-3.5 h-3.5" />
                 </Button>
@@ -189,7 +189,7 @@ export function ChatHistoryItem({
                   size="icon-sm"
                   onClick={handleRenameCancel}
                   disabled={isRenaming}
-                  className="h-7 w-7 flex-shrink-0"
+                  className="h-7 w-7 flex-shrink-0 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <X className="w-3.5 h-3.5" />
                 </Button>
@@ -199,7 +199,7 @@ export function ChatHistoryItem({
               <Button
                 variant="ghost"
                 className={cn(
-                  'w-full justify-start px-3 py-2 h-9 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 relative transition-colors overflow-hidden',
+                  'w-full justify-start px-3 py-2 h-9 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 relative transition-colors overflow-hidden cursor-pointer',
                   isActive && 'bg-white dark:bg-gray-700/70 hover:bg-gray-50 dark:hover:bg-gray-700',
                   chat.isPinned && 'before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-gradient-to-b before:from-gray-900 before:to-gray-500 before:rounded-full',
                 )}
@@ -241,7 +241,7 @@ export function ChatHistoryItem({
                 variant="ghost"
                 size="icon-sm"
                 className={cn(
-                  'absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-opacity duration-200 z-10',
+                  'absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-opacity duration-200 z-10 cursor-pointer',
                   shouldShowButton ? 'opacity-100' : 'opacity-0 pointer-events-none',
                 )}
                 onClick={e => e.stopPropagation()}
@@ -250,7 +250,7 @@ export function ChatHistoryItem({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem className="gap-2" onClick={handlePinClick}>
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={handlePinClick}>
                 {chat.isPinned
                   ? (
                       <>
@@ -265,13 +265,13 @@ export function ChatHistoryItem({
                       </>
                     )}
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2" onClick={handleRenameClick}>
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={handleRenameClick}>
                 <Edit3 className="w-4 h-4" />
                 <span>重命名</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="gap-2 text-red-600 dark:text-red-400"
+                className="gap-2 text-red-600 dark:text-red-400 cursor-pointer"
                 onClick={handleDeleteClick}
               >
                 <Trash2 className="w-4 h-4" />
@@ -297,6 +297,7 @@ export function ChatHistoryItem({
                 variant="ghost"
                 onClick={() => setShowDeleteDialog(false)}
                 disabled={isDeleting}
+                className="cursor-pointer disabled:cursor-not-allowed"
               >
                 取消
               </Button>
@@ -304,6 +305,7 @@ export function ChatHistoryItem({
                 variant="destructive"
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
+                className="cursor-pointer disabled:cursor-not-allowed"
               >
                 {isDeleting ? '删除中...' : '确认删除'}
               </Button>
