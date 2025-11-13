@@ -14,7 +14,7 @@ export function ScrollToBottomButton({ onClick, show }: ScrollToBottomButtonProp
     return null
 
   return (
-    <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-10">
+    <div className="absolute bottom-12 sm:bottom-10 left-1/2 transform -translate-x-1/2 z-10">
       <Button
         onClick={onClick}
         size="icon"
@@ -26,4 +26,3 @@ export function ScrollToBottomButton({ onClick, show }: ScrollToBottomButtonProp
     </div>
   )
 }
-
