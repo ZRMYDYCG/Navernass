@@ -265,10 +265,6 @@ export function ChatHistoryItem({
                       </>
                     )}
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2">
-                <Share2 className="w-4 h-4" />
-                <span>分享</span>
-              </DropdownMenuItem>
               <DropdownMenuItem className="gap-2" onClick={handleRenameClick}>
                 <Edit3 className="w-4 h-4" />
                 <span>重命名</span>
