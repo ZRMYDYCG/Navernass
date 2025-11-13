@@ -38,6 +38,7 @@ export function MessageList({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
   const [showScrollButton, setShowScrollButton] = useState(false)
+  const [showTopOverlay, setShowTopOverlay] = useState(false)
   const [_isUserScrolling, setIsUserScrolling] = useState(false)
   const isNearBottomRef = useRef(true)
 
@@ -49,8 +50,9 @@ export function MessageList({
   }
 
   // 检查是否接近底部
-  const checkIfNearBottom = useCallback(() => {
-    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+  const checkIfNearBottom = useCallback((container?: HTMLElement | null) => {
+    const scrollContainer
+      = container ?? (scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null)
     if (!scrollContainer)
       return true
 
@@ -60,7 +62,11 @@ export function MessageList({
   }, [])
 
   const handleScroll = useCallback(() => {
-    const isNearBottom = checkIfNearBottom()
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null
+    if (!scrollContainer)
+      return
+
+    const isNearBottom = checkIfNearBottom(scrollContainer)
     isNearBottomRef.current = isNearBottom
 
     // 如果用户向上滚动且不在底部附近，显示"回到底部"按钮
@@ -71,6 +77,8 @@ export function MessageList({
       setShowScrollButton(false)
       setIsUserScrolling(false)
     }
+
+    setShowTopOverlay(scrollContainer.scrollTop > 4)
   }, [checkIfNearBottom])
 
   // 当有新消息时，自动滚动到底部
@@ -121,7 +129,10 @@ export function MessageList({
 
   return (
     <div className="relative flex-1 h-full">
-      <ScrollArea ref={scrollAreaRef} className="h-full w-full">
+      <ScrollArea ref={scrollAreaRef} className="relative h-full w-full">
+        <div
+          className={`pointer-events-none absolute inset-x-0 top-0 h-8 transition-opacity duration-150 z-10 bg-gradient-to-b from-white/95 via-white/70 to-transparent dark:from-gray-950/95 dark:via-gray-950/60 ${showTopOverlay ? 'opacity-100' : 'opacity-0'}`}
+        />
         <div className="max-w-4xl mx-auto">
           {messages.length === 0 && isLoading && (
             <div className="w-full space-y-6 py-4">
