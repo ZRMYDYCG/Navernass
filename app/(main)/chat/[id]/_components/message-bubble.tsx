@@ -68,7 +68,7 @@ export function MessageBubble({
                     className={cn(
                       'text-sm relative',
                       isStreaming
-                        ? 'after:content-[""] after:absolute after:bottom-0 after:right-0 after:w-12 after:h-6 after:bg-gradient-to-r after:from-transparent after:to-gray-100 dark:after:to-gray-800 after:animate-pulse after:pointer-events-none'
+                        ? 'after:content-[""] after:pointer-events-none after:absolute after:top-0 after:right-0 after:h-full after:w-12 after:bg-gradient-to-r after:from-transparent after:via-white/70 after:to-white dark:after:via-gray-800/60 dark:after:to-gray-900 after:animate-pulse'
                         : '',
                     )}
                   >
