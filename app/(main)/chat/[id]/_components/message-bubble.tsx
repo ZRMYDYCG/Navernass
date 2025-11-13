@@ -48,11 +48,22 @@ export function MessageBubble({
       </div>
 
       {/* 消息内容 */}
-      <div className={`flex-1 max-w-[85%] sm:max-w-[75%] ${isUser ? 'flex justify-end' : 'flex justify-start'}`}>
-        <div className="w-full flex flex-col gap-2">
+      <div
+        className={cn(
+          'flex-1',
+          isUser ? 'flex justify-end' : 'flex justify-start',
+          isUser ? 'max-w-[75%]' : 'max-w-[85%]',
+        )}
+      >
+        <div
+          className={cn(
+            'flex flex-col gap-2 max-w-full',
+            isUser ? 'items-end' : 'items-start',
+          )}
+        >
           <div
             className={cn(
-              'rounded-2xl px-4 py-3 border border-transparent transition-all',
+              'rounded-2xl px-4 py-3 border border-transparent transition-all w-fit max-w-full',
               isUser
                 ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                 : 'dark:bg-gray-800 text-gray-900 dark:text-gray-100 bg-white',
