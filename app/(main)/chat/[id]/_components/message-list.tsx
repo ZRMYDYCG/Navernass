@@ -207,18 +207,22 @@ export function MessageList({
 
           {messages.length > 0 && (
             <div className="space-y-1">
-              {messages.map(message => (
-                <MessageBubble
-                  key={message.id}
-                  message={message}
-                  isStreaming={streamingMessageId === message.id}
-                  onCopy={onCopyMessage}
-                  onShare={onShareMessage}
-                  isShareMode={isShareMode}
-                  isSelected={selectedMessageIds.includes(message.id)}
-                  onToggleSelect={onToggleSelectMessage}
-                />
-              ))}
+              {messages.map((message, index) => {
+                const isLastMessage = index === messages.length - 1
+                return (
+                  <MessageBubble
+                    key={message.id}
+                    message={message}
+                    isStreaming={streamingMessageId === message.id}
+                    onCopy={onCopyMessage}
+                    onShare={onShareMessage}
+                    isShareMode={isShareMode}
+                    isSelected={selectedMessageIds.includes(message.id)}
+                    onToggleSelect={onToggleSelectMessage}
+                    alwaysShowActions={isShareMode || isLastMessage}
+                  />
+                )
+              })}
 
               {isLoading && !streamingMessageId && <TypingIndicator />}
 

@@ -17,6 +17,7 @@ interface MessageBubbleProps {
   isShareMode?: boolean
   isSelected?: boolean
   onToggleSelect?: (messageId: string) => void
+  alwaysShowActions?: boolean
 }
 
 export function MessageBubble({
@@ -27,6 +28,7 @@ export function MessageBubble({
   isShareMode = false,
   isSelected = false,
   onToggleSelect,
+  alwaysShowActions = false,
 }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
@@ -36,9 +38,10 @@ export function MessageBubble({
   const displayedContent = message.content
 
   const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
+  const shouldAlwaysShowActions = alwaysShowActions || isShareMode
 
   return (
-    <div className={`flex gap-4 py-4 px-4 sm:px-6 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+    <div className={`group/message flex gap-4 py-4 px-4 sm:px-6 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       <div className="flex-shrink-0">
         {isAssistant && (
           <Avatar className="w-8 h-8">
@@ -90,8 +93,11 @@ export function MessageBubble({
 
           <div
             className={cn(
-              'flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400',
+              'flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 transition-opacity',
               isUser ? 'justify-end' : 'justify-start',
+              shouldAlwaysShowActions
+                ? 'opacity-100 pointer-events-auto'
+                : 'opacity-0 pointer-events-none group-hover/message:opacity-100 group-hover/message:pointer-events-auto',
             )}
           >
             {isShareMode && (
