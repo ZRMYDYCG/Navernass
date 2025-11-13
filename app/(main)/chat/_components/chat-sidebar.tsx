@@ -243,6 +243,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
             <div
               className={cn(
                 'pointer-events-none absolute inset-x-0 top-0 h-6 transition-opacity duration-150 z-10 bg-gradient-to-b from-gray-100/95 to-transparent dark:from-gray-900/90',
+                'dark:hidden',
                 showTopOverlay ? 'opacity-100' : 'opacity-0',
               )}
             />

@@ -131,7 +131,7 @@ export function MessageList({
     <div className="relative flex-1 h-full">
       <ScrollArea ref={scrollAreaRef} className="relative h-full w-full">
         <div
-          className={`pointer-events-none absolute inset-x-0 top-0 h-8 transition-opacity duration-150 z-10 bg-gradient-to-b from-white/95 via-white/70 to-transparent dark:from-gray-950/95 dark:via-gray-950/60 ${showTopOverlay ? 'opacity-100' : 'opacity-0'}`}
+          className={`pointer-events-none absolute inset-x-0 top-0 h-8 transition-opacity duration-150 z-10 bg-gradient-to-b from-white/95 via-white/70 to-transparent dark:hidden ${showTopOverlay ? 'opacity-100' : 'opacity-0'}`}
         />
         <div className="max-w-4xl mx-auto">
           {messages.length === 0 && isLoading && (
