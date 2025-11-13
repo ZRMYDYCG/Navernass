@@ -153,7 +153,6 @@ export function MessageList({ messages, streamingMessageId = null }: MessageList
             <MessageBubble
               key={message.id}
               message={message}
-              isStreaming={streamingMessageId === message.id}
             />
           ))}
           <div ref={messagesEndRef} className="h-1" />

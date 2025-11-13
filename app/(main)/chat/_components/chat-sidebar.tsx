@@ -19,6 +19,8 @@ import { cn } from '@/lib/utils'
 import { ChatHistoryItem } from './chat-history-item'
 import { useChatSidebar } from './chat-sidebar-provider'
 
+const SKELETON_PLACEHOLDERS = ['placeholder-0', 'placeholder-1', 'placeholder-2', 'placeholder-3', 'placeholder-4', 'placeholder-5', 'placeholder-6', 'placeholder-7']
+
 interface ChatSidebarProps {
   isOpen: boolean
   onClose?: () => void
@@ -35,7 +37,6 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
   const [chatHistory, setChatHistory] = useState<ChatHistoryData[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [showTopOverlay, setShowTopOverlay] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
 
   const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
@@ -144,24 +145,6 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     }
   }
 
-  useEffect(() => {
-    if (!isOpen) {
-      setShowTopOverlay(false)
-    }
-
-    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null
-    if (!viewport)
-      return
-
-    const handleScroll = () => {
-      setShowTopOverlay(viewport.scrollTop > 4)
-    }
-
-    handleScroll()
-    viewport.addEventListener('scroll', handleScroll)
-    return () => viewport.removeEventListener('scroll', handleScroll)
-  }, [chatHistory.length, isOpen])
-
   return (
     <TooltipProvider>
       <>
@@ -236,24 +219,13 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
             </Tooltip>
           </div>
 
-          <ScrollArea
-            ref={scrollAreaRef}
-            className="flex-1 relative"
-          >
-            <div
-              className={cn(
-                'pointer-events-none absolute inset-x-0 top-0 h-6 transition-opacity duration-150 z-10 bg-gradient-to-b from-gray-100/95 to-transparent dark:from-gray-900/90',
-                'dark:hidden',
-                showTopOverlay ? 'opacity-100' : 'opacity-0',
-              )}
-            />
-
+          <ScrollArea ref={scrollAreaRef} className="flex-1 relative">
             <div className="p-2 space-y-0.5 relative">
               {isLoading
                 ? (
                     <div className="space-y-1">
-                      {Array.from({ length: 8 }).map((_, i) => (
-                        <div key={`skeleton-${i}`} className="flex items-center gap-2 px-3 py-2">
+                      {SKELETON_PLACEHOLDERS.map(key => (
+                        <div key={key} className="flex items-center gap-2 px-3 py-2">
                           <Skeleton className="w-4 h-4 rounded-sm flex-shrink-0 bg-gray-300 dark:bg-gray-700" />
                           <Skeleton className="h-4 flex-1 bg-gray-300 dark:bg-gray-700" />
                         </div>

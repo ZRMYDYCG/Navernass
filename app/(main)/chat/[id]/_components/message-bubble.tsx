@@ -11,7 +11,6 @@ import { MarkdownRenderer } from './markdown-renderer'
 
 interface MessageBubbleProps {
   message: Message
-  isStreaming?: boolean
   onCopy?: (message: Message) => void
   onShare?: (message: Message) => void
   isShareMode?: boolean
@@ -22,7 +21,6 @@ interface MessageBubbleProps {
 
 export function MessageBubble({
   message,
-  isStreaming = false,
   onCopy,
   onShare,
   isShareMode = false,
@@ -78,14 +76,7 @@ export function MessageBubble({
                   <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                 )
               : (
-                  <div
-                    className={cn(
-                      'text-sm relative',
-                      isStreaming
-                        ? 'after:content-[""] after:pointer-events-none after:absolute after:top-0 after:right-0 after:h-full after:w-12 after:bg-gradient-to-r after:from-transparent after:via-white/70 after:to-white dark:after:via-gray-800/60 dark:after:to-gray-900 after:animate-pulse'
-                        : '',
-                    )}
-                  >
+                  <div className="text-sm relative">
                     <MarkdownRenderer content={displayedContent} />
                   </div>
                 )}

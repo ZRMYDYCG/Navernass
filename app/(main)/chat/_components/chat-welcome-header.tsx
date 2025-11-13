@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
+import { ThemeSection } from '@/components/theme-select'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -162,56 +163,60 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* 对话页面显示分享按钮 */}
           {isConversationPage && (
-            isLoadingTitle
-              ? (
-                  <Skeleton className="w-8 h-8 rounded-md" />
-                )
-              : (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={isShareMode ? 'secondary' : 'ghost'}
-                        size="icon-sm"
-                        className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer aria-pressed:text-primary"
-                        onClick={handleShareClick}
-                        aria-label="分享对话"
-                        aria-pressed={isShareMode}
-                      >
-                        <Share2 className="w-5 h-5" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{isShareMode ? '退出分享模式' : '分享对话'}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )
+            <>
+              {isLoadingTitle
+                ? (
+                    <Skeleton className="w-8 h-8 rounded-md" />
+                  )
+                : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={isShareMode ? 'secondary' : 'ghost'}
+                          size="icon-sm"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer aria-pressed:text-primary"
+                          onClick={handleShareClick}
+                          aria-label="分享对话"
+                          aria-pressed={isShareMode}
+                        >
+                          <Share2 className="w-5 h-5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{isShareMode ? '退出分享模式' : '分享对话'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+
+              {isLoadingTitle
+                ? (
+                    <Skeleton className="w-8 h-8 rounded-md" />
+                  )
+                : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="relative text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer"
+                          onClick={() => router.push('/chat/news')}
+                          aria-label="产品更新动态"
+                        >
+                          <Bell className="w-5 h-5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>产品更新动态</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+
+              <div className="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
+            </>
           )}
 
-          {/* 通知按钮 */}
-          {isConversationPage && isLoadingTitle
-            ? (
-                <Skeleton className="w-8 h-8 rounded-md" />
-              )
-            : (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="relative text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer"
-                      onClick={() => router.push('/chat/news')}
-                      aria-label="产品更新动态"
-                    >
-                      <Bell className="w-5 h-5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>产品更新动态</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
+          <ThemeSection />
         </div>
       </header>
 

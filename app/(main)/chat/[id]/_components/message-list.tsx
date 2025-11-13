@@ -38,7 +38,6 @@ export function MessageList({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
   const [showScrollButton, setShowScrollButton] = useState(false)
-  const [showTopOverlay, setShowTopOverlay] = useState(false)
   const [_isUserScrolling, setIsUserScrolling] = useState(false)
   const isNearBottomRef = useRef(true)
 
@@ -77,8 +76,6 @@ export function MessageList({
       setShowScrollButton(false)
       setIsUserScrolling(false)
     }
-
-    setShowTopOverlay(scrollContainer.scrollTop > 4)
   }, [checkIfNearBottom])
 
   // 当有新消息时，自动滚动到底部
@@ -130,9 +127,6 @@ export function MessageList({
   return (
     <div className="relative flex-1 h-full">
       <ScrollArea ref={scrollAreaRef} className="relative h-full w-full">
-        <div
-          className={`pointer-events-none absolute inset-x-0 top-0 h-8 transition-opacity duration-150 z-10 bg-gradient-to-b from-white/95 via-white/70 to-transparent dark:hidden ${showTopOverlay ? 'opacity-100' : 'opacity-0'}`}
-        />
         <div className="max-w-4xl mx-auto">
           {messages.length === 0 && isLoading && (
             <div className="w-full space-y-6 py-4">
@@ -209,17 +203,17 @@ export function MessageList({
             <div className="space-y-1">
               {messages.map((message, index) => {
                 const isLastMessage = index === messages.length - 1
+                const shouldAlwaysShowActions = isShareMode || (isLastMessage && !streamingMessageId && !isLoading)
                 return (
                   <MessageBubble
                     key={message.id}
                     message={message}
-                    isStreaming={streamingMessageId === message.id}
                     onCopy={onCopyMessage}
                     onShare={onShareMessage}
                     isShareMode={isShareMode}
                     isSelected={selectedMessageIds.includes(message.id)}
                     onToggleSelect={onToggleSelectMessage}
-                    alwaysShowActions={isShareMode || isLastMessage}
+                    alwaysShowActions={shouldAlwaysShowActions}
                   />
                 )
               })}

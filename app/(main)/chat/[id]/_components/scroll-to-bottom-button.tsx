@@ -18,7 +18,7 @@ export function ScrollToBottomButton({ onClick, show }: ScrollToBottomButtonProp
       <Button
         onClick={onClick}
         size="icon"
-        className="h-10 w-10 rounded-full shadow-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+        className="h-10 w-10 rounded-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
         variant="outline"
       >
         <ArrowDown className="w-5 h-5" />

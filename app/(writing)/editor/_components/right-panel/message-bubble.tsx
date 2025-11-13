@@ -7,10 +7,9 @@ import { Avatar } from '@/components/ui/avatar'
 
 interface MessageBubbleProps {
   message: NovelMessage
-  isStreaming?: boolean
 }
 
-export function MessageBubble({ message, isStreaming = false }: MessageBubbleProps) {
+export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
@@ -43,13 +42,7 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
                 <p className="whitespace-pre-wrap break-words">{message.content}</p>
               )
             : (
-                <div
-                  className={`relative ${
-                    isStreaming
-                      ? 'after:content-[""] after:absolute after:bottom-0 after:right-0 after:w-12 after:h-6 after:bg-gradient-to-r after:from-transparent after:to-white dark:after:to-gray-800 after:animate-pulse after:pointer-events-none'
-                      : ''
-                  }`}
-                >
+                <div className="relative">
                   <MarkdownRenderer content={displayedContent} />
                 </div>
               )}
