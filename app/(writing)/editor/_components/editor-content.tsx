@@ -1,10 +1,10 @@
 import type { Chapter } from '@/lib/supabase/sdk'
-import { ChevronRight } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { TiptapEditor } from '@/components/tiptap'
 import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi } from '@/lib/supabase/sdk'
+import { Breadcrumb } from './breadcrumb'
 import { SmartTabs } from './smart-tabs'
 
 interface Tab {
@@ -170,6 +170,9 @@ export default function EditorContent({
         onTabClose={onTabClose}
       />
 
+      {/* 面包屑导航 */}
+      <Breadcrumb novelTitle={novelTitle} chapterTitle={chapterTitle} />
+
       {/* 编辑器内容区域 */}
       <div className="flex-1 overflow-y-auto p-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {loading
@@ -195,12 +198,7 @@ export default function EditorContent({
       </div>
 
       {/* 底部状态栏 */}
-      <div className="h-10 px-6 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500 dark:text-gray-400">{novelTitle}</span>
-          <ChevronRight className="w-3 h-3 text-gray-400" />
-          <span className="text-xs text-gray-700 dark:text-gray-300">{chapterTitle}</span>
-        </div>
+      <div className="h-10 px-6 flex items-center justify-end bg-gray-50 dark:bg-gray-800/50">
         <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
           <span>
             字数：
