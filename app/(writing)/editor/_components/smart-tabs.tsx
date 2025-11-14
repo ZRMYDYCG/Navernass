@@ -135,6 +135,12 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
           .smart-tabs-container::-webkit-scrollbar {
             display: none;
           }
+          .smart-tabs-container .group {
+            --close-btn-padding: 1rem;
+          }
+          .smart-tabs-container .group:hover {
+            --close-btn-padding: 2rem;
+          }
         `}
         </style>
         {tabs.map((tab) => {
@@ -145,24 +151,27 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
               key={tab.id}
               ref={isActive ? activeTabRef : null}
               onClick={() => onTabChange(tab.id)}
-              className={`group relative flex items-center gap-0 px-4 py-2.5 cursor-pointer transition-all duration-200 flex-shrink-0 ${
+              className={`group relative flex items-center px-4 py-2.5 cursor-pointer transition-all duration-200 flex-shrink-0 ${
                 isActive
                   ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100'
                   : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100'
               }`}
+              style={{
+                paddingRight: 'var(--close-btn-padding, 1rem)',
+              }}
             >
               <span className="text-sm truncate max-w-[150px] transition-all duration-200 group-hover:max-w-[130px]">
                 {tab.title}
               </span>
 
-              {/* 关闭按钮 - 从右侧滑入 */}
+              {/* 关闭按钮 - 绝对定位，不占据空间，悬停时显示并撑开 */}
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation()
                   onTabClose(tab.id)
                 }}
-                className="ml-1 p-1 rounded transition-all duration-200 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 hover:bg-gray-200 dark:hover:bg-gray-700"
+                className="absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 hover:bg-gray-200 dark:hover:bg-gray-700 pointer-events-none group-hover:pointer-events-auto cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
