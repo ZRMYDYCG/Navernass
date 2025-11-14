@@ -390,6 +390,9 @@ export default function NovelsEdit() {
                           novelTitle={novel.title}
                           chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
                           chapterId={activeTab}
+                          volumes={volumes}
+                          chapters={chapters}
+                          onSelectChapter={handleSelectChapter}
                         />
                       )}
                 </div>
@@ -482,6 +485,9 @@ export default function NovelsEdit() {
                             novelTitle={novel.title}
                             chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
                             chapterId={activeTab}
+                            volumes={volumes}
+                            chapters={chapters}
+                            onSelectChapter={handleSelectChapter}
                           />
                         )}
                   </ResizablePanel>

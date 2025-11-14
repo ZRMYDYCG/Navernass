@@ -1,5 +1,5 @@
-import type { Chapter } from '@/lib/supabase/sdk'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Chapter, Volume } from '@/lib/supabase/sdk'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { TiptapEditor } from '@/components/tiptap'
 import { Spinner } from '@/components/ui/spinner'
@@ -20,7 +20,12 @@ interface EditorContentProps {
   novelTitle: string
   chapterTitle: string
   chapterId: string
+  volumes?: Volume[]
+  chapters?: Chapter[]
+  onSelectChapter?: (chapterId: string) => void
 }
+
+const EMPTY_ARRAY: never[] = []
 
 export default function EditorContent({
   openTabs,
@@ -30,6 +35,9 @@ export default function EditorContent({
   novelTitle,
   chapterTitle,
   chapterId,
+  volumes = EMPTY_ARRAY,
+  chapters = EMPTY_ARRAY,
+  onSelectChapter,
 }: EditorContentProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
@@ -39,6 +47,12 @@ export default function EditorContent({
   const [loading, setLoading] = useState(true)
   const editorContentRef = useRef<string>('')
   const isSavingRef = useRef(false)
+
+  // 找到当前章节所属的卷
+  const currentVolume = useMemo(() => {
+    if (!chapter?.volume_id) return null
+    return volumes.find(v => v.id === chapter.volume_id) || null
+  }, [chapter?.volume_id, volumes])
 
   // 加载章节内容
   useEffect(() => {
@@ -171,7 +185,14 @@ export default function EditorContent({
       />
 
       {/* 面包屑导航 */}
-      <Breadcrumb novelTitle={novelTitle} chapterTitle={chapterTitle} />
+      <Breadcrumb
+        novelTitle={novelTitle}
+        chapterTitle={chapterTitle}
+        volume={currentVolume}
+        chapters={chapters}
+        currentChapterId={chapterId}
+        onSelectChapter={onSelectChapter}
+      />
 
       {/* 编辑器内容区域 */}
       <div className="flex-1 overflow-y-auto p-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
