@@ -68,7 +68,30 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
           <button
             type="button"
-            onClick={onAIClick}
+            onMouseDown={(e) => {
+              // 阻止默认行为，防止失去焦点
+              e.preventDefault()
+              // 保存当前选中状态（在点击前保存，因为点击可能会改变选中状态）
+              const { from, to } = editor.state.selection
+              const savedSelection = from !== to ? { from, to } : null
+
+              // 立即恢复选中状态和焦点
+              if (savedSelection) {
+                // 使用 setTimeout 0 确保在浏览器处理点击事件后恢复
+                setTimeout(() => {
+                  editor.chain().focus().setTextSelection({ from: savedSelection.from, to: savedSelection.to }).run()
+                  // 然后再触发 AI 点击
+                  requestAnimationFrame(() => {
+                    onAIClick?.()
+                  })
+                }, 0)
+              } else {
+                editor.chain().focus().run()
+                requestAnimationFrame(() => {
+                  onAIClick?.()
+                })
+              }
+            }}
             disabled={isAILoading}
             className={`p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
               isAIActive || isAILoading

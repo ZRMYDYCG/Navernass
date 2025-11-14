@@ -1,8 +1,11 @@
 'use client'
 
+import type { Editor } from '@tiptap/react'
+
 interface AIMenuRightProps {
   onPresetAction: (prompt: string) => void
   isLoading: boolean
+  editor?: Editor | null
 }
 
 interface MenuItem {
@@ -19,8 +22,19 @@ const menuItems: MenuItem[] = [
   { label: '继续写', prompt: '继续写', icon: '✏️' },
 ]
 
-export function AIMenuRight({ onPresetAction, isLoading }: AIMenuRightProps) {
+export function AIMenuRight({ onPresetAction, isLoading, editor }: AIMenuRightProps) {
   const handleClick = (item: MenuItem) => {
+    // 保持编辑器的焦点和选中状态
+    if (editor) {
+      const { from, to } = editor.state.selection
+      // 如果有选中文本，保持选中状态
+      if (from !== to) {
+        editor.chain().focus().setTextSelection({ from, to }).run()
+      } else {
+        editor.chain().focus().run()
+      }
+    }
+
     if (!isLoading) {
       onPresetAction(item.prompt)
     }

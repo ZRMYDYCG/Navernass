@@ -36,9 +36,41 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
   // 当 showAI 为 true 时，自动显示输入框
   useEffect(() => {
     if (showAI && !showInput) {
-      requestAnimationFrame(() => {
-        setShowInput(true)
-      })
+      // 保存当前选中范围
+      if (editor) {
+        const { from, to } = editor.state.selection
+        if (from !== to) {
+          lastSelectionRef.current = { from, to }
+        }
+        // 如果有保存的选中范围，恢复它；否则使用当前的选中状态
+        const selectionToRestore = lastSelectionRef.current || (from !== to ? { from, to } : null)
+
+        if (selectionToRestore) {
+          // 保持编辑器的焦点和选中状态
+          requestAnimationFrame(() => {
+            editor.chain().focus().setTextSelection({
+              from: selectionToRestore.from,
+              to: selectionToRestore.to,
+            }).run()
+            requestAnimationFrame(() => {
+              setShowInput(true)
+              // 再次确保选中状态保持
+              editor.chain().focus().setTextSelection({
+                from: selectionToRestore.from,
+                to: selectionToRestore.to,
+              }).run()
+            })
+          })
+        } else {
+          requestAnimationFrame(() => {
+            setShowInput(true)
+          })
+        }
+      } else {
+        requestAnimationFrame(() => {
+          setShowInput(true)
+        })
+      }
     } else if (!showAI && showInput) {
       requestAnimationFrame(() => {
         setShowInput(false)
@@ -46,7 +78,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
         resetAI()
       })
     }
-  }, [showAI, showInput, resetAI])
+  }, [showAI, showInput, resetAI, editor])
 
   // 监听选中文本变化
   useEffect(() => {
@@ -59,6 +91,18 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
       if (!hasSelection) {
         // 如果没有选中文本，且之前有选中，说明选中了其他文本（或取消选中）
         if (lastSelectionRef.current) {
+          // 如果 AI 菜单是打开的，尝试恢复选中状态
+          if (showInput && lastSelectionRef.current) {
+            // 只有在用户没有主动取消选中时才恢复（通过检查是否真的没有选中）
+            const { from: savedFrom, to: savedTo } = lastSelectionRef.current
+            // 检查保存的选中范围是否仍然有效
+            const docSize = editor.state.doc.content.size
+            if (savedFrom >= 0 && savedTo <= docSize && savedFrom < savedTo) {
+              // 恢复选中状态
+              editor.chain().focus().setTextSelection({ from: savedFrom, to: savedTo }).run()
+              return
+            }
+          }
           setShow(false)
           setShowInput(false)
           lastSelectionRef.current = null
@@ -83,6 +127,8 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
       } else {
         // 如果是相同的选中，保持显示状态
         setShow(true)
+        // 更新保存的选中范围
+        lastSelectionRef.current = { from, to }
       }
     }
 
@@ -95,19 +141,106 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
     }
   }, [editor, showInput, resetAI])
 
+  // 当显示 AI 菜单时，持续保持选中状态
+  useEffect(() => {
+    if (!editor || !showInput || !lastSelectionRef.current) return
+
+    // 定期检查并恢复选中状态（如果丢失）
+    const interval = setInterval(() => {
+      if (!lastSelectionRef.current) return
+
+      const { from, to } = editor.state.selection
+      const { from: savedFrom, to: savedTo } = lastSelectionRef.current
+
+      // 如果选中状态丢失了，恢复它
+      if (from === to && savedFrom !== savedTo) {
+        const docSize = editor.state.doc.content.size
+        if (savedFrom >= 0 && savedTo <= docSize && savedFrom < savedTo) {
+          editor.chain().focus().setTextSelection({ from: savedFrom, to: savedTo }).run()
+        }
+      } else if (from !== to && (from !== savedFrom || to !== savedTo)) {
+        // 如果选中状态改变了，但不是用户主动改变的（比如点击了其他地方），恢复原来的选中
+        // 这里我们只在选中完全丢失时才恢复，如果用户选择了新的文本，我们尊重用户的选择
+        // 但如果是相同的选中范围，我们保持它
+      }
+    }, 50) // 每 50ms 检查一次
+
+    // 监听编辑器点击事件
+    const handleEditorClick = () => {
+      if (!lastSelectionRef.current) return
+
+      const { from, to } = editor.state.selection
+      const { from: savedFrom, to: savedTo } = lastSelectionRef.current
+
+      // 如果选中状态丢失了，恢复它
+      if (from === to && savedFrom !== savedTo) {
+        const docSize = editor.state.doc.content.size
+        if (savedFrom >= 0 && savedTo <= docSize && savedFrom < savedTo) {
+          requestAnimationFrame(() => {
+            editor.chain().focus().setTextSelection({ from: savedFrom, to: savedTo }).run()
+          })
+        }
+      }
+    }
+
+    const editorElement = editor.view.dom
+    editorElement.addEventListener('mousedown', handleEditorClick)
+    editorElement.addEventListener('touchstart', handleEditorClick)
+
+    return () => {
+      clearInterval(interval)
+      editorElement.removeEventListener('mousedown', handleEditorClick)
+      editorElement.removeEventListener('touchstart', handleEditorClick)
+    }
+  }, [editor, showInput])
+
+  // 恢复选中状态的辅助函数
+  const restoreSelection = () => {
+    if (!editor) return
+
+    // 首先检查当前是否有选中状态，如果有，更新保存的选中范围
+    const { from: currentFrom, to: currentTo } = editor.state.selection
+    if (currentFrom !== currentTo) {
+      lastSelectionRef.current = { from: currentFrom, to: currentTo }
+      editor.chain().focus().setTextSelection({ from: currentFrom, to: currentTo }).run()
+      return
+    }
+
+    // 如果当前没有选中，但之前保存了选中范围，尝试恢复
+    if (lastSelectionRef.current) {
+      const { from, to } = lastSelectionRef.current
+      const docSize = editor.state.doc.content.size
+      if (from >= 0 && to <= docSize && from < to) {
+        editor.chain().focus().setTextSelection({ from, to }).run()
+      }
+    }
+  }
+
   // 处理自定义 AI 提示
   const handleCustomAI = () => {
     if (!aiPrompt.trim()) return
-    handleAI(aiPrompt)
+    // 在调用 AI 之前，先恢复选中状态
+    restoreSelection()
+    // 使用 requestAnimationFrame 确保选中状态恢复后再调用 AI
+    requestAnimationFrame(() => {
+      handleAI(aiPrompt)
+    })
   }
 
   // 处理预设 AI 操作
   const handlePresetAI = (prompt: string) => {
-    handleAI(prompt)
+    // 在调用 AI 之前，先恢复选中状态
+    restoreSelection()
+    // 使用 requestAnimationFrame 确保选中状态恢复后再调用 AI
+    requestAnimationFrame(() => {
+      handleAI(prompt)
+    })
   }
 
   // 处理编辑调整选中内容（显示右侧菜单）
   const handleEditAdjust = () => {
+    // 保持选中状态
+    restoreSelection()
     setShowEditMenu(true)
   }
 
@@ -121,6 +254,16 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
         show={showInput}
         onToggle={() => {
           if (!showInput) {
+            // 保存当前选中范围并保持焦点
+            if (editor) {
+              const { from, to } = editor.state.selection
+              if (from !== to) {
+                lastSelectionRef.current = { from, to }
+                editor.chain().focus().setTextSelection({ from, to }).run()
+              } else {
+                editor.chain().focus().run()
+              }
+            }
             setShowInput(true)
           } else {
             setShowInput(false)
@@ -146,6 +289,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
             onPresetAction={handlePresetAI}
             onEditAdjust={handleEditAdjust}
             isLoading={isAILoading}
+            editor={editor}
           />
 
           {/* 右侧菜单 - 只在点击"编辑调整选中内容"时显示 */}
@@ -153,6 +297,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
             <AIMenuRight
               onPresetAction={handlePresetAI}
               isLoading={isAILoading}
+              editor={editor}
             />
           )}
         </div>

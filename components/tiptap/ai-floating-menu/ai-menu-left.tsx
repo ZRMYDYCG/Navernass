@@ -1,11 +1,13 @@
 'use client'
 
+import type { Editor } from '@tiptap/react'
 import { ChevronRight } from 'lucide-react'
 
 interface AIMenuLeftProps {
   onPresetAction: (prompt: string) => void
   onEditAdjust?: () => void
   isLoading: boolean
+  editor?: Editor | null
 }
 
 interface MenuItem {
@@ -22,8 +24,19 @@ const editItems: MenuItem[] = [
   { label: '根据选区内容写', prompt: '根据内容写' },
 ]
 
-export function AIMenuLeft({ onPresetAction, onEditAdjust, isLoading }: AIMenuLeftProps) {
+export function AIMenuLeft({ onPresetAction, onEditAdjust, isLoading, editor }: AIMenuLeftProps) {
   const handleClick = (item: MenuItem) => {
+    // 保持编辑器的焦点和选中状态
+    if (editor) {
+      const { from, to } = editor.state.selection
+      // 如果有选中文本，保持选中状态
+      if (from !== to) {
+        editor.chain().focus().setTextSelection({ from, to }).run()
+      } else {
+        editor.chain().focus().run()
+      }
+    }
+
     if (item.hasSubmenu) {
       // 如果是"编辑调整选中内容"，显示右侧菜单
       if (item.label === '编辑调整选中内容' && onEditAdjust) {

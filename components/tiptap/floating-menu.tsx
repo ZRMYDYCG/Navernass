@@ -114,7 +114,27 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
       >
         <FormatToolbar
           editor={editor}
-          onAIClick={() => setShowAI(!showAI)}
+          onAIClick={() => {
+            // 保存当前选中状态
+            if (editor) {
+              const { from, to } = editor.state.selection
+              if (from !== to) {
+                lastSelectionRef.current = { from, to }
+              }
+            }
+            // 切换 AI 显示状态
+            const newShowAI = !showAI
+            setShowAI(newShowAI)
+            // 在下一个事件循环中恢复选中状态，确保 AI 菜单显示后选中状态保持
+            if (newShowAI && lastSelectionRef.current) {
+              requestAnimationFrame(() => {
+                if (editor && lastSelectionRef.current) {
+                  const { from, to } = lastSelectionRef.current
+                  editor.chain().focus().setTextSelection({ from, to }).run()
+                }
+              })
+            }
+          }}
           isAIActive={showAI}
         />
 
