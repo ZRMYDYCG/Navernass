@@ -2,6 +2,7 @@
 
 import { X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { TabContextMenu } from './tab-context-menu'
 
 interface Tab {
   id: string
@@ -13,14 +14,31 @@ interface SmartTabsProps {
   activeTab: string | null
   onTabChange: (tabId: string) => void
   onTabClose: (tabId: string) => void
+  onTabCloseOthers?: (tabId: string) => void
+  onTabCloseAll?: () => void
+  onTabCloseLeft?: (tabId: string) => void
+  onTabCloseRight?: (tabId: string) => void
 }
 
-export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTabsProps) {
+export function SmartTabs({
+  tabs,
+  activeTab,
+  onTabChange,
+  onTabClose,
+  onTabCloseOthers,
+  onTabCloseAll,
+  onTabCloseLeft,
+  onTabCloseRight,
+}: SmartTabsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const activeTabRef = useRef<HTMLDivElement>(null)
   const [showScrollbar, setShowScrollbar] = useState(false)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [scrollbarLeft, setScrollbarLeft] = useState(0)
+  const [contextMenu, setContextMenu] = useState<{
+    tab: Tab
+    position: { x: number, y: number }
+  } | null>(null)
 
   // 自动滚动到激活的 Tab
   const scrollToActiveTab = useCallback(() => {
@@ -115,6 +133,40 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
     }
   }, [tabs, updateScrollbar])
 
+  // 处理右键菜单
+  const handleContextMenu = (e: React.MouseEvent, tab: Tab) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setContextMenu({
+      tab,
+      position: { x: e.clientX, y: e.clientY },
+    })
+  }
+
+  // 关闭右键菜单
+  const handleCloseContextMenu = () => {
+    setContextMenu(null)
+  }
+
+  // 点击外部关闭菜单
+  useEffect(() => {
+    if (!contextMenu) return
+
+    const handleClickOutside = () => {
+      setContextMenu(null)
+    }
+
+    // 延迟执行，避免立即触发
+    const timer = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside)
+    }, 0)
+
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [contextMenu])
+
   return (
     <div
       className="relative bg-white dark:bg-gray-900"
@@ -151,6 +203,7 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
               key={tab.id}
               ref={isActive ? activeTabRef : null}
               onClick={() => onTabChange(tab.id)}
+              onContextMenu={e => handleContextMenu(e, tab)}
               className={`group relative flex items-center px-4 py-2.5 cursor-pointer transition-all duration-200 flex-shrink-0 ${
                 isActive
                   ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100'
@@ -199,6 +252,21 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
           }}
         />
       </div>
+
+      {/* 右键菜单 */}
+      {contextMenu && (
+        <TabContextMenu
+          tab={contextMenu.tab}
+          tabs={tabs}
+          position={contextMenu.position}
+          onClose={onTabClose}
+          onCloseOthers={onTabCloseOthers || onTabClose}
+          onCloseAll={onTabCloseAll || (() => {})}
+          onCloseLeft={onTabCloseLeft || onTabClose}
+          onCloseRight={onTabCloseRight || onTabClose}
+          onCloseMenu={handleCloseContextMenu}
+        />
+      )}
     </div>
   )
 }

@@ -17,6 +17,10 @@ interface EditorContentProps {
   activeTab: string
   onTabChange: (id: string) => void
   onTabClose: (id: string) => void
+  onTabCloseOthers?: (id: string) => void
+  onTabCloseAll?: () => void
+  onTabCloseLeft?: (id: string) => void
+  onTabCloseRight?: (id: string) => void
   novelTitle: string
   chapterTitle: string
   chapterId: string
@@ -32,6 +36,10 @@ export default function EditorContent({
   activeTab,
   onTabChange,
   onTabClose,
+  onTabCloseOthers,
+  onTabCloseAll,
+  onTabCloseLeft,
+  onTabCloseRight,
   novelTitle,
   chapterTitle,
   chapterId,
@@ -186,6 +194,10 @@ export default function EditorContent({
         activeTab={activeTab}
         onTabChange={onTabChange}
         onTabClose={onTabClose}
+        onTabCloseOthers={onTabCloseOthers}
+        onTabCloseAll={onTabCloseAll}
+        onTabCloseLeft={onTabCloseLeft}
+        onTabCloseRight={onTabCloseRight}
       />
 
       {/* 面包屑导航 */}

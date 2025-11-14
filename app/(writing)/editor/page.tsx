@@ -163,6 +163,50 @@ export default function NovelsEdit() {
     }
   }
 
+  // 关闭其他标签页
+  const closeOtherTabs = (tabId: string) => {
+    const tabToKeep = openTabs.find(tab => tab.id === tabId)
+    if (!tabToKeep) return
+
+    setOpenTabs([tabToKeep])
+    setActiveTab(tabId)
+    setSelectedChapter(tabId)
+  }
+
+  // 关闭所有标签页
+  const closeAllTabs = () => {
+    setOpenTabs([])
+    setActiveTab(null)
+    setSelectedChapter(null)
+  }
+
+  // 关闭左侧标签页
+  const closeLeftTabs = (tabId: string) => {
+    const currentIndex = openTabs.findIndex(tab => tab.id === tabId)
+    if (currentIndex <= 0) return // 没有左侧标签页
+
+    const newTabs = openTabs.slice(currentIndex)
+    setOpenTabs(newTabs)
+    if (activeTab !== tabId) {
+      setActiveTab(tabId)
+      setSelectedChapter(tabId)
+    }
+  }
+
+  // 关闭右侧标签页
+  const closeRightTabs = (tabId: string) => {
+    const currentIndex = openTabs.findIndex(tab => tab.id === tabId)
+    if (currentIndex < 0 || currentIndex === openTabs.length - 1) return // 没有右侧标签页
+
+    const newTabs = openTabs.slice(0, currentIndex + 1)
+    setOpenTabs(newTabs)
+    // 如果当前激活的标签页在右侧，需要切换到当前标签页
+    if (activeTab !== tabId && !newTabs.find(tab => tab.id === activeTab)) {
+      setActiveTab(tabId)
+      setSelectedChapter(tabId)
+    }
+  }
+
   // 打开创建章节对话框
   const handleOpenCreateChapterDialog = () => {
     setNewChapterTitle('')
@@ -387,6 +431,10 @@ export default function NovelsEdit() {
                           activeTab={activeTab}
                           onTabChange={setActiveTab}
                           onTabClose={closeTab}
+                          onTabCloseOthers={closeOtherTabs}
+                          onTabCloseAll={closeAllTabs}
+                          onTabCloseLeft={closeLeftTabs}
+                          onTabCloseRight={closeRightTabs}
                           novelTitle={novel.title}
                           chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
                           chapterId={activeTab}
