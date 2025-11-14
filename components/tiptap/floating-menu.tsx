@@ -14,9 +14,17 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const [showAI, setShowAI] = useState(false)
   const lastSelectionRef = useRef<{ from: number, to: number } | null>(null)
+  const containerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     if (!editor) return
+
+    // 获取编辑器容器元素（有 relative 类的父容器）
+    const editorElement = editor.view.dom
+    const containerElement = editorElement.closest('.relative') as HTMLElement | null
+    if (containerElement) {
+      containerRef.current = containerElement
+    }
 
     const updateMenu = () => {
       const { from, to } = editor.state.selection
@@ -53,13 +61,19 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
         const { state } = view
         const { selection } = state
 
-        // ProseMirror 的坐标系统获取位置
+        // ProseMirror 的坐标系统获取位置（相对于视口）
         const start = view.coordsAtPos(selection.from)
         const end = view.coordsAtPos(selection.to)
 
-        // 计算选中文本的底部中心位置
-        const top = end.bottom + window.scrollY + 10
-        const left = (start.left + end.right) / 2 + window.scrollX
+        // 获取编辑器容器的位置（相对于视口）
+        const container = containerRef.current || editorElement.parentElement
+        if (!container) return
+
+        const containerRect = container.getBoundingClientRect()
+
+        // 计算选中文本的底部中心位置（相对于容器）
+        const top = end.bottom - containerRect.top + container.scrollTop + 10
+        const left = (start.left + end.right) / 2 - containerRect.left + container.scrollLeft
 
         requestAnimationFrame(() => {
           setPosition({ top, left })
@@ -85,13 +99,22 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
     editor.on('selectionUpdate', updateMenu)
     editor.on('update', updateMenu)
 
-    // 监听窗口滚动
+    // 获取可滚动的父容器（通常是编辑器内容区域）
+    const scrollContainer = editorElement.closest('[class*="overflow"]') as HTMLElement | null
+
+    // 监听滚动（容器内滚动和窗口滚动）
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll, true)
+    }
     window.addEventListener('scroll', handleScroll, true)
     window.addEventListener('resize', handleScroll)
 
     return () => {
       editor.off('selectionUpdate', updateMenu)
       editor.off('update', updateMenu)
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll, true)
+      }
       window.removeEventListener('scroll', handleScroll, true)
       window.removeEventListener('resize', handleScroll)
     }
@@ -104,11 +127,11 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
       {/* 格式化工具栏 */}
       <div
         style={{
-          position: 'fixed',
+          position: 'absolute',
           top: `${position.top}px`,
           left: `${position.left}px`,
           transform: 'translateX(-50%)',
-          zIndex: 50,
+          zIndex: 10,
         }}
         className="flex flex-col items-center gap-2"
       >
