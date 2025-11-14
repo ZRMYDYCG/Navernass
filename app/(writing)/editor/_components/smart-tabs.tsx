@@ -117,7 +117,7 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
 
   return (
     <div
-      className="group relative bg-white dark:bg-gray-900"
+      className="relative bg-white dark:bg-gray-900"
       onMouseEnter={() => setShowScrollbar(true)}
       onMouseLeave={() => setShowScrollbar(false)}
     >
@@ -145,9 +145,9 @@ export function SmartTabs({ tabs, activeTab, onTabChange, onTabClose }: SmartTab
               key={tab.id}
               ref={isActive ? activeTabRef : null}
               onClick={() => onTabChange(tab.id)}
-              className={`group relative flex items-center gap-0 px-4 py-2.5 border-r border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-200 flex-shrink-0 ${
+              className={`group relative flex items-center gap-0 px-4 py-2.5 cursor-pointer transition-all duration-200 flex-shrink-0 ${
                 isActive
-                  ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100'
+                  ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100'
                   : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100'
               }`}
             >
