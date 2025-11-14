@@ -48,11 +48,15 @@ export default function EditorContent({
   const editorContentRef = useRef<string>('')
   const isSavingRef = useRef(false)
 
-  // 找到当前章节所属的卷
+  // 找到当前章节所属的卷（优先使用传入的 chapters 数据，不等待加载）
   const currentVolume = useMemo(() => {
-    if (!chapter?.volume_id) return null
-    return volumes.find(v => v.id === chapter.volume_id) || null
-  }, [chapter?.volume_id, volumes])
+    // 先从传入的 chapters 中查找当前章节
+    const currentChapterData = chapters.find(c => c.id === chapterId)
+    const volumeId = currentChapterData?.volume_id || chapter?.volume_id
+
+    if (!volumeId) return null
+    return volumes.find(v => v.id === volumeId) || null
+  }, [chapterId, chapters, chapter?.volume_id, volumes])
 
   // 加载章节内容
   useEffect(() => {
