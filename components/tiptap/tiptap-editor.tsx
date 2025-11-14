@@ -50,6 +50,19 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     setGlobalDialog(showInputDialog)
   }, [showInputDialog])
 
+  // 计算统计数据的辅助函数
+  const calculateStats = (text: string) => {
+    // 字符数：包括所有字符（包括标点符号、空格等）
+    const characters = text.length
+    // 字数：只统计中文字符和英文字母（不包括标点符号、数字、空格等）
+    // 匹配中文字符和英文单词
+    const chineseChars = (text.match(/[\u4E00-\u9FA5]/g) || []).length
+    const englishWords = (text.match(/[a-z]+/gi) || []).length
+    const words = chineseChars + englishWords
+
+    return { words, characters }
+  }
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -85,10 +98,9 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     onUpdate: ({ editor }) => {
       // 更新字数统计
       if (onStatsChange) {
-        onStatsChange({
-          words: editor.storage.characterCount.words(),
-          characters: editor.storage.characterCount.characters(),
-        })
+        const text = editor.getText()
+        const stats = calculateStats(text)
+        onStatsChange(stats)
       }
 
       if (onUpdate) {
@@ -105,6 +117,15 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       }
     },
   })
+
+  // 初始化时和内容变化时计算统计
+  useEffect(() => {
+    if (editor && onStatsChange) {
+      const text = editor.getText()
+      const stats = calculateStats(text)
+      onStatsChange(stats)
+    }
+  }, [editor, onStatsChange, content])
 
   useEffect(() => {
     return () => {
