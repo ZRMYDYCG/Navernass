@@ -300,7 +300,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
   if ((!show && !showInput) || !editor) return null
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-1.5">
       {/* AI 输入框 */}
       <AIInputBox
         show={showInput}

@@ -38,23 +38,23 @@ export function AIInputBox({
         type="button"
         onClick={onToggle}
         disabled={isLoading}
-        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
       >
-        <Star className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-        <span className="text-sm text-gray-700 dark:text-gray-300">向智能助手提问...</span>
+        <Star className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+        <span className="text-xs text-gray-700 dark:text-gray-300">向智能助手提问...</span>
         <div className="ml-auto">
           {mounted
             ? (
                 <Image
                   src={isDark ? '/assets/svg/logo-dark.svg' : '/assets/svg/logo-light.svg'}
                   alt="AI"
-                  width={16}
-                  height={16}
+                  width={12}
+                  height={12}
                   className="object-contain"
                 />
               )
             : (
-                <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+                <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
               )}
         </div>
       </button>
@@ -62,9 +62,9 @@ export function AIInputBox({
   }
 
   return (
-    <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl w-[420px] overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-200 dark:border-gray-700">
-        <Star className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+    <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-xl w-[320px] overflow-hidden">
+      <div className="flex items-center gap-1.5 px-2.5 py-1.5 border-b border-gray-200 dark:border-gray-700">
+        <Star className="w-3 h-3 text-gray-500 dark:text-gray-400" />
         <input
           type="text"
           value={prompt}
@@ -78,7 +78,7 @@ export function AIInputBox({
           placeholder="向智能助手提问..."
           autoFocus
           disabled={isLoading}
-          className="flex-1 bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none disabled:opacity-50"
+          className="flex-1 bg-transparent text-xs text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none disabled:opacity-50"
         />
         <div>
           {mounted
@@ -86,13 +86,13 @@ export function AIInputBox({
                 <Image
                   src={isDark ? '/assets/svg/logo-dark.svg' : '/assets/svg/logo-light.svg'}
                   alt="AI"
-                  width={16}
-                  height={16}
+                  width={12}
+                  height={12}
                   className="object-contain"
                 />
               )
             : (
-                <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+                <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
               )}
         </div>
       </div>
