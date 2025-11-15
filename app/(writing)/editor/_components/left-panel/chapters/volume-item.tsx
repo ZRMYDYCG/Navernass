@@ -4,7 +4,7 @@ import type { Volume } from '../types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import * as Popover from '@radix-ui/react-popover'
-import { ChevronDown, ChevronRight, Edit2, Folder, GripVertical, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, Edit2, GripVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 interface VolumeItemProps {
@@ -42,8 +42,8 @@ export function VolumeItem({
 
   return (
     <div ref={setNodeRef} style={style} className="group">
-      <div className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-        <div className="flex items-center gap-2">
+      <div className="px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+        <div className="flex items-center gap-1.5">
           {/* 拖拽手柄 + Popover */}
           <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
             <Popover.Trigger asChild>
@@ -54,7 +54,7 @@ export function VolumeItem({
                 className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={e => e.stopPropagation()}
               >
-                <GripVertical className="w-4 h-4 text-gray-400" />
+                <GripVertical className="w-3.5 h-3.5 text-gray-400" />
               </button>
             </Popover.Trigger>
             <Popover.Portal>
@@ -73,7 +73,7 @@ export function VolumeItem({
                     }}
                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-3.5 h-3.5" />
                     重命名
                   </button>
                 )}
@@ -87,7 +87,7 @@ export function VolumeItem({
                     }}
                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                     删除
                   </button>
                 )}
@@ -103,17 +103,16 @@ export function VolumeItem({
           >
             {isExpanded
               ? (
-                  <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
                 )
               : (
-                  <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
                 )}
           </button>
 
           {/* 卷信息 */}
-          <div className="flex-1 min-w-0 flex items-center gap-2 cursor-pointer" onClick={onToggle}>
-            <Folder className="w-4 h-4 flex-shrink-0 text-amber-500 dark:text-amber-400" />
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+          <div className="flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
+            <h3 className="text-xs font-normal text-gray-900 dark:text-gray-100 truncate">
               {volume.title}
             </h3>
           </div>

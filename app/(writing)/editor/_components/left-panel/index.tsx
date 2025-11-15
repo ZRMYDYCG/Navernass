@@ -1,6 +1,7 @@
 import type { Chapter, LeftTabType, Volume } from './types'
 import { useState } from 'react'
 import ChaptersTab from './chapters'
+import { SearchTab } from './search-tab'
 import { TabSwitcher } from './tab-switcher'
 import WorkspaceTab from './workspace'
 
@@ -35,14 +36,14 @@ export default function LeftPanel({
   onRenameVolume,
   onDeleteVolume,
 }: LeftPanelProps) {
-  const [activeTab, setActiveTab] = useState<LeftTabType>('chapters')
+  const [activeTab, setActiveTab] = useState<LeftTabType>('files')
 
   return (
     <div className="h-full flex flex-col bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
       <TabSwitcher activeTab={activeTab} onChange={setActiveTab} />
 
       <div className="flex-1 overflow-hidden">
-        {activeTab === 'chapters' && (
+        {activeTab === 'files' && (
           <ChaptersTab
             chapters={chapters}
             volumes={volumes}
@@ -59,6 +60,8 @@ export default function LeftPanel({
             onDeleteVolume={onDeleteVolume}
           />
         )}
+
+        {activeTab === 'search' && <SearchTab />}
 
         {activeTab === 'workspace' && <WorkspaceTab />}
       </div>

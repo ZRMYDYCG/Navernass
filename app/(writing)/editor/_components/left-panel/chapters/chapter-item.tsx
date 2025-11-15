@@ -2,7 +2,7 @@ import type { ChapterItemProps } from './types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import * as Popover from '@radix-ui/react-popover'
-import { Edit2, FileText, GripVertical, Trash2 } from 'lucide-react'
+import { Edit2, GripVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 export function ChapterItem({
@@ -28,11 +28,11 @@ export function ChapterItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group px-4 py-3 cursor-pointer transition-colors ${
+      className={`group px-2 py-1.5 cursor-pointer transition-colors ${
         isSelected ? 'bg-gray-100 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
       }`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         {/* 拖拽手柄 + Popover */}
         <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
           <Popover.Trigger asChild>
@@ -45,7 +45,7 @@ export function ChapterItem({
               }`}
               onClick={e => e.stopPropagation()}
             >
-              <GripVertical className="w-4 h-4 text-gray-400" />
+              <GripVertical className="w-3.5 h-3.5 text-gray-400" />
             </button>
           </Popover.Trigger>
           <Popover.Portal>
@@ -64,7 +64,7 @@ export function ChapterItem({
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="w-3.5 h-3.5" />
                   重命名
                 </button>
               )}
@@ -78,7 +78,7 @@ export function ChapterItem({
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5" />
                   删除
                 </button>
               )}
@@ -88,19 +88,16 @@ export function ChapterItem({
 
         {/* 章节信息 */}
         <div className="flex-1 min-w-0 flex items-center justify-between" onClick={onSelect}>
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <FileText className="w-4 h-4 flex-shrink-0 text-gray-600 dark:text-gray-400" />
-            <h3
-              className={`text-sm font-medium truncate ${
-                isSelected ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              {chapter.title}
-            </h3>
-          </div>
+          <h3
+            className={`text-xs font-normal truncate flex-1 ${
+              isSelected ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            {chapter.title}
+          </h3>
 
           <span
-            className={`text-xs ${
+            className={`text-[10px] ml-2 ${
               isSelected ? 'text-gray-600 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'
             }`}
           >

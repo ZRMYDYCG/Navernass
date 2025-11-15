@@ -58,6 +58,7 @@ interface ChapterListProps {
   onDeleteChapter?: (chapter: Chapter) => void
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
+  onCollapseAllRef?: React.MutableRefObject<(() => void) | null>
 }
 
 export function ChapterList({
@@ -72,12 +73,22 @@ export function ChapterList({
   onDeleteChapter,
   onRenameVolume,
   onDeleteVolume,
+  onCollapseAllRef,
 }: ChapterListProps) {
   const [localChapters, setLocalChapters] = useState(() => chapters || [])
   const [localVolumes, setLocalVolumes] = useState(() => volumes || [])
   const [expandedVolumes, setExpandedVolumes] = useState<Set<string>>(() => new Set())
   const [activeId, setActiveId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
+
+  // 暴露收起所有卷的方法给父组件
+  useEffect(() => {
+    if (onCollapseAllRef) {
+      onCollapseAllRef.current = () => {
+        setExpandedVolumes(new Set())
+      }
+    }
+  }, [onCollapseAllRef])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

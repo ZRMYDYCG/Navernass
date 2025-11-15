@@ -2,7 +2,7 @@
  * 左侧面板相关类型定义
  */
 
-export type LeftTabType = 'chapters' | 'workspace' | 'materials'
+export type LeftTabType = 'files' | 'search' | 'workspace'
 
 export interface Volume {
   id: string
@@ -23,5 +23,4 @@ export interface Chapter {
 export interface TabConfig {
   value: LeftTabType
   label: string
-  icon: React.ComponentType<{ className?: string }>
 }
