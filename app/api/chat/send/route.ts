@@ -19,10 +19,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   const { conversationId, message } = body
 
   if (!message || message.trim().length === 0) {
-    return ApiResponseBuilder.error({
-      code: 'INVALID_MESSAGE',
-      message: 'Message cannot be empty',
-    }, 400)
+    return ApiResponseBuilder.error('Message cannot be empty', 'INVALID_MESSAGE', 400)
   }
 
   try {
@@ -96,9 +93,10 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     })
   } catch (error: any) {
     console.error('Chat send error:', error)
-    return ApiResponseBuilder.error({
-      code: 'CHAT_ERROR',
-      message: error.message || 'Failed to send message',
-    }, 500)
+    return ApiResponseBuilder.error(
+      error.message || 'Failed to send message',
+      'CHAT_ERROR',
+      500,
+    )
   }
 })

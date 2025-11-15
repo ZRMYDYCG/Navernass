@@ -67,6 +67,14 @@ export const apiClient = {
       body: body ? JSON.stringify(body) : undefined,
     }),
 
+  // eslint-disable-next-line ts/no-explicit-any
+  patch: <T>(url: string, body?: any, options?: FetchOptions) =>
+    fetchApi<T>(url, {
+      ...options,
+      method: 'PATCH',
+      body: body ? JSON.stringify(body) : undefined,
+    }),
+
   delete: <T>(url: string, options?: FetchOptions) =>
     fetchApi<T>(url, { ...options, method: 'DELETE' }),
 }

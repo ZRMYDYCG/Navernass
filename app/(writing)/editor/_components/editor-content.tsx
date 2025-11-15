@@ -1,10 +1,11 @@
-import type { Chapter } from '@/lib/supabase/sdk'
-import { ChevronRight, X } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Chapter, Volume } from '@/lib/supabase/sdk'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { InlineLoading } from '@/components/loading'
 import { TiptapEditor } from '@/components/tiptap'
+import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi } from '@/lib/supabase/sdk'
+import { Breadcrumb } from './breadcrumb'
+import { SmartTabs } from './smart-tabs'
 
 interface Tab {
   id: string
@@ -16,19 +17,35 @@ interface EditorContentProps {
   activeTab: string
   onTabChange: (id: string) => void
   onTabClose: (id: string) => void
+  onTabCloseOthers?: (id: string) => void
+  onTabCloseAll?: () => void
+  onTabCloseLeft?: (id: string) => void
+  onTabCloseRight?: (id: string) => void
   novelTitle: string
   chapterTitle: string
   chapterId: string
+  volumes?: Volume[]
+  chapters?: Chapter[]
+  onSelectChapter?: (chapterId: string) => void
 }
+
+const EMPTY_ARRAY: never[] = []
 
 export default function EditorContent({
   openTabs,
   activeTab,
   onTabChange,
   onTabClose,
+  onTabCloseOthers,
+  onTabCloseAll,
+  onTabCloseLeft,
+  onTabCloseRight,
   novelTitle,
   chapterTitle,
   chapterId,
+  volumes = EMPTY_ARRAY,
+  chapters = EMPTY_ARRAY,
+  onSelectChapter,
 }: EditorContentProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
@@ -38,6 +55,16 @@ export default function EditorContent({
   const [loading, setLoading] = useState(true)
   const editorContentRef = useRef<string>('')
   const isSavingRef = useRef(false)
+
+  // 找到当前章节所属的卷（优先使用传入的 chapters 数据，不等待加载）
+  const currentVolume = useMemo(() => {
+    // 先从传入的 chapters 中查找当前章节
+    const currentChapterData = chapters.find(c => c.id === chapterId)
+    const volumeId = currentChapterData?.volume_id || chapter?.volume_id
+
+    if (!volumeId) return null
+    return volumes.find(v => v.id === volumeId) || null
+  }, [chapterId, chapters, chapter?.volume_id, volumes])
 
   // 加载章节内容
   useEffect(() => {
@@ -162,43 +189,40 @@ export default function EditorContent({
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-900">
       {/* 顶部页签区域 */}
-      <div className="flex items-center border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-        {openTabs.map(tab => (
-          <div
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`group flex items-center gap-2 px-4 py-2.5 border-r border-gray-200 dark:border-gray-800 cursor-pointer transition-colors ${
-              activeTab === tab.id
-                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50'
-            }`}
-          >
-            <span className="text-sm truncate max-w-[150px]">{tab.title}</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onTabClose(tab.id)
-              }}
-              className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all"
-            >
-              <X className="w-3 h-3" />
-            </button>
-          </div>
-        ))}
-      </div>
+      <SmartTabs
+        tabs={openTabs}
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        onTabClose={onTabClose}
+        onTabCloseOthers={onTabCloseOthers}
+        onTabCloseAll={onTabCloseAll}
+        onTabCloseLeft={onTabCloseLeft}
+        onTabCloseRight={onTabCloseRight}
+      />
+
+      {/* 面包屑导航 */}
+      <Breadcrumb
+        novelTitle={novelTitle}
+        chapterTitle={chapterTitle}
+        volume={currentVolume}
+        chapters={chapters}
+        currentChapterId={chapterId}
+        onSelectChapter={onSelectChapter}
+      />
 
       {/* 编辑器内容区域 */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full p-8">
+      <div className="flex-1 overflow-y-auto p-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {loading
           ? (
-              <div className="flex items-center justify-center h-full">
-                <InlineLoading text="加载中..." />
+              <div className="flex flex-col items-center justify-center h-full gap-3">
+                <Spinner className="w-8 h-8" />
+                <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
               </div>
             )
           : (
               <TiptapEditor
                 key={chapterId}
-                content={chapter?.content || `<h1>${chapterTitle}</h1><p>开始写作...</p>`}
+                content={chapter?.content || `<h1>${chapterTitle}</h1>`}
                 placeholder="开始写作..."
                 onUpdate={handleUpdate}
                 onStatsChange={handleStatsChange}
@@ -211,12 +235,7 @@ export default function EditorContent({
       </div>
 
       {/* 底部状态栏 */}
-      <div className="h-10 px-6 flex items-center justify-between border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500 dark:text-gray-400">{novelTitle}</span>
-          <ChevronRight className="w-3 h-3 text-gray-400" />
-          <span className="text-xs text-gray-700 dark:text-gray-300">{chapterTitle}</span>
-        </div>
+      <div className="h-10 px-6 flex items-center justify-end bg-gray-50 dark:bg-gray-800/50">
         <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
           <span>
             字数：
@@ -230,7 +249,7 @@ export default function EditorContent({
           <span>•</span>
           {isSaving
             ? (
-                <span className="text-blue-600 dark:text-blue-400">保存中...</span>
+                <span className="text-gray-700 dark:text-gray-300">保存中...</span>
               )
             : lastSaved
               ? (

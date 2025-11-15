@@ -10,8 +10,9 @@ const messagesService = new MessagesService()
  * 清空对话的所有消息
  */
 export const DELETE = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    await messagesService.clearByConversationId(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    await messagesService.clearByConversationId(id)
     return ApiResponseBuilder.success({ message: 'Messages cleared successfully' })
   },
 )

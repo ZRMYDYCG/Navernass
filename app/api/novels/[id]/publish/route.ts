@@ -10,8 +10,9 @@ const novelsService = new NovelsService()
  * 发布小说
  */
 export const POST = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const novel = await novelsService.publish(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    const novel = await novelsService.publish(id)
     return ApiResponseBuilder.success(novel)
   },
 )
@@ -21,8 +22,9 @@ export const POST = withErrorHandler(
  * 取消发布小说
  */
 export const DELETE = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const novel = await novelsService.unpublish(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    const novel = await novelsService.unpublish(id)
     return ApiResponseBuilder.success(novel)
   },
 )

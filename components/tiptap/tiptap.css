@@ -1,0 +1,49 @@
+/* Tippy.js 样式（用于斜杠命令弹出菜单） */
+.tippy-box {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.tippy-content {
+  padding: 0;
+}
+
+/* AI 生成加载动画 */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.ai-generating {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 编辑器内的 AI 加载提示 */
+.ProseMirror .ai-loading {
+  color: #3b82f6;
+  font-style: italic;
+}
+
+/* 斜杠命令触发提示 */
+.ProseMirror .slash-command-active {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-radius: 0.25rem;
+  padding: 0 0.25rem;
+}
+
+/* 编辑器选中文本样式 */
+.ProseMirror ::selection {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: inherit;
+}
+
+.dark .ProseMirror ::selection {
+  background-color: rgba(96, 165, 250, 0.25);
+  color: inherit;
+}

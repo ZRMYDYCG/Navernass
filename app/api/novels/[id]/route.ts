@@ -11,8 +11,9 @@ const novelsService = new NovelsService()
  * 获取小说详情
  */
 export const GET = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const novel = await novelsService.getById(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    const novel = await novelsService.getById(id)
     return ApiResponseBuilder.success(novel)
   },
 )
@@ -22,9 +23,10 @@ export const GET = withErrorHandler(
  * 更新小说
  */
 export const PUT = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
     const body: Partial<UpdateNovelDto> = await req.json()
-    const novel = await novelsService.update(params.id, body)
+    const novel = await novelsService.update(id, body)
     return ApiResponseBuilder.success(novel)
   },
 )
@@ -34,8 +36,9 @@ export const PUT = withErrorHandler(
  * 删除小说
  */
 export const DELETE = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    await novelsService.delete(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    await novelsService.delete(id)
     return ApiResponseBuilder.success({ message: 'Novel deleted successfully' })
   },
 )

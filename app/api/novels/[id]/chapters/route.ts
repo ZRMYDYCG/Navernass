@@ -10,8 +10,9 @@ const chaptersService = new ChaptersService()
  * 获取小说的所有章节
  */
 export const GET = withErrorHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const chapters = await chaptersService.getByNovelId(params.id)
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
+    const chapters = await chaptersService.getByNovelId(id)
     return ApiResponseBuilder.success(chapters)
   },
 )

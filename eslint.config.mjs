@@ -4,7 +4,8 @@ export default antfu(
   {
     typescript: true,
     react: true,
-    
+    node: true,
+
     formatters: {
       css: true,
       html: true,
@@ -30,6 +31,8 @@ export default antfu(
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'antfu/if-newline': 'off',
       'style/brace-style': ['error', '1tbs'],
+      'node/prefer-global/process': 'off',
+      'unicorn/prefer-node-protocol': 'off',
     },
   },
 )

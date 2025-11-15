@@ -1,13 +1,21 @@
 'use client'
 
 import type { Message } from '@/lib/supabase/sdk/types'
-import { useParams, useRouter } from 'next/navigation'
+import { toPng } from 'html-to-image'
 
-import { useEffect, useRef, useState } from 'react'
-import { chatApi, messagesApi } from '@/lib/supabase/sdk'
+import { Copy, Image as ImageIcon, Link2, X } from 'lucide-react'
+import { useParams, useRouter } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
+
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { chatApi, conversationsApi, messagesApi } from '@/lib/supabase/sdk'
+import { copyTextToClipboard } from '@/lib/utils'
 import { ChatInputBox } from '../_components/chat-input-box'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
 import { MessageList } from './_components/message-list'
+import { ShareImageRenderer } from './_components/share-image-renderer'
 
 export default function ConversationPage() {
   const params = useParams()
@@ -17,6 +25,25 @@ export default function ConversationPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
+  const [isShareMode, setIsShareMode] = useState(false)
+  const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([])
+  const [conversationTitle, setConversationTitle] = useState('Narraverse 对话')
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false)
+  const shareImageRef = useRef<HTMLDivElement>(null)
+
+  const validSelectedMessageIds = useMemo(() => {
+    if (!isShareMode) return []
+
+    const messageIdSet = new Set(messages.map(msg => msg.id))
+    return selectedMessageIds.filter(id => messageIdSet.has(id))
+  }, [isShareMode, messages, selectedMessageIds])
+
+  const selectedMessagesForImage = useMemo(
+    () => messages.filter(msg => validSelectedMessageIds.includes(msg.id)),
+    [messages, validSelectedMessageIds],
+  )
 
   // 使用 ref 避免重复处理
   const isProcessingRef = useRef(false)
@@ -218,6 +245,22 @@ export default function ConversationPage() {
     initialize()
   }, [conversationId, router])
 
+  useEffect(() => {
+    const fetchTitle = async () => {
+      if (!conversationId) return
+      try {
+        const conversation = await conversationsApi.getById(conversationId)
+        if (conversation?.title) {
+          setConversationTitle(conversation.title)
+        }
+      } catch (error) {
+        console.error('Failed to load conversation title:', error)
+      }
+    }
+
+    fetchTitle()
+  }, [conversationId])
+
   // 清理函数
   useEffect(() => {
     return () => {
@@ -227,9 +270,175 @@ export default function ConversationPage() {
     }
   }, [])
 
+  const handleCopyMessage = useCallback(async (message: Message) => {
+    if (!message?.content) return
+
+    try {
+      await copyTextToClipboard(message.content)
+      toast.success('消息内容已复制')
+    } catch (error) {
+      console.error('Failed to copy message:', error)
+      toast.error('复制失败，请重试')
+    }
+  }, [])
+
+  const handleShareMessage = useCallback(async (message: Message) => {
+    if (!message?.content) return
+
+    const sharePayload = {
+      title: '来自 Narraverse 的聊天消息',
+      text: message.content,
+    }
+
+    try {
+      if ('share' in navigator && typeof navigator.share === 'function') {
+        await navigator.share(sharePayload)
+      } else {
+        await copyTextToClipboard(message.content)
+        toast.success('已复制消息内容，粘贴即可分享')
+      }
+    } catch (error) {
+      console.error('Failed to share message:', error)
+      toast.error('分享失败，请稍后再试')
+    }
+  }, [])
+
+  const handleToggleShareMode = useCallback(() => {
+    setIsShareMode((prev) => {
+      if (prev) {
+        setSelectedMessageIds([])
+        return false
+      }
+
+      setSelectedMessageIds(messages.map(msg => msg.id))
+      return true
+    })
+  }, [messages])
+
+  const handleToggleSelectMessage = useCallback((messageId: string) => {
+    setSelectedMessageIds((prev) => {
+      if (prev.includes(messageId)) {
+        return prev.filter(id => id !== messageId)
+      }
+      return [...prev, messageId]
+    })
+  }, [])
+
+  const handleCancelShareMode = useCallback(() => {
+    setIsShareMode(false)
+    setSelectedMessageIds([])
+  }, [])
+
+  const handleCopySelectedText = useCallback(async () => {
+    if (selectedMessagesForImage.length === 0) {
+      toast.error('请先选择要复制的消息')
+      return
+    }
+
+    const formatted = selectedMessagesForImage
+      .map(msg => `${msg.role === 'user' ? '我' : 'AI'}：${msg.content}`)
+      .join('\n\n')
+
+    try {
+      await copyTextToClipboard(formatted)
+      toast.success('对话文本已复制')
+    } catch (error) {
+      console.error('Failed to copy conversation:', error)
+      toast.error('复制失败，请重试')
+    }
+  }, [selectedMessagesForImage])
+
+  const handleCopyConversationLink = useCallback(async () => {
+    if (typeof window === 'undefined') return
+
+    const shareUrl = `${window.location.origin}/chat/${conversationId}`
+
+    try {
+      await copyTextToClipboard(shareUrl)
+      toast.success('链接已复制')
+    } catch (error) {
+      console.error('Failed to copy link:', error)
+      toast.error('复制链接失败，请重试')
+    }
+  }, [conversationId])
+
+  const generateShareImage = useCallback(async () => {
+    const node = shareImageRef.current
+    if (!node) throw new Error('renderer-not-ready')
+
+    const originalLeft = node.style.left
+    const originalVisibility = node.style.visibility
+    const originalPointerEvents = node.style.pointerEvents
+    const originalPosition = node.style.position
+    const originalTop = node.style.top
+
+    node.style.left = '0px'
+    node.style.visibility = 'visible'
+    node.style.pointerEvents = 'auto'
+    node.style.position = 'fixed'
+    node.style.top = '0px'
+
+    try {
+      if (typeof document !== 'undefined' && 'fonts' in document) {
+        try {
+          await (document as Document & { fonts?: FontFaceSet }).fonts?.ready
+        } catch {}
+      }
+
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)))
+      await new Promise(resolve => setTimeout(resolve, 20))
+
+      const ratio = Math.min(3, Math.max(2, window.devicePixelRatio || 1))
+      const dataUrl = await toPng(node, { cacheBust: true, pixelRatio: ratio, backgroundColor: '#060915' })
+      return dataUrl
+    } finally {
+      node.style.left = originalLeft
+      node.style.visibility = originalVisibility
+      node.style.pointerEvents = originalPointerEvents
+      node.style.position = originalPosition
+      node.style.top = originalTop
+    }
+  }, [])
+
+  const handleGenerateImage = useCallback(async () => {
+    if (isGeneratingImage) return
+    if (selectedMessagesForImage.length === 0) {
+      toast.error('请先选择要生成图片的消息')
+      return
+    }
+
+    try {
+      setIsGeneratingImage(true)
+      setPreviewImage(null)
+      const dataUrl = await generateShareImage()
+      if (!dataUrl) {
+        toast.error('生成图片失败，请重试')
+        return
+      }
+      setPreviewImage(dataUrl)
+      setIsPreviewVisible(true)
+    } catch (error) {
+      console.error('Failed to generate image:', error)
+      toast.error('生成图片失败，请重试')
+    } finally {
+      setIsGeneratingImage(false)
+    }
+  }, [generateShareImage, isGeneratingImage, selectedMessagesForImage])
+
+  const handleDownloadPreview = useCallback(() => {
+    if (!previewImage) return
+    const link = document.createElement('a')
+    link.href = previewImage
+    link.download = `narraverse-chat-${Date.now()}.png`
+    link.click()
+  }, [previewImage])
+
   return (
     <div className="flex flex-col h-full">
-      <ChatWelcomeHeader />
+      <ChatWelcomeHeader
+        onShareConversation={handleToggleShareMode}
+        isShareMode={isShareMode}
+      />
 
       {/* 消息列表区域 */}
       <div className="flex-1 overflow-hidden">
@@ -237,16 +446,183 @@ export default function ConversationPage() {
           messages={messages}
           isLoading={isLoading}
           streamingMessageId={streamingMessageId}
+          onCopyMessage={handleCopyMessage}
+          onShareMessage={handleShareMessage}
+          isShareMode={isShareMode}
+          selectedMessageIds={validSelectedMessageIds}
+          onToggleSelectMessage={handleToggleSelectMessage}
         />
       </div>
 
       {/* 输入框区域 */}
-      <div className="mb-3">
-        <ChatInputBox
-          onSend={handleSendMessage}
-          disabled={isLoading}
-        />
+      {isShareMode
+        ? (
+            <ShareActionBar
+              selectedCount={validSelectedMessageIds.length}
+              onCancel={handleCancelShareMode}
+              onCopyText={handleCopySelectedText}
+              onCopyLink={handleCopyConversationLink}
+              onGenerateImage={handleGenerateImage}
+              isGeneratingImage={isGeneratingImage}
+            />
+          )
+        : (
+            <div className="mb-3">
+              <ChatInputBox
+                onSend={handleSendMessage}
+                disabled={isLoading}
+              />
+            </div>
+          )}
+
+      <ShareImageRenderer
+        containerRef={shareImageRef}
+        messages={selectedMessagesForImage}
+        title={conversationTitle}
+      />
+
+      <ShareImagePreviewDialog
+        open={isPreviewVisible}
+        onOpenChange={setIsPreviewVisible}
+        imageUrl={previewImage}
+        isLoading={isGeneratingImage && !previewImage}
+        onDownload={handleDownloadPreview}
+      />
+    </div>
+  )
+}
+
+interface ShareActionBarProps {
+  selectedCount: number
+  onCancel: () => void
+  onCopyText: () => void
+  onCopyLink: () => void
+  onGenerateImage: () => void
+  isGeneratingImage: boolean
+}
+
+function ShareActionBar({
+  selectedCount,
+  onCancel,
+  onCopyText,
+  onCopyLink,
+  onGenerateImage,
+  isGeneratingImage,
+}: ShareActionBarProps) {
+  return (
+    <div className="border-t bg-background px-4 py-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>
+            已选中
+            {selectedCount}
+            {' '}
+            条对话
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-3"
+            onClick={onCancel}
+          >
+            <X className="w-4 h-4" />
+            <span>取消</span>
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-8 px-3"
+            onClick={onCopyText}
+          >
+            <Copy className="w-4 h-4" />
+            <span>复制文本</span>
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-8 px-3"
+            onClick={onCopyLink}
+          >
+            <Link2 className="w-4 h-4" />
+            <span>复制链接</span>
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-8 px-3"
+            onClick={onGenerateImage}
+            disabled={isGeneratingImage || selectedCount === 0}
+          >
+            <ImageIcon className="w-4 h-4" />
+            <span>{isGeneratingImage ? '生成中...' : '生成图片'}</span>
+          </Button>
+        </div>
       </div>
     </div>
+  )
+}
+
+interface ShareImagePreviewDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  imageUrl: string | null
+  isLoading: boolean
+  onDownload: () => void
+}
+
+function ShareImagePreviewDialog({
+  open,
+  onOpenChange,
+  imageUrl,
+  isLoading,
+  onDownload,
+}: ShareImagePreviewDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl w-[calc(100%-2rem)] bg-[#0B0F1A] text-white border-white/10 shadow-[0_40px_120px_rgba(6,9,21,0.55)]">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold tracking-wide">预览</DialogTitle>
+        </DialogHeader>
+
+        <div className="max-h-[70vh] overflow-auto rounded-2xl bg-[#060915] p-4">
+          {imageUrl
+            ? (
+                <img
+                  src={imageUrl}
+                  alt="对话分享图片预览"
+                  className="w-full rounded-[28px] shadow-[0_30px_80px_rgba(6,9,21,0.6)] border border-white/5"
+                />
+              )
+            : (
+                <div className="h-[360px] flex items-center justify-center text-white/60 text-sm rounded-[28px] border border-dashed border-white/10">
+                  {isLoading ? '图片生成中...' : '暂无可预览的内容'}
+                </div>
+              )}
+        </div>
+
+        <DialogFooter className="mt-4">
+          <Button
+            variant="ghost"
+            className="text-white/80 hover:text-white"
+            onClick={() => onOpenChange(false)}
+          >
+            关闭
+          </Button>
+          <Button
+            onClick={onDownload}
+            disabled={!imageUrl}
+            className="bg-white text-[#0B0F1A] hover:bg-white/90"
+          >
+            下载图片
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -1,65 +1,197 @@
-import { ArrowLeft, PanelLeft, PanelRight } from "lucide-react";
-import { ThemeSection } from "@/components/theme-select";
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { HeaderCenter } from './header-center'
+import { HeaderLeft } from './header-left'
+import { HeaderRight } from './header-right'
 
 interface EditorHeaderProps {
-  novelTitle: string;
-  showLeftPanel: boolean;
-  showRightPanel: boolean;
-  onToggleLeftPanel: () => void;
-  onToggleRightPanel: () => void;
-  onBack?: () => void;
+  title?: string
+  currentChapterId?: string | null
+  showLeftPanel: boolean
+  onToggleLeftPanel: () => void
+  onSelectChapter?: (chapterId: string) => void
+  onToggleAI?: () => void
+  onToggleTerminal?: () => void
+  onLock?: () => void
+  onBack?: () => void
 }
 
 export default function EditorHeader({
-  novelTitle,
+  title = '未选择章节',
+  currentChapterId,
   showLeftPanel,
-  showRightPanel,
   onToggleLeftPanel,
-  onToggleRightPanel,
+  onSelectChapter,
+  onToggleAI,
+  onToggleTerminal,
+  onLock,
   onBack,
 }: EditorHeaderProps) {
+  const router = useRouter()
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [chapterHistory, setChapterHistory] = useState<string[]>([])
+  const [historyIndex, setHistoryIndex] = useState(-1)
+  const prevChapterIdRef = useRef<string | null | undefined>(null)
+  const isNavigatingHistoryRef = useRef(false)
+
+  // 当章节切换时，更新历史记录
+  useLayoutEffect(() => {
+    if (!currentChapterId || currentChapterId === prevChapterIdRef.current) {
+      if (currentChapterId) {
+        prevChapterIdRef.current = currentChapterId
+      }
+      return
+    }
+
+    // 如果是通过历史导航切换的，只更新索引，不修改历史记录
+    if (isNavigatingHistoryRef.current) {
+      isNavigatingHistoryRef.current = false
+      prevChapterIdRef.current = currentChapterId
+      return
+    }
+
+    prevChapterIdRef.current = currentChapterId
+
+    setChapterHistory((prev) => {
+      // 如果当前章节已经在历史记录中，移除它后面的记录
+      const existingIndex = prev.indexOf(currentChapterId)
+      if (existingIndex !== -1) {
+        const newHistory = prev.slice(0, existingIndex + 1)
+        setHistoryIndex(newHistory.length - 1)
+        return newHistory
+      }
+
+      // 获取当前历史索引并更新
+      setHistoryIndex((currentHistoryIndex) => {
+        let newHistory: string[]
+
+        // 如果当前在历史记录的中间位置，移除后面的记录
+        if (currentHistoryIndex < prev.length - 1) {
+          newHistory = prev.slice(0, currentHistoryIndex + 1)
+          newHistory.push(currentChapterId)
+        } else {
+          // 添加新章节到历史记录
+          newHistory = [...prev, currentChapterId]
+        }
+
+        setChapterHistory(newHistory)
+        setHistoryIndex(newHistory.length - 1)
+        return newHistory.length - 1
+      })
+
+      return prev
+    })
+  }, [currentChapterId])
+
+  // 全屏切换
+  const handleToggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsFullscreen(true)
+      }).catch(() => {
+        // 全屏请求失败
+      })
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false)
+      }).catch(() => {
+        // 退出全屏失败
+      })
+    }
+  }, [])
+
+  // 监听全屏状态变化
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    }
+  }, [])
+
+  // 章节历史导航
+  const canGoBack = historyIndex > 0
+  const canGoForward = historyIndex < chapterHistory.length - 1
+
+  const handleGoBack = useCallback(() => {
+    if (canGoBack && onSelectChapter) {
+      const newIndex = historyIndex - 1
+      const prevChapterId = chapterHistory[newIndex]
+      if (prevChapterId) {
+        isNavigatingHistoryRef.current = true
+        setHistoryIndex(newIndex)
+        onSelectChapter(prevChapterId)
+      }
+    }
+  }, [canGoBack, historyIndex, chapterHistory, onSelectChapter])
+
+  const handleGoForward = useCallback(() => {
+    if (canGoForward && onSelectChapter) {
+      const newIndex = historyIndex + 1
+      const nextChapterId = chapterHistory[newIndex]
+      if (nextChapterId) {
+        isNavigatingHistoryRef.current = true
+        setHistoryIndex(newIndex)
+        onSelectChapter(nextChapterId)
+      }
+    }
+  }, [canGoForward, historyIndex, chapterHistory, onSelectChapter])
+
+  // 标题点击（打开搜索弹窗）
+  const handleTitleClick = useCallback(() => {
+    // TODO: 打开搜索弹窗
+    // eslint-disable-next-line no-console
+    console.log('打开搜索弹窗')
+  }, [])
+
+  // 锁屏
+  const handleLock = useCallback(() => {
+    if (onLock) {
+      onLock()
+    }
+  }, [onLock])
+
+  // 关闭（返回上一路由）
+  const handleClose = useCallback(() => {
+    if (onBack) {
+      onBack()
+    } else {
+      router.back()
+    }
+  }, [onBack, router])
+
   return (
-    <header className="h-14 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-      {/* 左侧：返回按钮 + 小说标题 */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onBack}
-          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-        </button>
-        <h1 className="text-base font-semibold text-gray-900 dark:text-gray-100">{novelTitle}</h1>
-      </div>
+    <header className="h-9 flex items-center justify-between px-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+      {/* 左侧：Logo + 折叠按钮 */}
+      <HeaderLeft
+        showLeftPanel={showLeftPanel}
+        onToggleLeftPanel={onToggleLeftPanel}
+      />
 
-      {/* 右侧：操作按钮 + 头像 */}
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1">
-          <button
-            onClick={onToggleLeftPanel}
-            className={`p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors ${
-              showLeftPanel
-                ? "text-blue-600 dark:text-blue-400"
-                : "text-gray-400 dark:text-gray-600"
-            }`}
-            title={showLeftPanel ? "隐藏左侧面板" : "显示左侧面板"}
-          >
-            <PanelLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={onToggleRightPanel}
-            className={`p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors ${
-              showRightPanel
-                ? "text-blue-600 dark:text-blue-400"
-                : "text-gray-400 dark:text-gray-600"
-            }`}
-            title={showRightPanel ? "隐藏右侧面板" : "显示右侧面板"}
-          >
-            <PanelRight className="w-5 h-5" />
-          </button>
-        </div>
+      {/* 中间：历史导航 + 标题搜索框 */}
+      <HeaderCenter
+        title={title}
+        canGoBack={canGoBack}
+        canGoForward={canGoForward}
+        onGoBack={handleGoBack}
+        onGoForward={handleGoForward}
+        onTitleClick={handleTitleClick}
+      />
 
-        <ThemeSection />
-      </div>
+      {/* 右侧：锁屏 + 终端 + AI + 全屏 + 关闭 */}
+      <HeaderRight
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={handleToggleFullscreen}
+        onToggleAI={onToggleAI}
+        onToggleTerminal={onToggleTerminal}
+        onLock={handleLock}
+        onClose={handleClose}
+      />
     </header>
-  );
+  )
 }

@@ -1,17 +1,33 @@
 'use client'
 
 import type { Message } from '@/lib/supabase/sdk/types'
+import { CheckCircle2, Circle, Copy, Share2 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
 import { Avatar } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { MarkdownRenderer } from './markdown-renderer'
 
 interface MessageBubbleProps {
   message: Message
-  isStreaming?: boolean
+  onCopy?: (message: Message) => void
+  onShare?: (message: Message) => void
+  isShareMode?: boolean
+  isSelected?: boolean
+  onToggleSelect?: (messageId: string) => void
+  alwaysShowActions?: boolean
 }
 
-export function MessageBubble({ message, isStreaming = false }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  onCopy,
+  onShare,
+  isShareMode = false,
+  isSelected = false,
+  onToggleSelect,
+  alwaysShowActions = false,
+}: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
@@ -20,9 +36,10 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
   const displayedContent = message.content
 
   const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
+  const shouldAlwaysShowActions = alwaysShowActions || isShareMode
 
   return (
-    <div className={`flex gap-4 py-4 px-4 sm:px-6 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+    <div className={`group/message flex gap-4 py-4 px-4 sm:px-6 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       <div className="flex-shrink-0">
         {isAssistant && (
           <Avatar className="w-8 h-8">
@@ -32,29 +49,81 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
       </div>
 
       {/* 消息内容 */}
-      <div className={`flex-1 max-w-[85%] sm:max-w-[75%] ${isUser ? 'flex justify-end' : 'flex justify-start'}`}>
+      <div
+        className={cn(
+          'flex-1',
+          isUser ? 'flex justify-end' : 'flex justify-start',
+          isUser ? 'max-w-[75%]' : 'max-w-[85%]',
+        )}
+      >
         <div
-          className={`rounded-2xl px-4 py-3 ${
-            isUser
-              ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-              : 'dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-          }`}
+          className={cn(
+            'flex flex-col gap-2 max-w-full',
+            isUser ? 'items-end' : 'items-start',
+          )}
         >
-          {isUser
-            ? (
-                <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-              )
-            : (
-                <div
-                  className={`text-sm relative ${
-                    isStreaming
-                      ? 'after:content-[""] after:absolute after:bottom-0 after:right-0 after:w-12 after:h-6 after:bg-gradient-to-r after:from-transparent after:to-gray-100 dark:after:to-gray-800 after:animate-pulse after:pointer-events-none'
-                      : ''
-                  }`}
-                >
-                  <MarkdownRenderer content={displayedContent} />
-                </div>
-              )}
+          <div
+            className={cn(
+              'rounded-2xl px-4 py-3 border border-transparent transition-all w-fit max-w-full',
+              isUser
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                : 'dark:bg-gray-800 text-gray-900 dark:text-gray-100 bg-white',
+              isShareMode && (isSelected ? 'ring-2 ring-primary/70 border-primary/60' : 'ring-1 ring-transparent'),
+            )}
+          >
+            {isUser
+              ? (
+                  <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                )
+              : (
+                  <div className="text-sm relative">
+                    <MarkdownRenderer content={displayedContent} />
+                  </div>
+                )}
+          </div>
+
+          <div
+            className={cn(
+              'flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 transition-opacity',
+              isUser ? 'justify-end' : 'justify-start',
+              shouldAlwaysShowActions
+                ? 'opacity-100 pointer-events-auto'
+                : 'opacity-0 pointer-events-none group-hover/message:opacity-100 group-hover/message:pointer-events-auto',
+            )}
+          >
+            {isShareMode && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => onToggleSelect?.(message.id)}
+                aria-pressed={isSelected}
+              >
+                {isSelected ? <CheckCircle2 className="w-4 h-4 text-primary" /> : <Circle className="w-4 h-4" />}
+                <span>{isSelected ? '已选中' : '选择'}</span>
+              </Button>
+            )}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => onCopy?.(message)}
+            >
+              <Copy className="w-4 h-4" />
+              <span>复制</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => onShare?.(message)}
+            >
+              <Share2 className="w-4 h-4" />
+              <span>分享</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

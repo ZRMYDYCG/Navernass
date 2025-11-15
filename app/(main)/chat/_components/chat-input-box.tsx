@@ -19,6 +19,7 @@ export function ChatInputBox({
 }: ChatInputBoxProps) {
   const [isRecording, setIsRecording] = useState(false)
   const [isEmpty, setIsEmpty] = useState(true)
+  const [isSending, setIsSending] = useState(false)
   const editorRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -54,19 +55,32 @@ export function ChatInputBox({
     }
   }
 
-  const handleSend = () => {
-    if (!editorRef.current || disabled) return
+  const handleSend = async () => {
+    if (!editorRef.current || disabled || isSending) return
     const message = editorRef.current.textContent?.trim() || ''
     if (!message) return
 
-    onSend ? onSend(message) : router.push(`/chat/${Date.now()}`)
+    setIsSending(true)
 
-    editorRef.current.innerHTML = ''
-    editorRef.current.textContent = ''
-    setIsEmpty(true)
+    try {
+      if (onSend) {
+        await Promise.resolve(onSend(message))
+      } else {
+        router.push(`/chat/${Date.now()}`)
+      }
 
-    // 重新聚焦到输入框
-    editorRef.current.focus()
+      if (editorRef.current) {
+        editorRef.current.innerHTML = ''
+        editorRef.current.textContent = ''
+        setIsEmpty(true)
+      }
+    } finally {
+      if (editorRef.current) {
+        // 重新聚焦到输入框
+        editorRef.current.focus()
+      }
+      setIsSending(false)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -112,11 +126,22 @@ export function ChatInputBox({
             <Button
               type="button"
               onClick={handleSend}
-              disabled={isEmpty || disabled}
+              disabled={isEmpty || disabled || isSending}
               size="icon"
-              className="h-9 w-9 bg-gradient-to-r from-blue-500/15 via-purple-500/15 to-pink-500/15 hover:from-blue-500/25 hover:via-purple-500/25 hover:to-pink-500/25 dark:from-blue-500/15 dark:via-purple-500/15 dark:to-pink-500/15 dark:hover:from-blue-500/25 dark:hover:via-purple-500/25 dark:hover:to-pink-500/25 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`h-9 w-9 bg-black text-white hover:bg-gray-900 dark:bg-black dark:text-white dark:hover:bg-gray-900 disabled:cursor-not-allowed flex items-center justify-center transition-colors ${
+                isSending
+                  ? 'disabled:bg-black disabled:text-white disabled:opacity-100'
+                  : 'disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:opacity-60'
+              }`}
+              aria-busy={isSending}
             >
-              <Send className="w-5 h-5" />
+              {isSending
+                ? (
+                    <span className="block w-3 h-3 bg-white rounded-sm animate-pulse" />
+                  )
+                : (
+                    <Send className="w-5 h-5" />
+                  )}
             </Button>
           </div>
         </div>
