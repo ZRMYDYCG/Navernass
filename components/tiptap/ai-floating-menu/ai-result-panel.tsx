@@ -6,6 +6,7 @@ import {
   RotateCcw,
   X,
 } from 'lucide-react'
+import { forwardRef } from 'react'
 
 interface AIResultPanelProps {
   isLoading: boolean
@@ -17,17 +18,12 @@ interface AIResultPanelProps {
   onRetry: () => void
 }
 
-export function AIResultPanel({
-  isLoading,
-  content,
-  isCompleted,
-  onReplace,
-  onInsertBelow,
-  onCancel,
-  onRetry,
-}: AIResultPanelProps) {
+export function AIResultPanel({ ref, isLoading, content, isCompleted, onReplace, onInsertBelow, onCancel, onRetry }: AIResultPanelProps & { ref?: React.RefObject<HTMLDivElement | null> }) {
   return (
-    <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl w-[420px] overflow-hidden">
+    <div
+      ref={ref}
+      className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl w-[420px] overflow-hidden"
+    >
       {/* 加载中状态 */}
       {isLoading && !content && (
         <div className="px-4 py-8 flex items-center justify-center gap-3">
@@ -102,3 +98,5 @@ export function AIResultPanel({
     </div>
   )
 }
+
+AIResultPanel.displayName = 'AIResultPanel'

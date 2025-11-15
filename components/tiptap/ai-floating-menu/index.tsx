@@ -19,6 +19,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
   const [showInput, setShowInput] = useState(false)
   const [showEditMenu, setShowEditMenu] = useState(false)
   const lastSelectionRef = useRef<{ from: number, to: number } | null>(null)
+  const aiResultPanelRef = useRef<HTMLDivElement | null>(null)
   const {
     aiPrompt,
     setAiPrompt,
@@ -244,6 +245,57 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
     setShowEditMenu(true)
   }
 
+  // 自动滚动到 AI 结果面板
+  useEffect(() => {
+    if (!aiResultPanelRef.current || !editor) return
+
+    // 只在 AI 加载中或完成时，且有内容时才滚动
+    if (!isAILoading && !aiCompleted) return
+    if (!aiStreamContent) return
+
+    // 使用防抖，避免频繁滚动
+    const timeoutId = setTimeout(() => {
+      const panel = aiResultPanelRef.current
+      if (!panel) return
+
+      // 获取编辑器容器（有 relative 类的父容器）
+      const editorElement = editor.view.dom
+      const container = editorElement.closest('.relative') as HTMLElement | null
+      if (!container) return
+
+      // 获取可滚动的父容器（通常是编辑器内容区域）
+      const scrollContainer = editorElement.closest('[class*="overflow"]') as HTMLElement | null
+      if (!scrollContainer) return
+
+      // 获取面板相对于容器的位置
+      const panelRect = panel.getBoundingClientRect()
+      const scrollRect = scrollContainer.getBoundingClientRect()
+
+      // 检查面板是否在可视区域内（留一些边距，避免频繁滚动）
+      const margin = 50 // 50px 的边距
+      const isVisible
+        = panelRect.top >= scrollRect.top - margin
+          && panelRect.bottom <= scrollRect.bottom + margin
+
+      // 如果面板不在可视区域内，滚动到面板位置
+      if (!isVisible) {
+        // 计算需要滚动的距离
+        // 将面板滚动到可视区域的中心位置
+        const panelTop = panelRect.top - scrollRect.top + scrollContainer.scrollTop
+        const scrollTarget = panelTop - (scrollRect.height / 2) + (panelRect.height / 2)
+
+        scrollContainer.scrollTo({
+          top: Math.max(0, scrollTarget),
+          behavior: 'smooth',
+        })
+      }
+    }, 300) // 300ms 防抖延迟
+
+    return () => {
+      clearTimeout(timeoutId)
+    }
+  }, [aiStreamContent, isAILoading, aiCompleted, editor])
+
   // 如果没有选中文本且没有打开输入框，不显示
   if ((!show && !showInput) || !editor) return null
 
@@ -306,6 +358,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
       {/* AI 结果面板 */}
       {(isAILoading || aiCompleted) && (
         <AIResultPanel
+          ref={aiResultPanelRef}
           isLoading={isAILoading}
           content={aiStreamContent}
           isCompleted={aiCompleted}
