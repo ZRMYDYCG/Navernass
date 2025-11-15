@@ -1,11 +1,11 @@
 'use client'
 
-import { Lock } from 'lucide-react'
+import { Eye, EyeOff, Lock } from 'lucide-react'
 import { useState } from 'react'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Eye, EyeOff } from 'lucide-react'
-import { verifyPassword, setLocked } from './utils'
+import { Input } from '@/components/ui/input'
+
+import { setLocked, verifyPassword } from './utils'
 
 interface LockScreenOverlayProps {
   onUnlock: () => void
@@ -19,7 +19,7 @@ export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
 
   const handleUnlock = async () => {
     setError('')
-    
+
     if (!password.trim()) {
       setError('请输入密码')
       return
@@ -34,12 +34,12 @@ export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
       setLocked(false)
       setPassword('')
       setError('')
-      
+
       // 触发自定义事件，通知其他组件
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('lockScreenChange'))
       }
-      
+
       onUnlock()
     } else {
       setError('密码错误，请重试')
@@ -85,7 +85,7 @@ export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
               <Input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={e => {
+                onChange={(e) => {
                   setPassword(e.target.value)
                   setError('')
                 }}
@@ -127,4 +127,3 @@ export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
     </div>
   )
 }
-

@@ -1,10 +1,10 @@
 'use client'
 
 import * as Dialog from '@radix-ui/react-dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 interface SetPasswordDialogProps {
   open: boolean
@@ -87,7 +87,7 @@ export function SetPasswordDialog({
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
-                    onChange={e => {
+                    onChange={(e) => {
                       setPassword(e.target.value)
                       setError('')
                     }}
@@ -119,7 +119,7 @@ export function SetPasswordDialog({
                   <Input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
-                    onChange={e => {
+                    onChange={(e) => {
                       setConfirmPassword(e.target.value)
                       setError('')
                     }}
@@ -172,4 +172,3 @@ export function SetPasswordDialog({
     </Dialog.Root>
   )
 }
-

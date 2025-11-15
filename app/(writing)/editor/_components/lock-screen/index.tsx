@@ -44,7 +44,7 @@ export function LockScreen({ children, onLockChange }: LockScreenProps) {
 
     window.addEventListener('storage', handleStorageChange)
     window.addEventListener('lockScreenChange', handleLockChange)
-    
+
     // 定期检查锁屏状态（用于处理直接修改 localStorage 的情况）
     const interval = setInterval(checkLockStatus, 500)
 
@@ -60,7 +60,7 @@ export function LockScreen({ children, onLockChange }: LockScreenProps) {
     setLocked(false) // 清除 localStorage 中的锁屏状态
     setLockedState(false) // 更新组件状态
     onLockChange?.(false)
-    
+
     // 触发自定义事件，通知其他组件
     window.dispatchEvent(new Event('lockScreenChange'))
   }
@@ -77,4 +77,3 @@ export function LockScreen({ children, onLockChange }: LockScreenProps) {
     </>
   )
 }
-
