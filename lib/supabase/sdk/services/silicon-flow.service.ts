@@ -58,7 +58,7 @@ export class SiliconFlowService {
       // 添加系统提示词
       siliconMessages.unshift({
         role: 'system',
-        content: '你是一个专业的小说创作助手，擅长帮助用户构思情节、塑造角色、续写故事。请用温暖、鼓励的语气与用户交流，提供有创意的建议。',
+        content: '你是一个专业的小说创作助手，擅长帮助用户构思情节、塑造角色、续写故事。请用温暖、鼓励的语气与用户交流，提供有创意的建议。请只返回纯文本内容，不要使用 markdown 格式。',
       })
 
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -115,7 +115,7 @@ export class SiliconFlowService {
       // 添加系统提示词
       siliconMessages.unshift({
         role: 'system',
-        content: '你是一个专业的小说创作助手，擅长帮助用户构思情节、塑造角色、续写故事。请用温暖、鼓励的语气与用户交流，提供有创意的建议。',
+        content: '你是一个专业的小说创作助手，擅长帮助用户构思情节、塑造角色、续写故事。请用温暖、鼓励的语气与用户交流，提供有创意的建议。请只返回纯文本内容，不要使用 markdown 格式。',
       })
 
       const response = await fetch(`${this.baseUrl}/chat/completions`, {

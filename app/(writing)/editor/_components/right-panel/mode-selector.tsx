@@ -18,7 +18,7 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors border border-gray-200 dark:border-gray-700"
+        className="flex items-center gap-1 px-1.5 py-1 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200 border border-gray-200 dark:border-gray-700 hover:scale-105 active:scale-95"
       >
         {(() => {
           const IconComponent = currentMode?.icon
@@ -26,15 +26,15 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
             <>
               {typeof IconComponent === 'string'
                 ? (
-                    <span className="text-xs">{IconComponent}</span>
+                    <span className="text-[10px]">{IconComponent}</span>
                   )
                 : IconComponent
                   ? (
-                      <IconComponent className="w-3.5 h-3.5" />
+                      <IconComponent className="w-3 h-3" />
                     )
                   : null}
               <span className="text-gray-900 dark:text-gray-100">{currentMode?.label}</span>
-              <ChevronDown className="w-3 h-3 text-gray-500" />
+              <ChevronDown className="w-2.5 h-2.5 text-gray-500 transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </>
           )
         })()}
@@ -43,7 +43,7 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute bottom-full mb-1 left-0 z-20 min-w-[140px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1">
+          <div className="absolute bottom-full mb-1 left-0 z-20 min-w-[120px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg py-0.5 animate-in fade-in-0 zoom-in-95 duration-200">
             {MODE_OPTIONS.map((mode) => {
               const IconComp = mode.icon
               return (
@@ -54,7 +54,7 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
                     onChange(mode.value)
                     setIsOpen(false)
                   }}
-                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                  className={`w-full flex items-center gap-1.5 px-2 py-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-150 ${
                     value === mode.value
                       ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium'
                       : 'text-gray-700 dark:text-gray-300'
@@ -62,11 +62,11 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
                 >
                   {typeof IconComp === 'string'
                     ? (
-                        <span className="text-xs">{IconComp}</span>
+                        <span className="text-[10px]">{IconComp}</span>
                       )
                     : IconComp
                       ? (
-                          <IconComp className="w-3.5 h-3.5" />
+                          <IconComp className="w-3 h-3" />
                         )
                       : null}
                   <span>{mode.label}</span>

@@ -295,7 +295,7 @@ export default function RightPanel() {
       <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 
       {/* 对话区域 */}
-      <div className="flex-1 overflow-hidden p-4">
+      <div className="flex-1 overflow-hidden px-2 py-2">
         {isLoadingMessages
           ? (
               <MessageListSkeleton />
@@ -310,13 +310,13 @@ export default function RightPanel() {
       </div>
 
       {/* 输入区域 */}
-      <div className="p-3 space-y-2">
+      <div className="px-2 py-1.5 space-y-1.5">
         {/* 选中的章节标签 */}
         {selectedChapters.length > 0 && (
           <SelectedChapters chapters={selectedChapters} onRemove={handleRemoveChapter} />
         )}
 
-        <div className="flex gap-2 items-end">
+        <div className="flex gap-1.5 items-end">
           <InputArea
             value={input}
             onChange={setInput}
@@ -325,7 +325,7 @@ export default function RightPanel() {
         </div>
 
         {/* 工具栏：@ 按钮 + 模式切换 + 模型选择 + 发送按钮 */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <AtButton onClick={handleAtClick} />
           <ModeSelector value={mode} onChange={setMode} />
           <ModelSelector value={model} onChange={setModel} />

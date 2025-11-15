@@ -300,7 +300,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
   if ((!show && !showInput) || !editor) return null
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-1.5">
       {/* AI 输入框 */}
       <AIInputBox
         show={showInput}
@@ -334,7 +334,8 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
       />
 
       {/* 菜单容器 - 水平排列 */}
-      {showInput && (
+      {/* 当输入框有内容时隐藏菜单（用户对话模式），清空时显示 */}
+      {showInput && !aiPrompt.trim() && (
         <div className="flex items-start gap-2">
           {/* 左侧菜单 */}
           <AIMenuLeft

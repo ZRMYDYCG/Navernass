@@ -71,37 +71,37 @@ export function ChapterSelector({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-32">
       <div className="fixed inset-0 bg-black/20" onClick={onClose} />
       <div
         ref={containerRef}
-        className="relative z-10 w-full max-w-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
+        className="relative z-10 w-full max-w-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
       >
         {/* 头部 */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800">
           <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">选择章节</h3>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
           >
             <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
         </div>
 
         {/* 搜索框 */}
-        <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800">
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="搜索章节..."
-            className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+            className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
           />
         </div>
 
         {/* 章节列表 */}
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-96 overflow-y-auto bg-gray-100 dark:bg-gray-800">
           {loading
             ? (
                 <div className="p-8 flex items-center justify-center">
@@ -151,7 +151,7 @@ export function ChapterSelector({
         </div>
 
         {/* 底部操作 */}
-        <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-100 dark:bg-gray-800">
           <span className="text-xs text-gray-500 dark:text-gray-400">
             已选择
             {' '}

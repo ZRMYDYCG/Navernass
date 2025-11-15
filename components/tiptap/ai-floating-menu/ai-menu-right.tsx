@@ -18,8 +18,7 @@ const menuItems: MenuItem[] = [
   { label: '丰富内容', prompt: '丰富内容', icon: '☰' },
   { label: '精简内容', prompt: '精简内容', icon: '÷' },
   { label: '修改标点符号', prompt: '修改标点符号', icon: '"' },
-  { label: '翻译', prompt: '翻译', icon: '💬' },
-  { label: '继续写', prompt: '继续写', icon: '✏️' },
+  { label: '继续写', prompt: '继续写', icon: '→' },
 ]
 
 export function AIMenuRight({ onPresetAction, isLoading, editor }: AIMenuRightProps) {
@@ -41,17 +40,17 @@ export function AIMenuRight({ onPresetAction, isLoading, editor }: AIMenuRightPr
   }
 
   return (
-    <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl w-[200px] overflow-hidden">
-      <div className="py-1">
+    <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-xl w-[160px] overflow-hidden">
+      <div className="py-0.5">
         {menuItems.map(item => (
           <button
             key={item.label}
             type="button"
             onClick={() => handleClick(item)}
             disabled={isLoading}
-            className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-2.5 py-1.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="text-base w-5 text-center">{item.icon}</span>
+            <span className="text-sm w-4 text-center">{item.icon}</span>
             <span>{item.label}</span>
           </button>
         ))}

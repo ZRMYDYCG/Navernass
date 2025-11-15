@@ -79,22 +79,21 @@ export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) 
         {chapters.map(chapter => (
           <div
             key={chapter.id}
-            className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md flex-shrink-0"
+            className="flex items-center gap-1 px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded flex-shrink-0 transition-all duration-200 hover:scale-105 animate-in fade-in-0 slide-in-from-left-1"
           >
             <span
-              className="text-xs text-gray-700 dark:text-gray-300 truncate max-w-[60px]"
+              className="text-[10px] text-gray-700 dark:text-gray-300 truncate max-w-[50px]"
               title={chapter.title}
-              style={{ fontSize: '12px' }}
             >
-              {chapter.title.length > 5 ? `${chapter.title.slice(0, 5)}...` : chapter.title}
+              {chapter.title.length > 4 ? `${chapter.title.slice(0, 4)}...` : chapter.title}
             </span>
             <button
               type="button"
               onClick={() => onRemove(chapter.id)}
-              className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+              className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-150 flex-shrink-0 hover:scale-110 active:scale-95"
               title="移除"
             >
-              <X className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+              <X className="w-2.5 h-2.5 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
         ))}
