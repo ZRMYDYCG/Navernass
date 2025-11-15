@@ -1,30 +1,35 @@
 'use client'
 
 import type { Message } from '@/lib/supabase/sdk/types'
-import { ChevronDown, Copy, Download, Share2, Sparkles, X } from 'lucide-react'
+import { Copy, Download, FileText, Share2, X } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { TiptapEditor } from '@/components/tiptap/index'
 import { Button } from '@/components/ui/button'
 import { copyTextToClipboard } from '@/lib/utils'
+import { ImportToNovelDialog } from './import-to-novel-dialog'
 
 interface DocumentEditorProps {
   message: Message | null
+  latestAssistantMessage?: Message | null
   isOpen: boolean
   onClose: () => void
   onSave?: (content: string) => void
 }
 
-export function DocumentEditor({ message, isOpen, onClose, onSave: _onSave }: DocumentEditorProps) {
-  // 直接使用 message 的内容，通过 key 属性来重置编辑器
-  const initialContent = message?.content || ''
-  const [content, setContent] = useState(initialContent)
+export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClose, onSave: _onSave }: DocumentEditorProps) {
+  const activeMessage = latestAssistantMessage || message
+  const editorContent = activeMessage?.content || ''
+  const [content, setContent] = useState(editorContent)
+  const [showImportDialog, setShowImportDialog] = useState(false)
 
-  // 当 message 变化时，重置内容（通过 key 属性触发重新渲染）
-  const editorKey = message?.id || 'empty'
+  if (activeMessage?.content && activeMessage.content !== content) {
+    setContent(activeMessage.content)
+  }
 
-  // 从 HTML 中提取纯文本
+  const editorKey = latestAssistantMessage?.id || message?.id || 'empty'
+
   const getPlainText = (html: string) => {
     const div = document.createElement('div')
     div.innerHTML = html
@@ -82,13 +87,17 @@ export function DocumentEditor({ message, isOpen, onClose, onSave: _onSave }: Do
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3">
-        {/* 左侧：AI 写作助手 */}
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-blue-500" />
-          <span className="text-sm font-medium text-blue-500">AI 写作助手</span>
-          <ChevronDown className="w-4 h-4 text-blue-500" />
-        </div>
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+        {/* 左侧：导入按钮 */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 px-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+          onClick={() => setShowImportDialog(true)}
+        >
+          <FileText className="w-4 h-4 mr-1.5" />
+          <span className="text-sm">导入到小说</span>
+        </Button>
 
         {/* 右侧：操作按钮 */}
         <div className="flex items-center gap-2">
@@ -132,11 +141,11 @@ export function DocumentEditor({ message, isOpen, onClose, onSave: _onSave }: Do
       </div>
 
       {/* 编辑器内容 */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full p-4">
+      <div className="flex-1 overflow-y-auto">
+        <div className="min-h-full px-[40px] py-4">
           <TiptapEditor
             key={editorKey}
-            content={initialContent}
+            content={editorContent}
             onUpdate={setContent}
             placeholder="开始编辑文档..."
             className="h-full"
@@ -144,6 +153,16 @@ export function DocumentEditor({ message, isOpen, onClose, onSave: _onSave }: Do
           />
         </div>
       </div>
+
+      {/* 导入对话框 */}
+      <ImportToNovelDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        content={content}
+        onSuccess={() => {
+          toast.success('内容已成功导入到小说')
+        }}
+      />
     </div>
   )
 }

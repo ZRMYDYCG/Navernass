@@ -40,6 +40,13 @@ export default function ConversationPage() {
   const shareImageRef = useRef<HTMLDivElement>(null)
   const rightPanelRef = useRef<ImperativePanelHandle>(null)
 
+  // 获取最新的 assistant 消息（用于编辑模式下的自动同步）
+  const latestAssistantMessage = useMemo(() => {
+    if (!showDocumentEditor) return null
+    const assistantMessages = messages.filter(msg => msg.role === 'assistant')
+    return assistantMessages.length > 0 ? assistantMessages[assistantMessages.length - 1] : null
+  }, [messages, showDocumentEditor])
+
   const validSelectedMessageIds = useMemo(() => {
     if (!isShareMode) return []
 
@@ -560,6 +567,7 @@ export default function ConversationPage() {
               >
                 <DocumentEditor
                   message={editingMessage}
+                  latestAssistantMessage={latestAssistantMessage}
                   isOpen={showDocumentEditor}
                   onClose={handleCloseDocumentEditor}
                   onSave={handleSaveDocument}
