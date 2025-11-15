@@ -14,6 +14,7 @@ interface EditorHeaderProps {
   onSelectChapter?: (chapterId: string) => void
   onToggleAI?: () => void
   onToggleTerminal?: () => void
+  onLock?: () => void
   onBack?: () => void
 }
 
@@ -25,6 +26,7 @@ export default function EditorHeader({
   onSelectChapter,
   onToggleAI,
   onToggleTerminal,
+  onLock,
   onBack,
 }: EditorHeaderProps) {
   const router = useRouter()
@@ -149,10 +151,10 @@ export default function EditorHeader({
 
   // 锁屏
   const handleLock = useCallback(() => {
-    // TODO: 实现锁屏功能
-    // eslint-disable-next-line no-console
-    console.log('锁屏')
-  }, [])
+    if (onLock) {
+      onLock()
+    }
+  }, [onLock])
 
   // 关闭（返回上一路由）
   const handleClose = useCallback(() => {

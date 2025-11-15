@@ -19,6 +19,8 @@ import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import EditorContent from './_components/editor-content'
 import EditorHeader from './_components/editor-header'
 import LeftPanel from './_components/left-panel'
+import { LockScreen } from './_components/lock-screen'
+import { SetPasswordDialog } from './_components/lock-screen/set-password-dialog'
 import { RenameChapterDialog } from './_components/rename-chapter-dialog'
 import { RenameVolumeDialog } from './_components/rename-volume-dialog'
 import RightPanel from './_components/right-panel'
@@ -55,6 +57,9 @@ export default function NovelsEdit() {
   const [editingVolume, setEditingVolume] = useState<Volume | null>(null)
   const [editingVolumeTitle, setEditingVolumeTitle] = useState('')
   const [isUpdatingVolume, setIsUpdatingVolume] = useState(false)
+  const [isLocked, setIsLocked] = useState(false)
+  const [setPasswordDialogOpen, setSetPasswordDialogOpen] = useState(false)
+  const [isSettingPassword, setIsSettingPassword] = useState(false)
   const [deleteChapterDialogOpen, setDeleteChapterDialogOpen] = useState(false)
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null)
   const [isDeletingChapter, setIsDeletingChapter] = useState(false)
@@ -692,6 +697,59 @@ export default function NovelsEdit() {
     }
   }
 
+  // 锁屏处理
+  const handleLock = async () => {
+    // 动态导入工具函数，避免 SSR 问题
+    const { hasPassword, setLocked } = await import('./_components/lock-screen/utils')
+    
+    if (!hasPassword()) {
+      // 如果没有设置密码，先打开设置密码对话框
+      setSetPasswordDialogOpen(true)
+    } else {
+      // 如果已设置密码，直接锁定
+      setLocked(true)
+      setIsLocked(true)
+      
+      // 触发自定义事件，通知 LockScreen 组件
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('lockScreenChange'))
+      }
+    }
+  }
+
+  // 处理密码设置
+  const handleSetPassword = async (password: string) => {
+    setIsSettingPassword(true)
+    
+    // 动态导入工具函数
+    const { setPassword, setLocked } = await import('./_components/lock-screen/utils')
+    
+    try {
+      setPassword(password)
+      toast.success('密码设置成功！')
+      setSetPasswordDialogOpen(false)
+      
+      // 设置密码后立即锁定
+      setLocked(true)
+      setIsLocked(true)
+      
+      // 触发自定义事件，通知 LockScreen 组件
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('lockScreenChange'))
+      }
+    } catch (error) {
+      console.error('设置密码失败:', error)
+      toast.error('设置密码失败')
+    } finally {
+      setIsSettingPassword(false)
+    }
+  }
+
+  // 锁屏状态变化回调
+  const handleLockChange = (locked: boolean) => {
+    setIsLocked(locked)
+  }
+
   // 返回小说列表
   const handleBack = () => {
     router.push('/novels')
@@ -725,8 +783,9 @@ export default function NovelsEdit() {
 
   return (
     <Tooltip.Provider>
-      <div className="h-screen flex flex-col overflow-hidden">
-        <EditorHeader
+      <LockScreen onLockChange={handleLockChange}>
+        <div className="h-screen flex flex-col overflow-hidden">
+          <EditorHeader
           title={activeTab ? chapters.find(c => c.id === activeTab)?.title || '未选择章节' : '未选择章节'}
           currentChapterId={activeTab}
           showLeftPanel={showLeftPanel}
@@ -741,6 +800,7 @@ export default function NovelsEdit() {
             // eslint-disable-next-line no-console
             console.log('切换终端')
           }}
+          onLock={handleLock}
           onBack={handleBack}
         />
 
@@ -1007,7 +1067,16 @@ export default function NovelsEdit() {
           onConfirm={handleConfirmDeleteVolume}
           isDeleting={isDeletingVolume}
         />
-      </div>
+
+        {/* 设置密码对话框 */}
+        <SetPasswordDialog
+          open={setPasswordDialogOpen}
+          onOpenChange={setSetPasswordDialogOpen}
+          onConfirm={handleSetPassword}
+          isSetting={isSettingPassword}
+        />
+        </div>
+      </LockScreen>
     </Tooltip.Provider>
   )
 }
