@@ -72,7 +72,11 @@ export default function LeftPanel({
 
         {activeTab === 'search' && <SearchTab />}
 
-        {activeTab === 'workspace' && <WorkspaceTab />}
+        {activeTab === 'workspace' && (
+          <WorkspaceTab
+            chapters={chapters.map(c => ({ id: c.id, title: c.title }))}
+          />
+        )}
       </div>
     </div>
   )
