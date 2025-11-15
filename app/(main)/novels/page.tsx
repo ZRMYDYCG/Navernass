@@ -192,7 +192,7 @@ export default function Novels() {
   return (
     <div className="flex flex-col dark:bg-gray-900 transition-colors h-full">
       {/* 顶部区域 */}
-      <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex-shrink-0">
+      <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 shrink-0">
         <div className="flex-1 hidden sm:block" />
         <SegmentedControl
           value={filter}
@@ -212,24 +212,24 @@ export default function Novels() {
       <div className="flex-1 py-2 px-4 sm:px-6">
         {viewMode === 'grid'
           ? (
-            <NovelList
-              novels={novels}
-              loading={loading}
-              onOpenNovel={handleOpenNovel}
-              onContextMenu={handleContextMenu}
-              onCreateNovel={handleOpenCreateDialog}
-            />
-          )
+              <NovelList
+                novels={novels}
+                loading={loading}
+                onOpenNovel={handleOpenNovel}
+                onContextMenu={handleContextMenu}
+                onCreateNovel={handleOpenCreateDialog}
+              />
+            )
           : (
-            <NovelTable
-              novels={novels}
-              loading={loading}
-              onOpenNovel={handleOpenNovel}
-              onEditNovel={handleEditNovel}
-              onDeleteNovel={handleDeleteNovel}
-              onContextMenu={handleContextMenu}
-            />
-          )}
+              <NovelTable
+                novels={novels}
+                loading={loading}
+                onOpenNovel={handleOpenNovel}
+                onEditNovel={handleEditNovel}
+                onDeleteNovel={handleDeleteNovel}
+                onContextMenu={handleContextMenu}
+              />
+            )}
 
         {/* 右键菜单 */}
         {contextMenuNovel && contextMenuPosition && (
