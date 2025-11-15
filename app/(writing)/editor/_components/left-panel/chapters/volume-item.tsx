@@ -4,8 +4,15 @@ import type { Volume } from '../types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import * as Popover from '@radix-ui/react-popover'
-import { ChevronDown, ChevronRight, Edit2, GripVertical, Trash2 } from 'lucide-react'
+import { BookOpen, ChevronDown, ChevronRight, Edit2, GripVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
 
 interface VolumeItemProps {
   volume: Volume
@@ -13,6 +20,7 @@ interface VolumeItemProps {
   onToggle: () => void
   onRename?: (volume: Volume) => void
   onDelete?: (volume: Volume) => void
+  onCreateChapter?: (volumeId: string) => void
   children?: React.ReactNode
 }
 
@@ -22,6 +30,7 @@ export function VolumeItem({
   onToggle,
   onRename,
   onDelete,
+  onCreateChapter,
   children,
 }: VolumeItemProps) {
   const [popoverOpen, setPopoverOpen] = useState(false)
@@ -41,92 +50,137 @@ export function VolumeItem({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="group">
-      <div className="pl-1 pr-1.5 py-1 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-        <div className="flex items-center gap-1">
-          {/* 拖拽手柄 + Popover */}
-          <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <Popover.Trigger asChild>
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <div ref={setNodeRef} style={style} className="group">
+          <div className="pl-1 pr-1.5 py-1 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            <div className="flex items-center gap-1">
+              {/* 拖拽手柄 + Popover */}
+              <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <Popover.Trigger asChild>
+                  <button
+                    type="button"
+                    {...attributes}
+                    {...listeners}
+                    className={`cursor-grab active:cursor-grabbing p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity ${
+                      isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <GripVertical className="w-3 h-3 text-gray-400" />
+                  </button>
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Content
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+                    sideOffset={5}
+                    align="start"
+                  >
+                    {onRename && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onRename(volume)
+                          setPopoverOpen(false)
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        重命名
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onDelete(volume)
+                          setPopoverOpen(false)
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        删除
+                      </button>
+                    )}
+                  </Popover.Content>
+                </Popover.Portal>
+              </Popover.Root>
+
+              {/* 展开/折叠按钮 */}
               <button
                 type="button"
-                {...attributes}
-                {...listeners}
-                className={`cursor-grab active:cursor-grabbing p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity ${
-                  isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                }`}
-                onClick={e => e.stopPropagation()}
+                onClick={onToggle}
+                className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
               >
-                <GripVertical className="w-3 h-3 text-gray-400" />
+                {isExpanded
+                  ? (
+                      <ChevronDown className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                    )
+                  : (
+                      <ChevronRight className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                    )}
               </button>
-            </Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Content
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
-                sideOffset={5}
-                align="start"
-              >
-                {onRename && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onRename(volume)
-                      setPopoverOpen(false)
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                    重命名
-                  </button>
-                )}
-                {onDelete && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onDelete(volume)
-                      setPopoverOpen(false)
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    删除
-                  </button>
-                )}
-              </Popover.Content>
-            </Popover.Portal>
-          </Popover.Root>
 
-          {/* 展开/折叠按钮 */}
-          <button
-            type="button"
-            onClick={onToggle}
-            className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-          >
-            {isExpanded
-              ? (
-                  <ChevronDown className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-                )
-              : (
-                  <ChevronRight className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-                )}
-          </button>
-
-          {/* 卷信息 */}
-          <div className="flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
-            <h3 className="text-xs font-normal text-gray-900 dark:text-gray-100 truncate">
-              {volume.title}
-            </h3>
+              {/* 卷信息 */}
+              <div className="flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
+                <h3 className="text-xs font-normal text-gray-900 dark:text-gray-100 truncate">
+                  {volume.title}
+                </h3>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* 卷下的章节 */}
-      {isExpanded && children && (
-        <div className="ml-3">
-          {children}
+          {/* 卷下的章节 */}
+          {isExpanded && children && (
+            <div className="ml-3">
+              {children}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        {onCreateChapter && (
+          <ContextMenuItem
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation()
+              onCreateChapter(volume.id)
+            }}
+            className="flex items-center gap-1.5 px-2 py-1 text-xs"
+          >
+            <BookOpen className="w-3 h-3" />
+            新增章节
+          </ContextMenuItem>
+        )}
+        {onRename && (
+          <ContextMenuItem
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation()
+              onRename(volume)
+            }}
+            className="flex items-center gap-1.5 px-2 py-1 text-xs"
+          >
+            <Edit2 className="w-3 h-3" />
+            编辑卷名
+          </ContextMenuItem>
+        )}
+        {onDelete && (
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuItem
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation()
+                onDelete(volume)
+              }}
+              className="flex items-center gap-1.5 px-2 py-1 text-xs text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20"
+            >
+              <Trash2 className="w-3 h-3" />
+              删除卷
+            </ContextMenuItem>
+          </>
+        )}
+      </ContextMenuContent>
+    </ContextMenu>
   )
 }

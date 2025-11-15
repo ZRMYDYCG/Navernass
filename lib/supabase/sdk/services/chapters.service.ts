@@ -50,16 +50,23 @@ export class ChaptersService {
       ? chapterData.content.replace(/<[^>]*>/g, '').length
       : 0
 
+    const insertData: Record<string, unknown> = {
+      novel_id: chapterData.novel_id,
+      title: chapterData.title,
+      content: chapterData.content || '',
+      order_index: chapterData.order_index,
+      word_count: wordCount,
+      status: 'draft',
+    }
+
+    // 如果提供了 volume_id，则包含在插入数据中
+    if (chapterData.volume_id !== undefined) {
+      insertData.volume_id = chapterData.volume_id || null
+    }
+
     const { data, error } = await supabase
       .from('chapters')
-      .insert({
-        novel_id: chapterData.novel_id,
-        title: chapterData.title,
-        content: chapterData.content || '',
-        order_index: chapterData.order_index,
-        word_count: wordCount,
-        status: 'draft',
-      })
+      .insert(insertData)
       .select()
       .single()
 

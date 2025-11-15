@@ -10,12 +10,14 @@ export default function ChaptersTab({
   selectedChapter,
   onSelectChapter,
   onCreateChapter,
+  onCreateChapterInVolume,
   onCreateVolume,
   onReorderChapters,
   onReorderVolumes,
   onMoveChapterToVolume,
   onRenameChapter,
   onDeleteChapter,
+  onCopyChapter,
   onRenameVolume,
   onDeleteVolume,
 }: ChaptersTabProps) {
@@ -45,8 +47,10 @@ export default function ChaptersTab({
         onMoveChapterToVolume={onMoveChapterToVolume}
         onRenameChapter={onRenameChapter}
         onDeleteChapter={onDeleteChapter}
+        onCopyChapter={onCopyChapter}
         onRenameVolume={onRenameVolume}
         onDeleteVolume={onDeleteVolume}
+        onCreateChapterInVolume={onCreateChapterInVolume}
         onCollapseAllRef={collapseAllRef}
       />
     </div>

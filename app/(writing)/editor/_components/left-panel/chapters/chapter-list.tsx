@@ -56,8 +56,10 @@ interface ChapterListProps {
   onMoveChapterToVolume?: (chapterId: string, volumeId: string | null) => void
   onRenameChapter?: (chapter: Chapter) => void
   onDeleteChapter?: (chapter: Chapter) => void
+  onCopyChapter?: (chapter: Chapter) => void
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
+  onCreateChapterInVolume?: (volumeId: string) => void
   onCollapseAllRef?: React.MutableRefObject<(() => void) | null>
 }
 
@@ -71,8 +73,10 @@ export function ChapterList({
   onMoveChapterToVolume,
   onRenameChapter,
   onDeleteChapter,
+  onCopyChapter,
   onRenameVolume,
   onDeleteVolume,
+  onCreateChapterInVolume,
   onCollapseAllRef,
 }: ChapterListProps) {
   const [localChapters, setLocalChapters] = useState(() => chapters || [])
@@ -317,6 +321,7 @@ export function ChapterList({
                 onToggle={() => toggleVolume(volume.id)}
                 onRename={onRenameVolume}
                 onDelete={onDeleteVolume}
+                onCreateChapter={onCreateChapterInVolume}
               >
                 {/* 卷下的章节 */}
                 {getVolumeChapters(volume.id).map((chapter, index) => {
@@ -342,6 +347,7 @@ export function ChapterList({
                           onSelect={() => onSelectChapter(chapter.id)}
                           onRename={onRenameChapter}
                           onDelete={onDeleteChapter}
+                          onCopy={onCopyChapter}
                         />
                       </div>
 
@@ -380,6 +386,7 @@ export function ChapterList({
                     onSelect={() => onSelectChapter(chapter.id)}
                     onRename={onRenameChapter}
                     onDelete={onDeleteChapter}
+                    onCopy={onCopyChapter}
                   />
                 </div>
 

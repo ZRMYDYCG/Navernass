@@ -12,12 +12,14 @@ interface LeftPanelProps {
   selectedChapter: string | null
   onSelectChapter: (id: string) => void
   onCreateChapter?: () => void
+  onCreateChapterInVolume?: (volumeId: string) => void
   onCreateVolume?: () => void
   onReorderChapters?: (chapters: Array<{ id: string, order_index: number }>) => void
   onReorderVolumes?: (volumes: Array<{ id: string, order_index: number }>) => void
   onMoveChapterToVolume?: (chapterId: string, volumeId: string | null) => void
   onRenameChapter?: (chapter: Chapter) => void
   onDeleteChapter?: (chapter: Chapter) => void
+  onCopyChapter?: (chapter: Chapter) => void
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
 }
@@ -29,12 +31,14 @@ export default function LeftPanel({
   selectedChapter,
   onSelectChapter,
   onCreateChapter,
+  onCreateChapterInVolume,
   onCreateVolume,
   onReorderChapters,
   onReorderVolumes,
   onMoveChapterToVolume,
   onRenameChapter,
   onDeleteChapter,
+  onCopyChapter,
   onRenameVolume,
   onDeleteVolume,
 }: LeftPanelProps) {
@@ -53,12 +57,14 @@ export default function LeftPanel({
             selectedChapter={selectedChapter}
             onSelectChapter={onSelectChapter}
             onCreateChapter={onCreateChapter}
+            onCreateChapterInVolume={onCreateChapterInVolume}
             onCreateVolume={onCreateVolume}
             onReorderChapters={onReorderChapters}
             onReorderVolumes={onReorderVolumes}
             onMoveChapterToVolume={onMoveChapterToVolume}
             onRenameChapter={onRenameChapter}
             onDeleteChapter={onDeleteChapter}
+            onCopyChapter={onCopyChapter}
             onRenameVolume={onRenameVolume}
             onDeleteVolume={onDeleteVolume}
           />

@@ -15,9 +15,12 @@ import { useIsMobile } from '@/hooks/use-media-query'
 import { chaptersApi, novelsApi, volumesApi } from '@/lib/supabase/sdk'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
 import { CreateVolumeDialog } from './_components/create-volume-dialog'
+import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import EditorContent from './_components/editor-content'
 import EditorHeader from './_components/editor-header'
 import LeftPanel from './_components/left-panel'
+import { RenameChapterDialog } from './_components/rename-chapter-dialog'
+import { RenameVolumeDialog } from './_components/rename-volume-dialog'
 import RightPanel from './_components/right-panel'
 
 export default function NovelsEdit() {
@@ -44,6 +47,20 @@ export default function NovelsEdit() {
   const [newVolumeTitle, setNewVolumeTitle] = useState('')
   const [newVolumeDescription, setNewVolumeDescription] = useState('')
   const [isCreatingVolume, setIsCreatingVolume] = useState(false)
+  const [renameChapterDialogOpen, setRenameChapterDialogOpen] = useState(false)
+  const [editingChapter, setEditingChapter] = useState<Chapter | null>(null)
+  const [editingChapterTitle, setEditingChapterTitle] = useState('')
+  const [isUpdatingChapter, setIsUpdatingChapter] = useState(false)
+  const [renameVolumeDialogOpen, setRenameVolumeDialogOpen] = useState(false)
+  const [editingVolume, setEditingVolume] = useState<Volume | null>(null)
+  const [editingVolumeTitle, setEditingVolumeTitle] = useState('')
+  const [isUpdatingVolume, setIsUpdatingVolume] = useState(false)
+  const [deleteChapterDialogOpen, setDeleteChapterDialogOpen] = useState(false)
+  const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null)
+  const [isDeletingChapter, setIsDeletingChapter] = useState(false)
+  const [deleteVolumeDialogOpen, setDeleteVolumeDialogOpen] = useState(false)
+  const [volumeToDelete, setVolumeToDelete] = useState<Volume | null>(null)
+  const [isDeletingVolume, setIsDeletingVolume] = useState(false)
 
   // 面板控制引用
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
@@ -213,6 +230,165 @@ export default function NovelsEdit() {
     setCreateChapterDialogOpen(true)
   }
 
+  // 在卷中创建章节
+  const handleCreateChapterInVolume = async (volumeId: string) => {
+    if (!novelId) return
+
+    try {
+      setIsCreatingChapter(true)
+
+      // 找到该卷下的所有章节，确定新章节的 order_index
+      const volumeChapters = chapters
+        .filter(c => c.volume_id === volumeId)
+        .sort((a, b) => a.order_index - b.order_index)
+
+      // 新章节的 order_index 应该是卷中最后一个章节的 order_index + 1
+      // 如果卷中没有章节，则使用卷的 order_index * 1000 作为起始值
+      const volume = volumes.find(v => v.id === volumeId)
+      const newOrderIndex = volumeChapters.length > 0
+        ? volumeChapters[volumeChapters.length - 1].order_index + 1
+        : (volume?.order_index ?? 0) * 1000
+
+      const newChapter = await chaptersApi.create({
+        novel_id: novelId,
+        title: '新章节',
+        order_index: newOrderIndex,
+        content: '',
+        volume_id: volumeId,
+      })
+
+      toast.success('章节创建成功！')
+
+      // 重新加载章节列表
+      const updatedChapters = await chaptersApi.getByNovelId(novelId)
+      setChapters(updatedChapters)
+
+      // 自动打开新创建的章节
+      handleSelectChapter(newChapter.id)
+    } catch (error) {
+      console.error('创建章节失败:', error)
+      const message = error instanceof Error ? error.message : '创建章节失败'
+      toast.error(message)
+    } finally {
+      setIsCreatingChapter(false)
+    }
+  }
+
+  // 复制章节
+  const handleCopyChapter = async (chapter: { id: string }) => {
+    if (!novelId) return
+
+    try {
+      setIsCreatingChapter(true)
+      const originalChapter = await chaptersApi.getById(chapter.id)
+      if (!originalChapter) {
+        toast.error('无法获取原章节信息')
+        return
+      }
+
+      // 调试：检查原章节的 volume_id
+      // eslint-disable-next-line no-console
+      console.log('原章节信息:', {
+        id: originalChapter.id,
+        title: originalChapter.title,
+        volume_id: originalChapter.volume_id,
+        volume_id_type: typeof originalChapter.volume_id,
+      })
+
+      // 确定新章节的 order_index
+      // 副本应该插入到原章节的紧后面，并且保持在同一个卷中
+      let newOrderIndex: number
+      let chaptersToUpdate: Array<{ id: string, order_index: number }> = []
+
+      // 明确检查 volume_id 是否存在（不为 null、undefined 或空字符串）
+      const hasVolumeId = originalChapter.volume_id != null && originalChapter.volume_id !== ''
+
+      if (hasVolumeId) {
+        // 如果原章节在卷中，副本也应该在同一个卷中
+        const volumeId = originalChapter.volume_id!
+        const volumeChapters = chapters
+          .filter(c => c.volume_id === volumeId)
+          .sort((a, b) => a.order_index - b.order_index)
+
+        const currentIndex = volumeChapters.findIndex(c => c.id === originalChapter.id)
+        if (currentIndex >= 0) {
+          // 新章节插入到原章节之后
+          newOrderIndex = originalChapter.order_index + 1
+
+          // 更新原章节之后所有章节的 order_index（+1）
+          if (currentIndex < volumeChapters.length - 1) {
+            chaptersToUpdate = volumeChapters.slice(currentIndex + 1).map((c, idx) => ({
+              id: c.id,
+              order_index: newOrderIndex + 1 + idx,
+            }))
+          }
+        } else {
+          // 如果找不到，则放在卷的最后
+          const lastChapter = volumeChapters[volumeChapters.length - 1]
+          newOrderIndex = lastChapter ? lastChapter.order_index + 1 : originalChapter.order_index + 1
+        }
+      } else {
+        // 如果原章节在根目录，副本也在根目录
+        const rootChapters = chapters
+          .filter(c => !c.volume_id)
+          .sort((a, b) => a.order_index - b.order_index)
+
+        const currentIndex = rootChapters.findIndex(c => c.id === originalChapter.id)
+        if (currentIndex >= 0) {
+          // 新章节插入到原章节之后
+          newOrderIndex = originalChapter.order_index + 1
+
+          // 更新原章节之后所有章节的 order_index（+1）
+          if (currentIndex < rootChapters.length - 1) {
+            chaptersToUpdate = rootChapters.slice(currentIndex + 1).map((c, idx) => ({
+              id: c.id,
+              order_index: newOrderIndex + 1 + idx,
+            }))
+          }
+        } else {
+          // 如果找不到，则放在根目录的最后
+          const lastChapter = rootChapters[rootChapters.length - 1]
+          newOrderIndex = lastChapter ? lastChapter.order_index + 1 : originalChapter.order_index + 1
+        }
+      }
+
+      // 先更新后面章节的 order_index
+      if (chaptersToUpdate.length > 0) {
+        await chaptersApi.updateOrder(chaptersToUpdate)
+      }
+
+      // 创建复制的章节，保持在同一个卷中
+      // 明确保留原章节的 volume_id
+      const newChapterVolumeId = hasVolumeId ? originalChapter.volume_id! : undefined
+
+      // eslint-disable-next-line no-console
+      console.log('创建副本章节，volume_id:', newChapterVolumeId)
+
+      const newChapter = await chaptersApi.create({
+        novel_id: novelId,
+        title: `${originalChapter.title} (副本)`,
+        order_index: newOrderIndex,
+        content: originalChapter.content || '',
+        volume_id: newChapterVolumeId,
+      })
+
+      toast.success('章节复制成功！')
+
+      // 重新加载章节列表
+      const updatedChapters = await chaptersApi.getByNovelId(novelId)
+      setChapters(updatedChapters)
+
+      // 自动打开新复制的章节
+      handleSelectChapter(newChapter.id)
+    } catch (error) {
+      console.error('复制章节失败:', error)
+      const message = error instanceof Error ? error.message : '复制章节失败'
+      toast.error(message)
+    } finally {
+      setIsCreatingChapter(false)
+    }
+  }
+
   // 创建新章节
   const handleCreateChapter = async () => {
     if (!novelId) return
@@ -352,6 +528,170 @@ export default function NovelsEdit() {
     }
   }
 
+  // 重命名章节
+  const handleRenameChapter = (chapter: { id: string, title: string }) => {
+    const fullChapter = chapters.find(c => c.id === chapter.id)
+    if (!fullChapter) return
+    setEditingChapter(fullChapter)
+    setEditingChapterTitle(fullChapter.title)
+    setRenameChapterDialogOpen(true)
+  }
+
+  const handleConfirmRenameChapter = async () => {
+    if (!editingChapter || !editingChapterTitle.trim()) return
+
+    try {
+      setIsUpdatingChapter(true)
+      await chaptersApi.update({
+        id: editingChapter.id,
+        title: editingChapterTitle.trim(),
+      })
+      toast.success('章节重命名成功！')
+      setRenameChapterDialogOpen(false)
+
+      // 重新加载章节列表
+      if (novelId) {
+        const updatedChapters = await chaptersApi.getByNovelId(novelId)
+        setChapters(updatedChapters)
+      }
+    } catch (error) {
+      console.error('重命名章节失败:', error)
+      const message = error instanceof Error ? error.message : '重命名章节失败'
+      toast.error(message)
+    } finally {
+      setIsUpdatingChapter(false)
+    }
+  }
+
+  // 删除章节
+  const handleDeleteChapter = (chapter: { id: string, title: string }) => {
+    const fullChapter = chapters.find(c => c.id === chapter.id)
+    if (!fullChapter) return
+
+    setChapterToDelete(fullChapter)
+    setDeleteChapterDialogOpen(true)
+  }
+
+  const handleConfirmDeleteChapter = async () => {
+    if (!chapterToDelete || !novelId) return
+
+    try {
+      setIsDeletingChapter(true)
+      await chaptersApi.delete(chapterToDelete.id)
+      toast.success('章节删除成功！')
+
+      // 如果删除的是当前打开的章节，关闭它
+      if (activeTab === chapterToDelete.id) {
+        const newTabs = openTabs.filter(tab => tab.id !== chapterToDelete.id)
+        setOpenTabs(newTabs)
+        if (newTabs.length > 0) {
+          setActiveTab(newTabs[newTabs.length - 1].id)
+          setSelectedChapter(newTabs[newTabs.length - 1].id)
+        } else {
+          setActiveTab(null)
+          setSelectedChapter(null)
+        }
+      }
+
+      // 重新加载章节列表
+      const updatedChapters = await chaptersApi.getByNovelId(novelId)
+      setChapters(updatedChapters)
+
+      setDeleteChapterDialogOpen(false)
+      setChapterToDelete(null)
+    } catch (error) {
+      console.error('删除章节失败:', error)
+      const message = error instanceof Error ? error.message : '删除章节失败'
+      toast.error(message)
+    } finally {
+      setIsDeletingChapter(false)
+    }
+  }
+
+  // 重命名卷
+  const handleRenameVolume = (volume: { id: string, title: string }) => {
+    const fullVolume = volumes.find(v => v.id === volume.id)
+    if (!fullVolume) return
+    setEditingVolume(fullVolume)
+    setEditingVolumeTitle(fullVolume.title)
+    setRenameVolumeDialogOpen(true)
+  }
+
+  const handleConfirmRenameVolume = async () => {
+    if (!editingVolume || !editingVolumeTitle.trim()) return
+
+    try {
+      setIsUpdatingVolume(true)
+      await volumesApi.update({
+        id: editingVolume.id,
+        title: editingVolumeTitle.trim(),
+      })
+      toast.success('卷重命名成功！')
+      setRenameVolumeDialogOpen(false)
+
+      // 重新加载卷列表
+      if (novelId) {
+        const updatedVolumes = await volumesApi.getByNovelId(novelId)
+        setVolumes(updatedVolumes)
+      }
+    } catch (error) {
+      console.error('重命名卷失败:', error)
+      const message = error instanceof Error ? error.message : '重命名卷失败'
+      toast.error(message)
+    } finally {
+      setIsUpdatingVolume(false)
+    }
+  }
+
+  // 删除卷
+  const handleDeleteVolume = (volume: { id: string, title: string }) => {
+    const fullVolume = volumes.find(v => v.id === volume.id)
+    if (!fullVolume) return
+
+    setVolumeToDelete(fullVolume)
+    setDeleteVolumeDialogOpen(true)
+  }
+
+  const handleConfirmDeleteVolume = async () => {
+    if (!volumeToDelete || !novelId) return
+
+    try {
+      setIsDeletingVolume(true)
+
+      // 先获取卷下的章节
+      const volumeChapters = chapters.filter(c => c.volume_id === volumeToDelete.id)
+
+      // 将卷下的章节移出卷
+      for (const chapter of volumeChapters) {
+        await chaptersApi.update({
+          id: chapter.id,
+          volume_id: null,
+        })
+      }
+
+      // 删除卷
+      await volumesApi.delete(volumeToDelete.id)
+      toast.success('卷删除成功！')
+
+      // 重新加载数据
+      const [updatedChapters, updatedVolumes] = await Promise.all([
+        chaptersApi.getByNovelId(novelId),
+        volumesApi.getByNovelId(novelId),
+      ])
+      setChapters(updatedChapters)
+      setVolumes(updatedVolumes)
+
+      setDeleteVolumeDialogOpen(false)
+      setVolumeToDelete(null)
+    } catch (error) {
+      console.error('删除卷失败:', error)
+      const message = error instanceof Error ? error.message : '删除卷失败'
+      toast.error(message)
+    } finally {
+      setIsDeletingVolume(false)
+    }
+  }
+
   // 返回小说列表
   const handleBack = () => {
     router.push('/novels')
@@ -482,10 +822,16 @@ export default function NovelsEdit() {
                         selectedChapter={selectedChapter}
                         onSelectChapter={handleSelectChapter}
                         onCreateChapter={handleOpenCreateChapterDialog}
+                        onCreateChapterInVolume={handleCreateChapterInVolume}
                         onCreateVolume={handleOpenCreateVolumeDialog}
                         onReorderChapters={handleReorderChapters}
                         onReorderVolumes={handleReorderVolumes}
                         onMoveChapterToVolume={handleMoveChapterToVolume}
+                        onRenameChapter={handleRenameChapter}
+                        onDeleteChapter={handleDeleteChapter}
+                        onCopyChapter={handleCopyChapter}
+                        onRenameVolume={handleRenameVolume}
+                        onDeleteVolume={handleDeleteVolume}
                       />
                     )}
                   </ResizablePanel>
@@ -624,6 +970,42 @@ export default function NovelsEdit() {
           onDescriptionChange={setNewVolumeDescription}
           onConfirm={handleCreateVolume}
           isCreating={isCreatingVolume}
+        />
+
+        <RenameChapterDialog
+          open={renameChapterDialogOpen}
+          onOpenChange={setRenameChapterDialogOpen}
+          title={editingChapterTitle}
+          onTitleChange={setEditingChapterTitle}
+          onConfirm={handleConfirmRenameChapter}
+          isUpdating={isUpdatingChapter}
+        />
+
+        <RenameVolumeDialog
+          open={renameVolumeDialogOpen}
+          onOpenChange={setRenameVolumeDialogOpen}
+          title={editingVolumeTitle}
+          onTitleChange={setEditingVolumeTitle}
+          onConfirm={handleConfirmRenameVolume}
+          isUpdating={isUpdatingVolume}
+        />
+
+        <DeleteConfirmDialog
+          open={deleteChapterDialogOpen}
+          onOpenChange={setDeleteChapterDialogOpen}
+          title="确认删除章节"
+          description={`确定要删除章节"${chapterToDelete?.title}"吗？此操作不可恢复。`}
+          onConfirm={handleConfirmDeleteChapter}
+          isDeleting={isDeletingChapter}
+        />
+
+        <DeleteConfirmDialog
+          open={deleteVolumeDialogOpen}
+          onOpenChange={setDeleteVolumeDialogOpen}
+          title="确认删除卷"
+          description={`确定要删除卷"${volumeToDelete?.title}"吗？此操作不可恢复，卷下的所有章节将被移出。`}
+          onConfirm={handleConfirmDeleteVolume}
+          isDeleting={isDeletingVolume}
         />
       </div>
     </Tooltip.Provider>
