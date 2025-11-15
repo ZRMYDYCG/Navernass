@@ -212,24 +212,24 @@ export default function Novels() {
       <div className="flex-1 py-2 px-4 sm:px-6">
         {viewMode === 'grid'
           ? (
-              <NovelList
-                novels={novels}
-                loading={loading}
-                onOpenNovel={handleOpenNovel}
-                onContextMenu={handleContextMenu}
-                onCreateNovel={handleOpenCreateDialog}
-              />
-            )
+            <NovelList
+              novels={novels}
+              loading={loading}
+              onOpenNovel={handleOpenNovel}
+              onContextMenu={handleContextMenu}
+              onCreateNovel={handleOpenCreateDialog}
+            />
+          )
           : (
-              <NovelTable
-                novels={novels}
-                loading={loading}
-                onOpenNovel={handleOpenNovel}
-                onEditNovel={handleEditNovel}
-                onDeleteNovel={handleDeleteNovel}
-                onContextMenu={handleContextMenu}
-              />
-            )}
+            <NovelTable
+              novels={novels}
+              loading={loading}
+              onOpenNovel={handleOpenNovel}
+              onEditNovel={handleEditNovel}
+              onDeleteNovel={handleDeleteNovel}
+              onContextMenu={handleContextMenu}
+            />
+          )}
 
         {/* 右键菜单 */}
         {contextMenuNovel && contextMenuPosition && (
@@ -249,7 +249,7 @@ export default function Novels() {
 
       {/* 底部分页 */}
       {totalPages > 1 && (
-        <div className="flex-shrink-0 py-3 sm:py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-gray-800" data-pagination>
+        <div className="shrink-0 py-3 sm:py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-gray-800" data-pagination>
           <Pagination>
             <PaginationContent>
               <PaginationItem>

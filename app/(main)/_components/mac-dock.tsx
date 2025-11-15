@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { Dock, DockIcon } from '@/components/ui/dock'
+
 type LayoutMode = 'horizontal' | 'vertical'
 
 export function Sidebar() {
@@ -24,6 +26,7 @@ export function Sidebar() {
   useEffect(() => {
     const checkPagination = () => {
       const hasPagination = document.querySelector('[data-pagination]') !== null
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
       setLayoutMode(hasPagination ? 'vertical' : 'horizontal')
     }
 
@@ -54,11 +57,9 @@ export function Sidebar() {
     return (
       <Tooltip.Provider delayDuration={150}>
         <aside
-          className={`fixed right-0 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] scale-75 sm:scale-90 md:scale-100 ${
-            isVisible ? 'pr-4' : 'pr-0 translate-x-[calc(100%-3rem)]'
-          } ${
-            isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
-          }`}
+          className={`fixed right-0 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-500 ease-bounce scale-75 sm:scale-90 md:scale-100 ${isVisible ? 'pr-4' : 'pr-0 translate-x-[calc(100%-3rem)]'
+            } ${isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
+            }`}
         >
           <div className="relative z-40 flex items-center">
             {/* 收起按钮 - 左侧 */}
@@ -74,11 +75,11 @@ export function Sidebar() {
                 <div className="relative flex items-center justify-center">
                   {isVisible
                     ? (
-                        <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
-                      )
+                      <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
+                    )
                     : (
-                        <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3" />
-                      )}
+                      <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3" />
+                    )}
                 </div>
 
                 <div className="absolute inset-0 rounded-l-[15px] bg-gradient-to-l from-transparent to-white/0 group-hover:to-white/30 dark:group-hover:to-white/10 transition-all duration-300 pointer-events-none" />
@@ -87,18 +88,23 @@ export function Sidebar() {
 
             {/* Dock 主体 */}
             <div
-              className={`relative transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                isVisible
-                  ? 'translate-x-0 opacity-100 scale-100'
-                  : 'translate-x-full opacity-0 scale-90 pointer-events-none'
-              }`}
+              className={`relative transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isVisible
+                ? 'translate-x-0 opacity-100 scale-100'
+                : 'translate-x-full opacity-0 scale-90 pointer-events-none'
+                }`}
             >
               <div className="relative">
                 <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-3xl rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.6)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6),0_2px_8px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] border border-white/40 dark:border-gray-700/40">
                   <div className="absolute inset-y-0 left-0 w-[2px] bg-gradient-to-b from-transparent via-white/70 dark:via-white/20 to-transparent rounded-l-[28px]" />
 
                   <div className="relative px-4 py-5">
-                    <nav className="flex flex-col items-center gap-3">
+                    <Dock
+                      className="bg-transparent! border-0! p-0! h-auto! mt-0! backdrop-blur-none! flex-col gap-3"
+                      iconSize={68}
+                      iconMagnification={82}
+                      iconDistance={100}
+                      direction="middle"
+                    >
                       {menuItems.map((item, index) => {
                         const Icon = item.icon
                         const active = isActive(item.path)
@@ -107,51 +113,53 @@ export function Sidebar() {
                         return (
                           <Tooltip.Root key={item.path}>
                             <Tooltip.Trigger asChild>
-                              <Link
-                                href={item.path}
-                                className={`group relative flex items-center justify-center w-[68px] h-[68px] rounded-[22px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                                  active
-                                    ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white text-white dark:text-gray-900 shadow-[0_8px_24px_rgba(0,0,0,0.25),0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_2px_rgba(255,255,255,0.1)] dark:shadow-[0_8px_24px_rgba(255,255,255,0.3),0_2px_8px_rgba(255,255,255,0.2)] scale-[1.15] -translate-x-1'
-                                    : 'text-gray-600 dark:text-gray-400 hover:scale-[1.2] hover:-translate-x-3 active:scale-95'
-                                }`}
+                              <DockIcon
+                                className={`group relative rounded-[22px]! transition-all duration-500 ease-bounce overflow-visible ${active
+                                  ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white text-white dark:text-gray-900 shadow-[0_8px_24px_rgba(0,0,0,0.25),0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_2px_rgba(255,255,255,0.1)] dark:shadow-[0_8px_24px_rgba(255,255,255,0.3),0_2px_8px_rgba(255,255,255,0.2)] scale-[1.15] -translate-x-1'
+                                  : 'text-gray-600 dark:text-gray-400 hover:scale-[1.2] hover:-translate-x-3 active:scale-95'
+                                  }`}
                                 style={{
                                   animationDelay: `${index * 50}ms`,
                                 }}
                               >
-                                {active && (
-                                  <>
-                                    <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-white/20 to-transparent" />
-                                    <div className="absolute -inset-1 rounded-[24px] bg-gradient-to-br from-gray-900/20 dark:from-white/20 to-transparent blur-md -z-10" />
-                                  </>
-                                )}
+                                <Link
+                                  href={item.path}
+                                  className="w-full h-full flex items-center justify-center rounded-[22px] relative"
+                                >
+                                  {active && (
+                                    <>
+                                      <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-white/20 to-transparent" />
+                                      <div className="absolute -inset-1 rounded-[24px] bg-gradient-to-br from-gray-900/20 dark:from-white/20 to-transparent blur-md -z-10" />
+                                    </>
+                                  )}
 
-                                {!active && (
-                                  <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-gray-100/0 to-gray-100/0 dark:from-gray-800/0 dark:to-gray-800/0 group-hover:from-gray-100/90 group-hover:to-gray-50/90 dark:group-hover:from-gray-800/90 dark:group-hover:to-gray-700/90 transition-all duration-300 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)] opacity-0 group-hover:opacity-100" />
-                                )}
+                                  {!active && (
+                                    <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-gray-100/0 to-gray-100/0 dark:from-gray-800/0 dark:to-gray-800/0 group-hover:from-gray-100/90 group-hover:to-gray-50/90 dark:group-hover:from-gray-800/90 dark:group-hover:to-gray-700/90 transition-all duration-300 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)] opacity-0 group-hover:opacity-100" />
+                                  )}
 
-                                <Icon
-                                  className={`relative z-10 w-8 h-8 transition-all duration-300 ${
-                                    active
+                                  <Icon
+                                    className={`relative z-10 w-8 h-8 transition-all duration-300 ${active
                                       ? 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] scale-105'
                                       : isTrash && !active
                                         ? 'text-red-500 dark:text-red-400 group-hover:text-red-600 dark:group-hover:text-red-300 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(239,68,68,0.4)]'
                                         : 'group-hover:text-gray-900 dark:group-hover:text-gray-100 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)]'
-                                  }`}
-                                />
+                                      }`}
+                                  />
 
-                                {active && (
-                                  <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-1">
-                                    <div className="w-1 h-1 bg-white dark:bg-gray-900 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.3)] animate-pulse" />
-                                  </div>
-                                )}
+                                  {active && (
+                                    <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-1">
+                                      <div className="w-1 h-1 bg-white dark:bg-gray-900 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.3)] animate-pulse" />
+                                    </div>
+                                  )}
 
-                                <div className="absolute inset-0 rounded-[22px] bg-gradient-to-l from-transparent via-white/0 to-white/0 group-hover:via-white/10 group-hover:to-white/20 dark:group-hover:via-white/5 dark:group-hover:to-white/10 transition-all duration-300 pointer-events-none" />
-                              </Link>
+                                  <div className="absolute inset-0 rounded-[22px] bg-linear-to-l from-transparent via-white/0 to-white/0 group-hover:via-white/10 group-hover:to-white/20 dark:group-hover:via-white/5 dark:group-hover:to-white/10 transition-all duration-300 pointer-events-none" />
+                                </Link>
+                              </DockIcon>
                             </Tooltip.Trigger>
                             <Tooltip.Portal>
                               <Tooltip.Content
                                 side="left"
-                                className="z-[60] bg-gray-900/98 dark:bg-gray-800/98 backdrop-blur-xl text-white text-[13px] font-medium px-4 py-2.5 rounded-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.2)] border border-gray-700/50 animate-in fade-in-0 zoom-in-95 slide-in-from-right-2 duration-200"
+                                className="z-60 bg-gray-900/98 dark:bg-gray-800/98 backdrop-blur-xl text-white text-[13px] font-medium px-4 py-2.5 rounded-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.2)] border border-gray-700/50 animate-in fade-in-0 zoom-in-95 slide-in-from-right-2 duration-200"
                                 sideOffset={16}
                               >
                                 {item.label}
@@ -161,10 +169,10 @@ export function Sidebar() {
                           </Tooltip.Root>
                         )
                       })}
-                    </nav>
+                    </Dock>
                   </div>
 
-                  <div className="absolute inset-y-0 right-0 w-[1px] bg-gradient-to-b from-transparent via-black/10 dark:via-black/30 to-transparent rounded-r-[28px]" />
+                  <div className="absolute inset-y-0 right-0 w-px bg-linear-to-b from-transparent via-black/10 dark:via-black/30 to-transparent rounded-r-[28px]" />
                 </div>
 
                 <div className="absolute inset-y-8 -right-2 w-4 bg-black/5 dark:bg-black/20 blur-xl rounded-full -z-10" />
@@ -180,11 +188,9 @@ export function Sidebar() {
   return (
     <Tooltip.Provider delayDuration={150}>
       <aside
-        className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] scale-75 sm:scale-90 md:scale-100 ${
-          isVisible ? 'pb-4' : 'pb-0 translate-y-[calc(100%-3rem)]'
-        } ${
-          isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}
+        className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] scale-75 sm:scale-90 md:scale-100 ${isVisible ? 'pb-4' : 'pb-0 translate-y-[calc(100%-3rem)]'
+          } ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
       >
         <div className="flex justify-center mb-1.5 relative z-30">
           <button
@@ -198,11 +204,11 @@ export function Sidebar() {
             <div className="relative flex items-center justify-center">
               {isVisible
                 ? (
-                    <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
-                  )
+                  <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
+                )
                 : (
-                    <ChevronUp className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3" />
-                  )}
+                  <ChevronUp className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3" />
+                )}
             </div>
 
             <div className="absolute inset-0 rounded-t-[15px] bg-gradient-to-t from-transparent to-white/0 group-hover:to-white/30 dark:group-hover:to-white/10 transition-all duration-300 pointer-events-none" />
@@ -210,17 +216,22 @@ export function Sidebar() {
         </div>
 
         <div
-          className={`relative z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-            isVisible
-              ? 'translate-y-0 opacity-100 scale-100'
-              : 'translate-y-full opacity-0 scale-90 pointer-events-none'
-          }`}
+          className={`relative z-40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isVisible
+            ? 'translate-y-0 opacity-100 scale-100'
+            : 'translate-y-full opacity-0 scale-90 pointer-events-none'
+            }`}
         >
           <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-3xl rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.6)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6),0_2px_8px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] border border-white/40 dark:border-gray-700/40">
             <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white/70 dark:via-white/20 to-transparent rounded-t-[28px]" />
 
             <div className="relative px-5 py-4">
-              <nav className="flex items-center gap-3">
+              <Dock
+                className="bg-transparent! border-0! p-0! h-auto! mt-0! backdrop-blur-none! gap-3"
+                iconSize={68}
+                iconMagnification={82}
+                iconDistance={100}
+                direction="middle"
+              >
                 {menuItems.map((item, index) => {
                   const Icon = item.icon
                   const active = isActive(item.path)
@@ -229,51 +240,53 @@ export function Sidebar() {
                   return (
                     <Tooltip.Root key={item.path}>
                       <Tooltip.Trigger asChild>
-                        <Link
-                          href={item.path}
-                          className={`group relative flex items-center justify-center w-[68px] h-[68px] rounded-[22px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                            active
-                              ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white text-white dark:text-gray-900 shadow-[0_8px_24px_rgba(0,0,0,0.25),0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_2px_rgba(255,255,255,0.1)] dark:shadow-[0_8px_24px_rgba(255,255,255,0.3),0_2px_8px_rgba(255,255,255,0.2)] scale-[1.15] -translate-y-1'
-                              : 'text-gray-600 dark:text-gray-400 hover:scale-[1.2] hover:-translate-y-3 active:scale-95'
-                          }`}
+                        <DockIcon
+                          className={`group relative rounded-[22px]! transition-all duration-500 ease-bounce overflow-visible ${active
+                            ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white text-white dark:text-gray-900 shadow-[0_8px_24px_rgba(0,0,0,0.25),0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_2px_rgba(255,255,255,0.1)] dark:shadow-[0_8px_24px_rgba(255,255,255,0.3),0_2px_8px_rgba(255,255,255,0.2)] scale-[1.15] -translate-y-1'
+                            : 'text-gray-600 dark:text-gray-400 hover:scale-[1.2] hover:-translate-y-3 active:scale-95'
+                            }`}
                           style={{
                             animationDelay: `${index * 50}ms`,
                           }}
                         >
-                          {active && (
-                            <>
-                              <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-white/20 to-transparent" />
-                              <div className="absolute -inset-1 rounded-[24px] bg-gradient-to-br from-gray-900/20 dark:from-white/20 to-transparent blur-md -z-10" />
-                            </>
-                          )}
+                          <Link
+                            href={item.path}
+                            className="w-full h-full flex items-center justify-center rounded-[22px] relative"
+                          >
+                            {active && (
+                              <>
+                                <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-white/20 to-transparent" />
+                                <div className="absolute -inset-1 rounded-[24px] bg-gradient-to-br from-gray-900/20 dark:from-white/20 to-transparent blur-md -z-10" />
+                              </>
+                            )}
 
-                          {!active && (
-                            <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-gray-100/0 to-gray-100/0 dark:from-gray-800/0 dark:to-gray-800/0 group-hover:from-gray-100/90 group-hover:to-gray-50/90 dark:group-hover:from-gray-800/90 dark:group-hover:to-gray-700/90 transition-all duration-300 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)] opacity-0 group-hover:opacity-100" />
-                          )}
+                            {!active && (
+                              <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-gray-100/0 to-gray-100/0 dark:from-gray-800/0 dark:to-gray-800/0 group-hover:from-gray-100/90 group-hover:to-gray-50/90 dark:group-hover:from-gray-800/90 dark:group-hover:to-gray-700/90 transition-all duration-300 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)] opacity-0 group-hover:opacity-100" />
+                            )}
 
-                          <Icon
-                            className={`relative z-10 w-8 h-8 transition-all duration-300 ${
-                              active
+                            <Icon
+                              className={`relative z-10 w-8 h-8 transition-all duration-300 ${active
                                 ? 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] scale-105'
                                 : isTrash && !active
                                   ? 'text-red-500 dark:text-red-400 group-hover:text-red-600 dark:group-hover:text-red-300 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(239,68,68,0.4)]'
                                   : 'group-hover:text-gray-900 dark:group-hover:text-gray-100 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)]'
-                            }`}
-                          />
+                                }`}
+                            />
 
-                          {active && (
-                            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
-                              <div className="w-1 h-1 bg-white dark:bg-gray-900 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.3)] animate-pulse" />
-                            </div>
-                          )}
+                            {active && (
+                              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
+                                <div className="w-1 h-1 bg-white dark:bg-gray-900 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.3)] animate-pulse" />
+                              </div>
+                            )}
 
-                          <div className="absolute inset-0 rounded-[22px] bg-gradient-to-t from-transparent via-white/0 to-white/0 group-hover:via-white/10 group-hover:to-white/20 dark:group-hover:via-white/5 dark:group-hover:to-white/10 transition-all duration-300 pointer-events-none" />
-                        </Link>
+                            <div className="absolute inset-0 rounded-[22px] bg-gradient-to-t from-transparent via-white/0 to-white/0 group-hover:via-white/10 group-hover:to-white/20 dark:group-hover:via-white/5 dark:group-hover:to-white/10 transition-all duration-300 pointer-events-none" />
+                          </Link>
+                        </DockIcon>
                       </Tooltip.Trigger>
                       <Tooltip.Portal>
                         <Tooltip.Content
                           side="top"
-                          className="z-[60] bg-gray-900/98 dark:bg-gray-800/98 backdrop-blur-xl text-white text-[13px] font-medium px-4 py-2.5 rounded-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.2)] border border-gray-700/50 animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2 duration-200"
+                          className="z-60 bg-gray-900/98 dark:bg-gray-800/98 backdrop-blur-xl text-white text-[13px] font-medium px-4 py-2.5 rounded-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.2)] border border-gray-700/50 animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2 duration-200"
                           sideOffset={16}
                         >
                           {item.label}
@@ -283,7 +296,7 @@ export function Sidebar() {
                     </Tooltip.Root>
                   )
                 })}
-              </nav>
+              </Dock>
             </div>
 
             <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-black/10 dark:via-black/30 to-transparent rounded-b-[28px]" />
