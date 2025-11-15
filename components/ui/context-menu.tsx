@@ -25,14 +25,14 @@ function ContextMenuSubTrigger({ ref, className, inset, children, ...props }: Re
     <ContextMenuPrimitive.SubTrigger
       ref={ref}
       className={cn(
-        'flex cursor-default select-none items-center rounded-sm px-2 py-1 text-xs outline-none focus:bg-gray-100 dark:focus:bg-gray-700 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-gray-700',
-        inset && 'pl-8',
+        'flex cursor-default select-none items-center rounded px-1.5 py-0.5 text-[11px] outline-none focus:bg-gray-100 dark:focus:bg-gray-700 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-gray-700',
+        inset && 'pl-6',
         className,
       )}
       {...props}
     >
       {children}
-      <ChevronRight className="ml-auto h-3 w-3" />
+      <ChevronRight className="ml-auto h-2.5 w-2.5" />
     </ContextMenuPrimitive.SubTrigger>
   )
 }
@@ -43,7 +43,7 @@ function ContextMenuSubContent({ ref, className, ...props }: React.ComponentProp
     <ContextMenuPrimitive.SubContent
       ref={ref}
       className={cn(
-        'z-50 min-w-[8rem] overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 text-gray-900 dark:text-gray-100 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+        'z-50 min-w-[7rem] overflow-hidden rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-0.5 text-gray-900 dark:text-gray-100 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
         className,
       )}
       {...props}
@@ -58,7 +58,7 @@ function ContextMenuContent({ ref, className, ...props }: React.ComponentPropsWi
       <ContextMenuPrimitive.Content
         ref={ref}
         className={cn(
-          'z-50 min-w-[8rem] overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 text-gray-900 dark:text-gray-100 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          'z-50 min-w-[7rem] overflow-hidden rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-0.5 text-gray-900 dark:text-gray-100 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           className,
         )}
         {...props}
@@ -75,8 +75,8 @@ function ContextMenuItem({ ref, className, inset, ...props }: React.ComponentPro
     <ContextMenuPrimitive.Item
       ref={ref}
       className={cn(
-        'relative flex cursor-default select-none items-center rounded-sm px-2 py-1 text-xs outline-none focus:bg-gray-100 dark:focus:bg-gray-700 data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        inset && 'pl-8',
+        'relative flex cursor-default select-none items-center rounded px-1.5 py-0.5 text-[11px] outline-none focus:bg-gray-100 dark:focus:bg-gray-700 data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        inset && 'pl-6',
         className,
       )}
       {...props}
@@ -150,7 +150,7 @@ function ContextMenuSeparator({ ref, className, ...props }: React.ComponentProps
   return (
     <ContextMenuPrimitive.Separator
       ref={ref}
-      className={cn('-mx-1 my-1 h-px bg-gray-200 dark:bg-gray-700', className)}
+      className={cn('-mx-0.5 my-0.5 h-px bg-gray-200 dark:bg-gray-700', className)}
       {...props}
     />
   )

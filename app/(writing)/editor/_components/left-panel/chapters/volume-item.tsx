@@ -147,9 +147,9 @@ export function VolumeItem({
               e.stopPropagation()
               onCreateChapter(volume.id)
             }}
-            className="flex items-center gap-1.5 px-2 py-1 text-xs"
+            className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
-            <BookOpen className="w-3 h-3" />
+            <BookOpen className="w-2.5 h-2.5" />
             新增章节
           </ContextMenuItem>
         )}
@@ -159,9 +159,9 @@ export function VolumeItem({
               e.stopPropagation()
               onRename(volume)
             }}
-            className="flex items-center gap-1.5 px-2 py-1 text-xs"
+            className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
-            <Edit2 className="w-3 h-3" />
+            <Edit2 className="w-2.5 h-2.5" />
             编辑卷名
           </ContextMenuItem>
         )}
@@ -173,9 +173,9 @@ export function VolumeItem({
                 e.stopPropagation()
                 onDelete(volume)
               }}
-              className="flex items-center gap-1.5 px-2 py-1 text-xs text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20"
+              className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-2.5 h-2.5" />
               删除卷
             </ContextMenuItem>
           </>

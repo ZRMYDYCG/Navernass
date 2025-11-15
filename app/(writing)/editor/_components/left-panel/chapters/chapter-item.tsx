@@ -124,9 +124,9 @@ export function ChapterItem({
               e.stopPropagation()
               onRename(chapter)
             }}
-            className="flex items-center gap-1.5 px-2 py-1 text-xs"
+            className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
-            <Edit2 className="w-3 h-3" />
+            <Edit2 className="w-2.5 h-2.5" />
             编辑标题
           </ContextMenuItem>
         )}
@@ -136,9 +136,9 @@ export function ChapterItem({
               e.stopPropagation()
               onCopy(chapter)
             }}
-            className="flex items-center gap-1.5 px-2 py-1 text-xs"
+            className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
-            <Copy className="w-3 h-3" />
+            <Copy className="w-2.5 h-2.5" />
             复制
           </ContextMenuItem>
         )}
@@ -150,9 +150,9 @@ export function ChapterItem({
                 e.stopPropagation()
                 onDelete(chapter)
               }}
-              className="flex items-center gap-1.5 px-2 py-1 text-xs text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20"
+              className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-2.5 h-2.5" />
               删除
             </ContextMenuItem>
           </>
