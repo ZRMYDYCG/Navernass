@@ -334,7 +334,8 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
       />
 
       {/* 菜单容器 - 水平排列 */}
-      {showInput && (
+      {/* 当输入框有内容时隐藏菜单（用户对话模式），清空时显示 */}
+      {showInput && !aiPrompt.trim() && (
         <div className="flex items-start gap-2">
           {/* 左侧菜单 */}
           <AIMenuLeft
