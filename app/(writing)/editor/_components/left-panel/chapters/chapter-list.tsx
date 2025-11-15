@@ -126,6 +126,9 @@ export function ChapterList({
     })
   }
 
+  // 根目录放置区 ID（用于将章节从卷中移出）
+  const ROOT_DROP_ZONE_ID = 'root-drop-zone'
+
   // 获取没有卷的章节
   const chaptersWithoutVolume = localChapters.filter(c => !c.volume_id)
 
@@ -275,9 +278,6 @@ export function ChapterList({
     ? localChapters.find(c => c.id === activeId) || localVolumes.find(v => v.id === activeId)
     : null
 
-  // 根目录放置区 ID（用于将章节从卷中移出）
-  const ROOT_DROP_ZONE_ID = 'root-drop-zone'
-
   // 创建所有可拖拽项的ID列表
   const sortableIds = [
     ROOT_DROP_ZONE_ID,
@@ -286,7 +286,7 @@ export function ChapterList({
   ]
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
+    <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-800 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
       <DndContext
         sensors={sensors}
         collisionDetection={pointerWithin}

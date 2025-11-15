@@ -4,6 +4,7 @@ import { ChapterHeader } from './chapter-header'
 import { ChapterList } from './chapter-list'
 
 export default function ChaptersTab({
+  novelTitle,
   chapters,
   volumes,
   selectedChapter,
@@ -23,6 +24,7 @@ export default function ChaptersTab({
   return (
     <div className="h-full flex flex-col">
       <ChapterHeader
+        novelTitle={novelTitle}
         onCreateChapter={onCreateChapter}
         onCreateVolume={onCreateVolume}
         onRefresh={() => {

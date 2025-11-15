@@ -28,11 +28,11 @@ export function ChapterItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group px-2 py-1.5 cursor-pointer transition-colors ${
-        isSelected ? 'bg-gray-100 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+      className={`group px-1.5 py-1 cursor-pointer transition-colors ${
+        isSelected ? 'bg-gray-200 dark:bg-gray-700' : 'hover:bg-gray-200 dark:hover:bg-gray-700'
       }`}
     >
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         {/* 拖拽手柄 + Popover */}
         <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
           <Popover.Trigger asChild>
@@ -40,12 +40,12 @@ export function ChapterItem({
               type="button"
               {...attributes}
               {...listeners}
-              className={`cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity ${
+              className={`cursor-grab active:cursor-grabbing p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity ${
                 isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
               }`}
               onClick={e => e.stopPropagation()}
             >
-              <GripVertical className="w-3.5 h-3.5 text-gray-400" />
+              <GripVertical className="w-3 h-3 text-gray-400" />
             </button>
           </Popover.Trigger>
           <Popover.Portal>
@@ -97,7 +97,7 @@ export function ChapterItem({
           </h3>
 
           <span
-            className={`text-[10px] ml-2 ${
+            className={`text-[10px] ml-1.5 ${
               isSelected ? 'text-gray-600 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'
             }`}
           >

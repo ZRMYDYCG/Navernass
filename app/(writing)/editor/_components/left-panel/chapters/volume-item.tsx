@@ -42,8 +42,8 @@ export function VolumeItem({
 
   return (
     <div ref={setNodeRef} style={style} className="group">
-      <div className="px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-        <div className="flex items-center gap-1.5">
+      <div className="pl-1 pr-1.5 py-1 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+        <div className="flex items-center gap-1">
           {/* 拖拽手柄 + Popover */}
           <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
             <Popover.Trigger asChild>
@@ -51,10 +51,12 @@ export function VolumeItem({
                 type="button"
                 {...attributes}
                 {...listeners}
-                className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                className={`cursor-grab active:cursor-grabbing p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity ${
+                  isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`}
                 onClick={e => e.stopPropagation()}
               >
-                <GripVertical className="w-3.5 h-3.5 text-gray-400" />
+                <GripVertical className="w-3 h-3 text-gray-400" />
               </button>
             </Popover.Trigger>
             <Popover.Portal>
@@ -99,14 +101,14 @@ export function VolumeItem({
           <button
             type="button"
             onClick={onToggle}
-            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+            className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
           >
             {isExpanded
               ? (
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                  <ChevronDown className="w-3 h-3 text-gray-600 dark:text-gray-400" />
                 )
               : (
-                  <ChevronRight className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                  <ChevronRight className="w-3 h-3 text-gray-600 dark:text-gray-400" />
                 )}
           </button>
 
@@ -121,7 +123,7 @@ export function VolumeItem({
 
       {/* 卷下的章节 */}
       {isExpanded && children && (
-        <div className="ml-4 border-l border-gray-200 dark:border-gray-700">
+        <div className="ml-3">
           {children}
         </div>
       )}

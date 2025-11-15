@@ -23,4 +23,5 @@ export interface Chapter {
 export interface TabConfig {
   value: LeftTabType
   label: string
+  icon?: React.ComponentType<{ className?: string }>
 }

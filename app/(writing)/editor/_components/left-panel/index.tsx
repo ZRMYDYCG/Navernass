@@ -6,6 +6,7 @@ import { TabSwitcher } from './tab-switcher'
 import WorkspaceTab from './workspace'
 
 interface LeftPanelProps {
+  novelTitle?: string
   chapters: Chapter[]
   volumes?: Volume[]
   selectedChapter: string | null
@@ -22,6 +23,7 @@ interface LeftPanelProps {
 }
 
 export default function LeftPanel({
+  novelTitle,
   chapters,
   volumes = [],
   selectedChapter,
@@ -45,6 +47,7 @@ export default function LeftPanel({
       <div className="flex-1 overflow-hidden">
         {activeTab === 'files' && (
           <ChaptersTab
+            novelTitle={novelTitle}
             chapters={chapters}
             volumes={volumes}
             selectedChapter={selectedChapter}

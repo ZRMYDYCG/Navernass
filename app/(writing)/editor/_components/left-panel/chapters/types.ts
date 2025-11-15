@@ -1,6 +1,7 @@
 import type { Chapter, Volume } from '../types'
 
 export interface ChaptersTabProps {
+  novelTitle?: string
   chapters: Chapter[]
   volumes: Volume[]
   selectedChapter: string | null

@@ -476,6 +476,7 @@ export default function NovelsEdit() {
                   >
                     {showLeftPanel && (
                       <LeftPanel
+                        novelTitle={novel.title}
                         chapters={formattedChapters}
                         volumes={volumes}
                         selectedChapter={selectedChapter}
@@ -576,6 +577,7 @@ export default function NovelsEdit() {
             <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
               <div className="h-full overflow-hidden">
                 <LeftPanel
+                  novelTitle={novel.title}
                   chapters={formattedChapters}
                   volumes={volumes}
                   selectedChapter={selectedChapter}
