@@ -78,10 +78,23 @@ export default function LeftPanel({
 
         {activeTab === 'workspace' && (
           <WorkspaceTab
-            chapters={chapters.map(c => ({ id: c.id, title: c.title }))}
+            chapters={chapters.map((c) => {
+              // 从 wordCount 字符串中提取数字（如 "1.5k字" -> 1500）
+              const wordCountStr = c.wordCount || '0'
+              const wordCountNum = Number.parseFloat(wordCountStr.replace(/[^0-9.]/g, '')) || 0
+              const multiplier = wordCountStr.includes('k') ? 1000 : 1
+              return {
+                id: c.id,
+                title: c.title,
+                word_count: wordCountNum * multiplier,
+                updated_at: (c as { updated_at?: string }).updated_at,
+              }
+            })}
             novelId={novelId}
             volumes={volumes}
             onChaptersImported={onChaptersImported}
+            onCreateChapter={onCreateChapter}
+            onSelectChapter={onSelectChapter}
           />
         )}
       </div>

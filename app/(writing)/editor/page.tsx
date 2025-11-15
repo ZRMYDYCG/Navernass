@@ -784,6 +784,7 @@ export default function NovelsEdit() {
     wordCount: `${(chapter.word_count / 1000).toFixed(1)}k字`,
     status: chapter.status === 'published' ? '已发布' : '草稿',
     volume_id: chapter.volume_id,
+    updated_at: chapter.updated_at, // 保留原始数据用于工作区
   }))
 
   return (

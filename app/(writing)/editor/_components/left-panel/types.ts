@@ -18,6 +18,7 @@ export interface Chapter {
   wordCount: string
   status: string
   volume_id?: string // 所属卷ID
+  updated_at?: string // 更新时间
 }
 
 export interface TabConfig {

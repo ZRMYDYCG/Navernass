@@ -29,7 +29,7 @@ export default function RootLayout({
           type="image/svg+xml"
         />
       </head>
-      <body className={`${inter.variable} antialiased h-full`}>
+      <body className={`${inter.variable} antialiased h-full`} suppressHydrationWarning>
         <ThemeProvider>
           <FaviconProvider />
           {children}
