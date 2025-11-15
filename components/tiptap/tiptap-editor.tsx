@@ -6,13 +6,15 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import Underline from '@tiptap/extension-underline'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
 import { DragHandle } from './drag-handle'
 import { AIAutocomplete } from './extensions/ai-autocomplete'
+import { EditorSearch } from './extensions/editor-search'
 import { SearchHighlight, updateSearchHighlight } from './extensions/search-highlight'
 import { SlashCommand } from './extensions/slash-command'
 import { FloatingMenu } from './floating-menu'
+import { SearchBox } from './search-box'
 import 'tippy.js/dist/tippy.css'
 import './tiptap.css'
 
@@ -48,6 +50,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const { showInputDialog } = useDialog()
+  const [showSearchBox, setShowSearchBox] = useState(false)
 
   useEffect(() => {
     setGlobalDialog(showInputDialog)
@@ -92,6 +95,8 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       }),
       // 搜索高亮扩展
       SearchHighlight,
+      // 编辑器内搜索扩展
+      EditorSearch,
     ],
     content,
     editable,
@@ -154,7 +159,32 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     }
   }, [editor, editable])
 
-  // 监听搜索高亮事件
+  // 监听 Ctrl+F 快捷键，打开搜索框
+  useEffect(() => {
+    if (!editor) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+F 或 Cmd+F：打开搜索框
+      // 检查是否在编辑器内或搜索框未打开
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        const target = e.target as HTMLElement
+        const isInEditor = editor.view.dom.contains(target) || target.closest('.ProseMirror')
+
+        // 如果焦点在编辑器内，或者搜索框未打开，则阻止默认行为并打开搜索框
+        if (isInEditor || !showSearchBox) {
+          e.preventDefault()
+          e.stopPropagation()
+          setShowSearchBox(true)
+        }
+      }
+    }
+
+    // 使用 capture 阶段捕获事件，确保能阻止浏览器默认行为
+    window.addEventListener('keydown', handleKeyDown, true)
+    return () => window.removeEventListener('keydown', handleKeyDown, true)
+  }, [editor, showSearchBox])
+
+  // 监听搜索高亮事件（来自左侧搜索面板）
   useEffect(() => {
     if (!editor || !chapterId) return
 
@@ -169,11 +199,9 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
       // 只有当事件中的 chapterId 与当前编辑器的 chapterId 匹配时才更新高亮
       if (eventChapterId === chapterId) {
-        console.log('🔍 更新搜索高亮:', { eventChapterId, keyword, matchesCount: matches.length })
         updateSearchHighlight(editor.view, eventChapterId, keyword, matches)
       } else if (eventChapterId === null) {
         // 如果 chapterId 为 null，清除高亮
-        console.log('🔍 清除搜索高亮')
         updateSearchHighlight(editor.view, null, null, [])
       }
     }
@@ -188,7 +216,9 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     }, 100)
 
     return () => {
-      clearTimeout(timeoutId)
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
       window.removeEventListener('editor-highlight', handleHighlight as EventListener)
     }
   }, [editor, chapterId])
@@ -206,6 +236,22 @@ function TiptapEditorInner(props: TiptapEditorProps) {
         </>
       )}
       <EditorContent editor={editor} />
+      {showSearchBox && (
+        <SearchBox
+          editor={editor}
+          onClose={() => {
+            setShowSearchBox(false)
+            // 清除搜索高亮
+            const { state, dispatch } = editor.view
+            const tr = state.tr.setMeta('search-highlight', {
+              keyword: null,
+              matches: [],
+              currentIndex: -1,
+            })
+            dispatch(tr)
+          }}
+        />
+      )}
     </div>
   )
 }
