@@ -44,6 +44,30 @@ export class MessagesService {
   }
 
   /**
+   * 更新消息
+   */
+  async update(id: string, updates: Partial<Pick<Message, 'content'>>) {
+    const { data, error } = await supabase
+      .from('messages')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // 更新对话的 updated_at
+    if (data?.conversation_id) {
+      await supabase
+        .from('conversations')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', data.conversation_id)
+    }
+
+    return data
+  }
+
+  /**
    * 删除消息
    */
   async delete(id: string) {

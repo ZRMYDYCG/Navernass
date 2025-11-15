@@ -18,6 +18,13 @@ export const messagesApi = {
   },
 
   /**
+   * 更新消息
+   */
+  update: async (updates: { id: string, content: string }): Promise<Message> => {
+    return apiClient.patch<Message>(`/api/messages/${updates.id}`, { content: updates.content })
+  },
+
+  /**
    * 删除消息
    */
   delete: async (id: string): Promise<void> => {

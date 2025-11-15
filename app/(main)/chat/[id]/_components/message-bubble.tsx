@@ -1,7 +1,7 @@
 'use client'
 
 import type { Message } from '@/lib/supabase/sdk/types'
-import { CheckCircle2, Circle, Copy, Share2 } from 'lucide-react'
+import { CheckCircle2, Circle, Copy, Edit, Share2 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
 import { Avatar } from '@/components/ui/avatar'
@@ -13,6 +13,7 @@ interface MessageBubbleProps {
   message: Message
   onCopy?: (message: Message) => void
   onShare?: (message: Message) => void
+  onEdit?: (message: Message) => void
   isShareMode?: boolean
   isSelected?: boolean
   onToggleSelect?: (messageId: string) => void
@@ -23,6 +24,7 @@ export function MessageBubble({
   message,
   onCopy,
   onShare,
+  onEdit,
   isShareMode = false,
   isSelected = false,
   onToggleSelect,
@@ -123,6 +125,18 @@ export function MessageBubble({
               <Share2 className="w-4 h-4" />
               <span>分享</span>
             </Button>
+
+            {isAssistant && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => onEdit?.(message)}
+              >
+                <Edit className="w-4 h-4" />
+                <span>编辑</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

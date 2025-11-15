@@ -17,6 +17,7 @@ interface MessageListProps {
   streamingMessageId?: string | null
   onCopyMessage?: (message: Message) => void
   onShareMessage?: (message: Message) => void
+  onEditMessage?: (message: Message) => void
   isShareMode?: boolean
   selectedMessageIds?: string[]
   onToggleSelectMessage?: (messageId: string) => void
@@ -28,6 +29,7 @@ export function MessageList({
   streamingMessageId = null,
   onCopyMessage,
   onShareMessage,
+  onEditMessage,
   isShareMode = false,
   selectedMessageIds: selectedMessageIdsProp,
   onToggleSelectMessage,
@@ -210,6 +212,7 @@ export function MessageList({
                     message={message}
                     onCopy={onCopyMessage}
                     onShare={onShareMessage}
+                    onEdit={onEditMessage}
                     isShareMode={isShareMode}
                     isSelected={selectedMessageIds.includes(message.id)}
                     onToggleSelect={onToggleSelectMessage}

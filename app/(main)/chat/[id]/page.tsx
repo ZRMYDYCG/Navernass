@@ -1,19 +1,23 @@
 'use client'
 
+import type { ImperativePanelHandle } from 'react-resizable-panels'
 import type { Message } from '@/lib/supabase/sdk/types'
-import { toPng } from 'html-to-image'
 
+import { toPng } from 'html-to-image'
 import { Copy, Image as ImageIcon, Link2, X } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { chatApi, conversationsApi, messagesApi } from '@/lib/supabase/sdk'
 import { copyTextToClipboard } from '@/lib/utils'
 import { ChatInputBox } from '../_components/chat-input-box'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
+import { DocumentEditor } from './_components/document-editor'
 import { MessageList } from './_components/message-list'
 import { ShareImageRenderer } from './_components/share-image-renderer'
 
@@ -31,7 +35,10 @@ export default function ConversationPage() {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [isPreviewVisible, setIsPreviewVisible] = useState(false)
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null)
+  const [showDocumentEditor, setShowDocumentEditor] = useState(false)
   const shareImageRef = useRef<HTMLDivElement>(null)
+  const rightPanelRef = useRef<ImperativePanelHandle>(null)
 
   const validSelectedMessageIds = useMemo(() => {
     if (!isShareMode) return []
@@ -433,47 +440,135 @@ export default function ConversationPage() {
     link.click()
   }, [previewImage])
 
+  const handleEditMessage = useCallback((message: Message) => {
+    setEditingMessage(message)
+    setShowDocumentEditor(true)
+    // 展开右侧面板
+    if (rightPanelRef.current && rightPanelRef.current.isCollapsed()) {
+      rightPanelRef.current.expand()
+    }
+  }, [])
+
+  const handleCloseDocumentEditor = useCallback(() => {
+    setShowDocumentEditor(false)
+    setEditingMessage(null)
+    // 折叠右侧面板
+    if (rightPanelRef.current && !rightPanelRef.current.isCollapsed()) {
+      rightPanelRef.current.collapse()
+    }
+  }, [])
+
+  const handleSaveDocument = useCallback(async (content: string) => {
+    if (!editingMessage) return
+
+    try {
+      await messagesApi.update({
+        id: editingMessage.id,
+        content,
+      })
+      // 更新本地消息列表
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === editingMessage.id ? { ...msg, content } : msg,
+        ),
+      )
+      toast.success('文档已保存')
+      handleCloseDocumentEditor()
+    } catch (error) {
+      console.error('Failed to save document:', error)
+      toast.error('保存失败，请重试')
+    }
+  }, [editingMessage, handleCloseDocumentEditor])
+
   return (
     <div className="flex flex-col h-full">
-      <ChatWelcomeHeader
-        onShareConversation={handleToggleShareMode}
-        isShareMode={isShareMode}
-      />
-
-      {/* 消息列表区域 */}
-      <div className="flex-1 overflow-hidden">
-        <MessageList
-          messages={messages}
-          isLoading={isLoading}
-          streamingMessageId={streamingMessageId}
-          onCopyMessage={handleCopyMessage}
-          onShareMessage={handleShareMessage}
+      {!showDocumentEditor && (
+        <ChatWelcomeHeader
+          onShareConversation={handleToggleShareMode}
           isShareMode={isShareMode}
-          selectedMessageIds={validSelectedMessageIds}
-          onToggleSelectMessage={handleToggleSelectMessage}
         />
-      </div>
+      )}
 
-      {/* 输入框区域 */}
-      {isShareMode
-        ? (
-            <ShareActionBar
-              selectedCount={validSelectedMessageIds.length}
-              onCancel={handleCancelShareMode}
-              onCopyText={handleCopySelectedText}
-              onCopyLink={handleCopyConversationLink}
-              onGenerateImage={handleGenerateImage}
-              isGeneratingImage={isGeneratingImage}
-            />
-          )
-        : (
-            <div className="mb-3">
-              <ChatInputBox
-                onSend={handleSendMessage}
-                disabled={isLoading}
-              />
+      {/* 主内容区域：使用 ResizablePanelGroup 支持左右分栏 */}
+      <div className="flex-1 overflow-hidden">
+        <ResizablePanelGroup
+          direction="horizontal"
+          className="h-full"
+          autoSaveId="chat-layout"
+        >
+          {/* 左侧：消息列表 */}
+          <ResizablePanel
+            id="chat-panel"
+            order={1}
+            defaultSize={showDocumentEditor ? 60 : 100}
+            minSize={40}
+          >
+            <div className="flex flex-col h-full">
+              {/* 消息列表区域 */}
+              <div className="flex-1 overflow-hidden">
+                <MessageList
+                  messages={messages}
+                  isLoading={isLoading}
+                  streamingMessageId={streamingMessageId}
+                  onCopyMessage={handleCopyMessage}
+                  onShareMessage={handleShareMessage}
+                  onEditMessage={handleEditMessage}
+                  isShareMode={isShareMode}
+                  selectedMessageIds={validSelectedMessageIds}
+                  onToggleSelectMessage={handleToggleSelectMessage}
+                />
+              </div>
+
+              {/* 输入框区域 */}
+              {isShareMode
+                ? (
+                    <ShareActionBar
+                      selectedCount={validSelectedMessageIds.length}
+                      onCancel={handleCancelShareMode}
+                      onCopyText={handleCopySelectedText}
+                      onCopyLink={handleCopyConversationLink}
+                      onGenerateImage={handleGenerateImage}
+                      isGeneratingImage={isGeneratingImage}
+                    />
+                  )
+                : (
+                    <div className="mb-3">
+                      <ChatInputBox
+                        onSend={handleSendMessage}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  )}
             </div>
+          </ResizablePanel>
+
+          {/* 右侧分隔线 */}
+          {showDocumentEditor && (
+            <>
+              <ResizableHandle withHandle />
+              {/* 右侧：文档编辑器 */}
+              <ResizablePanel
+                ref={rightPanelRef}
+                id="document-panel"
+                order={2}
+                defaultSize={40}
+                minSize={30}
+                maxSize={60}
+                collapsible={true}
+                collapsedSize={0}
+                onCollapse={() => setShowDocumentEditor(false)}
+              >
+                <DocumentEditor
+                  message={editingMessage}
+                  isOpen={showDocumentEditor}
+                  onClose={handleCloseDocumentEditor}
+                  onSave={handleSaveDocument}
+                />
+              </ResizablePanel>
+            </>
           )}
+        </ResizablePanelGroup>
+      </div>
 
       <ShareImageRenderer
         containerRef={shareImageRef}
