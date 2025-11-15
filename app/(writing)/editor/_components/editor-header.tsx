@@ -1,15 +1,17 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { HeaderCenter } from './header-center'
 import { HeaderLeft } from './header-left'
 import { HeaderRight } from './header-right'
 
 interface EditorHeaderProps {
   title?: string
+  currentChapterId?: string | null
   showLeftPanel: boolean
   onToggleLeftPanel: () => void
+  onSelectChapter?: (chapterId: string) => void
   onToggleAI?: () => void
   onToggleTerminal?: () => void
   onBack?: () => void
@@ -17,16 +19,69 @@ interface EditorHeaderProps {
 
 export default function EditorHeader({
   title = '未选择章节',
+  currentChapterId,
   showLeftPanel,
   onToggleLeftPanel,
+  onSelectChapter,
   onToggleAI,
   onToggleTerminal,
   onBack,
 }: EditorHeaderProps) {
   const router = useRouter()
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [chapterHistory] = useState<string[]>([])
+  const [chapterHistory, setChapterHistory] = useState<string[]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
+  const prevChapterIdRef = useRef<string | null | undefined>(null)
+  const isNavigatingHistoryRef = useRef(false)
+
+  // 当章节切换时，更新历史记录
+  useLayoutEffect(() => {
+    if (!currentChapterId || currentChapterId === prevChapterIdRef.current) {
+      if (currentChapterId) {
+        prevChapterIdRef.current = currentChapterId
+      }
+      return
+    }
+
+    // 如果是通过历史导航切换的，只更新索引，不修改历史记录
+    if (isNavigatingHistoryRef.current) {
+      isNavigatingHistoryRef.current = false
+      prevChapterIdRef.current = currentChapterId
+      return
+    }
+
+    prevChapterIdRef.current = currentChapterId
+
+    setChapterHistory((prev) => {
+      // 如果当前章节已经在历史记录中，移除它后面的记录
+      const existingIndex = prev.indexOf(currentChapterId)
+      if (existingIndex !== -1) {
+        const newHistory = prev.slice(0, existingIndex + 1)
+        setHistoryIndex(newHistory.length - 1)
+        return newHistory
+      }
+
+      // 获取当前历史索引并更新
+      setHistoryIndex((currentHistoryIndex) => {
+        let newHistory: string[]
+
+        // 如果当前在历史记录的中间位置，移除后面的记录
+        if (currentHistoryIndex < prev.length - 1) {
+          newHistory = prev.slice(0, currentHistoryIndex + 1)
+          newHistory.push(currentChapterId)
+        } else {
+          // 添加新章节到历史记录
+          newHistory = [...prev, currentChapterId]
+        }
+
+        setChapterHistory(newHistory)
+        setHistoryIndex(newHistory.length - 1)
+        return newHistory.length - 1
+      })
+
+      return prev
+    })
+  }, [currentChapterId])
 
   // 全屏切换
   const handleToggleFullscreen = useCallback(() => {
@@ -62,20 +117,28 @@ export default function EditorHeader({
   const canGoForward = historyIndex < chapterHistory.length - 1
 
   const handleGoBack = useCallback(() => {
-    if (canGoBack) {
+    if (canGoBack && onSelectChapter) {
       const newIndex = historyIndex - 1
-      setHistoryIndex(newIndex)
-      // TODO: 切换到对应章节
+      const prevChapterId = chapterHistory[newIndex]
+      if (prevChapterId) {
+        isNavigatingHistoryRef.current = true
+        setHistoryIndex(newIndex)
+        onSelectChapter(prevChapterId)
+      }
     }
-  }, [canGoBack, historyIndex])
+  }, [canGoBack, historyIndex, chapterHistory, onSelectChapter])
 
   const handleGoForward = useCallback(() => {
-    if (canGoForward) {
+    if (canGoForward && onSelectChapter) {
       const newIndex = historyIndex + 1
-      setHistoryIndex(newIndex)
-      // TODO: 切换到对应章节
+      const nextChapterId = chapterHistory[newIndex]
+      if (nextChapterId) {
+        isNavigatingHistoryRef.current = true
+        setHistoryIndex(newIndex)
+        onSelectChapter(nextChapterId)
+      }
     }
-  }, [canGoForward, historyIndex])
+  }, [canGoForward, historyIndex, chapterHistory, onSelectChapter])
 
   // 标题点击（打开搜索弹窗）
   const handleTitleClick = useCallback(() => {

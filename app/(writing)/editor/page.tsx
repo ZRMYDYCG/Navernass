@@ -388,8 +388,10 @@ export default function NovelsEdit() {
       <div className="h-screen flex flex-col overflow-hidden">
         <EditorHeader
           title={activeTab ? chapters.find(c => c.id === activeTab)?.title || '未选择章节' : '未选择章节'}
+          currentChapterId={activeTab}
           showLeftPanel={showLeftPanel}
           onToggleLeftPanel={handleToggleLeftPanel}
+          onSelectChapter={handleSelectChapter}
           onToggleAI={() => {
             // TODO: 实现 AI 面板切换
             handleToggleRightPanel()
