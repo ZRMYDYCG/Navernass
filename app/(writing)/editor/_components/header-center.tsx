@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
 interface HeaderCenterProps {
   title: string
@@ -37,14 +37,16 @@ export function HeaderCenter({
       </button>
 
       {/* 标题搜索框 */}
-      <button
-        type="button"
+      <div
         onClick={onTitleClick}
-        className="flex-1 h-7 px-3 text-sm text-left text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded hover:border-gray-400 dark:hover:border-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="flex-1 h-7 px-3 flex items-center justify-center text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
         title="点击搜索章节"
       >
-        <span className="truncate block">{title || '未选择章节'}</span>
-      </button>
+        <div className="flex items-center gap-1.5">
+          <Search className="w-4 h-4 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+          <span className="truncate">{title || '未选择章节'}</span>
+        </div>
+      </div>
 
       {/* 前进按钮 */}
       <button
