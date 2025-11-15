@@ -101,35 +101,40 @@ export default function NovelsEdit() {
   }, [isMobile])
 
   // 加载小说和章节数据
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!novelId) {
       toast.error('缺少小说ID')
       router.push('/novels')
       return
     }
 
-    const loadData = async () => {
-      try {
-        setLoading(true)
-        const [novelData, chaptersData, volumesData] = await Promise.all([
-          novelsApi.getById(novelId),
-          chaptersApi.getByNovelId(novelId),
-          volumesApi.getByNovelId(novelId),
-        ])
-        setNovel(novelData)
-        setChapters(chaptersData)
-        setVolumes(volumesData)
-      } catch (error) {
-        console.error('加载数据失败:', error)
-        const message = error instanceof Error ? error.message : '加载数据失败'
-        toast.error(message)
-      } finally {
-        setLoading(false)
-      }
+    try {
+      setLoading(true)
+      const [novelData, chaptersData, volumesData] = await Promise.all([
+        novelsApi.getById(novelId),
+        chaptersApi.getByNovelId(novelId),
+        volumesApi.getByNovelId(novelId),
+      ])
+      setNovel(novelData)
+      setChapters(chaptersData)
+      setVolumes(volumesData)
+    } catch (error) {
+      console.error('加载数据失败:', error)
+      const message = error instanceof Error ? error.message : '加载数据失败'
+      toast.error(message)
+    } finally {
+      setLoading(false)
     }
-
-    loadData()
   }, [novelId, router])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  // 处理章节导入后的刷新
+  const handleChaptersImported = useCallback(() => {
+    loadData()
+  }, [loadData])
 
   // 键盘快捷键监听
   useEffect(() => {
@@ -701,7 +706,7 @@ export default function NovelsEdit() {
   const handleLock = async () => {
     // 动态导入工具函数，避免 SSR 问题
     const { hasPassword, setLocked } = await import('./_components/lock-screen/utils')
-    
+
     if (!hasPassword()) {
       // 如果没有设置密码，先打开设置密码对话框
       setSetPasswordDialogOpen(true)
@@ -709,7 +714,7 @@ export default function NovelsEdit() {
       // 如果已设置密码，直接锁定
       setLocked(true)
       setIsLocked(true)
-      
+
       // 触发自定义事件，通知 LockScreen 组件
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('lockScreenChange'))
@@ -720,19 +725,19 @@ export default function NovelsEdit() {
   // 处理密码设置
   const handleSetPassword = async (password: string) => {
     setIsSettingPassword(true)
-    
+
     // 动态导入工具函数
     const { setPassword, setLocked } = await import('./_components/lock-screen/utils')
-    
+
     try {
       setPassword(password)
       toast.success('密码设置成功！')
       setSetPasswordDialogOpen(false)
-      
+
       // 设置密码后立即锁定
       setLocked(true)
       setIsLocked(true)
-      
+
       // 触发自定义事件，通知 LockScreen 组件
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('lockScreenChange'))
@@ -786,130 +791,35 @@ export default function NovelsEdit() {
       <LockScreen onLockChange={handleLockChange}>
         <div className="h-screen flex flex-col overflow-hidden">
           <EditorHeader
-          title={activeTab ? chapters.find(c => c.id === activeTab)?.title || '未选择章节' : '未选择章节'}
-          currentChapterId={activeTab}
-          showLeftPanel={showLeftPanel}
-          onToggleLeftPanel={handleToggleLeftPanel}
-          onSelectChapter={handleSelectChapter}
-          onToggleAI={() => {
+            title={activeTab ? chapters.find(c => c.id === activeTab)?.title || '未选择章节' : '未选择章节'}
+            currentChapterId={activeTab}
+            showLeftPanel={showLeftPanel}
+            onToggleLeftPanel={handleToggleLeftPanel}
+            onSelectChapter={handleSelectChapter}
+            onToggleAI={() => {
             // TODO: 实现 AI 面板切换
-            handleToggleRightPanel()
-          }}
-          onToggleTerminal={() => {
+              handleToggleRightPanel()
+            }}
+            onToggleTerminal={() => {
             // TODO: 实现终端切换
             // eslint-disable-next-line no-console
-            console.log('切换终端')
-          }}
-          onLock={handleLock}
-          onBack={handleBack}
-        />
+              console.log('切换终端')
+            }}
+            onLock={handleLock}
+            onBack={handleBack}
+          />
 
-        {/* 主题内容区域 */}
-        <main className="flex-1 bg-gray-100 dark:bg-gray-800 transition-colors overflow-hidden">
-          {isMobile
-            ? (
+          {/* 主题内容区域 */}
+          <main className="flex-1 bg-gray-100 dark:bg-gray-800 transition-colors overflow-hidden">
+            {isMobile
+              ? (
                 // 移动端：编辑器全屏显示
-                <div className="h-full">
-                  {selectedChapter === null || activeTab === null
-                    ? (
-                        // 未选择章节时显示欢迎界面
-                        <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
-                          <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600 px-4">
-                            <Image
-                              src="/assets/svg/logo-eye.svg"
-                              width={120}
-                              height={120}
-                              alt="Logo"
-                              className="opacity-40"
-                            />
-                            <p className="text-sm text-center">选择一个章节开始编辑</p>
-                            <button
-                              type="button"
-                              onClick={() => setLeftDrawerOpen(true)}
-                              className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300"
-                            >
-                              打开章节列表
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    : (
-                        // 选择章节后显示编辑器
-                        <EditorContent
-                          openTabs={openTabs}
-                          activeTab={activeTab}
-                          onTabChange={setActiveTab}
-                          onTabClose={closeTab}
-                          onTabCloseOthers={closeOtherTabs}
-                          onTabCloseAll={closeAllTabs}
-                          onTabCloseLeft={closeLeftTabs}
-                          onTabCloseRight={closeRightTabs}
-                          novelTitle={novel.title}
-                          chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
-                          chapterId={activeTab}
-                          volumes={volumes}
-                          chapters={chapters}
-                          onSelectChapter={handleSelectChapter}
-                        />
-                      )}
-                </div>
-              )
-            : (
-                // 桌面端：使用 ResizablePanelGroup
-                <ResizablePanelGroup
-                  direction="horizontal"
-                  className="h-full"
-                  autoSaveId="editor-layout"
-                >
-                  {/* 左侧：带Tab的侧边栏 */}
-                  <ResizablePanel
-                    ref={leftPanelRef}
-                    id="left-panel"
-                    order={1}
-                    defaultSize={20}
-                    minSize={15}
-                    maxSize={30}
-                    collapsible={true}
-                    collapsedSize={0}
-                    onCollapse={() => setShowLeftPanel(false)}
-                    onExpand={() => setShowLeftPanel(true)}
-                  >
-                    {showLeftPanel && (
-                      <LeftPanel
-                        novelTitle={novel.title}
-                        chapters={formattedChapters}
-                        volumes={volumes}
-                        selectedChapter={selectedChapter}
-                        onSelectChapter={handleSelectChapter}
-                        onCreateChapter={handleOpenCreateChapterDialog}
-                        onCreateChapterInVolume={handleCreateChapterInVolume}
-                        onCreateVolume={handleOpenCreateVolumeDialog}
-                        onReorderChapters={handleReorderChapters}
-                        onReorderVolumes={handleReorderVolumes}
-                        onMoveChapterToVolume={handleMoveChapterToVolume}
-                        onRenameChapter={handleRenameChapter}
-                        onDeleteChapter={handleDeleteChapter}
-                        onCopyChapter={handleCopyChapter}
-                        onRenameVolume={handleRenameVolume}
-                        onDeleteVolume={handleDeleteVolume}
-                      />
-                    )}
-                  </ResizablePanel>
-
-                  <ResizableHandle withHandle className={!showLeftPanel ? 'hidden' : ''} />
-
-                  {/* 中间：编辑器 */}
-                  <ResizablePanel
-                    id="editor-panel"
-                    order={2}
-                    defaultSize={60}
-                    minSize={40}
-                  >
+                  <div className="h-full">
                     {selectedChapter === null || activeTab === null
                       ? (
-                          // 未选择章节时显示欢迎界面
+                        // 未选择章节时显示欢迎界面
                           <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
-                            <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
+                            <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600 px-4">
                               <Image
                                 src="/assets/svg/logo-eye.svg"
                                 width={120}
@@ -917,35 +827,28 @@ export default function NovelsEdit() {
                                 alt="Logo"
                                 className="opacity-40"
                               />
-                              <p className="text-sm">选择一个章节开始编辑</p>
-                              <span className="flex items-center gap-1">
-                                <Kbd>Ctrl</Kbd>
-                                <Kbd>+</Kbd>
-                                <Kbd>S</Kbd>
-                                <span>保存内容</span>
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Kbd>Ctrl</Kbd>
-                                <Kbd>+</Kbd>
-                                <Kbd>E</Kbd>
-                                <span>切换左侧面板</span>
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Kbd>Ctrl</Kbd>
-                                <Kbd>+</Kbd>
-                                <Kbd>L</Kbd>
-                                <span>切换右侧面板</span>
-                              </span>
+                              <p className="text-sm text-center">选择一个章节开始编辑</p>
+                              <button
+                                type="button"
+                                onClick={() => setLeftDrawerOpen(true)}
+                                className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300"
+                              >
+                                打开章节列表
+                              </button>
                             </div>
                           </div>
                         )
                       : (
-                          // 选择章节后显示编辑器
+                        // 选择章节后显示编辑器
                           <EditorContent
                             openTabs={openTabs}
                             activeTab={activeTab}
                             onTabChange={setActiveTab}
                             onTabClose={closeTab}
+                            onTabCloseOthers={closeOtherTabs}
+                            onTabCloseAll={closeAllTabs}
+                            onTabCloseLeft={closeLeftTabs}
+                            onTabCloseRight={closeRightTabs}
                             novelTitle={novel.title}
                             chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
                             chapterId={activeTab}
@@ -954,127 +857,233 @@ export default function NovelsEdit() {
                             onSelectChapter={handleSelectChapter}
                           />
                         )}
-                  </ResizablePanel>
-
-                  <ResizableHandle withHandle className={!showRightPanel ? 'hidden' : ''} />
-
-                  {/* 右侧：AI助手 */}
-                  <ResizablePanel
-                    ref={rightPanelRef}
-                    id="right-panel"
-                    order={3}
-                    defaultSize={20}
-                    minSize={15}
-                    maxSize={30}
-                    collapsible={true}
-                    collapsedSize={0}
-                    onCollapse={() => setShowRightPanel(false)}
-                    onExpand={() => setShowRightPanel(true)}
+                  </div>
+                )
+              : (
+                // 桌面端：使用 ResizablePanelGroup
+                  <ResizablePanelGroup
+                    direction="horizontal"
+                    className="h-full"
+                    autoSaveId="editor-layout"
                   >
-                    {showRightPanel && <RightPanel />}
-                  </ResizablePanel>
-                </ResizablePanelGroup>
-              )}
-        </main>
+                    {/* 左侧：带Tab的侧边栏 */}
+                    <ResizablePanel
+                      ref={leftPanelRef}
+                      id="left-panel"
+                      order={1}
+                      defaultSize={20}
+                      minSize={15}
+                      maxSize={30}
+                      collapsible={true}
+                      collapsedSize={0}
+                      onCollapse={() => setShowLeftPanel(false)}
+                      onExpand={() => setShowLeftPanel(true)}
+                    >
+                      {showLeftPanel && (
+                        <LeftPanel
+                          novelTitle={novel.title}
+                          novelId={novelId!}
+                          chapters={formattedChapters}
+                          volumes={volumes}
+                          selectedChapter={selectedChapter}
+                          onSelectChapter={handleSelectChapter}
+                          onCreateChapter={handleOpenCreateChapterDialog}
+                          onCreateChapterInVolume={handleCreateChapterInVolume}
+                          onCreateVolume={handleOpenCreateVolumeDialog}
+                          onReorderChapters={handleReorderChapters}
+                          onReorderVolumes={handleReorderVolumes}
+                          onMoveChapterToVolume={handleMoveChapterToVolume}
+                          onRenameChapter={handleRenameChapter}
+                          onDeleteChapter={handleDeleteChapter}
+                          onCopyChapter={handleCopyChapter}
+                          onRenameVolume={handleRenameVolume}
+                          onDeleteVolume={handleDeleteVolume}
+                          onChaptersImported={handleChaptersImported}
+                        />
+                      )}
+                    </ResizablePanel>
 
-        {/* 移动端：左侧 Drawer */}
-        {isMobile && (
-          <Drawer open={leftDrawerOpen} onOpenChange={setLeftDrawerOpen} direction="left">
-            <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
-              <div className="h-full overflow-hidden">
-                <LeftPanel
-                  novelTitle={novel.title}
-                  chapters={formattedChapters}
-                  volumes={volumes}
-                  selectedChapter={selectedChapter}
-                  onSelectChapter={handleSelectChapter}
-                  onCreateChapter={handleOpenCreateChapterDialog}
-                  onCreateVolume={handleOpenCreateVolumeDialog}
-                  onReorderChapters={handleReorderChapters}
-                  onReorderVolumes={handleReorderVolumes}
-                  onMoveChapterToVolume={handleMoveChapterToVolume}
-                />
-              </div>
-            </DrawerContent>
-          </Drawer>
-        )}
+                    <ResizableHandle withHandle className={!showLeftPanel ? 'hidden' : ''} />
 
-        {/* 移动端：右侧 Drawer */}
-        {isMobile && (
-          <Drawer open={rightDrawerOpen} onOpenChange={setRightDrawerOpen} direction="right">
-            <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
-              <div className="h-full overflow-hidden">
-                <RightPanel />
-              </div>
-            </DrawerContent>
-          </Drawer>
-        )}
+                    {/* 中间：编辑器 */}
+                    <ResizablePanel
+                      id="editor-panel"
+                      order={2}
+                      defaultSize={60}
+                      minSize={40}
+                    >
+                      {selectedChapter === null || activeTab === null
+                        ? (
+                          // 未选择章节时显示欢迎界面
+                            <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
+                              <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
+                                <Image
+                                  src="/assets/svg/logo-eye.svg"
+                                  width={120}
+                                  height={120}
+                                  alt="Logo"
+                                  className="opacity-40"
+                                />
+                                <p className="text-sm">选择一个章节开始编辑</p>
+                                <span className="flex items-center gap-1">
+                                  <Kbd>Ctrl</Kbd>
+                                  <Kbd>+</Kbd>
+                                  <Kbd>S</Kbd>
+                                  <span>保存内容</span>
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Kbd>Ctrl</Kbd>
+                                  <Kbd>+</Kbd>
+                                  <Kbd>E</Kbd>
+                                  <span>切换左侧面板</span>
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Kbd>Ctrl</Kbd>
+                                  <Kbd>+</Kbd>
+                                  <Kbd>L</Kbd>
+                                  <span>切换右侧面板</span>
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        : (
+                          // 选择章节后显示编辑器
+                            <EditorContent
+                              openTabs={openTabs}
+                              activeTab={activeTab}
+                              onTabChange={setActiveTab}
+                              onTabClose={closeTab}
+                              novelTitle={novel.title}
+                              chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
+                              chapterId={activeTab}
+                              volumes={volumes}
+                              chapters={chapters}
+                              onSelectChapter={handleSelectChapter}
+                            />
+                          )}
+                    </ResizablePanel>
 
-        {/* 创建章节对话框 */}
-        <CreateChapterDialog
-          open={createChapterDialogOpen}
-          onOpenChange={setCreateChapterDialogOpen}
-          title={newChapterTitle}
-          onTitleChange={setNewChapterTitle}
-          onConfirm={handleCreateChapter}
-          isCreating={isCreatingChapter}
-        />
+                    <ResizableHandle withHandle className={!showRightPanel ? 'hidden' : ''} />
 
-        {/* 创建卷对话框 */}
-        <CreateVolumeDialog
-          open={createVolumeDialogOpen}
-          onOpenChange={setCreateVolumeDialogOpen}
-          title={newVolumeTitle}
-          description={newVolumeDescription}
-          onTitleChange={setNewVolumeTitle}
-          onDescriptionChange={setNewVolumeDescription}
-          onConfirm={handleCreateVolume}
-          isCreating={isCreatingVolume}
-        />
+                    {/* 右侧：AI助手 */}
+                    <ResizablePanel
+                      ref={rightPanelRef}
+                      id="right-panel"
+                      order={3}
+                      defaultSize={20}
+                      minSize={15}
+                      maxSize={30}
+                      collapsible={true}
+                      collapsedSize={0}
+                      onCollapse={() => setShowRightPanel(false)}
+                      onExpand={() => setShowRightPanel(true)}
+                    >
+                      {showRightPanel && <RightPanel />}
+                    </ResizablePanel>
+                  </ResizablePanelGroup>
+                )}
+          </main>
 
-        <RenameChapterDialog
-          open={renameChapterDialogOpen}
-          onOpenChange={setRenameChapterDialogOpen}
-          title={editingChapterTitle}
-          onTitleChange={setEditingChapterTitle}
-          onConfirm={handleConfirmRenameChapter}
-          isUpdating={isUpdatingChapter}
-        />
+          {/* 移动端：左侧 Drawer */}
+          {isMobile && (
+            <Drawer open={leftDrawerOpen} onOpenChange={setLeftDrawerOpen} direction="left">
+              <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
+                <div className="h-full overflow-hidden">
+                  <LeftPanel
+                    novelTitle={novel.title}
+                    novelId={novelId!}
+                    chapters={formattedChapters}
+                    volumes={volumes}
+                    selectedChapter={selectedChapter}
+                    onSelectChapter={handleSelectChapter}
+                    onCreateChapter={handleOpenCreateChapterDialog}
+                    onCreateVolume={handleOpenCreateVolumeDialog}
+                    onReorderChapters={handleReorderChapters}
+                    onReorderVolumes={handleReorderVolumes}
+                    onMoveChapterToVolume={handleMoveChapterToVolume}
+                    onChaptersImported={handleChaptersImported}
+                  />
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
 
-        <RenameVolumeDialog
-          open={renameVolumeDialogOpen}
-          onOpenChange={setRenameVolumeDialogOpen}
-          title={editingVolumeTitle}
-          onTitleChange={setEditingVolumeTitle}
-          onConfirm={handleConfirmRenameVolume}
-          isUpdating={isUpdatingVolume}
-        />
+          {/* 移动端：右侧 Drawer */}
+          {isMobile && (
+            <Drawer open={rightDrawerOpen} onOpenChange={setRightDrawerOpen} direction="right">
+              <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
+                <div className="h-full overflow-hidden">
+                  <RightPanel />
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
 
-        <DeleteConfirmDialog
-          open={deleteChapterDialogOpen}
-          onOpenChange={setDeleteChapterDialogOpen}
-          title="确认删除章节"
-          description={`确定要删除章节"${chapterToDelete?.title}"吗？此操作不可恢复。`}
-          onConfirm={handleConfirmDeleteChapter}
-          isDeleting={isDeletingChapter}
-        />
+          {/* 创建章节对话框 */}
+          <CreateChapterDialog
+            open={createChapterDialogOpen}
+            onOpenChange={setCreateChapterDialogOpen}
+            title={newChapterTitle}
+            onTitleChange={setNewChapterTitle}
+            onConfirm={handleCreateChapter}
+            isCreating={isCreatingChapter}
+          />
 
-        <DeleteConfirmDialog
-          open={deleteVolumeDialogOpen}
-          onOpenChange={setDeleteVolumeDialogOpen}
-          title="确认删除卷"
-          description={`确定要删除卷"${volumeToDelete?.title}"吗？此操作不可恢复，卷下的所有章节将被移出。`}
-          onConfirm={handleConfirmDeleteVolume}
-          isDeleting={isDeletingVolume}
-        />
+          {/* 创建卷对话框 */}
+          <CreateVolumeDialog
+            open={createVolumeDialogOpen}
+            onOpenChange={setCreateVolumeDialogOpen}
+            title={newVolumeTitle}
+            description={newVolumeDescription}
+            onTitleChange={setNewVolumeTitle}
+            onDescriptionChange={setNewVolumeDescription}
+            onConfirm={handleCreateVolume}
+            isCreating={isCreatingVolume}
+          />
 
-        {/* 设置密码对话框 */}
-        <SetPasswordDialog
-          open={setPasswordDialogOpen}
-          onOpenChange={setSetPasswordDialogOpen}
-          onConfirm={handleSetPassword}
-          isSetting={isSettingPassword}
-        />
+          <RenameChapterDialog
+            open={renameChapterDialogOpen}
+            onOpenChange={setRenameChapterDialogOpen}
+            title={editingChapterTitle}
+            onTitleChange={setEditingChapterTitle}
+            onConfirm={handleConfirmRenameChapter}
+            isUpdating={isUpdatingChapter}
+          />
+
+          <RenameVolumeDialog
+            open={renameVolumeDialogOpen}
+            onOpenChange={setRenameVolumeDialogOpen}
+            title={editingVolumeTitle}
+            onTitleChange={setEditingVolumeTitle}
+            onConfirm={handleConfirmRenameVolume}
+            isUpdating={isUpdatingVolume}
+          />
+
+          <DeleteConfirmDialog
+            open={deleteChapterDialogOpen}
+            onOpenChange={setDeleteChapterDialogOpen}
+            title="确认删除章节"
+            description={`确定要删除章节"${chapterToDelete?.title}"吗？此操作不可恢复。`}
+            onConfirm={handleConfirmDeleteChapter}
+            isDeleting={isDeletingChapter}
+          />
+
+          <DeleteConfirmDialog
+            open={deleteVolumeDialogOpen}
+            onOpenChange={setDeleteVolumeDialogOpen}
+            title="确认删除卷"
+            description={`确定要删除卷"${volumeToDelete?.title}"吗？此操作不可恢复，卷下的所有章节将被移出。`}
+            onConfirm={handleConfirmDeleteVolume}
+            isDeleting={isDeletingVolume}
+          />
+
+          {/* 设置密码对话框 */}
+          <SetPasswordDialog
+            open={setPasswordDialogOpen}
+            onOpenChange={setSetPasswordDialogOpen}
+            onConfirm={handleSetPassword}
+            isSetting={isSettingPassword}
+          />
         </div>
       </LockScreen>
     </Tooltip.Provider>

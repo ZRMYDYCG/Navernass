@@ -7,6 +7,7 @@ import WorkspaceTab from './workspace'
 
 interface LeftPanelProps {
   novelTitle?: string
+  novelId: string
   chapters: Chapter[]
   volumes?: Volume[]
   selectedChapter: string | null
@@ -22,10 +23,12 @@ interface LeftPanelProps {
   onCopyChapter?: (chapter: Chapter) => void
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
+  onChaptersImported?: () => void
 }
 
 export default function LeftPanel({
   novelTitle,
+  novelId,
   chapters,
   volumes = [],
   selectedChapter,
@@ -41,6 +44,7 @@ export default function LeftPanel({
   onCopyChapter,
   onRenameVolume,
   onDeleteVolume,
+  onChaptersImported,
 }: LeftPanelProps) {
   const [activeTab, setActiveTab] = useState<LeftTabType>('files')
 
@@ -75,6 +79,9 @@ export default function LeftPanel({
         {activeTab === 'workspace' && (
           <WorkspaceTab
             chapters={chapters.map(c => ({ id: c.id, title: c.title }))}
+            novelId={novelId}
+            volumes={volumes}
+            onChaptersImported={onChaptersImported}
           />
         )}
       </div>
