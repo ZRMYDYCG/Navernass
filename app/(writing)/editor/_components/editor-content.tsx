@@ -230,6 +230,7 @@ export default function EditorContent({
                 autoSaveDelay={3000}
                 className="max-w-4xl mx-auto"
                 editable={true}
+                chapterId={chapterId}
               />
             )}
       </div>

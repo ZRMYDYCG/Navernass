@@ -74,7 +74,14 @@ export default function LeftPanel({
           />
         )}
 
-        {activeTab === 'search' && <SearchTab />}
+        {activeTab === 'search' && (
+          <SearchTab
+            novelId={novelId}
+            volumes={volumes}
+            selectedChapter={selectedChapter}
+            onSelectChapter={onSelectChapter}
+          />
+        )}
 
         {activeTab === 'workspace' && (
           <WorkspaceTab

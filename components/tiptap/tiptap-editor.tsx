@@ -10,6 +10,7 @@ import { useEffect, useRef } from 'react'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
 import { DragHandle } from './drag-handle'
 import { AIAutocomplete } from './extensions/ai-autocomplete'
+import { SearchHighlight, updateSearchHighlight } from './extensions/search-highlight'
 import { SlashCommand } from './extensions/slash-command'
 import { FloatingMenu } from './floating-menu'
 import 'tippy.js/dist/tippy.css'
@@ -29,6 +30,7 @@ export interface TiptapEditorProps {
   autoSaveDelay?: number
   className?: string
   editable?: boolean
+  chapterId?: string
 }
 
 function TiptapEditorInner(props: TiptapEditorProps) {
@@ -41,6 +43,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     autoSaveDelay = 3000,
     className = '',
     editable = true,
+    chapterId,
   } = props
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
@@ -87,6 +90,8 @@ function TiptapEditorInner(props: TiptapEditorProps) {
         trigger: '++',
         debounceDelay: 500,
       }),
+      // 搜索高亮扩展
+      SearchHighlight,
     ],
     content,
     editable,
@@ -148,6 +153,45 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       }
     }
   }, [editor, editable])
+
+  // 监听搜索高亮事件
+  useEffect(() => {
+    if (!editor || !chapterId) return
+
+    const handleHighlight = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        chapterId: string | null
+        keyword: string | null
+        matches: Array<{ start: number, end: number, type: 'title' | 'content' }>
+      }>
+
+      const { chapterId: eventChapterId, keyword, matches } = customEvent.detail
+
+      // 只有当事件中的 chapterId 与当前编辑器的 chapterId 匹配时才更新高亮
+      if (eventChapterId === chapterId) {
+        console.log('🔍 更新搜索高亮:', { eventChapterId, keyword, matchesCount: matches.length })
+        updateSearchHighlight(editor.view, eventChapterId, keyword, matches)
+      } else if (eventChapterId === null) {
+        // 如果 chapterId 为 null，清除高亮
+        console.log('🔍 清除搜索高亮')
+        updateSearchHighlight(editor.view, null, null, [])
+      }
+    }
+
+    window.addEventListener('editor-highlight', handleHighlight as EventListener)
+
+    // 编辑器加载完成后，检查是否有待处理的高亮请求
+    // 延迟一下确保编辑器完全初始化
+    const timeoutId = setTimeout(() => {
+      // 触发一个检查事件，让 SearchTab 重新发送高亮信息
+      window.dispatchEvent(new CustomEvent('editor-ready', { detail: { chapterId } }))
+    }, 100)
+
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('editor-highlight', handleHighlight as EventListener)
+    }
+  }, [editor, chapterId])
 
   if (!editor) {
     return null

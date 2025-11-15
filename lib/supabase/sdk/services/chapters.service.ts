@@ -159,4 +159,104 @@ export class ChaptersService {
   async unpublish(id: string) {
     return this.update(id, { status: 'draft' })
   }
+
+  /**
+   * 搜索章节
+   */
+  async search(params: {
+    novelId: string
+    keyword: string
+    volumeId?: string | null // 检索的卷，null 表示 root，undefined 表示不限制
+    excludeVolumeId?: string | null // 跳过检索的卷，null 表示 root，undefined 表示不跳过
+  }) {
+    const { novelId, keyword, volumeId, excludeVolumeId } = params
+
+    // 构建查询
+    let query = supabase
+      .from('chapters')
+      .select('*')
+      .eq('novel_id', novelId)
+
+    // 如果指定了 volumeId，只搜索该卷的章节
+    // volumeId === null 表示只搜索 root（volume_id 为 null）的章节
+    // volumeId === undefined 表示不限制卷
+    if (volumeId !== undefined) {
+      if (volumeId === null) {
+        query = query.is('volume_id', null)
+      } else {
+        query = query.eq('volume_id', volumeId)
+      }
+    }
+
+    // 如果指定了 excludeVolumeId，排除该卷的章节
+    if (excludeVolumeId !== undefined) {
+      if (excludeVolumeId === null) {
+        query = query.not('volume_id', 'is', null)
+      } else {
+        query = query.neq('volume_id', excludeVolumeId)
+      }
+    }
+
+    // 执行查询
+    const { data, error } = await query.order('order_index', { ascending: true })
+
+    if (error) throw error
+
+    // 在内存中搜索内容（因为 Supabase 的全文搜索需要配置）
+    const results = (data || []).map((chapter) => {
+      const content = chapter.content || ''
+      const title = chapter.title || ''
+
+      // 移除 HTML 标签进行搜索
+      const plainContent = content.replace(/<[^>]*>/g, '')
+      const plainTitle = title.replace(/<[^>]*>/g, '')
+
+      // 搜索关键字（不区分大小写）
+      const keywordLower = keyword.toLowerCase()
+      const contentLower = plainContent.toLowerCase()
+      const titleLower = plainTitle.toLowerCase()
+
+      // 查找所有匹配位置
+      const contentMatches: Array<{ start: number, end: number, text: string }> = []
+      const titleMatches: Array<{ start: number, end: number, text: string }> = []
+
+      // 在标题中搜索
+      let titleIndex = titleLower.indexOf(keywordLower)
+      while (titleIndex !== -1) {
+        titleMatches.push({
+          start: titleIndex,
+          end: titleIndex + keyword.length,
+          text: title.substring(titleIndex, titleIndex + keyword.length),
+        })
+        titleIndex = titleLower.indexOf(keywordLower, titleIndex + 1)
+      }
+
+      // 在内容中搜索（限制前 10 个匹配）
+      let contentIndex = contentLower.indexOf(keywordLower)
+      let matchCount = 0
+      while (contentIndex !== -1 && matchCount < 10) {
+        // 获取匹配位置前后的上下文（各 50 个字符）
+        const contextStart = Math.max(0, contentIndex - 50)
+        const contextEnd = Math.min(plainContent.length, contentIndex + keyword.length + 50)
+        const contextText = plainContent.substring(contextStart, contextEnd)
+
+        contentMatches.push({
+          start: contentIndex,
+          end: contentIndex + keyword.length,
+          text: contextText,
+        })
+        matchCount++
+        contentIndex = contentLower.indexOf(keywordLower, contentIndex + 1)
+      }
+
+      return {
+        chapter,
+        titleMatches,
+        contentMatches,
+        matchCount: titleMatches.length + contentMatches.length,
+      }
+    }).filter(result => result.matchCount > 0) // 只返回有匹配的章节
+
+    return results
+  }
 }
