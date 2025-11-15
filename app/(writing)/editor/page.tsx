@@ -387,11 +387,18 @@ export default function NovelsEdit() {
     <Tooltip.Provider>
       <div className="h-screen flex flex-col overflow-hidden">
         <EditorHeader
-          novelTitle={`《${novel.title}》`}
+          title={activeTab ? chapters.find(c => c.id === activeTab)?.title || '未选择章节' : '未选择章节'}
           showLeftPanel={showLeftPanel}
-          showRightPanel={showRightPanel}
           onToggleLeftPanel={handleToggleLeftPanel}
-          onToggleRightPanel={handleToggleRightPanel}
+          onToggleAI={() => {
+            // TODO: 实现 AI 面板切换
+            handleToggleRightPanel()
+          }}
+          onToggleTerminal={() => {
+            // TODO: 实现终端切换
+            // eslint-disable-next-line no-console
+            console.log('切换终端')
+          }}
           onBack={handleBack}
         />
 
