@@ -2,8 +2,6 @@
 
 import type { Editor } from '@tiptap/react'
 import { Bold, Italic, Sparkles, Underline as UnderlineIcon } from 'lucide-react'
-import { useTheme } from 'next-themes'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 interface FormatToolbarProps {
@@ -14,9 +12,7 @@ interface FormatToolbarProps {
 }
 
 export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: FormatToolbarProps) {
-  const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const isDark = resolvedTheme === 'dark'
 
   useEffect(() => {
     requestAnimationFrame(() => {
