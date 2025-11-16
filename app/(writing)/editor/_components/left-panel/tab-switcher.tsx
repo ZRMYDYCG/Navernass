@@ -20,7 +20,7 @@ export function TabSwitcher({ activeTab, onChange }: TabSwitcherProps) {
             onClick={() => onChange(tab.value)}
             className={`px-3 py-1.5 text-xs font-medium transition-colors flex items-center justify-center rounded-md ${
               isActive
-                ? 'text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900'
+                ? 'text-gray-900 dark:text-gray-100'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
             }`}
             title={tab.label}
