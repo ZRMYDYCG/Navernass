@@ -41,7 +41,7 @@ export function AIResultPanel({ ref, isLoading, content, isCompleted, onReplace,
           <div className="px-2.5 py-2 max-h-[240px] overflow-y-auto">
             <div className="text-xs text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-wrap">
               {content}
-              <span className="inline-block w-0.5 h-3 ml-0.5 bg-gray-900 dark:bg-gray-100 animate-pulse" />
+              <span className="inline-block w-0.5 h-3 ml-0.5 bg-gray-900 dark:bg-zinc-100 animate-pulse" />
             </div>
           </div>
         </div>

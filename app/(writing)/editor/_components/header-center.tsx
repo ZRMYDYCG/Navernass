@@ -39,7 +39,7 @@ export function HeaderCenter({
       {/* 标题搜索框 */}
       <div
         onClick={onTitleClick}
-        className="flex-1 h-7 px-3 flex items-center justify-center text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+        className="flex-1 h-7 px-3 flex items-center justify-center text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-gray-600 rounded cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
         title="点击搜索章节"
       >
         <div className="flex items-center gap-1.5">

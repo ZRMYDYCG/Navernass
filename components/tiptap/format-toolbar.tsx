@@ -25,12 +25,12 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
   }, [])
 
   return (
-    <div className="flex items-center gap-0.5 p-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg">
+    <div className="flex items-center gap-0.5 p-0.5 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg">
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBold().run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-          editor.isActive('bold') ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
+          editor.isActive('bold') ? 'bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
         }`}
         title="加粗"
       >
@@ -40,7 +40,7 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
         type="button"
         onClick={() => editor.chain().focus().toggleItalic().run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-          editor.isActive('italic') ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
+          editor.isActive('italic') ? 'bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
         }`}
         title="斜体"
       >
@@ -50,7 +50,7 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
         type="button"
         onClick={() => editor.chain().focus().toggleUnderline().run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-          editor.isActive('underline') ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
+          editor.isActive('underline') ? 'bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
         }`}
         title="下划线"
       >
@@ -59,7 +59,7 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
 
       {onAIClick && (
         <>
-          <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-0.5" />
+          <div className="w-px h-4 bg-gray-300 dark:bg-zinc-600 mx-0.5" />
           <button
             type="button"
             onMouseDown={(e) => {
@@ -88,11 +88,11 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
             }}
             disabled={isAILoading}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-              isAIActive || isAILoading ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
+              isAIActive || isAILoading ? 'bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
             } disabled:opacity-50`}
             title="Ask AI"
           >
-            {mounted ? <Sparkles className="w-3 h-3" /> : <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />}
+            {mounted ? <Sparkles className="w-3 h-3" /> : <div className="w-3 h-3 bg-gray-300 dark:bg-zinc-600 rounded animate-pulse" />}
           </button>
         </>
       )}

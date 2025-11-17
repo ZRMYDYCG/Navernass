@@ -11,7 +11,7 @@ interface NovelCardProps {
 export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow border border-gray-100 dark:border-gray-700 relative cursor-context-menu"
+      className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow border border-gray-100 dark:border-gray-700 relative cursor-context-menu"
       onContextMenu={e => onContextMenu(e, novel)}
     >
       {/* 封面图片 */}
@@ -39,7 +39,7 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
         </div>
         {novel.category && (
           <div className="absolute top-2 right-2">
-            <span className="inline-block px-2.5 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-xs font-medium text-gray-700 dark:text-gray-200 rounded-full">
+            <span className="inline-block px-2.5 py-1 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm text-xs font-medium text-gray-700 dark:text-gray-200 rounded-full">
               {novel.category}
             </span>
           </div>
@@ -64,7 +64,7 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
             {novel.tags.slice(0, 3).map(tag => (
               <span
                 key={tag}
-                className="px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-md"
+                className="px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-zinc-700 rounded-md"
               >
                 {tag}
               </span>
@@ -93,7 +93,7 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
 
         {/* 开始创作按钮 */}
         <Button
-          className="w-full bg-black dark:bg-gray-700 text-white h-8 text-sm hover:bg-gray-800 dark:hover:bg-gray-600"
+          className="w-full bg-black dark:bg-zinc-700 text-white h-8 text-sm hover:bg-gray-800 dark:hover:bg-gray-600"
           onClick={() => onOpen(novel)}
         >
           开始创作

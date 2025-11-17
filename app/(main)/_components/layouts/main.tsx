@@ -13,7 +13,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const shouldShowSidebar = isNewChatPage || !isChatPage
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-zinc-900 transition-colors">
       {!isChatPage && <Header />}
 
       <main

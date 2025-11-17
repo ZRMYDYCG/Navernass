@@ -290,7 +290,7 @@ export default function RightPanel() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gray-100 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
+    <div className="h-full flex flex-col bg-gray-100 dark:bg-zinc-800 border-l border-gray-200 dark:border-gray-700">
       {/* 顶部标题 */}
       <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 

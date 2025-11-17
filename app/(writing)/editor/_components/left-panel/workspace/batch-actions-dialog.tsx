@@ -88,7 +88,7 @@ export function BatchActionsDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
             {/* 标题栏 */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
@@ -157,14 +157,14 @@ export function BatchActionsDialog({
                             onClick={() => toggleSelect(chapter.id)}
                             className={`w-full flex items-center gap-3 p-2 rounded-lg border transition-colors text-left ${
                               isSelected
-                                ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-700'
+                                ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-zinc-700'
                                 : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                             }`}
                           >
                             <div
                               className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center ${
                                 isSelected
-                                  ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-gray-100'
+                                  ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-zinc-100'
                                   : 'border-gray-300 dark:border-gray-500'
                               }`}
                             >
@@ -187,7 +187,7 @@ export function BatchActionsDialog({
               <Dialog.Close asChild>
                 <Button
                   type="button"
-                  className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  className="flex-1 bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
                   disabled={isProcessing}
                 >
                   取消
@@ -200,7 +200,7 @@ export function BatchActionsDialog({
                 className={`flex-1 ${
                   mode === 'delete'
                     ? 'bg-red-600 dark:bg-red-500 text-white hover:bg-red-700 dark:hover:bg-red-600'
-                    : 'bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200'
+                    : 'bg-black dark:bg-zinc-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200'
                 }`}
               >
                 {isProcessing ? `${modeText}中...` : `确认${modeText}`}

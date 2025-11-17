@@ -240,7 +240,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
       const key = `${part.isHighlight ? 'highlight' : 'text'}-${part.text.substring(0, 10)}-${idx}`
       return part.isHighlight
         ? (
-            <mark key={key} className="bg-gray-200 dark:bg-gray-600 px-0.5 rounded">
+            <mark key={key} className="bg-gray-200 dark:bg-zinc-600 px-0.5 rounded">
               {part.text}
             </mark>
           )
@@ -419,7 +419,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                           <div className="text-[10px] font-medium text-gray-600 dark:text-gray-400 mb-0.5">
                             标题匹配:
                           </div>
-                          <div className="text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-1 rounded">
+                          <div className="text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-zinc-800 p-1 rounded">
                             {highlightText(chapter.title, keyword, result.titleMatches)}
                           </div>
                         </div>
@@ -447,7 +447,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                                 return (
                                   <div
                                     key={matchKey}
-                                    className="text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-1 rounded"
+                                    className="text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-zinc-800 p-1 rounded"
                                   >
                                     ...
                                     {match.text}
@@ -463,11 +463,11 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                               return (
                                 <div
                                   key={matchKey}
-                                  className="text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-1 rounded"
+                                  className="text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-zinc-800 p-1 rounded"
                                 >
                                   ...
                                   {beforeMatch}
-                                  <mark className="bg-gray-200 dark:bg-gray-600 px-0.5 rounded">
+                                  <mark className="bg-gray-200 dark:bg-zinc-600 px-0.5 rounded">
                                     {matchText}
                                   </mark>
                                   {afterMatch}

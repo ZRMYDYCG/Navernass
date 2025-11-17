@@ -11,7 +11,7 @@ export function MessageListSkeleton() {
           {/* 用户消息骨架 */}
           <div className="flex gap-3 py-3 flex-row-reverse">
             <div className="flex-1 max-w-[85%] flex justify-end">
-              <div className="rounded-xl px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 w-full max-w-[80%]">
+              <div className="rounded-xl px-3 py-2 text-sm bg-gray-100 dark:bg-zinc-700 w-full max-w-[80%]">
                 <Skeleton className="h-4 w-full mb-1" />
                 <Skeleton className="h-4 w-[70%]" />
               </div>
@@ -24,7 +24,7 @@ export function MessageListSkeleton() {
               <Skeleton className="w-7 h-7 rounded-full" />
             </div>
             <div className="flex-1 max-w-[85%] flex justify-start">
-              <div className="rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 w-full">
+              <div className="rounded-xl px-3 py-2 text-sm bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 w-full">
                 <Skeleton className="h-4 w-full mb-1" />
                 <Skeleton className="h-4 w-full mb-1" />
                 <Skeleton className="h-4 w-[85%]" />
@@ -35,7 +35,7 @@ export function MessageListSkeleton() {
           {/* 用户消息骨架 */}
           <div className="flex gap-3 py-3 flex-row-reverse">
             <div className="flex-1 max-w-[85%] flex justify-end">
-              <div className="rounded-xl px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 w-full max-w-[75%]">
+              <div className="rounded-xl px-3 py-2 text-sm bg-gray-100 dark:bg-zinc-700 w-full max-w-[75%]">
                 <Skeleton className="h-4 w-full mb-1" />
                 <Skeleton className="h-4 w-[60%]" />
               </div>
@@ -48,7 +48,7 @@ export function MessageListSkeleton() {
               <Skeleton className="w-7 h-7 rounded-full" />
             </div>
             <div className="flex-1 max-w-[85%] flex justify-start">
-              <div className="rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 w-full">
+              <div className="rounded-xl px-3 py-2 text-sm bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 w-full">
                 <Skeleton className="h-4 w-full mb-1" />
                 <Skeleton className="h-4 w-full mb-1" />
                 <Skeleton className="h-4 w-full mb-1" />
@@ -60,7 +60,7 @@ export function MessageListSkeleton() {
           {/* 用户消息骨架 */}
           <div className="flex gap-3 py-3 flex-row-reverse">
             <div className="flex-1 max-w-[85%] flex justify-end">
-              <div className="rounded-xl px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 w-full max-w-[70%]">
+              <div className="rounded-xl px-3 py-2 text-sm bg-gray-100 dark:bg-zinc-700 w-full max-w-[70%]">
                 <Skeleton className="h-4 w-full" />
               </div>
             </div>
@@ -72,7 +72,7 @@ export function MessageListSkeleton() {
               <Skeleton className="w-7 h-7 rounded-full" />
             </div>
             <div className="flex-1 max-w-[85%] flex justify-start">
-              <div className="rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 w-full">
+              <div className="rounded-xl px-3 py-2 text-sm bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 w-full">
                 <Skeleton className="h-4 w-full mb-1" />
                 <Skeleton className="h-4 w-[80%]" />
               </div>

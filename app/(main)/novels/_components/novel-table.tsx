@@ -44,7 +44,7 @@ export function NovelTable({
     <div className="w-full overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800 -mx-2 sm:mx-0">
       <table className="w-full border-collapse min-w-[900px]">
         <thead>
-          <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+          <tr className="bg-gray-50 dark:bg-zinc-800/50 border-b border-gray-200 dark:border-gray-700">
             <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap min-w-[200px]">
               标题
             </th>
@@ -68,13 +68,13 @@ export function NovelTable({
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
+        <tbody className="bg-white dark:bg-zinc-900 divide-y divide-gray-100 dark:divide-gray-800">
           {novels.map((novel, index) => (
             <tr
               key={novel.id}
               onContextMenu={e => onContextMenu(e, novel)}
               className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group ${
-                index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/30 dark:bg-gray-800/20'
+                index % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50/30 dark:bg-zinc-800/20'
               }`}
             >
               {/* 标题 */}
@@ -102,7 +102,7 @@ export function NovelTable({
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
                     novel.status === 'published'
                       ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                      : 'bg-gray-100 text-gray-800 dark:bg-zinc-800 dark:text-gray-400'
                   }`}
                 >
                   {novel.status === 'published' ? '已发布' : '草稿'}
@@ -159,7 +159,7 @@ export function NovelTable({
                     </Popover.Trigger>
                     <Popover.Portal>
                       <Popover.Content
-                        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+                        className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
                         sideOffset={5}
                         align="end"
                       >

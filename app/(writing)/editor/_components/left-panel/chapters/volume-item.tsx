@@ -72,7 +72,7 @@ export function VolumeItem({
                 </Popover.Trigger>
                 <Popover.Portal>
                   <Popover.Content
-                    className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+                    className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
                     sideOffset={5}
                     align="start"
                   >

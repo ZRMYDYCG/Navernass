@@ -18,7 +18,7 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 px-1.5 py-1 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200 border border-gray-200 dark:border-gray-700 hover:scale-105 active:scale-95"
+        className="flex items-center gap-1 px-1.5 py-1 text-xs bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200 border border-gray-200 dark:border-gray-700 hover:scale-105 active:scale-95"
       >
         {(() => {
           const IconComponent = currentMode?.icon
@@ -43,7 +43,7 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute bottom-full mb-1 left-0 z-20 min-w-[120px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg py-0.5 animate-in fade-in-0 zoom-in-95 duration-200">
+          <div className="absolute bottom-full mb-1 left-0 z-20 min-w-[120px] bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg py-0.5 animate-in fade-in-0 zoom-in-95 duration-200">
             {MODE_OPTIONS.map((mode) => {
               const IconComp = mode.icon
               return (
@@ -56,7 +56,7 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
                   }}
                   className={`w-full flex items-center gap-1.5 px-2 py-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-150 ${
                     value === mode.value
-                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium'
+                      ? 'bg-gray-100 dark:bg-zinc-700 text-gray-900 dark:text-gray-100 font-medium'
                       : 'text-gray-700 dark:text-gray-300'
                   }`}
                 >

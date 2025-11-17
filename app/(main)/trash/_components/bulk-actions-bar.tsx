@@ -24,7 +24,7 @@ export function BulkActionsBar({
 
   return (
     <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-300 w-[calc(100%-2rem)] sm:w-auto max-w-2xl">
-      <div className="bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-3">
+      <div className="bg-white dark:bg-zinc-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-3">
         {/* 选择信息 */}
         <div className="flex items-center gap-1.5 sm:gap-2 px-1 sm:px-2">
           <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
@@ -46,7 +46,7 @@ export function BulkActionsBar({
           )}
         </div>
 
-        <div className="h-5 sm:h-6 w-px bg-gray-200 dark:bg-gray-700" />
+        <div className="h-5 sm:h-6 w-px bg-gray-200 dark:bg-zinc-700" />
 
         {/* 批量操作按钮 */}
         <div className="flex items-center gap-1 sm:gap-2">
@@ -70,7 +70,7 @@ export function BulkActionsBar({
           </Button>
         </div>
 
-        <div className="h-5 sm:h-6 w-px bg-gray-200 dark:bg-gray-700" />
+        <div className="h-5 sm:h-6 w-px bg-gray-200 dark:bg-zinc-700" />
 
         {/* 取消选择 */}
         <button

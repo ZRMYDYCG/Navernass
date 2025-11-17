@@ -50,12 +50,12 @@ const styles = {
     horizontal: 'bg-transparent! border-0! p-0! h-auto! mt-0! backdrop-blur-none! gap-3',
   },
   active: {
-    base: 'text-gray-900 dark:text-white',
+    base: 'text-zinc-900 dark:text-white',
     vertical: 'scale-[1.15] -translate-x-1',
     horizontal: 'scale-[1.15] -translate-y-1',
   },
   inactive: {
-    base: 'text-gray-600 dark:text-gray-400',
+    base: 'text-zinc-600 dark:text-zinc-400',
     vertical: 'hover:scale-[1.2] hover:-translate-x-3 active:scale-95',
     horizontal: 'hover:scale-[1.2] hover:-translate-y-3 active:scale-95',
   },
@@ -77,8 +77,8 @@ function ToggleButton({
     : (isVisible ? ChevronDown : ChevronUp)
 
   const buttonClass = isVertical
-    ? 'group relative bg-white/98 dark:bg-gray-900/98 backdrop-blur-2xl border-l border-y border-white/40 dark:border-gray-700/40 rounded-l-[15px] px-2.5 py-6 hover:px-3.5 transition-all duration-300 shadow-[-4px_0_20px_rgba(0,0,0,0.08)] dark:shadow-[-4px_0_20px_rgba(0,0,0,0.3)] hover:shadow-[-6px_0_30px_rgba(0,0,0,0.12)] dark:hover:shadow-[-6px_0_30px_rgba(0,0,0,0.4)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-white focus-visible:ring-offset-2'
-    : 'group relative bg-white/98 dark:bg-gray-900/98 backdrop-blur-2xl border-t border-x border-white/40 dark:border-gray-700/40 rounded-t-[15px] px-6 py-2.5 hover:py-3.5 transition-all duration-300 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_-6px_30px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_-6px_30px_rgba(0,0,0,0.4)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-white focus-visible:ring-offset-2'
+    ? 'group relative bg-white/98 dark:bg-zinc-900/98 backdrop-blur-2xl border-l border-y border-white/40 dark:border-zinc-700/40 rounded-l-[15px] px-2.5 py-6 hover:px-3.5 transition-all duration-300 shadow-[-4px_0_20px_rgba(0,0,0,0.08)] dark:shadow-[-4px_0_20px_rgba(0,0,0,0.3)] hover:shadow-[-6px_0_30px_rgba(0,0,0,0.12)] dark:hover:shadow-[-6px_0_30px_rgba(0,0,0,0.4)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 dark:focus-visible:ring-white focus-visible:ring-offset-2'
+    : 'group relative bg-white/98 dark:bg-zinc-900/98 backdrop-blur-2xl border-t border-x border-white/40 dark:border-zinc-700/40 rounded-t-[15px] px-6 py-2.5 hover:py-3.5 transition-all duration-300 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_-6px_30px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_-6px_30px_rgba(0,0,0,0.4)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 dark:focus-visible:ring-white focus-visible:ring-offset-2'
 
   const gradientClass = isVertical
     ? 'absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-white/60 dark:via-white/20 to-transparent'
@@ -97,7 +97,7 @@ function ToggleButton({
     >
       <div className={gradientClass} />
       <div className="relative flex items-center justify-center">
-        <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
+        <Icon className="w-4 h-4 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
       </div>
       <div className={hoverGradientClass} />
     </button>
@@ -143,7 +143,7 @@ function DockItem({
           >
 
             {!active && (
-              <div className="absolute inset-0 rounded-[22px] bg-linear-to-br from-gray-100/0 to-gray-100/0 dark:from-gray-800/0 dark:to-gray-800/0 group-hover:from-gray-100/90 group-hover:to-gray-50/90 dark:group-hover:from-gray-800/90 dark:group-hover:to-gray-700/90 transition-all duration-300 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)] opacity-0 group-hover:opacity-100" />
+              <div className="absolute inset-0 rounded-[22px] bg-linear-to-br from-zinc-100/0 to-zinc-100/0 dark:from-zinc-800/0 dark:to-zinc-800/0 group-hover:from-zinc-100/90 group-hover:to-zinc-50/90 dark:group-hover:from-zinc-800/90 dark:group-hover:to-zinc-700/90 transition-all duration-300 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)] opacity-0 group-hover:opacity-100" />
             )}
 
             <Icon
@@ -152,13 +152,13 @@ function DockItem({
                   ? 'scale-105'
                   : isTrash
                     ? 'text-red-500 dark:text-red-400 group-hover:text-red-600 dark:group-hover:text-red-300 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(239,68,68,0.4)]'
-                    : 'group-hover:text-gray-900 dark:group-hover:text-gray-100 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)]'
+                    : 'group-hover:text-zinc-900 dark:group-hover:text-zinc-100 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)]'
               }`}
             />
 
             {active && (
               <div className={indicatorPosition}>
-                <div className="w-1 h-1 bg-gray-900 dark:bg-white rounded-full animate-pulse" />
+                <div className="w-1 h-1 bg-zinc-900 dark:bg-white rounded-full animate-pulse" />
               </div>
             )}
 
@@ -168,11 +168,11 @@ function DockItem({
       <Tooltip.Portal>
         <Tooltip.Content
           side={tooltipSide}
-          className="z-60 bg-gray-900/98 dark:bg-gray-800/98 backdrop-blur-xl text-white text-[13px] font-medium px-4 py-2.5 rounded-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.2)] border border-gray-700/50 animate-in fade-in-0 zoom-in-95 slide-in-from-right-2 duration-200"
+          className="z-60 bg-zinc-900/98 dark:bg-zinc-800/98 backdrop-blur-xl text-white text-[13px] font-medium px-4 py-2.5 rounded-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.2)] border border-zinc-700/50 animate-in fade-in-0 zoom-in-95 slide-in-from-right-2 duration-200"
           sideOffset={16}
         >
           {item.label}
-          <Tooltip.Arrow className="fill-gray-900/98 dark:fill-gray-800/98" />
+          <Tooltip.Arrow className="fill-zinc-900/98 dark:fill-zinc-800/98" />
         </Tooltip.Content>
       </Tooltip.Portal>
     </Tooltip.Root>
@@ -212,7 +212,7 @@ function DockContainer({
 
   return (
     <div className={transitionClass}>
-      <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-3xl rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.6)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6),0_2px_8px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] border border-white/40 dark:border-gray-700/40">
+      <div className="relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-3xl rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.6)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6),0_2px_8px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] border border-white/40 dark:border-zinc-700/40">
         <div className={borderGradient} />
         <div className={`relative ${isVertical ? 'px-4 py-5' : 'px-5 py-4'}`}>
           <Dock

@@ -168,7 +168,7 @@ export function SearchBox({ editor, onClose }: SearchBoxProps) {
   }, [])
 
   return (
-    <div className="absolute top-4 right-4 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 flex items-center gap-2 min-w-[300px]">
+    <div className="absolute top-4 right-4 z-50 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 flex items-center gap-2 min-w-[300px]">
       <Input
         ref={inputRef}
         type="text"

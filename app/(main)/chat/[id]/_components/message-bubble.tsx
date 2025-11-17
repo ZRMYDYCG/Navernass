@@ -68,8 +68,8 @@ export function MessageBubble({
             className={cn(
               'rounded-2xl px-4 py-3 border border-transparent transition-all w-fit max-w-full',
               isUser
-                ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                : 'dark:bg-gray-800 text-gray-900 dark:text-gray-100 bg-white',
+                ? 'bg-gray-100 dark:bg-zinc-700 text-gray-900 dark:text-gray-100'
+                : 'dark:bg-zinc-800 text-gray-900 dark:text-gray-100 bg-white',
               isShareMode && (isSelected ? 'ring-2 ring-primary/70 border-primary/60' : 'ring-1 ring-transparent'),
             )}
           >

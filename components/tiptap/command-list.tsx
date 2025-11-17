@@ -64,7 +64,7 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
 
   if (props.items.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
+      <div className="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
         <div className="text-sm text-gray-500 dark:text-gray-400">没有找到匹配的命令</div>
       </div>
     )
@@ -86,10 +86,10 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden max-h-80 overflow-y-auto">
+    <div className="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden max-h-80 overflow-y-auto">
       {Object.entries(categorizedItems).map(([category, items]) => (
         <div key={category} className="py-1">
-          <div className="px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50">
+          <div className="px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-900/50">
             {categoryLabels[category] || category}
           </div>
           {items.map((item) => {

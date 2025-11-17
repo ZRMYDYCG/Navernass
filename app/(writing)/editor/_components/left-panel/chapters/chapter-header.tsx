@@ -24,7 +24,7 @@ export function ChapterHeader({
   onCollapseAll,
 }: ChapterHeaderProps) {
   return (
-    <div className="h-7 px-1.5 flex items-center justify-between bg-gray-100 dark:bg-gray-800">
+    <div className="h-7 px-1.5 flex items-center justify-between bg-gray-100 dark:bg-zinc-800">
       <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
         {novelTitle || '未选择小说'}
       </span>

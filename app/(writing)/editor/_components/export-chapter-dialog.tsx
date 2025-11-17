@@ -60,7 +60,7 @@ export function ExportChapterDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6 max-h-[80vh] flex flex-col">
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6 max-h-[80vh] flex flex-col">
             <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
               导出章节
             </Dialog.Title>
@@ -71,7 +71,7 @@ export function ExportChapterDialog({
             <div className="flex-1 overflow-hidden flex flex-col space-y-4">
               {/* 章节列表 */}
               <div className="flex-1 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-                <div className="p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 sticky top-0">
+                <div className="p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-zinc-900/50 sticky top-0">
                   <button
                     type="button"
                     onClick={handleSelectAll}
@@ -107,14 +107,14 @@ export function ExportChapterDialog({
                               disabled={isExporting}
                               className={`w-full text-left px-3 py-2 rounded text-sm transition-colors flex items-center gap-2 ${
                                 isSelected
-                                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                                  ? 'bg-gray-100 dark:bg-zinc-700 text-gray-900 dark:text-gray-100'
                                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                               }`}
                             >
                               <div
                                 className={`w-4 h-4 border-2 rounded flex items-center justify-center flex-shrink-0 ${
                                   isSelected
-                                    ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-gray-100'
+                                    ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-zinc-100'
                                     : 'border-gray-300 dark:border-gray-600'
                                 }`}
                               >
@@ -141,7 +141,7 @@ export function ExportChapterDialog({
                     onClick={() => setSelectedFormat('md')}
                     className={`p-4 rounded-lg border-2 transition-all ${
                       selectedFormat === 'md'
-                        ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-700'
+                        ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-zinc-700'
                         : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                     }`}
                     disabled={isExporting}
@@ -158,7 +158,7 @@ export function ExportChapterDialog({
                     onClick={() => setSelectedFormat('text')}
                     className={`p-4 rounded-lg border-2 transition-all ${
                       selectedFormat === 'text'
-                        ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-700'
+                        ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-zinc-700'
                         : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                     }`}
                     disabled={isExporting}
@@ -178,7 +178,7 @@ export function ExportChapterDialog({
               <Dialog.Close asChild>
                 <Button
                   type="button"
-                  className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  className="flex-1 bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
                   disabled={isExporting}
                 >
                   取消
@@ -186,7 +186,7 @@ export function ExportChapterDialog({
               </Dialog.Close>
               <Button
                 onClick={handleExport}
-                className="flex-1 bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+                className="flex-1 bg-black dark:bg-zinc-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
                 disabled={isExporting || selectedChapters.size === 0}
               >
                 {isExporting

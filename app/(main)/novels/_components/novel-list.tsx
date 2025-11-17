@@ -34,7 +34,7 @@ export function NovelList({
         <p className="text-lg mb-4">还没有小说</p>
         <Button
           onClick={onCreateNovel}
-          className="bg-black dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700"
+          className="bg-black dark:bg-zinc-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700"
         >
           <Plus className="w-4 h-4" />
           创建第一部小说

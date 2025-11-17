@@ -35,7 +35,7 @@ function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver
       ref={setNodeRef}
       className={`transition-all duration-200 ${
         isOver
-          ? 'h-16 mb-2 border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-800/50'
+          ? 'h-16 mb-2 border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-zinc-800/50'
           : 'h-12 mb-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:border-gray-400 dark:hover:border-gray-500'
       }`}
     >
@@ -290,7 +290,7 @@ export function ChapterList({
   ]
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-800 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
+    <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-zinc-800 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
       <DndContext
         sensors={sensors}
         collisionDetection={pointerWithin}
@@ -338,7 +338,7 @@ export function ChapterList({
 
                       <div
                         className={isOver
-                          ? 'bg-gray-100 dark:bg-gray-800 transition-colors'
+                          ? 'bg-gray-100 dark:bg-zinc-800 transition-colors'
                           : ''}
                       >
                         <ChapterItem
@@ -377,7 +377,7 @@ export function ChapterList({
 
                 <div
                   className={isOver
-                    ? 'bg-gray-100 dark:bg-gray-800 transition-colors'
+                    ? 'bg-gray-100 dark:bg-zinc-800 transition-colors'
                     : ''}
                 >
                   <ChapterItem
@@ -403,7 +403,7 @@ export function ChapterList({
         <DragOverlay dropAnimation={null}>
           {activeItem && 'title' in activeItem && 'wordCount' in activeItem
             ? (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 border-2 border-dashed border-gray-400 dark:border-gray-600">
+                <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-3 border-2 border-dashed border-gray-400 dark:border-gray-600">
                   <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -414,7 +414,7 @@ export function ChapterList({
               )
             : activeItem && 'description' in activeItem
               ? (
-                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 border-2 border-dashed border-gray-400 dark:border-gray-600">
+                  <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-3 border-2 border-dashed border-gray-400 dark:border-gray-600">
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />

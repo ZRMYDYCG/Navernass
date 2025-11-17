@@ -762,7 +762,7 @@ export default function NovelsEdit() {
 
   if (loading) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 gap-3">
+      <div className="h-screen flex flex-col items-center justify-center bg-white dark:bg-zinc-900 gap-3">
         <Spinner className="w-8 h-8" />
         <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
       </div>
@@ -771,7 +771,7 @@ export default function NovelsEdit() {
 
   if (!novel) {
     return (
-      <div className="h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+      <div className="h-screen flex items-center justify-center bg-white dark:bg-zinc-900">
         <div className="text-gray-500 dark:text-gray-400">小说不存在</div>
       </div>
     )
@@ -811,7 +811,7 @@ export default function NovelsEdit() {
           />
 
           {/* 主题内容区域 */}
-          <main className="flex-1 bg-gray-100 dark:bg-gray-800 transition-colors overflow-hidden">
+          <main className="flex-1 bg-gray-100 dark:bg-zinc-800 transition-colors overflow-hidden">
             {isMobile
               ? (
                 // 移动端：编辑器全屏显示
@@ -819,7 +819,7 @@ export default function NovelsEdit() {
                     {selectedChapter === null || activeTab === null
                       ? (
                         // 未选择章节时显示欢迎界面
-                          <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
+                          <div className="h-full flex items-center justify-center bg-white dark:bg-zinc-900">
                             <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600 px-4">
                               <Image
                                 src="/assets/svg/logo-eye.svg"
@@ -832,7 +832,7 @@ export default function NovelsEdit() {
                               <button
                                 type="button"
                                 onClick={() => setLeftDrawerOpen(true)}
-                                className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300"
+                                className="px-4 py-2 bg-gray-100 dark:bg-zinc-800 rounded-lg text-sm text-gray-700 dark:text-gray-300"
                               >
                                 打开章节列表
                               </button>
@@ -916,7 +916,7 @@ export default function NovelsEdit() {
                       {selectedChapter === null || activeTab === null
                         ? (
                           // 未选择章节时显示欢迎界面
-                            <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
+                            <div className="h-full flex items-center justify-center bg-white dark:bg-zinc-900">
                               <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
                                 <Image
                                   src="/assets/svg/logo-eye.svg"

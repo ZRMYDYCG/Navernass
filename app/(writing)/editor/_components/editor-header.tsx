@@ -166,7 +166,7 @@ export default function EditorHeader({
   }, [onBack, router])
 
   return (
-    <header className="h-9 flex items-center justify-between px-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+    <header className="h-9 flex items-center justify-between px-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900">
       {/* 左侧：Logo + 折叠按钮 */}
       <HeaderLeft
         showLeftPanel={showLeftPanel}

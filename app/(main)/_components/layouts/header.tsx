@@ -16,7 +16,7 @@ export function Header() {
   }
 
   return (
-    <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 sm:px-6 transition-colors">
+    <header className="h-16 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 sm:px-6 transition-colors">
       <div className="flex items-center gap-3 sm:gap-4">
         <AppLogo />
         <div className="flex flex-col">
@@ -32,7 +32,7 @@ export function Header() {
         {isNovelsPage && (
           <Button
             onClick={handleCreateNovel}
-            className="cursor-pointer bg-black dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700 h-9 px-3 sm:h-10 sm:px-4"
+            className="cursor-pointer bg-black dark:bg-zinc-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700 h-9 px-3 sm:h-10 sm:px-4"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">新建小说</span>

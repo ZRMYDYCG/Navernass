@@ -247,7 +247,7 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
             </button>
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Content className="bg-gray-900 dark:bg-gray-700 text-white text-[11px] px-2 py-1 rounded">
+            <Tooltip.Content className="bg-gray-900 dark:bg-zinc-700 text-white text-[11px] px-2 py-1 rounded">
               导入章节
               <Tooltip.Arrow className="fill-gray-900 dark:fill-gray-700" />
             </Tooltip.Content>
@@ -265,7 +265,7 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
             </button>
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Content className="bg-gray-900 dark:bg-gray-700 text-white text-[11px] px-2 py-1 rounded">
+            <Tooltip.Content className="bg-gray-900 dark:bg-zinc-700 text-white text-[11px] px-2 py-1 rounded">
               导出章节
               <Tooltip.Arrow className="fill-gray-900 dark:fill-gray-700" />
             </Tooltip.Content>
@@ -282,7 +282,7 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
             </button>
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Content className="bg-gray-900 dark:bg-gray-700 text-white text-[11px] px-2 py-1 rounded">
+            <Tooltip.Content className="bg-gray-900 dark:bg-zinc-700 text-white text-[11px] px-2 py-1 rounded">
               预览
               <Tooltip.Arrow className="fill-gray-900 dark:fill-gray-700" />
             </Tooltip.Content>

@@ -85,7 +85,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
   if (!isOpen) return null
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800">
+    <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-l border-gray-200 dark:border-gray-800">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
         {/* 左侧：导入按钮 */}
@@ -128,7 +128,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
             <Share2 className="w-4 h-4 mr-1.5" />
             <span className="text-sm">分享</span>
           </Button>
-          <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
+          <div className="h-6 w-px bg-gray-200 dark:bg-zinc-700 mx-1" />
           <Button
             variant="ghost"
             size="sm"

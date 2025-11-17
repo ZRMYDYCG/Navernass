@@ -6,7 +6,7 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const segmentedControlVariants = cva(
-  'inline-flex items-center justify-center rounded-lg p-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors',
+  'inline-flex items-center justify-center rounded-lg p-1 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 transition-colors',
   {
     variants: {
       size: {

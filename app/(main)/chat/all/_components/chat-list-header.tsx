@@ -39,7 +39,7 @@ export function ChatListHeader({
   const router = useRouter()
 
   return (
-    <header className="flex items-center justify-between p-4 bg-white dark:bg-gray-800">
+    <header className="flex items-center justify-between p-4 bg-white dark:bg-zinc-800">
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"

@@ -17,14 +17,14 @@ export function AppLogo() {
 
   if (!mounted) {
     return (
-      <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse" />
+      <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-zinc-800 animate-pulse" />
     )
   }
 
   const isDark = resolvedTheme === 'dark'
 
   return (
-    <div className="relative w-10 h-10 flex-shrink-0">
+    <div className="relative w-10 h-10 shrink-0">
       <Image
         src={isDark ? '/assets/svg/logo-dark.svg' : '/assets/svg/logo-light.svg'}
         alt="Narraverse Logo"

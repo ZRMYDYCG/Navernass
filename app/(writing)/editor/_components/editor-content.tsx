@@ -187,7 +187,7 @@ export default function EditorContent({
   }, [isSaving, lastSaved])
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-900">
+    <div className="h-full flex flex-col bg-white dark:bg-zinc-900">
       {/* 顶部页签区域 */}
       <SmartTabs
         tabs={openTabs}
@@ -236,7 +236,7 @@ export default function EditorContent({
       </div>
 
       {/* 底部状态栏 */}
-      <div className="h-10 px-6 flex items-center justify-end bg-gray-50 dark:bg-gray-800/50">
+      <div className="h-10 px-6 flex items-center justify-end bg-gray-50 dark:bg-zinc-800/50">
         <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
           <span>
             字数：

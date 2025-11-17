@@ -15,7 +15,7 @@ export function TrashCard({ novel, selected, onToggleSelect, onContextMenu }: Tr
     <div
       onContextMenu={e => onContextMenu(e, novel)}
       onClick={() => onToggleSelect(novel)}
-      className={`group relative bg-white dark:bg-gray-800 rounded-lg border transition-all cursor-pointer ${
+      className={`group relative bg-white dark:bg-zinc-800 rounded-lg border transition-all cursor-pointer ${
         selected
           ? 'border-blue-500 dark:border-blue-400 shadow-md ring-2 ring-blue-500/20 dark:ring-blue-400/20'
           : 'border-gray-200 dark:border-gray-700 hover:shadow-md'
@@ -26,7 +26,7 @@ export function TrashCard({ novel, selected, onToggleSelect, onContextMenu }: Tr
         className={`absolute top-3 right-3 z-10 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
           selected
             ? 'bg-blue-500 border-blue-500 dark:bg-blue-400 dark:border-blue-400'
-            : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-500'
+            : 'bg-white dark:bg-zinc-700 border-gray-300 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-500'
         }`}
       >
         {selected && <Check className="w-3 h-3 text-white" />}

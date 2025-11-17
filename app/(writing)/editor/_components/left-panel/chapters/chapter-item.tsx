@@ -39,7 +39,7 @@ export function ChapterItem({
           ref={setNodeRef}
           style={style}
           className={`group px-1.5 py-1 cursor-pointer transition-colors ${
-            isSelected ? 'bg-gray-200 dark:bg-gray-700' : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+            isSelected ? 'bg-gray-200 dark:bg-zinc-700' : 'hover:bg-gray-200 dark:hover:bg-gray-700'
           }`}
         >
           <div className="flex items-center gap-1">
@@ -60,7 +60,7 @@ export function ChapterItem({
               </Popover.Trigger>
               <Popover.Portal>
                 <Popover.Content
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+                  className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
                   sideOffset={5}
                   align="start"
                 >

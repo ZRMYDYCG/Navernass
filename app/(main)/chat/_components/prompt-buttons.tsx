@@ -30,7 +30,7 @@ export function PromptButtons({ onPromptClick, disabled = false }: PromptButtons
             type="button"
             onClick={() => handleClick(prompt.label)}
             disabled={disabled}
-            className={`px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-800 dark:text-gray-200 transition-all duration-200 text-sm font-medium hover:shadow-md hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 ${
+            className={`px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-800/50 text-gray-800 dark:text-gray-200 transition-all duration-200 text-sm font-medium hover:shadow-md hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 ${
               disabled
                 ? 'opacity-50 cursor-not-allowed hover:scale-100 active:scale-100 hover:shadow-none'
                 : 'cursor-pointer'

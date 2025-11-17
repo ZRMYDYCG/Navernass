@@ -105,7 +105,7 @@ export function TabContextMenu({
   return (
     <div
       ref={menuRef}
-      className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+      className="fixed bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -185,7 +185,7 @@ export function TabContextMenu({
         </button>
       )}
 
-      <div className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
+      <div className="h-px bg-gray-200 dark:bg-zinc-700 my-1" />
 
       <button
         type="button"

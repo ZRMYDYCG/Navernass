@@ -114,7 +114,7 @@ export default function AllChatsPage() {
   }, [router])
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-zinc-900">
       {/* 头部 */}
       <ChatListHeader
         searchQuery={searchQuery}
@@ -142,7 +142,7 @@ export default function AllChatsPage() {
                       {Array.from({ length: groupIndex === 0 ? 6 : 3 }).map((_, itemIndex) => (
                         <div
                           key={`skeleton-item-${groupIndex}-${itemIndex}`}
-                          className="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                          className="bg-white dark:bg-zinc-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
                         >
                           <div className="space-y-4">
                             <div className="flex items-start justify-between">

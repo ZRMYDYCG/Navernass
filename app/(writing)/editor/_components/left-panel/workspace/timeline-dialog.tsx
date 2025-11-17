@@ -175,7 +175,7 @@ export function TimelineDialog({ open, onOpenChange, novelId }: TimelineDialogPr
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95 max-h-[90vh] overflow-hidden flex flex-col">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col h-full">
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col h-full">
             {/* 标题栏 */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
@@ -193,7 +193,7 @@ export function TimelineDialog({ open, onOpenChange, novelId }: TimelineDialogPr
                 <Button
                   type="button"
                   onClick={handleCreate}
-                  className="h-8 text-xs bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+                  className="h-8 text-xs bg-black dark:bg-zinc-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1.5" />
                   新建事件
@@ -256,7 +256,7 @@ export function TimelineDialog({ open, onOpenChange, novelId }: TimelineDialogPr
                           onChange={e => setFormData({ ...formData, description: e.target.value })}
                           placeholder="详细描述这个事件..."
                           rows={4}
-                          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 resize-none"
+                          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 resize-none"
                         />
                       </div>
 
@@ -264,14 +264,14 @@ export function TimelineDialog({ open, onOpenChange, novelId }: TimelineDialogPr
                         <Button
                           type="button"
                           onClick={handleSubmit}
-                          className="flex-1 bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+                          className="flex-1 bg-black dark:bg-zinc-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
                         >
                           {editingEvent ? '保存' : '创建'}
                         </Button>
                         <Button
                           type="button"
                           onClick={resetForm}
-                          className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
+                          className="flex-1 bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
                         >
                           取消
                         </Button>
@@ -292,7 +292,7 @@ export function TimelineDialog({ open, onOpenChange, novelId }: TimelineDialogPr
                         : (
                             <div className="relative">
                               {/* 时间线 */}
-                              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-600" />
+                              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-zinc-600" />
                               {events.map(event => (
                                 <div
                                   key={event.id}
@@ -300,14 +300,14 @@ export function TimelineDialog({ open, onOpenChange, novelId }: TimelineDialogPr
                                 >
                                   {/* 时间点 */}
                                   <div className="relative z-10 flex-shrink-0">
-                                    <div className="w-8 h-8 rounded-full bg-gray-900 dark:bg-gray-100 border-2 border-white dark:border-gray-800 flex items-center justify-center">
-                                      <div className="w-2 h-2 rounded-full bg-white dark:bg-gray-800" />
+                                    <div className="w-8 h-8 rounded-full bg-gray-900 dark:bg-zinc-100 border-2 border-white dark:border-gray-800 flex items-center justify-center">
+                                      <div className="w-2 h-2 rounded-full bg-white dark:bg-zinc-800" />
                                     </div>
                                   </div>
 
                                   {/* 事件内容 */}
                                   <div className="flex-1 min-w-0 pb-4">
-                                    <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-zinc-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                       <div className="flex items-start justify-between gap-3">
                                         <div className="flex-1 min-w-0">
                                           <div className="flex items-center gap-2 mb-1">

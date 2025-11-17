@@ -17,9 +17,9 @@ export function TypingIndicator() {
 
       <div className="flex items-center">
         <div className="flex gap-1 items-center">
-          <div className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-          <div className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-          <div className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-gray-500 dark:bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="w-2 h-2 bg-gray-500 dark:bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="w-2 h-2 bg-gray-500 dark:bg-zinc-400 rounded-full animate-bounce"></div>
         </div>
       </div>
     </div>

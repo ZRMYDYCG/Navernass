@@ -38,7 +38,7 @@ export function AIInputBox({
         type="button"
         onClick={onToggle}
         disabled={isLoading}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
       >
         <Star className="w-3 h-3 text-gray-500 dark:text-gray-400" />
         <span className="text-xs text-gray-700 dark:text-gray-300">向智能助手提问...</span>
@@ -54,7 +54,7 @@ export function AIInputBox({
                 />
               )
             : (
-                <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+                <div className="w-3 h-3 bg-gray-300 dark:bg-zinc-600 rounded animate-pulse" />
               )}
         </div>
       </button>
@@ -92,7 +92,7 @@ export function AIInputBox({
                 />
               )
             : (
-                <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+                <div className="w-3 h-3 bg-gray-300 dark:bg-zinc-600 rounded animate-pulse" />
               )}
         </div>
       </div>

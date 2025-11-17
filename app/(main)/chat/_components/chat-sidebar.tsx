@@ -158,7 +158,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
 
         <aside
           className={cn(
-            'fixed lg:relative top-0 left-0 h-full bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50 flex flex-col',
+            'fixed lg:relative top-0 left-0 h-full bg-gray-100 dark:bg-zinc-800 border-r border-gray-200 dark:border-gray-700 z-50 flex flex-col',
             // 移动端：固定宽度 + transform
             'w-72 transition-transform duration-300',
             // 桌面端：宽度变化动画
@@ -226,8 +226,8 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
                     <div className="space-y-1">
                       {SKELETON_PLACEHOLDERS.map(key => (
                         <div key={key} className="flex items-center gap-2 px-3 py-2">
-                          <Skeleton className="w-4 h-4 rounded-sm flex-shrink-0 bg-gray-300 dark:bg-gray-700" />
-                          <Skeleton className="h-4 flex-1 bg-gray-300 dark:bg-gray-700" />
+                          <Skeleton className="w-4 h-4 rounded-sm flex-shrink-0 bg-gray-300 dark:bg-zinc-700" />
+                          <Skeleton className="h-4 flex-1 bg-gray-300 dark:bg-zinc-700" />
                         </div>
                       ))}
                     </div>

@@ -200,7 +200,7 @@ export function ChatHistoryItem({
                 variant="ghost"
                 className={cn(
                   'w-full justify-start px-3 py-2 h-9 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 relative transition-colors overflow-hidden cursor-pointer',
-                  isActive && 'bg-white dark:bg-gray-700/70 hover:bg-gray-50 dark:hover:bg-gray-700',
+                  isActive && 'bg-white dark:bg-zinc-700/70 hover:bg-gray-50 dark:hover:bg-gray-700',
                   chat.isPinned && 'before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-gradient-to-b before:from-gray-900 before:to-gray-500 before:rounded-full',
                 )}
                 onClick={handleClick}

@@ -179,7 +179,7 @@ export default function Trash() {
   }
 
   return (
-    <div className="flex flex-col dark:bg-gray-900 transition-colors h-full">
+    <div className="flex flex-col dark:bg-zinc-900 transition-colors h-full">
       {/* 顶部区域 */}
       <section className="flex justify-between items-center px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex-shrink-0">
         {/* 左侧占位 */}

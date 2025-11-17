@@ -65,7 +65,7 @@ export function InputDialog({
       />
 
       {/* Dialog 内容 */}
-      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-2xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700">
+      <div className="relative bg-white dark:bg-zinc-900 rounded-lg shadow-2xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700">
         <form onSubmit={handleSubmit}>
           {/* 标题 */}
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -83,12 +83,12 @@ export function InputDialog({
               onChange={e => setValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-900 dark:focus:border-gray-200 focus:ring-0 focus-visible:ring-1 focus-visible:ring-gray-900/40 dark:focus-visible:ring-gray-100/30"
+              className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-900 dark:focus:border-gray-200 focus:ring-0 focus-visible:ring-1 focus-visible:ring-gray-900/40 dark:focus-visible:ring-gray-100/30"
             />
           </div>
 
           {/* 按钮组 */}
-          <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg flex items-center justify-end gap-3">
+          <div className="px-6 py-4 bg-gray-50 dark:bg-zinc-800/50 rounded-b-lg flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onCancel}

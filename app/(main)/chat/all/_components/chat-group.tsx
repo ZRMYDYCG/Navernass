@@ -21,7 +21,7 @@ export function ChatGroup({
 }: ChatGroupProps) {
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 sticky top-0 bg-gray-50 dark:bg-gray-900 py-2 -mx-4 px-4">
+      <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 sticky top-0 bg-gray-50 dark:bg-zinc-900 py-2 -mx-4 px-4">
         <Calendar className="w-4 h-4" />
         <span>{group.label}</span>
         <span className="text-xs text-gray-400 dark:text-gray-500">

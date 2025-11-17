@@ -212,7 +212,7 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                     </Tooltip>
                   )}
 
-              <div className="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
+              <div className="h-8 w-px bg-gray-200 dark:bg-zinc-700 mx-1" />
             </>
           )}
 

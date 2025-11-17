@@ -5,21 +5,21 @@ const FEATURES = [
     icon: '✨',
     title: '续写故事',
     description: '根据上下文智能续写',
-    bgColor: 'bg-gray-100 dark:bg-gray-800',
+    bgColor: 'bg-gray-100 dark:bg-zinc-800',
     textColor: 'text-gray-700 dark:text-gray-300',
   },
   {
     icon: '✍️',
     title: '优化润色',
     description: '让文字表达更精彩',
-    bgColor: 'bg-gray-100 dark:bg-gray-800',
+    bgColor: 'bg-gray-100 dark:bg-zinc-800',
     textColor: 'text-gray-700 dark:text-gray-300',
   },
   {
     icon: '💡',
     title: '创作建议',
     description: '提供专业的写作指导',
-    bgColor: 'bg-gray-100 dark:bg-gray-800',
+    bgColor: 'bg-gray-100 dark:bg-zinc-800',
     textColor: 'text-gray-700 dark:text-gray-300',
   },
 ]
@@ -57,7 +57,7 @@ export function EmptyState() {
         {FEATURES.map(feature => (
           <div
             key={feature.title}
-            className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 text-left border border-gray-100 dark:border-gray-700/50"
+            className="bg-gray-50 dark:bg-zinc-800/50 rounded-lg p-3 text-left border border-gray-100 dark:border-gray-700/50"
           >
             <div className="flex items-start gap-2">
               <div
@@ -80,7 +80,7 @@ export function EmptyState() {
 
       <p className="text-xs text-gray-400 dark:text-gray-500 flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5">
         <span>在下方输入框开始对话，或使用快捷键</span>
-        <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs">
+        <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-gray-600 rounded text-xs">
           Ctrl+Shift+A
         </kbd>
       </p>

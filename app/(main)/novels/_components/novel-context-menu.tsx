@@ -22,7 +22,7 @@ export function NovelContextMenu({
 
   return (
     <div
-      className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+      className="fixed bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,

@@ -17,7 +17,7 @@ export function NewsContent({ items }: NewsContentProps) {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+    <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-zinc-900">
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="space-y-6">
           {items.map(item => (

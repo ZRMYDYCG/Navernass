@@ -15,7 +15,7 @@ interface HeaderProps {
 
 export function Header({ onNewChat, onShowHistory }: HeaderProps) {
   return (
-    <div className="h-7 flex px-1.5 items-center justify-end bg-gray-100 dark:bg-gray-800">
+    <div className="h-7 flex px-1.5 items-center justify-end bg-gray-100 dark:bg-zinc-800">
       <TooltipProvider>
         <div className="flex items-center gap-0.5">
           <Tooltip>

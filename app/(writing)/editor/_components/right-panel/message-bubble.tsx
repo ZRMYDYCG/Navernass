@@ -33,8 +33,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         <div
           className={`rounded-lg px-2 py-1.5 text-xs transition-all duration-200 hover:shadow-sm ${
             isUser
-              ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-              : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700'
+              ? 'bg-gray-100 dark:bg-zinc-700 text-gray-900 dark:text-gray-100'
+              : 'bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700'
           }`}
         >
           {isUser

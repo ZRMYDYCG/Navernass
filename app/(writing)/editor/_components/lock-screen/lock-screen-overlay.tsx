@@ -63,10 +63,10 @@ export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
 
       {/* 锁屏内容 */}
       <div className="relative z-10 w-full max-w-md px-6">
-        <div className="bg-white/10 dark:bg-gray-900/10 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/20 shadow-2xl p-8">
+        <div className="bg-white/10 dark:bg-zinc-900/10 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/20 shadow-2xl p-8">
           {/* 锁图标 */}
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-white/10 dark:bg-gray-800/10 backdrop-blur-sm border border-white/20 dark:border-gray-700/20 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-white/10 dark:bg-zinc-800/10 backdrop-blur-sm border border-white/20 dark:border-gray-700/20 flex items-center justify-center">
               <Lock className="w-8 h-8 text-white dark:text-gray-300" />
             </div>
           </div>
@@ -90,7 +90,7 @@ export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
                   setError('')
                 }}
                 placeholder="请输入密码"
-                className="w-full pr-10 bg-white/10 dark:bg-gray-800/10 border-white/20 dark:border-gray-700/20 text-white dark:text-gray-100 placeholder:text-white/50 dark:placeholder:text-gray-500 focus:border-white/40 dark:focus:border-gray-600/40"
+                className="w-full pr-10 bg-white/10 dark:bg-zinc-800/10 border-white/20 dark:border-gray-700/20 text-white dark:text-gray-100 placeholder:text-white/50 dark:placeholder:text-gray-500 focus:border-white/40 dark:focus:border-gray-600/40"
                 autoFocus
                 onKeyDown={handleKeyDown}
                 disabled={isVerifying}
@@ -117,7 +117,7 @@ export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
             <Button
               onClick={handleUnlock}
               disabled={isVerifying || !password.trim()}
-              className="w-full bg-white/20 dark:bg-gray-800/20 hover:bg-white/30 dark:hover:bg-gray-800/30 text-white dark:text-gray-100 border border-white/30 dark:border-gray-700/30 backdrop-blur-sm"
+              className="w-full bg-white/20 dark:bg-zinc-800/20 hover:bg-white/30 dark:hover:bg-gray-800/30 text-white dark:text-gray-100 border border-white/30 dark:border-gray-700/30 backdrop-blur-sm"
             >
               {isVerifying ? '验证中...' : '解锁'}
             </Button>

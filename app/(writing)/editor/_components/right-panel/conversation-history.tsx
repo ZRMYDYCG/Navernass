@@ -210,7 +210,7 @@ function ConversationItem({
       onClick={onSelect}
       className={`group relative mx-2 mb-1 px-3 py-2.5 rounded-lg cursor-pointer transition-all ${
         isActive
-          ? 'bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+          ? 'bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700'
           : 'hover:bg-gray-50 dark:hover:bg-gray-800/50 border border-transparent'
       }`}
     >

@@ -22,7 +22,7 @@ export function ThemeSection() {
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          className="popover-content bg-white dark:bg-gray-900 rounded-lg p-3 z-50 focus:outline-none w-[240px] border border-gray-200 dark:border-gray-700"
+          className="popover-content bg-white dark:bg-zinc-900 rounded-lg p-3 z-50 focus:outline-none w-[240px] border border-gray-200 dark:border-gray-700"
           sideOffset={8}
           align="end"
           style={{
@@ -32,7 +32,7 @@ export function ThemeSection() {
           <div className="mb-3">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Theme</h3>
           </div>
-          <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+          <div className="flex gap-2 p-1 bg-gray-100 dark:bg-zinc-800 rounded-lg">
             {themeOptions.map((option) => {
               const Icon = option.icon;
               const isActive = theme === option.value;
@@ -42,7 +42,7 @@ export function ThemeSection() {
                   onClick={() => setTheme(option.value)}
                   className={`flex-1 flex flex-col items-center gap-1 px-3 py-2 rounded-md transition-all ${
                     isActive
-                      ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm"
+                      ? "bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 shadow-sm"
                       : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                   }`}
                 >
