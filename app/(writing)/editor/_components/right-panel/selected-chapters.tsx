@@ -61,7 +61,7 @@ export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) 
         <button
           type="button"
           onClick={() => scroll('left')}
-          className="absolute left-0 z-10 p-1 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+          className="absolute left-0 z-10 p-1 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shrink-0"
           title="向左滚动"
         >
           <ChevronLeft className="w-3 h-3 text-gray-600 dark:text-gray-400" />
@@ -79,7 +79,7 @@ export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) 
         {chapters.map(chapter => (
           <div
             key={chapter.id}
-            className="flex items-center gap-1 px-1.5 py-0.5 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded flex-shrink-0 transition-all duration-200 hover:scale-105 animate-in fade-in-0 slide-in-from-left-1"
+            className="flex items-center gap-1 px-1.5 py-0.5 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded shrink-0 transition-all duration-200 hover:scale-105 animate-in fade-in-0 slide-in-from-left-1"
           >
             <span
               className="text-[10px] text-gray-700 dark:text-gray-300 truncate max-w-[50px]"
@@ -90,7 +90,7 @@ export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) 
             <button
               type="button"
               onClick={() => onRemove(chapter.id)}
-              className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-150 flex-shrink-0 hover:scale-110 active:scale-95"
+              className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-150 shrink-0 hover:scale-110 active:scale-95"
               title="移除"
             >
               <X className="w-2.5 h-2.5 text-gray-500 dark:text-gray-400" />
@@ -104,7 +104,7 @@ export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) 
         <button
           type="button"
           onClick={() => scroll('right')}
-          className="absolute right-0 z-10 p-1 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+          className="absolute right-0 z-10 p-1 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shrink-0"
           title="向右滚动"
         >
           <ChevronRight className="w-3 h-3 text-gray-600 dark:text-gray-400" />

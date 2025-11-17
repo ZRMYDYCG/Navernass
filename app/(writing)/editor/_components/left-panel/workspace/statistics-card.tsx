@@ -24,7 +24,7 @@ export function StatisticsCard({ totalWords, totalChapters, totalVolumes }: Stat
       </h3>
       <div className="space-y-1">
         <div className="flex items-center gap-1.5 px-1.5 py-1 rounded bg-white dark:bg-zinc-700/50 border border-gray-200 dark:border-gray-600">
-          <BookOpen className="w-3 h-3 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+          <BookOpen className="w-3 h-3 text-gray-500 dark:text-gray-400 shrink-0" />
           <div className="flex-1 min-w-0">
             <div className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">总字数</div>
             <div className="text-xs font-medium text-gray-900 dark:text-gray-100 leading-tight">
@@ -34,7 +34,7 @@ export function StatisticsCard({ totalWords, totalChapters, totalVolumes }: Stat
         </div>
 
         <div className="flex items-center gap-1.5 px-1.5 py-1 rounded bg-white dark:bg-zinc-700/50 border border-gray-200 dark:border-gray-600">
-          <FileText className="w-3 h-3 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+          <FileText className="w-3 h-3 text-gray-500 dark:text-gray-400 shrink-0" />
           <div className="flex-1 min-w-0">
             <div className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">章节数</div>
             <div className="text-xs font-medium text-gray-900 dark:text-gray-100 leading-tight">
@@ -47,7 +47,7 @@ export function StatisticsCard({ totalWords, totalChapters, totalVolumes }: Stat
 
         {totalVolumes > 0 && (
           <div className="flex items-center gap-1.5 px-1.5 py-1 rounded bg-white dark:bg-zinc-700/50 border border-gray-200 dark:border-gray-600">
-            <Hash className="w-3 h-3 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+            <Hash className="w-3 h-3 text-gray-500 dark:text-gray-400 shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">卷数</div>
               <div className="text-xs font-medium text-gray-900 dark:text-gray-100 leading-tight">

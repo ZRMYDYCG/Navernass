@@ -20,7 +20,7 @@ export function MessageListSkeleton() {
 
           {/* AI 消息骨架 */}
           <div className="flex gap-3 py-3 flex-row">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <Skeleton className="w-7 h-7 rounded-full" />
             </div>
             <div className="flex-1 max-w-[85%] flex justify-start">
@@ -44,7 +44,7 @@ export function MessageListSkeleton() {
 
           {/* AI 消息骨架 */}
           <div className="flex gap-3 py-3 flex-row">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <Skeleton className="w-7 h-7 rounded-full" />
             </div>
             <div className="flex-1 max-w-[85%] flex justify-start">
@@ -68,7 +68,7 @@ export function MessageListSkeleton() {
 
           {/* AI 消息骨架 */}
           <div className="flex gap-3 py-3 flex-row">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <Skeleton className="w-7 h-7 rounded-full" />
             </div>
             <div className="flex-1 max-w-[85%] flex justify-start">

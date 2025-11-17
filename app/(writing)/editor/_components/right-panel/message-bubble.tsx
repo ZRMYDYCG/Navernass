@@ -20,7 +20,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <div className={`flex gap-2 py-1.5 animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {isAssistant && (
           <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
             <img src={avatarSrc} alt="AI Avatar" className="w-full h-full object-cover" />

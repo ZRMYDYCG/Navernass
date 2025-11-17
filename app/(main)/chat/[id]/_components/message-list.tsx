@@ -146,7 +146,7 @@ export function MessageList({
 
               <div className="flex justify-start">
                 <div className="flex gap-3 w-[95%]">
-                  <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+                  <Skeleton className="w-10 h-10 rounded-full shrink-0" />
                   <div className="flex flex-col gap-3 flex-1">
                     <Skeleton className="h-3 w-20" />
                     <div className="bg-white dark:bg-zinc-800 rounded-2xl p-5 space-y-3">
@@ -179,7 +179,7 @@ export function MessageList({
 
               <div className="flex justify-start">
                 <div className="flex gap-3 w-[95%]">
-                  <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+                  <Skeleton className="w-10 h-10 rounded-full shrink-0" />
                   <div className="flex flex-col gap-3 flex-1">
                     <Skeleton className="h-3 w-20" />
                     <div className="bg-white dark:bg-zinc-800 rounded-2xl p-5 space-y-3">

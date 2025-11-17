@@ -181,14 +181,14 @@ export default function Trash() {
   return (
     <div className="flex flex-col dark:bg-zinc-900 transition-colors h-full">
       {/* 顶部区域 */}
-      <section className="flex justify-between items-center px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex-shrink-0">
+      <section className="flex justify-between items-center px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 shrink-0">
         {/* 左侧占位 */}
         <div className="flex-1" />
 
         {/* 右侧：回收站标识 */}
         <div className="flex items-center gap-3">
           {/* 回收站图标 */}
-          <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
             <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
           </div>
           {/* 标题和统计 */}

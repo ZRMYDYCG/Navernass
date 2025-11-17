@@ -31,7 +31,7 @@ export function DeleteConfirmDialog({
           <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
             <div className="p-4">
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                <div className="shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
                   <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
                 <div className="flex-1">

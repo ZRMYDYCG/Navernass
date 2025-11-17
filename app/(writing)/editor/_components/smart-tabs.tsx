@@ -204,7 +204,7 @@ export function SmartTabs({
               ref={isActive ? activeTabRef : null}
               onClick={() => onTabChange(tab.id)}
               onContextMenu={e => handleContextMenu(e, tab)}
-              className={`group relative flex items-center px-4 py-2.5 cursor-pointer transition-all duration-200 flex-shrink-0 ${
+              className={`group relative flex items-center px-4 py-2.5 cursor-pointer transition-all duration-200 shrink-0 ${
                 isActive
                   ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100'
                   : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100'

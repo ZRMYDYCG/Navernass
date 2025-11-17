@@ -112,7 +112,7 @@ export function ExportChapterDialog({
                               }`}
                             >
                               <div
-                                className={`w-4 h-4 border-2 rounded flex items-center justify-center flex-shrink-0 ${
+                                className={`w-4 h-4 border-2 rounded flex items-center justify-center shrink-0 ${
                                   isSelected
                                     ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-zinc-100'
                                     : 'border-gray-300 dark:border-gray-600'

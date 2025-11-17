@@ -76,7 +76,7 @@ export function BulkActionsBar({
         <button
           type="button"
           onClick={onDeselectAll}
-          className="p-1 sm:p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
+          className="p-1 sm:p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors shrink-0"
           aria-label="取消选择"
         >
           <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400" />

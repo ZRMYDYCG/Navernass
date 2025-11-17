@@ -23,7 +23,7 @@ export function NewsCard({ item }: NewsCardProps) {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex-1">
             {item.title}
           </h3>
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             {statusLabel && (
               <Button
                 variant="outline"

@@ -9,7 +9,7 @@ export function TypingIndicator() {
 
   return (
     <div className="flex gap-4 py-4 px-4 sm:px-6 flex-row">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <Avatar className="w-8 h-8">
           <img src={avatarSrc} alt="AI Avatar" className="w-full h-full object-cover" />
         </Avatar>

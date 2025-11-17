@@ -299,7 +299,7 @@ export function TimelineDialog({ open, onOpenChange, novelId }: TimelineDialogPr
                                   className="relative flex gap-4 pb-4 last:pb-0"
                                 >
                                   {/* 时间点 */}
-                                  <div className="relative z-10 flex-shrink-0">
+                                  <div className="relative z-10 shrink-0">
                                     <div className="w-8 h-8 rounded-full bg-gray-900 dark:bg-zinc-100 border-2 border-white dark:border-gray-800 flex items-center justify-center">
                                       <div className="w-2 h-2 rounded-full bg-white dark:bg-zinc-800" />
                                     </div>

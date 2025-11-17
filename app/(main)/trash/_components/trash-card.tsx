@@ -34,7 +34,7 @@ export function TrashCard({ novel, selected, onToggleSelect, onContextMenu }: Tr
 
       {/* 图标和类型 */}
       <div className="flex items-start gap-3 p-4 pb-3">
-        <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 flex-shrink-0">
+        <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 shrink-0">
           <BookOpen className="w-5 h-5 text-red-600 dark:text-red-400" />
         </div>
         <div className="flex-1 min-w-0">

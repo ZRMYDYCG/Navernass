@@ -42,7 +42,7 @@ export function MessageBubble({
 
   return (
     <div className={`group/message flex gap-4 py-4 px-4 sm:px-6 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {isAssistant && (
           <Avatar className="w-8 h-8">
             <img src={avatarSrc} alt="AI Avatar" className="w-full h-full object-cover" />

@@ -369,12 +369,12 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                   >
                     {isExpanded
                       ? (
-                          <ChevronDown className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                          <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
                         )
                       : (
-                          <ChevronRight className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                          <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
                         )}
-                    <FileText className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                    <FileText className="w-3 h-3 text-gray-400 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
                         {result.titleMatches.length > 0

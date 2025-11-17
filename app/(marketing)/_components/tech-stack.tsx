@@ -92,14 +92,14 @@ export default function TechStack() {
         className="w-full"
       >
         {techStack.map(tech => (
-          <div key={tech.name} className="mx-3 md:mx-6 text-muted-foreground flex-shrink-0">
+          <div key={tech.name} className="mx-3 md:mx-6 text-muted-foreground shrink-0">
             <div className="hover:opacity-100 opacity-60 dark:opacity-70 transition-all duration-300 cursor-pointer">
               {tech.icon}
             </div>
           </div>
         ))}
         {techStack.map(tech => (
-          <div key={`${tech.name}-duplicate`} className="mx-3 md:mx-6 text-muted-foreground flex-shrink-0">
+          <div key={`${tech.name}-duplicate`} className="mx-3 md:mx-6 text-muted-foreground shrink-0">
             <div className="hover:opacity-100 opacity-60 dark:opacity-70 transition-all duration-300 cursor-pointer">
               {tech.icon}
             </div>

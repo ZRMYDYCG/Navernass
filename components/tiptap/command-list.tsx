@@ -107,7 +107,7 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
                     : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-900 dark:text-gray-100'
                 }`}
               >
-                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                <span className="shrink-0 w-5 h-5 flex items-center justify-center">
                   <item.icon className="w-4 h-4" />
                 </span>
                 <div className="flex-1 min-w-0">
@@ -117,7 +117,7 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
                   </div>
                 </div>
                 {isSelected && (
-                  <span className="text-xs text-blue-600 dark:text-blue-400 flex-shrink-0">
+                  <span className="text-xs text-blue-600 dark:text-blue-400 shrink-0">
                     ↵
                   </span>
                 )}

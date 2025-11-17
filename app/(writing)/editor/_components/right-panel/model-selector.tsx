@@ -23,7 +23,7 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
         <span className="text-gray-900 dark:text-gray-100 truncate">
           {currentModel?.label}
         </span>
-        <ChevronDown className="w-2.5 h-2.5 text-gray-500 flex-shrink-0 transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+        <ChevronDown className="w-2.5 h-2.5 text-gray-500 shrink-0 transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
 
       {isOpen && (

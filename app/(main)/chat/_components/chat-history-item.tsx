@@ -7,7 +7,6 @@ import {
   MoreHorizontal,
   Pin,
   PinOff,
-  Share2,
   Trash2,
   X,
 } from 'lucide-react'
@@ -165,7 +164,7 @@ export function ChatHistoryItem({
                 chat.isPinned && 'before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-gradient-to-b before:from-gray-900 before:to-gray-500 before:rounded-full',
               )}
               >
-                <MessageCircle className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                <MessageCircle className="w-4 h-4 shrink-0 text-gray-400" />
                 <Input
                   value={editTitle}
                   onChange={e => setEditTitle(e.target.value)}
@@ -180,7 +179,7 @@ export function ChatHistoryItem({
                   size="icon-sm"
                   onClick={handleRenameSubmit}
                   disabled={isRenaming}
-                  className="h-7 w-7 flex-shrink-0 cursor-pointer disabled:cursor-not-allowed"
+                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <Check className="w-3.5 h-3.5" />
                 </Button>
@@ -189,7 +188,7 @@ export function ChatHistoryItem({
                   size="icon-sm"
                   onClick={handleRenameCancel}
                   disabled={isRenaming}
-                  className="h-7 w-7 flex-shrink-0 cursor-pointer disabled:cursor-not-allowed"
+                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <X className="w-3.5 h-3.5" />
                 </Button>
@@ -207,7 +206,7 @@ export function ChatHistoryItem({
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[calc(100%-2.5rem)]">
                   <MessageCircle className={cn(
-                    'w-4 h-4 flex-shrink-0',
+                    'w-4 h-4 shrink-0',
                     isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400',
                   )}
                   />

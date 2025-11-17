@@ -70,7 +70,7 @@ export function RecentChapters({
             onClick={() => onSelectChapter?.(chapter.id)}
             className="w-full flex items-center gap-1.5 px-1.5 py-1 rounded text-left hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors group"
           >
-            <FileText className="w-3 h-3 text-gray-400 dark:text-gray-500 flex-shrink-0 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+            <FileText className="w-3 h-3 text-gray-400 dark:text-gray-500 shrink-0 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
             <div className="flex-1 min-w-0">
               <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate leading-tight">
                 {chapter.title}

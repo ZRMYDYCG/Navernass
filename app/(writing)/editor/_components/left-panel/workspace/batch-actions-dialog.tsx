@@ -162,7 +162,7 @@ export function BatchActionsDialog({
                             }`}
                           >
                             <div
-                              className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center ${
+                              className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center ${
                                 isSelected
                                   ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-zinc-100'
                                   : 'border-gray-300 dark:border-gray-500'
