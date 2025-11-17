@@ -1,13 +1,11 @@
 import type { ModelOption, ModeOption } from './types'
-import { FileText, MessageSquare, Sparkles } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 
 /**
  * AI 模式选项配置
  */
 export const MODE_OPTIONS: ModeOption[] = [
   { value: 'ask', label: 'Ask', icon: MessageSquare },
-  { value: 'agent', label: '智能体', icon: Sparkles },
-  { value: 'plan', label: '规划', icon: FileText },
 ]
 
 /**
