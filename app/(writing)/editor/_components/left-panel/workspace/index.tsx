@@ -3,7 +3,6 @@ import { ActionButtons } from './action-buttons'
 import { QuickActions } from './quick-actions'
 import { RecentChapters } from './recent-chapters'
 import { StatisticsCard } from './statistics-card'
-import { WritingTools } from './writing-tools'
 
 interface Chapter {
   id: string
@@ -73,9 +72,6 @@ export default function WorkspaceTab({
           chapters={chapters}
           onSelectChapter={onSelectChapter}
         />
-
-        {/* 写作工具 */}
-        <WritingTools novelId={novelId} />
       </div>
     </div>
   )

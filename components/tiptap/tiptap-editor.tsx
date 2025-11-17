@@ -8,7 +8,7 @@ import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useEffect, useRef, useState } from 'react'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
-import { DragHandle } from './drag-handle'
+import { DragHandle } from './drag-handle-react'
 import { AIAutocomplete } from './extensions/ai-autocomplete'
 import { EditorSearch } from './extensions/editor-search'
 import { SearchHighlight, updateSearchHighlight } from './extensions/search-highlight'
@@ -103,6 +103,13 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     editorProps: {
       attributes: {
         class: 'prose dark:prose-invert prose-gray max-w-none focus:outline-none min-h-full',
+      },
+      // 保持失焦时的选区显示
+      handleDOMEvents: {
+        blur: (view, event) => {
+          // 返回 false 允许默认行为，但我们通过 CSS 来控制选区显示
+          return false
+        },
       },
     },
     onUpdate: ({ editor }) => {
@@ -283,6 +290,13 @@ export function useTiptapEditor(content?: string) {
     editorProps: {
       attributes: {
         class: 'prose dark:prose-invert prose-gray max-w-none focus:outline-none min-h-full',
+      },
+      // 保持失焦时的选区显示
+      handleDOMEvents: {
+        blur: (view, event) => {
+          // 返回 false 允许默认行为，但我们通过 CSS 来控制选区显示
+          return false
+        },
       },
     },
   })

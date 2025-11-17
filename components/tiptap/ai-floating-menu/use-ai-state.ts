@@ -1,7 +1,7 @@
 import type { Editor } from '@tiptap/react'
 import { useRef, useState } from 'react'
 
-export function useAIState(editor: Editor | null) {
+export function useAIState(editor: Editor | null, onActionComplete?: () => void) {
   const [aiPrompt, setAiPrompt] = useState('')
   const [isAILoading, setIsAILoading] = useState(false)
   const [aiStreamContent, setAiStreamContent] = useState('')
@@ -9,36 +9,57 @@ export function useAIState(editor: Editor | null) {
   const abortControllerRef = useRef<AbortController | null>(null)
   const lastPromptRef = useRef<string>('')
 
-  // 重置 AI 状态
   const resetAI = () => {
     setAiStreamContent('')
     setAiCompleted(false)
+    setAiPrompt('')
   }
 
-  // 应用 AI 结果 - 替换
+  const retryAI = async () => {
+    if (!lastPromptRef.current) return
+    setAiStreamContent('')
+    setAiCompleted(false)
+    await handleAI(lastPromptRef.current)
+  }
+
   const applyReplace = () => {
     if (!editor || !aiStreamContent) return
+    const { from } = editor.state.selection
     editor.chain().focus().deleteSelection().insertContent(aiStreamContent).run()
+    
+    const newTo = from + aiStreamContent.length
+    requestAnimationFrame(() => {
+      editor.chain().focus().setTextSelection({ from, to: newTo }).run()
+    })
+    
     resetAI()
+    onActionComplete?.()
   }
 
-  // 应用 AI 结果 - 在下方插入
   const applyInsertBelow = () => {
     if (!editor || !aiStreamContent) return
     const { to } = editor.state.selection
-    editor.chain().focus().setTextSelection(to).insertContent(`\n${aiStreamContent}`).run()
+    const insertText = `\n${aiStreamContent}`
+    editor.chain().focus().setTextSelection(to).insertContent(insertText).run()
+    
+    const newFrom = to + 1
+    const newTo = to + insertText.length
+    requestAnimationFrame(() => {
+      editor.chain().focus().setTextSelection({ from: newFrom, to: newTo }).run()
+    })
+    
     resetAI()
+    onActionComplete?.()
   }
 
-  // 取消
   const cancelAI = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
     }
     resetAI()
+    onActionComplete?.()
   }
 
-  // 处理 AI 操作
   const handleAI = async (customPrompt: string) => {
     if (!editor || !customPrompt.trim()) return
 
@@ -73,7 +94,6 @@ export function useAIState(editor: Editor | null) {
         throw new Error('AI 请求失败')
       }
 
-      // 流式响应
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
 
@@ -110,13 +130,11 @@ export function useAIState(editor: Editor | null) {
               throw new Error(data.data)
             }
           } catch {
-            // 忽略解析错误
           }
         }
       }
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'AbortError') {
-        // AI 生成已取消
       } else {
         console.error('AI 处理失败:', error)
       }
@@ -134,6 +152,7 @@ export function useAIState(editor: Editor | null) {
     aiCompleted,
     handleAI,
     resetAI,
+    retryAI,
     applyReplace,
     applyInsertBelow,
     cancelAI,

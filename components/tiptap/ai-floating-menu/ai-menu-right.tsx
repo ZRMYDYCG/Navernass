@@ -23,10 +23,8 @@ const menuItems: MenuItem[] = [
 
 export function AIMenuRight({ onPresetAction, isLoading, editor }: AIMenuRightProps) {
   const handleClick = (item: MenuItem) => {
-    // 保持编辑器的焦点和选中状态
     if (editor) {
       const { from, to } = editor.state.selection
-      // 如果有选中文本，保持选中状态
       if (from !== to) {
         editor.chain().focus().setTextSelection({ from, to }).run()
       } else {
