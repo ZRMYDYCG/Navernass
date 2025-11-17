@@ -5,15 +5,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { MessageBubble } from './message-bubble'
 import { ScrollToBottomButton } from './scroll-to-bottom-button'
+import { TypingIndicator } from './typing-indicator'
 
 const SCROLL_THRESHOLD = 100 // 距离底部多少像素时显示"回到底部"按钮
 
 interface MessageListProps {
   messages: NovelMessage[]
   streamingMessageId?: string | null
+  isLoading?: boolean
 }
 
-export function MessageList({ messages, streamingMessageId = null }: MessageListProps) {
+export function MessageList({ messages, streamingMessageId = null, isLoading = false }: MessageListProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
@@ -77,6 +79,16 @@ export function MessageList({ messages, streamingMessageId = null }: MessageList
       }
     }
   }, [messages.length, scrollToBottom])
+
+  // 当 loading 状态变化时滚动到底部
+  useEffect(() => {
+    if (isLoading && isNearBottomRef.current) {
+      const timer = setTimeout(() => {
+        scrollToBottom('smooth')
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [isLoading, scrollToBottom])
 
   // 当流式传输消息内容更新时，自动滚动到底部
   useEffect(() => {
@@ -155,6 +167,7 @@ export function MessageList({ messages, streamingMessageId = null }: MessageList
               message={message}
             />
           ))}
+          {isLoading && <TypingIndicator />}
           <div ref={messagesEndRef} className="h-1" />
         </div>
       </ScrollArea>

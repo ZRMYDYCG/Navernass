@@ -305,7 +305,7 @@ export default function RightPanel() {
                 <EmptyState />
               )
             : (
-                <MessageList messages={messages} streamingMessageId={streamingMessageId} />
+                <MessageList messages={messages} streamingMessageId={streamingMessageId} isLoading={isLoading && !streamingMessageId} />
               )}
       </div>
 
