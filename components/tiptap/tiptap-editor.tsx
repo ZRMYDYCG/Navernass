@@ -104,6 +104,13 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       attributes: {
         class: 'prose dark:prose-invert prose-gray max-w-none focus:outline-none min-h-full',
       },
+      // 保持失焦时的选区显示
+      handleDOMEvents: {
+        blur: (view, event) => {
+          // 返回 false 允许默认行为，但我们通过 CSS 来控制选区显示
+          return false
+        },
+      },
     },
     onUpdate: ({ editor }) => {
       // 更新字数统计
@@ -283,6 +290,13 @@ export function useTiptapEditor(content?: string) {
     editorProps: {
       attributes: {
         class: 'prose dark:prose-invert prose-gray max-w-none focus:outline-none min-h-full',
+      },
+      // 保持失焦时的选区显示
+      handleDOMEvents: {
+        blur: (view, event) => {
+          // 返回 false 允许默认行为，但我们通过 CSS 来控制选区显示
+          return false
+        },
       },
     },
   })

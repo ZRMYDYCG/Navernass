@@ -26,10 +26,8 @@ const editItems: MenuItem[] = [
 
 export function AIMenuLeft({ onPresetAction, onEditAdjust, isLoading, editor }: AIMenuLeftProps) {
   const handleClick = (item: MenuItem) => {
-    // 保持编辑器的焦点和选中状态
     if (editor) {
       const { from, to } = editor.state.selection
-      // 如果有选中文本，保持选中状态
       if (from !== to) {
         editor.chain().focus().setTextSelection({ from, to }).run()
       } else {
@@ -38,7 +36,6 @@ export function AIMenuLeft({ onPresetAction, onEditAdjust, isLoading, editor }: 
     }
 
     if (item.hasSubmenu) {
-      // 如果是"编辑调整选中内容"，显示右侧菜单
       if (item.label === '编辑调整选中内容' && onEditAdjust) {
         onEditAdjust()
       }
@@ -51,7 +48,6 @@ export function AIMenuLeft({ onPresetAction, onEditAdjust, isLoading, editor }: 
 
   return (
     <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-xl w-[220px] overflow-hidden">
-      {/* 编辑选项 */}
       <div className="py-0.5">
         {editItems.map(item => (
           <button
