@@ -26,25 +26,33 @@
 
 /* 编辑器内的 AI 加载提示 */
 .ProseMirror .ai-loading {
-  color: #3b82f6;
+  color: #6b7280;
   font-style: italic;
+}
+
+.dark .ProseMirror .ai-loading {
+  color: #9ca3af;
 }
 
 /* 斜杠命令触发提示 */
 .ProseMirror .slash-command-active {
-  background-color: rgba(59, 130, 246, 0.1);
+  background-color: rgba(156, 163, 175, 0.1);
   border-radius: 0.25rem;
   padding: 0 0.25rem;
 }
 
+.dark .ProseMirror .slash-command-active {
+  background-color: rgba(156, 163, 175, 0.15);
+}
+
 /* 编辑器选中文本样式 */
 .ProseMirror ::selection {
-  background-color: rgba(59, 130, 246, 0.2);
+  background-color: rgba(107, 114, 128, 0.2);
   color: inherit;
 }
 
 .dark .ProseMirror ::selection {
-  background-color: rgba(96, 165, 250, 0.25);
+  background-color: rgba(156, 163, 175, 0.25);
   color: inherit;
 }
 

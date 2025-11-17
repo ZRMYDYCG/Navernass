@@ -103,7 +103,7 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
                 onClick={() => selectItem(globalIndex)}
                 className={`w-full text-left px-3 py-2 flex items-start gap-3 transition-colors ${
                   isSelected
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-100'
+                    ? 'bg-gray-100 dark:bg-zinc-700 text-gray-900 dark:text-gray-100'
                     : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-900 dark:text-gray-100'
                 }`}
               >
@@ -117,7 +117,7 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
                   </div>
                 </div>
                 {isSelected && (
-                  <span className="text-xs text-blue-600 dark:text-blue-400 shrink-0">
+                  <span className="text-xs text-gray-600 dark:text-gray-400 shrink-0">
                     ↵
                   </span>
                 )}

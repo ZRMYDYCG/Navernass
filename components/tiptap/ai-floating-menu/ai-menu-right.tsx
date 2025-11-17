@@ -38,7 +38,7 @@ export function AIMenuRight({ onPresetAction, isLoading, editor }: AIMenuRightPr
   }
 
   return (
-    <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-xl w-[160px] overflow-hidden">
+    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded shadow-xl w-[160px] overflow-hidden">
       <div className="py-0.5">
         {menuItems.map(item => (
           <button
@@ -46,7 +46,7 @@ export function AIMenuRight({ onPresetAction, isLoading, editor }: AIMenuRightPr
             type="button"
             onClick={() => handleClick(item)}
             disabled={isLoading}
-            className="w-full px-2.5 py-1.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-2.5 py-1.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="text-sm w-4 text-center">{item.icon}</span>
             <span>{item.label}</span>

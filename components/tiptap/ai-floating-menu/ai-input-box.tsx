@@ -47,7 +47,7 @@ export function AIInputBox({
         type="button"
         onClick={onToggle}
         disabled={isLoading}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded shadow-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
       >
         <Star className="w-3 h-3 text-gray-500 dark:text-gray-400" />
         <span className="text-xs text-gray-700 dark:text-gray-300">向智能助手提问...</span>
@@ -71,8 +71,8 @@ export function AIInputBox({
   }
 
   return (
-    <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-xl w-[320px] overflow-hidden">
-      <div className="flex items-center gap-1.5 px-2.5 py-1.5 border-b border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded shadow-xl w-[320px] overflow-hidden">
+      <div className="flex items-center gap-1.5 px-2.5 py-1.5 border-b border-gray-200 dark:border-zinc-700">
         <Star className="w-3 h-3 text-gray-500 dark:text-gray-400 flex-shrink-0" />
         <input
           type="text"
@@ -109,7 +109,7 @@ export function AIInputBox({
             type="button"
             onClick={handleCloseClick}
             disabled={isLoading}
-            className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed p-0.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+            className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed p-0.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded"
             title={hasActiveConversation ? '关闭对话（将提示确认）' : '关闭'}
           >
             <X className="w-3 h-3" />
