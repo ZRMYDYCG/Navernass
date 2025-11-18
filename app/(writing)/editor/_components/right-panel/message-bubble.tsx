@@ -39,10 +39,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         >
           {isUser
             ? (
-                <p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
+                <p className="whitespace-pre-wrap wrap-break-word leading-relaxed">{message.content}</p>
               )
             : (
-                <div className="relative [&_.prose]:!text-xs [&_.prose]:!leading-relaxed [&_.prose_p]:!my-1 [&_.prose_p]:!text-xs [&_.prose_h1]:!text-sm [&_.prose_h1]:!my-1.5 [&_.prose_h2]:!text-xs [&_.prose_h2]:!my-1 [&_.prose_h3]:!text-xs [&_.prose_h3]:!my-1 [&_.prose_ul]:!my-1 [&_.prose_ol]:!my-1 [&_.prose_li]:!text-xs [&_.prose_li]:!my-0.5 [&_.prose_code]:!text-[10px] [&_.prose_pre]:!my-1 [&_.prose_pre]:!p-1.5 [&_.prose_pre]:!text-[10px] [&_.prose_blockquote]:!my-1 [&_.prose_blockquote]:!pl-2 [&_.prose_table]:!my-1 [&_.prose_th]:!text-xs [&_.prose_th]:!px-1 [&_.prose_th]:!py-0.5 [&_.prose_td]:!text-xs [&_.prose_td]:!px-1 [&_.prose_td]:!py-0.5">
+                <div className="relative [&_.prose]:text-xs! [&_.prose]:leading-relaxed! [&_.prose_p]:my-1! [&_.prose_p]:text-xs! [&_.prose_h1]:text-sm! [&_.prose_h1]:my-1.5! [&_.prose_h2]:text-xs! [&_.prose_h2]:my-1! [&_.prose_h3]:text-xs! [&_.prose_h3]:my-1! [&_.prose_ul]:my-1! [&_.prose_ol]:my-1! [&_.prose_li]:text-xs! [&_.prose_li]:my-0.5! [&_.prose_code]:text-[10px]! [&_.prose_pre]:my-1! [&_.prose_pre]:p-1.5! [&_.prose_pre]:text-[10px]! [&_.prose_blockquote]:my-1! [&_.prose_blockquote]:pl-2! [&_.prose_table]:my-1! [&_.prose_th]:text-xs! [&_.prose_th]:px-1! [&_.prose_th]:py-0.5! [&_.prose_td]:text-xs! [&_.prose_td]:px-1! [&_.prose_td]:py-0.5!">
                   <MarkdownRenderer content={displayedContent} />
                 </div>
               )}

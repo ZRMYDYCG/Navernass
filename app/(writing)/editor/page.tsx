@@ -57,7 +57,7 @@ export default function NovelsEdit() {
   const [editingVolume, setEditingVolume] = useState<Volume | null>(null)
   const [editingVolumeTitle, setEditingVolumeTitle] = useState('')
   const [isUpdatingVolume, setIsUpdatingVolume] = useState(false)
-  const [isLocked, setIsLocked] = useState(false)
+  const [, setIsLocked] = useState(false)
   const [setPasswordDialogOpen, setSetPasswordDialogOpen] = useState(false)
   const [isSettingPassword, setIsSettingPassword] = useState(false)
   const [deleteChapterDialogOpen, setDeleteChapterDialogOpen] = useState(false)
