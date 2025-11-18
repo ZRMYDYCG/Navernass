@@ -4,6 +4,7 @@ import type { AiMode, AiModel } from './types'
 import type { Chapter, NovelConversation, NovelMessage } from '@/lib/supabase/sdk'
 import { useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Noise from '@/components/Noise'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
 import { AtButton } from './at-button'
 import { ChapterSelector } from './chapter-selector'
@@ -295,7 +296,14 @@ export default function RightPanel() {
       <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 
       {/* 对话区域 */}
-      <div className="flex-1 overflow-hidden px-2 py-2">
+      <div className="flex-1 overflow-hidden px-2 py-2" style={{ position: 'relative' }}>
+        <Noise
+          patternSize={250}
+          patternScaleX={1}
+          patternScaleY={1}
+          patternRefreshInterval={2}
+          patternAlpha={15}
+        />
         {isLoadingMessages
           ? (
               <MessageListSkeleton />
