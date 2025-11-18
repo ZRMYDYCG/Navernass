@@ -17,10 +17,10 @@ import {
 // ============================================================================
 export const navbarConfig: NavbarConfig = {
   logo: {
-    src: '/assets/svg/logo-eye.svg',
+    src: '/assets/svg/logo-light.svg',
     alt: 'Narraverse',
-    width: 15,
-    height: 15,
+    width: 32,
+    height: 32,
   },
   navLinks: [
     { name: '功能', href: '#features' },

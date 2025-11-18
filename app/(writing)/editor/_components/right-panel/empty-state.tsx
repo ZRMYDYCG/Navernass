@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import Image from 'next/image'
 import { gsap } from 'gsap'
+import Image from 'next/image'
+import { useEffect, useRef } from 'react'
 
 const CORE_VALUES = [
   '为才华横溢的创作者打造舒适的创作环境',
