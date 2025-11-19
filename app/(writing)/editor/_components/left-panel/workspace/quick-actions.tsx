@@ -140,7 +140,7 @@ export function QuickActions({
 
   return (
     <div className="space-y-1.5">
-      <h3 className="text-xs font-medium text-zinc-700 dark:text-zinc-300 px-1">
+      <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 px-1">
         快速操作
       </h3>
       <div className="space-y-1">
@@ -148,7 +148,7 @@ export function QuickActions({
           type="button"
           onClick={handleCreateChapter}
           disabled={isProcessing}
-          className="w-full justify-start h-7 text-xs bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-600 border border-zinc-200 dark:border-zinc-600"
+          className="w-full justify-start h-7 text-xs bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
         >
           <Plus className="w-3 h-3 mr-1.5" />
           新建章节
@@ -159,7 +159,7 @@ export function QuickActions({
             type="button"
             onClick={handleBatchCopy}
             disabled={isProcessing || chaptersCount === 0}
-            className="h-7 text-xs bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-600 border border-zinc-200 dark:border-zinc-600"
+            className="h-7 text-xs bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
           >
             <Copy className="w-3 h-3 mr-1" />
             批量复制
@@ -169,7 +169,7 @@ export function QuickActions({
             type="button"
             onClick={handleBatchDelete}
             disabled={isProcessing || chaptersCount === 0}
-            className="h-7 text-xs bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-600 border border-zinc-200 dark:border-zinc-600 hover:text-red-700 dark:hover:text-red-300"
+            className="h-7 text-xs bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
           >
             <Trash2 className="w-3 h-3 mr-1" />
             批量删除
