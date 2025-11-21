@@ -10,6 +10,7 @@ import TechStack from './tech-stack'
 export default function CTA() {
   return (
     <section className="flex flex-col justify-center max-w-[88%] items-center py-16 gap-12 mx-auto">
+      <div className="text-5xl font-bold">{ctaConfig.title}</div>
       <motion.div
         className="flex flex-col text-center gap-4"
         initial={{ opacity: 0, y: 20 }}
@@ -17,7 +18,6 @@ export default function CTA() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-          {ctaConfig.title}
         <TechStack />
         <div className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed space-y-3">
           <p>
