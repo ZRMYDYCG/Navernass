@@ -25,11 +25,10 @@ interface DockConfig {
   animationDelay: number
 }
 
-// 配置对象
 const dockConfig: DockConfig = {
-  iconSize: 68,
-  iconMagnification: 82,
-  iconDistance: 100,
+  iconSize: 80,
+  iconMagnification: 96,
+  iconDistance: 120,
   animationDelay: 50,
 }
 
@@ -39,7 +38,6 @@ const menuItems: MenuItem[] = [
   { path: '/trash', label: '回收站', icon: Trash2, specialStyle: 'trash' },
 ]
 
-// 样式配置
 const styles = {
   container: {
     vertical: 'fixed right-0 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-500 ease-bounce scale-75 sm:scale-90 md:scale-100',
@@ -50,7 +48,7 @@ const styles = {
     horizontal: 'bg-transparent! border-0! p-0! h-auto! mt-0! backdrop-blur-none! gap-3',
   },
   active: {
-    base: 'text-zinc-900 dark:text-white',
+    base: 'text-zinc-900 dark:text-white bg-transparent hover:bg-transparent',
     vertical: 'scale-[1.15] -translate-x-1',
     horizontal: 'scale-[1.15] -translate-y-1',
   },
@@ -61,7 +59,6 @@ const styles = {
   },
 }
 
-// 切换按钮组件
 function ToggleButton({
   isVisible,
   onClick,
@@ -104,7 +101,6 @@ function ToggleButton({
   )
 }
 
-// 图标项组件
 function DockItem({
   item,
   index,
@@ -141,13 +137,8 @@ function DockItem({
               active ? activeClass : inactiveClass
             }`}
           >
-
-            {!active && (
-              <div className="absolute inset-0 rounded-[22px] bg-linear-to-br from-zinc-100/0 to-zinc-100/0 dark:from-zinc-800/0 dark:to-zinc-800/0 group-hover:from-zinc-100/90 group-hover:to-zinc-50/90 dark:group-hover:from-zinc-800/90 dark:group-hover:to-zinc-700/90 transition-all duration-300 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)] opacity-0 group-hover:opacity-100" />
-            )}
-
             <Icon
-              className={`relative z-10 w-8 h-8 transition-all duration-300 ${
+              className={`relative z-10 w-10 h-10 transition-all duration-300 ${
                 active
                   ? 'scale-105'
                   : isTrash
@@ -179,7 +170,6 @@ function DockItem({
   )
 }
 
-// Dock 容器组件
 function DockContainer({
   isVisible,
   layoutMode,
@@ -198,14 +188,6 @@ function DockContainer({
       isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-full opacity-0 scale-90 pointer-events-none'
     }`
 
-  const borderGradient = isVertical
-    ? 'absolute inset-y-0 left-0 w-[2px] bg-gradient-to-b from-transparent via-white/70 dark:via-white/20 to-transparent rounded-l-[28px]'
-    : 'absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white/70 dark:via-white/20 to-transparent rounded-t-[28px]'
-
-  const bottomBorder = isVertical
-    ? 'absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-black/10 dark:via-black/30 to-transparent rounded-r-[28px]'
-    : 'absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-black/10 dark:via-black/30 to-transparent rounded-b-[28px]'
-
   const shadow = isVertical
     ? 'absolute inset-y-8 -right-2 w-4 bg-black/5 dark:bg-black/20 blur-xl rounded-full -z-10'
     : 'absolute inset-x-8 -bottom-2 h-4 bg-black/5 dark:bg-black/20 blur-xl rounded-full -z-10'
@@ -213,7 +195,6 @@ function DockContainer({
   return (
     <div className={transitionClass}>
       <div className="relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-3xl rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.6)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6),0_2px_8px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] border border-white/40 dark:border-zinc-700/40">
-        <div className={borderGradient} />
         <div className={`relative ${isVertical ? 'px-4 py-5' : 'px-5 py-4'}`}>
           <Dock
             className={styles.dock[layoutMode]}
@@ -225,7 +206,6 @@ function DockContainer({
             {children}
           </Dock>
         </div>
-        <div className={bottomBorder} />
       </div>
       <div className={shadow} />
     </div>
@@ -238,7 +218,6 @@ export function Sidebar() {
   const [isMounted, setIsMounted] = useState(false)
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('horizontal')
 
-  // 检测页面是否有分页组件，自动切换布局模式
   useEffect(() => {
     const checkPagination = () => {
       const hasPagination = document.querySelector('[data-pagination]') !== null
@@ -247,14 +226,12 @@ export function Sidebar() {
     }
 
     checkPagination()
-    // 使用 MutationObserver 监听 DOM 变化
     const observer = new MutationObserver(checkPagination)
     observer.observe(document.body, { childList: true, subtree: true })
 
     return () => observer.disconnect()
   }, [pathname])
 
-  // 组件挂载时触发入场动画
   useEffect(() => {
     const timer = setTimeout(() => setIsMounted(true), 100)
     return () => clearTimeout(timer)
