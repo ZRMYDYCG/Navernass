@@ -1,37 +1,17 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
-import FloatingLines from '@/components/FloatingLines'
 import { Button } from '@/components/ui/button'
 import { heroConfig } from '../config'
 import Navbar from './navbar'
+import HeroBackground from './hero-background'
 
 export default function Hero() {
-  const { resolvedTheme } = useTheme()
-
-  const gradientColors = resolvedTheme === 'dark'
-    ? ['#7C3AED', '#2563EB', '#0891B2']
-    : ['#9333EA', '#3B82F6', '#06B6D4']
-
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background transition-colors duration-700">
-      <div className="absolute inset-0 z-0 transition-opacity duration-700">
-        <FloatingLines
-          linesGradient={gradientColors}
-          enabledWaves={['top', 'middle', 'bottom']}
-          lineCount={[10, 15, 20]}
-          lineDistance={[8, 6, 4]}
-          bendRadius={5.0}
-          bendStrength={-0.5}
-          interactive={true}
-          parallax={true}
-          mixBlendMode={resolvedTheme === 'dark' ? 'screen' : 'multiply'}
-        />
-      </div>
-
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
       <Navbar />
+      <HeroBackground />
 
       <div className="relative z-40 container mx-auto px-4 py-24 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
@@ -41,14 +21,14 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <span className="block text-white">{heroConfig.title.primary}</span>
-            <span className="block bg-gradient-to-r from-purple-200 via-blue-200 to-cyan-200 bg-clip-text text-transparent">
+            <span className="block text-foreground">{heroConfig.title.primary}</span>
+            <span className="block bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 dark:from-purple-400 dark:via-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
               {heroConfig.title.secondary}
             </span>
           </motion.h1>
 
           <motion.p
-            className="text-base md:text-lg text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed"
+            className="text-base md:text-lg text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}

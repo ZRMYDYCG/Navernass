@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
-import FuzzyText from '@/components/FuzzyText'
 import { Button } from '@/components/ui/button'
 import { ctaConfig } from '../config'
 import { RoughAnnotation } from './rough-annotation'
@@ -18,15 +17,7 @@ export default function CTA() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <FuzzyText
-          fontSize="2.5rem"
-          fontWeight={600}
-          baseIntensity={0.1}
-          hoverIntensity={0.9}
-          enableHover={true}
-        >
           {ctaConfig.title}
-        </FuzzyText>
         <TechStack />
         <div className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed space-y-3">
           <p>
