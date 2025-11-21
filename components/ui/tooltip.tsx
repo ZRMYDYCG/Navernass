@@ -25,7 +25,6 @@ function TooltipContent({ ref, className, sideOffset = 4, children, ...props }: 
       {...props}
     >
       {children}
-      <TooltipPrimitive.Arrow className="fill-gray-900 dark:fill-gray-800" />
     </TooltipPrimitive.Content>
   )
 }

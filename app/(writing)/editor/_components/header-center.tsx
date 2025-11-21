@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import { ArrowLeft, ArrowRight, SearchCheck } from 'lucide-react'
 
 interface HeaderCenterProps {
   title: string
@@ -28,12 +28,12 @@ export function HeaderCenter({
         disabled={!canGoBack}
         className={`p-1 h-6 w-6 flex items-center justify-center rounded transition-colors ${
           canGoBack
-            ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
+            ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer'
             : 'text-gray-300 dark:text-gray-700 cursor-not-allowed'
         }`}
         title="上一章节"
       >
-        <ChevronLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4" />
       </button>
 
       {/* 标题搜索框 */}
@@ -43,7 +43,7 @@ export function HeaderCenter({
         title="点击搜索章节"
       >
         <div className="flex items-center gap-1.5">
-          <Search className="w-4 h-4 shrink-0 text-gray-500 dark:text-gray-400" />
+          <SearchCheck className="w-4 h-4 shrink-0 text-gray-500 dark:text-gray-400" />
           <span className="truncate">{title || '未选择章节'}</span>
         </div>
       </div>
@@ -55,12 +55,12 @@ export function HeaderCenter({
         disabled={!canGoForward}
         className={`p-1 h-6 w-6 flex items-center justify-center rounded transition-colors ${
           canGoForward
-            ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
+            ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer'
             : 'text-gray-300 dark:text-gray-700 cursor-not-allowed'
         }`}
         title="下一章节"
       >
-        <ChevronRight className="w-4 h-4" />
+        <ArrowRight className="w-4 h-4" />
       </button>
     </div>
   )
