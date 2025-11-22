@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
+import { Toaster as RadixToaster } from '@/components/ui/toaster'
 import { FaviconProvider } from '@/providers/favicon-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 import './globals.css'
@@ -45,6 +46,7 @@ export default function RootLayout({
           <FaviconProvider />
           {children}
           <Toaster position="top-right" richColors closeButton />
+          <RadixToaster />
         </ThemeProvider>
       </body>
     </html>

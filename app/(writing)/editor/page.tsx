@@ -808,6 +808,8 @@ function NovelsEditContent() {
             }}
             onLock={handleLock}
             onBack={handleBack}
+            novelId={novelId || undefined}
+            chapterIds={chapters.map(c => c.id)}
           />
 
           {/* 主题内容区域 */}

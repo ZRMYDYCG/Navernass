@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Globe, Copy, Check } from 'lucide-react'
 import {
   Dialog,
@@ -10,40 +10,116 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/hooks/use-toast'
 
 interface PublishDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  documentId?: string
+  novelId?: string
+  chapterIds?: string[]
 }
 
 export function PublishDialog({
   open,
   onOpenChange,
-  documentId = 'example-doc-id',
+  novelId,
+  chapterIds = [],
 }: PublishDialogProps) {
-  const [isPublished, setIsPublished] = useState(false)
+  const [publishedCount, setPublishedCount] = useState(0)
   const [isCopied, setIsCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
 
-  const publishUrl = `http://localhost:3000/publish?id=${documentId}`
+  const publishUrl = novelId ? `http://localhost:3000/publish?id=${novelId}` : ''
+  const hasPublishedChapters = publishedCount > 0
+
+  useEffect(() => {
+    if (open && novelId && chapterIds.length > 0) {
+      checkPublishStatus()
+    }
+  }, [open, novelId, chapterIds])
+
+  const checkPublishStatus = async () => {
+    if (!novelId) return
+
+    try {
+      const response = await fetch(`/api/novels/${novelId}/published-chapters`)
+      if (response.ok) {
+        const result = await response.json()
+        setPublishedCount(result.data?.chapters?.length || 0)
+      }
+    } catch (error) {
+      console.error('Failed to check publish status:', error)
+    }
+  }
 
   const handlePublish = async () => {
+    if (!chapterIds.length) {
+      toast({
+        title: '发布失败',
+        description: '请先选择要发布的章节',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setIsLoading(true)
     
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    
-    setIsPublished(true)
-    setIsLoading(false)
+    try {
+      const results = await Promise.allSettled(
+        chapterIds.map(id =>
+          fetch(`/api/chapters/${id}/publish`, { method: 'POST' })
+        )
+      )
+
+      const successCount = results.filter(r => r.status === 'fulfilled').length
+      
+      if (successCount > 0) {
+        setPublishedCount(successCount)
+        toast({
+          title: '发布成功',
+          description: `已发布 ${successCount} 个章节`,
+        })
+      } else {
+        throw new Error('发布失败')
+      }
+    } catch (error) {
+      toast({
+        title: '发布失败',
+        description: '请稍后重试',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleUnpublish = async () => {
+    if (!chapterIds.length) return
+
     setIsLoading(true)
     
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    
-    setIsPublished(false)
-    setIsLoading(false)
+    try {
+      await Promise.allSettled(
+        chapterIds.map(id =>
+          fetch(`/api/chapters/${id}/publish`, { method: 'DELETE' })
+        )
+      )
+
+      setPublishedCount(0)
+      toast({
+        title: '已取消发布',
+        description: '章节已从公开页面移除',
+      })
+    } catch (error) {
+      toast({
+        title: '操作失败',
+        description: '请稍后重试',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleCopy = async () => {
@@ -64,7 +140,7 @@ export function PublishDialog({
             <Globe className="w-8 h-8 text-blue-500" />
           </div>
 
-          {!isPublished ? (
+          {!hasPublishedChapters ? (
             <>
               <DialogHeader className="text-center space-y-2">
                 <DialogTitle className="text-white text-xl">
@@ -77,7 +153,7 @@ export function PublishDialog({
 
               <Button
                 onClick={handlePublish}
-                disabled={isLoading}
+                disabled={isLoading || !chapterIds.length}
                 className="w-full bg-white text-black hover:bg-gray-100 h-11 rounded-lg font-medium"
               >
                 {isLoading ? '发布中...' : '发布'}
@@ -87,7 +163,9 @@ export function PublishDialog({
             <>
               <div className="flex items-center gap-2 text-sm">
                 <Globe className="w-4 h-4 text-blue-500" />
-                <span className="text-gray-300">此文档已发布</span>
+                <span className="text-gray-300">
+                  已发布 {publishedCount} 个章节
+                </span>
               </div>
 
               <div className="w-full flex items-center gap-2 bg-[#2a2a2a] rounded-lg p-3 border border-gray-800">

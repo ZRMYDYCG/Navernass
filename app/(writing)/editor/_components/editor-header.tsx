@@ -16,6 +16,8 @@ interface EditorHeaderProps {
   onToggleTerminal?: () => void
   onLock?: () => void
   onBack?: () => void
+  novelId?: string
+  chapterIds?: string[]
 }
 
 export default function EditorHeader({
@@ -28,6 +30,8 @@ export default function EditorHeader({
   onToggleTerminal,
   onLock,
   onBack,
+  novelId,
+  chapterIds = [],
 }: EditorHeaderProps) {
   const router = useRouter()
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -191,6 +195,8 @@ export default function EditorHeader({
         onToggleTerminal={onToggleTerminal}
         onLock={handleLock}
         onClose={handleClose}
+        novelId={novelId}
+        chapterIds={chapterIds}
       />
     </header>
   )

@@ -25,6 +25,8 @@ interface HeaderRightProps {
   onToggleTerminal?: () => void
   onLock?: () => void
   onClose?: () => void
+  novelId?: string
+  chapterIds?: string[]
 }
 
 export function HeaderRight({
@@ -34,6 +36,8 @@ export function HeaderRight({
   onToggleTerminal,
   onLock,
   onClose,
+  novelId,
+  chapterIds = [],
 }: HeaderRightProps) {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
 
@@ -146,6 +150,8 @@ export function HeaderRight({
       <PublishDialog
         open={publishDialogOpen}
         onOpenChange={setPublishDialogOpen}
+        novelId={novelId}
+        chapterIds={chapterIds}
       />
     </TooltipProvider>
   )
