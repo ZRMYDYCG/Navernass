@@ -5,7 +5,7 @@ import type { Chapter, Novel, Volume } from '@/lib/supabase/sdk'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Drawer, DrawerContent } from '@/components/ui/drawer'
 import { Kbd } from '@/components/ui/kbd'
@@ -25,7 +25,7 @@ import { RenameChapterDialog } from './_components/rename-chapter-dialog'
 import { RenameVolumeDialog } from './_components/rename-volume-dialog'
 import RightPanel from './_components/right-panel'
 
-export default function NovelsEdit() {
+function NovelsEditContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const novelId = searchParams.get('id')
@@ -1088,5 +1088,18 @@ export default function NovelsEdit() {
         </div>
       </LockScreen>
     </Tooltip.Provider>
+  )
+}
+
+export default function NovelsEdit() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex flex-col items-center justify-center bg-white dark:bg-zinc-900 gap-3">
+        <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+        <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
+      </div>
+    }>
+      <NovelsEditContent />
+    </Suspense>
   )
 }

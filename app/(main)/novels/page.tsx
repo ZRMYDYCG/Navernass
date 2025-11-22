@@ -3,7 +3,7 @@
 import type { NovelFilterType, NovelFormData, ViewMode } from './types'
 import type { Novel } from '@/lib/supabase/sdk'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
 import { novelsApi } from '@/lib/supabase/sdk'
@@ -16,7 +16,7 @@ import { ViewSwitcher } from './_components/view-switcher'
 import { SmartPagination } from './_components/smart-pagination'
 import { DEFAULT_FILTER, DEFAULT_VIEW_MODE, ITEMS_PER_PAGE, TOAST_MESSAGES } from './config'
 
-export default function Novels() {
+function NovelsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -262,5 +262,13 @@ export default function Novels() {
         onConfirm={handleConfirmDelete}
       />
     </div>
+  )
+}
+
+export default function Novels() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-full">加载中...</div>}>
+      <NovelsContent />
+    </Suspense>
   )
 }

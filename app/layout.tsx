@@ -13,6 +13,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Narraverse - AI 小说创作平台',
   description: '基于 AI 的智能小说创作助手',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Narraverse',
+  },
+  formatDetection: {
+    telephone: false,
+  },
 }
 
 export default function RootLayout({
@@ -28,6 +37,8 @@ export default function RootLayout({
           href="/assets/svg/logo-dark.svg"
           type="image/svg+xml"
         />
+        <meta name="theme-color" content="#000000" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
       <body className={`${inter.variable} antialiased h-full`} suppressHydrationWarning>
         <ThemeProvider>

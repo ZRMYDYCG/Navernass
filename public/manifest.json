@@ -1,0 +1,24 @@
+{
+  "name": "Narraverse - AI 小说创作平台",
+  "short_name": "Narraverse",
+  "description": "基于 AI 的智能小说创作助手",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/svg/logo-eye.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/svg/logo-eye.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

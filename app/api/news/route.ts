@@ -39,10 +39,11 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   const body: CreateNewsDto = await req.json()
 
   if (!body.type || !body.title || !body.content) {
-    return ApiResponseBuilder.error({
-      code: 'INVALID_DATA',
-      message: 'Type, title and content are required',
-    }, 400)
+    return ApiResponseBuilder.error(
+      'Type, title and content are required',
+      'INVALID_DATA',
+      400
+    )
   }
 
   const news = await newsService.create(body)
