@@ -28,7 +28,7 @@ export function ShareImageRenderer({ messages, title, containerRef }: ShareImage
   }, [])
 
   return (
-    <div ref={containerRef} className="absolute -left-[1200px] top-0 pointer-events-none select-none" style={{ visibility: 'hidden' }}>
+    <div ref={containerRef} className="absolute -left-[1200px] top-0 pointer-events-none select-none" style={{ visibility: 'hidden', zIndex: -9999 }}>
       <div className="w-[1080px] rounded-[48px] overflow-hidden bg-[#060915] text-white shadow-[0_50px_140px_rgba(6,9,21,0.55)] border border-white/5">
         <div className="relative px-16 py-14 bg-gradient-to-br from-[#0B1434] via-[#111F46] to-[#1E3A7C]">
           <div className="absolute inset-x-12 -top-32 h-64 bg-[radial-gradient(circle_at_top,rgba(102,132,255,0.28),transparent)] blur-3xl" />

@@ -385,12 +385,14 @@ export default function ConversationPage() {
     const originalPointerEvents = node.style.pointerEvents
     const originalPosition = node.style.position
     const originalTop = node.style.top
+    const originalZIndex = node.style.zIndex
 
     node.style.left = '0px'
     node.style.visibility = 'visible'
     node.style.pointerEvents = 'auto'
     node.style.position = 'fixed'
     node.style.top = '0px'
+    node.style.zIndex = '-9999'
 
     try {
       if (typeof document !== 'undefined' && 'fonts' in document) {
@@ -411,6 +413,7 @@ export default function ConversationPage() {
       node.style.pointerEvents = originalPointerEvents
       node.style.position = originalPosition
       node.style.top = originalTop
+      node.style.zIndex = originalZIndex
     }
   }, [])
 
