@@ -26,7 +26,7 @@ export function AppLogo() {
   return (
     <div className="relative w-10 h-10 shrink-0">
       <Image
-        src={isDark ? '/assets/svg/logo-dark.svg' : '/assets/svg/logo-light.svg'}
+        src={isDark ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'}
         alt="Narraverse Logo"
         width={40}
         height={40}
