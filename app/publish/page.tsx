@@ -58,14 +58,6 @@ export default function PublishPage() {
     fetchNovel()
   }, [novelId])
 
-  useEffect(() => {
-    if (settings.theme === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [settings.theme])
-
   const handleSettingsChange = (newSettings: Partial<PublishSettings>) => {
     setSettings((prev) => ({ ...prev, ...newSettings }))
   }

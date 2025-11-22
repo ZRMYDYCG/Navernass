@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useThemeTransition } from '@/hooks/use-theme-transition'
 import type { PublishSettings } from '../types'
 
 interface PublishHeaderProps {
@@ -21,8 +22,12 @@ export function PublishHeader({
   settings,
   onSettingsChange,
 }: PublishHeaderProps) {
-  const toggleTheme = () => {
-    onSettingsChange({ theme: settings.theme === 'light' ? 'dark' : 'light' })
+  const { setTheme } = useThemeTransition()
+
+  const toggleTheme = (event: React.MouseEvent) => {
+    const newTheme = settings.theme === 'light' ? 'dark' : 'light'
+    setTheme(newTheme, event)
+    onSettingsChange({ theme: newTheme })
   }
 
   return (
