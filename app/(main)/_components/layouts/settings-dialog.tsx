@@ -82,7 +82,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-white dark:bg-zinc-900 border-gray-200 dark:border-gray-800">
+      <DialogContent 
+        className="sm:max-w-md bg-white dark:bg-zinc-900 border-gray-200 dark:border-gray-800"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>设置</DialogTitle>
         </DialogHeader>

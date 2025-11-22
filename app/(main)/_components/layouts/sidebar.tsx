@@ -27,7 +27,6 @@ export function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
 
-  const isChatConversationPage = pathname.startsWith('/chat/') && pathname !== '/chat'
 
   useEffect(() => {
     setIsMobileOpen(false)
@@ -79,10 +78,10 @@ export function Sidebar() {
         className={`fixed left-0 top-0 h-screen border-r border-gray-200 dark:border-gray-800 transition-all duration-300 ease-out z-[60] ${
           isMobileOpen 
             ? 'bg-white dark:bg-zinc-900 w-56 translate-x-0' 
-            : `bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl ${(isExpanded || showSettings) && !isChatConversationPage ? 'w-56' : 'w-16'} -translate-x-full lg:translate-x-0`
+            : `bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl ${(isExpanded || showSettings) ? 'w-56' : 'w-16'} -translate-x-full lg:translate-x-0`
         }`}
-        onMouseEnter={() => !isMobileOpen && !isChatConversationPage && setIsExpanded(true)}
-        onMouseLeave={() => !isMobileOpen && !isChatConversationPage && !showSettings && setIsExpanded(false)}
+        onMouseEnter={() => !isMobileOpen && setIsExpanded(true)}
+        onMouseLeave={() => !isMobileOpen && !showSettings && setIsExpanded(false)}
       >
         <div className="flex flex-col h-full py-4">
           <div className={`flex items-center px-3 mb-8 transition-all duration-300 ${isExpanded || isMobileOpen || showSettings ? 'justify-start' : 'justify-center'}`}>

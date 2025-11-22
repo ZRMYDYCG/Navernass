@@ -1,7 +1,7 @@
 'use client'
 
 import type { Message } from '@/lib/supabase/sdk/types'
-import { Copy, Download, FileText, Share2, X } from 'lucide-react'
+import { BookPlus, Copy, Download, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -86,20 +86,53 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-l border-gray-200 dark:border-gray-800">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
-        {/* 左侧：导入按钮 */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 lg:hidden"
+          onClick={() => {
+            const menuButton = document.querySelector('button[aria-label="Toggle menu"]') as HTMLButtonElement
+            if (menuButton) menuButton.click()
+          }}
+        >
+          <Menu className="w-4 h-4" />
+        </Button>
+        <div className="flex-1" />
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+          onClick={onClose}
+        >
+          <X className="w-4 h-4" />
+        </Button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="min-h-full px-[40px] py-4">
+          <TiptapEditor
+            key={editorKey}
+            content={editorContent}
+            onUpdate={setContent}
+            placeholder="开始编辑文档..."
+            className="h-full"
+            editable={true}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-800">
         <Button
           variant="ghost"
           size="sm"
           className="h-8 px-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
           onClick={() => setShowImportDialog(true)}
         >
-          <FileText className="w-4 h-4 mr-1.5" />
-          <span className="text-sm">导入到小说</span>
+          <BookPlus className="w-4 h-4 mr-1.5" />
+          <span className="text-sm">保存</span>
         </Button>
 
-        {/* 右侧：操作按钮 */}
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -119,42 +152,9 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
             <Download className="w-4 h-4 mr-1.5" />
             <span className="text-sm">下载</span>
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-            onClick={handleShare}
-          >
-            <Share2 className="w-4 h-4 mr-1.5" />
-            <span className="text-sm">分享</span>
-          </Button>
-          <div className="h-6 w-px bg-gray-200 dark:bg-zinc-700 mx-1" />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-            onClick={onClose}
-          >
-            <X className="w-4 h-4" />
-          </Button>
         </div>
       </div>
 
-      {/* 编辑器内容 */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="min-h-full px-[40px] py-4">
-          <TiptapEditor
-            key={editorKey}
-            content={editorContent}
-            onUpdate={setContent}
-            placeholder="开始编辑文档..."
-            className="h-full"
-            editable={true}
-          />
-        </div>
-      </div>
-
-      {/* 导入对话框 */}
       <ImportToNovelDialog
         open={showImportDialog}
         onOpenChange={setShowImportDialog}

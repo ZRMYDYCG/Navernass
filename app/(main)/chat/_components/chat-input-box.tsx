@@ -95,8 +95,8 @@ export function ChatInputBox({
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
-      <div className="bg-white dark:bg-zinc-800 rounded-[5px] shadow-lg border border-gray-200 dark:border-gray-700 transition-all flex flex-col min-h-[120px]">
+    <div className="w-full px-4 sm:px-6 lg:px-8">
+      <div className="bg-white dark:bg-zinc-800 rounded-[5px] shadow-lg border border-gray-200 dark:border-gray-700 transition-all flex flex-col min-h-[120px] max-w-4xl mx-auto">
         <div
           ref={editorRef}
           contentEditable={!disabled}
