@@ -2,6 +2,7 @@
 
 import type { PublishedChapter } from '../types'
 import { FONT_SIZE_MAP } from '../types'
+import { ChapterSummary } from './chapter-summary'
 
 interface ChapterContentProps {
   chapter: PublishedChapter
@@ -23,6 +24,8 @@ export function ChapterContent({ chapter, fontSize }: ChapterContentProps) {
           })}
         </span>
       </div>
+
+      <ChapterSummary chapterId={chapter.id} />
 
       <div
         className="max-w-none leading-relaxed text-foreground [&_p]:mb-6 [&_h1]:font-semibold [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_strong]:font-semibold [&_em]:italic"
