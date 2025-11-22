@@ -22,7 +22,7 @@ const segmentedControlVariants = cva(
 )
 
 const segmentedControlItemVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 font-medium transition-all disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-700 data-[state=checked]:text-gray-900 dark:data-[state=checked]:text-gray-100 data-[state=checked]:shadow-sm',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-700 data-[state=checked]:text-gray-900 dark:data-[state=checked]:text-gray-100 data-[state=checked]:shadow-sm',
   {
     variants: {
       size: {

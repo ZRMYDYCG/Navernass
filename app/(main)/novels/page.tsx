@@ -5,15 +5,6 @@ import type { Novel } from '@/lib/supabase/sdk'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
 import { novelsApi } from '@/lib/supabase/sdk'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
@@ -22,6 +13,7 @@ import { NovelDialog } from './_components/novel-dialog'
 import { NovelList } from './_components/novel-list'
 import { NovelTable } from './_components/novel-table'
 import { ViewSwitcher } from './_components/view-switcher'
+import { SmartPagination } from './_components/smart-pagination'
 import { DEFAULT_FILTER, DEFAULT_VIEW_MODE, ITEMS_PER_PAGE, TOAST_MESSAGES } from './config'
 
 export default function Novels() {
@@ -247,60 +239,12 @@ export default function Novels() {
         )}
       </div>
 
-      {/* 底部分页 */}
-      {totalPages > 1 && (
-        <div className="shrink-0 py-3 sm:py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-gray-800" data-pagination>
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  className={
-                    currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
-                  }
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                // 显示当前页、首页、末页以及当前页附近的页码
-                if (
-                  page === 1
-                  || page === totalPages
-                  || (page >= currentPage - 1 && page <= currentPage + 1)
-                ) {
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        onClick={() => setCurrentPage(page)}
-                        isActive={currentPage === page}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )
-                } else if (page === currentPage - 2 || page === currentPage + 2) {
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  )
-                }
-                return null
-              })}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  className={
-                    currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
+      <SmartPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        className="shrink-0 py-3 sm:py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-gray-800"
+      />
 
       {/* 创建/编辑小说对话框 */}
       <NovelDialog
