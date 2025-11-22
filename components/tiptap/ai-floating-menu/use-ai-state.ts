@@ -1,6 +1,25 @@
 import type { Editor } from '@tiptap/react'
 import { useRef, useState } from 'react'
 
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/#{1,6}\s+/g, '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    .replace(/`{1,3}(.+?)`{1,3}/g, '$1')
+    .replace(/~~(.+?)~~/g, '$1')
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+    .replace(/!\[.*?\]\(.+?\)/g, '')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/^>\s+/gm, '')
+    .replace(/---+/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 export function useAIState(editor: Editor | null, onActionComplete?: () => void) {
   const [aiPrompt, setAiPrompt] = useState('')
   const [isAILoading, setIsAILoading] = useState(false)
@@ -25,9 +44,10 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
   const applyReplace = () => {
     if (!editor || !aiStreamContent) return
     const { from } = editor.state.selection
-    editor.chain().focus().deleteSelection().insertContent(aiStreamContent).run()
+    const cleanContent = stripMarkdown(aiStreamContent)
+    editor.chain().focus().deleteSelection().insertContent(cleanContent).run()
     
-    const newTo = from + aiStreamContent.length
+    const newTo = from + cleanContent.length
     requestAnimationFrame(() => {
       editor.chain().focus().setTextSelection({ from, to: newTo }).run()
     })
@@ -39,7 +59,8 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
   const applyInsertBelow = () => {
     if (!editor || !aiStreamContent) return
     const { to } = editor.state.selection
-    const insertText = `\n${aiStreamContent}`
+    const cleanContent = stripMarkdown(aiStreamContent)
+    const insertText = `\n${cleanContent}`
     editor.chain().focus().setTextSelection(to).insertContent(insertText).run()
     
     const newFrom = to + 1
