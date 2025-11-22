@@ -86,3 +86,105 @@
 .zoom-in {
   animation-name: zoomIn;
 }
+
+/* 下划线 */
+.ProseMirror.underline-solid p {
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(1.75em - 1px),
+    var(--underline-color, #3b82f6) calc(1.75em - 1px),
+    var(--underline-color, #3b82f6) 1.75em,
+    transparent 1.75em
+  );
+  background-size: 100% 1.75em;
+  background-position: 0 0;
+  line-height: 1.75;
+}
+
+.ProseMirror.underline-wavy p {
+  line-height: 1.75;
+  position: relative;
+}
+
+.ProseMirror.underline-wavy p::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent 2px,
+    var(--underline-color, #3b82f6) 2px,
+    var(--underline-color, #3b82f6) 3px,
+    transparent 3px,
+    transparent 5px
+  ) 0 0 / 100% 1.75em;
+  -webkit-mask-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1.75em - 2px),
+    black calc(1.75em - 2px),
+    black 1.75em
+  );
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1.75em - 2px),
+    black calc(1.75em - 2px),
+    black 1.75em
+  );
+  pointer-events: none;
+}
+
+.ProseMirror.underline-dotted p {
+  line-height: 1.75;
+  position: relative;
+}
+
+.ProseMirror.underline-dotted p::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    to right,
+    var(--underline-color, #3b82f6) 0,
+    var(--underline-color, #3b82f6) 3px,
+    transparent 3px,
+    transparent 7px
+  ) 0 0 / 100% 1.75em;
+  -webkit-mask-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1.75em - 1px),
+    black calc(1.75em - 1px),
+    black 1.75em
+  );
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1.75em - 1px),
+    black calc(1.75em - 1px),
+    black 1.75em
+  );
+  pointer-events: none;
+}
+
+.underline-preview-solid {
+  border-bottom: 2px solid var(--underline-color, #3b82f6);
+}
+
+.underline-preview-wavy {
+  text-decoration: underline wavy var(--underline-color, #3b82f6);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.underline-preview-dotted {
+  border-bottom: 2px dotted var(--underline-color, #3b82f6);
+}
