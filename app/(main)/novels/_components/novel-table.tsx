@@ -119,7 +119,7 @@ export function NovelTable({
               {/* 字数 */}
               <td className="py-4 px-4 text-right">
                 <span className="text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                  {novel.word_count.toLocaleString()}
+                  {(novel.word_count || 0).toLocaleString()}
                 </span>
               </td>
 

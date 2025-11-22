@@ -42,10 +42,34 @@ export class ChaptersService {
   }
 
   /**
+   * 更新小说的章节数和字数统计
+   */
+  private async updateNovelStats(novelId: string) {
+    const { data: chapters, error } = await supabase
+      .from('chapters')
+      .select('word_count')
+      .eq('novel_id', novelId)
+
+    if (error) throw error
+
+    const chapterCount = chapters?.length || 0
+    const wordCount = chapters?.reduce((sum, chapter) => sum + (chapter.word_count || 0), 0) || 0
+
+    const { error: updateError } = await supabase
+      .from('novels')
+      .update({
+        chapter_count: chapterCount,
+        word_count: wordCount,
+      })
+      .eq('id', novelId)
+
+    if (updateError) throw updateError
+  }
+
+  /**
    * 创建章节
    */
   async create(chapterData: CreateChapterDto) {
-    // 计算字数
     const wordCount = chapterData.content
       ? chapterData.content.replace(/<[^>]*>/g, '').length
       : 0
@@ -59,7 +83,6 @@ export class ChaptersService {
       status: 'draft',
     }
 
-    // 如果提供了 volume_id，则包含在插入数据中
     if (chapterData.volume_id !== undefined) {
       insertData.volume_id = chapterData.volume_id || null
     }
@@ -71,6 +94,9 @@ export class ChaptersService {
       .single()
 
     if (error) throw error
+
+    await this.updateNovelStats(chapterData.novel_id)
+
     return data
   }
 
@@ -78,20 +104,13 @@ export class ChaptersService {
    * 更新章节
    */
   async update(id: string, updates: Partial<UpdateChapterDto>) {
-    await this.getById(id)
+    const chapter = await this.getById(id)
 
     const updateData: Record<string, unknown> = { ...updates }
 
-    // 如果更新了内容，重新计算字数
     if (updates.content !== undefined) {
       updateData.word_count = updates.content.replace(/<[^>]*>/g, '').length
     }
-
-    // console.log('📝 准备更新章节到数据库:', {
-    //   chapterId: id,
-    //   contentLength: updates.content?.length || 0,
-    //   wordCount: updateData.word_count,
-    // })
 
     const { data, error } = await supabase
       .from('chapters')
@@ -105,11 +124,9 @@ export class ChaptersService {
       throw error
     }
 
-    // console.log('✅ 数据库更新成功:', {
-    //   chapterId: data.id,
-    //   contentLength: data.content?.length || 0,
-    //   wordCount: data.word_count,
-    // })
+    if (updates.content !== undefined) {
+      await this.updateNovelStats(chapter.novel_id)
+    }
 
     return data
   }
@@ -118,11 +135,13 @@ export class ChaptersService {
    * 删除章节
    */
   async delete(id: string) {
-    await this.getById(id)
+    const chapter = await this.getById(id)
 
     const { error } = await supabase.from('chapters').delete().eq('id', id)
 
     if (error) throw error
+
+    await this.updateNovelStats(chapter.novel_id)
   }
 
   /**
