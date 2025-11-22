@@ -1,11 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import {
   LockKeyhole,
   Maximize2,
   Minimize2,
   Bot,
-  // TerminalSquare,
+  Globe,
   XCircle,
 } from 'lucide-react'
 import { ThemeSection } from '@/components/theme-select'
@@ -15,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { PublishDialog } from './publish-dialog'
 
 interface HeaderRightProps {
   isFullscreen?: boolean
@@ -33,9 +35,26 @@ export function HeaderRight({
   onLock,
   onClose,
 }: HeaderRightProps) {
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false)
+
   return (
     <TooltipProvider>
       <div className="flex items-center gap-0.5 h-full">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => setPublishDialogOpen(true)}
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+            >
+              <Globe className="w-4 h-4" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>发布</p>
+          </TooltipContent>
+        </Tooltip>
+
         {/* 锁屏按钮 */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -123,6 +142,11 @@ export function HeaderRight({
           </TooltipContent>
         </Tooltip>
       </div>
+
+      <PublishDialog
+        open={publishDialogOpen}
+        onOpenChange={setPublishDialogOpen}
+      />
     </TooltipProvider>
   )
 }
