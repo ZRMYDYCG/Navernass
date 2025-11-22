@@ -1,5 +1,6 @@
+import type { LucideIcon } from 'lucide-react'
+import { Lightbulb, PenTool, Wand2 } from 'lucide-react'
 import Image from 'next/image'
-import { Wand2, PenTool, Lightbulb, type LucideIcon } from 'lucide-react'
 
 const FEATURES: Array<{
   icon: LucideIcon
