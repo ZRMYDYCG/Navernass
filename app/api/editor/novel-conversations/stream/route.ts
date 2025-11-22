@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import type { SendNovelMessageRequest } from '@/lib/supabase/sdk/types'
+import { getApiKey } from '@/lib/api-key'
 import { ChaptersService } from '@/lib/supabase/sdk/services/chapters.service'
 import { NovelConversationsService } from '@/lib/supabase/sdk/services/novel-conversations.service'
 import { NovelMessagesService } from '@/lib/supabase/sdk/services/novel-messages.service'
@@ -7,7 +8,6 @@ import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.ser
 
 const conversationsService = new NovelConversationsService()
 const messagesService = new NovelMessagesService()
-const aiService = new SiliconFlowService()
 const chaptersService = new ChaptersService()
 
 /**
@@ -21,6 +21,9 @@ export async function POST(req: NextRequest) {
   if (!novelId || !message || message.trim().length === 0) {
     return new Response('novelId and message are required', { status: 400 })
   }
+
+  const userApiKey = await getApiKey('default-user')
+  const aiService = new SiliconFlowService(userApiKey || undefined)
 
   // 创建流式响应
   const encoder = new TextEncoder()

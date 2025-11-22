@@ -16,6 +16,8 @@
 
 环境变量配置
 
+创建 `.env.local` 文件：
+
 ```bash
 # SUPABASE 配置
 NEXT_PUBLIC_SUPABASE_URL=
@@ -25,7 +27,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SILICON_FLOW_API_KEY=
 SILICON_FLOW_BASE_URL=
 SILICON_FLOW_MODEL=
+
 ```
+
+**API Key 配置说明：**
+- 用户可在应用设置界面中配置 API Key
+- API Key 将保存到 Supabase 云端数据库的 `user_settings` 表
+- 数据库表结构已包含在 `migrations/init_database.sql` 中
+- API 路由会自动从云端获取用户的 API Key
 
 代码格式化配置
 

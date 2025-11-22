@@ -1,11 +1,12 @@
 'use client'
 
 import type { LucideIcon } from 'lucide-react'
-import { Book, Bot, LayoutGrid, Trash2, X } from 'lucide-react'
+import { Book, Bot, LayoutGrid, Settings, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AppLogo } from '../app-logo'
+import { SettingsDialog } from './settings-dialog'
 
 interface MenuItem {
   path: string
@@ -24,6 +25,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
 
   const isChatConversationPage = pathname.startsWith('/chat/') && pathname !== '/chat'
 
@@ -41,6 +43,12 @@ export function Sidebar() {
       document.body.style.overflow = ''
     }
   }, [isMobileOpen])
+
+  useEffect(() => {
+    if (!showSettings) {
+      setIsExpanded(false)
+    }
+  }, [showSettings])
 
   const isActive = (item: MenuItem) => {
     if (item.exactMatch) {
@@ -71,15 +79,15 @@ export function Sidebar() {
         className={`fixed left-0 top-0 h-screen border-r border-gray-200 dark:border-gray-800 transition-all duration-300 ease-out z-[60] ${
           isMobileOpen 
             ? 'bg-white dark:bg-zinc-900 w-56 translate-x-0' 
-            : `bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl ${isExpanded && !isChatConversationPage ? 'w-56' : 'w-16'} -translate-x-full lg:translate-x-0`
+            : `bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl ${(isExpanded || showSettings) && !isChatConversationPage ? 'w-56' : 'w-16'} -translate-x-full lg:translate-x-0`
         }`}
         onMouseEnter={() => !isMobileOpen && !isChatConversationPage && setIsExpanded(true)}
-        onMouseLeave={() => !isMobileOpen && !isChatConversationPage && setIsExpanded(false)}
+        onMouseLeave={() => !isMobileOpen && !isChatConversationPage && !showSettings && setIsExpanded(false)}
       >
         <div className="flex flex-col h-full py-4">
-          <div className={`flex items-center px-3 mb-8 transition-all duration-300 ${isExpanded || isMobileOpen ? 'justify-start' : 'justify-center'}`}>
+          <div className={`flex items-center px-3 mb-8 transition-all duration-300 ${isExpanded || isMobileOpen || showSettings ? 'justify-start' : 'justify-center'}`}>
             <AppLogo />
-            {(isExpanded || isMobileOpen) && (
+            {(isExpanded || isMobileOpen || showSettings) && (
               <span className="ml-3 text-lg font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-200">
                 Narraverse
               </span>
@@ -103,7 +111,7 @@ export function Sidebar() {
                 >
                   <Icon className={`w-5 h-5 shrink-0 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-105'}`} />
                   
-                  {(isExpanded || isMobileOpen) && (
+                  {(isExpanded || isMobileOpen || showSettings) && (
                     <span className="ml-3 text-sm font-medium whitespace-nowrap animate-in fade-in slide-in-from-left-1 duration-150">
                       {item.label}
                     </span>
@@ -112,7 +120,25 @@ export function Sidebar() {
               )
             })}
           </nav>
+
+          <div className="px-2">
+            <button
+              type="button"
+              onClick={() => setShowSettings(true)}
+              className="group relative flex items-center w-full px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-gray-100"
+            >
+              <Settings className="w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-105" />
+              
+              {(isExpanded || isMobileOpen || showSettings) && (
+                <span className="ml-3 text-sm font-medium whitespace-nowrap animate-in fade-in slide-in-from-left-1 duration-150">
+                  设置
+                </span>
+              )}
+            </button>
+          </div>
         </div>
+
+        <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
       </aside>
     </>
   )

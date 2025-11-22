@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import type { SendMessageRequest } from '@/lib/supabase/sdk/types'
+import { getApiKey } from '@/lib/api-key'
 import { ConversationsService } from '@/lib/supabase/sdk/services/conversations.service'
 import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
 import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.service'
@@ -8,7 +9,6 @@ import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
 
 const conversationsService = new ConversationsService()
 const messagesService = new MessagesService()
-const aiService = new SiliconFlowService()
 
 /**
  * POST /api/chat/send
@@ -21,6 +21,9 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   if (!message || message.trim().length === 0) {
     return ApiResponseBuilder.error('Message cannot be empty', 'INVALID_MESSAGE', 400)
   }
+
+  const userApiKey = await getApiKey('default-user')
+  const aiService = new SiliconFlowService(userApiKey || undefined)
 
   try {
     // 获取或创建对话

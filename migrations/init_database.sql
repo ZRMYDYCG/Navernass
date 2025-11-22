@@ -23,6 +23,9 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
 CREATE TABLE public.chapters (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   novel_id uuid NOT NULL,
@@ -120,6 +123,14 @@ CREATE TABLE public.novels (
   published_at timestamp with time zone,
   CONSTRAINT novels_pkey PRIMARY KEY (id)
 );
+CREATE TABLE public.user_settings (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id text NOT NULL UNIQUE,
+  api_key text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT user_settings_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.volumes (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   novel_id uuid NOT NULL,
@@ -132,10 +143,3 @@ CREATE TABLE public.volumes (
   CONSTRAINT volumes_pkey PRIMARY KEY (id),
   CONSTRAINT volumes_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id)
 );
-
--- =====================================================
--- 完成！
--- =====================================================
--- 数据库初始化完成
--- 现在可以开始使用 Narraverse 了！
-

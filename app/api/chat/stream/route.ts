@@ -1,12 +1,12 @@
 import type { NextRequest } from 'next/server'
 import type { SendMessageRequest } from '@/lib/supabase/sdk/types'
+import { getApiKey } from '@/lib/api-key'
 import { ConversationsService } from '@/lib/supabase/sdk/services/conversations.service'
 import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
 import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.service'
 
 const conversationsService = new ConversationsService()
 const messagesService = new MessagesService()
-const aiService = new SiliconFlowService()
 
 /**
  * POST /api/chat/stream
@@ -19,6 +19,9 @@ export async function POST(req: NextRequest) {
   if (!message || message.trim().length === 0) {
     return new Response('Message cannot be empty', { status: 400 })
   }
+
+  const userApiKey = await getApiKey('default-user')
+  const aiService = new SiliconFlowService(userApiKey || undefined)
 
   // 创建流式响应
   const encoder = new TextEncoder()

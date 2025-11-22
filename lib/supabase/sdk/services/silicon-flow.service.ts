@@ -30,8 +30,8 @@ export class SiliconFlowService {
   private baseUrl: string
   private model: string
 
-  constructor() {
-    this.apiKey = process.env.SILICON_FLOW_API_KEY || ''
+  constructor(apiKey?: string) {
+    this.apiKey = apiKey || process.env.SILICON_FLOW_API_KEY || ''
     this.baseUrl = process.env.SILICON_FLOW_BASE_URL || 'https://api.siliconflow.cn/v1'
     this.model = process.env.SILICON_FLOW_MODEL || 'deepseek-chat'
 

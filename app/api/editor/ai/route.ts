@@ -1,10 +1,11 @@
 import type { NextRequest } from 'next/server'
+import { getApiKey } from '@/lib/api-key'
 
 interface EditorAIRequest {
   action: 'improve' | 'fix' | 'shorter' | 'longer' | 'translate' | 'continue' | 'custom'
   text: string
-  prompt?: string // 用于 custom 操作
-  context?: string // 可选：前后文上下文
+  prompt?: string
+  context?: string
 }
 
 /**
@@ -17,6 +18,11 @@ export async function POST(req: NextRequest) {
 
   if (!text || text.trim().length === 0) {
     return new Response('Text cannot be empty', { status: 400 })
+  }
+
+  const userApiKey = await getApiKey('default-user')
+  if (!userApiKey && !process.env.SILICON_FLOW_API_KEY) {
+    return new Response('API Key not configured', { status: 400 })
   }
 
   // 根据操作类型生成系统提示词
@@ -40,13 +46,13 @@ export async function POST(req: NextRequest) {
 
   // 创建流式响应
   const encoder = new TextEncoder()
+  const apiKey = userApiKey || process.env.SILICON_FLOW_API_KEY || ''
+  const baseUrl = process.env.SILICON_FLOW_BASE_URL || 'https://api.siliconflow.cn/v1'
+  const model = process.env.SILICON_FLOW_MODEL || 'deepseek-chat'
+
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        const apiKey = process.env.SILICON_FLOW_API_KEY || ''
-        const baseUrl = process.env.SILICON_FLOW_BASE_URL || 'https://api.siliconflow.cn/v1'
-        const model = process.env.SILICON_FLOW_MODEL || 'deepseek-chat'
-
         const response = await fetch(`${baseUrl}/chat/completions`, {
           method: 'POST',
           headers: {
