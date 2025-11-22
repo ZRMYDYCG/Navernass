@@ -15,6 +15,7 @@ import { MessageList } from './message-list'
 import { MessageListSkeleton } from './message-list-skeleton'
 import { ModeSelector } from './mode-selector'
 import { ModelSelector } from './model-selector'
+import { RecentConversations } from './recent-conversations'
 import { SelectedChapters } from './selected-chapters'
 import { SendButton } from './send-button'
 
@@ -311,6 +312,14 @@ export default function RightPanel() {
 
       {/* 输入区域 */}
       <div className="px-2 py-1.5 space-y-1.5">
+        {/* 最近的历史对话 - 仅在欢迎状态时显示 */}
+        {messages.length === 0 && !isLoadingMessages && (
+          <RecentConversations
+            conversations={conversations}
+            onSelect={handleSelectConversation}
+          />
+        )}
+
         {/* 选中的章节标签 */}
         {selectedChapters.length > 0 && (
           <SelectedChapters chapters={selectedChapters} onRemove={handleRemoveChapter} />
