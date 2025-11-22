@@ -8,7 +8,6 @@ import {
 } from 'lucide-react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
-import { ThemeSection } from '@/components/theme-select'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -211,12 +210,8 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                       </TooltipContent>
                     </Tooltip>
                   )}
-
-              <div className="h-8 w-px bg-gray-200 dark:bg-zinc-700 mx-1" />
             </>
           )}
-
-          <ThemeSection />
         </div>
       </header>
 
