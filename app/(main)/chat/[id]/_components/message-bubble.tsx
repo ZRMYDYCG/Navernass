@@ -23,7 +23,6 @@ interface MessageBubbleProps {
 export function MessageBubble({
   message,
   onCopy,
-  onShare,
   onEdit,
   isShareMode = false,
   isSelected = false,
@@ -114,16 +113,6 @@ export function MessageBubble({
             >
               <Copy className="w-4 h-4" />
               <span>复制</span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => onShare?.(message)}
-            >
-              <Share2 className="w-4 h-4" />
-              <span>分享</span>
             </Button>
 
             {isAssistant && (
