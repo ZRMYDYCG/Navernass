@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -32,6 +33,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const { onTitleUpdate, updateConversationTitle } = useChatSidebar()
   const currentId = params?.id as string | undefined
   const isNewChatPage = pathname === '/chat'
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
   const [chatHistory, setChatHistory] = useState<ChatHistoryData[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -80,7 +82,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
 
   const handleChatClick = (chatId: string) => {
     router.push(`/chat/${chatId}`)
-    if (onClose) {
+    if (!isDesktop && onClose) {
       onClose()
     }
   }
