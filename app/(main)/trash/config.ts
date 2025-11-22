@@ -36,11 +36,3 @@ export const EMPTY_STATE_TEXT = {
   TITLE: '回收站是空的',
   DESCRIPTION: '归档的小说会保留在这里',
 } as const
-
-/**
- * 页面标题配置
- */
-export const PAGE_CONFIG = {
-  TITLE: '回收站',
-  COUNT_TEXT: (count: number) => (count > 0 ? `${count} 部已归档` : '暂无归档内容'),
-} as const

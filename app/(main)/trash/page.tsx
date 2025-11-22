@@ -2,7 +2,6 @@
 
 import type { ContextMenuState, DeleteDialogState } from './types'
 import type { Novel } from '@/lib/supabase/sdk'
-import { Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { novelsApi } from '@/lib/supabase/sdk'
@@ -10,7 +9,7 @@ import { BulkActionsBar } from './_components/bulk-actions-bar'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import { TrashContextMenu } from './_components/trash-context-menu'
 import { TrashList } from './_components/trash-list'
-import { DIALOG_CONFIG, PAGE_CONFIG, TOAST_MESSAGES } from './config'
+import { DIALOG_CONFIG, TOAST_MESSAGES } from './config'
 
 export default function Trash() {
   const [novels, setNovels] = useState<Novel[]>([])
@@ -180,30 +179,6 @@ export default function Trash() {
 
   return (
     <div className="flex flex-col dark:bg-zinc-900 transition-colors h-full">
-      {/* 顶部区域 */}
-      <section className="flex justify-between items-center px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 shrink-0">
-        {/* 左侧占位 */}
-        <div className="flex-1" />
-
-        {/* 右侧：回收站标识 */}
-        <div className="flex items-center gap-3">
-          {/* 回收站图标 */}
-          <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
-            <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
-          </div>
-          {/* 标题和统计 */}
-          <div className="flex flex-col">
-            <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight">
-              {PAGE_CONFIG.TITLE}
-            </h1>
-            {!loading && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
-                {PAGE_CONFIG.COUNT_TEXT(novels.length)}
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
 
       {/* 列表区域 */}
       <div className="flex-1 px-4 sm:px-6 py-2">

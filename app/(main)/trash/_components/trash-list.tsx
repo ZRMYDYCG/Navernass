@@ -1,6 +1,6 @@
 import type { Novel } from '@/lib/supabase/sdk'
-import { Trash2 } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
+import { EmptyState } from './empty-state'
 import { TrashCard } from './trash-card'
 
 interface TrashListProps {
@@ -28,13 +28,7 @@ export function TrashList({
   }
 
   if (novels.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
-        <Trash2 className="w-16 h-16 mb-4 opacity-40" />
-        <p className="text-lg mb-2">回收站是空的</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">归档的小说会保留在这里</p>
-      </div>
-    )
+    return <EmptyState />
   }
 
   return (

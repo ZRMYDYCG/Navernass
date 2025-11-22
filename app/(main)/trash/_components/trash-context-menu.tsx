@@ -18,7 +18,7 @@ export function TrashContextMenu({
 }: TrashContextMenuProps) {
   return (
     <div
-      className="fixed bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+      className="fixed bg-white dark:bg-zinc-800/95 backdrop-blur-sm rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[140px]"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -31,9 +31,9 @@ export function TrashContextMenu({
           onRestore(novel)
           onClose()
         }}
-        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
       >
-        <RotateCcw className="w-4 h-4" />
+        <RotateCcw className="w-3.5 h-3.5" />
         恢复
       </button>
       <button
@@ -42,9 +42,9 @@ export function TrashContextMenu({
           onPermanentDelete(novel)
           onClose()
         }}
-        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
       >
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className="w-3.5 h-3.5" />
         永久删除
       </button>
     </div>

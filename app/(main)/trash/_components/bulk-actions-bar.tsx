@@ -24,9 +24,9 @@ export function BulkActionsBar({
 
   return (
     <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-300 w-[calc(100%-2rem)] sm:w-auto max-w-2xl">
-      <div className="bg-white dark:bg-zinc-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-3">
+      <div className="bg-white/95 dark:bg-zinc-800/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 px-3 sm:px-5 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-4">
         {/* 选择信息 */}
-        <div className="flex items-center gap-1.5 sm:gap-2 px-1 sm:px-2">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 px-1 sm:px-2">
           <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
             <span className="hidden sm:inline">已选择 </span>
             {selectedCount}
@@ -38,7 +38,7 @@ export function BulkActionsBar({
               <button
                 type="button"
                 onClick={onSelectAll}
-                className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
+                className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors whitespace-nowrap"
               >
                 全选
               </button>
@@ -54,7 +54,7 @@ export function BulkActionsBar({
             onClick={onBulkRestore}
             variant="ghost"
             size="sm"
-            className="h-7 sm:h-8 px-2 sm:px-3 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            className="h-7 sm:h-8 px-2 sm:px-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-1.5" />
             <span className="hidden sm:inline">恢复</span>
@@ -63,10 +63,10 @@ export function BulkActionsBar({
             onClick={onBulkDelete}
             variant="ghost"
             size="sm"
-            className="h-7 sm:h-8 px-2 sm:px-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+            className="h-7 sm:h-8 px-2 sm:px-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-1.5" />
-            <span className="hidden sm:inline">永久删除</span>
+            <span className="hidden sm:inline">删除</span>
           </Button>
         </div>
 
@@ -76,7 +76,7 @@ export function BulkActionsBar({
         <button
           type="button"
           onClick={onDeselectAll}
-          className="p-1 sm:p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors shrink-0"
+          className="p-1 sm:p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors shrink-0"
           aria-label="取消选择"
         >
           <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400" />
