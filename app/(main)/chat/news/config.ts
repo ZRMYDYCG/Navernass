@@ -9,26 +9,26 @@ export const mockNewsItems: NewsItem[] = [
     title: '[AI 对话] 全新对话界面升级',
     description:
       '全新设计的对话界面，支持更流畅的交互体验，优化了消息展示和输入方式，让您的创作更加便捷高效。',
-    coverImage: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=2074',
+    coverImage: '/21d5be2890d5941493e30245e8e2bb82.png',
     date: '2025年10月10日',
     link: '#',
   },
-  {
-    id: '4',
-    title: '[编辑器] 实时协作功能上线',
-    description:
-      '现在您可以邀请团队成员一起编辑文档，实时查看彼此的更改，让团队协作更加高效便捷。',
-    coverImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070',
-    date: '2025年10月5日',
-    status: 'hot',
-    link: '#',
-  },
+  // {
+  //   id: '4',
+  //   title: '[编辑器] 实时协作功能上线',
+  //   description:
+  //     '现在您可以邀请团队成员一起编辑文档，实时查看彼此的更改，让团队协作更加高效便捷。',
+  //   coverImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070',
+  //   date: '2025年10月5日',
+  //   status: 'hot',
+  //   link: '#',
+  // },
   {
     id: '5',
     title: '[性能优化] 编辑器响应速度提升',
     description:
       '全面优化编辑器性能，响应速度提升50%，大文档处理能力显著增强，为您带来更流畅的创作体验。',
-    coverImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015',
+    coverImage: '/c3dba2b5153a1fd5d6cfe76cdac509f2.png',
     date: '2025年9月28日',
     link: '#',
   },
