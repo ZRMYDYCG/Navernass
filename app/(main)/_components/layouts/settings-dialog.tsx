@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { clearApiKey, getApiKey, saveApiKey } from '@/lib/api-key'
 import { Eye, EyeOff, Monitor, Moon, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { useEffect, useState } from 'react'
 
 const DEFAULT_USER_ID = 'default-user'
@@ -14,7 +14,7 @@ interface SettingsDialogProps {
 }
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useThemeTransition()
   const [mounted, setMounted] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
@@ -156,7 +156,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <button
                     key={option.value}
                     type="button"
-                    onClick={() => setTheme(option.value)}
+                    onClick={(e) => setTheme(option.value, e)}
                     className={`flex flex-col items-center gap-2 px-3 py-3 rounded-lg border transition-all duration-200 ${
                       isActive
                         ? 'bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white'

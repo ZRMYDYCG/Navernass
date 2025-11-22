@@ -2,10 +2,10 @@
 
 import { Moon, Monitor, Sun, SwatchBook } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
-import { useTheme } from "next-themes";
+import { useThemeTransition } from "@/hooks/use-theme-transition";
 
 export function ThemeSection() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useThemeTransition();
 
   const themeOptions = [
     { value: "light", label: "Light", icon: Sun },
@@ -39,7 +39,7 @@ export function ThemeSection() {
               return (
                 <button
                   key={option.value}
-                  onClick={() => setTheme(option.value)}
+                  onClick={(e) => setTheme(option.value, e)}
                   className={`flex-1 flex flex-col items-center gap-1 px-3 py-2 rounded-md transition-all ${
                     isActive
                       ? "bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 shadow-sm"

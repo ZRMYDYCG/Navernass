@@ -386,3 +386,22 @@
     background-color: rgba(75, 85, 99, 0.5);
   }
 }
+
+::view-transition-old(root) {
+  z-index: 1;
+  animation: none;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+  animation: circle-expand 0.6s ease-in-out;
+}
+
+@keyframes circle-expand {
+  from {
+    clip-path: circle(0px at var(--x, 50%) var(--y, 50%));
+  }
+  to {
+    clip-path: circle(var(--r, 100vmax) at var(--x, 50%) var(--y, 50%));
+  }
+}

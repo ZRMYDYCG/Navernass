@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu, Moon, Sun, X } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { useThemeTransition } from '@/hooks/use-theme-transition'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -11,10 +11,10 @@ import { navbarConfig } from '../config'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { resolvedTheme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useThemeTransition()
 
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+  const toggleTheme = (e: React.MouseEvent) => {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark', e)
   }
 
   return (
