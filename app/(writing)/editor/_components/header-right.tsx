@@ -1,12 +1,12 @@
 'use client'
 
 import {
-  Lock,
-  Maximize,
-  Minimize,
-  Sparkles,
-  Terminal,
-  X,
+  LockKeyhole,
+  Maximize2,
+  Minimize2,
+  Bot,
+  // TerminalSquare,
+  XCircle,
 } from 'lucide-react'
 import { ThemeSection } from '@/components/theme-select'
 import {
@@ -42,9 +42,9 @@ export function HeaderRight({
             <button
               type="button"
               onClick={onLock}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
             >
-              <Lock className="w-4 h-4" />
+              <LockKeyhole className="w-4 h-4" />
             </button>
           </TooltipTrigger>
           <TooltipContent>
@@ -53,20 +53,20 @@ export function HeaderRight({
         </Tooltip>
 
         {/* 终端按钮 */}
-        <Tooltip>
+        {/* <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"
               onClick={onToggleTerminal}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
             >
-              <Terminal className="w-4 h-4" />
+              <TerminalSquare className="w-4 h-4" />
             </button>
           </TooltipTrigger>
           <TooltipContent>
             <p>打开终端</p>
           </TooltipContent>
-        </Tooltip>
+        </Tooltip> */}
 
         {/* AI 按钮 */}
         <Tooltip>
@@ -74,9 +74,9 @@ export function HeaderRight({
             <button
               type="button"
               onClick={onToggleAI}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4" />
+              <Bot className="w-4 h-4" />
             </button>
           </TooltipTrigger>
           <TooltipContent>
@@ -95,11 +95,11 @@ export function HeaderRight({
             <button
               type="button"
               onClick={onToggleFullscreen}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
             >
               {isFullscreen
-                ? <Minimize className="w-4 h-4" />
-                : <Maximize className="w-4 h-4" />}
+                ? <Minimize2 className="w-4 h-4" />
+                : <Maximize2 className="w-4 h-4" />}
             </button>
           </TooltipTrigger>
           <TooltipContent>
@@ -113,9 +113,9 @@ export function HeaderRight({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              <XCircle className="w-4 h-4" />
             </button>
           </TooltipTrigger>
           <TooltipContent>

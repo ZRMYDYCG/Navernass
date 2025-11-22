@@ -8,14 +8,18 @@ export class NovelConversationsService {
   async getByNovelId(novelId: string) {
     const { data, error } = await supabase
       .from('novel_conversations')
-      .select('*')
+      .select('*, message_count:novel_messages(count)')
       .eq('novel_id', novelId)
       .order('is_pinned', { ascending: false, nullsFirst: false })
       .order('pinned_at', { ascending: false, nullsFirst: false })
       .order('updated_at', { ascending: false })
 
     if (error) throw error
-    return data || []
+    
+    return (data || []).map(conv => ({
+      ...conv,
+      message_count: Array.isArray(conv.message_count) ? conv.message_count[0]?.count || 0 : 0
+    }))
   }
 
   /**

@@ -1,6 +1,6 @@
 'use client'
 
-import { History, Plus } from 'lucide-react'
+import { Clock, MessageSquarePlus } from 'lucide-react'
 import {
   Tooltip,
   TooltipContent,
@@ -23,9 +23,9 @@ export function Header({ onNewChat, onShowHistory }: HeaderProps) {
               <button
                 type="button"
                 onClick={onNewChat}
-                className="p-1 h-6 w-6 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200 hover:scale-105 active:scale-95"
+                className="p-1 h-6 w-6 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                <MessageSquarePlus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
               </button>
             </TooltipTrigger>
             <TooltipContent>
@@ -37,9 +37,9 @@ export function Header({ onNewChat, onShowHistory }: HeaderProps) {
               <button
                 type="button"
                 onClick={onShowHistory}
-                className="p-1 h-6 w-6 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200 hover:scale-105 active:scale-95"
+                className="p-1 h-6 w-6 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <History className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                <Clock className="w-3 h-3 text-gray-600 dark:text-gray-400" />
               </button>
             </TooltipTrigger>
             <TooltipContent>

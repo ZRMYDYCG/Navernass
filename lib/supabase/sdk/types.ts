@@ -233,6 +233,7 @@ export interface NovelConversation {
   pinned_at?: string
   created_at: string
   updated_at: string
+  message_count?: number
 }
 
 export interface CreateNovelConversationDto {

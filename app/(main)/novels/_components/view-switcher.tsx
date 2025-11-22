@@ -12,7 +12,7 @@ export function ViewSwitcher({ value, onChange }: ViewSwitcherProps) {
       <button
         type="button"
         onClick={() => onChange('grid')}
-        className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+        className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
           value === 'grid'
             ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 shadow-sm'
             : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
@@ -26,7 +26,7 @@ export function ViewSwitcher({ value, onChange }: ViewSwitcherProps) {
       <button
         type="button"
         onClick={() => onChange('table')}
-        className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+        className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
           value === 'table'
             ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 shadow-sm'
             : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'

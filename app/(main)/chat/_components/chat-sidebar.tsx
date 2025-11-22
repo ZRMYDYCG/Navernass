@@ -3,13 +3,12 @@
 import type { ChatHistoryData } from './chat-history-item'
 import {
   AlertCircle,
+  Bot,
   Edit3,
   PanelLeftClose,
 } from 'lucide-react'
-import { useTheme } from 'next-themes'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -30,7 +29,6 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const router = useRouter()
   const params = useParams()
   const pathname = usePathname()
-  const { theme } = useTheme()
   const { onTitleUpdate, updateConversationTitle } = useChatSidebar()
   const currentId = params?.id as string | undefined
   const isNewChatPage = pathname === '/chat'
@@ -38,8 +36,6 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const [chatHistory, setChatHistory] = useState<ChatHistoryData[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
-
-  const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
 
   // 监听标题更新
   useEffect(() => {
@@ -61,7 +57,6 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
         setIsLoading(true)
         const conversations = await conversationsApi.getRecent(50)
 
-        // 转换为ChatHistoryData格式
         const historyData: ChatHistoryData[] = conversations.map(conv => ({
           id: conv.id,
           title: conv.title,
@@ -78,7 +73,6 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
       }
     }
 
-    // 只在侧边栏打开时加载
     if (isOpen) {
       loadChatHistory()
     }
@@ -86,7 +80,6 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
 
   const handleChatClick = (chatId: string) => {
     router.push(`/chat/${chatId}`)
-    // 在移动端点击后关闭侧边栏
     if (onClose) {
       onClose()
     }
@@ -95,52 +88,42 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const handleDeleteChat = async (chatId: string) => {
     try {
       await conversationsApi.delete(chatId)
-      // 从列表中移除
       setChatHistory(prev => prev.filter(chat => chat.id !== chatId))
 
-      // 如果删除的是当前对话，跳转到聊天首页
       if (currentId === chatId) {
         router.push('/chat')
       }
     } catch (error) {
       console.error('Failed to delete conversation:', error)
-      // TODO: 显示错误提示
     }
   }
 
   const handleTogglePin = async (chatId: string, isPinned: boolean) => {
     try {
       await conversationsApi.update({ id: chatId, is_pinned: !isPinned })
-      // 更新本地状态
       setChatHistory(prev =>
         prev.map(chat =>
           chat.id === chatId ? { ...chat, isPinned: !isPinned } : chat,
         ).sort((a, b) => {
-          // 置顶的对话排在前面
           if (a.isPinned && !b.isPinned) return -1
           if (!a.isPinned && b.isPinned) return 1
-          // 都置顶或都不置顶，按创建时间排序
           return b.createdAt.getTime() - a.createdAt.getTime()
         }),
       )
     } catch (error) {
       console.error('Failed to toggle pin:', error)
-      // TODO: 显示错误提示
     }
   }
 
   const handleRename = async (chatId: string, newTitle: string) => {
     try {
       await conversationsApi.update({ id: chatId, title: newTitle })
-      // 更新本地状态
       setChatHistory(prev =>
         prev.map(chat => (chat.id === chatId ? { ...chat, title: newTitle } : chat)),
       )
-      // 通知会话区域更新标题
       updateConversationTitle(chatId, newTitle)
     } catch (error) {
       console.error('Failed to rename conversation:', error)
-      // TODO: 显示错误提示
       throw error
     }
   }
@@ -171,10 +154,10 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
         >
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={avatarSrc} alt="Narraverse" />
-              </Avatar>
-              <span className="font-medium text-gray-800 dark:text-gray-100">Narraverse</span>
+              <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-zinc-700 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              </div>
+              <span className="font-medium text-gray-800 dark:text-gray-100">Narraverse AI</span>
             </div>
             <Button
               variant="ghost"

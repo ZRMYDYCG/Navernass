@@ -21,7 +21,6 @@ export default function Navbar() {
     <motion.nav className="absolute top-0 left-0 right-0 z-50 w-full pointer-events-none">
       <div className="container mx-auto px-4 pointer-events-auto">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -34,13 +33,12 @@ export default function Navbar() {
                 height={navbarConfig.logo.height}
                 alt={navbarConfig.logo.alt}
               />
-              <span className="text-xl font-bold text-white">
+              <span className="text-xl font-bold text-foreground">
                 {navbarConfig.logo.alt}
               </span>
             </Link>
           </motion.div>
 
-          {/* Desktop Navigation */}
           <motion.div
             className="hidden md:flex items-center gap-8"
             initial={{ opacity: 0, y: -10 }}
@@ -56,7 +54,7 @@ export default function Navbar() {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+                    className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.3 + index * 0.05 }}
@@ -76,7 +74,7 @@ export default function Navbar() {
                 >
                   <Link
                     href={link.href}
-                    className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+                    className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -85,7 +83,6 @@ export default function Navbar() {
             })}
           </motion.div>
 
-          {/* Desktop Actions */}
           <motion.div
             className="hidden md:flex items-center gap-3"
             initial={{ opacity: 0, x: 20 }}
@@ -96,7 +93,7 @@ export default function Navbar() {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              className="rounded-full bg-transparent hover:bg-transparent text-white"
+              className="rounded-full text-foreground hover:bg-foreground/10"
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -105,24 +102,21 @@ export default function Navbar() {
             <Button
               asChild
               variant="outline"
-              className="bg-transparent border-white/30 hover:bg-white/10 text-white hover:text-white"
             >
               <Link href="/novels">{navbarConfig.ctaText}</Link>
             </Button>
           </motion.div>
 
-          {/* Mobile Menu Button */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-md transition-colors text-white"
+            className="md:hidden p-2 rounded-md transition-colors text-foreground hover:bg-foreground/10"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -165,7 +159,7 @@ export default function Navbar() {
                   <Button
                     variant="ghost"
                     onClick={toggleTheme}
-                    className="w-full justify-start relative bg-transparent hover:bg-transparent text-white"
+                    className="w-full justify-start text-foreground"
                   >
                     <div className="relative h-5 w-5 mr-2">
                       <Sun className="absolute h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -176,7 +170,7 @@ export default function Navbar() {
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full bg-transparent border-white/30 hover:bg-white/10 text-white hover:text-white"
+                    className="w-full"
                   >
                     <Link href="/novels">{navbarConfig.ctaText}</Link>
                   </Button>
