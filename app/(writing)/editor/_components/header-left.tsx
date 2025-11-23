@@ -24,13 +24,13 @@ export function HeaderLeft({ showLeftPanel, onToggleLeftPanel }: HeaderLeftProps
             <button
               type="button"
               onClick={onToggleLeftPanel}
-              className={`p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer ${
+              className={`p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer ${
                 showLeftPanel
-                  ? 'text-gray-900 dark:text-gray-100'
-                  : 'text-gray-400 dark:text-gray-600'
+                  ? 'text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800'
+                  : 'text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
-              <LayoutPanelLeft className="w-4 h-4" />
+              <LayoutPanelLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
             </button>
           </TooltipTrigger>
           <TooltipContent>

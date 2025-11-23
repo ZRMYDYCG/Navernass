@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Caveat, Inter, Noto_Serif_SC } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { Toaster as RadixToaster } from '@/components/ui/toaster'
 import { FaviconProvider } from '@/providers/favicon-provider'
@@ -9,6 +9,17 @@ import './globals.css'
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
+})
+
+const notoSerifSC = Noto_Serif_SC({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-serif',
+})
+
+const caveat = Caveat({
+  subsets: ['latin'],
+  variable: '--font-handwriting',
 })
 
 export const metadata: Metadata = {
@@ -41,7 +52,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
-      <body className={`${inter.variable} antialiased h-full`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${notoSerifSC.variable} ${caveat.variable} antialiased h-full font-sans`} suppressHydrationWarning>
         <ThemeProvider>
           <FaviconProvider />
           {children}

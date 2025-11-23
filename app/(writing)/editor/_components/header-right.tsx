@@ -41,17 +41,20 @@ export function HeaderRight({
 }: HeaderRightProps) {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
 
+  const buttonClass = "p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
+  const iconProps = { className: "w-3.5 h-3.5", strokeWidth: 1.5 }
+
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-0.5 h-full">
+      <div className="flex items-center gap-1 h-full">
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"
               onClick={() => setPublishDialogOpen(true)}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+              className={buttonClass}
             >
-              <Globe className="w-4 h-4" />
+              <Globe {...iconProps} />
             </button>
           </TooltipTrigger>
           <TooltipContent>
@@ -65,9 +68,9 @@ export function HeaderRight({
             <button
               type="button"
               onClick={onLock}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+              className={buttonClass}
             >
-              <LockKeyhole className="w-4 h-4" />
+              <LockKeyhole {...iconProps} />
             </button>
           </TooltipTrigger>
           <TooltipContent>
@@ -75,31 +78,15 @@ export function HeaderRight({
           </TooltipContent>
         </Tooltip>
 
-        {/* 终端按钮 */}
-        {/* <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              onClick={onToggleTerminal}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
-            >
-              <TerminalSquare className="w-4 h-4" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>打开终端</p>
-          </TooltipContent>
-        </Tooltip> */}
-
         {/* AI 按钮 */}
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"
               onClick={onToggleAI}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+              className={buttonClass}
             >
-              <Bot className="w-4 h-4" />
+              <Bot {...iconProps} />
             </button>
           </TooltipTrigger>
           <TooltipContent>
@@ -107,8 +94,8 @@ export function HeaderRight({
           </TooltipContent>
         </Tooltip>
 
-        {/* 主题切换按钮 */}
-        <div className="[&_button]:p-1.5 [&_button]:h-7 [&_button]:w-7 [&_button]:flex [&_button]:items-center [&_button]:justify-center [&_button]:hover:bg-gray-200 [&_button]:dark:hover:bg-gray-700 [&_button]:rounded [&_button]:transition-colors [&_button]:text-gray-600 [&_button]:dark:text-gray-400 [&_button]:hover:text-gray-900 [&_button]:dark:hover:text-gray-100 [&_button]:border-0 [&_button]:bg-transparent [&_button]:cursor-pointer [&_svg]:w-4 [&_svg]:h-4">
+        {/* 主题切换按钮 - Custom styling wrapper to match */}
+        <div className={`[&_button]:${buttonClass.replace(/ /g, ' [&_button]:')} [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:stroke-[1.5]`}>
           <ThemeSection />
         </div>
 
@@ -118,11 +105,11 @@ export function HeaderRight({
             <button
               type="button"
               onClick={onToggleFullscreen}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+              className={buttonClass}
             >
               {isFullscreen
-                ? <Minimize2 className="w-4 h-4" />
-                : <Maximize2 className="w-4 h-4" />}
+                ? <Minimize2 {...iconProps} />
+                : <Maximize2 {...iconProps} />}
             </button>
           </TooltipTrigger>
           <TooltipContent>
@@ -130,15 +117,18 @@ export function HeaderRight({
           </TooltipContent>
         </Tooltip>
 
+        {/* 分隔线 */}
+        <div className="w-px h-3 bg-stone-200 dark:bg-stone-700 mx-1" />
+
         {/* 关闭按钮 */}
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+              className="p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-stone-400 hover:text-red-500 dark:text-stone-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer"
             >
-              <XCircle className="w-4 h-4" />
+              <XCircle {...iconProps} />
             </button>
           </TooltipTrigger>
           <TooltipContent>

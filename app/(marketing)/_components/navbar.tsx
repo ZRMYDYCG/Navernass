@@ -2,11 +2,11 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu, Moon, Sun, X } from 'lucide-react'
-import { useThemeTransition } from '@/hooks/use-theme-transition'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { navbarConfig } from '../config'
 
 export default function Navbar() {
@@ -18,8 +18,8 @@ export default function Navbar() {
   }
 
   return (
-    <motion.nav className="absolute top-0 left-0 right-0 z-50 w-full pointer-events-none">
-      <div className="container mx-auto px-4 pointer-events-auto">
+    <motion.nav className="fixed top-0 left-0 right-0 z-50 w-full bg-background/80 backdrop-blur-sm border-b-2 border-dashed border-foreground/10 transition-all duration-300">
+      <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -33,7 +33,7 @@ export default function Navbar() {
                 height={navbarConfig.logo.height}
                 alt={navbarConfig.logo.alt}
               />
-              <span className="text-xl font-bold text-foreground">
+              <span className="text-xl font-bold text-foreground font-sans tracking-wide text-letterpress">
                 {navbarConfig.logo.alt}
               </span>
             </Link>
@@ -120,7 +120,7 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="md:hidden pointer-events-auto"
+            className="md:hidden pointer-events-auto bg-background/95 backdrop-blur-md border-b border-border absolute top-16 left-0 right-0 shadow-paper-sm"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

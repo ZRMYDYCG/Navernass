@@ -20,32 +20,32 @@ export function HeaderCenter({
   onTitleClick,
 }: HeaderCenterProps) {
   return (
-    <div className="flex items-center gap-1.5 h-full flex-1 justify-center max-w-2xl">
+    <div className="flex items-center gap-2 h-full flex-1 justify-center max-w-2xl">
       {/* 后退按钮 */}
       <button
         type="button"
         onClick={onGoBack}
         disabled={!canGoBack}
-        className={`p-1 h-6 w-6 flex items-center justify-center rounded transition-colors ${
+        className={`p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 ${
           canGoBack
-            ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer'
-            : 'text-gray-300 dark:text-gray-700 cursor-not-allowed'
+            ? 'text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer'
+            : 'text-stone-200 dark:text-stone-800 cursor-not-allowed opacity-50'
         }`}
         title="上一章节"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
       </button>
 
-      {/* 标题搜索框 */}
+      {/* 标题搜索框 - 极简文本样式 */}
       <div
         onClick={onTitleClick}
-        className="flex-1 h-7 px-3 flex items-center justify-center text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-gray-600 rounded cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+        className="group flex-1 max-w-[240px] h-7 px-3 flex items-center justify-center gap-2 text-sm text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 cursor-pointer transition-colors"
         title="点击搜索章节"
       >
-        <div className="flex items-center gap-1.5">
-          <SearchCheck className="w-4 h-4 shrink-0 text-gray-500 dark:text-gray-400" />
-          <span className="truncate">{title || '未选择章节'}</span>
-        </div>
+        <span className="truncate font-medium font-serif tracking-wide opacity-90 group-hover:opacity-100 transition-opacity">
+          {title || '未选择章节'}
+        </span>
+        <SearchCheck className="w-3.5 h-3.5 opacity-0 group-hover:opacity-40 transition-opacity duration-300" strokeWidth={1.5} />
       </div>
 
       {/* 前进按钮 */}
@@ -53,14 +53,14 @@ export function HeaderCenter({
         type="button"
         onClick={onGoForward}
         disabled={!canGoForward}
-        className={`p-1 h-6 w-6 flex items-center justify-center rounded transition-colors ${
+        className={`p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 ${
           canGoForward
-            ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer'
-            : 'text-gray-300 dark:text-gray-700 cursor-not-allowed'
+            ? 'text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer'
+            : 'text-stone-200 dark:text-stone-800 cursor-not-allowed opacity-50'
         }`}
         title="下一章节"
       >
-        <ArrowRight className="w-4 h-4" />
+        <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
       </button>
     </div>
   )

@@ -187,7 +187,7 @@ export default function EditorContent({
   }, [isSaving, lastSaved])
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-zinc-900">
+    <div className="h-full flex flex-col bg-linear-to-b from-[#fdfbf7] to-[#f3f4f6] dark:from-[#1f1f22] dark:to-[#18181b]">
       {/* 顶部页签区域 */}
       <SmartTabs
         tabs={openTabs}
@@ -210,54 +210,58 @@ export default function EditorContent({
         onSelectChapter={onSelectChapter}
       />
 
-      {/* 编辑器内容区域 */}
-      <div className="flex-1 overflow-y-auto p-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* 编辑器内容区域 - 模拟书桌上的纸张 */}
+      <div className="flex-1 overflow-y-auto flex justify-center p-6 sm:p-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {loading
           ? (
               <div className="flex flex-col items-center justify-center h-full gap-3">
-                <Spinner className="w-8 h-8" />
-                <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
+                <Spinner className="w-8 h-8 text-stone-400" />
+                <span className="text-sm text-stone-500 dark:text-stone-400 font-light tracking-wider">正在铺开纸张...</span>
               </div>
             )
           : (
-              <TiptapEditor
-                key={chapterId}
-                content={chapter?.content || `<h1>${chapterTitle}</h1>`}
-                placeholder="开始写作..."
-                onUpdate={handleUpdate}
-                onStatsChange={handleStatsChange}
-                autoSave={true}
-                autoSaveDelay={3000}
-                className="max-w-4xl mx-auto"
-                editable={true}
-                chapterId={chapterId}
-              />
+              <div className="w-full max-w-[65ch] min-h-[80vh] bg-white dark:bg-[#262626] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-black/20 rounded-sm px-10 py-12 sm:px-14 sm:py-16 transition-all duration-500 ease-in-out">
+                <TiptapEditor
+                  key={chapterId}
+                  content={chapter?.content || `<h1>${chapterTitle}</h1>`}
+                  placeholder="在此写下故事的开始..."
+                  onUpdate={handleUpdate}
+                  onStatsChange={handleStatsChange}
+                  autoSave={true}
+                  autoSaveDelay={3000}
+                  className="outline-none"
+                  editable={true}
+                  chapterId={chapterId}
+                />
+              </div>
             )}
       </div>
 
       {/* 底部状态栏 */}
-      <div className="h-10 px-6 flex items-center justify-end bg-gray-50 dark:bg-zinc-800/50">
-        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+      <div className="h-10 px-6 flex items-center justify-end bg-transparent border-t border-stone-200/30 dark:border-zinc-800/30 backdrop-blur-sm">
+        <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400 font-light tracking-wide">
           <span>
-            字数：
+            字数
+            {' '}
             {wordCount.toLocaleString()}
           </span>
-          <span>•</span>
+          <span className="opacity-30">|</span>
           <span>
-            字符：
+            字符
+            {' '}
             {charCount.toLocaleString()}
           </span>
-          <span>•</span>
+          <span className="opacity-30">|</span>
           {isSaving
             ? (
-                <span className="text-gray-700 dark:text-gray-300">保存中...</span>
+                <span className="text-stone-600 dark:text-stone-300 animate-pulse">保存中...</span>
               )
             : lastSaved
               ? (
-                  <span>已保存</span>
+                  <span className="opacity-70">已保存</span>
                 )
               : (
-                  <span>未保存</span>
+                  <span className="opacity-70">未保存</span>
                 )}
         </div>
       </div>

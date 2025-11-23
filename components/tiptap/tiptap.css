@@ -45,26 +45,173 @@
   background-color: rgba(156, 163, 175, 0.15);
 }
 
-/* 编辑器选中文本样式 */
+/* =========================================
+   安静而饱含情绪的阅读与写作环境
+   Quiet, Emotional, Gentle Writing Environment
+   ========================================= */
+
+/* 1. 基础排版与氛围 Base Typography & Atmosphere */
+.ProseMirror {
+  padding: 2rem 0;
+  /* 清爽的人文无衬线字体 (Humanist Sans) */
+  font-family:
+    'Inter',
+    'Optima',
+    'Candara',
+    'Noto Sans SC',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  /* 呼吸感光标：柔和的深灰色，带一点点暖色 */
+  caret-color: #57534e; /* Stone-600 */
+}
+
+.dark .ProseMirror {
+  caret-color: #a8a29e; /* Stone-400 */
+}
+
+/* 自定义光标呼吸动画 (模拟) - 很难直接对 native caret 做动画，
+   这里对空段落的伪元素做一种提示，或者通过 JS 实现自定义光标。
+   暂且保持 caret-color 的柔和。
+*/
+
+/* 2. 段落样式 Paragraph Styles */
+.ProseMirror p {
+  /* 行距稍宽，留有呼吸余地 */
+  line-height: 2.2; /* 2.2 to be even more spacious/breathing */
+  margin-bottom: 1.8em;
+  /* 柔和的文字颜色：深灰带一点暖调 */
+  color: #44403c; /* Stone-700 */
+  /* 新段落微妙的纸张滑动动效 */
+  animation: slideInPaper 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  font-weight: 400;
+}
+
+.dark .ProseMirror p {
+  color: #d6d3d1; /* Stone-300 */
+}
+
+/* 段落滑入动画 */
+@keyframes slideInPaper {
+  from {
+    opacity: 0;
+    transform: translateY(8px); /* Slightly more movement */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 3. 标题样式 Headings - 极轻衬线 (Light Serif) */
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4 {
+  /* 混合衬线字体，营造文学感 */
+  font-family:
+    'Songti SC',
+    'Noto Serif SC',
+    'Georgia',
+    'Times New Roman',
+    serif;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #292524; /* Stone-800 */
+  line-height: 1.6;
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+.dark .ProseMirror h1,
+.dark .ProseMirror h2,
+.dark .ProseMirror h3,
+.dark .ProseMirror h4 {
+  color: #e7e5e4; /* Stone-200 */
+}
+
+/* 4. 引用样式 Blockquotes - 铅笔描边与手写感 */
+.ProseMirror blockquote {
+  /* 模拟纸上淡淡铅笔描边 */
+  border-left: 3px solid rgba(168, 162, 158, 0.4); /* Stone-400 with opacity */
+  padding-left: 1.5rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  font-style: italic;
+  font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', serif; /* 楷体，模拟手写 */
+  color: #57534e; /* Stone-600 */
+  background: transparent;
+}
+
+.dark .ProseMirror blockquote {
+  border-left-color: rgba(120, 113, 108, 0.4);
+  color: #a8a29e;
+}
+
+/* 5. 选中文本样式 Selection - 淡灰铅笔线条框住 */
+/* ::selection 只能改变颜色和背景。为了模拟"框住"，我们使用一种很淡的灰色背景，
+   配合 text-decoration 来模拟底部的线条 */
 .ProseMirror ::selection {
-  background-color: rgba(107, 114, 128, 0.2);
+  background-color: rgba(231, 229, 228, 0.6); /* Stone-200, very subtle */
   color: inherit;
+  /* 虽不能画框，但淡背景符合"淡灰"描述 */
+  text-decoration: underline;
+  text-decoration-color: rgba(120, 113, 108, 0.3); /* Pencil lineish */
+  text-decoration-thickness: 1px;
 }
 
 .dark .ProseMirror ::selection {
-  background-color: rgba(156, 163, 175, 0.25);
-  color: inherit;
+  background-color: rgba(68, 64, 60, 0.5);
+  text-decoration-color: rgba(168, 162, 158, 0.3);
 }
+
+/* 6. 作者批注与灵感气泡 (Sticky Notes Style) */
+.ProseMirror mark {
+  /* 淡淡米黄色便签 */
+  background-color: #fef3c7; /* Amber-100 */
+  color: #451a03; /* Amber-900 */
+  padding: 0.2em 0.4em;
+  border-radius: 2px; /* Slightly rounded like paper cut */
+  /* 贴纸质感：微弱阴影 */
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(217, 119, 6, 0.1); /* faint edge */
+  font-size: 0.95em;
+}
+
+.dark .ProseMirror mark {
+  background-color: #451a03;
+  color: #fef3c7;
+  border-bottom-color: rgba(251, 191, 36, 0.1);
+}
+
+/* 7. 聚焦段落背景柔化 (Focus Mode) */
+/* 当编辑器获得焦点时，非活动段落稍微变淡，活动段落保持清晰 */
+.ProseMirror:focus-within p {
+  transition: opacity 0.4s ease, filter 0.4s ease;
+}
+
+/* 这里需要 JS 配合给当前段落加 class，或者我们可以简单地让所有段落都"柔和"一点，
+   而 hover 时变清晰。为了不干扰写作，我们只做微调。
+*/
 
 /* AI 浮动菜单抖动动画 */
 @keyframes shake {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0) scale(1);
   }
-  10%, 30%, 50%, 70%, 90% {
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
     transform: translateX(-8px) scale(1.02);
   }
-  20%, 40%, 60%, 80% {
+  20%,
+  40%,
+  60%,
+  70% {
     transform: translateX(8px) scale(1.02);
   }
 }
@@ -74,117 +221,22 @@
   animation-fill-mode: both;
 }
 
-.animate-in {
-  animation-duration: 200ms;
-  animation-fill-mode: both;
-}
-
-.fade-in {
-  animation-name: fadeIn;
-}
-
-.zoom-in {
-  animation-name: zoomIn;
-}
-
-/* 下划线 */
+/* 下划线样式 - 保持柔和 */
 .ProseMirror.underline-solid p {
   background-image: linear-gradient(
     to bottom,
-    transparent calc(1.75em - 1px),
-    var(--underline-color, #3b82f6) calc(1.75em - 1px),
-    var(--underline-color, #3b82f6) 1.75em,
-    transparent 1.75em
+    transparent calc(2.2em - 1px), /* Match line-height 2.2 */
+    var(--underline-color, #a8a29e) calc(2.2em - 1px),
+    var(--underline-color, #a8a29e) 2.2em,
+    transparent 2.2em
   );
-  background-size: 100% 1.75em;
-  background-position: 0 0;
-  line-height: 1.75;
 }
 
-.ProseMirror.underline-wavy p {
-  line-height: 1.75;
-  position: relative;
+/* 滚动条隐藏但可滚动 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
-
-.ProseMirror.underline-wavy p::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    to right,
-    transparent 0,
-    transparent 2px,
-    var(--underline-color, #3b82f6) 2px,
-    var(--underline-color, #3b82f6) 3px,
-    transparent 3px,
-    transparent 5px
-  ) 0 0 / 100% 1.75em;
-  -webkit-mask-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(1.75em - 2px),
-    black calc(1.75em - 2px),
-    black 1.75em
-  );
-  mask-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(1.75em - 2px),
-    black calc(1.75em - 2px),
-    black 1.75em
-  );
-  pointer-events: none;
-}
-
-.ProseMirror.underline-dotted p {
-  line-height: 1.75;
-  position: relative;
-}
-
-.ProseMirror.underline-dotted p::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    to right,
-    var(--underline-color, #3b82f6) 0,
-    var(--underline-color, #3b82f6) 3px,
-    transparent 3px,
-    transparent 7px
-  ) 0 0 / 100% 1.75em;
-  -webkit-mask-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(1.75em - 1px),
-    black calc(1.75em - 1px),
-    black 1.75em
-  );
-  mask-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(1.75em - 1px),
-    black calc(1.75em - 1px),
-    black 1.75em
-  );
-  pointer-events: none;
-}
-
-.underline-preview-solid {
-  border-bottom: 2px solid var(--underline-color, #3b82f6);
-}
-
-.underline-preview-wavy {
-  text-decoration: underline wavy var(--underline-color, #3b82f6);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
-}
-
-.underline-preview-dotted {
-  border-bottom: 2px dotted var(--underline-color, #3b82f6);
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

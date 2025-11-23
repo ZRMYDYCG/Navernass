@@ -1,5 +1,6 @@
 import type { Chapter, LeftTabType, Volume } from './types'
 import { useState } from 'react'
+import { CharacterShowcase } from '../character-showcase'
 import ChaptersTab from './chapters'
 import { SearchTab } from './search-tab'
 import { TabSwitcher } from './tab-switcher'
@@ -81,6 +82,10 @@ export default function LeftPanel({
             selectedChapter={selectedChapter}
             onSelectChapter={onSelectChapter}
           />
+        )}
+
+        {activeTab === 'characters' && (
+          <CharacterShowcase />
         )}
 
         {activeTab === 'workspace' && (

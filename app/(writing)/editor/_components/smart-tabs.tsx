@@ -169,7 +169,7 @@ export function SmartTabs({
 
   return (
     <div
-      className="relative bg-white dark:bg-zinc-900"
+      className="relative bg-transparent"
       onMouseEnter={() => setShowScrollbar(true)}
       onMouseLeave={() => setShowScrollbar(false)}
     >
@@ -206,8 +206,8 @@ export function SmartTabs({
               onContextMenu={e => handleContextMenu(e, tab)}
               className={`group relative flex items-center px-4 py-2.5 cursor-pointer transition-all duration-200 shrink-0 ${
                 isActive
-                  ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100'
+                  ? 'bg-white/60 dark:bg-zinc-800/60 text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100'
               }`}
               style={{
                 paddingRight: 'var(--close-btn-padding, 1rem)',
