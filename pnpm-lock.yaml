@@ -86,6 +86,9 @@ importers:
       '@tiptap/extension-drag-handle-react':
         specifier: ^3.10.7
         version: 3.10.7(@tiptap/extension-drag-handle@3.10.7(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/extension-collaboration@3.10.7(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0)(@tiptap/y-tiptap@3.0.1(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))(yjs@13.6.27))(@tiptap/extension-node-range@3.10.7(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0)(@tiptap/y-tiptap@3.0.1(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)))(@tiptap/pm@3.11.0)(@tiptap/react@3.11.0(@floating-ui/dom@1.7.4)(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@tiptap/extension-image':
+        specifier: ^3.11.1
+        version: 3.11.1(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))
       '@tiptap/extension-placeholder':
         specifier: ^3.10.4
         version: 3.10.4(@tiptap/extensions@3.10.4(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0))
@@ -2367,6 +2370,11 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.10.4
       '@tiptap/pm': ^3.10.4
+
+  '@tiptap/extension-image@3.11.1':
+    resolution: {integrity: sha512-lI+FyyHavUXHmDKxvSAdqGAvaYtVesAxHckeA60ZjZu9fBkUnVWHD8uR0TStX7EdOIRBWpzYrG7dDT4EkFVjTA==}
+    peerDependencies:
+      '@tiptap/core': ^3.11.1
 
   '@tiptap/extension-italic@3.10.4':
     resolution: {integrity: sha512-SlvKzL/oUxZ0s+1idv4ZdKmr4tS6m8jbXZYVZlzlRHxSfmt85SqUa2hMxmeNXySrHxURQNP6F+KyI6Z26ddFzA==}
@@ -8942,6 +8950,10 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.11.0(@tiptap/pm@3.11.0)
       '@tiptap/pm': 3.11.0
+
+  '@tiptap/extension-image@3.11.1(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))':
+    dependencies:
+      '@tiptap/core': 3.11.0(@tiptap/pm@3.11.0)
 
   '@tiptap/extension-italic@3.10.4(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))':
     dependencies:

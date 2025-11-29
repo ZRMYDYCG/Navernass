@@ -1,5 +1,6 @@
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
+import Image from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
 import { TextStyle } from '@tiptap/extension-text-style'
@@ -7,6 +8,7 @@ import Underline from '@tiptap/extension-underline'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useEffect, useRef, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
 import { DragHandle } from './drag-handle-react'
 import { AIAutocomplete } from './extensions/ai-autocomplete'
@@ -58,15 +60,26 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
   // 计算统计数据的辅助函数
   const calculateStats = (text: string) => {
-    // 字符数：包括所有字符（包括标点符号、空格等）
     const characters = text.length
-    // 字数：只统计中文字符和英文字母（不包括标点符号、数字、空格等）
-    // 匹配中文字符和英文单词
     const chineseChars = (text.match(/[\u4E00-\u9FA5]/g) || []).length
     const englishWords = (text.match(/[a-z]+/gi) || []).length
     const words = chineseChars + englishWords
 
     return { words, characters }
+  }
+
+  const uploadIllustration = async (file: File) => {
+    const ext = file.name.split('.').pop() || 'png'
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { data, error } = await supabase.storage.from('narraverse').upload(`illustrations/${fileName}`, file, {
+      cacheControl: '3600',
+      upsert: false,
+    })
+    if (error) {
+      throw error
+    }
+    const { data: publicData } = supabase.storage.from('narraverse').getPublicUrl(data.path)
+    return publicData.publicUrl
   }
 
   const editor = useEditor({
@@ -75,6 +88,11 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3],
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'my-4 rounded-md max-w-full h-auto',
         },
       }),
       Placeholder.configure({
@@ -104,16 +122,47 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       attributes: {
         class: 'prose dark:prose-invert prose-gray max-w-none focus:outline-none min-h-full',
       },
-      // 保持失焦时的选区显示
       handleDOMEvents: {
         blur: (view, event) => {
-          // 返回 false 允许默认行为，但我们通过 CSS 来控制选区显示
           return false
+        },
+        paste: (view, event) => {
+          const e = event as ClipboardEvent
+          const items = e.clipboardData?.items
+          if (!items) return false
+          const imageFiles: File[] = []
+          for (let i = 0; i < items.length; i += 1) {
+            const item = items[i]
+            if (item.type && item.type.startsWith('image/')) {
+              const file = item.getAsFile()
+              if (file) {
+                imageFiles.push(file)
+              }
+            }
+          }
+          if (!imageFiles.length) {
+            return false
+          }
+          e.preventDefault()
+          const file = imageFiles[0]
+          void (async () => {
+            try {
+              const url = await uploadIllustration(file)
+              const { state, dispatch } = view
+              const { schema } = state
+              const imageNode = schema.nodes.image?.create({ src: url })
+              if (!imageNode) return
+              const tr = state.tr.replaceSelectionWith(imageNode).scrollIntoView()
+              dispatch(tr)
+            } catch (error) {
+              console.error('Failed to upload pasted image', error)
+            }
+          })()
+          return true
         },
       },
     },
     onUpdate: ({ editor }) => {
-      // 更新字数统计
       if (onStatsChange) {
         const text = editor.getText()
         const stats = calculateStats(text)
@@ -156,7 +205,6 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   useEffect(() => {
     if (editor) {
       editor.setEditable(editable)
-      // 避免 immutability 问题
       const editorElement = editor.view.dom
       if (editable) {
         editorElement.setAttribute('style', 'cursor: text; opacity: 1;')
@@ -171,13 +219,10 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     if (!editor) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+F 或 Cmd+F：打开搜索框
-      // 检查是否在编辑器内或搜索框未打开
       if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
         const target = e.target as HTMLElement
         const isInEditor = editor.view.dom.contains(target) || target.closest('.ProseMirror')
 
-        // 如果焦点在编辑器内，或者搜索框未打开，则阻止默认行为并打开搜索框
         if (isInEditor || !showSearchBox) {
           e.preventDefault()
           e.stopPropagation()
@@ -186,7 +231,6 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       }
     }
 
-    // 使用 capture 阶段捕获事件，确保能阻止浏览器默认行为
     window.addEventListener('keydown', handleKeyDown, true)
     return () => window.removeEventListener('keydown', handleKeyDown, true)
   }, [editor, showSearchBox])
@@ -204,21 +248,16 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
       const { chapterId: eventChapterId, keyword, matches } = customEvent.detail
 
-      // 只有当事件中的 chapterId 与当前编辑器的 chapterId 匹配时才更新高亮
       if (eventChapterId === chapterId) {
         updateSearchHighlight(editor.view, eventChapterId, keyword, matches)
       } else if (eventChapterId === null) {
-        // 如果 chapterId 为 null，清除高亮
         updateSearchHighlight(editor.view, null, null, [])
       }
     }
 
     window.addEventListener('editor-highlight', handleHighlight as EventListener)
 
-    // 编辑器加载完成后，检查是否有待处理的高亮请求
-    // 延迟一下确保编辑器完全初始化
     const timeoutId = setTimeout(() => {
-      // 触发一个检查事件，让 SearchTab 重新发送高亮信息
       window.dispatchEvent(new CustomEvent('editor-ready', { detail: { chapterId } }))
     }, 100)
 
@@ -248,7 +287,6 @@ function TiptapEditorInner(props: TiptapEditorProps) {
           editor={editor}
           onClose={() => {
             setShowSearchBox(false)
-            // 清除搜索高亮
             const { state, dispatch } = editor.view
             const tr = state.tr.setMeta('search-highlight', {
               keyword: null,
