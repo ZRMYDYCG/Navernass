@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
+    "analyze": "cross-env ANALYZE=true next build --turbopack",
     "start": "next start",
     "db:push": "supabase db push",
     "db:pull": "supabase db pull",
@@ -95,6 +96,7 @@
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@eslint-react/eslint-plugin": "^2.3.1",
+    "@next/bundle-analyzer": "^16.0.5",
     "@release-it/conventional-changelog": "^10.0.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
@@ -105,6 +107,7 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.181.0",
     "commitizen": "^4.3.1",
+    "cross-env": "^10.1.0",
     "cz-git": "^1.12.0",
     "eslint": "^9.39.1",
     "eslint-plugin-format": "^1.0.2",
