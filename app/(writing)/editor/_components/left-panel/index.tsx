@@ -50,8 +50,10 @@ export default function LeftPanel({
   const [activeTab, setActiveTab] = useState<LeftTabType>('files')
 
   return (
-    <div className="h-full flex flex-col bg-gray-100 dark:bg-zinc-800 border-r border-gray-200 dark:border-gray-700">
-      <TabSwitcher activeTab={activeTab} onChange={setActiveTab} />
+    <div className="h-full flex bg-gray-100 dark:bg-zinc-800 border-r border-gray-200 dark:border-gray-700">
+      <div className="flex-shrink-0">
+        <TabSwitcher activeTab={activeTab} onChange={setActiveTab} />
+      </div>
 
       <div className="flex-1 overflow-hidden">
         {activeTab === 'files' && (
