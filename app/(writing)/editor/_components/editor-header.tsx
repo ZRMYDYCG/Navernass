@@ -18,6 +18,7 @@ interface EditorHeaderProps {
   onBack?: () => void
   novelId?: string
   chapterIds?: string[]
+  onOpenChapterSearch?: () => void
 }
 
 export default function EditorHeader({
@@ -32,6 +33,7 @@ export default function EditorHeader({
   onBack,
   novelId,
   chapterIds = [],
+  onOpenChapterSearch,
 }: EditorHeaderProps) {
   const router = useRouter()
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -146,12 +148,11 @@ export default function EditorHeader({
     }
   }, [canGoForward, historyIndex, chapterHistory, onSelectChapter])
 
-  // 标题点击（打开搜索弹窗）
   const handleTitleClick = useCallback(() => {
-    // TODO: 打开搜索弹窗
-    // eslint-disable-next-line no-console
-    console.log('打开搜索弹窗')
-  }, [])
+    if (onOpenChapterSearch) {
+      onOpenChapterSearch()
+    }
+  }, [onOpenChapterSearch])
 
   // 锁屏
   const handleLock = useCallback(() => {

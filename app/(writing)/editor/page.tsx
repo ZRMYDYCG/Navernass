@@ -24,6 +24,7 @@ import { SetPasswordDialog } from './_components/lock-screen/set-password-dialog
 import { RenameChapterDialog } from './_components/rename-chapter-dialog'
 import { RenameVolumeDialog } from './_components/rename-volume-dialog'
 import RightPanel from './_components/right-panel'
+import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
 
 function NovelsEditContent() {
   const searchParams = useSearchParams()
@@ -66,6 +67,7 @@ function NovelsEditContent() {
   const [deleteVolumeDialogOpen, setDeleteVolumeDialogOpen] = useState(false)
   const [volumeToDelete, setVolumeToDelete] = useState<Volume | null>(null)
   const [isDeletingVolume, setIsDeletingVolume] = useState(false)
+  const [quickSearchOpen, setQuickSearchOpen] = useState(false)
 
   // 面板控制引用
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
@@ -810,6 +812,7 @@ function NovelsEditContent() {
             onBack={handleBack}
             novelId={novelId || undefined}
             chapterIds={chapters.map(c => c.id)}
+            onOpenChapterSearch={() => setQuickSearchOpen(true)}
           />
 
           {/* 主题内容区域 */}
@@ -1011,18 +1014,6 @@ function NovelsEditContent() {
             </Drawer>
           )}
 
-          {/* 移动端：右侧 Drawer */}
-          {isMobile && (
-            <Drawer open={rightDrawerOpen} onOpenChange={setRightDrawerOpen} direction="right">
-              <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
-                <div className="h-full overflow-hidden">
-                  <RightPanel />
-                </div>
-              </DrawerContent>
-            </Drawer>
-          )}
-
-          {/* 创建章节对话框 */}
           <CreateChapterDialog
             open={createChapterDialogOpen}
             onOpenChange={setCreateChapterDialogOpen}
@@ -1089,6 +1080,14 @@ function NovelsEditContent() {
           />
         </div>
       </LockScreen>
+
+      <ChapterQuickSearchDialog
+        open={quickSearchOpen}
+        onOpenChange={setQuickSearchOpen}
+        chapters={chapters.map(c => ({ id: c.id, title: c.title }))}
+        currentChapterId={activeTab}
+        onSelectChapter={handleSelectChapter}
+      />
     </Tooltip.Provider>
   )
 }
