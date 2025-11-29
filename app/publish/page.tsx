@@ -1,7 +1,9 @@
-'use client'
+"use client"
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { ArrowUp } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { PublishHeader } from './_components/publish-header'
 import { ChapterContent } from './_components/chapter-content'
 import { ChapterNavigation } from './_components/chapter-navigation'
@@ -20,6 +22,7 @@ export default function PublishPage() {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showBackToTop, setShowBackToTop] = useState(false)
 
   useEffect(() => {
     if (!novelId) {
@@ -57,6 +60,17 @@ export default function PublishPage() {
 
     fetchNovel()
   }, [novelId])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300)
+    }
+    window.addEventListener('scroll', handleScroll)
+    handleScroll()
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
   const handleSettingsChange = (newSettings: Partial<PublishSettings>) => {
     setSettings((prev) => ({ ...prev, ...newSettings }))
@@ -110,6 +124,18 @@ export default function PublishPage() {
       />
 
       <PublishFooter />
+
+      {showBackToTop && (
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          className="fixed bottom-6 right-6 rounded-full shadow-lg"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          <ArrowUp className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   )
 }
