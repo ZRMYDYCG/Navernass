@@ -26,6 +26,9 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
 CREATE TABLE public.chapters (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   novel_id uuid NOT NULL,
@@ -38,6 +41,7 @@ CREATE TABLE public.chapters (
   created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   volume_id uuid,
+  summary text,
   CONSTRAINT chapters_pkey PRIMARY KEY (id),
   CONSTRAINT chapters_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id),
   CONSTRAINT chapters_volume_id_fkey FOREIGN KEY (volume_id) REFERENCES public.volumes(id)
@@ -121,6 +125,7 @@ CREATE TABLE public.novels (
   created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   published_at timestamp with time zone,
+  characters jsonb DEFAULT '[]'::jsonb,
   CONSTRAINT novels_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.user_settings (
