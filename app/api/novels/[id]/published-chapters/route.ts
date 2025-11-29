@@ -24,8 +24,17 @@ export const GET = withErrorHandler(
 
     if (chaptersError) throw chaptersError
 
+    const { data: volumes, error: volumesError } = await supabase
+      .from('volumes')
+      .select('*')
+      .eq('novel_id', id)
+      .order('order_index', { ascending: true })
+
+    if (volumesError) throw volumesError
+
     return ApiResponseBuilder.success({
       ...novel,
+      volumes: volumes || [],
       chapters: chapters || [],
     })
   },

@@ -103,6 +103,7 @@ export default function PublishPage() {
       </main>
 
       <ChapterNavigation
+        volumes={novel.volumes}
         chapters={novel.chapters}
         currentChapterIndex={currentChapterIndex}
         onChapterChange={handleChapterChange}

@@ -15,11 +15,20 @@ export interface PublishedChapter {
   updated_at: string
 }
 
+export interface PublishedVolume {
+  id: string
+  novel_id: string
+  title: string
+  description?: string
+  order_index: number
+}
+
 export interface PublishedNovel {
   id: string
   title: string
   description?: string
   cover?: string
+  volumes: PublishedVolume[]
   chapters: PublishedChapter[]
 }
 
