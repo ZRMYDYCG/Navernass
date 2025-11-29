@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
+import { novelsApi } from '@/lib/supabase/sdk'
 
 interface PublishDialogProps {
   open: boolean
@@ -75,6 +76,13 @@ export function PublishDialog({
       const successCount = results.filter(r => r.status === 'fulfilled').length
       
       if (successCount > 0) {
+        if (novelId) {
+          try {
+            await novelsApi.publish(novelId)
+          } catch (error) {
+            console.error('Failed to publish novel:', error)
+          }
+        }
         setPublishedCount(successCount)
         toast({
           title: '发布成功',
@@ -105,6 +113,14 @@ export function PublishDialog({
           fetch(`/api/chapters/${id}/publish`, { method: 'DELETE' })
         )
       )
+
+      if (novelId) {
+        try {
+          await novelsApi.unpublish(novelId)
+        } catch (error) {
+          console.error('Failed to unpublish novel:', error)
+        }
+      }
 
       setPublishedCount(0)
       toast({
