@@ -24,6 +24,27 @@ export default function PublishPage() {
   const [error, setError] = useState<string | null>(null)
   const [showBackToTop, setShowBackToTop] = useState(false)
 
+  const scrollToTop = () => {
+    const startY = window.scrollY || window.pageYOffset
+    if (startY === 0) return
+
+    const start = performance.now()
+    const duration = 400
+
+    const step = (now: number) => {
+      const elapsed = now - start
+      const progress = Math.min(elapsed / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      const y = startY * (1 - eased)
+      window.scrollTo(0, y)
+      if (progress < 1) {
+        window.requestAnimationFrame(step)
+      }
+    }
+
+    window.requestAnimationFrame(step)
+  }
+
   useEffect(() => {
     if (!novelId) {
       setError('未找到小说ID')
@@ -78,7 +99,7 @@ export default function PublishPage() {
 
   const handleChapterChange = (index: number) => {
     setCurrentChapterIndex(index)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    scrollToTop()
   }
 
   if (loading) {
@@ -131,7 +152,7 @@ export default function PublishPage() {
           size="icon"
           variant="outline"
           className="fixed bottom-6 right-6 rounded-full shadow-lg"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={scrollToTop}
         >
           <ArrowUp className="h-4 w-4" />
         </Button>
