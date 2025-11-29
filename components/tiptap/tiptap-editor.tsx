@@ -8,6 +8,7 @@ import Underline from '@tiptap/extension-underline'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useEffect, useRef, useState } from 'react'
+import { Spinner } from '@/components/ui/spinner'
 import { supabase } from '@/lib/supabase'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
 import { DragHandle } from './drag-handle-react'
@@ -53,12 +54,12 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const { showInputDialog } = useDialog()
   const [showSearchBox, setShowSearchBox] = useState(false)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   useEffect(() => {
     setGlobalDialog(showInputDialog)
   }, [showInputDialog])
 
-  // 计算统计数据的辅助函数
   const calculateStats = (text: string) => {
     const characters = text.length
     const chineseChars = (text.match(/[\u4E00-\u9FA5]/g) || []).length
@@ -69,6 +70,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   }
 
   const uploadIllustration = async (file: File) => {
+    setIsUploadingImage(true)
     const ext = file.name.split('.').pop() || 'png'
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
     const { data, error } = await supabase.storage.from('narraverse').upload(`illustrations/${fileName}`, file, {
@@ -76,9 +78,11 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       upsert: false,
     })
     if (error) {
+      setIsUploadingImage(false)
       throw error
     }
     const { data: publicData } = supabase.storage.from('narraverse').getPublicUrl(data.path)
+    setIsUploadingImage(false)
     return publicData.publicUrl
   }
 
@@ -105,15 +109,12 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       }),
       TextStyle,
       Color,
-      // AI 功能扩展
       SlashCommand,
       AIAutocomplete.configure({
         trigger: '++',
         debounceDelay: 500,
       }),
-      // 搜索高亮扩展
       SearchHighlight,
-      // 编辑器内搜索扩展
       EditorSearch,
     ],
     content,
@@ -184,7 +185,6 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     },
   })
 
-  // 初始化时和内容变化时计算统计
   useEffect(() => {
     if (editor && onStatsChange) {
       const text = editor.getText()
@@ -201,7 +201,6 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     }
   }, [])
 
-  // 动态更新编辑器的可编辑状态
   useEffect(() => {
     if (editor) {
       editor.setEditable(editable)
@@ -214,7 +213,6 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     }
   }, [editor, editable])
 
-  // 监听 Ctrl+F 快捷键，打开搜索框
   useEffect(() => {
     if (!editor) return
 
@@ -235,7 +233,6 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     return () => window.removeEventListener('keydown', handleKeyDown, true)
   }, [editor, showSearchBox])
 
-  // 监听搜索高亮事件（来自左侧搜索面板）
   useEffect(() => {
     if (!editor || !chapterId) return
 
@@ -282,6 +279,12 @@ function TiptapEditorInner(props: TiptapEditorProps) {
         </>
       )}
       <EditorContent editor={editor} />
+      {isUploadingImage && (
+        <div className="absolute top-2 right-2 z-50 flex items-center gap-2 rounded-md bg-black/80 text-xs text-white px-3 py-2 shadow-md">
+          <Spinner className="w-3.5 h-3.5" />
+          <span>插画上传中...</span>
+        </div>
+      )}
       {showSearchBox && (
         <SearchBox
           editor={editor}

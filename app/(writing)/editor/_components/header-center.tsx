@@ -27,7 +27,7 @@ export function HeaderCenter({
         disabled={!canGoBack}
         className={`p-1.5 h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 ${
           canGoBack
-            ? 'bg-primary text-primary-foreground shadow-sm hover:shadow-md hover:bg-primary/90 cursor-pointer'
+            ? 'bg-transparent text-stone-700 hover:bg-stone-100 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 cursor-pointer'
             : 'bg-transparent text-stone-400 dark:text-stone-600 cursor-not-allowed opacity-60'
         }`}
         title="上一章节"
@@ -52,7 +52,7 @@ export function HeaderCenter({
         disabled={!canGoForward}
         className={`p-1.5 h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 ${
           canGoForward
-            ? 'bg-primary text-primary-foreground shadow-sm hover:shadow-md hover:bg-primary/90 cursor-pointer'
+            ? 'bg-transparent text-stone-700 hover:bg-stone-100 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 cursor-pointer'
             : 'bg-transparent text-stone-400 dark:text-stone-600 cursor-not-allowed opacity-60'
         }`}
         title="下一章节"
