@@ -6,45 +6,45 @@ import { cn } from '@/lib/utils'
 
 const features = [
   {
-    title: '章节与段落',
-    description: '像整理书架一样管理你的故事结构，拖拽排序，清晰直观。',
+    title: '沉浸写作编辑器',
+    description: '纸张质感的编辑器，自动保存、字数统计与快捷搜索，让你专注在每一个句子上。',
     icon: BookText,
     variant: 'plain',
     decoration: 'clip',
-    delay: 0.1
+    delay: 0.1,
   },
   {
-    title: '人物小记',
-    description: '为每个角色建立专属档案，记录性格、外貌与不为人知的秘密。',
-    icon: Users,
-    variant: 'dotted',
-    decoration: 'pin',
-    delay: 0.2
-  },
-  {
-    title: '灵感仓库',
-    description: '随时捕捉的一闪而过的念头，都安稳地存放在这里，不再遗失。',
+    title: '卷册与章节大纲',
+    description: '按卷管理章节，支持拖拽排序、移动卷内位置与回收站恢复，让长篇结构始终清晰。',
     icon: Lightbulb,
     variant: 'grid',
     decoration: 'tape',
-    delay: 0.3
+    delay: 0.2,
   },
   {
-    title: 'AI 文稿润笔',
-    description: '温和的智能助手，为你修饰辞藻，提供情节建议，而非喧宾夺主。',
+    title: 'Narraverse AI 写作助手',
+    description: '在对话中生成灵感、补完情节，也能在编辑器内协助润色与改写，始终保持你的声音。',
     icon: Sparkles,
     variant: 'plain',
     decoration: 'none',
-    delay: 0.4
+    delay: 0.3,
   },
   {
-    title: '导出印刷版✦',
-    description: '一键生成精美的排版格式，支持 PDF 与实体书预览，让梦想触手可及。',
+    title: '角色与世界观笔记',
+    description: '通过人物小记与工作台整理角色设定、世界规则和零散灵感，不再遗失任何细节。',
+    icon: Users,
+    variant: 'dotted',
+    decoration: 'pin',
+    delay: 0.4,
+  },
+  {
+    title: '导出与版本安全',
+    description: '章节内容支持导出，本地编辑配合回收站机制，误删也能找回，写作更安心。',
     icon: Printer,
     variant: 'lined',
     decoration: 'tape',
-    delay: 0.5
-  }
+    delay: 0.5,
+  },
 ]
 
 export default function Features() {
