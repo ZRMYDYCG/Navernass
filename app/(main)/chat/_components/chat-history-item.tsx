@@ -150,6 +150,8 @@ export function ChatHistoryItem({
 
   const shouldShowButton = isHovered || isActive || isMenuOpen
 
+  const LeadingIcon = chat.isPinned ? Pin : MessageCircle
+
   return (
     <TooltipProvider>
       <div
@@ -159,12 +161,8 @@ export function ChatHistoryItem({
       >
         {isEditing
           ? (
-              <div className={cn(
-                'flex items-center gap-1 px-3 py-2 relative',
-                chat.isPinned && 'before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-gradient-to-b before:from-gray-900 before:to-gray-500 before:rounded-full',
-              )}
-              >
-                <MessageCircle className="w-4 h-4 shrink-0 text-gray-400" />
+              <div className="flex items-center gap-1 px-3 py-2 relative">
+                <LeadingIcon className="w-4 h-4 shrink-0 text-gray-400" />
                 <Input
                   value={editTitle}
                   onChange={e => setEditTitle(e.target.value)}
@@ -200,15 +198,15 @@ export function ChatHistoryItem({
                 className={cn(
                   'w-full justify-start px-3 py-2 h-9 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 relative transition-colors overflow-hidden cursor-pointer',
                   isActive && 'bg-white dark:bg-zinc-700/70 hover:bg-gray-50 dark:hover:bg-gray-700',
-                  chat.isPinned && 'before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-gradient-to-b before:from-gray-900 before:to-gray-500 before:rounded-full',
                 )}
                 onClick={handleClick}
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[calc(100%-2.5rem)]">
-                  <MessageCircle className={cn(
+                  <LeadingIcon
+                    className={cn(
                     'w-4 h-4 shrink-0',
                     isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400',
-                  )}
+                    )}
                   />
                   <Tooltip delayDuration={500}>
                     <TooltipTrigger asChild>
