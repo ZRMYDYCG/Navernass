@@ -2,30 +2,33 @@ import type { Novel } from '@/lib/supabase/sdk'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import type { NovelFormData } from '../types'
 
 interface NovelDialogProps {
   open: boolean
   novel: Novel | null
   onOpenChange: (open: boolean) => void
-  onSave: (data: { title: string, description: string }) => Promise<void>
+  onSave: (data: NovelFormData) => Promise<void>
 }
 
 export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [coverFile, setCoverFile] = useState<File | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     if (open) {
       setTitle(novel?.title || '')
       setDescription(novel?.description || '')
+      setCoverFile(null)
     }
   }, [open, novel])
 
   const handleSave = async () => {
     try {
       setIsSaving(true)
-      await onSave({ title: title.trim(), description: description.trim() })
+      await onSave({ title: title.trim(), description: description.trim(), coverFile })
     } finally {
       setIsSaving(false)
     }
@@ -65,6 +68,26 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
               rows={3}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-900 dark:focus:border-gray-200 focus:ring-0 focus-visible:ring-1 focus-visible:ring-gray-900/40 dark:focus-visible:ring-gray-100/30 resize-none"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              封面图片（可选）
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={e => {
+                const file = e.target.files?.[0] || null
+                setCoverFile(file)
+              }}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-900 file:text-white hover:file:bg-gray-800 dark:file:bg-zinc-100 dark:file:text-gray-900 dark:hover:file:bg-zinc-200"
+            />
+            {coverFile && (
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate">
+                已选择: {coverFile.name}
+              </p>
+            )}
           </div>
         </div>
 

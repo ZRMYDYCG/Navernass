@@ -7,6 +7,7 @@ import { Suspense, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
 import { novelsApi } from '@/lib/supabase/sdk'
+import { supabase } from '@/lib/supabase'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import { NovelContextMenu } from './_components/novel-context-menu'
 import { NovelDialog } from './_components/novel-dialog'
@@ -20,7 +21,6 @@ function NovelsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // 列表数据状态
   const [novels, setNovels] = useState<Novel[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -28,19 +28,16 @@ function NovelsContent() {
   const [filter, setFilter] = useState<NovelFilterType>(DEFAULT_FILTER)
   const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
 
-  // 对话框状态
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingNovel, setEditingNovel] = useState<Novel | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [novelToDelete, setNovelToDelete] = useState<Novel | null>(null)
 
-  // 右键菜单状态
   const [contextMenuNovel, setContextMenuNovel] = useState<Novel | null>(null)
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number, y: number } | null>(
     null,
   )
 
-  // 加载小说列表
   const loadNovels = useCallback(async () => {
     try {
       setLoading(true)
@@ -64,14 +61,12 @@ function NovelsContent() {
     loadNovels()
   }, [loadNovels])
 
-  // 处理创建对话框
   const handleCreateAction = useCallback(() => {
     setEditingNovel(null)
     setDialogOpen(true)
     router.replace('/novels')
   }, [router])
 
-  // 监听 URL 参数，处理创建动作
   useEffect(() => {
     const action = searchParams.get('action')
     if (action === 'create') {
@@ -79,7 +74,6 @@ function NovelsContent() {
     }
   }, [searchParams, handleCreateAction])
 
-  // 点击其他地方关闭右键菜单
   useEffect(() => {
     const handleClick = () => {
       if (contextMenuNovel) {
@@ -91,31 +85,40 @@ function NovelsContent() {
     return () => document.removeEventListener('click', handleClick)
   }, [contextMenuNovel])
 
-  // 打开小说编辑器
   const handleOpenNovel = (novel: Novel) => {
     router.push(`/editor?id=${novel.id}`)
   }
 
-  // 处理右键菜单
   const handleContextMenu = (e: React.MouseEvent, novel: Novel) => {
     e.preventDefault()
     setContextMenuPosition({ x: e.clientX, y: e.clientY })
     setContextMenuNovel(novel)
   }
 
-  // 打开创建对话框
   const handleOpenCreateDialog = () => {
     setEditingNovel(null)
     setDialogOpen(true)
   }
 
-  // 打开编辑对话框
   const handleEditNovel = (novel: Novel) => {
     setEditingNovel(novel)
     setDialogOpen(true)
   }
 
-  // 保存小说（创建或更新）
+  const uploadCover = useCallback(async (file: File) => {
+    const ext = file.name.split('.').pop() || 'jpg'
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { data, error } = await supabase.storage.from('narraverse').upload(`covers/${fileName}`, file, {
+      cacheControl: '3600',
+      upsert: false,
+    })
+    if (error) {
+      throw error
+    }
+    const { data: publicData } = supabase.storage.from('narraverse').getPublicUrl(data.path)
+    return publicData.publicUrl
+  }, [])
+
   const handleSaveNovel = async (data: NovelFormData) => {
     if (!data.title.trim()) {
       toast.error(TOAST_MESSAGES.TITLE_REQUIRED)
@@ -124,20 +127,28 @@ function NovelsContent() {
 
     try {
       if (editingNovel) {
-        // 更新模式
+        let coverUrl = editingNovel.cover
+        if (data.coverFile) {
+          coverUrl = await uploadCover(data.coverFile)
+        }
         await novelsApi.update({
           id: editingNovel.id,
           title: data.title,
           description: data.description || undefined,
+          cover: coverUrl || undefined,
         })
         toast.success(TOAST_MESSAGES.UPDATE_SUCCESS)
         setDialogOpen(false)
         loadNovels()
       } else {
-        // 创建模式
+        let cover: string | undefined
+        if (data.coverFile) {
+          cover = await uploadCover(data.coverFile)
+        }
         const novel = await novelsApi.create({
           title: data.title,
           description: data.description || undefined,
+          cover,
         })
         toast.success(TOAST_MESSAGES.CREATE_SUCCESS)
         setDialogOpen(false)
@@ -156,13 +167,11 @@ function NovelsContent() {
     }
   }
 
-  // 删除小说（移到回收站）
   const handleDeleteNovel = (novel: Novel) => {
     setNovelToDelete(novel)
     setDeleteDialogOpen(true)
   }
 
-  // 确认删除小说
   const handleConfirmDelete = async () => {
     if (!novelToDelete) return
 
@@ -183,7 +192,6 @@ function NovelsContent() {
 
   return (
     <div className="flex flex-col dark:bg-zinc-900 transition-colors h-full">
-      {/* 顶部区域 */}
       <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 shrink-0">
         <div className="flex-1 hidden sm:block" />
         <SegmentedControl
@@ -200,7 +208,6 @@ function NovelsContent() {
         </div>
       </section>
 
-      {/* 小说列表区域 */}
       <div className="flex-1 py-2 px-4 sm:px-6">
         {viewMode === 'grid'
           ? (
@@ -223,7 +230,6 @@ function NovelsContent() {
               />
             )}
 
-        {/* 右键菜单 */}
         {contextMenuNovel && contextMenuPosition && (
           <NovelContextMenu
             novel={contextMenuNovel}
@@ -246,7 +252,6 @@ function NovelsContent() {
         className="shrink-0 py-3 sm:py-4 px-4 sm:px-6 border-t border-gray-200 dark:border-gray-800"
       />
 
-      {/* 创建/编辑小说对话框 */}
       <NovelDialog
         open={dialogOpen}
         novel={editingNovel}
@@ -254,7 +259,6 @@ function NovelsContent() {
         onSave={handleSaveNovel}
       />
 
-      {/* 删除确认对话框 */}
       <DeleteConfirmDialog
         open={deleteDialogOpen}
         novel={novelToDelete}
