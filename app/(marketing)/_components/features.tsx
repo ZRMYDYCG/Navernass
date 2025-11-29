@@ -1,8 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { PaperSheet } from './paper-elements'
-import { BookText, Users, Lightbulb, Sparkles, Printer, FileText } from 'lucide-react'
+import { BookText, Users, Lightbulb, Sparkles, Printer } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const features = [
@@ -35,7 +34,7 @@ const features = [
     description: '温和的智能助手，为你修饰辞藻，提供情节建议，而非喧宾夺主。',
     icon: Sparkles,
     variant: 'plain',
-    decoration: 'none', // Special handling maybe?
+    decoration: 'none',
     delay: 0.4
   },
   {
@@ -51,22 +50,21 @@ const features = [
 export default function Features() {
   return (
     <section id="features" className="py-32 relative overflow-hidden min-h-screen flex items-center">
-      {/* 背景装饰 - 极淡的墨迹晕染效果 (可选) */}
       <div className="absolute inset-0 bg-paper-texture opacity-30 pointer-events-none" />
       
       <div className="container mx-auto px-4 relative z-10">
         
-        <motion.div 
-           className="text-center mb-20"
-           initial={{ opacity: 0, y: 20 }}
-           whileInView={{ opacity: 1, y: 0 }}
-           viewport={{ once: true }}
-           transition={{ duration: 1 }}
+        <motion.div
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1 }}
         >
-           <h2 className="text-3xl md:text-4xl font-serif font-medium text-foreground/80 mb-4 tracking-wide">
-             让写作回归温柔的仪式
-           </h2>
-           <div className="w-16 h-1 bg-foreground/10 mx-auto rounded-full" />
+          <h2 className="text-3xl md:text-4xl font-serif font-medium text-foreground/80 mb-4 tracking-wide">
+            让写作回归温柔的仪式
+          </h2>
+          <div className="w-16 h-1 bg-foreground/10 mx-auto rounded-full" />
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
@@ -79,34 +77,29 @@ export default function Features() {
               transition={{ duration: 0.8, delay: feature.delay, ease: "easeOut" }}
               className="group"
             >
-              <div className={cn(
+              <div
+                className={cn(
                   "relative h-full min-h-[240px] p-8 flex flex-col transition-all duration-500 ease-in-out",
-                  // 文具感卡片样式：浅纸色半透明 + 柔雾边缘
                   "bg-card/60 backdrop-blur-[2px] border border-foreground/5 rounded-sm",
                   "shadow-paper-sm hover:shadow-paper-md hover:-translate-y-1 hover:bg-card/80"
-              )}>
-                  
-                  {/* 装饰：模拟纸张被风轻轻吹起的浮动反馈 (Hover effect handled by translate-y) */}
-                  
-                  {/* 顶部装饰：胶带/大头针/回形针 */}
-                  {feature.decoration === 'tape' && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-yellow-100/60 dark:bg-yellow-900/20 rotate-[-1deg] border-l border-r border-white/10 pointer-events-none" />
-                  )}
-                  {feature.decoration === 'pin' && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-red-400/80 shadow-sm border border-red-500/50 pointer-events-none" />
-                  )}
-                  {feature.decoration === 'clip' && (
-                    <div className="absolute -top-2 right-6 w-4 h-8 border-2 border-foreground/20 rounded-t-full rounded-b-full pointer-events-none" />
-                  )}
+                )}
+              >
+                {feature.decoration === 'tape' && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-yellow-100/60 dark:bg-yellow-900/20 rotate-[-1deg] border-l border-r border-white/10 pointer-events-none" />
+                )}
+                {feature.decoration === 'pin' && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-red-400/80 shadow-sm border border-red-500/50 pointer-events-none" />
+                )}
+                {feature.decoration === 'clip' && (
+                  <div className="absolute -top-2 right-6 w-4 h-8 border-2 border-foreground/20 rounded-t-full rounded-b-full pointer-events-none" />
+                )}
 
-                  <div className="w-10 h-10 bg-foreground/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                    <feature.icon className="w-5 h-5 text-foreground/70" />
-                  </div>
-                  
-                  <h3 className="text-xl font-bold mb-3 text-foreground/90 font-serif">{feature.title}</h3>
-                  <p className="text-muted-foreground/80 leading-relaxed text-sm font-sans">
-                    {feature.description}
-                  </p>
+                <div className="w-10 h-10 bg-foreground/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                  <feature.icon className="w-5 h-5 text-foreground/70" />
+                </div>
+
+                <h3 className="text-xl font-bold mb-3 text-foreground/90 font-serif">{feature.title}</h3>
+                <p className="text-muted-foreground/80 leading-relaxed text-sm font-sans">{feature.description}</p>
               </div>
             </motion.div>
           ))}

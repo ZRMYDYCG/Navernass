@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,11 @@ export default function Hero() {
   const y = useTransform(scrollY, [0, 300], [0, -30])
   const opacity = useTransform(scrollY, [0, 300], [1, 0.8])
 
+  const dateLabel = useMemo(
+    () => new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' }),
+    [],
+  )
+
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden bg-background selection:bg-primary/10 selection:text-primary">
       <HeroBackground />
@@ -20,23 +26,19 @@ export default function Hero() {
 
       <div className="relative z-40 container mx-auto px-4 flex-1 flex flex-col items-center justify-center pt-20">
 
-        {/* 核心区域：安静的写作空间 */}
         <motion.div
           className="relative max-w-2xl w-full mx-auto"
           style={{ y, opacity }}
         >
-          {/* 悬浮便笺纸 */}
           <div className="relative animate-float-breathe">
             <StickyNote
               color="yellow"
               rotation={-2}
               className="min-h-[320px] sm:min-h-[400px] p-8 sm:p-12 shadow-paper-lg flex flex-col items-center text-center"
             >
-              {/* 纸缘微卷效果 (通过CSS shadow/border-radius模拟，StickyNote已有基础样式) */}
-
               <div className="font-serif text-foreground/80 leading-relaxed text-lg sm:text-xl tracking-wide w-full h-full flex flex-col justify-center">
                 <p className="mb-8 opacity-60 text-base italic">
-                  {new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}
+                  {dateLabel}
                   {' '}
                   · 下午
                 </p>
@@ -68,7 +70,6 @@ export default function Hero() {
               </div>
             </StickyNote>
 
-            {/* 装饰元素：散落的纸片/灵感 */}
             <StickyNote color="blue" rotation={15} className="absolute -right-8 -top-4 w-24 h-24 sm:w-32 sm:h-32 text-xs z-[-1] opacity-60 hidden sm:flex items-center justify-center">
               <span className="font-handwriting text-lg opacity-70">
                 Character:
@@ -88,7 +89,6 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* 底部提示向下滚动 */}
         <motion.div
           className="absolute bottom-8 left-0 right-0 text-center"
           initial={{ opacity: 0 }}
