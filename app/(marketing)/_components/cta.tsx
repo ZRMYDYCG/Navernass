@@ -11,14 +11,13 @@ import { PaperSheet, StickyNote } from './paper-elements'
 export default function CTA() {
   return (
     <section className="relative py-24 overflow-hidden">
-      {/* 背景纹理 */}
       <div className="absolute inset-0 bg-paper-texture opacity-30 pointer-events-none" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
-          <PaperSheet 
-            className="bg-white dark:bg-zinc-900 p-8 md:p-16" 
-            stackCount={3} 
+          <PaperSheet
+            className="p-8 md:p-16"
+            stackCount={3}
             tape
             rotation={1}
           >
@@ -47,7 +46,7 @@ export default function CTA() {
                   创造的，经过了很多设计和推翻...
                 </p>
                 
-                <StickyNote color="yellow" rotation={-2} className="inline-block mx-2 align-middle text-foreground dark:text-black my-2 md:my-0">
+                <StickyNote color="yellow" rotation={-2} className="inline-block mx-2 align-middle text-foreground my-2 md:my-0">
                   🐛 欢迎找 Bug!
                 </StickyNote>
 
