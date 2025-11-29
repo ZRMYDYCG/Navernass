@@ -99,8 +99,7 @@
   letter-spacing: 0.02em;
   color: #292524;
   line-height: 1.6;
-  margin-top: 2em;
-  margin-bottom: 1em;
+  margin: 1em 0;
 }
 
 .dark .ProseMirror h1,
