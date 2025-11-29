@@ -23,6 +23,7 @@ export default function PublishPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showBackToTop, setShowBackToTop] = useState(false)
+  const [offsetAboveFooter, setOffsetAboveFooter] = useState(false)
 
   const scrollToTop = () => {
     const startY = window.scrollY || window.pageYOffset
@@ -84,7 +85,13 @@ export default function PublishPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 300)
+      const scrollY = window.scrollY || window.pageYOffset
+      const viewportHeight = window.innerHeight
+      const docHeight = document.documentElement.scrollHeight
+      const distanceFromBottom = docHeight - (scrollY + viewportHeight)
+
+      setShowBackToTop(scrollY > 300)
+      setOffsetAboveFooter(distanceFromBottom < 120)
     }
     window.addEventListener('scroll', handleScroll)
     handleScroll()
@@ -151,7 +158,7 @@ export default function PublishPage() {
           type="button"
           size="icon"
           variant="outline"
-          className="fixed bottom-6 right-6 rounded-full shadow-lg"
+          className={`fixed right-6 rounded-full shadow-lg transition-transform duration-200 ease-out ${offsetAboveFooter ? 'bottom-24' : 'bottom-6'}`}
           onClick={scrollToTop}
         >
           <ArrowUp className="h-4 w-4" />
