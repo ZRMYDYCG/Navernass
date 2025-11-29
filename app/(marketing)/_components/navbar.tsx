@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
-import { navbarConfig } from '../config'
+import { heroConfig, navbarConfig } from '../config'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -28,7 +28,7 @@ export default function Navbar() {
           >
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src={navbarConfig.logo.src}
+                src={resolvedTheme === 'dark' ? heroConfig.images.light : heroConfig.images.dark}
                 width={navbarConfig.logo.width}
                 height={navbarConfig.logo.height}
                 alt={navbarConfig.logo.alt}
