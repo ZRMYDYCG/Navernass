@@ -87,7 +87,7 @@ export default function LeftPanel({
         )}
 
         {activeTab === 'characters' && (
-          <CharacterShowcase />
+          <CharacterShowcase novelId={novelId} />
         )}
 
         {activeTab === 'workspace' && (

@@ -35,24 +35,18 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
       onClick={onClick}
       className={cn(
         "group relative w-full cursor-pointer overflow-hidden",
-        // 背景色：浅纸色/暖灰调半透明
         "bg-[#fdfbf7]/90 dark:bg-zinc-800/90 backdrop-blur-sm",
-        // 边框与阴影：模拟旧相册/卡片
         "border border-stone-200/50 dark:border-stone-700/30",
         "shadow-[2px_2px_10px_-2px_rgba(0,0,0,0.05)]",
-        // 圆角与质感
-        "rounded-sm", // 稍微直一点的角，像剪下来的纸
+        "rounded-sm",
         className
       )}
       style={{
-        // 模拟手工纸毛边的视觉欺骗（可选，这里用微小的box-shadow模拟边缘粗糙感）
         boxShadow: "1px 1px 2px rgba(0,0,0,0.02), 0 0 0 1px rgba(0,0,0,0.01) inset" 
       }}
     >
-      {/* 纸张纹理叠加 */}
       <div className="absolute inset-0 bg-paper-texture opacity-40 pointer-events-none z-0" />
 
-      {/* 顶部：章节标签 (淡淡的墨蓝色手写标签) */}
       {character.chapters.length > 0 && (
         <div className="absolute -top-1 -right-1 z-20">
           <div className="relative">
@@ -67,9 +61,7 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
       )}
 
       <div className="relative z-10 p-5 flex flex-col gap-4">
-        {/* 头部：头像与基本信息 */}
         <div className="flex items-start gap-4">
-          {/* 肖像 (极淡的铅笔素描线条感) */}
           <div className="relative shrink-0 w-16 h-16 overflow-hidden rounded-full border-2 border-stone-100 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 shadow-inner">
             {character.avatar ? (
               <Image 
@@ -83,34 +75,28 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
                 <User className="w-8 h-8 stroke-[1.5]" />
               </div>
             )}
-            {/* 铅笔素描纹理覆盖 */}
             <div className="absolute inset-0 bg-noise opacity-10 mix-blend-overlay" />
           </div>
 
           <div className="flex-1 min-w-0 pt-1">
-            {/* 角色名 (轻度加粗的手写感字体) */}
             <h3 className="font-handwriting text-2xl font-bold text-stone-800 dark:text-stone-100 leading-none mb-1.5 tracking-wide">
               {character.name}
             </h3>
-            {/* 角色身份 (打字机风格) */}
             <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400 font-mono tracking-tight opacity-80">
               <span className="uppercase">{character.role}</span>
-              <span className="w-1 h-1 rounded-full bg-stone-300 dark:bg-stone-600" />
-              <span>{character.chapters.length} 章节</span>
+              {/* <span className="w-1 h-1 rounded-full bg-stone-300 dark:bg-stone-600" />
+              <span>{character.chapters.length} 章节</span> */}
             </div>
           </div>
         </div>
 
-        {/* 简介 (柔和行距，像轻飘的气息) */}
         <div className="relative">
           <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed font-light line-clamp-3 italic opacity-90">
             {character.description}
           </p>
-          {/* 装饰线条 */}
           <div className="absolute -left-3 top-1 bottom-1 w-[2px] bg-stone-200 dark:bg-stone-700/50 rounded-full" />
         </div>
 
-        {/* 关键特质 (小圆点+手绘风图标) */}
         <div className="flex flex-wrap gap-y-2 gap-x-4 py-1">
           {character.traits.map((trait, i) => (
             <div key={i} className="flex items-center gap-1.5 group/trait">
@@ -120,7 +106,6 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
           ))}
         </div>
 
-        {/* 性格关键词 (旧式打字机敲出的短句，带噪点) */}
         <div className="flex flex-wrap gap-2">
           {character.keywords.map((keyword, i) => (
             <span 
@@ -132,14 +117,10 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
           ))}
         </div>
 
-        {/* 灵感补充区域 (仿便签贴纸) */}
         {character.note && (
           <div className="relative mt-1 mx-1">
-            {/* 贴纸阴影 */}
             <div className="absolute inset-0 bg-amber-900/5 dark:bg-black/20 translate-y-1 translate-x-1 rounded-sm rotate-1 blur-sm" />
-            {/* 贴纸本体 */}
             <div className="relative bg-[#fffdf5] dark:bg-[#2c241b] p-3 rounded-sm shadow-sm border border-amber-100/50 dark:border-amber-900/30 rotate-1 transform transition-transform duration-300 group-hover:rotate-0">
-               {/* 胶带装饰 */}
               <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-4 bg-white/40 dark:bg-white/10 backdrop-blur-sm rotate-[-2deg] shadow-sm" />
               
               <div className="flex gap-2">
@@ -152,8 +133,6 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
           </div>
         )}
       </div>
-      
-      {/* 底部装饰：类似档案袋的纹理 */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-stone-200/30 to-transparent" />
     </motion.div>
   )

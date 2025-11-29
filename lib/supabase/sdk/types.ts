@@ -116,6 +116,49 @@ export interface UpdateChapterDto {
   status?: 'draft' | 'published'
 }
 
+export interface Character {
+  id: string
+  novel_id: string
+  user_id: string
+  name: string
+  role?: string
+  avatar?: string
+  description?: string
+  traits: string[]
+  keywords: string[]
+  first_appearance?: string
+  note?: string
+  order_index: number
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateCharacterDto {
+  novel_id: string
+  name: string
+  role?: string
+  avatar?: string
+  description?: string
+  traits?: string[]
+  keywords?: string[]
+  first_appearance?: string
+  note?: string
+  order_index?: number
+}
+
+export interface UpdateCharacterDto {
+  id: string
+  name?: string
+  role?: string
+  avatar?: string
+  description?: string
+  traits?: string[]
+  keywords?: string[]
+  first_appearance?: string
+  note?: string
+  order_index?: number
+}
+
 // =============================================
 // 对话类型
 // =============================================
