@@ -24,6 +24,9 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    domains: ['vdkyjmlalrspsebjhkya.supabase.co'],
+  },
 }
 
 export default withBundleAnalyzer(withPWA(nextConfig))
