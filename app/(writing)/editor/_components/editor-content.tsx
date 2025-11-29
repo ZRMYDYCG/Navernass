@@ -220,7 +220,7 @@ export default function EditorContent({
               </div>
             )
           : (
-              <div className="w-full max-w-[65ch] min-h-[80vh] bg-white dark:bg-[#262626] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-black/20 rounded-sm px-10 py-12 sm:px-14 sm:py-16 transition-all duration-500 ease-in-out">
+              <div className="w-full max-w-[65ch] min-h-[80vh]  transition-all duration-500 ease-in-out">
                 <TiptapEditor
                   key={chapterId}
                   content={chapter?.content || `<h1>${chapterTitle}</h1>`}
