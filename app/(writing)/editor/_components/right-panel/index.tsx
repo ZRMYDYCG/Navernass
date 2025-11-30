@@ -40,6 +40,28 @@ export default function RightPanel() {
   const abortControllerRef = useRef<AbortController | null>(null)
   const isStreamingRef = useRef(false)
 
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const handleInsertFromEditor = (event: Event) => {
+      const customEvent = event as CustomEvent<{ text?: string }>
+      const text = customEvent.detail?.text
+      if (!text) return
+
+      setInput(prev => {
+        const current = prev.trim()
+        if (!current) return text
+        return `${current}\n\n${text}`
+      })
+    }
+
+    window.addEventListener("novel-ai-insert-from-editor", handleInsertFromEditor as EventListener)
+
+    return () => {
+      window.removeEventListener("novel-ai-insert-from-editor", handleInsertFromEditor as EventListener)
+    }
+  }, [])
+
   const loadConversations = useCallback(async () => {
     if (!novelId) return
     try {
@@ -231,7 +253,7 @@ export default function RightPanel() {
   }
 
   const handleNewChat = () => {
-    isStreamingRef.current = false // 重置流式传输标记
+    isStreamingRef.current = false
     setCurrentConversationId(null)
     setMessages([])
     setSelectedChapters([])
@@ -243,7 +265,7 @@ export default function RightPanel() {
   }
 
   const handleSelectConversation = async (conversation: NovelConversation) => {
-    isStreamingRef.current = false // 重置流式传输标记，确保能正常加载消息
+    isStreamingRef.current = false
     setCurrentConversationId(conversation.id)
     setShowHistory(false)
   }
