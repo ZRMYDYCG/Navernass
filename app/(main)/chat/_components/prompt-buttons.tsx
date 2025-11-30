@@ -25,15 +25,15 @@ export function PromptButtons({ onPromptClick, disabled = false }: PromptButtons
             onClick={() => handleClick(label)}
             disabled={disabled}
             className={cn(
-              'px-4 py-2.5 rounded-lg border text-sm transition-all',
-              'bg-white dark:bg-zinc-800/50 border-gray-200 dark:border-gray-700',
-              'text-gray-700 dark:text-gray-300',
-              'hover:border-gray-300 dark:hover:border-gray-600',
-              'hover:bg-gray-50 dark:hover:bg-gray-800',
+              'px-4 py-2.5 rounded-lg border text-sm transition-all font-serif',
+              'bg-card border-border/60',
+              'text-muted-foreground',
+              'hover:border-border hover:text-foreground',
+              'hover:bg-accent',
               'active:scale-[0.98]',
               disabled
                 ? 'opacity-50 cursor-not-allowed'
-                : 'cursor-pointer hover:shadow-sm',
+                : 'cursor-pointer hover:shadow-sm hover:-translate-y-0.5',
             )}
           >
             {label}

@@ -27,7 +27,6 @@ export function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
 
-
   useEffect(() => {
     setIsMobileOpen(false)
   }, [pathname])
@@ -61,7 +60,7 @@ export function Sidebar() {
       <button
         type="button"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] lg:hidden p-2.5 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors shadow-lg"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] lg:hidden p-2.5 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground transition-colors shadow-lg"
         aria-label="Toggle menu"
       >
         {isMobileOpen ? <X className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
@@ -75,10 +74,10 @@ export function Sidebar() {
       )}
 
       <aside
-        className={`fixed left-0 top-0 h-screen border-r border-gray-200 dark:border-gray-800 transition-all duration-300 ease-out z-[60] ${
-          isMobileOpen 
-            ? 'bg-white dark:bg-zinc-900 w-56 translate-x-0' 
-            : `bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl ${(isExpanded || showSettings) ? 'w-56' : 'w-16'} -translate-x-full lg:translate-x-0`
+        className={`fixed left-0 top-0 h-screen border-r border-sidebar-border transition-all duration-300 ease-out z-[60] ${
+          isMobileOpen
+            ? 'bg-sidebar w-56 translate-x-0'
+            : `bg-sidebar/95 backdrop-blur-xl ${(isExpanded || showSettings) ? 'w-56' : 'w-16'} -translate-x-full lg:translate-x-0`
         }`}
         onMouseEnter={() => !isMobileOpen && setIsExpanded(true)}
         onMouseLeave={() => !isMobileOpen && !showSettings && setIsExpanded(false)}
@@ -87,7 +86,7 @@ export function Sidebar() {
           <div className={`flex items-center px-3 mb-8 transition-all duration-300 ${isExpanded || isMobileOpen || showSettings ? 'justify-start' : 'justify-center'}`}>
             <AppLogo />
             {(isExpanded || isMobileOpen || showSettings) && (
-              <span className="ml-3 text-lg font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-200">
+              <span className="ml-3 text-lg font-semibold text-sidebar-foreground whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-200">
                 Narraverse
               </span>
             )}
@@ -104,12 +103,12 @@ export function Sidebar() {
                   href={item.path}
                   className={`group relative flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer ${
                     active
-                      ? 'bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-gray-100'
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                      : 'text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
                   }`}
                 >
                   <Icon className={`w-5 h-5 shrink-0 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-105'}`} />
-                  
+
                   {(isExpanded || isMobileOpen || showSettings) && (
                     <span className="ml-3 text-sm font-medium whitespace-nowrap animate-in fade-in slide-in-from-left-1 duration-150">
                       {item.label}
@@ -124,10 +123,10 @@ export function Sidebar() {
             <button
               type="button"
               onClick={() => setShowSettings(true)}
-              className="group relative flex items-center w-full px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-gray-100"
+              className="group relative flex items-center w-full px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
             >
               <Settings className="w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-105" />
-              
+
               {(isExpanded || isMobileOpen || showSettings) && (
                 <span className="ml-3 text-sm font-medium whitespace-nowrap animate-in fade-in slide-in-from-left-1 duration-150">
                   设置

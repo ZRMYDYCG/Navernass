@@ -24,8 +24,8 @@ export function ChapterHeader({
   onCollapseAll,
 }: ChapterHeaderProps) {
   return (
-    <div className="h-7 px-1.5 flex items-center justify-between bg-gray-100 dark:bg-zinc-800">
-      <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
+    <div className="h-9 px-2 flex items-center justify-between border-b border-sidebar-border bg-sidebar/50 backdrop-blur-sm">
+      <span className="text-xs font-medium text-muted-foreground truncate font-serif pl-1">
         {novelTitle || '未选择小说'}
       </span>
 
@@ -36,12 +36,12 @@ export function ChapterHeader({
               <button
                 type="button"
                 onClick={onCreateVolume}
-                className="p-0.5 h-5 w-5 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                className="p-1.5 h-6 w-6 flex items-center justify-center hover:bg-sidebar-accent rounded-md transition-colors text-muted-foreground hover:text-sidebar-foreground"
               >
-                <FolderPlus className="w-3 h-3" />
+                <FolderPlus className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
               <p>新建卷</p>
             </TooltipContent>
           </Tooltip>
@@ -50,12 +50,12 @@ export function ChapterHeader({
               <button
                 type="button"
                 onClick={onCreateChapter}
-                className="p-0.5 h-5 w-5 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                className="p-1.5 h-6 w-6 flex items-center justify-center hover:bg-sidebar-accent rounded-md transition-colors text-muted-foreground hover:text-sidebar-foreground"
               >
-                <BookOpen className="w-3 h-3" />
+                <BookOpen className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
               <p>新建章节</p>
             </TooltipContent>
           </Tooltip>
@@ -64,12 +64,12 @@ export function ChapterHeader({
               <button
                 type="button"
                 onClick={onRefresh}
-                className="p-0.5 h-5 w-5 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                className="p-1.5 h-6 w-6 flex items-center justify-center hover:bg-sidebar-accent rounded-md transition-colors text-muted-foreground hover:text-sidebar-foreground"
               >
-                <RefreshCw className="w-3 h-3" />
+                <RefreshCw className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
               <p>刷新</p>
             </TooltipContent>
           </Tooltip>
@@ -78,12 +78,12 @@ export function ChapterHeader({
               <button
                 type="button"
                 onClick={onCollapseAll}
-                className="p-0.5 h-5 w-5 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                className="p-1.5 h-6 w-6 flex items-center justify-center hover:bg-sidebar-accent rounded-md transition-colors text-muted-foreground hover:text-sidebar-foreground"
               >
-                <Minus className="w-3 h-3" />
+                <Minus className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
               <p>收起全部</p>
             </TooltipContent>
           </Tooltip>

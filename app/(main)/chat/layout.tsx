@@ -12,7 +12,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
       <ChatSidebar isOpen={isOpen} onClose={close} />
 
       {/* 主内容区域 */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-zinc-800">
+      <main className="flex-1 flex flex-col overflow-hidden bg-background">
         {children}
       </main>
     </div>

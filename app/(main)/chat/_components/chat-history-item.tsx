@@ -162,14 +162,14 @@ export function ChatHistoryItem({
         {isEditing
           ? (
               <div className="flex items-center gap-1 px-3 py-2 relative">
-                <LeadingIcon className="w-4 h-4 shrink-0 text-gray-400" />
+                <LeadingIcon className="w-4 h-4 shrink-0 text-muted-foreground" />
                 <Input
                   value={editTitle}
                   onChange={e => setEditTitle(e.target.value)}
                   onKeyDown={handleKeyDown}
                   onBlur={handleRenameSubmit}
                   disabled={isRenaming}
-                  className="h-7 text-sm flex-1 min-w-0"
+                  className="h-7 text-sm flex-1 min-w-0 bg-background border-input focus-visible:ring-ring"
                   autoFocus
                 />
                 <Button
@@ -177,7 +177,7 @@ export function ChatHistoryItem({
                   size="icon-sm"
                   onClick={handleRenameSubmit}
                   disabled={isRenaming}
-                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed"
+                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
                 >
                   <Check className="w-3.5 h-3.5" />
                 </Button>
@@ -186,7 +186,7 @@ export function ChatHistoryItem({
                   size="icon-sm"
                   onClick={handleRenameCancel}
                   disabled={isRenaming}
-                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed"
+                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
                 >
                   <X className="w-3.5 h-3.5" />
                 </Button>
@@ -196,16 +196,16 @@ export function ChatHistoryItem({
               <Button
                 variant="ghost"
                 className={cn(
-                  'w-full justify-start px-3 py-2 h-9 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 relative transition-colors overflow-hidden cursor-pointer',
-                  isActive && 'bg-white dark:bg-zinc-700/70 hover:bg-gray-50 dark:hover:bg-gray-700',
+                  'w-full justify-start px-3 py-2 h-9 text-left hover:bg-sidebar-accent/50 relative transition-all duration-200 overflow-hidden cursor-pointer rounded-lg',
+                  isActive && 'bg-card shadow-sm border border-border/50 hover:bg-card hover:shadow-md',
                 )}
                 onClick={handleClick}
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[calc(100%-2.5rem)]">
                   <LeadingIcon
                     className={cn(
-                    'w-4 h-4 shrink-0',
-                    isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400',
+                    'w-4 h-4 shrink-0 transition-colors',
+                    isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground/80',
                     )}
                   />
                   <Tooltip delayDuration={500}>
@@ -213,15 +213,15 @@ export function ChatHistoryItem({
                       <span
                         ref={titleRef}
                         className={cn(
-                          'text-sm truncate block',
-                          isActive ? 'text-gray-900 dark:text-gray-100 font-semibold' : 'text-gray-700 dark:text-gray-300',
+                          'text-sm truncate block transition-colors',
+                          isActive ? 'text-foreground font-medium' : 'text-muted-foreground group-hover:text-foreground',
                         )}
                       >
                         {chat.title}
                       </span>
                     </TooltipTrigger>
                     {isTruncated && (
-                      <TooltipContent className="max-w-xs">
+                      <TooltipContent className="max-w-xs bg-popover text-popover-foreground">
                         <p>{chat.title}</p>
                       </TooltipContent>
                     )}
@@ -238,7 +238,7 @@ export function ChatHistoryItem({
                 variant="ghost"
                 size="icon-sm"
                 className={cn(
-                  'absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-opacity duration-200 z-10 cursor-pointer',
+                  'absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:bg-accent transition-opacity duration-200 z-10 cursor-pointer h-7 w-7',
                   shouldShowButton ? 'opacity-100' : 'opacity-0 pointer-events-none',
                 )}
                 onClick={e => e.stopPropagation()}
@@ -246,8 +246,8 @@ export function ChatHistoryItem({
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={handlePinClick}>
+            <DropdownMenuContent align="end" className="w-40 bg-popover border-border shadow-paper-md">
+              <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-accent" onClick={handlePinClick}>
                 {chat.isPinned
                   ? (
                       <>
@@ -262,13 +262,13 @@ export function ChatHistoryItem({
                       </>
                     )}
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={handleRenameClick}>
+              <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-accent" onClick={handleRenameClick}>
                 <Edit3 className="w-4 h-4" />
                 <span>重命名</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="bg-border" />
               <DropdownMenuItem
-                className="gap-2 text-red-600 dark:text-red-400 cursor-pointer"
+                className="gap-2 text-destructive cursor-pointer focus:bg-destructive/10"
                 onClick={handleDeleteClick}
               >
                 <Trash2 className="w-4 h-4" />

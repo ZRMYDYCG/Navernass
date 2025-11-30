@@ -96,28 +96,28 @@ export function ChatInputBox({
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8">
-      <div className="bg-white dark:bg-zinc-800 rounded-[5px] shadow-lg border border-gray-200 dark:border-gray-700 transition-all flex flex-col min-h-[120px] max-w-4xl mx-auto">
+      <div className="bg-card rounded-xl shadow-lg border border-border transition-all flex flex-col min-h-[120px] max-w-4xl mx-auto focus-within:shadow-xl focus-within:border-primary/20">
         <div
           ref={editorRef}
           contentEditable={!disabled}
           onInput={handleInput}
           onKeyDown={handleKeyDown}
-          className={`relative w-full px-3 py-4 bg-transparent border-none outline-none text-gray-800 dark:text-gray-200 flex-1 overflow-y-auto break-words max-h-[180px] ${
+          className={`relative w-full px-4 py-4 bg-transparent border-none outline-none text-foreground flex-1 overflow-y-auto break-words max-h-[180px] font-serif leading-relaxed ${
             disabled ? 'opacity-50 cursor-not-allowed' : ''
           }`}
           data-placeholder={disabled ? '等待对话创建...' : placeholder}
           suppressContentEditableWarning
         />
 
-        <div className="px-6 pb-3 pt-1 flex justify-end">
+        <div className="px-4 pb-3 pt-1 flex justify-end">
           <div className="flex items-center gap-2">
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={handleVoiceClick}
-              className={`h-9 w-9 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                isRecording ? 'text-red-500 dark:text-red-400 animate-pulse' : ''
+              className={`h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full ${
+                isRecording ? 'text-destructive animate-pulse' : ''
               }`}
             >
               <Mic className="w-5 h-5" />
@@ -128,19 +128,19 @@ export function ChatInputBox({
               onClick={handleSend}
               disabled={isEmpty || disabled || isSending}
               size="icon"
-              className={`h-9 w-9 bg-black text-white hover:bg-gray-900 dark:bg-black dark:text-white dark:hover:bg-gray-900 disabled:cursor-not-allowed flex items-center justify-center transition-colors ${
+              className={`h-9 w-9 bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed flex items-center justify-center transition-all rounded-lg shadow-sm ${
                 isSending
-                  ? 'disabled:bg-black disabled:text-white disabled:opacity-100'
-                  : 'disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:opacity-60'
+                  ? 'disabled:opacity-100'
+                  : 'disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none'
               }`}
               aria-busy={isSending}
             >
               {isSending
                 ? (
-                    <span className="block w-3 h-3 bg-white rounded-sm animate-pulse" />
+                    <span className="block w-3 h-3 bg-current rounded-sm animate-pulse" />
                   )
                 : (
-                    <Send className="w-5 h-5" />
+                    <Send className="w-4 h-4" />
                   )}
             </Button>
           </div>
