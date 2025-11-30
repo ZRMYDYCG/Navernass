@@ -1,7 +1,7 @@
 'use client'
 
 import type { Editor } from '@tiptap/react'
-import { Bold, Italic, Sparkles, Underline as UnderlineIcon } from 'lucide-react'
+import { Bold, Italic, MessageCircle, Sparkles, Underline as UnderlineIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 interface FormatToolbarProps {
@@ -59,18 +59,37 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
           <button
             type="button"
             onMouseDown={(e) => {
-              // 阻止默认行为，防止失去焦点
               e.preventDefault()
-              // 保存当前选中状态（在点击前保存，因为点击可能会改变选中状态）
+              const { from, to } = editor.state.selection
+              if (from === to) return
+
+              const doc = editor.state.doc
+              const selectedText = doc.textBetween(from, to, '\n\n')?.trim()
+              if (!selectedText) return
+
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(
+                  new CustomEvent('novel-ai-insert-from-editor', {
+                    detail: { text: selectedText },
+                  }),
+                )
+              }
+            }}
+            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
+            title="将选中文本发送到右侧 AI 面板"
+          >
+            <MessageCircle className="w-3 h-3" />
+          </button>
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault()
               const { from, to } = editor.state.selection
               const savedSelection = from !== to ? { from, to } : null
 
-              // 立即恢复选中状态和焦点
               if (savedSelection) {
-                // 使用 setTimeout 0 确保在浏览器处理点击事件后恢复
                 setTimeout(() => {
                   editor.chain().focus().setTextSelection({ from: savedSelection.from, to: savedSelection.to }).run()
-                  // 然后再触发 AI 点击
                   requestAnimationFrame(() => {
                     onAIClick?.()
                   })
