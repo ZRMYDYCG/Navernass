@@ -13,6 +13,9 @@
 # vscode
 .vscode/
 
+# IDEA
+.idea
+
 # testing
 /coverage
 
