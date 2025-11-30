@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
+import { useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { heroConfig } from '../config'
 import HeroBackground from './hero-background'
@@ -14,10 +14,20 @@ export default function Hero() {
   const y = useTransform(scrollY, [0, 300], [0, -30])
   const opacity = useTransform(scrollY, [0, 300], [1, 0.8])
 
-  const dateLabel = useMemo(
-    () => new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' }),
-    [],
-  )
+  const { timePeriod, dateLabel } = useMemo(() => {
+    const now = new Date()
+    const hour = now.getHours()
+
+    let period = heroConfig.stickyNote.timePeriods.night
+    if (hour >= 5 && hour < 12) period = heroConfig.stickyNote.timePeriods.morning
+    else if (hour >= 12 && hour < 18) period = heroConfig.stickyNote.timePeriods.afternoon
+    else if (hour >= 18 && hour < 22) period = heroConfig.stickyNote.timePeriods.evening
+
+    return {
+      timePeriod: period,
+      dateLabel: now.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' }),
+    }
+  }, [])
 
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden bg-background selection:bg-primary/10 selection:text-primary">
@@ -40,18 +50,20 @@ export default function Hero() {
                 <p className="mb-8 opacity-60 text-base italic">
                   {dateLabel}
                   {' '}
-                  · 下午
+                  ·
+                  {' '}
+                  {timePeriod}
                 </p>
 
                 <div className="space-y-4 text-left pl-4 sm:pl-12 border-l-2 border-red-300/30 dark:border-red-500/20 py-2">
                   <p>
-                    阳光透过窗棂洒在木质桌面上，尘埃在光束中缓慢飞舞。
+                    {heroConfig.stickyNote.content.p1}
                   </p>
                   <p>
-                    他拿起那支旧钢笔，迟疑了片刻，终于在纸上写下：
+                    {heroConfig.stickyNote.content.p2}
                   </p>
                   <p className="font-medium text-foreground">
-                    “所有的故事，都始于一个安静的瞬间，
+                    {heroConfig.stickyNote.content.p3}
                     <span className="animate-cursor-blink inline-block w-0.5 h-5 bg-foreground/80 align-middle ml-1"></span>
                     ”
                   </p>
@@ -59,11 +71,11 @@ export default function Hero() {
 
                 <div className="mt-12 pt-8 border-t border-dashed border-foreground/10 w-full flex flex-col items-center gap-4">
                   <p className="text-sm text-muted-foreground font-sans mb-2">
-                    邀请你继续把故事写下去...
+                    {heroConfig.stickyNote.prompt}
                   </p>
                   <Button size="lg" asChild className="rounded-full px-8 py-6 text-lg bg-foreground text-background hover:bg-foreground/90 transition-all duration-500 shadow-lg hover:shadow-xl hover:-translate-y-1 font-sans">
                     <Link href={heroConfig.ctaButtons.primary.href}>
-                      开始创作
+                      {heroConfig.ctaButtons.primary.text}
                     </Link>
                   </Button>
                 </div>

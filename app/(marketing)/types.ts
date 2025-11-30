@@ -48,6 +48,20 @@ export interface HeroConfig {
       dark: string
     }
   }
+  stickyNote: {
+    timePeriods: {
+      morning: string
+      afternoon: string
+      evening: string
+      night: string
+    }
+    content: {
+      p1: string
+      p2: string
+      p3: string
+    }
+    prompt: string
+  }
 }
 
 // Navbar 配置类型
