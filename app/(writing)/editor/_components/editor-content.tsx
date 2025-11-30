@@ -1,10 +1,10 @@
 import type { Chapter, Volume } from '@/lib/supabase/sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { paperFadeScale } from '@/components/motion/config'
+import { PaperLayer } from '@/components/motion/paper-layer'
 import { TiptapEditor } from '@/components/tiptap'
 import { Spinner } from '@/components/ui/spinner'
-import { PaperLayer } from '@/components/motion/paper-layer'
-import { paperFadeScale } from '@/components/motion/config'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { Breadcrumb } from './breadcrumb'
 import { SmartTabs } from './smart-tabs'
@@ -214,38 +214,40 @@ export default function EditorContent({
       />
 
       {/* 编辑器内容区域 - 模拟书桌上的纸张 */}
-      <div className="flex-1 overflow-y-auto flex justify-center p-6 sm:p-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {loading
           ? (
-              <div className="flex flex-col items-center justify-center h-full gap-3">
+              <div className="h-full flex flex-col items-center justify-center gap-3">
                 <Spinner className="w-8 h-8 text-stone-400" />
                 <span className="text-sm text-stone-500 dark:text-stone-400 font-light tracking-wider">正在铺开纸张...</span>
               </div>
             )
           : (
-              <PaperLayer 
-                className="w-full max-w-[65ch] min-h-[80vh] bg-background"
-                shadow="md"
-                variants={paperFadeScale}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-              >
-                <div className="p-8 sm:p-12 min-h-full">
-                  <TiptapEditor
-                    key={chapterId}
-                    content={chapter?.content || `<h1>${chapterTitle}</h1>`}
-                    placeholder="在此写下故事的开始..."
-                    onUpdate={handleUpdate}
-                    onStatsChange={handleStatsChange}
-                    autoSave={true}
-                    autoSaveDelay={3000}
-                    className="outline-none"
-                    editable={true}
-                    chapterId={chapterId}
-                  />
-                </div>
-              </PaperLayer>
+              <div className="min-h-full flex justify-center p-6 sm:p-8">
+                <PaperLayer
+                  className="w-full max-w-[65ch] min-h-[80vh] bg-background my-auto"
+                  shadow="md"
+                  variants={paperFadeScale}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <div className="p-8 sm:p-12 min-h-full">
+                    <TiptapEditor
+                      key={chapterId}
+                      content={chapter?.content || `<h1>${chapterTitle}</h1>`}
+                      placeholder="在此写下故事的开始..."
+                      onUpdate={handleUpdate}
+                      onStatsChange={handleStatsChange}
+                      autoSave={true}
+                      autoSaveDelay={3000}
+                      className="outline-none"
+                      editable={true}
+                      chapterId={chapterId}
+                    />
+                  </div>
+                </PaperLayer>
+              </div>
             )}
       </div>
 

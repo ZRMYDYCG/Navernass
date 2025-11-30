@@ -13,6 +13,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import { Spinner } from '@/components/ui/spinner'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { chaptersApi, novelsApi, volumesApi } from '@/lib/supabase/sdk'
+import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
 import { CreateVolumeDialog } from './_components/create-volume-dialog'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
@@ -24,7 +25,6 @@ import { SetPasswordDialog } from './_components/lock-screen/set-password-dialog
 import { RenameChapterDialog } from './_components/rename-chapter-dialog'
 import { RenameVolumeDialog } from './_components/rename-volume-dialog'
 import RightPanel from './_components/right-panel'
-import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
 
 function NovelsEditContent() {
   const searchParams = useSearchParams()
@@ -816,31 +816,33 @@ function NovelsEditContent() {
           />
 
           {/* 主题内容区域 */}
-          <main className="flex-1 bg-gray-100 dark:bg-zinc-800 transition-colors overflow-hidden">
+          <main className="flex-1 flex flex-col bg-gray-100 dark:bg-zinc-800 transition-colors overflow-hidden">
             {isMobile
               ? (
                 // 移动端：编辑器全屏显示
                   <div className="h-full">
                     {selectedChapter === null || activeTab === null
                       ? (
-                        // 未选择章节时显示欢迎界面
-                          <div className="h-full flex items-center justify-center bg-white dark:bg-zinc-900">
-                            <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600 px-4">
-                              <Image
-                                src="/assets/svg/logo-eye.svg"
-                                width={120}
-                                height={120}
-                                alt="Logo"
-                                className="opacity-40"
-                              />
-                              <p className="text-sm text-center">选择一个章节开始编辑</p>
-                              <button
-                                type="button"
-                                onClick={() => setLeftDrawerOpen(true)}
-                                className="px-4 py-2 bg-gray-100 dark:bg-zinc-800 rounded-lg text-sm text-gray-700 dark:text-gray-300"
-                              >
-                                打开章节列表
-                              </button>
+                    // 未选择章节时显示欢迎界面
+                          <div className="h-full overflow-y-auto bg-white dark:bg-zinc-900">
+                            <div className="min-h-full flex flex-col items-center justify-center p-4">
+                              <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
+                                <Image
+                                  src="/assets/svg/logo-eye.svg"
+                                  width={120}
+                                  height={120}
+                                  alt="Logo"
+                                  className="opacity-40"
+                                />
+                                <p className="text-sm text-center">选择一个章节开始编辑</p>
+                                <button
+                                  type="button"
+                                  onClick={() => setLeftDrawerOpen(true)}
+                                  className="px-4 py-2 bg-gray-100 dark:bg-zinc-800 rounded-lg text-sm text-gray-700 dark:text-gray-300"
+                                >
+                                  打开章节列表
+                                </button>
+                              </div>
                             </div>
                           </div>
                         )
@@ -921,34 +923,36 @@ function NovelsEditContent() {
                       {selectedChapter === null || activeTab === null
                         ? (
                           // 未选择章节时显示欢迎界面
-                            <div className="h-full flex items-center justify-center bg-white dark:bg-zinc-900">
-                              <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
-                                <Image
-                                  src="/assets/svg/logo-eye.svg"
-                                  width={120}
-                                  height={120}
-                                  alt="Logo"
-                                  className="opacity-40"
-                                />
-                                <p className="text-sm">选择一个章节开始编辑</p>
-                                <span className="flex items-center gap-1">
-                                  <Kbd>Ctrl</Kbd>
-                                  <Kbd>+</Kbd>
-                                  <Kbd>S</Kbd>
-                                  <span>保存内容</span>
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Kbd>Ctrl</Kbd>
-                                  <Kbd>+</Kbd>
-                                  <Kbd>E</Kbd>
-                                  <span>切换左侧面板</span>
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Kbd>Ctrl</Kbd>
-                                  <Kbd>+</Kbd>
-                                  <Kbd>L</Kbd>
-                                  <span>切换右侧面板</span>
-                                </span>
+                            <div className="h-full overflow-y-auto bg-white dark:bg-zinc-900">
+                              <div className="min-h-full flex flex-col items-center justify-center p-4">
+                                <div className="flex flex-col items-center gap-6 text-gray-400 dark:text-gray-600">
+                                  <Image
+                                    src="/assets/svg/logo-eye.svg"
+                                    width={120}
+                                    height={120}
+                                    alt="Logo"
+                                    className="opacity-40"
+                                  />
+                                  <p className="text-sm">选择一个章节开始编辑</p>
+                                  <span className="flex items-center gap-1">
+                                    <Kbd>Ctrl</Kbd>
+                                    <Kbd>+</Kbd>
+                                    <Kbd>S</Kbd>
+                                    <span>保存内容</span>
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Kbd>Ctrl</Kbd>
+                                    <Kbd>+</Kbd>
+                                    <Kbd>E</Kbd>
+                                    <span>切换左侧面板</span>
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Kbd>Ctrl</Kbd>
+                                    <Kbd>+</Kbd>
+                                    <Kbd>L</Kbd>
+                                    <span>切换右侧面板</span>
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           )
@@ -1094,12 +1098,13 @@ function NovelsEditContent() {
 
 export default function NovelsEdit() {
   return (
-    <Suspense fallback={
+    <Suspense fallback={(
       <div className="h-screen flex flex-col items-center justify-center bg-white dark:bg-zinc-900 gap-3">
         <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
         <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
       </div>
-    }>
+    )}
+    >
       <NovelsEditContent />
     </Suspense>
   )

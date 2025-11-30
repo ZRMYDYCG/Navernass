@@ -1,32 +1,32 @@
-"use client"
+'use client'
 
-import type { AiMode, AiModel } from "./types"
-import type { Chapter, NovelConversation, NovelMessage } from "@/lib/supabase/sdk"
-import { useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
-import { novelConversationsApi } from "@/lib/supabase/sdk"
-import { Spinner } from "@/components/ui/spinner"
-import { PaperLayer } from "@/components/motion/paper-layer"
-import { paperFadeScale } from "@/components/motion/config"
-import { AtButton } from "./at-button"
-import { ChapterSelector } from "./chapter-selector"
-import { ConversationHistory } from "./conversation-history"
-import { EmptyState } from "./empty-state"
-import { Header } from "./header"
-import { InputArea } from "./input-area"
-import { MessageList } from "./message-list"
-import { ModeSelector } from "./mode-selector"
-import { ModelSelector } from "./model-selector"
-import { RecentConversations } from "./recent-conversations"
-import { SelectedChapters } from "./selected-chapters"
-import { SendButton } from "./send-button"
+import type { AiMode, AiModel } from './types'
+import type { Chapter, NovelConversation, NovelMessage } from '@/lib/supabase/sdk'
+import { useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { paperFadeScale } from '@/components/motion/config'
+import { PaperLayer } from '@/components/motion/paper-layer'
+import { Spinner } from '@/components/ui/spinner'
+import { novelConversationsApi } from '@/lib/supabase/sdk'
+import { AtButton } from './at-button'
+import { ChapterSelector } from './chapter-selector'
+import { ConversationHistory } from './conversation-history'
+import { EmptyState } from './empty-state'
+import { Header } from './header'
+import { InputArea } from './input-area'
+import { MessageList } from './message-list'
+import { ModeSelector } from './mode-selector'
+import { ModelSelector } from './model-selector'
+import { RecentConversations } from './recent-conversations'
+import { SelectedChapters } from './selected-chapters'
+import { SendButton } from './send-button'
 
 export default function RightPanel() {
   const searchParams = useSearchParams()
   const novelId = searchParams.get('id') || ''
 
   const [messages, setMessages] = useState<NovelMessage[]>([])
-// ... (keep existing state)
+  // ... (keep existing state)
   const [conversations, setConversations] = useState<NovelConversation[]>([])
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [mode, setMode] = useState<AiMode>('ask')
@@ -44,24 +44,24 @@ export default function RightPanel() {
   const isStreamingRef = useRef(false)
 
   useEffect(() => {
-    if (typeof window === "undefined") return
+    if (typeof window === 'undefined') return
 
     const handleInsertFromEditor = (event: Event) => {
       const customEvent = event as CustomEvent<{ text?: string }>
       const text = customEvent.detail?.text
       if (!text) return
 
-      setInput(prev => {
+      setInput((prev) => {
         const current = prev.trim()
         if (!current) return text
         return `${current}\n\n${text}`
       })
     }
 
-    window.addEventListener("novel-ai-insert-from-editor", handleInsertFromEditor as EventListener)
+    window.addEventListener('novel-ai-insert-from-editor', handleInsertFromEditor as EventListener)
 
     return () => {
-      window.removeEventListener("novel-ai-insert-from-editor", handleInsertFromEditor as EventListener)
+      window.removeEventListener('novel-ai-insert-from-editor', handleInsertFromEditor as EventListener)
     }
   }, [])
 
@@ -297,77 +297,84 @@ export default function RightPanel() {
   }
 
   return (
-    <PaperLayer 
-      className="h-full flex flex-col rounded-none border-l border-border/40"
-      variants={paperFadeScale}
-      initial="initial"
-      animate="animate"
-    >
-      <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
+    <div className="h-full w-full p-3 bg-transparent">
+      <PaperLayer
+        className="h-full flex flex-col rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-black/5 dark:border-white/5 bg-[#F9F8F4] dark:bg-[#181818]"
+        variants={paperFadeScale}
+        initial="initial"
+        animate="animate"
+        sheet={false}
+      >
+        <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 
-      <div className="flex-1 overflow-hidden px-2 py-2" style={{ position: "relative" }}>
-        {isLoadingMessages ? (
-          <div className="h-full flex flex-col items-center justify-center gap-2">
-            <Spinner className="w-6 h-6 text-gray-400 dark:text-gray-500" />
-            <span className="text-xs text-gray-500 dark:text-gray-400">正在载入对话...</span>
+        <div className="flex-1 min-h-0 overflow-hidden px-2 py-2 relative">
+          {isLoadingMessages
+            ? (
+                <div className="h-full flex flex-col items-center justify-center gap-2">
+                  <Spinner className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                  <span className="text-xs text-gray-500 dark:text-gray-400">正在载入对话...</span>
+                </div>
+              )
+            : messages.length === 0
+              ? (
+                  <EmptyState />
+                )
+              : (
+                  <MessageList
+                    messages={messages}
+                    streamingMessageId={streamingMessageId}
+                    isLoading={isLoading && !streamingMessageId}
+                  />
+                )}
+        </div>
+
+        <div className="px-3 py-2 space-y-2 bg-[#F9F8F4] dark:bg-[#181818] rounded-b-lg z-10">
+          {messages.length === 0 && !isLoadingMessages && (
+            <RecentConversations
+              conversations={conversations}
+              onSelect={handleSelectConversation}
+            />
+          )}
+          {selectedChapters.length > 0 && (
+            <SelectedChapters chapters={selectedChapters} onRemove={handleRemoveChapter} />
+          )}
+
+          <div className="flex gap-2 items-end">
+            <InputArea
+              value={input}
+              onChange={setInput}
+              onSend={handleSend}
+            />
           </div>
-        ) : messages.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <MessageList
-            messages={messages}
-            streamingMessageId={streamingMessageId}
-            isLoading={isLoading && !streamingMessageId}
+
+          <div className="flex items-center gap-2 pt-1">
+            <AtButton onClick={handleAtClick} />
+            <ModeSelector value={mode} onChange={setMode} />
+            <ModelSelector value={model} onChange={setModel} />
+            <SendButton onClick={handleSend} disabled={!input.trim() || isLoading} />
+          </div>
+        </div>
+
+        {showChapterSelector && novelId && (
+          <ChapterSelector
+            novelId={novelId}
+            selectedChapters={selectedChapters}
+            onSelectionChange={handleChapterSelectionChange}
+            onClose={() => setShowChapterSelector(false)}
           />
         )}
-      </div>
 
-      <div className="px-2 py-1.5 space-y-1.5">
-        {messages.length === 0 && !isLoadingMessages && (
-          <RecentConversations
+        {showHistory && (
+          <ConversationHistory
             conversations={conversations}
+            currentConversationId={currentConversationId || undefined}
             onSelect={handleSelectConversation}
+            onDelete={handleDeleteConversation}
+            onPin={handlePinConversation}
+            onClose={() => setShowHistory(false)}
           />
         )}
-        {selectedChapters.length > 0 && (
-          <SelectedChapters chapters={selectedChapters} onRemove={handleRemoveChapter} />
-        )}
-
-        <div className="flex gap-1.5 items-end">
-          <InputArea
-            value={input}
-            onChange={setInput}
-            onSend={handleSend}
-          />
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <AtButton onClick={handleAtClick} />
-          <ModeSelector value={mode} onChange={setMode} />
-          <ModelSelector value={model} onChange={setModel} />
-          <SendButton onClick={handleSend} disabled={!input.trim() || isLoading} />
-        </div>
-      </div>
-
-      {showChapterSelector && novelId && (
-        <ChapterSelector
-          novelId={novelId}
-          selectedChapters={selectedChapters}
-          onSelectionChange={handleChapterSelectionChange}
-          onClose={() => setShowChapterSelector(false)}
-        />
-      )}
-
-      {showHistory && (
-        <ConversationHistory
-          conversations={conversations}
-          currentConversationId={currentConversationId || undefined}
-          onSelect={handleSelectConversation}
-          onDelete={handleDeleteConversation}
-          onPin={handlePinConversation}
-          onClose={() => setShowHistory(false)}
-        />
-      )}
-    </PaperLayer>
+      </PaperLayer>
+    </div>
   )
 }
