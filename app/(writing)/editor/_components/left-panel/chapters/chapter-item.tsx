@@ -38,11 +38,13 @@ export function ChapterItem({
         <div
           ref={setNodeRef}
           style={style}
-          className={`group px-1.5 py-1 cursor-pointer transition-colors ${
-            isSelected ? 'bg-gray-200 dark:bg-zinc-700' : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+          className={`group px-3 py-2 my-1 min-h-[48px] flex items-center rounded-lg transition-all duration-300 ease-out ${
+            isSelected 
+              ? 'bg-white dark:bg-zinc-800 shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-none' 
+              : 'hover:bg-white/60 dark:hover:bg-zinc-800/50'
           }`}
         >
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2 w-full">
             {/* 拖拽手柄 + Popover */}
             <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
               <Popover.Trigger asChild>
@@ -50,17 +52,17 @@ export function ChapterItem({
                   type="button"
                   {...attributes}
                   {...listeners}
-                  className={`cursor-grab active:cursor-grabbing p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity ${
-                    isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-1 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-opacity ${
+                    isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-30'
                   }`}
                   onClick={e => e.stopPropagation()}
                 >
-                  <GripVertical className="w-3 h-3 text-gray-400" />
+                  <GripVertical className="w-3.5 h-3.5 text-stone-400 dark:text-zinc-500" />
                 </button>
               </Popover.Trigger>
               <Popover.Portal>
                 <Popover.Content
-                  className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+                  className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-stone-200 dark:border-zinc-700 p-1 z-50 min-w-[160px]"
                   sideOffset={5}
                   align="start"
                 >
@@ -72,7 +74,7 @@ export function ChapterItem({
                         onRename(chapter)
                         setPopoverOpen(false)
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-700 rounded-md transition-colors"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                       重命名
@@ -97,18 +99,18 @@ export function ChapterItem({
             </Popover.Root>
 
             {/* 章节信息 */}
-            <div className="flex-1 min-w-0 flex items-center justify-between" onClick={onSelect}>
+            <div className="flex-1 min-w-0 flex items-baseline justify-between gap-2" onClick={onSelect}>
               <h3
-                className={`text-xs font-normal truncate flex-1 ${
-                  isSelected ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
+                className={`text-[15px] font-normal leading-[1.6] truncate flex-1 transition-colors ${
+                  isSelected ? 'text-[#333333] dark:text-zinc-100 font-medium' : 'text-[#333333]/80 dark:text-zinc-300'
                 }`}
               >
                 {chapter.title}
               </h3>
 
               <span
-                className={`text-[10px] ml-1.5 ${
-                  isSelected ? 'text-gray-600 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'
+                className={`text-[11px] flex-shrink-0 transition-opacity ${
+                  isSelected ? 'text-stone-500 dark:text-zinc-400' : 'text-stone-400 dark:text-zinc-500 opacity-0 group-hover:opacity-100'
                 }`}
               >
                 {chapter.wordCount}

@@ -35,11 +35,11 @@ function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver
       ref={setNodeRef}
       className={`transition-all duration-200 ${
         isOver
-          ? 'h-16 mb-2 border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-zinc-800/50'
-          : 'h-12 mb-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:border-gray-400 dark:hover:border-gray-500'
+          ? 'h-16 mb-2 border-2 border-dashed border-stone-300 dark:border-zinc-600 rounded-lg flex items-center justify-center bg-stone-50 dark:bg-zinc-800/50'
+          : 'h-12 mb-2 border-2 border-dashed border-stone-200 dark:border-zinc-700 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:border-stone-300 dark:hover:border-zinc-600'
       }`}
     >
-      <span className="text-sm text-gray-500 dark:text-gray-400">
+      <span className="text-sm text-stone-500 dark:text-zinc-400">
         {isOver ? '松开以移出到根目录' : '拖到这里移出到根目录'}
       </span>
     </div>
@@ -290,7 +290,7 @@ export function ChapterList({
   ]
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-zinc-800 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
+    <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-stone-200 dark:scrollbar-thumb-zinc-700 scrollbar-track-transparent">
       <DndContext
         sensors={sensors}
         collisionDetection={pointerWithin}
@@ -338,7 +338,7 @@ export function ChapterList({
 
                       <div
                         className={isOver
-                          ? 'bg-gray-100 dark:bg-zinc-800 transition-colors'
+                          ? 'bg-stone-100 dark:bg-zinc-800 transition-colors rounded-lg'
                           : ''}
                       >
                         <ChapterItem
@@ -377,7 +377,7 @@ export function ChapterList({
 
                 <div
                   className={isOver
-                    ? 'bg-gray-100 dark:bg-zinc-800 transition-colors'
+                    ? 'bg-stone-100 dark:bg-zinc-800 transition-colors rounded-lg'
                     : ''}
                 >
                   <ChapterItem

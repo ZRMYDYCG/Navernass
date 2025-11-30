@@ -15,7 +15,7 @@ interface TabSwitcherProps {
 export function TabSwitcher({ activeTab, onChange }: TabSwitcherProps) {
   return (
     <TooltipProvider>
-      <div className="h-full flex flex-col items-center gap-2 py-4 px-1 border-r border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-zinc-900">
+      <div className="h-full flex flex-col items-center gap-2 py-4 px-1">
         {TAB_CONFIGS.map(tab => {
           const Icon = tab.icon
           const isActive = activeTab === tab.value
