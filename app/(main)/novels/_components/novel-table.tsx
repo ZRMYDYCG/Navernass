@@ -4,14 +4,6 @@ import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Edit2, MoreHorizontal, Play, Trash2 } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 
 interface NovelTableProps {
   novels: Novel[]
@@ -33,154 +25,131 @@ export function NovelTable({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <Spinner className="w-8 h-8" />
-        <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
+        <Spinner className="w-6 h-6 text-stone-400" />
+        <span className="text-sm text-stone-400 font-serif">Loading...</span>
       </div>
     )
   }
 
   if (novels.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
-        <p className="text-lg mb-2">还没有小说</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">点击右上角创建你的第一部小说</p>
+      <div className="flex flex-col items-center justify-center py-20 text-stone-400 dark:text-zinc-500 font-serif">
+        <p className="text-lg mb-2 italic">Empty pages...</p>
+        <p className="text-sm opacity-70">Start writing your first story.</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-800 -mx-2 sm:mx-0">
-      <Table className="min-w-[900px]">
-        <TableHeader>
-          <TableRow className="bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-50 dark:hover:bg-zinc-800/50">
-            <TableHead className="min-w-[200px] py-3 px-4 font-semibold text-center">标题</TableHead>
-            <TableHead className="min-w-[250px] py-3 px-4 font-semibold text-center">描述</TableHead>
-            <TableHead className="min-w-[80px] py-3 px-4 font-semibold text-center">状态</TableHead>
-            <TableHead className="min-w-[70px] py-3 px-4 font-semibold text-center">章节</TableHead>
-            <TableHead className="min-w-[90px] py-3 px-4 font-semibold text-center">字数</TableHead>
-            <TableHead className="min-w-[120px] py-3 px-4 font-semibold text-center">更新时间</TableHead>
-            <TableHead className="w-20 py-3 px-4 font-semibold text-center">操作</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {novels.map((novel, index) => (
-            <TableRow
-              key={novel.id}
-              onContextMenu={e => onContextMenu(e, novel)}
-              className={`group ${
-                index % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50/30 dark:bg-zinc-800/20'
-              }`}
-            >
-              <TableCell className="py-4 px-4 text-center">
-                <button
-                  type="button"
-                  onClick={() => onOpenNovel(novel)}
-                  className="font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-ellipsis overflow-hidden block max-w-[200px] mx-auto"
-                  title={novel.title}
-                >
-                  {novel.title}
-                </button>
-              </TableCell>
+    <div className="flex flex-col gap-3 max-w-5xl mx-auto">
+      {novels.map(novel => (
+        <div
+          key={novel.id}
+          onClick={() => onOpenNovel(novel)}
+          onContextMenu={e => onContextMenu(e, novel)}
+          className="group relative flex items-center justify-between p-4 bg-white dark:bg-zinc-900 rounded-lg border border-stone-200 dark:border-zinc-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ease-out cursor-pointer"
+        >
+          {/* Left: Title & Intro */}
+          <div className="flex flex-col gap-1.5 max-w-[50%]">
+            <div className="flex items-center gap-3">
+              <h3 className="font-serif text-lg font-medium text-zinc-900 dark:text-zinc-100 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
+                {novel.title}
+              </h3>
+              <span
+                className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                  novel.status === 'published'
+                    ? 'border-emerald-200 text-emerald-700 dark:border-emerald-900 dark:text-emerald-500'
+                    : 'border-stone-200 text-stone-500 dark:border-zinc-700 dark:text-zinc-500'
+                }`}
+              >
+                {novel.status === 'published' ? 'PUB' : 'DFT'}
+              </span>
+            </div>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-1 font-light">
+              {novel.description || 'No description'}
+            </p>
+          </div>
 
-              <TableCell className="py-4 px-4 text-center">
-                <span className="text-sm text-muted-foreground text-ellipsis overflow-hidden block max-w-[250px] mx-auto" title={novel.description || ''}>
-                  {novel.description || '-'}
+          {/* Right: Metadata */}
+          <div className="flex items-center gap-6 text-sm text-zinc-400 dark:text-zinc-500 font-light">
+            {/* Tags */}
+            <div className="hidden sm:flex gap-2">
+              {novel.tags?.slice(0, 3).map(tag => (
+                <span key={tag} className="text-xs text-zinc-500 bg-stone-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+                  {tag}
                 </span>
-              </TableCell>
+              ))}
+            </div>
 
-              <TableCell className="py-4 px-4 text-center">
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    novel.status === 'published'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-gray-100 text-gray-800 dark:bg-zinc-800 dark:text-gray-400'
-                  }`}
-                >
-                  {novel.status === 'published' ? '已发布' : '草稿'}
-                </span>
-              </TableCell>
+            <div className="flex items-center gap-4 min-w-[200px] justify-end">
+              <span className="tabular-nums tracking-wide">
+                {(novel.word_count || 0).toLocaleString()}
+                {' '}
+                words
+              </span>
+              <span className="w-px h-3 bg-stone-300 dark:bg-zinc-700" />
+              <span className="whitespace-nowrap">
+                {formatDistanceToNow(new Date(novel.updated_at), {
+                  addSuffix: true,
+                  locale: zhCN,
+                })}
+              </span>
+            </div>
 
-              <TableCell className="py-4 px-4 text-center">
-                <span className="text-sm">
-                  {novel.chapter_count || 0}
-                </span>
-              </TableCell>
-
-              <TableCell className="py-4 px-4 text-center">
-                <span className="text-sm">
-                  {(novel.word_count || 0).toLocaleString()}
-                </span>
-              </TableCell>
-
-              <TableCell className="py-4 px-4 text-center">
-                <span className="text-sm text-muted-foreground">
-                  {formatDistanceToNow(new Date(novel.updated_at), {
-                    addSuffix: true,
-                    locale: zhCN,
-                  })}
-                </span>
-              </TableCell>
-
-              <TableCell className="py-4 px-4 text-center">
-                <div className="flex items-center justify-center">
-                  <Popover.Root>
-                    <Popover.Trigger asChild>
+            {/* Actions */}
+            <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200" onClick={e => e.stopPropagation()}>
+              <Popover.Root>
+                <Popover.Trigger asChild>
+                  <button className="p-2 hover:bg-stone-100 dark:hover:bg-zinc-800 rounded-full text-stone-500 transition-colors">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Content
+                    className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl border border-stone-100 dark:border-zinc-800 p-1 z-50 min-w-[160px] animate-in fade-in zoom-in-95 duration-200"
+                    sideOffset={5}
+                    align="end"
+                  >
+                    <div className="flex flex-col gap-0.5">
                       <button
-                        type="button"
-                        className="p-1.5 cursor-pointer rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        onClick={e => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation(); onOpenNovel(novel)
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-stone-50 dark:hover:bg-zinc-800 rounded-md transition-colors text-left"
                       >
-                        <MoreHorizontal className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        <Play className="w-4 h-4 opacity-70" />
+                        {' '}
+                        Open
                       </button>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                      <Popover.Content
-                        className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
-                        sideOffset={5}
-                        align="end"
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); onEditNovel(novel)
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-stone-50 dark:hover:bg-zinc-800 rounded-md transition-colors text-left"
                       >
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onOpenNovel(novel)
-                          }}
-                          className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                        >
-                          <Play className="w-4 h-4" />
-                          开始创作
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onEditNovel(novel)
-                          }}
-                          className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                          编辑信息
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onDeleteNovel(novel)
-                          }}
-                          className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          删除
-                        </button>
-                      </Popover.Content>
-                    </Popover.Portal>
-                  </Popover.Root>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                        <Edit2 className="w-4 h-4 opacity-70" />
+                        {' '}
+                        Edit Info
+                      </button>
+                      <div className="h-px bg-stone-100 dark:bg-zinc-800 my-1" />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); onDeleteNovel(novel)
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors text-left"
+                      >
+                        <Trash2 className="w-4 h-4 opacity-70" />
+                        {' '}
+                        Delete
+                      </button>
+                    </div>
+                  </Popover.Content>
+                </Popover.Portal>
+              </Popover.Root>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

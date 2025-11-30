@@ -191,24 +191,24 @@ function NovelsContent() {
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
 
   return (
-    <div className="flex flex-col dark:bg-zinc-900 transition-colors h-full">
-      <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 shrink-0">
+    <div className="flex flex-col bg-[#F9F8F4] dark:bg-zinc-900 transition-colors h-full font-serif">
+      <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-8 pt-8 pb-6 shrink-0">
         <div className="flex-1 hidden sm:block" />
         <SegmentedControl
           value={filter}
           onValueChange={value => setFilter(value as NovelFilterType)}
-          className="w-full sm:w-fit"
+          className="w-full sm:w-fit bg-transparent p-1 border border-stone-200 dark:border-zinc-800 rounded-lg"
         >
-          <SegmentedControlItem value="all">全部</SegmentedControlItem>
-          <SegmentedControlItem value="draft">草稿</SegmentedControlItem>
-          <SegmentedControlItem value="published">已发布</SegmentedControlItem>
+          <SegmentedControlItem value="all" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">全部</SegmentedControlItem>
+          <SegmentedControlItem value="draft" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">草稿</SegmentedControlItem>
+          <SegmentedControlItem value="published" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">已发布</SegmentedControlItem>
         </SegmentedControl>
         <div className="flex-1 flex justify-end">
           <ViewSwitcher value={viewMode} onChange={setViewMode} />
         </div>
       </section>
 
-      <div className="flex-1 py-2 px-4 sm:px-6">
+      <div className="flex-1 py-2 px-8 overflow-y-auto">
         {viewMode === 'grid'
           ? (
               <NovelList
