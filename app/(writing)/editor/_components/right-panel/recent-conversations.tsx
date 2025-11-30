@@ -25,13 +25,13 @@ export function RecentConversations({ conversations, onSelect }: RecentConversat
         <button
           key={conversation.id}
           onClick={() => onSelect(conversation)}
-          className="w-full px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded border border-gray-200 dark:border-gray-600 transition-colors text-left flex items-center gap-2 cursor-pointer"
+          className="w-full px-2.5 py-2 hover:bg-stone-100 dark:hover:bg-zinc-800/50 rounded-lg border border-transparent hover:border-stone-200/50 dark:hover:border-zinc-700 transition-all text-left flex items-center gap-2.5 cursor-pointer group"
         >
           <CircularProgress messageCount={conversation.message_count || 0} />
-          <div className="flex-1 min-w-0 text-xs text-gray-700 dark:text-gray-300 truncate">
+          <div className="flex-1 min-w-0 text-xs text-[#333333] dark:text-zinc-300 truncate group-hover:text-black dark:group-hover:text-zinc-100 font-medium">
             {conversation.title || '无标题对话'}
           </div>
-          <div className="text-[10px] text-gray-500 dark:text-gray-400 flex-shrink-0">
+          <div className="text-[10px] text-stone-400 dark:text-zinc-500 flex-shrink-0 group-hover:text-stone-500 dark:group-hover:text-zinc-400">
             {formatDistanceToNow(new Date(conversation.updated_at), {
               addSuffix: true,
               locale: zhCN,

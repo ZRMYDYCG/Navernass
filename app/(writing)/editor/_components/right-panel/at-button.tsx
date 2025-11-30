@@ -9,10 +9,10 @@ export function AtButton({ onClick }: AtButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className="p-1.5 h-6 w-6 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200 border border-gray-200 dark:border-gray-700 shrink-0 hover:scale-110 active:scale-95"
+      className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded-md transition-all duration-200 border border-transparent hover:border-stone-200 dark:hover:border-zinc-600 shrink-0 text-stone-500 hover:text-stone-800 dark:text-zinc-400 dark:hover:text-zinc-200"
       title="引用章节内容"
     >
-      <AtSign className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+      <AtSign className="w-3.5 h-3.5" />
     </button>
   )
 }

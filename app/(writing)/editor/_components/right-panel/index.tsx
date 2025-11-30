@@ -58,10 +58,10 @@ export default function RightPanel() {
       })
     }
 
-    window.addEventListener('novel-ai-insert-from-editor', handleInsertFromEditor as EventListener)
+    window.addEventListener('novel-ai-insert-from-editor', handleInsertFromEditor)
 
     return () => {
-      window.removeEventListener('novel-ai-insert-from-editor', handleInsertFromEditor as EventListener)
+      window.removeEventListener('novel-ai-insert-from-editor', handleInsertFromEditor)
     }
   }, [])
 
@@ -299,7 +299,7 @@ export default function RightPanel() {
   return (
     <div className="h-full w-full p-3 bg-transparent">
       <PaperLayer
-        className="h-full flex flex-col rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-black/5 dark:border-white/5 bg-[#F9F8F4] dark:bg-[#181818]"
+        className="h-full flex flex-col rounded-lg shadow-none bg-[#FAF9F6] dark:bg-zinc-900"
         variants={paperFadeScale}
         initial="initial"
         animate="animate"
@@ -311,8 +311,8 @@ export default function RightPanel() {
           {isLoadingMessages
             ? (
                 <div className="h-full flex flex-col items-center justify-center gap-2">
-                  <Spinner className="w-6 h-6 text-gray-400 dark:text-gray-500" />
-                  <span className="text-xs text-gray-500 dark:text-gray-400">正在载入对话...</span>
+                  <Spinner className="w-6 h-6 text-stone-400 dark:text-zinc-500" />
+                  <span className="text-xs text-stone-500 dark:text-zinc-400">正在载入对话...</span>
                 </div>
               )
             : messages.length === 0
@@ -328,7 +328,7 @@ export default function RightPanel() {
                 )}
         </div>
 
-        <div className="px-3 py-2 space-y-2 bg-[#F9F8F4] dark:bg-[#181818] rounded-b-lg z-10">
+        <div className="px-3 py-2 space-y-2 bg-[#FAF9F6] dark:bg-zinc-900 rounded-b-lg z-10">
           {messages.length === 0 && !isLoadingMessages && (
             <RecentConversations
               conversations={conversations}

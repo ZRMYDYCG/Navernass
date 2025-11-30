@@ -18,18 +18,18 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between gap-1.5 px-1.5 py-1 text-xs bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200 border border-gray-200 dark:border-gray-700 hover:scale-[1.02] active:scale-95"
+        className="w-full flex items-center justify-between gap-2 px-2 py-1 text-xs bg-white dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 rounded-md transition-all duration-200 border border-stone-200 dark:border-zinc-700 shadow-sm hover:shadow-md"
       >
-        <span className="text-gray-900 dark:text-gray-100 truncate">
+        <span className="text-[#333333] dark:text-zinc-200 truncate font-medium">
           {currentModel?.label}
         </span>
-        <ChevronDown className="w-2.5 h-2.5 text-gray-500 shrink-0 transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+        <ChevronDown className="w-2.5 h-2.5 text-stone-400 shrink-0 transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
 
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute bottom-full mb-1 left-0 right-0 z-20 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg py-0.5 animate-in fade-in-0 zoom-in-95 duration-200 max-h-48 overflow-y-auto">
+          <div className="absolute bottom-full mb-1 left-0 right-0 z-20 bg-white dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-lg shadow-xl py-1 animate-in fade-in-0 zoom-in-95 duration-200 max-h-48 overflow-y-auto">
             {MODEL_OPTIONS.map(model => (
               <button
                 type="button"
@@ -38,10 +38,10 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
                   onChange(model.value)
                   setIsOpen(false)
                 }}
-                className={`w-full text-left px-2 py-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-150 ${
+                className={`w-full text-left px-2.5 py-1.5 text-xs hover:bg-stone-50 dark:hover:bg-zinc-700 transition-all duration-150 ${
                   value === model.value
-                    ? 'bg-gray-100 dark:bg-zinc-700 text-gray-900 dark:text-gray-100 font-medium'
-                    : 'text-gray-700 dark:text-gray-300'
+                    ? 'bg-stone-50 dark:bg-zinc-700 text-[#333333] dark:text-zinc-100 font-medium'
+                    : 'text-stone-600 dark:text-zinc-400'
                 }`}
               >
                 {model.label}

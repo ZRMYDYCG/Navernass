@@ -72,45 +72,45 @@ export function ChapterSelector({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-32">
-      <div className="fixed inset-0 bg-black/20" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose} />
       <div
         ref={containerRef}
-        className="relative z-10 w-full max-w-md bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
+        className="relative z-10 w-full max-w-md bg-[#FAF9F6] dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-xl shadow-xl"
       >
         {/* 头部 */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-zinc-800">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">选择章节</h3>
+        <div className="flex items-center justify-between p-4 border-b border-stone-200 dark:border-zinc-700">
+          <h3 className="text-sm font-medium text-[#333333] dark:text-gray-100">选择章节</h3>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+            className="p-1 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-colors text-stone-500"
           >
-            <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* 搜索框 */}
-        <div className="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-zinc-800">
+        <div className="p-3 border-b border-stone-200 dark:border-zinc-700 bg-[#FAF9F6] dark:bg-zinc-800">
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="搜索章节..."
-            className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+            className="w-full px-3 py-2 text-sm border border-stone-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-[#333333] dark:text-gray-100 placeholder:text-stone-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-stone-200 dark:focus:ring-zinc-600 shadow-sm"
           />
         </div>
 
         {/* 章节列表 */}
-        <div className="max-h-96 overflow-y-auto bg-gray-100 dark:bg-zinc-800">
+        <div className="max-h-96 overflow-y-auto bg-[#FAF9F6] dark:bg-zinc-800 scrollbar-thin scrollbar-thumb-stone-200">
           {loading
             ? (
                 <div className="p-8 flex items-center justify-center">
-                  <Spinner className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                  <Spinner className="w-6 h-6 text-stone-400 dark:text-gray-400" />
                 </div>
               )
             : filteredChapters.length === 0
               ? (
-                  <div className="p-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                  <div className="p-8 text-center text-sm text-stone-500 dark:text-gray-400">
                     {searchQuery ? '未找到匹配的章节' : '暂无章节'}
                   </div>
                 )
@@ -123,25 +123,25 @@ export function ChapterSelector({
                           key={chapter.id}
                           type="button"
                           onClick={() => toggleChapter(chapter)}
-                          className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors mb-1 ${
+                          className={`w-full text-left px-3 py-2.5 text-sm rounded-lg transition-all mb-1 ${
                             isSelected
-                              ? 'bg-gray-100 dark:bg-zinc-700 text-gray-900 dark:text-gray-100'
-                              : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'
+                              ? 'bg-white dark:bg-zinc-700 text-[#333333] dark:text-gray-100 shadow-sm border border-stone-100 dark:border-zinc-600'
+                              : 'hover:bg-stone-100 dark:hover:bg-zinc-700/50 text-stone-600 dark:text-gray-300 border border-transparent'
                           }`}
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">
                             <div
-                              className={`w-4 h-4 border-2 rounded flex items-center justify-center shrink-0 ${
+                              className={`w-4 h-4 border-2 rounded flex items-center justify-center shrink-0 transition-colors ${
                                 isSelected
-                                  ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-zinc-100'
-                                  : 'border-gray-300 dark:border-gray-600'
+                                  ? 'border-[#333333] dark:border-gray-100 bg-[#333333] dark:bg-zinc-100'
+                                  : 'border-stone-300 dark:border-gray-600'
                               }`}
                             >
                               {isSelected && (
-                                <div className="w-2 h-2 bg-white dark:bg-zinc-900 rounded-full" />
+                                <div className="w-1.5 h-1.5 bg-white dark:bg-zinc-900 rounded-full" />
                               )}
                             </div>
-                            <span className="truncate flex-1">{chapter.title}</span>
+                            <span className="truncate flex-1 font-medium">{chapter.title}</span>
                           </div>
                         </button>
                       )
@@ -151,8 +151,8 @@ export function ChapterSelector({
         </div>
 
         {/* 底部操作 */}
-        <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-100 dark:bg-zinc-800">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+        <div className="p-3 border-t border-stone-200 dark:border-zinc-700 flex items-center justify-between bg-stone-50/50 dark:bg-zinc-800 rounded-b-xl">
+          <span className="text-xs text-stone-500 dark:text-gray-400">
             已选择
             {' '}
             {selectedChapters.length}
@@ -162,7 +162,7 @@ export function ChapterSelector({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 text-sm bg-gray-900 dark:bg-zinc-100 text-white dark:text-gray-900 rounded-md hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+            className="px-4 py-1.5 text-sm bg-[#333333] dark:bg-zinc-100 text-white dark:text-gray-900 rounded-md hover:bg-black dark:hover:bg-gray-200 transition-colors shadow-sm"
           >
             确定
           </button>
