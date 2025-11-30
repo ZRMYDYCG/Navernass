@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { novelConversationsApi } from "@/lib/supabase/sdk"
 import { Spinner } from "@/components/ui/spinner"
+import { PaperLayer } from "@/components/motion/paper-layer"
+import { paperFadeScale } from "@/components/motion/config"
 import { AtButton } from "./at-button"
 import { ChapterSelector } from "./chapter-selector"
 import { ConversationHistory } from "./conversation-history"
@@ -24,6 +26,7 @@ export default function RightPanel() {
   const novelId = searchParams.get('id') || ''
 
   const [messages, setMessages] = useState<NovelMessage[]>([])
+// ... (keep existing state)
   const [conversations, setConversations] = useState<NovelConversation[]>([])
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [mode, setMode] = useState<AiMode>('ask')
@@ -272,7 +275,12 @@ export default function RightPanel() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gray-100 dark:bg-zinc-800 border-l border-gray-200 dark:border-gray-700">
+    <PaperLayer 
+      className="h-full flex flex-col rounded-none border-l border-border/40"
+      variants={paperFadeScale}
+      initial="initial"
+      animate="animate"
+    >
       <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 
       <div className="flex-1 overflow-hidden px-2 py-2" style={{ position: "relative" }}>
@@ -338,6 +346,6 @@ export default function RightPanel() {
           onClose={() => setShowHistory(false)}
         />
       )}
-    </div>
+    </PaperLayer>
   )
 }

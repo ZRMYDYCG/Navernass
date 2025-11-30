@@ -1,5 +1,8 @@
 import type { Chapter, LeftTabType, Volume } from './types'
 import { useState } from 'react'
+import { PaperLayer } from '@/components/motion/paper-layer'
+import { paperSlideInRight } from '@/components/motion/config'
+import { AnimatePresence, motion } from 'framer-motion'
 import { CharacterShowcase } from '../character-showcase'
 import ChaptersTab from './chapters'
 import { SearchTab } from './search-tab'
@@ -50,68 +53,110 @@ export default function LeftPanel({
   const [activeTab, setActiveTab] = useState<LeftTabType>('files')
 
   return (
-    <div className="h-full flex bg-gray-100 dark:bg-zinc-800 border-r border-gray-200 dark:border-gray-700">
-      <div className="flex-shrink-0">
+    <PaperLayer 
+      className="h-full flex border-r-0 rounded-none shadow-none"
+      texture={false} // 外部容器不需要纹理，内部内容区加纹理
+      sheet={false}   // 作为布局容器
+    >
+      <div className="flex-shrink-0 z-10 bg-background/50 backdrop-blur-sm border-r border-border/40">
         <TabSwitcher activeTab={activeTab} onChange={setActiveTab} />
       </div>
 
-      <div className="flex-1 overflow-hidden">
-        {activeTab === 'files' && (
-          <ChaptersTab
-            novelTitle={novelTitle}
-            chapters={chapters}
-            volumes={volumes}
-            selectedChapter={selectedChapter}
-            onSelectChapter={onSelectChapter}
-            onCreateChapter={onCreateChapter}
-            onCreateChapterInVolume={onCreateChapterInVolume}
-            onCreateVolume={onCreateVolume}
-            onReorderChapters={onReorderChapters}
-            onReorderVolumes={onReorderVolumes}
-            onMoveChapterToVolume={onMoveChapterToVolume}
-            onRenameChapter={onRenameChapter}
-            onDeleteChapter={onDeleteChapter}
-            onCopyChapter={onCopyChapter}
-            onRenameVolume={onRenameVolume}
-            onDeleteVolume={onDeleteVolume}
-          />
-        )}
+      <div className="flex-1 overflow-hidden relative bg-background/30">
+        <AnimatePresence mode="wait">
+          {activeTab === 'files' && (
+            <motion.div
+              key="files"
+              variants={paperSlideInRight}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="h-full w-full absolute inset-0"
+            >
+              <ChaptersTab
+                novelTitle={novelTitle}
+                chapters={chapters}
+                volumes={volumes}
+                selectedChapter={selectedChapter}
+                onSelectChapter={onSelectChapter}
+                onCreateChapter={onCreateChapter}
+                onCreateChapterInVolume={onCreateChapterInVolume}
+                onCreateVolume={onCreateVolume}
+                onReorderChapters={onReorderChapters}
+                onReorderVolumes={onReorderVolumes}
+                onMoveChapterToVolume={onMoveChapterToVolume}
+                onRenameChapter={onRenameChapter}
+                onDeleteChapter={onDeleteChapter}
+                onCopyChapter={onCopyChapter}
+                onRenameVolume={onRenameVolume}
+                onDeleteVolume={onDeleteVolume}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === 'search' && (
-          <SearchTab
-            novelId={novelId}
-            volumes={volumes}
-            selectedChapter={selectedChapter}
-            onSelectChapter={onSelectChapter}
-          />
-        )}
+          {activeTab === 'search' && (
+            <motion.div
+              key="search"
+              variants={paperSlideInRight}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="h-full w-full absolute inset-0"
+            >
+              <SearchTab
+                novelId={novelId}
+                volumes={volumes}
+                selectedChapter={selectedChapter}
+                onSelectChapter={onSelectChapter}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === 'characters' && (
-          <CharacterShowcase novelId={novelId} />
-        )}
+          {activeTab === 'characters' && (
+            <motion.div
+              key="characters"
+              variants={paperSlideInRight}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="h-full w-full absolute inset-0"
+            >
+              <CharacterShowcase novelId={novelId} />
+            </motion.div>
+          )}
 
-        {activeTab === 'workspace' && (
-          <WorkspaceTab
-            chapters={chapters.map((c) => {
-              // 从 wordCount 字符串中提取数字（如 "1.5k字" -> 1500）
-              const wordCountStr = c.wordCount || '0'
-              const wordCountNum = Number.parseFloat(wordCountStr.replace(/[^0-9.]/g, '')) || 0
-              const multiplier = wordCountStr.includes('k') ? 1000 : 1
-              return {
-                id: c.id,
-                title: c.title,
-                word_count: wordCountNum * multiplier,
-                updated_at: (c as { updated_at?: string }).updated_at,
-              }
-            })}
-            novelId={novelId}
-            volumes={volumes}
-            onChaptersImported={onChaptersImported}
-            onCreateChapter={onCreateChapter}
-            onSelectChapter={onSelectChapter}
-          />
-        )}
+          {activeTab === 'workspace' && (
+            <motion.div
+              key="workspace"
+              variants={paperSlideInRight}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="h-full w-full absolute inset-0"
+            >
+              <WorkspaceTab
+                chapters={chapters.map((c) => {
+                  // 从 wordCount 字符串中提取数字（如 "1.5k字" -> 1500）
+                  const wordCountStr = c.wordCount || '0'
+                  const wordCountNum = Number.parseFloat(wordCountStr.replace(/[^0-9.]/g, '')) || 0
+                  const multiplier = wordCountStr.includes('k') ? 1000 : 1
+                  return {
+                    id: c.id,
+                    title: c.title,
+                    word_count: wordCountNum * multiplier,
+                    updated_at: (c as { updated_at?: string }).updated_at,
+                  }
+                })}
+                novelId={novelId}
+                volumes={volumes}
+                onChaptersImported={onChaptersImported}
+                onCreateChapter={onCreateChapter}
+                onSelectChapter={onSelectChapter}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </PaperLayer>
   )
 }

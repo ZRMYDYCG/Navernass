@@ -17,6 +17,7 @@
   --ease-bounce-in: cubic-bezier(0.6, -0.28, 0.735, 0.045);
   --ease-bounce-out: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --ease-slow-breath: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-paper: cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 /* 全局滚动条样式优化 */
@@ -151,8 +152,13 @@
 
 /* 手写光标闪烁动画 */
 @keyframes cursor-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .animate-cursor-blink {
@@ -161,8 +167,13 @@
 
 /* 缓慢呼吸浮动动画 */
 @keyframes float-breathe {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 .animate-float-breathe {
@@ -210,48 +221,48 @@
 :root {
   --radius: 0.625rem;
   /* 奶油灰背景 #F5F5F0 */
-  --background: oklch(0.96 0.01 90); 
+  --background: oklch(0.96 0.01 90);
   /* 温柔浅墨文字 #2C2C2C */
   --foreground: oklch(0.25 0.01 0);
-  
+
   --card: oklch(0.98 0.005 90);
   --card-foreground: oklch(0.25 0.01 0);
-  
+
   --popover: oklch(0.98 0.005 90);
   --popover-foreground: oklch(0.25 0.01 0);
-  
+
   --primary: oklch(0.35 0.02 0);
   --primary-foreground: oklch(0.98 0.01 90);
-  
+
   --secondary: oklch(0.94 0.01 90);
   --secondary-foreground: oklch(0.35 0.02 0);
-  
+
   --muted: oklch(0.94 0.01 90);
   --muted-foreground: oklch(0.55 0.01 0);
-  
+
   --accent: oklch(0.94 0.01 90);
   --accent-foreground: oklch(0.35 0.02 0);
-  
+
   --destructive: oklch(0.577 0.245 27.325);
-  
-  --border: oklch(0.90 0.01 90);
-  --input: oklch(0.90 0.01 90);
-  --ring: oklch(0.70 0.01 90);
-  
+
+  --border: oklch(0.9 0.01 90);
+  --input: oklch(0.9 0.01 90);
+  --ring: oklch(0.7 0.01 90);
+
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  
+
   --sidebar: oklch(0.97 0.01 90);
   --sidebar-foreground: oklch(0.25 0.01 0);
   --sidebar-primary: oklch(0.35 0.02 0);
   --sidebar-primary-foreground: oklch(0.98 0.01 90);
   --sidebar-accent: oklch(0.94 0.01 90);
   --sidebar-accent-foreground: oklch(0.35 0.02 0);
-  --sidebar-border: oklch(0.90 0.01 90);
-  --sidebar-ring: oklch(0.70 0.01 90);
+  --sidebar-border: oklch(0.9 0.01 90);
+  --sidebar-ring: oklch(0.7 0.01 90);
 }
 
 .dark {
@@ -259,38 +270,38 @@
   --background: oklch(0.15 0.01 0);
   /* 纸白文字 */
   --foreground: oklch(0.92 0.01 90);
-  
-  --card: oklch(0.20 0.01 0);
+
+  --card: oklch(0.2 0.01 0);
   --card-foreground: oklch(0.92 0.01 90);
-  
-  --popover: oklch(0.20 0.01 0);
+
+  --popover: oklch(0.2 0.01 0);
   --popover-foreground: oklch(0.92 0.01 90);
-  
-  --primary: oklch(0.90 0.01 90);
+
+  --primary: oklch(0.9 0.01 90);
   --primary-foreground: oklch(0.15 0.01 0);
-  
+
   --secondary: oklch(0.25 0.01 0);
   --secondary-foreground: oklch(0.92 0.01 90);
-  
+
   --muted: oklch(0.25 0.01 0);
-  --muted-foreground: oklch(0.70 0.01 90);
-  
+  --muted-foreground: oklch(0.7 0.01 90);
+
   --accent: oklch(0.25 0.01 0);
   --accent-foreground: oklch(0.92 0.01 90);
-  
+
   --destructive: oklch(0.704 0.191 22.216);
-  
+
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  
+
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  
-  --sidebar: oklch(0.20 0.01 0);
+
+  --sidebar: oklch(0.2 0.01 0);
   --sidebar-foreground: oklch(0.92 0.01 90);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -313,43 +324,66 @@
   .bg-paper-texture {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
   }
-  
+
   .dark .bg-paper-texture {
-     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
   }
 
   .text-letterpress {
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
   }
-  
+
   .dark .text-letterpress {
     text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.5);
   }
-  
-  /* 柔化阴影 */
+
+  /* 柔化阴影 - 调整为更轻微的纸张浮起感 */
   .shadow-paper-sm {
-    box-shadow: 1px 1px 2px rgba(0,0,0,0.03), 2px 2px 6px rgba(0,0,0,0.03);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 2px 4px rgba(0, 0, 0, 0.02);
   }
-  
+
   .shadow-paper-md {
-    box-shadow: 1px 1px 2px rgba(0,0,0,0.03), 4px 4px 12px rgba(0,0,0,0.03);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 4px 8px rgba(0, 0, 0, 0.02);
   }
-  
+
   .shadow-paper-lg {
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.03), 8px 8px 24px rgba(0,0,0,0.03);
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.04),
+      0 8px 16px rgba(0, 0, 0, 0.02);
   }
 
   .paper-edge-tear {
     clip-path: polygon(
-      0% 0%, 
-      100% 0%, 
-      100% 100%, 
-      95% 99%, 90% 100%, 85% 99%, 80% 100%, 75% 99%, 70% 100%, 65% 99%, 60% 100%, 
-      55% 99%, 50% 100%, 45% 99%, 40% 100%, 35% 99%, 30% 100%, 25% 99%, 20% 100%, 
-      15% 99%, 10% 100%, 5% 99%, 0% 100%
+      0% 0%,
+      100% 0%,
+      100% 100%,
+      95% 99%,
+      90% 100%,
+      85% 99%,
+      80% 100%,
+      75% 99%,
+      70% 100%,
+      65% 99%,
+      60% 100%,
+      55% 99%,
+      50% 100%,
+      45% 99%,
+      40% 100%,
+      35% 99%,
+      30% 100%,
+      25% 99%,
+      20% 100%,
+      15% 99%,
+      10% 100%,
+      5% 99%,
+      0% 100%
     );
   }
-  
+
   .font-handwriting {
     font-family: 'Caveat', 'Kalam', 'Patrick Hand', cursive;
   }
