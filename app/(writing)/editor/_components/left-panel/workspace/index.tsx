@@ -37,26 +37,18 @@ export default function WorkspaceTab({
   const totalVolumes = volumes.length
 
   return (
-    <div className="h-full flex flex-col bg-gray-100 dark:bg-zinc-800">
-      <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-zinc-800 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full px-1.5 py-2 space-y-2.5">
+    <div className="h-full flex flex-col bg-paper-texture">
+      <div className="flex-1 overflow-y-auto p-3 space-y-4 scrollbar-none">
         {/* 文件操作 */}
-        <div className="space-y-1.5">
-          <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 px-1">
-            文件操作
-          </h3>
-          <ActionButtons
-            chapters={chapters}
-            novelId={novelId}
-            volumes={volumes}
-            onChaptersImported={onChaptersImported}
-          />
-        </div>
-
-
+        <ActionButtons
+          chapters={chapters}
+          novelId={novelId}
+          volumes={volumes}
+          onChaptersImported={onChaptersImported}
+        />
 
         {/* 编辑器设置 */}
         <EditorSettings />
-
 
         {/* 快速操作 */}
         <QuickActions
@@ -73,7 +65,7 @@ export default function WorkspaceTab({
           onSelectChapter={onSelectChapter}
         />
 
-                {/* 统计信息 */}
+        {/* 统计信息 */}
         <StatisticsCard
           totalWords={totalWords}
           totalChapters={totalChapters}

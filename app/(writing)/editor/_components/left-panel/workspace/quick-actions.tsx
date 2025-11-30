@@ -2,6 +2,7 @@ import { Copy, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { PaperCard } from '@/components/ui/paper-card'
 import { BatchActionsDialog } from './batch-actions-dialog'
 
 interface Chapter {
@@ -139,8 +140,8 @@ export function QuickActions({
   }
 
   return (
-    <div className="space-y-1.5">
-      <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 px-1">
+    <PaperCard className="p-2 space-y-1.5">
+      <h3 className="text-xs font-medium text-stone-600 dark:text-stone-300 px-1 font-serif">
         快速操作
       </h3>
       <div className="space-y-1">
@@ -148,20 +149,20 @@ export function QuickActions({
           type="button"
           onClick={handleCreateChapter}
           disabled={isProcessing}
-          className="w-full justify-start h-7 text-xs bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+          className="w-full justify-start h-8 text-xs bg-stone-100 dark:bg-zinc-700/50 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-zinc-600/50 border border-stone-200 dark:border-zinc-600/50 transition-all shadow-none hover:shadow-sm"
         >
-          <Plus className="w-3 h-3 mr-1.5" />
+          <Plus className="w-3.5 h-3.5 mr-2" />
           新建章节
         </Button>
 
-        <div className="grid grid-cols-2 gap-1">
+        <div className="grid grid-cols-2 gap-1.5">
           <Button
             type="button"
             onClick={handleBatchCopy}
             disabled={isProcessing || chaptersCount === 0}
-            className="h-7 text-xs bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+            className="h-8 text-xs bg-stone-100 dark:bg-zinc-700/50 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-zinc-600/50 border border-stone-200 dark:border-zinc-600/50 transition-all shadow-none hover:shadow-sm"
           >
-            <Copy className="w-3 h-3 mr-1" />
+            <Copy className="w-3 h-3 mr-1.5" />
             批量复制
           </Button>
 
@@ -169,9 +170,9 @@ export function QuickActions({
             type="button"
             onClick={handleBatchDelete}
             disabled={isProcessing || chaptersCount === 0}
-            className="h-7 text-xs bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+            className="h-8 text-xs bg-stone-100 dark:bg-zinc-700/50 text-rose-700 dark:text-rose-400 hover:bg-stone-200 dark:hover:bg-zinc-600/50 border border-stone-200 dark:border-zinc-600/50 transition-all shadow-none hover:shadow-sm hover:text-rose-800 dark:hover:text-rose-300"
           >
-            <Trash2 className="w-3 h-3 mr-1" />
+            <Trash2 className="w-3 h-3 mr-1.5" />
             批量删除
           </Button>
         </div>
@@ -198,6 +199,6 @@ export function QuickActions({
           onConfirm={handleBatchDeleteConfirm}
         />
       )}
-    </div>
+    </PaperCard>
   )
 }
