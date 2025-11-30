@@ -1,6 +1,7 @@
 import type { Novel } from '@/lib/supabase/sdk'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+import { PaperCard } from '@/components/ui/paper-card'
 
 interface NovelCardProps {
   novel: Novel
@@ -10,13 +11,14 @@ interface NovelCardProps {
 
 export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
   return (
-    <div
-      className="group relative aspect-[3/4] bg-white dark:bg-zinc-800 rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] hover:-translate-y-1 active:translate-y-0 active:shadow-sm transition-all duration-300 ease-out cursor-pointer overflow-hidden border border-stone-100 dark:border-zinc-700/50"
+    <PaperCard
+      variant="default"
+      className="group aspect-3/4 cursor-pointer"
       onClick={() => onOpen(novel)}
       onContextMenu={e => onContextMenu(e, novel)}
     >
       {/* Paper Texture / Header Area */}
-      <div className="h-[45%] w-full bg-stone-50 dark:bg-zinc-800/80 relative p-5 flex flex-col justify-between border-b border-stone-100 dark:border-zinc-700/50">
+      <div className="h-[45%] w-full bg-stone-50/50 dark:bg-zinc-800/50 relative p-5 flex flex-col justify-between border-b border-stone-100 dark:border-zinc-700/50">
         {/* Status Badge */}
         <div className="flex items-start justify-between opacity-60 group-hover:opacity-100 transition-opacity">
            <span
@@ -36,11 +38,11 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
         </div>
         
         {/* Decorative elements imitating paper texture/lines */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]" />
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[16px_16px]" />
       </div>
 
       {/* Content Area */}
-      <div className="p-5 flex flex-col h-[55%] justify-between bg-white dark:bg-zinc-900">
+      <div className="p-5 flex flex-col h-[55%] justify-between bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm">
         <div className="space-y-3">
           <h3 className="font-serif text-xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight line-clamp-2 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
             {novel.title}
@@ -76,6 +78,6 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </PaperCard>
   )
 }

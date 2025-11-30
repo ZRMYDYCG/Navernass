@@ -299,7 +299,7 @@ export default function RightPanel() {
   return (
     <div className="h-full w-full p-3 bg-transparent">
       <PaperLayer
-        className="h-full flex flex-col rounded-lg shadow-none bg-[#FAF9F6] dark:bg-zinc-900"
+        className="h-full flex flex-col rounded-xl shadow-lg border border-stone-200/60 dark:border-zinc-700/50 bg-[#FAF9F6] dark:bg-zinc-900"
         variants={paperFadeScale}
         initial="initial"
         animate="animate"

@@ -217,6 +217,10 @@ function NovelsContent() {
                 onOpenNovel={handleOpenNovel}
                 onContextMenu={handleContextMenu}
                 onCreateNovel={handleOpenCreateDialog}
+                onReorder={(reorderedNovels) => {
+                  setNovels(reorderedNovels)
+                  toast.success('顺序已更新 (仅本地效果)')
+                }}
               />
             )
           : (

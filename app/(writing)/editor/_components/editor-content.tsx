@@ -232,7 +232,7 @@ export default function EditorContent({
                   animate="animate"
                   exit="exit"
                 >
-                  <div className="p-8 sm:p-12 min-h-full">
+                  <div className="p-8 sm:p-12 min-h-full animate-text-fade-in">
                     <TiptapEditor
                       key={chapterId}
                       content={chapter?.content || `<h1>${chapterTitle}</h1>`}
