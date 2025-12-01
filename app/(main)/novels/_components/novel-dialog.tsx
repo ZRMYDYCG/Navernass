@@ -36,14 +36,14 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-[#F9F8F4] dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800">
         <DialogHeader>
           <DialogTitle>{novel ? '编辑小说信息' : '创建新小说'}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-stone-700 dark:text-zinc-200 mb-2">
               小说标题
               {' '}
               <span className="text-red-500">*</span>
@@ -53,12 +53,12 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="请输入小说标题"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-900 dark:focus:border-gray-200 focus:ring-0 focus-visible:ring-1 focus-visible:ring-gray-900/40 dark:focus-visible:ring-gray-100/30"
+              className="w-full px-4 py-2 border border-stone-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-stone-900 dark:text-zinc-100 placeholder:text-stone-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-stone-900 dark:focus:border-zinc-100 focus:ring-0 focus-visible:ring-1 focus-visible:ring-stone-900/40 dark:focus-visible:ring-zinc-100/30"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-stone-700 dark:text-zinc-200 mb-2">
               简介（可选）
             </label>
             <textarea
@@ -66,12 +66,12 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
               onChange={e => setDescription(e.target.value)}
               placeholder="请输入小说简介"
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-900 dark:focus:border-gray-200 focus:ring-0 focus-visible:ring-1 focus-visible:ring-gray-900/40 dark:focus-visible:ring-gray-100/30 resize-none"
+              className="w-full px-4 py-2 border border-stone-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-stone-900 dark:text-zinc-100 placeholder:text-stone-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-stone-900 dark:focus:border-zinc-100 focus:ring-0 focus-visible:ring-1 focus-visible:ring-stone-900/40 dark:focus-visible:ring-zinc-100/30 resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-stone-700 dark:text-zinc-200 mb-2">
               封面图片（可选）
             </label>
             <input
@@ -81,10 +81,10 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                 const file = e.target.files?.[0] || null
                 setCoverFile(file)
               }}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-900 file:text-white hover:file:bg-gray-800 dark:file:bg-zinc-100 dark:file:text-gray-900 dark:hover:file:bg-zinc-200"
+              className="block w-full text-sm text-stone-500 dark:text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 dark:file:bg-zinc-100 dark:file:text-zinc-900 dark:hover:file:bg-zinc-200"
             />
             {coverFile && (
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate">
+              <p className="mt-1 text-xs text-stone-500 dark:text-zinc-400 truncate">
                 已选择: {coverFile.name}
               </p>
             )}
