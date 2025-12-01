@@ -7,7 +7,7 @@ import { MessageBubble } from './message-bubble'
 import { ScrollToBottomButton } from './scroll-to-bottom-button'
 import { TypingIndicator } from './typing-indicator'
 
-const SCROLL_THRESHOLD = 100 // 距离底部多少像素时显示"回到底部"按钮
+const SCROLL_THRESHOLD = 100
 
 interface MessageListProps {
   messages: NovelMessage[]
@@ -27,10 +27,8 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
     const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
     if (scrollContainer) {
       if (behavior === 'auto') {
-        // 立即滚动到底部
         scrollContainer.scrollTop = scrollContainer.scrollHeight
       } else {
-        // 平滑滚动
         scrollContainer.scrollTo({
           top: scrollContainer.scrollHeight,
           behavior: 'smooth',
@@ -41,7 +39,6 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
     }
   }, [])
 
-  // 检查是否接近底部
   const checkIfNearBottom = useCallback(() => {
     const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
     if (!scrollContainer)
@@ -64,13 +61,10 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
     }
   }, [checkIfNearBottom])
 
-  // 当有新消息时，自动滚动到底部
   useEffect(() => {
     if (messages.length > lastMessageCountRef.current && messages.length > 0) {
-      // 有新消息
       lastMessageCountRef.current = messages.length
 
-      // 如果用户在底部附近，自动滚动到底部
       if (isNearBottomRef.current) {
         const timer = setTimeout(() => {
           scrollToBottom('smooth')
@@ -80,7 +74,6 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
     }
   }, [messages.length, scrollToBottom])
 
-  // 当 loading 状态变化时滚动到底部
   useEffect(() => {
     if (isLoading && isNearBottomRef.current) {
       const timer = setTimeout(() => {
@@ -90,14 +83,11 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
     }
   }, [isLoading, scrollToBottom])
 
-  // 当流式传输消息内容更新时，自动滚动到底部
   useEffect(() => {
     if (streamingMessageId) {
-      // 检查是否有流式传输的消息
       const streamingMessage = messages.find(msg => msg.id === streamingMessageId)
       if (streamingMessage) {
         const currentContentLength = streamingMessage.content.length
-        // 只有当内容长度增加时才滚动（避免重复滚动）
         if (currentContentLength > lastStreamingContentLengthRef.current && isNearBottomRef.current) {
           requestAnimationFrame(() => {
             scrollToBottom('auto')
@@ -105,24 +95,18 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
           lastStreamingContentLengthRef.current = currentContentLength
         }
       } else {
-        // 流式传输结束，重置长度
         lastStreamingContentLengthRef.current = 0
       }
     } else {
-      // 没有流式传输，重置长度
       lastStreamingContentLengthRef.current = 0
     }
   }, [messages, streamingMessageId, scrollToBottom])
 
-  // 当开始流式传输时，如果用户在底部附近，跟随内容
-  // 如果用户向上滚动查看历史，则停止跟随
   useEffect(() => {
     if (streamingMessageId) {
-      // 重置内容长度跟踪
       lastStreamingContentLengthRef.current = 0
 
       const interval = setInterval(() => {
-        // 只有在用户接近底部时才跟随内容
         if (isNearBottomRef.current) {
           scrollToBottom('auto')
         }
@@ -130,12 +114,10 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
 
       return () => clearInterval(interval)
     } else {
-      // 流式传输结束，重置长度
       lastStreamingContentLengthRef.current = 0
     }
   }, [streamingMessageId, scrollToBottom])
 
-  // 初始化时滚动到底部
   useEffect(() => {
     const timer = setTimeout(() => {
       scrollToBottom('auto')
@@ -143,7 +125,6 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
     return () => clearTimeout(timer)
   }, [scrollToBottom])
 
-  // 监听滚动事件
   useEffect(() => {
     const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
     if (!scrollContainer)
@@ -159,7 +140,10 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
 
   return (
     <div className="relative h-full w-full">
-      <ScrollArea ref={scrollAreaRef} className="h-full w-full">
+      <ScrollArea
+        ref={scrollAreaRef}
+        className="h-full w-full overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:overflow-x-hidden"
+      >
         <div className="space-y-1 pb-4">
           {messages.map(message => (
             <MessageBubble

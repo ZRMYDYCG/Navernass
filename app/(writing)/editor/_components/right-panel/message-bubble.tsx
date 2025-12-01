@@ -43,7 +43,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         )}
       </div>
 
-      <div className={`flex-1 max-w-[85%] ${isUser ? 'flex justify-end' : 'flex justify-start'}`}>
+      <div className={`flex-1 max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'flex justify-end' : 'flex justify-start'}`}>
         <div
           className={`rounded-lg px-2.5 py-1.5 text-[12px] transition-all duration-200 ${
             isUser
@@ -57,7 +57,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               )
             : (
                 <>
-                  <div className="relative [&_.prose]:!text-[12px] [&_.prose]:!leading-snug [&_.prose_p]:!my-1 [&_.prose_p]:!text-[12px] [&_.prose_h1]:!text-[14px] [&_.prose_h1]:!my-1.5 [&_.prose_h2]:!text-[13px] [&_.prose_h2]:!my-1.5 [&_.prose_h3]:!text-[12px] [&_.prose_h3]:!my-1 [&_.prose_ul]:!my-1 [&_.prose_ol]:!my-1 [&_.prose_li]:!text-[12px] [&_.prose_li]:!my-0.5 [&_.prose_code]:!text-[10px] [&_.prose_pre]:!my-1.5 [&_.prose_pre]:!p-1.5 [&_.prose_pre]:!text-[10px] [&_.prose_blockquote]:!my-1.5 [&_.prose_blockquote]:!pl-3 [&_.prose_table]:!my-1.5 [&_.prose_th]:!text-[12px] [&_.prose_th]:!px-2 [&_.prose_th]:!py-1 [&_.prose_td]:!text-[12px] [&_.prose_td]:!px-2 [&_.prose_td]:!py-1">
+                  <div className="relative break-words break-all [&_.prose]:!text-[12px] [&_.prose]:!leading-snug [&_.prose_p]:!my-1 [&_.prose_p]:!text-[12px] [&_.prose_h1]:!text-[14px] [&_.prose_h1]:!my-1.5 [&_.prose_h2]:!text-[13px] [&_.prose_h2]:!my-1.5 [&_.prose_h3]:!text-[12px] [&_.prose_h3]:!my-1 [&_.prose_ul]:!my-1 [&_.prose_ol]:!my-1 [&_.prose_li]:!text-[12px] [&_.prose_li]:!my-0.5 [&_.prose_code]:!text-[10px] [&_.prose_pre]:!my-1.5 [&_.prose_pre]:!p-1.5 [&_.prose_pre]:!text-[10px] [&_.prose_blockquote]:!my-1.5 [&_.prose_blockquote]:!pl-3 [&_.prose_table]:!my-1.5 [&_.prose_th]:!text-[12px] [&_.prose_th]:!px-2 [&_.prose_th]:!py-1 [&_.prose_td]:!text-[12px] [&_.prose_td]:!px-2 [&_.prose_td]:!py-1">
                     <MarkdownRenderer content={displayedContent} />
                   </div>
                   <div className="mt-1 flex justify-end">

@@ -26,7 +26,6 @@ export default function RightPanel() {
   const novelId = searchParams.get('id') || ''
 
   const [messages, setMessages] = useState<NovelMessage[]>([])
-  // ... (keep existing state)
   const [conversations, setConversations] = useState<NovelConversation[]>([])
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [mode, setMode] = useState<AiMode>('ask')
@@ -280,7 +279,6 @@ export default function RightPanel() {
         setCurrentConversationId(null)
         setMessages([])
       }
-      // 重新加载会话列表
       await loadConversations()
     } catch (error) {
       console.error('Failed to delete conversation:', error)
@@ -297,13 +295,12 @@ export default function RightPanel() {
   }
 
   return (
-    <div className="h-full w-full p-3 bg-transparent">
+    <div className="h-full w-full bg-transparent">
       <PaperLayer
         className="h-full flex flex-col rounded-xl shadow-lg border border-stone-200/60 dark:border-zinc-700/50 bg-[#FAF9F6] dark:bg-zinc-900"
         variants={paperFadeScale}
         initial="initial"
         animate="animate"
-        sheet={false}
       >
         <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 
