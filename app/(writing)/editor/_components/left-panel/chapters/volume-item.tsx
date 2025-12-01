@@ -52,17 +52,16 @@ export function VolumeItem({
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div ref={setNodeRef} style={style} className="group mb-1">
-          <div className="px-2.5 py-1.5 flex items-center rounded-lg transition-colors hover:bg-stone-200/30 dark:hover:bg-zinc-800/50 min-h-[32px]">
-            <div className="flex items-center gap-2 w-full">
-              {/* 拖拽手柄 + Popover */}
+        <div ref={setNodeRef} style={style} className="group mb-0.5">
+          <div className="px-2 py-0.5 flex items-center rounded-lg transition-colors hover:bg-stone-200/30 dark:hover:bg-zinc-800/50 min-h-[26px]">
+            <div className="flex items-center gap-1.5 w-full">
               <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <Popover.Trigger asChild>
                   <button
                     type="button"
                     {...attributes}
                     {...listeners}
-                    className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-1 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-opacity ${
+                    className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-opacity ${
                       isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-40'
                     }`}
                     onClick={e => e.stopPropagation()}
@@ -108,7 +107,6 @@ export function VolumeItem({
                 </Popover.Portal>
               </Popover.Root>
 
-              {/* 展开/折叠按钮 */}
               <button
                 type="button"
                 onClick={onToggle}
@@ -123,18 +121,16 @@ export function VolumeItem({
                     )}
               </button>
 
-              {/* 卷信息 */}
               <div className="flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
-                <h3 className="text-sm font-medium text-[#333333] dark:text-zinc-100 truncate leading-none">
+                <h3 className="text-[12px] font-medium text-[#333333] dark:text-zinc-100 truncate leading-snug">
                   {volume.title}
                 </h3>
               </div>
             </div>
           </div>
 
-          {/* 卷下的章节 */}
           {isExpanded && children && (
-            <div className="ml-4 border-l border-stone-200/50 dark:border-zinc-800 pl-2 mt-0.5 space-y-0.5">
+            <div className="ml-3 border-l border-stone-200/50 dark:border-zinc-800 pl-1.5 mt-0.5 space-y-0.5">
               {children}
             </div>
           )}

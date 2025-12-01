@@ -38,21 +38,20 @@ export function ChapterItem({
         <div
           ref={setNodeRef}
           style={style}
-          className={`group px-2.5 py-1.5 my-0.5 min-h-[36px] flex items-center rounded-lg transition-all duration-300 ease-out ${
+          className={`group px-2 py-0.5 my-0.5 min-h-[28px] flex items-center rounded-lg transition-all duration-300 ease-out ${
             isSelected 
               ? 'bg-white dark:bg-zinc-800 shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-none' 
               : 'hover:bg-white/60 dark:hover:bg-zinc-800/50'
           }`}
         >
-          <div className="flex items-center gap-2 w-full">
-            {/* 拖拽手柄 + Popover */}
+          <div className="flex items-center gap-1.5 w-full">
             <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
               <Popover.Trigger asChild>
                 <button
                   type="button"
                   {...attributes}
                   {...listeners}
-                  className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-1 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-opacity ${
+                  className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-opacity ${
                     isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-30'
                   }`}
                   onClick={e => e.stopPropagation()}
@@ -98,10 +97,9 @@ export function ChapterItem({
               </Popover.Portal>
             </Popover.Root>
 
-            {/* 章节信息 */}
-            <div className="flex-1 min-w-0 flex items-baseline justify-between gap-2" onClick={onSelect}>
+            <div className="flex-1 min-w-0 flex items-baseline justify-between gap-1.5" onClick={onSelect}>
               <h3
-                className={`text-sm font-normal leading-[1.6] truncate flex-1 transition-colors ${
+                className={`text-[12px] font-normal leading-snug truncate flex-1 transition-colors ${
                   isSelected ? 'text-[#333333] dark:text-zinc-100 font-medium' : 'text-[#333333]/80 dark:text-zinc-300'
                 }`}
               >
@@ -109,7 +107,7 @@ export function ChapterItem({
               </h3>
 
               <span
-                className={`text-[11px] flex-shrink-0 transition-opacity ${
+                className={`text-[10px] flex-shrink-0 transition-opacity ${
                   isSelected ? 'text-stone-500 dark:text-zinc-400' : 'text-stone-400 dark:text-zinc-500 opacity-0 group-hover:opacity-100'
                 }`}
               >
