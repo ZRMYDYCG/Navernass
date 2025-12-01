@@ -35,8 +35,8 @@ function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver
       ref={setNodeRef}
       className={`transition-all duration-200 ${
         isOver
-          ? 'h-16 mb-2 border-2 border-dashed border-stone-300 dark:border-zinc-600 rounded-lg flex items-center justify-center bg-stone-50 dark:bg-zinc-800/50'
-          : 'h-12 mb-2 border-2 border-dashed border-stone-200 dark:border-zinc-700 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:border-stone-300 dark:hover:border-zinc-600'
+          ? 'h-16 mb-1 border-2 border-dashed border-stone-300 dark:border-zinc-600 rounded-lg flex items-center justify-center bg-stone-50 dark:bg-zinc-800/50'
+          : 'h-12 mb-1 border-2 border-dashed border-stone-200 dark:border-zinc-700 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:border-stone-300 dark:hover:border-zinc-600'
       }`}
     >
       <span className="text-sm text-stone-500 dark:text-zinc-400">
@@ -290,7 +290,7 @@ export function ChapterList({
   ]
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-stone-200 dark:scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+    <div className="flex-1 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-stone-200 dark:scrollbar-thumb-zinc-700 scrollbar-track-transparent">
       <DndContext
         sensors={sensors}
         collisionDetection={pointerWithin}
