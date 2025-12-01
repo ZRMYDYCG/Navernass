@@ -150,19 +150,19 @@ export function PublishDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-[#1a1a1a] border-gray-800 text-white">
+      <DialogContent className="sm:max-w-md bg-[#F9F8F4] dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 text-stone-900 dark:text-zinc-100">
         <div className="flex flex-col items-center gap-4 py-6">
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/10">
-            <Globe className="w-8 h-8 text-blue-500" />
+          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-sky-500/10 dark:bg-sky-500/20">
+            <Globe className="w-8 h-8 text-sky-500" />
           </div>
 
           {!hasPublishedChapters ? (
             <>
               <DialogHeader className="text-center space-y-2">
-                <DialogTitle className="text-white text-xl">
+                <DialogTitle className="text-xl text-stone-900 dark:text-zinc-100">
                   发布此文档
                 </DialogTitle>
-                <DialogDescription className="text-gray-400">
+                <DialogDescription className="text-stone-500 dark:text-zinc-400">
                   与世界分享您的文档
                 </DialogDescription>
               </DialogHeader>
@@ -170,7 +170,7 @@ export function PublishDialog({
               <Button
                 onClick={handlePublish}
                 disabled={isLoading || !chapterIds.length}
-                className="w-full bg-white text-black hover:bg-gray-100 h-11 rounded-lg font-medium"
+                className="w-full h-11 rounded-lg font-medium bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
               >
                 {isLoading ? '发布中...' : '发布'}
               </Button>
@@ -178,29 +178,29 @@ export function PublishDialog({
           ) : (
             <>
               <div className="flex items-center gap-2 text-sm">
-                <Globe className="w-4 h-4 text-blue-500" />
-                <span className="text-gray-300">
+                <Globe className="w-4 h-4 text-sky-500" />
+                <span className="text-stone-600 dark:text-zinc-300">
                   已发布 {publishedCount} 个章节
                 </span>
               </div>
 
-              <div className="w-full flex items-center gap-2 bg-[#2a2a2a] rounded-lg p-3 border border-gray-800">
+              <div className="w-full flex items-center gap-2 bg-white/80 dark:bg-zinc-900/60 rounded-lg p-3 border border-stone-200 dark:border-zinc-700">
                 <input
                   type="text"
                   value={publishUrl}
                   readOnly
-                  className="flex-1 bg-transparent text-white text-sm outline-none"
+                  className="flex-1 bg-transparent text-stone-800 dark:text-zinc-100 text-sm outline-none"
                 />
                 <Button
                   onClick={handleCopy}
                   size="sm"
                   variant="ghost"
-                  className="h-8 w-8 p-0 hover:bg-gray-700"
+                  className="h-8 w-8 p-0 hover:bg-stone-100 dark:hover:bg-zinc-800"
                 >
                   {isCopied ? (
                     <Check className="w-4 h-4 text-green-500" />
                   ) : (
-                    <Copy className="w-4 h-4 text-gray-400" />
+                    <Copy className="w-4 h-4 text-stone-400 dark:text-zinc-400" />
                   )}
                 </Button>
               </div>
@@ -208,7 +208,7 @@ export function PublishDialog({
               <Button
                 onClick={handleUnpublish}
                 disabled={isLoading}
-                className="w-full bg-white text-black hover:bg-gray-100 h-11 rounded-lg font-medium"
+                className="w-full h-11 rounded-lg font-medium bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
               >
                 {isLoading ? '取消中...' : '取消发布'}
               </Button>
