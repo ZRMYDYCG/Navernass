@@ -38,7 +38,7 @@ export function ChapterItem({
         <div
           ref={setNodeRef}
           style={style}
-          className={`group px-3 py-2 my-1 min-h-[48px] flex items-center rounded-lg transition-all duration-300 ease-out ${
+          className={`group px-2.5 py-1.5 my-0.5 min-h-[36px] flex items-center rounded-lg transition-all duration-300 ease-out ${
             isSelected 
               ? 'bg-white dark:bg-zinc-800 shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-none' 
               : 'hover:bg-white/60 dark:hover:bg-zinc-800/50'
@@ -101,7 +101,7 @@ export function ChapterItem({
             {/* 章节信息 */}
             <div className="flex-1 min-w-0 flex items-baseline justify-between gap-2" onClick={onSelect}>
               <h3
-                className={`text-[15px] font-normal leading-[1.6] truncate flex-1 transition-colors ${
+                className={`text-sm font-normal leading-[1.6] truncate flex-1 transition-colors ${
                   isSelected ? 'text-[#333333] dark:text-zinc-100 font-medium' : 'text-[#333333]/80 dark:text-zinc-300'
                 }`}
               >

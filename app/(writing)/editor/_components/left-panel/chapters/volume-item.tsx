@@ -52,8 +52,8 @@ export function VolumeItem({
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div ref={setNodeRef} style={style} className="group mb-2">
-          <div className="px-3 py-2 flex items-center rounded-lg transition-colors hover:bg-stone-200/30 dark:hover:bg-zinc-800/50 min-h-[40px]">
+        <div ref={setNodeRef} style={style} className="group mb-1">
+          <div className="px-2.5 py-1.5 flex items-center rounded-lg transition-colors hover:bg-stone-200/30 dark:hover:bg-zinc-800/50 min-h-[32px]">
             <div className="flex items-center gap-2 w-full">
               {/* 拖拽手柄 + Popover */}
               <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -134,7 +134,7 @@ export function VolumeItem({
 
           {/* 卷下的章节 */}
           {isExpanded && children && (
-            <div className="ml-4 border-l border-stone-200/50 dark:border-zinc-800 pl-2 mt-1 space-y-1">
+            <div className="ml-4 border-l border-stone-200/50 dark:border-zinc-800 pl-2 mt-0.5 space-y-0.5">
               {children}
             </div>
           )}
