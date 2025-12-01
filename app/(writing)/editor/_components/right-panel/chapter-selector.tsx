@@ -1,6 +1,6 @@
 import type { Chapter } from '@/lib/supabase/sdk'
-import { X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
 
 interface ChapterSelectorProps {
@@ -19,7 +19,6 @@ export function ChapterSelector({
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchChapters = async () => {
@@ -41,18 +40,6 @@ export function ChapterSelector({
     }
   }, [novelId])
 
-  // 点击外部关闭
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        onClose()
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [onClose])
-
   const filteredChapters = chapters.filter(chapter =>
     chapter.title.toLowerCase().includes(searchQuery.toLowerCase()),
   )
@@ -71,25 +58,12 @@ export function ChapterSelector({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-32">
-      <div className="fixed inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose} />
-      <div
-        ref={containerRef}
-        className="relative z-10 w-full max-w-md bg-[#FAF9F6] dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-xl shadow-xl"
-      >
-        {/* 头部 */}
+    <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
+      <DialogContent showCloseButton={false} className="w-full max-w-md bg-[#FAF9F6] dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-xl shadow-xl p-0">
         <div className="flex items-center justify-between p-4 border-b border-stone-200 dark:border-zinc-700">
           <h3 className="text-sm font-medium text-[#333333] dark:text-gray-100">选择章节</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-colors text-stone-500"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
 
-        {/* 搜索框 */}
         <div className="p-3 border-b border-stone-200 dark:border-zinc-700 bg-[#FAF9F6] dark:bg-zinc-800">
           <input
             type="text"
@@ -100,7 +74,6 @@ export function ChapterSelector({
           />
         </div>
 
-        {/* 章节列表 */}
         <div className="max-h-96 overflow-y-auto bg-[#FAF9F6] dark:bg-zinc-800 scrollbar-thin scrollbar-thumb-stone-200">
           {loading
             ? (
@@ -150,7 +123,6 @@ export function ChapterSelector({
                 )}
         </div>
 
-        {/* 底部操作 */}
         <div className="p-3 border-t border-stone-200 dark:border-zinc-700 flex items-center justify-between bg-stone-50/50 dark:bg-zinc-800 rounded-b-xl">
           <span className="text-xs text-stone-500 dark:text-gray-400">
             已选择
@@ -167,7 +139,7 @@ export function ChapterSelector({
             确定
           </button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
