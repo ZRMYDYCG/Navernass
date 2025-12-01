@@ -18,6 +18,7 @@ export class NovelsService {
     let query = supabase
       .from('novels')
       .select('*', { count: 'exact' })
+      .order('order_index', { ascending: true })
       .order('created_at', { ascending: false })
       .range(from, to)
 
@@ -183,5 +184,23 @@ export class NovelsService {
 
     if (error) throw error
     return data || []
+  }
+
+  async updateOrder(novels: Array<{ id: string, order_index: number }>) {
+    const promises = novels.map(({ id, order_index }) =>
+      supabase.from('novels').update({ order_index }).eq('id', id),
+    )
+
+    const results = await Promise.all(promises)
+    const errors = results.filter(r => r.error)
+
+    if (errors.length > 0) {
+      const updateError = new Error('Failed to update novel order')
+      Object.assign(updateError, {
+        statusCode: 400,
+        code: 'UPDATE_NOVEL_ORDER_FAILED',
+      })
+      throw updateError
+    }
   }
 }

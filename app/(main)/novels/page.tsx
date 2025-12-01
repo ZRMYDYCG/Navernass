@@ -188,6 +188,26 @@ function NovelsContent() {
     }
   }
 
+  const handleReorder = async (reorderedNovels: Novel[]) => {
+    const previousNovels = novels
+    setNovels(reorderedNovels)
+
+    const payload = reorderedNovels.map((novel, index) => ({
+      id: novel.id,
+      order_index: index,
+    }))
+
+    try {
+      await novelsApi.updateOrder(payload)
+      toast.success('顺序已更新')
+    } catch (error) {
+      console.error('更新排序失败:', error)
+      setNovels(previousNovels)
+      const message = error instanceof Error ? error.message : TOAST_MESSAGES.UPDATE_ERROR
+      toast.error(message)
+    }
+  }
+
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
 
   return (
@@ -217,10 +237,7 @@ function NovelsContent() {
                 onOpenNovel={handleOpenNovel}
                 onContextMenu={handleContextMenu}
                 onCreateNovel={handleOpenCreateDialog}
-                onReorder={(reorderedNovels) => {
-                  setNovels(reorderedNovels)
-                  toast.success('顺序已更新 (仅本地效果)')
-                }}
+                onReorder={handleReorder}
               />
             )
           : (

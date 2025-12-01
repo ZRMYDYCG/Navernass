@@ -121,6 +121,7 @@ CREATE TABLE public.novels (
   tags ARRAY DEFAULT '{}'::text[],
   word_count integer DEFAULT 0,
   chapter_count integer DEFAULT 0,
+  order_index integer NOT NULL DEFAULT 0,
   status text DEFAULT 'draft'::text CHECK (status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])),
   created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),

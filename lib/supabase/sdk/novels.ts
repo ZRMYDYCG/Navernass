@@ -80,4 +80,8 @@ export const novelsApi = {
   getArchived: async (): Promise<Novel[]> => {
     return apiClient.get<Novel[]>('/api/novels/archived')
   },
+
+  updateOrder: async (novels: Array<{ id: string, order_index: number }>): Promise<void> => {
+    return apiClient.post<void>('/api/novels/reorder', novels)
+  },
 }

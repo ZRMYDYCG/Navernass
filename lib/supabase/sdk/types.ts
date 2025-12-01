@@ -28,6 +28,7 @@ export interface Novel {
   tags?: string[]
   word_count: number
   chapter_count: number
+  order_index: number
   status: 'draft' | 'published' | 'archived'
   created_at: string
   updated_at: string
