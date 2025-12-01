@@ -21,8 +21,8 @@ export function TrashList({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <Spinner className="w-8 h-8" />
-        <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
+        <Spinner className="w-6 h-6 text-stone-400" />
+        <span className="text-sm text-stone-400 font-serif">加载中...</span>
       </div>
     )
   }
@@ -32,7 +32,7 @@ export function TrashList({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 pb-8">
       {novels.map(novel => (
         <TrashCard
           key={novel.id}

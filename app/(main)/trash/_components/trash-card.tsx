@@ -2,6 +2,8 @@ import type { Novel } from '@/lib/supabase/sdk'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { BookOpen, Check } from 'lucide-react'
+import { PaperCard } from '@/components/ui/paper-card'
+import { cn } from '@/lib/utils'
 
 interface TrashCardProps {
   novel: Novel
@@ -12,69 +14,79 @@ interface TrashCardProps {
 
 export function TrashCard({ novel, selected, onToggleSelect, onContextMenu }: TrashCardProps) {
   return (
-    <div
-      onContextMenu={e => onContextMenu(e, novel)}
+    <PaperCard
+      variant="default"
+      className={cn(
+        "group aspect-3/4 cursor-pointer transition-all duration-200",
+        selected && "ring-2 ring-zinc-900 dark:ring-zinc-100 ring-offset-2 dark:ring-offset-zinc-900"
+      )}
       onClick={() => onToggleSelect(novel)}
-      className={`group relative bg-white dark:bg-zinc-800 rounded-lg border transition-all cursor-pointer ${
-        selected
-          ? 'border-gray-400 dark:border-gray-500 shadow-md ring-2 ring-gray-400/20 dark:ring-gray-500/20'
-          : 'border-gray-200 dark:border-gray-700 hover:shadow-md'
-      }`}
+      onContextMenu={e => onContextMenu(e, novel)}
     >
       {/* 选择指示器 */}
       <div
-        className={`absolute top-3 right-3 z-10 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+        className={cn(
+          "absolute top-3 right-3 z-20 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all shadow-sm",
           selected
-            ? 'bg-gray-700 border-gray-700 dark:bg-gray-600 dark:border-gray-600'
-            : 'bg-white dark:bg-zinc-700 border-gray-300 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-500'
-        }`}
+            ? "bg-zinc-900 border-zinc-900 dark:bg-zinc-100 dark:border-zinc-100"
+            : "bg-white/80 dark:bg-zinc-800/80 border-stone-300 dark:border-zinc-600 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+        )}
       >
-        {selected && <Check className="w-3 h-3 text-white" />}
+        <Check className={cn("w-3.5 h-3.5", selected ? "text-white dark:text-zinc-900" : "text-stone-400")} />
       </div>
 
-      {/* 图标和类型 */}
-      <div className="flex items-start gap-3 p-4 pb-3">
-        <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 shrink-0">
-          <BookOpen className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+      {/* 上半部分：封面/图标 */}
+      <div className="h-[45%] w-full bg-stone-50/50 dark:bg-zinc-800/50 relative p-5 flex flex-col justify-between border-b border-stone-100 dark:border-zinc-700/50">
+        <div className="flex items-start justify-between opacity-60 group-hover:opacity-100 transition-opacity">
+          <span className="text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded border border-stone-300 text-stone-500 dark:border-zinc-600 dark:text-zinc-400">
+            已删除
+          </span>
+          {novel.category && (
+             <span className="text-[10px] text-stone-400 dark:text-zinc-500 font-serif italic">
+              {novel.category}
+            </span>
+          )}
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+        <div className="mt-3 relative w-full flex-1 rounded-md overflow-hidden bg-stone-100 dark:bg-zinc-700 flex items-center justify-center">
+          {novel.cover
+            ? (
+                <img
+                  src={novel.cover}
+                  alt={novel.title}
+                  className="w-full h-full object-cover"
+                />
+              )
+            : (
+                <BookOpen className="w-10 h-10 text-stone-300 dark:text-zinc-500" />
+              )}
+        </div>
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[16px_16px]" />
+      </div>
+
+      {/* 下半部分：信息 */}
+      <div className="p-5 flex flex-col h-[55%] justify-between bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm">
+        <div className="space-y-3">
+          <h3 className="font-serif text-xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight line-clamp-2 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
             {novel.title}
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">小说</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-3 font-light">
+            {novel.description || '暂无简介...'}
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-3 pt-2">
+          <div className="flex items-center justify-between text-[11px] text-zinc-400 dark:text-zinc-600 font-medium tracking-wide border-t border-stone-50 dark:border-zinc-800 pt-3">
+            <div className="flex gap-2">
+               <span>{(novel.word_count / 1000).toFixed(1)}k 字</span>
+               <span>•</span>
+               <span>{novel.chapter_count} 章节</span>
+            </div>
+            <span>
+              归档于 {formatDistanceToNow(new Date(novel.updated_at), { locale: zhCN, addSuffix: true })}
+            </span>
+          </div>
         </div>
       </div>
-
-      {/* 描述 */}
-      {novel.description && (
-        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 px-4 pb-3">
-          {novel.description}
-        </p>
-      )}
-
-      {/* 统计信息 */}
-      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 px-4 pb-3">
-        <span>
-          {novel.word_count.toLocaleString()}
-          {' '}
-          字
-        </span>
-        <span>
-          {novel.chapter_count}
-          {' '}
-          章节
-        </span>
-      </div>
-
-      {/* 时间信息 */}
-      <p className="text-xs text-gray-500 dark:text-gray-400 px-4 pb-4">
-        归档于
-        {' '}
-        {formatDistanceToNow(new Date(novel.updated_at), {
-          addSuffix: true,
-          locale: zhCN,
-        })}
-      </p>
-    </div>
+    </PaperCard>
   )
 }
