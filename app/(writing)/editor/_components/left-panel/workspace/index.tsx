@@ -3,7 +3,6 @@ import { ActionButtons } from './action-buttons'
 import { QuickActions } from './quick-actions'
 import { RecentChapters } from './recent-chapters'
 import { StatisticsCard } from './statistics-card'
-import EditorSettings from './editor-settings'
 
 interface Chapter {
   id: string
@@ -46,9 +45,6 @@ export default function WorkspaceTab({
           volumes={volumes}
           onChaptersImported={onChaptersImported}
         />
-
-        {/* 编辑器设置 */}
-        <EditorSettings />
 
         {/* 快速操作 */}
         <QuickActions
