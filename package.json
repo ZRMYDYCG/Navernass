@@ -108,6 +108,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.181.0",
+    "babel-plugin-react-compiler": "^1.0.0",
     "commitizen": "^4.3.1",
     "cross-env": "^10.1.0",
     "cz-git": "^1.12.0",
