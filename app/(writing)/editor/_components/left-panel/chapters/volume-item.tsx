@@ -122,9 +122,12 @@ export function VolumeItem({
               </button>
 
               <div className="flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
-                <h3 className="text-[12px] font-medium text-[#333333] dark:text-zinc-100 truncate leading-snug">
-                  {volume.title}
-                </h3>
+                <div className="flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-stone-500 dark:text-zinc-400 flex-shrink-0" />
+                  <h3 className="text-[12px] font-medium text-[#333333] dark:text-zinc-100 truncate leading-snug">
+                    {volume.title}
+                  </h3>
+                </div>
               </div>
             </div>
           </div>

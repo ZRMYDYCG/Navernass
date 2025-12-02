@@ -2,7 +2,7 @@ import type { ChapterItemProps } from './types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import * as Popover from '@radix-ui/react-popover'
-import { Copy, Edit2, GripVertical, Trash2 } from 'lucide-react'
+import { Copy, Edit2, FileText, GripVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import {
   ContextMenu,
@@ -98,13 +98,16 @@ export function ChapterItem({
             </Popover.Root>
 
             <div className="flex-1 min-w-0 flex items-baseline justify-between gap-1.5" onClick={onSelect}>
-              <h3
-                className={`text-[12px] font-normal leading-snug truncate flex-1 transition-colors ${
-                  isSelected ? 'text-[#333333] dark:text-zinc-100 font-medium' : 'text-[#333333]/80 dark:text-zinc-300'
-                }`}
-              >
-                {chapter.title}
-              </h3>
+              <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                <FileText className="w-3.5 h-3.5 text-stone-500 dark:text-zinc-400 flex-shrink-0" />
+                <h3
+                  className={`text-[12px] font-normal leading-snug truncate flex-1 transition-colors ${
+                    isSelected ? 'text-[#333333] dark:text-zinc-100 font-medium' : 'text-[#333333]/80 dark:text-zinc-300'
+                  }`}
+                >
+                  {chapter.title}
+                </h3>
+              </div>
 
               <span
                 className={`text-[10px] flex-shrink-0 transition-opacity ${
