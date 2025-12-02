@@ -27,6 +27,9 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['vdkyjmlalrspsebjhkya.supabase.co'],
   },
+  experimental: {
+    reactCompiler: true,
+  },
 }
 
 export default withBundleAnalyzer(withPWA(nextConfig))
