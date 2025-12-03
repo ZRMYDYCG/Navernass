@@ -1,8 +1,6 @@
 ---
-description: git提交规范
-alwaysApply: false
+alwaysApply: true
 ---
-
 # Git规范
 
 ## 提交规范

@@ -162,7 +162,12 @@ export function ChatHistoryItem({
         {isEditing
           ? (
               <div className="flex items-center gap-1 px-3 py-2 relative">
-                <LeadingIcon className="w-4 h-4 shrink-0 text-muted-foreground" />
+                <LeadingIcon
+                  className={cn(
+                    'w-4 h-4 shrink-0 text-muted-foreground',
+                    chat.isPinned && 'rotate-45',
+                  )}
+                />
                 <Input
                   value={editTitle}
                   onChange={e => setEditTitle(e.target.value)}
@@ -204,8 +209,9 @@ export function ChatHistoryItem({
                 <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[calc(100%-2.5rem)]">
                   <LeadingIcon
                     className={cn(
-                    'w-4 h-4 shrink-0 transition-colors',
-                    isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground/80',
+                      'w-4 h-4 shrink-0 transition-colors',
+                      chat.isPinned && 'rotate-45',
+                      isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground/80',
                     )}
                   />
                   <Tooltip delayDuration={500}>
