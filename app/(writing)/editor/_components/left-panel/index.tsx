@@ -53,10 +53,8 @@ export default function LeftPanel({
   const [activeTab, setActiveTab] = useState<LeftTabType>('files')
 
   return (
-    <PaperLayer 
+    <div 
       className="h-full flex border-r-0 rounded-none shadow-none"
-      texture={false} // 外部容器不需要纹理，内部内容区加纹理
-      sheet={false}   // 作为布局容器
     >
       <div className="flex-shrink-0 z-10 bg-[#FAF9F6] dark:bg-zinc-900/90 border-r border-stone-200 dark:border-zinc-800">
         <TabSwitcher activeTab={activeTab} onChange={setActiveTab} />
@@ -157,6 +155,6 @@ export default function LeftPanel({
           )}
         </AnimatePresence>
       </div>
-    </PaperLayer>
+    </div>
   )
 }
