@@ -1,7 +1,7 @@
 import type { Novel } from '@/lib/supabase/sdk'
-import { BookOpen } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+import { BookOpen, GripVertical } from 'lucide-react'
 import { PaperCard } from '@/components/ui/paper-card'
 
 interface NovelCardProps {
@@ -30,10 +30,13 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
             {novel.status === 'published' ? '已发布' : '草稿'}
           </span>
           {novel.category && (
-             <span className="text-[10px] text-stone-400 dark:text-zinc-500 font-serif italic">
+            <span className="text-[10px] text-stone-400 dark:text-zinc-500 font-serif italic">
               {novel.category}
             </span>
           )}
+          <div className="absolute right-3 top-3 hidden group-hover:flex items-center justify-center transition-opacity">
+            <GripVertical className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
+          </div>
         </div>
         <div className="mt-3 relative w-full flex-1 rounded-md overflow-hidden bg-stone-100 dark:bg-zinc-700 flex items-center justify-center">
           {novel.cover
@@ -77,7 +80,10 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
 
           <div className="flex items-center justify-between text-[11px] text-zinc-400 dark:text-zinc-600 font-medium tracking-wide border-t border-stone-50 dark:border-zinc-800 pt-3">
             <div className="flex gap-2">
-               <span>{(novel.word_count / 1000).toFixed(1)}k 字</span>
+              <span>
+                {(novel.word_count / 1000).toFixed(1)}
+                k 字
+              </span>
             </div>
             <span>
               {formatDistanceToNow(new Date(novel.updated_at), { locale: zhCN, addSuffix: true })}
