@@ -7,7 +7,8 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import Underline from '@tiptap/extension-underline'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import { useEffect, useRef, useState } from 'react'
+import { defaultMarkdownParser } from 'prosemirror-markdown'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Spinner } from '@/components/ui/spinner'
 import { supabase } from '@/lib/supabase'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
@@ -86,9 +87,8 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     return publicData.publicUrl
   }
 
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: [
+  const extensions = useMemo(
+    () => [
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3],
@@ -117,14 +117,20 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       SearchHighlight,
       EditorSearch,
     ],
-    content,
+    [placeholder],
+  )
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions,
+    content: '',
     editable,
     editorProps: {
       attributes: {
         class: 'prose dark:prose-invert prose-gray max-w-none focus:outline-none min-h-full',
       },
       handleDOMEvents: {
-        blur: (view, event) => {
+        blur: () => {
           return false
         },
         paste: (view, event) => {
@@ -184,6 +190,18 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       }
     },
   })
+
+  useEffect(() => {
+    if (!editor) return
+
+    if (!content) {
+      editor.commands.clearContent()
+      return
+    }
+
+    const doc = defaultMarkdownParser.parse(content)
+    editor.commands.setContent(doc.toJSON())
+  }, [editor, content])
 
   useEffect(() => {
     if (editor && onStatsChange) {
@@ -332,10 +350,8 @@ export function useTiptapEditor(content?: string) {
       attributes: {
         class: 'prose dark:prose-invert prose-gray max-w-none focus:outline-none min-h-full',
       },
-      // 保持失焦时的选区显示
       handleDOMEvents: {
-        blur: (view, event) => {
-          // 返回 false 允许默认行为，但我们通过 CSS 来控制选区显示
+        blur: () => {
           return false
         },
       },
