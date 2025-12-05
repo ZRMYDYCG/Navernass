@@ -6,15 +6,15 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
-import { novelsApi } from '@/lib/supabase/sdk'
 import { supabase } from '@/lib/supabase'
+import { novelsApi } from '@/lib/supabase/sdk'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import { NovelContextMenu } from './_components/novel-context-menu'
 import { NovelDialog } from './_components/novel-dialog'
 import { NovelList } from './_components/novel-list'
 import { NovelTable } from './_components/novel-table'
-import { ViewSwitcher } from './_components/view-switcher'
 import { SmartPagination } from './_components/smart-pagination'
+import { ViewSwitcher } from './_components/view-switcher'
 import { DEFAULT_FILTER, DEFAULT_VIEW_MODE, ITEMS_PER_PAGE, TOAST_MESSAGES } from './config'
 
 function NovelsContent() {
@@ -60,19 +60,6 @@ function NovelsContent() {
   useEffect(() => {
     loadNovels()
   }, [loadNovels])
-
-  const handleCreateAction = useCallback(() => {
-    setEditingNovel(null)
-    setDialogOpen(true)
-    router.replace('/novels')
-  }, [router])
-
-  useEffect(() => {
-    const action = searchParams.get('action')
-    if (action === 'create') {
-      handleCreateAction()
-    }
-  }, [searchParams, handleCreateAction])
 
   useEffect(() => {
     const handleClick = () => {
@@ -210,6 +197,16 @@ function NovelsContent() {
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
 
+  const isCreateAction = searchParams.get('action') === 'create'
+  const effectiveDialogOpen = dialogOpen || isCreateAction
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open)
+    if (!open && isCreateAction) {
+      router.replace('/novels')
+    }
+  }
+
   return (
     <div className="flex flex-col bg-[#F9F8F4] dark:bg-zinc-900 transition-colors h-full font-serif">
       <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-8 pt-8 pb-6 shrink-0">
@@ -274,9 +271,9 @@ function NovelsContent() {
       />
 
       <NovelDialog
-        open={dialogOpen}
+        open={effectiveDialogOpen}
         novel={editingNovel}
-        onOpenChange={setDialogOpen}
+        onOpenChange={handleDialogOpenChange}
         onSave={handleSaveNovel}
       />
 
