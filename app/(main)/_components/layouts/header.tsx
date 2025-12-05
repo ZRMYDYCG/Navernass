@@ -14,7 +14,7 @@ export function Header() {
   }
 
   return (
-    <header className="h-16 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-end px-4 sm:px-6 transition-colors">
+    <header className="h-16 flex items-center justify-end px-4 sm:px-6 transition-colors">
       {isNovelsPage && (
         <Button
           onClick={handleCreateNovel}
