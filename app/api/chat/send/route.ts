@@ -6,6 +6,7 @@ import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
 import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.service'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
+import { getChatPrompt } from '@/prompts'
 
 const conversationsService = new ConversationsService()
 const messagesService = new MessagesService()
@@ -68,8 +69,8 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       content: message,
     })
 
-    // 调用AI服务获取回复
-    const aiResponse = await aiService.chat(chatMessages)
+    // 调用AI服务获取回复（使用聊天提示词）
+    const aiResponse = await aiService.chat(chatMessages, getChatPrompt('default'))
 
     // 保存用户消息
     const userMessage = await messagesService.create({

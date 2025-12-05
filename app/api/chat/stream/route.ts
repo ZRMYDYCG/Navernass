@@ -4,6 +4,7 @@ import { getApiKey } from '@/lib/api-key'
 import { ConversationsService } from '@/lib/supabase/sdk/services/conversations.service'
 import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
 import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.service'
+import { getChatPrompt } from '@/prompts'
 
 const conversationsService = new ConversationsService()
 const messagesService = new MessagesService()
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest) {
             // Controller 已关闭，客户端可能已断开连接
             console.warn('Controller closed during streaming')
           }
-        })
+        }, getChatPrompt('default'))
 
         // 保存AI回复
         const assistantMessage = await messagesService.create({

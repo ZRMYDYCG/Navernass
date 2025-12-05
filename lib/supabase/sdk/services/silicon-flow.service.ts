@@ -1,4 +1,5 @@
 import type { ChatMessage } from '../types'
+import { getChatPrompt, TITLE_GENERATION_PROMPT } from '@/prompts'
 
 interface SiliconFlowMessage {
   role: 'system' | 'user' | 'assistant'
@@ -42,8 +43,10 @@ export class SiliconFlowService {
 
   /**
    * 发送消息到硅基流动API
+   * @param messages 消息列表
+   * @param systemPrompt 可选的系统提示词，如果不提供则使用默认的聊天提示词
    */
-  async chat(messages: ChatMessage[]): Promise<{
+  async chat(messages: ChatMessage[], systemPrompt?: string): Promise<{
     content: string
     tokens: number
     model: string
@@ -55,11 +58,15 @@ export class SiliconFlowService {
         content: msg.content,
       }))
 
-      // 添加系统提示词
-      siliconMessages.unshift({
-        role: 'system',
-        content: '你是一个专业的小说创作助手，擅长帮助用户构思情节、塑造角色、续写故事。请用温暖、鼓励的语气与用户交流，提供有创意的建议。请只返回纯文本内容，不要使用 markdown 格式。',
-      })
+      // 检查是否已有系统消息，如果没有则添加
+      const hasSystemMessage = siliconMessages.some(msg => msg.role === 'system')
+      if (!hasSystemMessage) {
+        const prompt = systemPrompt || getChatPrompt('default')
+        siliconMessages.unshift({
+          role: 'system',
+          content: prompt,
+        })
+      }
 
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
@@ -100,10 +107,14 @@ export class SiliconFlowService {
 
   /**
    * 流式发送消息到硅基流动API
+   * @param messages 消息列表（如果已包含system消息，则不会重复添加）
+   * @param onChunk 流式数据回调
+   * @param systemPrompt 可选的系统提示词，如果不提供且消息中没有system消息，则使用默认的聊天提示词
    */
   async chatStream(
     messages: ChatMessage[],
     onChunk: (chunk: { content: string, tokens?: number, model?: string }) => void,
+    systemPrompt?: string,
   ): Promise<void> {
     try {
       // 转换消息格式
@@ -112,11 +123,15 @@ export class SiliconFlowService {
         content: msg.content,
       }))
 
-      // 添加系统提示词
-      siliconMessages.unshift({
-        role: 'system',
-        content: '你是一个专业的小说创作助手，擅长帮助用户构思情节、塑造角色、续写故事。请用温暖、鼓励的语气与用户交流，提供有创意的建议。请只返回纯文本内容，不要使用 markdown 格式。',
-      })
+      // 检查是否已有系统消息，如果没有则添加
+      const hasSystemMessage = siliconMessages.some(msg => msg.role === 'system')
+      if (!hasSystemMessage) {
+        const prompt = systemPrompt || getChatPrompt('default')
+        siliconMessages.unshift({
+          role: 'system',
+          content: prompt,
+        })
+      }
 
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
@@ -199,7 +214,7 @@ export class SiliconFlowService {
           messages: [
             {
               role: 'system',
-              content: '你是一个专业的小说创作助手。请根据用户的第一条消息，生成一个简洁、准确的对话标题（不超过20个字）。只需要返回标题，不需要任何其他内容。',
+              content: TITLE_GENERATION_PROMPT,
             },
             {
               role: 'user',

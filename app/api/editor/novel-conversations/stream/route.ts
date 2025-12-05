@@ -5,6 +5,7 @@ import { ChaptersService } from '@/lib/supabase/sdk/services/chapters.service'
 import { NovelConversationsService } from '@/lib/supabase/sdk/services/novel-conversations.service'
 import { NovelMessagesService } from '@/lib/supabase/sdk/services/novel-messages.service'
 import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.service'
+import { getNovelPrompt, buildChapterContext } from '@/prompts'
 
 const conversationsService = new NovelConversationsService()
 const messagesService = new NovelMessagesService()
@@ -77,22 +78,14 @@ export async function POST(req: NextRequest) {
             const chapters = await Promise.all(
               selectedChapterIds.map(id => chaptersService.getById(id)),
             )
-            const chaptersContent = chapters
-              .map(ch => `## ${ch.title}\n\n${ch.content}`)
-              .join('\n\n---\n\n')
-            contextMessage = `以下是用户选中的章节内容，请参考这些内容来回答用户的问题：\n\n${chaptersContent}\n\n---\n\n`
+            contextMessage = buildChapterContext(chapters)
           } catch (error) {
             console.warn('Failed to load selected chapters:', error)
           }
         }
 
         // 根据模式构建系统提示词
-        let systemPrompt = '你是一个专业的小说创作助手，擅长帮助用户构思情节、塑造角色、续写故事。请用温暖、鼓励的语气与用户交流，提供有创意的建议。请只返回纯文本内容，不要使用 markdown 格式。'
-        if (mode === 'agent') {
-          systemPrompt = '你是一个智能的小说创作助手，可以主动分析用户的小说内容，提供创作建议、情节规划、角色塑造等多方面的帮助。请只返回纯文本内容，不要使用 markdown 格式。'
-        } else if (mode === 'plan') {
-          systemPrompt = '你是一个专业的小说规划助手，擅长帮助用户制定创作计划、梳理故事结构、规划章节内容。请只返回纯文本内容，不要使用 markdown 格式。'
-        }
+        const systemPrompt = getNovelPrompt(mode || 'default')
 
         // 添加当前用户消息（包含上下文）
         const userMessageContent = contextMessage ? `${contextMessage}用户问题：${message}` : message
