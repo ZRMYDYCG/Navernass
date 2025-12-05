@@ -1,25 +1,24 @@
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import type { Novel } from '@/lib/supabase/sdk'
 import {
+  closestCenter,
   DndContext,
   DragOverlay,
-  closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
-  type DragStartEvent,
 } from '@dnd-kit/core'
 import {
-  SortableContext,
   arrayMove,
   rectSortingStrategy,
+  SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { NovelCard } from './novel-card'
@@ -77,12 +76,7 @@ export function NovelList({
   onCreateNovel,
   onReorder,
 }: NovelListProps) {
-  const [items, setItems] = useState<Novel[]>(novels)
   const [activeId, setActiveId] = useState<string | null>(null)
-
-  useEffect(() => {
-    setItems(novels)
-  }, [novels])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -103,13 +97,10 @@ export function NovelList({
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex(item => item.id === active.id)
-        const newIndex = items.findIndex(item => item.id === over.id)
-        const newItems = arrayMove(items, oldIndex, newIndex)
-        onReorder?.(newItems)
-        return newItems
-      })
+      const oldIndex = novels.findIndex(item => item.id === active.id)
+      const newIndex = novels.findIndex(item => item.id === over.id)
+      const newItems = arrayMove(novels, oldIndex, newIndex)
+      onReorder?.(newItems)
     }
 
     setActiveId(null)
@@ -139,7 +130,7 @@ export function NovelList({
     )
   }
 
-  const activeNovel = activeId ? items.find(n => n.id === activeId) : null
+  const activeNovel = activeId ? novels.find(n => n.id === activeId) : null
 
   return (
     <DndContext
@@ -149,11 +140,11 @@ export function NovelList({
       onDragEnd={handleDragEnd}
     >
       <SortableContext
-        items={items.map(n => n.id)}
+        items={novels.map(n => n.id)}
         strategy={rectSortingStrategy}
       >
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 pb-8">
-          {items.map(novel => (
+          {novels.map(novel => (
             <SortableNovelCard
               key={novel.id}
               novel={novel}
@@ -169,7 +160,9 @@ export function NovelList({
               <NovelCard
                 novel={activeNovel}
                 onOpen={() => {}}
-                onContextMenu={(e) => { e.preventDefault() }}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                }}
               />
             )
           : null}
