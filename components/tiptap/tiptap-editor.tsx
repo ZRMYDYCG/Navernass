@@ -254,7 +254,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   useEffect(() => {
     if (!editor || !chapterId) return
 
-    const handleHighlight = (event: Event) => {
+    const handleHighlight: EventListener = (event) => {
       const customEvent = event as CustomEvent<{
         chapterId: string | null
         keyword: string | null
@@ -270,7 +270,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       }
     }
 
-    window.addEventListener('editor-highlight', handleHighlight as EventListener)
+    window.addEventListener('editor-highlight', handleHighlight)
 
     const timeoutId = setTimeout(() => {
       window.dispatchEvent(new CustomEvent('editor-ready', { detail: { chapterId } }))
@@ -280,7 +280,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       if (timeoutId) {
         clearTimeout(timeoutId)
       }
-      window.removeEventListener('editor-highlight', handleHighlight as EventListener)
+      window.removeEventListener('editor-highlight', handleHighlight)
     }
   }, [editor, chapterId])
 
@@ -328,35 +328,4 @@ export function TiptapEditor(props: TiptapEditorProps) {
       <TiptapEditorInner {...props} />
     </DialogProvider>
   )
-}
-
-export function useTiptapEditor(content?: string) {
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
-      }),
-      CharacterCount,
-      Underline,
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-    ],
-    content,
-    editorProps: {
-      attributes: {
-        class: 'prose dark:prose-invert prose-gray max-w-none focus:outline-none min-h-full',
-      },
-      handleDOMEvents: {
-        blur: () => {
-          return false
-        },
-      },
-    },
-  })
-
-  return editor
 }
