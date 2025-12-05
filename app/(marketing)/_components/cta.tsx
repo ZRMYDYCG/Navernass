@@ -4,9 +4,9 @@ import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ctaConfig } from '../config'
+import { PaperSheet, StickyNote } from './paper-elements'
 import { RoughAnnotation } from './rough-annotation'
 import TechStack from './tech-stack'
-import { PaperSheet, StickyNote } from './paper-elements'
 
 export default function CTA() {
   return (
@@ -45,7 +45,7 @@ export default function CTA() {
                   {' '}
                   创造的，经过了很多设计和推翻...
                 </p>
-                
+
                 <StickyNote color="yellow" rotation={-2} className="inline-block mx-2 align-middle text-foreground my-2 md:my-0">
                   🐛 欢迎找 Bug!
                 </StickyNote>

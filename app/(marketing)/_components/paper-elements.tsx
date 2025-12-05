@@ -1,8 +1,9 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import React from 'react'
 import { cn } from '@/lib/utils'
-import { motion } from 'framer-motion'
+
 interface PaperSheetProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'plain' | 'lined' | 'grid' | 'dotted'
   stackCount?: number
@@ -29,8 +30,8 @@ export function PaperSheet({
 }: PaperSheetProps) {
   return (
     <div className="relative group">
-      {stackCount > 0 &&
-        Array.from({ length: stackCount }).map((_, i) => (
+      {stackCount > 0
+        && Array.from({ length: stackCount }).map((_, i) => (
           <div
             key={i}
             className="absolute inset-0 bg-background border border-border shadow-sm rounded-sm -z-10"
@@ -45,7 +46,7 @@ export function PaperSheet({
         className={cn(
           'relative bg-background border border-border shadow-paper-md rounded-sm overflow-hidden transition-transform duration-300',
           tornEdge && 'paper-edge-tear pb-4',
-          className
+          className,
         )}
         style={{ rotate: rotation }}
         whileHover={{ rotate: 0, scale: 1.02 }}
@@ -65,7 +66,7 @@ export function PaperSheet({
 
         {holePunch && (
           <div className="absolute left-3 top-0 bottom-0 flex flex-col justify-around py-4 z-20 pointer-events-none">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map(i => (
               <div key={i} className="w-4 h-4 rounded-full bg-background border border-border shadow-inner" />
             ))}
           </div>
@@ -89,10 +90,10 @@ export function PaperSheet({
 
       {clip && (
         <div className="absolute -top-2 right-8 z-30 pointer-events-none">
-            <svg width="20" height="40" viewBox="0 0 20 40" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
-                <path d="M10 0V30C10 35.5228 5.52285 40 0 40" />
-                <path d="M14 4V34C14 37.3137 11.3137 40 8 40C4.68629 40 2 37.3137 2 34V10" />
-            </svg>
+          <svg width="20" height="40" viewBox="0 0 20 40" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
+            <path d="M10 0V30C10 35.5228 5.52285 40 0 40" />
+            <path d="M14 4V34C14 37.3137 11.3137 40 8 40C4.68629 40 2 37.3137 2 34V10" />
+          </svg>
         </div>
       )}
     </div>
@@ -147,14 +148,15 @@ export function StickyNote({ children, className, color = 'yellow', rotation = 0
     pink: 'bg-[#fdf0f4] dark:bg-pink-900/10 border-pink-200/50 dark:border-pink-800/30',
   }
 
+  const [hoverRotationOffset] = React.useState(() => Math.random() * 4 - 2)
+
   return (
     <motion.div
       className={cn('p-4 shadow-paper-sm text-sm font-handwriting border', colors[color], className)}
       style={{ rotate: rotation }}
-      whileHover={{ scale: 1.1, rotate: rotation + (Math.random() * 4 - 2) }}
+      whileHover={{ scale: 1.1, rotate: rotation + hoverRotationOffset }}
     >
       {children}
     </motion.div>
   )
 }
-

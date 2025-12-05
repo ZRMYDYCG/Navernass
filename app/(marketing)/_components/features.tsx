@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { BookText, Users, Lightbulb, Sparkles, Printer } from 'lucide-react'
+import { BookText, Lightbulb, Printer, Sparkles, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const features = [
@@ -51,9 +51,9 @@ export default function Features() {
   return (
     <section id="features" className="py-32 relative overflow-hidden min-h-screen flex items-center">
       <div className="absolute inset-0 bg-paper-texture opacity-30 pointer-events-none" />
-      
+
       <div className="container mx-auto px-4 relative z-10">
-        
+
         <motion.div
           className="text-center mb-20"
           initial={{ opacity: 0, y: 20 }}
@@ -73,15 +73,15 @@ export default function Features() {
               key={index}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.8, delay: feature.delay, ease: "easeOut" }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.8, delay: feature.delay, ease: 'easeOut' }}
               className="group"
             >
               <div
                 className={cn(
-                  "relative h-full min-h-[240px] p-8 flex flex-col transition-all duration-500 ease-in-out",
-                  "bg-card/60 backdrop-blur-[2px] border border-foreground/5 rounded-sm",
-                  "shadow-paper-sm hover:shadow-paper-md hover:-translate-y-1 hover:bg-card/80"
+                  'relative h-full min-h-[240px] p-8 flex flex-col transition-all duration-500 ease-in-out',
+                  'bg-card/60 backdrop-blur-[2px] border border-foreground/5 rounded-sm',
+                  'shadow-paper-sm hover:shadow-paper-md hover:-translate-y-1 hover:bg-card/80',
                 )}
               >
                 {feature.decoration === 'tape' && (
