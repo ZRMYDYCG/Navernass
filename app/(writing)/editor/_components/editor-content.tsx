@@ -10,7 +10,6 @@ import { Breadcrumb } from './breadcrumb'
 import { SmartTabs } from './smart-tabs'
 
 interface Tab {
-// ... (keep existing code)
   id: string
   title: string
 }
@@ -51,7 +50,8 @@ export default function EditorContent({
   onSelectChapter,
 }: EditorContentProps) {
   const [isSaving, setIsSaving] = useState(false)
-  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [lastSavedMap, setLastSavedMap] = useState<Record<string, Date | null>>({})
+  const lastSaved = lastSavedMap[chapterId] ?? null
   const [wordCount, setWordCount] = useState(0)
   const [charCount, setCharCount] = useState(0)
   const [chapter, setChapter] = useState<Chapter | null>(null)
@@ -74,24 +74,15 @@ export default function EditorContent({
     if (!chapterId) return
 
     // 重置状态
-    setLastSaved(null)
     editorContentRef.current = ''
 
     const loadChapter = async () => {
       try {
         setLoading(true)
-        console.log('📖 开始加载章节:', chapterId)
         const data = await chaptersApi.getById(chapterId)
-        console.log('✅ 章节加载成功:', {
-          chapterId: data.id,
-          title: data.title,
-          contentLength: data.content?.length || 0,
-          wordCount: data.word_count,
-        })
         setChapter(data)
         editorContentRef.current = data.content // 初始化 ref
       } catch (error) {
-        console.error('❌ 加载章节失败:', error)
         const message = error instanceof Error ? error.message : '加载章节失败'
         toast.error(message)
       } finally {
@@ -104,7 +95,6 @@ export default function EditorContent({
 
   const handleUpdate = async (content: string) => {
     editorContentRef.current = content
-    console.log('🔄 自动保存触发:', { chapterId, contentLength: content?.length || 0 })
     if (!chapterId) return
 
     try {
@@ -112,10 +102,8 @@ export default function EditorContent({
       await chaptersApi.update({ id: chapterId, content })
       // 更新本地 chapter state，确保切换章节后能加载最新内容
       setChapter(prev => (prev ? { ...prev, content } : null))
-      setLastSaved(new Date())
-      console.log('✅ 自动保存完成')
+      setLastSavedMap(prev => ({ ...prev, [chapterId]: new Date() }))
     } catch (error) {
-      console.error('❌ 保存失败:', error)
       const message = error instanceof Error ? error.message : '保存失败'
       toast.error(message)
     } finally {
@@ -131,18 +119,15 @@ export default function EditorContent({
       isSavingRef.current = true
       setIsSaving(true)
       const content = editorContentRef.current
-      console.log('💾 手动保存触发 (Ctrl+S):', { chapterId, contentLength: content?.length || 0 })
       await chaptersApi.update({
         id: chapterId,
         content,
       })
       // 更新本地 chapter state，确保切换章节后能加载最新内容
       setChapter(prev => (prev ? { ...prev, content } : null))
-      setLastSaved(new Date())
-      console.log('✅ 手动保存完成')
+      setLastSavedMap(prev => ({ ...prev, [chapterId]: new Date() }))
       toast.success('保存成功', { duration: 1500 })
     } catch (error) {
-      console.error('❌ 手动保存失败:', error)
       const message = error instanceof Error ? error.message : '保存失败'
       toast.error(message)
     } finally {
