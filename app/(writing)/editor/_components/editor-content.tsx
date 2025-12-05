@@ -223,16 +223,16 @@ export default function EditorContent({
               </div>
             )
           : (
-              <div className="min-h-full flex justify-center p-6 sm:p-8">
+              <div className="min-h-full flex justify-center py-6 sm:py-8">
                 <PaperLayer
-                  className="w-full max-w-[65ch] min-h-[80vh] bg-background my-auto"
+                  className="w-full max-w-[85ch] min-h-[80vh] bg-background my-auto"
                   shadow="md"
                   variants={paperFadeScale}
                   initial="initial"
                   animate="animate"
                   exit="exit"
                 >
-                  <div className="p-8 sm:p-12 min-h-full animate-text-fade-in">
+                  <div className="px-8 sm:px-12 min-h-full animate-text-fade-in">
                     <TiptapEditor
                       key={chapterId}
                       content={chapter?.content || `<h1>${chapterTitle}</h1>`}
