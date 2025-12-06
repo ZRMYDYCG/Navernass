@@ -27,7 +27,8 @@ interface NovelListProps {
   novels: Novel[]
   loading: boolean
   onOpenNovel: (novel: Novel) => void
-  onContextMenu: (e: React.MouseEvent, novel: Novel) => void
+  onEditNovel?: (novel: Novel) => void
+  onDeleteNovel?: (novel: Novel) => void
   onCreateNovel: () => void
   onReorder?: (novels: Novel[]) => void
 }
@@ -35,11 +36,13 @@ interface NovelListProps {
 function SortableNovelCard({
   novel,
   onOpen,
-  onContextMenu,
+  onEdit,
+  onDelete,
 }: {
   novel: Novel
   onOpen: (novel: Novel) => void
-  onContextMenu: (e: React.MouseEvent, novel: Novel) => void
+  onEdit?: (novel: Novel) => void
+  onDelete?: (novel: Novel) => void
 }) {
   const {
     attributes,
@@ -62,7 +65,8 @@ function SortableNovelCard({
       <NovelCard
         novel={novel}
         onOpen={onOpen}
-        onContextMenu={onContextMenu}
+        onEdit={onEdit}
+        onDelete={onDelete}
       />
     </div>
   )
@@ -72,7 +76,8 @@ export function NovelList({
   novels,
   loading,
   onOpenNovel,
-  onContextMenu,
+  onEditNovel,
+  onDeleteNovel,
   onCreateNovel,
   onReorder,
 }: NovelListProps) {
@@ -149,7 +154,8 @@ export function NovelList({
               key={novel.id}
               novel={novel}
               onOpen={onOpenNovel}
-              onContextMenu={onContextMenu}
+              onEdit={onEditNovel}
+              onDelete={onDeleteNovel}
             />
           ))}
         </div>
@@ -160,9 +166,6 @@ export function NovelList({
               <NovelCard
                 novel={activeNovel}
                 onOpen={() => {}}
-                onContextMenu={(e) => {
-                  e.preventDefault()
-                }}
               />
             )
           : null}

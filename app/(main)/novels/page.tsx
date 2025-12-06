@@ -1,6 +1,7 @@
 'use client'
 
-import type { NovelFilterType, NovelFormData, ViewMode } from './types'
+import type { NovelFilterType, NovelFormData } from './types'
+// import type { ViewMode } from './types'
 import type { Novel } from '@/lib/supabase/sdk'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useState } from 'react'
@@ -9,13 +10,13 @@ import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmente
 import { supabase } from '@/lib/supabase'
 import { novelsApi } from '@/lib/supabase/sdk'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
-import { NovelContextMenu } from './_components/novel-context-menu'
 import { NovelDialog } from './_components/novel-dialog'
 import { NovelList } from './_components/novel-list'
-import { NovelTable } from './_components/novel-table'
+// import { NovelTable } from './_components/novel-table'
 import { SmartPagination } from './_components/smart-pagination'
-import { ViewSwitcher } from './_components/view-switcher'
-import { DEFAULT_FILTER, DEFAULT_VIEW_MODE, ITEMS_PER_PAGE, TOAST_MESSAGES } from './config'
+// import { ViewSwitcher } from './_components/view-switcher'
+import { DEFAULT_FILTER, ITEMS_PER_PAGE, TOAST_MESSAGES } from './config'
+// import { DEFAULT_VIEW_MODE } from './config'
 
 function NovelsContent() {
   const router = useRouter()
@@ -26,17 +27,12 @@ function NovelsContent() {
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [filter, setFilter] = useState<NovelFilterType>(DEFAULT_FILTER)
-  const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
+  // const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingNovel, setEditingNovel] = useState<Novel | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [novelToDelete, setNovelToDelete] = useState<Novel | null>(null)
-
-  const [contextMenuNovel, setContextMenuNovel] = useState<Novel | null>(null)
-  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number, y: number } | null>(
-    null,
-  )
 
   const loadNovels = useCallback(async () => {
     try {
@@ -61,25 +57,8 @@ function NovelsContent() {
     loadNovels()
   }, [loadNovels])
 
-  useEffect(() => {
-    const handleClick = () => {
-      if (contextMenuNovel) {
-        setContextMenuNovel(null)
-        setContextMenuPosition(null)
-      }
-    }
-    document.addEventListener('click', handleClick)
-    return () => document.removeEventListener('click', handleClick)
-  }, [contextMenuNovel])
-
   const handleOpenNovel = (novel: Novel) => {
     router.push(`/editor?id=${novel.id}`)
-  }
-
-  const handleContextMenu = (e: React.MouseEvent, novel: Novel) => {
-    e.preventDefault()
-    setContextMenuPosition({ x: e.clientX, y: e.clientY })
-    setContextMenuNovel(novel)
   }
 
   const handleOpenCreateDialog = () => {
@@ -220,19 +199,32 @@ function NovelsContent() {
           <SegmentedControlItem value="draft" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">草稿</SegmentedControlItem>
           <SegmentedControlItem value="published" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">已发布</SegmentedControlItem>
         </SegmentedControl>
-        <div className="flex-1 flex justify-end">
+        {/* <div className="flex-1 flex justify-end">
           <ViewSwitcher value={viewMode} onChange={setViewMode} />
-        </div>
+        </div> */}
       </section>
 
       <div className="flex-1 py-2 px-8 overflow-y-auto">
-        {viewMode === 'grid'
+        {/* 卡片模式 */}
+        <NovelList
+          novels={novels}
+          loading={loading}
+          onOpenNovel={handleOpenNovel}
+          onEditNovel={handleEditNovel}
+          onDeleteNovel={handleDeleteNovel}
+          onCreateNovel={handleOpenCreateDialog}
+          onReorder={handleReorder}
+        />
+
+        {/* 表格模式 - 已注释 */}
+        {/* {viewMode === 'grid'
           ? (
               <NovelList
                 novels={novels}
                 loading={loading}
                 onOpenNovel={handleOpenNovel}
-                onContextMenu={handleContextMenu}
+                onEditNovel={handleEditNovel}
+                onDeleteNovel={handleDeleteNovel}
                 onCreateNovel={handleOpenCreateDialog}
                 onReorder={handleReorder}
               />
@@ -244,23 +236,9 @@ function NovelsContent() {
                 onOpenNovel={handleOpenNovel}
                 onEditNovel={handleEditNovel}
                 onDeleteNovel={handleDeleteNovel}
-                onContextMenu={handleContextMenu}
               />
-            )}
+            )} */}
 
-        {contextMenuNovel && contextMenuPosition && (
-          <NovelContextMenu
-            novel={contextMenuNovel}
-            position={contextMenuPosition}
-            onOpen={handleOpenNovel}
-            onEdit={handleEditNovel}
-            onDelete={handleDeleteNovel}
-            onClose={() => {
-              setContextMenuNovel(null)
-              setContextMenuPosition(null)
-            }}
-          />
-        )}
       </div>
 
       <SmartPagination

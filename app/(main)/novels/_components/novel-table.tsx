@@ -19,7 +19,7 @@ interface NovelTableProps {
   onOpenNovel: (novel: Novel) => void
   onEditNovel: (novel: Novel) => void
   onDeleteNovel: (novel: Novel) => void
-  onContextMenu: (e: React.MouseEvent, novel: Novel) => void
+  onContextMenu?: (e: React.MouseEvent, novel: Novel) => void
 }
 
 export function NovelTable({
@@ -66,7 +66,7 @@ export function NovelTable({
           {novels.map((novel, index) => (
             <TableRow
               key={novel.id}
-              onContextMenu={e => onContextMenu(e, novel)}
+              onContextMenu={onContextMenu ? e => onContextMenu(e, novel) : undefined}
               className={`group ${
                 index % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50/30 dark:bg-zinc-800/20'
               }`}

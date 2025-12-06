@@ -1,23 +1,25 @@
 import type { Novel } from '@/lib/supabase/sdk'
+import * as Popover from '@radix-ui/react-popover'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-import { BookOpen, GripVertical } from 'lucide-react'
+import { BookOpen, Edit, EllipsisVertical, ExternalLink, GripHorizontal, Trash2 } from 'lucide-react'
 import { PaperCard } from '@/components/ui/paper-card'
 
 interface NovelCardProps {
   novel: Novel
   onOpen: (novel: Novel) => void
-  onContextMenu: (e: React.MouseEvent, novel: Novel) => void
+  onEdit?: (novel: Novel) => void
+  onDelete?: (novel: Novel) => void
 }
 
-export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
+export function NovelCard({ novel, onOpen, onEdit, onDelete }: NovelCardProps) {
   return (
     <PaperCard
       variant="default"
       className="group aspect-3/4 cursor-pointer"
       onClick={() => onOpen(novel)}
-      onContextMenu={e => onContextMenu(e, novel)}
     >
+      {/* 上半部分：状态、拖拽手柄、封面 */}
       <div className="h-[45%] w-full bg-stone-50/50 dark:bg-zinc-800/50 relative p-5 flex flex-col justify-between border-b border-stone-100 dark:border-zinc-700/50">
         <div className="flex items-start justify-between opacity-60 group-hover:opacity-100 transition-opacity">
           <span
@@ -34,10 +36,75 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
               {novel.category}
             </span>
           )}
-          <div className="absolute right-3 top-3 hidden group-hover:flex items-center justify-center transition-opacity">
-            <GripVertical className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-          </div>
         </div>
+
+        {/* 拖拽手柄 */}
+        <div className="absolute left-1/2 top-3 -translate-x-1/2  hidden group-hover:flex items-center justify-center transition-opacity z-10">
+          <GripHorizontal className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
+        </div>
+
+        {/* 更多 */}
+        <div className="absolute right-3 top-3 hidden group-hover:flex items-center justify-center transition-opacity z-20" onClick={e => e.stopPropagation()}>
+          <Popover.Root>
+            <Popover.Trigger asChild>
+              <button
+                type="button"
+                className="p-1 cursor-pointer rounded hover:bg-stone-100 dark:hover:bg-zinc-700 transition-colors"
+                onClick={e => e.stopPropagation()}
+              >
+                <EllipsisVertical className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
+              </button>
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content
+                className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+                sideOffset={5}
+                align="end"
+                onClick={e => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onOpen(novel)
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  打开
+                </button>
+                {onEdit && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onEdit(novel)
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                  >
+                    <Edit className="w-4 h-4" />
+                    编辑
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDelete(novel)
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    删除
+                  </button>
+                )}
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>
+
+        {/* 封面 */}
         <div className="mt-3 relative w-full flex-1 rounded-md overflow-hidden bg-stone-100 dark:bg-zinc-700 flex items-center justify-center">
           {novel.cover
             ? (
@@ -51,9 +118,10 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
                 <BookOpen className="w-10 h-10 text-stone-300 dark:text-zinc-500" />
               )}
         </div>
+        {/* 背景噪点 */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[16px_16px]" />
       </div>
-
+      {/* 下半部分：信息 */}
       <div className="p-5 flex flex-col h-[55%] justify-between bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm">
         <div className="space-y-3">
           <h3 className="font-serif text-xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight line-clamp-2 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
