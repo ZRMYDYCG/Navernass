@@ -29,7 +29,7 @@ interface NovelListProps {
   onOpenNovel: (novel: Novel) => void
   onEditNovel?: (novel: Novel) => void
   onDeleteNovel?: (novel: Novel) => void
-  onCreateNovel: () => void
+  onCreateNovel?: () => void
   onReorder?: (novels: Novel[]) => void
 }
 
@@ -124,13 +124,15 @@ export function NovelList({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-stone-400 dark:text-zinc-500 font-serif">
         <p className="text-lg mb-4 italic">Empty pages...</p>
-        <Button
-          onClick={onCreateNovel}
-          className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 font-sans"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Start Writing
-        </Button>
+        {onCreateNovel && (
+          <Button
+            onClick={onCreateNovel}
+            className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 font-sans"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Start Writing
+          </Button>
+        )}
       </div>
     )
   }

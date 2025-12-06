@@ -188,7 +188,8 @@ function NovelsContent() {
 
   return (
     <div className="flex flex-col bg-[#F9F8F4] dark:bg-zinc-900 transition-colors h-full font-serif">
-      <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-8 pt-8 pb-6 shrink-0">
+      {/* Header 部分 - 已注释 */}
+      {/* <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-8 pt-8 pb-6 shrink-0">
         <div className="flex-1 hidden sm:block" />
         <SegmentedControl
           value={filter}
@@ -199,12 +200,34 @@ function NovelsContent() {
           <SegmentedControlItem value="draft" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">草稿</SegmentedControlItem>
           <SegmentedControlItem value="published" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">已发布</SegmentedControlItem>
         </SegmentedControl>
-        {/* <div className="flex-1 flex justify-end">
+        <div className="flex-1 flex justify-end">
           <ViewSwitcher value={viewMode} onChange={setViewMode} />
-        </div> */}
-      </section>
+        </div>
+      </section> */}
 
       <div className="flex-1 py-2 px-8 overflow-y-auto">
+        {/* 筛选器和新建按钮 */}
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <SegmentedControl
+            value={filter}
+            onValueChange={value => setFilter(value as NovelFilterType)}
+            className="bg-transparent p-1 border border-stone-200 dark:border-zinc-800 rounded-lg"
+          >
+            <SegmentedControlItem value="all" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">全部</SegmentedControlItem>
+            <SegmentedControlItem value="draft" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">草稿</SegmentedControlItem>
+            <SegmentedControlItem value="published" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">已发布</SegmentedControlItem>
+          </SegmentedControl>
+          <button
+            type="button"
+            onClick={handleOpenCreateDialog}
+            className="px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg transition-colors font-sans text-sm flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            新建小说
+          </button>
+        </div>
         {/* 卡片模式 */}
         <NovelList
           novels={novels}
@@ -212,7 +235,6 @@ function NovelsContent() {
           onOpenNovel={handleOpenNovel}
           onEditNovel={handleEditNovel}
           onDeleteNovel={handleDeleteNovel}
-          onCreateNovel={handleOpenCreateDialog}
           onReorder={handleReorder}
         />
 

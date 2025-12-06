@@ -1,20 +1,20 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Header } from './header'
+// import { Header } from './header'
 import { Sidebar } from './sidebar'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isCompositionPage = pathname === '/composition'
-  const isChatPage = pathname.includes('/chat')
+  // const isChatPage = pathname.includes('/chat')
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-zinc-900 transition-colors">
       <Sidebar />
 
       <div className="flex flex-col flex-1 lg:ml-16">
-        {!isChatPage && <Header />}
+        {/* {!isChatPage && <Header />} */}
 
         <main
           className={`flex-1 h-auto ${

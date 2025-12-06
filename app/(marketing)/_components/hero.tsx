@@ -108,7 +108,7 @@ export default function Hero() {
           transition={{ delay: 2, duration: 1 }}
         >
           <span className="text-muted-foreground/40 text-sm font-sans tracking-widest uppercase">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-foreground/20 to-transparent mx-auto mt-2" />
+          <div className="w-px h-8 bg-linear-to-b from-foreground/20 to-transparent mx-auto mt-2" />
         </motion.div>
 
       </div>

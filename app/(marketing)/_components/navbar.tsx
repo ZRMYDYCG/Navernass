@@ -82,7 +82,7 @@ export default function Navbar() {
               )
             })}
           </motion.div>
-
+          {/* 主题切换和进入应用按钮 */}
           <motion.div
             className="hidden md:flex items-center gap-3"
             initial={{ opacity: 0, x: 20 }}
@@ -103,7 +103,7 @@ export default function Navbar() {
               asChild
               variant="outline"
             >
-              <Link href="/novels">{navbarConfig.ctaText}</Link>
+              <Link href="/chat">{navbarConfig.ctaText}</Link>
             </Button>
           </motion.div>
 
@@ -155,6 +155,7 @@ export default function Navbar() {
                     </Link>
                   )
                 })}
+                {/* 主题切换和进入应用按钮 */}
                 <div className="flex flex-col gap-2 pt-4">
                   <Button
                     variant="ghost"
@@ -172,7 +173,7 @@ export default function Navbar() {
                     variant="outline"
                     className="w-full"
                   >
-                    <Link href="/novels">{navbarConfig.ctaText}</Link>
+                    <Link href="/chat">{navbarConfig.ctaText}</Link>
                   </Button>
                 </div>
               </div>
