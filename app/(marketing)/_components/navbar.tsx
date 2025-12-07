@@ -1,7 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { Menu, Moon, Sun, X } from 'lucide-react'
+import { GithubIcon, Menu, Moon, Sun, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -89,6 +89,16 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
+            {/* github按钮 */}
+            {/* TODO: 添加 github 按钮 */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => window.open('https://github.com/narraverse/narraverse-next-mvp', '_blank')}
+              className="rounded-full text-foreground hover:bg-foreground/10"
+            >
+              <GithubIcon className="h-5 w-5" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"

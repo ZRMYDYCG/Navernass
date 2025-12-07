@@ -62,7 +62,7 @@ export default function Features() {
           transition={{ duration: 1 }}
         >
           <h2 className="text-3xl md:text-4xl font-serif font-medium text-foreground/80 mb-4 tracking-wide">
-            让写作回归温柔的仪式
+            为创作者打造舒适的创作环境
           </h2>
           <div className="w-16 h-1 bg-foreground/10 mx-auto rounded-full" />
         </motion.div>

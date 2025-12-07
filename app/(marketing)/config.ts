@@ -22,11 +22,11 @@ export const navbarConfig: NavbarConfig = {
     width: 32,
     height: 32,
   },
+  // TODO: 添加导航栏链接
   navLinks: [
-    { name: '功能', href: '#features' },
-    { name: '文档', href: '#docs' },
-    { name: '社区', href: '#community' },
-    { name: 'GitHub', href: 'https://github.com/narraverse/narraverse-next-mvp', target: '_blank' },
+    // { name: '功能', href: '#features' },
+    // { name: '文档', href: '#docs' },
+    // { name: '社区', href: '#community' },
   ],
   ctaText: '进入应用',
   themeToggleLabel: '切换主题',
@@ -46,7 +46,7 @@ export const heroConfig: HeroConfig = {
   ctaButtons: {
     primary: {
       text: '开始创作',
-      href: '/novels',
+      href: '/chat',
       icon: ArrowRight,
     },
     secondary: {
@@ -88,5 +88,6 @@ export const ctaConfig: CTAConfig = {
   subtitle:
     '这个项目是我一个人从 0 到 1 创造的。一个人的精力有限，项目可能会存在一些隐藏的 BUG。希望大家能够及时在 GitHub 向我反馈，这样也好加以改正，不断改善，成为最佳！当然我更希望大家能够提交 PR 成为 Narraverse 的贡献者。大家一起参与进来，构建一个强大的小说创作平台！',
   ctaText: '立即加入',
+  // TODO: 添加 github 链接
   href: 'https://github.com/narraverse/narraverse-next-mvp',
 }

@@ -50,9 +50,10 @@ export default function CTA() {
                   🐛 欢迎找 Bug!
                 </StickyNote>
 
-                <p>
+                <p className="mt-2">
                   希望大家能够及时在
                   {' '}
+                  {/* TODO: 添加 github 链接 */}
                   <a
                     href="https://github.com/narraverse/narraverse-next-mvp"
                     target="_blank"
