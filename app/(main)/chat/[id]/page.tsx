@@ -15,10 +15,12 @@ import { useConversationMessages } from './_hooks/use-conversation-messages'
 import { useDocumentEditor } from './_hooks/use-document-editor'
 import { useImageGeneration } from './_hooks/use-image-generation'
 import { useShareMode } from './_hooks/use-share-mode'
+import { useChatSidebar } from '../_components/chat-sidebar-provider'
 
 export default function ConversationPage() {
   const params = useParams()
   const conversationId = params.id as string
+  const { close: closeSidebar } = useChatSidebar()
 
   const {
     messages,
@@ -66,10 +68,15 @@ export default function ConversationPage() {
     showDocumentEditor,
     setShowDocumentEditor,
     rightPanelRef,
-    handleEditMessage,
+    handleEditMessage: originalHandleEditMessage,
     handleCloseDocumentEditor,
     handleSaveDocument,
   } = useDocumentEditor(handleMessageUpdate)
+
+  const handleEditMessage = useCallback((message) => {
+    closeSidebar()
+    originalHandleEditMessage(message)
+  }, [closeSidebar, originalHandleEditMessage])
 
   const displayLatestAssistantMessage = useMemo(() => {
     if (!showDocumentEditor) return null
