@@ -1,7 +1,7 @@
 import type { Novel } from '@/lib/supabase/sdk'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-import { BookOpen, GripVertical } from 'lucide-react'
+import { BookOpen, GripHorizontal } from 'lucide-react'
 import { PaperCard } from '@/components/ui/paper-card'
 
 interface NovelCardProps {
@@ -20,7 +20,6 @@ export function NovelCard({ novel, onOpen, onContextMenu, dragListeners }: Novel
       onContextMenu={e => onContextMenu(e, novel)}
     >
       <div className="h-[45%] w-full bg-stone-50/50 dark:bg-zinc-800/50 relative p-5 flex flex-col justify-between border-b border-stone-100 dark:border-zinc-700/50">
-        {/* todo: */}
         <div className="flex items-start justify-between opacity-60 group-hover:opacity-100 transition-opacity">
           <span
             className={`text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded border ${novel.status === 'published'
@@ -36,10 +35,10 @@ export function NovelCard({ novel, onOpen, onContextMenu, dragListeners }: Novel
             </span>
           )}
           <div
-            className="absolute right-3 top-3 hidden group-hover:flex items-center justify-center transition-opacity cursor-move"
+            className="absolute left-1/2 top-1 hidden group-hover:flex items-center justify-center transition-opacity cursor-move -translate-x-1/2"
             {...dragListeners}
           >
-            <GripVertical className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
+            <GripHorizontal className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
           </div>
         </div>
         <div className="mt-3 relative w-full flex-1 rounded-md overflow-hidden bg-stone-100 dark:bg-zinc-700 flex items-center justify-center">
