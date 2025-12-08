@@ -1,8 +1,10 @@
 import type { Novel } from '@/lib/supabase/sdk'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-import { BookOpen, GripHorizontal } from 'lucide-react'
+import { BookOpen, GripHorizontal, EllipsisVertical } from 'lucide-react'
 import { PaperCard } from '@/components/ui/paper-card'
+import { useState, useEffect } from 'react'
+import { cn } from "@/lib/utils"
 
 interface NovelCardProps {
   novel: Novel
@@ -12,20 +14,55 @@ interface NovelCardProps {
 }
 
 export function NovelCard({ novel, onOpen, onContextMenu, dragListeners }: NovelCardProps) {
+  const [isMenuActive, setIsMenuActive] = useState(false)
+  const handleContextMenu = (e: React.MouseEvent, novel: Novel) => {
+    setIsMenuActive(true);
+    onContextMenu(e, novel);
+  }
+  useEffect(() => {
+    if (isMenuActive) {
+      const handleGlobalClick = (event: MouseEvent) => {
+        setTimeout(() => {
+          const contextMenu = document.querySelector('[data-type="novel-context-menu"]');
+          const isClickInsideMenu = contextMenu?.contains(event.target as Node);
+          const isClickOnButton = event.target === document.activeElement?.closest('.ml-auto');
+
+          if (!isClickInsideMenu && !isClickOnButton) {
+            setIsMenuActive(false);
+          }
+        }, 0);
+      };
+
+      document.addEventListener('click', handleGlobalClick);
+
+      return () => {
+        document.removeEventListener('click', handleGlobalClick);
+      };
+    }
+  }, [isMenuActive]);
   return (
     <PaperCard
       variant="default"
+      isMenuActive={isMenuActive}
       className="group aspect-3/4"
       onClick={() => onOpen(novel)}
-      onContextMenu={e => onContextMenu(e, novel)}
     >
       <div className="h-[45%] w-full bg-stone-50/50 dark:bg-zinc-800/50 relative p-5 flex flex-col justify-between border-b border-stone-100 dark:border-zinc-700/50">
-        <div className="flex items-start justify-between opacity-60 group-hover:opacity-100 transition-opacity">
+        <div className={cn(
+          "flex items-center justify-between opacity-60 transition-opacity",
+          {
+            "opacity-100": isMenuActive,
+            "group-hover:opacity-100": !isMenuActive
+          }
+        )}
+        >
           <span
-            className={`text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded border ${novel.status === 'published'
-              ? 'border-emerald-200 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400'
-              : 'border-stone-300 text-stone-500 dark:border-zinc-600 dark:text-zinc-400'
-              }`}
+            className={cn(
+              "text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded-sm border",
+              novel.status === 'published'
+                ? 'border-emerald-200 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400'
+                : 'border-stone-300 text-stone-500 dark:border-zinc-600 dark:text-zinc-400'
+            )}
           >
             {novel.status === 'published' ? '已发布' : '草稿'}
           </span>
@@ -35,7 +72,36 @@ export function NovelCard({ novel, onOpen, onContextMenu, dragListeners }: Novel
             </span>
           )}
           <div
-            className="absolute left-1/2 top-1 hidden group-hover:flex items-center justify-center transition-opacity cursor-move -translate-x-1/2"
+            className={cn(
+              "ml-auto opacity-0 rounded-sm transition-opacity border border-zinc-400 dark:border-zinc-500 p-1.5 text-zinc-400 cursor-pointer dark:text-zinc-500 transition-colors",
+              {
+                "opacity-100 bg-zinc-100 dark:bg-zinc-800": isMenuActive,
+                "group-hover:opacity-100 hover:bg-zinc-100 dark:hover:bg-zinc-800": !isMenuActive
+              }
+            )}
+            // 这里需要触发上下文菜单
+            onClick={(e) => {
+              e.stopPropagation();
+              const targetElement = e.currentTarget;
+              const rect = targetElement.getBoundingClientRect();
+              const mockEvent = {
+                clientX: rect.left - 134,
+                clientY: rect.bottom + 3,
+                preventDefault: () => { }
+              } as React.MouseEvent;
+              handleContextMenu(mockEvent, novel);
+            }}
+          >
+            <EllipsisVertical className="w-3 h-3 text-zinc-400 dark:text-zinc-500" />
+          </div>
+          <div
+            className={cn(
+              "absolute left-1/2 top-1 items-center justify-center transition-opacity cursor-move -translate-x-1/2",
+              {
+                "flex": isMenuActive,
+                "hidden group-hover:flex": !isMenuActive
+              }
+            )}
             {...dragListeners}
           >
             <GripHorizontal className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
@@ -59,7 +125,15 @@ export function NovelCard({ novel, onOpen, onContextMenu, dragListeners }: Novel
 
       <div className="p-5 flex flex-col h-[55%] justify-between bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm">
         <div className="space-y-3">
-          <h3 className="font-serif text-xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight line-clamp-2 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
+          <h3
+            className={cn(
+              "font-serif text-xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight line-clamp-2 transition-colors",
+              {
+                "text-zinc-700 dark:text-zinc-300": isMenuActive,
+                "group-hover:text-zinc-700 dark:group-hover:text-zinc-300": !isMenuActive
+              }
+            )}
+          >
             {novel.title}
           </h3>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-3 font-light">
