@@ -20,13 +20,13 @@
 
 ```bash
 # SUPABASE 配置
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_URL=https://vdkyjmlalrspsebjhkya.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZka3lqbWxhbHJzcHNlYmpoa3lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MTcyNTMsImV4cCI6MjA3NjA5MzI1M30.nWTsk1l1h_gvOtAthC9yorIhA2XrkXqHS1YYdNTxvbA
 
 # 硅基流动 AI 配置
-SILICON_FLOW_API_KEY=
-SILICON_FLOW_BASE_URL=
-SILICON_FLOW_MODEL=
+SILICON_FLOW_API_KEY=sk-kaktqajxsmriozvxzacfszcpbwvqdxlwifwukxozmxndnbkj
+SILICON_FLOW_BASE_URL=https://api.siliconflow.cn/v1
+SILICON_FLOW_MODEL=Qwen/Qwen2.5-7B-Instruct
 
 ```
 

@@ -58,11 +58,12 @@ function SortableNovelCard({
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} {...attributes}>
       <NovelCard
         novel={novel}
         onOpen={onOpen}
         onContextMenu={onContextMenu}
+        dragListeners={listeners}
       />
     </div>
   )
@@ -157,14 +158,14 @@ export function NovelList({
       <DragOverlay>
         {activeNovel
           ? (
-              <NovelCard
-                novel={activeNovel}
-                onOpen={() => {}}
-                onContextMenu={(e) => {
-                  e.preventDefault()
-                }}
-              />
-            )
+            <NovelCard
+              novel={activeNovel}
+              onOpen={() => { }}
+              onContextMenu={(e) => {
+                e.preventDefault()
+              }}
+            />
+          )
           : null}
       </DragOverlay>
     </DndContext>

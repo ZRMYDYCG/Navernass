@@ -8,24 +8,25 @@ interface NovelCardProps {
   novel: Novel
   onOpen: (novel: Novel) => void
   onContextMenu: (e: React.MouseEvent, novel: Novel) => void
+  dragListeners?: any
 }
 
-export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
+export function NovelCard({ novel, onOpen, onContextMenu, dragListeners }: NovelCardProps) {
   return (
     <PaperCard
       variant="default"
-      className="group aspect-3/4 cursor-pointer"
+      className="group aspect-3/4"
       onClick={() => onOpen(novel)}
       onContextMenu={e => onContextMenu(e, novel)}
     >
       <div className="h-[45%] w-full bg-stone-50/50 dark:bg-zinc-800/50 relative p-5 flex flex-col justify-between border-b border-stone-100 dark:border-zinc-700/50">
+        {/* todo: */}
         <div className="flex items-start justify-between opacity-60 group-hover:opacity-100 transition-opacity">
           <span
-            className={`text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded border ${
-              novel.status === 'published'
-                ? 'border-emerald-200 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400'
-                : 'border-stone-300 text-stone-500 dark:border-zinc-600 dark:text-zinc-400'
-            }`}
+            className={`text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded border ${novel.status === 'published'
+              ? 'border-emerald-200 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400'
+              : 'border-stone-300 text-stone-500 dark:border-zinc-600 dark:text-zinc-400'
+              }`}
           >
             {novel.status === 'published' ? '已发布' : '草稿'}
           </span>
@@ -34,22 +35,25 @@ export function NovelCard({ novel, onOpen, onContextMenu }: NovelCardProps) {
               {novel.category}
             </span>
           )}
-          <div className="absolute right-3 top-3 hidden group-hover:flex items-center justify-center transition-opacity">
+          <div
+            className="absolute right-3 top-3 hidden group-hover:flex items-center justify-center transition-opacity cursor-move"
+            {...dragListeners}
+          >
             <GripVertical className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
           </div>
         </div>
         <div className="mt-3 relative w-full flex-1 rounded-md overflow-hidden bg-stone-100 dark:bg-zinc-700 flex items-center justify-center">
           {novel.cover
             ? (
-                <img
-                  src={novel.cover}
-                  alt={novel.title}
-                  className="w-full h-full object-cover"
-                />
-              )
+              <img
+                src={novel.cover}
+                alt={novel.title}
+                className="w-full h-full object-cover"
+              />
+            )
             : (
-                <BookOpen className="w-10 h-10 text-stone-300 dark:text-zinc-500" />
-              )}
+              <BookOpen className="w-10 h-10 text-stone-300 dark:text-zinc-500" />
+            )}
         </div>
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[16px_16px]" />
       </div>
