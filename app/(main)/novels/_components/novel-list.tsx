@@ -36,10 +36,14 @@ function SortableNovelCard({
   novel,
   onOpen,
   onContextMenu,
+  isMenuActive,
+  setIsMenuActive,
 }: {
   novel: Novel
   onOpen: (novel: Novel) => void
   onContextMenu: (e: React.MouseEvent, novel: Novel) => void
+  isMenuActive: boolean,
+  setIsMenuActive: (active: boolean) => void
 }) {
   const {
     attributes,
@@ -64,6 +68,8 @@ function SortableNovelCard({
         onOpen={onOpen}
         onContextMenu={onContextMenu}
         dragListeners={listeners}
+        isMenuActive={isMenuActive}
+        setIsMenuActive={setIsMenuActive}
       />
     </div>
   )
@@ -78,6 +84,7 @@ export function NovelList({
   onReorder,
 }: NovelListProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [isMenuActive, setIsMenuActive] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -122,7 +129,7 @@ export function NovelList({
         <p className="text-lg mb-4 italic">Empty pages...</p>
         <Button
           onClick={onCreateNovel}
-          className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 font-sans"
+          className={`bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 ${isMenuActive}?'bg-zinc-800 dark:bg-zinc-200':'hover:bg-zinc-800 dark:hover:bg-zinc-200'   font-sans`}
         >
           <Plus className="w-4 h-4 mr-2" />
           Start Writing
@@ -151,6 +158,8 @@ export function NovelList({
               novel={novel}
               onOpen={onOpenNovel}
               onContextMenu={onContextMenu}
+              isMenuActive
+              setIsMenuActive={setIsMenuActive}
             />
           ))}
         </div>
@@ -164,6 +173,9 @@ export function NovelList({
               onContextMenu={(e) => {
                 e.preventDefault()
               }}
+              dragListeners={{}}
+              isMenuActive={isMenuActive}
+              setIsMenuActive={setIsMenuActive}
             />
           )
           : null}
