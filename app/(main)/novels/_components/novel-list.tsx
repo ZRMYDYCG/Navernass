@@ -27,8 +27,10 @@ interface NovelListProps {
   novels: Novel[]
   loading: boolean
   onOpenNovel: (novel: Novel) => void
-  onContextMenu: (e: React.MouseEvent, novel: Novel) => void
-  onCreateNovel: () => void
+  onEditNovel?: (novel: Novel) => void
+  onDeleteNovel?: (novel: Novel) => void
+  onContextMenu?: (e: React.MouseEvent, novel: Novel) => void
+  onCreateNovel?: () => void
   onReorder?: (novels: Novel[]) => void
 }
 
@@ -39,9 +41,7 @@ function SortableNovelCard({
 }: {
   novel: Novel
   onOpen: (novel: Novel) => void
-  onContextMenu: (e: React.MouseEvent, novel: Novel) => void
-  isMenuActive: boolean
-  setIsMenuActive: (active: boolean) => void
+  onContextMenu?: (e: React.MouseEvent, novel: Novel) => void
 }) {
   const {
     attributes,
@@ -80,7 +80,6 @@ export function NovelList({
   onReorder,
 }: NovelListProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [isMenuActive, setIsMenuActive] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -124,8 +123,8 @@ export function NovelList({
       <div className="flex flex-col items-center justify-center py-20 text-stone-400 dark:text-zinc-500 font-serif">
         <p className="text-lg mb-4 italic">Empty pages...</p>
         <Button
-          onClick={onCreateNovel}
-          className={`bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 ${isMenuActive}?'bg-zinc-800 dark:bg-zinc-200':'hover:bg-zinc-800 dark:hover:bg-zinc-200'   font-sans`}
+          onClick={() => onCreateNovel?.()}
+          className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 font-sans"
         >
           <Plus className="w-4 h-4 mr-2" />
           Start Writing
@@ -154,8 +153,6 @@ export function NovelList({
               novel={novel}
               onOpen={onOpenNovel}
               onContextMenu={onContextMenu}
-              isMenuActive
-              setIsMenuActive={setIsMenuActive}
             />
           ))}
         </div>

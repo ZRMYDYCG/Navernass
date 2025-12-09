@@ -6,14 +6,21 @@ import { useEffect, useState } from 'react'
 import { PaperCard } from '@/components/ui/paper-card'
 import { cn } from '@/lib/utils'
 
+function noop() {}
+
 interface NovelCardProps {
   novel: Novel
   onOpen: (novel: Novel) => void
-  onContextMenu: (e: React.MouseEvent, novel: Novel) => void
+  onContextMenu?: (e: React.MouseEvent, novel: Novel) => void
   dragListeners?: unknown
 }
 
-export function NovelCard({ novel, onOpen, onContextMenu, dragListeners }: NovelCardProps) {
+export function NovelCard({
+  novel,
+  onOpen,
+  onContextMenu = noop,
+  dragListeners,
+}: NovelCardProps) {
   const [isMenuActive, setIsMenuActive] = useState(false)
   const handleContextMenu = (e: React.MouseEvent, novel: Novel) => {
     setIsMenuActive(true)
@@ -74,7 +81,7 @@ export function NovelCard({ novel, onOpen, onContextMenu, dragListeners }: Novel
           )}
           <div
             className={cn(
-              'ml-auto opacity-0 rounded-sm transition-opacity border border-zinc-400 dark:border-zinc-500 p-1.5 text-zinc-400 cursor-pointer dark:text-zinc-500',
+              'ml-auto opacity-0 rounded-sm transition-opacity p-1.5 text-zinc-400 cursor-pointer dark:text-zinc-500',
               {
                 'opacity-100 bg-zinc-100 dark:bg-zinc-800': isMenuActive,
                 'group-hover:opacity-100 hover:bg-zinc-100 dark:hover:bg-zinc-800': !isMenuActive,

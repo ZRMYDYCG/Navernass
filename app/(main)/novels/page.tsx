@@ -1,6 +1,6 @@
 'use client'
 
-import type { NovelFilterType, NovelFormData } from './types'
+import type { ContextMenuState, NovelFilterType, NovelFormData } from './types'
 // import type { ViewMode } from './types'
 import type { Novel } from '@/lib/supabase/sdk'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -10,6 +10,7 @@ import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmente
 import { supabase } from '@/lib/supabase'
 import { novelsApi } from '@/lib/supabase/sdk'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
+import { NovelContextMenu } from './_components/novel-context-menu'
 import { NovelDialog } from './_components/novel-dialog'
 import { NovelList } from './_components/novel-list'
 // import { NovelTable } from './_components/novel-table'
@@ -33,6 +34,10 @@ function NovelsContent() {
   const [editingNovel, setEditingNovel] = useState<Novel | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [novelToDelete, setNovelToDelete] = useState<Novel | null>(null)
+  const [contextMenuState, setContextMenuState] = useState<ContextMenuState>({
+    novel: null,
+    position: null,
+  })
 
   const loadNovels = useCallback(async () => {
     try {
@@ -138,6 +143,45 @@ function NovelsContent() {
     setDeleteDialogOpen(true)
   }
 
+  const handleContextMenu = (e: React.MouseEvent, novel: Novel) => {
+    e.preventDefault()
+    setContextMenuState({
+      novel,
+      position: {
+        x: e.clientX,
+        y: e.clientY,
+      },
+    })
+  }
+
+  const handleCloseContextMenu = () => {
+    setContextMenuState({
+      novel: null,
+      position: null,
+    })
+  }
+
+  useEffect(() => {
+    if (!contextMenuState.position) return
+
+    const handleGlobalClose = () => handleCloseContextMenu()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleCloseContextMenu()
+      }
+    }
+
+    document.addEventListener('click', handleGlobalClose)
+    document.addEventListener('contextmenu', handleGlobalClose)
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('click', handleGlobalClose)
+      document.removeEventListener('contextmenu', handleGlobalClose)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [contextMenuState.position])
+
   const handleConfirmDelete = async () => {
     if (!novelToDelete) return
 
@@ -235,8 +279,23 @@ function NovelsContent() {
           onOpenNovel={handleOpenNovel}
           onEditNovel={handleEditNovel}
           onDeleteNovel={handleDeleteNovel}
+          onContextMenu={handleContextMenu}
           onReorder={handleReorder}
         />
+
+        {contextMenuState.novel && contextMenuState.position && (
+          <NovelContextMenu
+            novel={contextMenuState.novel}
+            position={{
+              x: contextMenuState.position.x,
+              y: contextMenuState.position.y,
+            }}
+            onOpen={handleOpenNovel}
+            onEdit={handleEditNovel}
+            onDelete={handleDeleteNovel}
+            onClose={handleCloseContextMenu}
+          />
+        )}
 
         {/* 表格模式 - 已注释 */}
         {/* {viewMode === 'grid'
