@@ -135,7 +135,7 @@ export function MessageList({
               <div className="flex justify-end">
                 <div className="flex flex-col items-end gap-2 w-[88%]">
                   <Skeleton className="h-3 w-16" />
-                  <div className="bg-white dark:bg-zinc-800 rounded-2xl p-5 w-full space-y-2">
+                  <div className="w-full space-y-2">
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-[95%]" />
@@ -149,7 +149,7 @@ export function MessageList({
                   <Skeleton className="w-10 h-10 rounded-full shrink-0" />
                   <div className="flex flex-col gap-3 flex-1">
                     <Skeleton className="h-3 w-20" />
-                    <div className="bg-white dark:bg-zinc-800 rounded-2xl p-5 space-y-3">
+                    <div className="space-y-3">
                       <div className="space-y-2">
                         <Skeleton className="h-4 w-full" />
                         <Skeleton className="h-4 w-full" />
@@ -169,7 +169,7 @@ export function MessageList({
               <div className="flex justify-end">
                 <div className="flex flex-col items-end gap-2 w-[82%]">
                   <Skeleton className="h-3 w-16" />
-                  <div className="bg-white dark:bg-zinc-800 rounded-2xl p-5 w-full space-y-2">
+                  <div className="w-full space-y-2">
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-[80%]" />
@@ -182,7 +182,7 @@ export function MessageList({
                   <Skeleton className="w-10 h-10 rounded-full shrink-0" />
                   <div className="flex flex-col gap-3 flex-1">
                     <Skeleton className="h-3 w-20" />
-                    <div className="bg-white dark:bg-zinc-800 rounded-2xl p-5 space-y-3">
+                    <div className="space-y-3">
                       <div className="space-y-2">
                         <Skeleton className="h-4 w-full" />
                         <Skeleton className="h-4 w-full" />

@@ -27,22 +27,21 @@ interface NovelListProps {
   novels: Novel[]
   loading: boolean
   onOpenNovel: (novel: Novel) => void
-  onEditNovel?: (novel: Novel) => void
-  onDeleteNovel?: (novel: Novel) => void
-  onCreateNovel?: () => void
+  onContextMenu: (e: React.MouseEvent, novel: Novel) => void
+  onCreateNovel: () => void
   onReorder?: (novels: Novel[]) => void
 }
 
 function SortableNovelCard({
   novel,
   onOpen,
-  onEdit,
-  onDelete,
+  onContextMenu,
 }: {
   novel: Novel
   onOpen: (novel: Novel) => void
-  onEdit?: (novel: Novel) => void
-  onDelete?: (novel: Novel) => void
+  onContextMenu: (e: React.MouseEvent, novel: Novel) => void
+  isMenuActive: boolean
+  setIsMenuActive: (active: boolean) => void
 }) {
   const {
     attributes,
@@ -61,12 +60,12 @@ function SortableNovelCard({
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} {...attributes}>
       <NovelCard
         novel={novel}
         onOpen={onOpen}
-        onEdit={onEdit}
-        onDelete={onDelete}
+        onContextMenu={onContextMenu}
+        dragListeners={listeners}
       />
     </div>
   )
@@ -76,12 +75,12 @@ export function NovelList({
   novels,
   loading,
   onOpenNovel,
-  onEditNovel,
-  onDeleteNovel,
+  onContextMenu,
   onCreateNovel,
   onReorder,
 }: NovelListProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [isMenuActive, setIsMenuActive] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -124,15 +123,13 @@ export function NovelList({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-stone-400 dark:text-zinc-500 font-serif">
         <p className="text-lg mb-4 italic">Empty pages...</p>
-        {onCreateNovel && (
-          <Button
-            onClick={onCreateNovel}
-            className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 font-sans"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Start Writing
-          </Button>
-        )}
+        <Button
+          onClick={onCreateNovel}
+          className={`bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 ${isMenuActive}?'bg-zinc-800 dark:bg-zinc-200':'hover:bg-zinc-800 dark:hover:bg-zinc-200'   font-sans`}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Start Writing
+        </Button>
       </div>
     )
   }
@@ -156,8 +153,9 @@ export function NovelList({
               key={novel.id}
               novel={novel}
               onOpen={onOpenNovel}
-              onEdit={onEditNovel}
-              onDelete={onDeleteNovel}
+              onContextMenu={onContextMenu}
+              isMenuActive
+              setIsMenuActive={setIsMenuActive}
             />
           ))}
         </div>
@@ -167,7 +165,11 @@ export function NovelList({
           ? (
               <NovelCard
                 novel={activeNovel}
-                onOpen={() => {}}
+                onOpen={() => { }}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                }}
+                dragListeners={{}}
               />
             )
           : null}
