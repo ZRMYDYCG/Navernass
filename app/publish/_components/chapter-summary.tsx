@@ -1,9 +1,9 @@
 'use client'
 
+import { Loader2, RotateCw, Sparkles } from 'lucide-react'
 import { useState } from 'react'
-import { Sparkles, RotateCw, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 
 interface ChapterSummaryProps {
   chapterId: string
@@ -49,24 +49,28 @@ export function ChapterSummary({ chapterId }: ChapterSummaryProps) {
                 AI 章节摘要
               </span>
             </div>
-            
-            {isGenerating ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>正在生成新的摘要...</span>
-              </div>
-            ) : summary ? (
-              <p className="text-sm leading-relaxed text-foreground/90">
-                {summary}
-              </p>
-            ) : (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Sparkles className="h-4 w-4" />
-                <span>点击生成章节摘要</span>
-              </div>
-            )}
+
+            {isGenerating
+              ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>正在生成新的摘要...</span>
+                  </div>
+                )
+              : summary
+                ? (
+                    <p className="text-sm leading-relaxed text-foreground/90">
+                      {summary}
+                    </p>
+                  )
+                : (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Sparkles className="h-4 w-4" />
+                      <span>点击生成章节摘要</span>
+                    </div>
+                  )}
           </div>
-          
+
           {!isGenerating && summary && (
             <Button
               variant="ghost"

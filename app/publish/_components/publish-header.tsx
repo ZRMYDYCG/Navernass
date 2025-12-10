@@ -1,5 +1,6 @@
 'use client'
 
+import type { PublishSettings } from '../types'
 import { Moon, Sun, Type } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
-import type { PublishSettings } from '../types'
 
 interface PublishHeaderProps {
   novelTitle: string

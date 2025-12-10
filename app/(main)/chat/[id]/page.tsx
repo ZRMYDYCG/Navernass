@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react'
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { ChatInputBox } from '../_components/chat-input-box'
+import { useChatSidebar } from '../_components/chat-sidebar-provider'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
 import { DocumentEditor } from './_components/document-editor'
 import { MessageList } from './_components/message-list'
@@ -15,7 +16,6 @@ import { useConversationMessages } from './_hooks/use-conversation-messages'
 import { useDocumentEditor } from './_hooks/use-document-editor'
 import { useImageGeneration } from './_hooks/use-image-generation'
 import { useShareMode } from './_hooks/use-share-mode'
-import { useChatSidebar } from '../_components/chat-sidebar-provider'
 
 export default function ConversationPage() {
   const params = useParams()

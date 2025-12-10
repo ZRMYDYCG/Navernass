@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, useState, useCallback } from 'react'
+import type { PublishedChapter, PublishedVolume } from '../types'
 import { ChevronLeft, ChevronRight, List } from 'lucide-react'
+import { useCallback, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { PublishedChapter, PublishedVolume } from '../types'
 
 interface ChapterNavigationProps {
   volumes: PublishedVolume[]
@@ -26,7 +26,6 @@ export function ChapterNavigation({
 }: ChapterNavigationProps) {
   const hasPrevious = currentChapterIndex > 0
   const hasNext = currentChapterIndex < chapters.length - 1
-  const currentChapter = chapters[currentChapterIndex]
 
   const [scrollTop, setScrollTop] = useState(0)
   const itemHeight = 40
@@ -54,7 +53,7 @@ export function ChapterNavigation({
 
     const sortedVolumes = [...volumes].sort((a, b) => a.order_index - b.order_index)
 
-    sortedVolumes.forEach(volume => {
+    sortedVolumes.forEach((volume) => {
       const volumeChapters = (chaptersByVolume[volume.id] || []).sort(
         (a, b) => a.order_index - b.order_index,
       )
@@ -62,7 +61,7 @@ export function ChapterNavigation({
         return
       }
       result.push({ type: 'volume', id: volume.id, title: volume.title })
-      volumeChapters.forEach(chapter => {
+      volumeChapters.forEach((chapter) => {
         const originalIndex = chapters.findIndex(c => c.id === chapter.id)
         if (originalIndex !== -1) {
           result.push({
@@ -77,7 +76,7 @@ export function ChapterNavigation({
     })
 
     const sortedWithoutVolume = chaptersWithoutVolume.sort((a, b) => a.order_index - b.order_index)
-    sortedWithoutVolume.forEach(chapter => {
+    sortedWithoutVolume.forEach((chapter) => {
       const originalIndex = chapters.findIndex(c => c.id === chapter.id)
       if (originalIndex !== -1) {
         result.push({
@@ -122,7 +121,11 @@ export function ChapterNavigation({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
               <List className="h-4 w-4" />
-              目录 ({currentChapterIndex + 1}/{chapters.length})
+              目录 (
+              {currentChapterIndex + 1}
+              /
+              {chapters.length}
+              )
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="w-80">
@@ -152,7 +155,9 @@ export function ChapterNavigation({
                         <div className="flex flex-col gap-1 w-full">
                           <div className="font-medium truncate">{item.title}</div>
                           <div className="text-xs text-muted-foreground">
-                            {item.wordCount} 字
+                            {item.wordCount}
+                            {' '}
+                            字
                           </div>
                         </div>
                       </DropdownMenuItem>

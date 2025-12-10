@@ -13,9 +13,13 @@ export function ChapterContent({ chapter, fontSize }: ChapterContentProps) {
   return (
     <article className="max-w-3xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-2">{chapter.title}</h1>
-      
+
       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-8 pb-4 border-b">
-        <span>{chapter.word_count} 字</span>
+        <span>
+          {chapter.word_count}
+          {' '}
+          字
+        </span>
         <span>
           {new Date(chapter.updated_at).toLocaleDateString('zh-CN', {
             year: 'numeric',
