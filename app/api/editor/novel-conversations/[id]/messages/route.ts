@@ -11,8 +11,9 @@ const messagesService = new NovelMessagesService()
  */
 export const GET = withErrorHandler(async (
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
-  const messages = await messagesService.getByConversationId(params.id)
+  const { id } = await params
+  const messages = await messagesService.getByConversationId(id)
   return ApiResponseBuilder.success(messages)
 })

@@ -1,3 +1,4 @@
+import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
 import Image from '@tiptap/extension-image'
@@ -7,7 +8,6 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import Underline from '@tiptap/extension-underline'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import { defaultMarkdownParser } from 'prosemirror-markdown'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Spinner } from '@/components/ui/spinner'
 import { supabase } from '@/lib/supabase'
@@ -15,6 +15,7 @@ import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
 import { DragHandle } from './drag-handle-react'
 import { AIAutocomplete } from './extensions/ai-autocomplete'
 import { EditorSearch } from './extensions/editor-search'
+import { parseMarkdownContent } from './extensions/markdown-parser'
 import { SearchHighlight, updateSearchHighlight } from './extensions/search-highlight'
 import { SlashCommand } from './extensions/slash-command'
 import { FloatingMenu } from './floating-menu'
@@ -91,7 +92,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     () => [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3],
+          levels: [1, 2, 3, 4, 5, 6],
         },
       }),
       Image.configure({
@@ -137,9 +138,19 @@ function TiptapEditorInner(props: TiptapEditorProps) {
           const e = event as ClipboardEvent
           const items = e.clipboardData?.items
           if (!items) return false
+
+          // 检查是否有文本内容
+          let pastedText: string | null = null
           const imageFiles: File[] = []
+
           for (let i = 0; i < items.length; i += 1) {
             const item = items[i]
+            // 优先处理文本（HTML 或纯文本）
+            if (item.type === 'text/html' || item.type === 'text/plain') {
+              pastedText = e.clipboardData!.getData(item.type)
+              break
+            }
+            // 其次处理图片
             if (item.type && item.type.startsWith('image/')) {
               const file = item.getAsFile()
               if (file) {
@@ -147,25 +158,51 @@ function TiptapEditorInner(props: TiptapEditorProps) {
               }
             }
           }
-          if (!imageFiles.length) {
-            return false
-          }
-          e.preventDefault()
-          const file = imageFiles[0]
-          void (async () => {
-            try {
-              const url = await uploadIllustration(file)
-              const { state, dispatch } = view
-              const { schema } = state
-              const imageNode = schema.nodes.image?.create({ src: url })
-              if (!imageNode) return
-              const tr = state.tr.replaceSelectionWith(imageNode).scrollIntoView()
-              dispatch(tr)
-            } catch (error) {
-              console.error('Failed to upload pasted image', error)
+
+          // 如果有文本内容，处理 Markdown 转换
+          if (pastedText && !/<[a-z][\s\S]*>/i.test(pastedText)) {
+            e.preventDefault()
+            const { state, dispatch } = view
+            const { schema } = state
+            const doc = parseMarkdownContent(pastedText, schema)
+            // 获取 doc 的所有节点并插入
+            const nodes: ProseMirrorNode[] = []
+            doc.content.forEach((node: ProseMirrorNode) => {
+              nodes.push(node)
+            })
+            if (nodes.length === 0) {
+              return false
             }
-          })()
-          return true
+            // 将所有节点插入到当前位置
+            let tr = state.tr.replaceSelectionWith(nodes[0])
+            for (let i = 1; i < nodes.length; i += 1) {
+              tr = tr.insert(tr.selection.$to.pos, nodes[i])
+            }
+            dispatch(tr)
+            return true
+          }
+
+          // 如果只有图片，处理图片上传
+          if (imageFiles.length > 0) {
+            e.preventDefault()
+            const file = imageFiles[0]
+            void (async () => {
+              try {
+                const url = await uploadIllustration(file)
+                const { state, dispatch } = view
+                const { schema } = state
+                const imageNode = schema.nodes.image?.create({ src: url })
+                if (!imageNode) return
+                const tr = state.tr.replaceSelectionWith(imageNode).scrollIntoView()
+                dispatch(tr)
+              } catch (error) {
+                console.error('Failed to upload pasted image', error)
+              }
+            })()
+            return true
+          }
+
+          return false
         },
       },
     },
@@ -199,13 +236,15 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       return
     }
 
-    // !!!!!!!!!!!!!!! 区分传入的是 HTML（富文本）还是 Markdown（纯文本/markdown）
+    // 区分传入的是 HTML（富文本）还是 Markdown（纯文本）
     const isHtml = /<\/?[a-z][\s\S]*>/i.test(content)
 
     if (isHtml) {
+      // 直接设置 HTML 内容
       editor.commands.setContent(content)
     } else {
-      const doc = defaultMarkdownParser.parse(content)
+      // 解析 Markdown 内容
+      const doc = parseMarkdownContent(content, editor.schema)
       editor.commands.setContent(doc.toJSON())
     }
   }, [editor, content])

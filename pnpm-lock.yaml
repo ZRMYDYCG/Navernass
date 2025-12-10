@@ -113,6 +113,9 @@ importers:
       '@tiptap/suggestion':
         specifier: ^3.10.4
         version: 3.10.4(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0)
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
       '@xyflow/react':
         specifier: ^12.8.6
         version: 12.9.2(@types/react@19.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

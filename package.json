@@ -57,6 +57,7 @@
     "@tiptap/react": "^3.11.0",
     "@tiptap/starter-kit": "^3.10.4",
     "@tiptap/suggestion": "^3.10.4",
+    "@types/markdown-it": "^14.1.2",
     "@xyflow/react": "^12.8.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -11,13 +11,15 @@ const conversationsService = new NovelConversationsService()
  */
 export const GET = withErrorHandler(async (
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
+  const { id } = await params
   try {
-    const conversation = await conversationsService.getById(params.id)
+    const conversation = await conversationsService.getById(id)
     return ApiResponseBuilder.success(conversation)
-  } catch (error: any) {
-    if (error.statusCode === 404) {
+  } catch (error) {
+    const err = error as { statusCode?: number }
+    if (err.statusCode === 404) {
       return ApiResponseBuilder.notFound('Conversation')
     }
     throw error
@@ -30,14 +32,16 @@ export const GET = withErrorHandler(async (
  */
 export const PATCH = withErrorHandler(async (
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
+  const { id } = await params
   const body = await req.json()
   try {
-    const conversation = await conversationsService.update(params.id, body)
+    const conversation = await conversationsService.update(id, body)
     return ApiResponseBuilder.success(conversation)
-  } catch (error: any) {
-    if (error.statusCode === 404) {
+  } catch (error) {
+    const err = error as { statusCode?: number }
+    if (err.statusCode === 404) {
       return ApiResponseBuilder.notFound('Conversation')
     }
     throw error
@@ -50,13 +54,15 @@ export const PATCH = withErrorHandler(async (
  */
 export const DELETE = withErrorHandler(async (
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
+  const { id } = await params
   try {
-    await conversationsService.delete(params.id)
+    await conversationsService.delete(id)
     return ApiResponseBuilder.success({ success: true })
-  } catch (error: any) {
-    if (error.statusCode === 404) {
+  } catch (error) {
+    const err = error as { statusCode?: number }
+    if (err.statusCode === 404) {
       return ApiResponseBuilder.notFound('Conversation')
     }
     throw error
