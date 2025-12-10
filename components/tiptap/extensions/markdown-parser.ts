@@ -74,8 +74,9 @@ function parseHtmlElement(el: HTMLElement, schema: Schema): ProseMirrorNode | nu
   if (tag === 'ul') {
     const listItems: ProseMirrorNode[] = []
     for (const li of Array.from(el.querySelectorAll(':scope > li'))) {
-      const content = parseInlineElement(li as HTMLElement, schema)
-      const item = schema.nodes.listItem?.create({}, [schema.nodes.paragraph?.create({}, content)])
+      const liEl = li as HTMLElement
+      const itemContent = parseListItemContent(liEl, schema)
+      const item = schema.nodes.listItem?.create({}, itemContent)
       if (item) listItems.push(item)
     }
     return schema.nodes.bulletList?.create({}, listItems)
@@ -85,8 +86,9 @@ function parseHtmlElement(el: HTMLElement, schema: Schema): ProseMirrorNode | nu
   if (tag === 'ol') {
     const listItems: ProseMirrorNode[] = []
     for (const li of Array.from(el.querySelectorAll(':scope > li'))) {
-      const content = parseInlineElement(li as HTMLElement, schema)
-      const item = schema.nodes.listItem?.create({}, [schema.nodes.paragraph?.create({}, content)])
+      const liEl = li as HTMLElement
+      const itemContent = parseListItemContent(liEl, schema)
+      const item = schema.nodes.listItem?.create({}, itemContent)
       if (item) listItems.push(item)
     }
     const start = el.getAttribute('start') ? Number.parseInt(el.getAttribute('start') || '1', 10) : 1
@@ -125,6 +127,61 @@ function parseHtmlElement(el: HTMLElement, schema: Schema): ProseMirrorNode | nu
   }
 
   return null
+}
+
+/**
+ * 解析列表项内容（支持嵌套列表、段落等）
+ */
+function parseListItemContent(li: HTMLElement, schema: Schema): ProseMirrorNode[] {
+  const nodes: ProseMirrorNode[] = []
+  let currentParagraphContent: ProseMirrorNode[] = []
+
+  for (const child of Array.from(li.childNodes)) {
+    if (child.nodeType === Node.TEXT_NODE) {
+      // 文本节点直接加入当前段落
+      const text = child.textContent
+      if (text && text.trim()) {
+        currentParagraphContent.push(schema.text(text))
+      }
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      const el = child as HTMLElement
+      const childTag = el.tagName.toLowerCase()
+
+      // 块级元素（列表、代码块等）先保存当前段落
+      if (['ul', 'ol', 'pre', 'blockquote'].includes(childTag)) {
+        if (currentParagraphContent.length > 0) {
+          const para = schema.nodes.paragraph?.create({}, currentParagraphContent)
+          if (para) nodes.push(para)
+          currentParagraphContent = []
+        }
+        // 处理块级元素
+        const blockNode = parseHtmlElement(el, schema)
+        if (blockNode) nodes.push(blockNode)
+      } else if (childTag === 'p') {
+        // 段落元素
+        if (currentParagraphContent.length > 0) {
+          const para = schema.nodes.paragraph?.create({}, currentParagraphContent)
+          if (para) nodes.push(para)
+          currentParagraphContent = []
+        }
+        const content = parseInlineElement(el, schema)
+        const para = schema.nodes.paragraph?.create({}, content)
+        if (para) nodes.push(para)
+      } else {
+        // 内联元素加入当前段落
+        const inlineContent = parseInlineElement(el, schema)
+        currentParagraphContent.push(...inlineContent)
+      }
+    }
+  }
+
+  // 处理剩余的段落内容
+  if (currentParagraphContent.length > 0) {
+    const para = schema.nodes.paragraph?.create({}, currentParagraphContent)
+    if (para) nodes.push(para)
+  }
+
+  return nodes.length > 0 ? nodes : [schema.nodes.paragraph?.create() || schema.text('')]
 }
 
 /**
