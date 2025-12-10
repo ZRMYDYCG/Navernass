@@ -1,28 +1,27 @@
 import type { Node as ProseMirrorNode, Schema } from '@tiptap/pm/model'
 import MarkdownIt from 'markdown-it'
 
-interface Token {
-  type: string
-  tag?: string
-  content?: string
-  children?: Token[]
-  info?: string
-  attrGet?: (key: string) => string | null
-  [key: string]: unknown
-}
-
+/**
+ * 将 Markdown 文本解析为 ProseMirror Document
+ */
 export function parseMarkdownContent(markdown: string, schema: Schema): ProseMirrorNode {
   try {
     const md = new MarkdownIt()
-    const tokens = md.parse(markdown, {})
+    const html = md.render(markdown)
 
-    if (!tokens || tokens.length === 0) {
+    if (!html || html.trim() === '') {
       return schema.nodes.doc.create()
     }
 
-    // @ts-ignore
-    const nodes = parseTokens(tokens, schema)
-    return schema.nodes.doc.create({}, nodes)
+    // 创建临时容器来解析 HTML
+    const tempDiv = typeof window !== 'undefined' ? document.createElement('div') : null
+    if (tempDiv) {
+      tempDiv.innerHTML = html
+      return parseHtmlToProseMirror(tempDiv, schema)
+    }
+
+    // 服务端 fallback：返回空文档
+    return schema.nodes.doc.create()
   } catch (error) {
     console.error('Failed to parse markdown:', error)
     return schema.nodes.doc.create()
@@ -30,196 +29,172 @@ export function parseMarkdownContent(markdown: string, schema: Schema): ProseMir
 }
 
 /**
- * 解析 markdown-it tokens 为 ProseMirror 节点
+ * 将 HTML DOM 节点转换为 ProseMirror 节点
  */
-// @ts-ignore
-function parseTokens(tokens: Token[], schema: Schema): ProseMirrorNode[] {
+function parseHtmlToProseMirror(element: HTMLElement, schema: Schema): ProseMirrorNode {
   const nodes: ProseMirrorNode[] = []
-  let i = 0
 
-  while (i < tokens.length) {
-    const token = tokens[i]
-
-    if (token.type === 'heading_open') {
-      const level = Number.parseInt(token.tag?.slice(1) || '1', 10)
-      const headingToken = tokens[i + 1]
-      const text = headingToken?.content || ''
-      const node = schema.nodes.heading?.create(
-        { level },
-        schema.text(text),
-      )
-      if (node) nodes.push(node)
-      i += 3
-      continue
-    }
-
-    if (token.type === 'paragraph_open') {
-      const contentToken = tokens[i + 1]
-      if (contentToken && contentToken.type === 'inline') {
-        const textContent = contentToken.content || ''
-        const inlineChildren = parseInlineContent(contentToken.children || [], schema)
-        const content = inlineChildren && inlineChildren.length > 0 ? inlineChildren.filter((n): n is ProseMirrorNode => n !== null) : [schema.text(textContent)]
-        const node = schema.nodes.paragraph?.create({}, content)
-        if (node) nodes.push(node)
+  for (const child of Array.from(element.childNodes)) {
+    if (child.nodeType === Node.TEXT_NODE) {
+      const text = child.textContent?.trim()
+      if (text) {
+        const para = schema.nodes.paragraph?.create({}, [schema.text(text)])
+        if (para) nodes.push(para)
       }
-      i += 3
-      continue
-    }
-
-    if (token.type === 'bullet_list_open') {
-      const listItems: ProseMirrorNode[] = []
-      i += 1
-      while (i < tokens.length && tokens[i].type !== 'bullet_list_close') {
-        if (tokens[i].type === 'list_item_open') {
-          const itemContent = tokens[i + 1]
-          if (itemContent && itemContent.type === 'paragraph_open') {
-            const textToken = tokens[i + 2]
-            const inlineChildren = parseInlineContent(textToken?.children || [], schema)
-            const content = inlineChildren && inlineChildren.length > 0 ? inlineChildren.filter((n): n is ProseMirrorNode => n !== null) : [schema.text(textToken?.content || '')]
-            const listItem = schema.nodes.listItem?.create(
-              {},
-              schema.nodes.paragraph?.create({}, content),
-            )
-            if (listItem) listItems.push(listItem)
-          }
-          i += 4
-        } else {
-          i += 1
-        }
-      }
-      const bulletList = schema.nodes.bulletList?.create({}, listItems)
-      if (bulletList) nodes.push(bulletList)
-      i += 1
-      continue
-    }
-
-    if (token.type === 'code_block' || token.type === 'fence') {
-      const code = token.content || ''
-      const language = token.info || ''
-      const node = schema.nodes.codeBlock?.create(
-        { language },
-        schema.text(code),
-      )
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      const el = child as HTMLElement
+      const node = parseHtmlElement(el, schema)
       if (node) nodes.push(node)
-      i += 1
-      continue
     }
-
-    if (token.type === 'hr') {
-      const node = schema.nodes.horizontalRule?.create()
-      if (node) nodes.push(node)
-      i += 1
-      continue
-    }
-
-    if (token.type === 'blockquote_open') {
-      const quoteContent: ProseMirrorNode[] = []
-      i += 1
-      while (i < tokens.length && tokens[i].type !== 'blockquote_close') {
-        if (tokens[i].type === 'paragraph_open') {
-          const contentToken = tokens[i + 1]
-          const inlineChildren = parseInlineContent(contentToken?.children || [], schema)
-          const content = inlineChildren && inlineChildren.length > 0 ? inlineChildren.filter((n): n is ProseMirrorNode => n !== null) : [schema.text(contentToken?.content || '')]
-          const para = schema.nodes.paragraph?.create({}, content)
-          if (para) quoteContent.push(para)
-          i += 3
-        } else {
-          i += 1
-        }
-      }
-      const blockquote = schema.nodes.blockquote?.create({}, quoteContent)
-      if (blockquote) nodes.push(blockquote)
-      i += 1
-      continue
-    }
-
-    i += 1
   }
 
-  return nodes.length > 0 ? nodes : [schema.nodes.paragraph?.create() || schema.text('')]
+  return schema.nodes.doc.create({}, nodes.length > 0 ? nodes : [schema.nodes.paragraph?.create()])
 }
 
 /**
- * 解析内联内容（文本、加粗、斜体等）
+ * 解析单个 HTML 元素为 ProseMirror 节点
  */
-function parseInlineContent(children: Token[], schema: Schema): (ProseMirrorNode | null)[] | undefined {
-  if (!children || children.length === 0) {
-    return undefined
+function parseHtmlElement(el: HTMLElement, schema: Schema): ProseMirrorNode | null {
+  const tag = el.tagName.toLowerCase()
+
+  // 处理标题
+  if (tag.match(/^h[1-6]$/)) {
+    const level = Number.parseInt(tag[1], 10)
+    const content = parseInlineElement(el, schema)
+    return schema.nodes.heading?.create({ level }, content)
   }
 
-  const nodes: (ProseMirrorNode | null)[] = []
+  // 处理段落
+  if (tag === 'p') {
+    const content = parseInlineElement(el, schema)
+    return schema.nodes.paragraph?.create({}, content)
+  }
 
-  for (const child of children) {
-    if (child.type === 'text') {
-      const textNode = schema.text(child.content || '')
-      nodes.push(textNode)
-    } else if (child.type === 'softbreak' || child.type === 'hardbreak') {
-      const br = schema.nodes.hardBreak?.create()
-      if (br) nodes.push(br)
-    } else if (child.type === 'strong_open') {
-      // 需要配对处理
-      let boldText = ''
-      let j = 1
-      while (j < children.length && children[j].type !== 'strong_close') {
-        if (children[j].type === 'text') {
-          boldText += children[j].content || ''
-        }
-        j += 1
-      }
-      if (boldText) {
-        const textNode = schema.text(boldText)
-        const boldMark = schema.marks.bold?.create()
-        if (textNode && boldMark) {
-          nodes.push(textNode.mark([boldMark]))
-        }
-      }
-    } else if (child.type === 'em_open') {
-      // 处理斜体
-      let italicText = ''
-      let j = 1
-      while (j < children.length && children[j].type !== 'em_close') {
-        if (children[j].type === 'text') {
-          italicText += children[j].content || ''
-        }
-        j += 1
-      }
-      if (italicText) {
-        const textNode = schema.text(italicText)
-        const italicMark = schema.marks.italic?.create()
-        if (textNode && italicMark) {
-          nodes.push(textNode.mark([italicMark]))
-        }
-      }
-    } else if (child.type === 'code_inline') {
-      const textNode = schema.text(child.content || '')
-      const codeMark = schema.marks.code?.create()
-      if (textNode && codeMark) {
-        nodes.push(textNode.mark([codeMark]))
-      }
-    } else if (child.type === 'link_open') {
-      const href = typeof child.attrGet === 'function' ? child.attrGet('href') : ''
-      let linkText = ''
-      let j = 1
-      while (j < children.length && children[j].type !== 'link_close') {
-        if (children[j].type === 'text') {
-          linkText += children[j].content || ''
-        }
-        j += 1
-      }
-      if (linkText) {
-        const textNode = schema.text(linkText)
-        const linkMark = schema.marks.link?.create({ href: href || '' })
-        if (textNode && linkMark) {
-          nodes.push(textNode.mark([linkMark]))
+  // 处理无序列表
+  if (tag === 'ul') {
+    const listItems: ProseMirrorNode[] = []
+    for (const li of Array.from(el.querySelectorAll(':scope > li'))) {
+      const content = parseInlineElement(li as HTMLElement, schema)
+      const item = schema.nodes.listItem?.create({}, [schema.nodes.paragraph?.create({}, content)])
+      if (item) listItems.push(item)
+    }
+    return schema.nodes.bulletList?.create({}, listItems)
+  }
+
+  // 处理有序列表
+  if (tag === 'ol') {
+    const listItems: ProseMirrorNode[] = []
+    for (const li of Array.from(el.querySelectorAll(':scope > li'))) {
+      const content = parseInlineElement(li as HTMLElement, schema)
+      const item = schema.nodes.listItem?.create({}, [schema.nodes.paragraph?.create({}, content)])
+      if (item) listItems.push(item)
+    }
+    const start = el.getAttribute('start') ? Number.parseInt(el.getAttribute('start') || '1', 10) : 1
+    return schema.nodes.orderedList?.create({ start }, listItems)
+  }
+
+  // 处理代码块
+  if (tag === 'pre') {
+    const codeEl = el.querySelector('code')
+    const code = codeEl?.textContent || el.textContent || ''
+    const language = codeEl?.className.replace('language-', '').split(' ')[0] || ''
+    return schema.nodes.codeBlock?.create({ language }, [schema.text(code)])
+  }
+
+  // 处理块引用
+  if (tag === 'blockquote') {
+    const content: ProseMirrorNode[] = []
+    for (const child of Array.from(el.childNodes)) {
+      if (child.nodeType === Node.ELEMENT_NODE) {
+        const node = parseHtmlElement(child as HTMLElement, schema)
+        if (node) content.push(node)
+      } else if (child.nodeType === Node.TEXT_NODE) {
+        const text = child.textContent?.trim()
+        if (text) {
+          const para = schema.nodes.paragraph?.create({}, [schema.text(text)])
+          if (para) content.push(para)
         }
       }
-    } else if (child.type === 'image') {
-      const src = typeof child.attrGet === 'function' ? child.attrGet('src') : ''
-      const alt = typeof child.attrGet === 'function' ? child.attrGet('alt') : ''
-      const imageNode = schema.nodes.image?.create({ src: src || '', alt: alt || '' })
-      if (imageNode) nodes.push(imageNode)
+    }
+    return schema.nodes.blockquote?.create({}, content)
+  }
+
+  // 处理水平线
+  if (tag === 'hr') {
+    return schema.nodes.horizontalRule?.create()
+  }
+
+  return null
+}
+
+/**
+ * 解析内联元素（文本、链接、加粗等）
+ */
+function parseInlineElement(el: HTMLElement, schema: Schema): ProseMirrorNode[] {
+  const nodes: ProseMirrorNode[] = []
+
+  for (const child of Array.from(el.childNodes)) {
+    if (child.nodeType === Node.TEXT_NODE) {
+      const text = child.textContent
+      if (text && text.trim()) {
+        nodes.push(schema.text(text))
+      }
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      const childEl = child as HTMLElement
+      const tag = childEl.tagName.toLowerCase()
+
+      if (tag === 'strong' || tag === 'b') {
+        const content = parseInlineElement(childEl, schema)
+        const marked = content.map((node) => {
+          if (node.type.name === 'text') {
+            const mark = schema.marks.bold?.create()
+            return mark ? node.mark([mark]) : node
+          }
+          return node
+        })
+        nodes.push(...marked)
+      } else if (tag === 'em' || tag === 'i') {
+        const content = parseInlineElement(childEl, schema)
+        const marked = content.map((node) => {
+          if (node.type.name === 'text') {
+            const mark = schema.marks.italic?.create()
+            return mark ? node.mark([mark]) : node
+          }
+          return node
+        })
+        nodes.push(...marked)
+      } else if (tag === 'code') {
+        const text = childEl.textContent || ''
+        if (text) {
+          const textNode = schema.text(text)
+          const mark = schema.marks.code?.create()
+          nodes.push(mark ? textNode.mark([mark]) : textNode)
+        }
+      } else if (tag === 'a') {
+        const href = childEl.getAttribute('href') || ''
+        const text = childEl.textContent || ''
+        if (text && href) {
+          const textNode = schema.text(text)
+          const mark = schema.marks.link?.create({ href })
+          nodes.push(mark ? textNode.mark([mark]) : textNode)
+        }
+      } else if (tag === 'img') {
+        const src = childEl.getAttribute('src') || ''
+        const alt = childEl.getAttribute('alt') || ''
+        if (src) {
+          const img = schema.nodes.image?.create({ src, alt })
+          if (img) nodes.push(img)
+        }
+      } else if (tag === 'br') {
+        const br = schema.nodes.hardBreak?.create()
+        if (br) nodes.push(br)
+      } else {
+        // 递归处理其他元素
+        const content = parseInlineElement(childEl, schema)
+        nodes.push(...content)
+      }
     }
   }
 
-  return nodes.length > 0 ? nodes : undefined
+  return nodes
 }
