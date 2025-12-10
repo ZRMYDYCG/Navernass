@@ -199,8 +199,15 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       return
     }
 
-    const doc = defaultMarkdownParser.parse(content)
-    editor.commands.setContent(doc.toJSON())
+    // !!!!!!!!!!!!!!! 区分传入的是 HTML（富文本）还是 Markdown（纯文本/markdown）
+    const isHtml = /<\/?[a-z][\s\S]*>/i.test(content)
+
+    if (isHtml) {
+      editor.commands.setContent(content)
+    } else {
+      const doc = defaultMarkdownParser.parse(content)
+      editor.commands.setContent(doc.toJSON())
+    }
   }, [editor, content])
 
   useEffect(() => {
