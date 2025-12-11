@@ -1,8 +1,7 @@
 import { Copy, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import { PaperCard } from '@/components/ui/paper-card'
+import * as Tooltip from '@radix-ui/react-tooltip'
 import { BatchActionsDialog } from './batch-actions-dialog'
 
 interface Chapter {
@@ -140,42 +139,67 @@ export function QuickActions({
   }
 
   return (
-    <PaperCard className="p-2 space-y-1.5">
-      <h3 className="text-xs font-medium text-stone-600 dark:text-stone-300 px-1 font-serif">
+    <div className="flex items-center justify-between">
+      <span className="text-xs font-medium text-stone-600 dark:text-stone-300 px-1 font-serif">
         快速操作
-      </h3>
-      <div className="space-y-1">
-        <Button
-          type="button"
-          onClick={handleCreateChapter}
-          disabled={isProcessing}
-          className="w-full justify-start h-8 text-xs bg-stone-100 dark:bg-zinc-700/50 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-zinc-600/50 border border-stone-200 dark:border-zinc-600/50 transition-all shadow-none hover:shadow-sm"
-        >
-          <Plus className="w-3.5 h-3.5 mr-2" />
-          新建章节
-        </Button>
+      </span>
+      <div className="flex gap-1">
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <button
+              type="button"
+              onClick={handleCreateChapter}
+              disabled={isProcessing}
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-zinc-700/50 rounded-md transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:shadow-sm"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content className="bg-stone-800 dark:bg-zinc-700 text-stone-50 text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+              新建章节
+              <Tooltip.Arrow className="fill-stone-800 dark:fill-zinc-700" />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
 
-        <div className="grid grid-cols-2 gap-1.5">
-          <Button
-            type="button"
-            onClick={handleBatchCopy}
-            disabled={isProcessing || chaptersCount === 0}
-            className="h-8 text-xs bg-stone-100 dark:bg-zinc-700/50 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-zinc-600/50 border border-stone-200 dark:border-zinc-600/50 transition-all shadow-none hover:shadow-sm"
-          >
-            <Copy className="w-3 h-3 mr-1.5" />
-            批量复制
-          </Button>
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <button
+              type="button"
+              onClick={handleBatchCopy}
+              disabled={isProcessing || chaptersCount === 0}
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-zinc-700/50 rounded-md transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content className="bg-stone-800 dark:bg-zinc-700 text-stone-50 text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+              批量复制
+              <Tooltip.Arrow className="fill-stone-800 dark:fill-zinc-700" />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
 
-          <Button
-            type="button"
-            onClick={handleBatchDelete}
-            disabled={isProcessing || chaptersCount === 0}
-            className="h-8 text-xs bg-stone-100 dark:bg-zinc-700/50 text-rose-700 dark:text-rose-400 hover:bg-stone-200 dark:hover:bg-zinc-600/50 border border-stone-200 dark:border-zinc-600/50 transition-all shadow-none hover:shadow-sm hover:text-rose-800 dark:hover:text-rose-300"
-          >
-            <Trash2 className="w-3 h-3 mr-1.5" />
-            批量删除
-          </Button>
-        </div>
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <button
+              type="button"
+              onClick={handleBatchDelete}
+              disabled={isProcessing || chaptersCount === 0}
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-zinc-700/50 rounded-md transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:shadow-sm hover:text-rose-700 dark:hover:text-rose-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content className="bg-stone-800 dark:bg-zinc-700 text-stone-50 text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+              批量删除
+              <Tooltip.Arrow className="fill-stone-800 dark:fill-zinc-700" />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
       </div>
 
       {/* 批量复制对话框 */}
@@ -199,6 +223,6 @@ export function QuickActions({
           onConfirm={handleBatchDeleteConfirm}
         />
       )}
-    </PaperCard>
+    </div>
   )
 }

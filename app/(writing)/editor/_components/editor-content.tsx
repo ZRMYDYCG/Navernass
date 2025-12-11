@@ -206,21 +206,19 @@ export default function EditorContent({
               </div>
             )
           : (
-              <div className="min-h-full flex">
-                <div className="px-8 sm:px-12 min-h-full animate-text-fade-in">
-                  <TiptapEditor
-                    key={chapterId}
-                    content={chapter?.content || `<h1>${chapterTitle}</h1>`}
-                    placeholder="在此写下故事的开始..."
-                    onUpdate={handleUpdate}
-                    onStatsChange={handleStatsChange}
-                    autoSave={true}
-                    autoSaveDelay={3000}
-                    className="outline-none"
-                    editable={true}
-                    chapterId={chapterId}
-                  />
-                </div>
+              <div className="px-8 sm:px-12 min-h-full">
+                <TiptapEditor
+                  key={chapterId}
+                  content={chapter?.content || `<h1>${chapterTitle}</h1>`}
+                  placeholder="在此写下故事的开始..."
+                  onUpdate={handleUpdate}
+                  onStatsChange={handleStatsChange}
+                  autoSave={true}
+                  autoSaveDelay={3000}
+                  className="outline-none"
+                  editable={true}
+                  chapterId={chapterId}
+                />
               </div>
             )}
       </div>

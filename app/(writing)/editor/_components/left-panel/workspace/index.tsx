@@ -36,38 +36,36 @@ export default function WorkspaceTab({
   const totalVolumes = volumes.length
 
   return (
-    <div className="h-full flex flex-col bg-paper-texture">
-      <div className="flex-1 overflow-y-auto p-3 space-y-4 scrollbar-none">
-        {/* 文件操作 */}
-        <ActionButtons
-          chapters={chapters}
-          novelId={novelId}
-          volumes={volumes}
-          onChaptersImported={onChaptersImported}
-        />
+    <div className="flex-1 overflow-y-auto p-3 space-y-4 scrollbar-none">
+      {/* 文件操作 */}
+      <ActionButtons
+        chapters={chapters}
+        novelId={novelId}
+        volumes={volumes}
+        onChaptersImported={onChaptersImported}
+      />
 
-        {/* 快速操作 */}
-        <QuickActions
-          onCreateChapter={onCreateChapter}
-          chapters={chapters.map(ch => ({ id: ch.id, title: ch.title }))}
-          novelId={novelId}
-          onChaptersChanged={onChaptersImported}
-          chaptersCount={chapters.length}
-        />
+      {/* 快速操作 */}
+      <QuickActions
+        onCreateChapter={onCreateChapter}
+        chapters={chapters.map(ch => ({ id: ch.id, title: ch.title }))}
+        novelId={novelId}
+        onChaptersChanged={onChaptersImported}
+        chaptersCount={chapters.length}
+      />
 
-        {/* 最近编辑 */}
-        <RecentChapters
-          chapters={chapters}
-          onSelectChapter={onSelectChapter}
-        />
+      {/* 最近编辑 */}
+      <RecentChapters
+        chapters={chapters}
+        onSelectChapter={onSelectChapter}
+      />
 
-        {/* 统计信息 */}
-        <StatisticsCard
-          totalWords={totalWords}
-          totalChapters={totalChapters}
-          totalVolumes={totalVolumes}
-        />
-      </div>
+      {/* 统计信息 */}
+      <StatisticsCard
+        totalWords={totalWords}
+        totalChapters={totalChapters}
+        totalVolumes={totalVolumes}
+      />
     </div>
   )
 }

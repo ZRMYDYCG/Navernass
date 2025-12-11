@@ -1,6 +1,5 @@
 import { Clock, FileText } from 'lucide-react'
 import { useMemo } from 'react'
-import { PaperCard } from '@/components/ui/paper-card'
 
 interface Chapter {
   id: string
@@ -47,19 +46,19 @@ export function RecentChapters({
 
   if (recentChapters.length === 0) {
     return (
-      <PaperCard className="p-2 space-y-1.5">
+      <div className="space-y-1.5">
         <h3 className="text-xs font-medium text-stone-600 dark:text-stone-300 px-1 font-serif">
           最近编辑
         </h3>
         <div className="px-1.5 py-4 text-center text-[10px] text-stone-400 dark:text-stone-500 italic">
           暂无最近编辑的章节
         </div>
-      </PaperCard>
+      </div>
     )
   }
 
   return (
-    <PaperCard className="p-2 space-y-1.5">
+    <div className="space-y-1.5">
       <h3 className="text-xs font-medium text-stone-600 dark:text-stone-300 px-1 font-serif">
         最近编辑
       </h3>
@@ -84,7 +83,7 @@ export function RecentChapters({
           </button>
         ))}
       </div>
-    </PaperCard>
+    </div>
   )
 }
 
