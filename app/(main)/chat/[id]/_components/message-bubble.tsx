@@ -1,7 +1,7 @@
 'use client'
 
 import type { Message } from '@/lib/supabase/sdk/types'
-import { CheckCircle2, Circle, Copy, Edit, Share2 } from 'lucide-react'
+import { CheckCircle2, Circle, Copy, Edit } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
 import { Avatar } from '@/components/ui/avatar'

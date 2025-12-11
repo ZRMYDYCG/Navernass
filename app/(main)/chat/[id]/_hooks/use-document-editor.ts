@@ -1,9 +1,8 @@
 'use client'
 
-import type { ImperativePanelHandle } from 'react-resizable-panels'
 import type { Message } from '@/lib/supabase/sdk/types'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { toast } from 'sonner'
 
@@ -12,22 +11,15 @@ import { messagesApi } from '@/lib/supabase/sdk'
 export function useDocumentEditor(onMessageUpdate: (id: string, content: string) => void) {
   const [editingMessage, setEditingMessage] = useState<Message | null>(null)
   const [showDocumentEditor, setShowDocumentEditor] = useState(false)
-  const rightPanelRef = useRef<ImperativePanelHandle>(null)
 
   const handleEditMessage = useCallback((message: Message) => {
     setEditingMessage(message)
     setShowDocumentEditor(true)
-    if (rightPanelRef.current && rightPanelRef.current.isCollapsed()) {
-      rightPanelRef.current.expand()
-    }
   }, [])
 
   const handleCloseDocumentEditor = useCallback(() => {
     setShowDocumentEditor(false)
     setEditingMessage(null)
-    if (rightPanelRef.current && !rightPanelRef.current.isCollapsed()) {
-      rightPanelRef.current.collapse()
-    }
   }, [])
 
   const handleSaveDocument = useCallback(async (content: string) => {
@@ -51,7 +43,6 @@ export function useDocumentEditor(onMessageUpdate: (id: string, content: string)
     editingMessage,
     showDocumentEditor,
     setShowDocumentEditor,
-    rightPanelRef,
     handleEditMessage,
     handleCloseDocumentEditor,
     handleSaveDocument,

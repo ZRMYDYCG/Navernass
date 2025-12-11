@@ -3,11 +3,10 @@
 import { useParams } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { ChatInputBox } from '../_components/chat-input-box'
 import { useChatSidebar } from '../_components/chat-sidebar-provider'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
-import { DocumentEditor } from './_components/document-editor'
+import { DocumentEditorDialog } from './_components/document-editor-dialog'
 import { MessageList } from './_components/message-list'
 import { ShareActionBar } from './_components/share-action-bar'
 import { ShareImagePreviewDialog } from './_components/share-image-preview-dialog'
@@ -67,7 +66,6 @@ export default function ConversationPage() {
     editingMessage,
     showDocumentEditor,
     setShowDocumentEditor,
-    rightPanelRef,
     handleEditMessage: originalHandleEditMessage,
     handleCloseDocumentEditor,
     handleSaveDocument,
@@ -85,88 +83,56 @@ export default function ConversationPage() {
 
   return (
     <div className="flex flex-col h-full">
-      {!showDocumentEditor && (
-        <ChatWelcomeHeader
-          onShareConversation={handleToggleShareMode}
-          isShareMode={isShareMode}
-        />
-      )}
+      <ChatWelcomeHeader
+        onShareConversation={handleToggleShareMode}
+        isShareMode={isShareMode}
+      />
 
       <div className="flex-1 overflow-hidden">
-        <ResizablePanelGroup
-          direction="horizontal"
-          className="h-full"
-          autoSaveId="chat-layout"
-        >
-          <ResizablePanel
-            id="chat-panel"
-            order={1}
-            defaultSize={showDocumentEditor ? 60 : 100}
-            minSize={40}
-          >
-            <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-hidden">
-                <MessageList
-                  messages={messages}
-                  isLoading={isLoading}
-                  streamingMessageId={streamingMessageId}
-                  onCopyMessage={handleCopyMessage}
-                  onShareMessage={handleShareMessage}
-                  onEditMessage={handleEditMessage}
-                  isShareMode={isShareMode}
-                  selectedMessageIds={selectedMessageIds}
-                  onToggleSelectMessage={handleToggleSelectMessage}
-                />
-              </div>
+        <div className="flex flex-col h-full">
+          <div className="flex-1 overflow-hidden">
+            <MessageList
+              messages={messages}
+              isLoading={isLoading}
+              streamingMessageId={streamingMessageId}
+              onCopyMessage={handleCopyMessage}
+              onShareMessage={handleShareMessage}
+              onEditMessage={handleEditMessage}
+              isShareMode={isShareMode}
+              selectedMessageIds={selectedMessageIds}
+              onToggleSelectMessage={handleToggleSelectMessage}
+            />
+          </div>
 
-              {isShareMode
-                ? (
-                    <ShareActionBar
-                      selectedCount={selectedMessageIds.length}
-                      onCancel={handleCancelShareMode}
-                      onCopyText={handleCopySelectedText}
-                      onCopyLink={handleCopyConversationLink}
-                      onGenerateImage={handleGenerateImage}
-                      isGeneratingImage={isGeneratingImage}
-                    />
-                  )
-                : (
-                    <div className="mb-3">
-                      <ChatInputBox
-                        onSend={handleSendMessage}
-                        disabled={isLoading}
-                      />
-                    </div>
-                  )}
-            </div>
-          </ResizablePanel>
-
-          {showDocumentEditor && (
-            <>
-              <ResizableHandle withHandle />
-              <ResizablePanel
-                ref={rightPanelRef}
-                id="document-panel"
-                order={2}
-                defaultSize={40}
-                minSize={30}
-                maxSize={60}
-                collapsible={true}
-                collapsedSize={0}
-                onCollapse={() => setShowDocumentEditor(false)}
-              >
-                <DocumentEditor
-                  message={editingMessage}
-                  latestAssistantMessage={displayLatestAssistantMessage}
-                  isOpen={showDocumentEditor}
-                  onClose={handleCloseDocumentEditor}
-                  onSave={handleSaveDocument}
+          {isShareMode
+            ? (
+                <ShareActionBar
+                  selectedCount={selectedMessageIds.length}
+                  onCancel={handleCancelShareMode}
+                  onCopyText={handleCopySelectedText}
+                  onCopyLink={handleCopyConversationLink}
+                  onGenerateImage={handleGenerateImage}
+                  isGeneratingImage={isGeneratingImage}
                 />
-              </ResizablePanel>
-            </>
-          )}
-        </ResizablePanelGroup>
+              )
+            : (
+                <div className="mb-3">
+                  <ChatInputBox
+                    onSend={handleSendMessage}
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
+        </div>
       </div>
+
+      <DocumentEditorDialog
+        message={editingMessage}
+        latestAssistantMessage={displayLatestAssistantMessage}
+        open={showDocumentEditor}
+        onOpenChange={setShowDocumentEditor}
+        onSave={handleSaveDocument}
+      />
 
       <ShareImageRenderer
         containerRef={shareImageRef}
