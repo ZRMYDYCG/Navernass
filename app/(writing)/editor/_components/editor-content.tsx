@@ -1,8 +1,6 @@
 import type { Chapter, Volume } from '@/lib/supabase/sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { paperFadeScale } from '@/components/motion/config'
-import { PaperLayer } from '@/components/motion/paper-layer'
 import { TiptapEditor } from '@/components/tiptap'
 import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi } from '@/lib/supabase/sdk'
@@ -209,29 +207,20 @@ export default function EditorContent({
             )
           : (
               <div className="min-h-full flex justify-center py-6 sm:py-8">
-                <PaperLayer
-                  className="w-full max-w-[85ch] min-h-[80vh] bg-background my-auto"
-                  shadow="md"
-                  variants={paperFadeScale}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <div className="px-8 sm:px-12 min-h-full animate-text-fade-in">
-                    <TiptapEditor
-                      key={chapterId}
-                      content={chapter?.content || `<h1>${chapterTitle}</h1>`}
-                      placeholder="在此写下故事的开始..."
-                      onUpdate={handleUpdate}
-                      onStatsChange={handleStatsChange}
-                      autoSave={true}
-                      autoSaveDelay={3000}
-                      className="outline-none"
-                      editable={true}
-                      chapterId={chapterId}
-                    />
-                  </div>
-                </PaperLayer>
+                <div className="px-8 sm:px-12 min-h-full animate-text-fade-in">
+                  <TiptapEditor
+                    key={chapterId}
+                    content={chapter?.content || `<h1>${chapterTitle}</h1>`}
+                    placeholder="在此写下故事的开始..."
+                    onUpdate={handleUpdate}
+                    onStatsChange={handleStatsChange}
+                    autoSave={true}
+                    autoSaveDelay={3000}
+                    className="outline-none"
+                    editable={true}
+                    chapterId={chapterId}
+                  />
+                </div>
               </div>
             )}
       </div>
