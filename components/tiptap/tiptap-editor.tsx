@@ -54,9 +54,13 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   } = props
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const initTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const { showInputDialog } = useDialog()
   const [showSearchBox, setShowSearchBox] = useState(false)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [isContentUserEdited, setIsContentUserEdited] = useState(false)
+  const lastContentRef = useRef('')
 
   useEffect(() => {
     setGlobalDialog(showInputDialog)
@@ -219,10 +223,18 @@ function TiptapEditorInner(props: TiptapEditorProps) {
             clearTimeout(saveTimeoutRef.current)
           }
           saveTimeoutRef.current = setTimeout(() => {
-            onUpdate(editor.getHTML())
+            const currentContent = editor.getHTML()
+            if (currentContent !== lastContentRef.current) {
+              lastContentRef.current = currentContent
+              onUpdate(currentContent)
+            }
           }, autoSaveDelay)
         } else {
-          onUpdate(editor.getHTML())
+          const currentContent = editor.getHTML()
+          if (currentContent !== lastContentRef.current) {
+            lastContentRef.current = currentContent
+            onUpdate(currentContent)
+          }
         }
       }
     },
@@ -231,23 +243,34 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   useEffect(() => {
     if (!editor) return
 
-    if (!content) {
-      editor.commands.clearContent()
-      return
-    }
+    if (!isInitialized) {
+      if (!content) {
+        editor.commands.clearContent()
+        initTimeoutRef.current = setTimeout(() => {
+          setIsInitialized(true)
+        }, 0)
+        return
+      }
 
-    // 区分传入的是 HTML（富文本）还是 Markdown（纯文本）
-    const isHtml = /<\/?[a-z][\s\S]*>/i.test(content)
+      // 区分传入的是 HTML（富文本）还是 Markdown（纯文本）
+      const isHtml = /<\/?[a-z][\s\S]*>/i.test(content)
 
-    if (isHtml) {
-      // 直接设置 HTML 内容
-      editor.commands.setContent(content)
-    } else {
-      // 解析 Markdown 内容
-      const doc = parseMarkdownContent(content, editor.schema)
-      editor.commands.setContent(doc.toJSON())
+      if (isHtml) {
+        // 直接设置 HTML 内容
+        editor.commands.setContent(content)
+        lastContentRef.current = content
+      } else {
+        // 解析 Markdown 内容
+        const doc = parseMarkdownContent(content, editor.schema)
+        editor.commands.setContent(doc.toJSON())
+        lastContentRef.current = editor.getHTML()
+      }
+
+      initTimeoutRef.current = setTimeout(() => {
+        setIsInitialized(true)
+      }, 0)
     }
-  }, [editor, content])
+  }, [editor, content, isInitialized])
 
   useEffect(() => {
     if (editor && onStatsChange) {
@@ -258,9 +281,58 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   }, [editor, onStatsChange, content])
 
   useEffect(() => {
+    if (!editor || !isInitialized) return
+
+    const handleTransaction = (props: { transaction: { docChanged: boolean, steps: unknown[] } }) => {
+      if (props.transaction.docChanged && props.transaction.steps.length > 0) {
+        setIsContentUserEdited(true)
+      }
+    }
+
+    editor.on('transaction', handleTransaction)
+
+    return () => {
+      editor.off('transaction', handleTransaction)
+    }
+  }, [editor, isInitialized])
+
+  useEffect(() => {
+    if (chapterId) {
+      initTimeoutRef.current = setTimeout(() => {
+        setIsInitialized(false)
+        setIsContentUserEdited(false)
+      }, 0)
+      lastContentRef.current = ''
+    }
+  }, [chapterId])
+
+  useEffect(() => {
+    if (!editor || !isInitialized || isContentUserEdited) return
+
+    const currentContent = lastContentRef.current
+    if (content && currentContent && content !== currentContent) {
+      const diffRatio = Math.abs(content.length - currentContent.length) / currentContent.length
+      if (diffRatio > 0.1) {
+        const isHtml = /<\/?[a-z][\s\S]*>/i.test(content)
+        if (isHtml) {
+          editor.commands.setContent(content)
+          lastContentRef.current = content
+        } else {
+          const doc = parseMarkdownContent(content, editor.schema)
+          editor.commands.setContent(doc.toJSON())
+          lastContentRef.current = editor.getHTML()
+        }
+      }
+    }
+  }, [content, isInitialized, isContentUserEdited, editor])
+
+  useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current)
+      }
+      if (initTimeoutRef.current) {
+        clearTimeout(initTimeoutRef.current)
       }
     }
   }, [])

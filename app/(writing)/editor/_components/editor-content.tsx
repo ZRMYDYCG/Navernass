@@ -196,7 +196,7 @@ export default function EditorContent({
         onSelectChapter={onSelectChapter}
       />
 
-      {/* 编辑器内容区域 - 模拟书桌上的纸张 */}
+      {/* 编辑器内容区域 */}
       <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {loading
           ? (
@@ -206,7 +206,7 @@ export default function EditorContent({
               </div>
             )
           : (
-              <div className="min-h-full flex justify-center py-6 sm:py-8">
+              <div className="min-h-full flex">
                 <div className="px-8 sm:px-12 min-h-full animate-text-fade-in">
                   <TiptapEditor
                     key={chapterId}
