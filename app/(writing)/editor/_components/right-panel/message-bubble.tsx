@@ -64,16 +64,18 @@ export function MessageBubble({ message, streamingMessageId }: MessageBubbleProp
                   <div className="relative break-words break-all [&_.prose]:!text-[12px] [&_.prose]:!leading-snug [&_.prose_p]:!my-1 [&_.prose_p]:!text-[12px] [&_.prose_h1]:!text-[14px] [&_.prose_h1]:!my-1.5 [&_.prose_h2]:!text-[13px] [&_.prose_h2]:!my-1.5 [&_.prose_h3]:!text-[12px] [&_.prose_h3]:!my-1 [&_.prose_ul]:!my-1 [&_.prose_ol]:!my-1 [&_.prose_li]:!text-[12px] [&_.prose_li]:!my-0.5 [&_.prose_code]:!text-[10px] [&_.prose_pre]:!my-1.5 [&_.prose_pre]:!p-1.5 [&_.prose_pre]:!text-[10px] [&_.prose_blockquote]:!my-1.5 [&_.prose_blockquote]:!pl-3 [&_.prose_table]:!my-1.5 [&_.prose_th]:!text-[12px] [&_.prose_th]:!px-2 [&_.prose_th]:!py-1 [&_.prose_td]:!text-[12px] [&_.prose_td]:!px-2 [&_.prose_td]:!py-1">
                     <MarkdownRenderer content={displayedContent} />
                   </div>
-                  <div className="mt-1 flex justify-end">
-                    <button
-                      type="button"
-                      onClick={handleCopy}
-                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] text-stone-400 dark:text-zinc-500 hover:text-stone-700 dark:hover:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-700/50 cursor-pointer transition-colors"
-                    >
-                      复制
-                      {copied && <Check className="w-3 h-3 text-emerald-500" />}
-                    </button>
-                  </div>
+                  {!isStreaming && (
+                    <div className="mt-1 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={handleCopy}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] text-stone-400 dark:text-zinc-500 hover:text-stone-700 dark:hover:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-700/50 cursor-pointer transition-colors"
+                      >
+                        复制
+                        {copied && <Check className="w-3 h-3 text-emerald-500" />}
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
         </div>
