@@ -16,12 +16,10 @@ export function TypingIndicator() {
       </div>
 
       <div className="flex items-center">
-        <div className="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
-          <div className="flex gap-1 items-center">
-            <div className="w-1.5 h-1.5 bg-gray-500 dark:bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-            <div className="w-1.5 h-1.5 bg-gray-500 dark:bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-            <div className="w-1.5 h-1.5 bg-gray-500 dark:bg-zinc-400 rounded-full animate-bounce" />
-          </div>
+        <div className="flex gap-1 items-center">
+          <div className="w-1.5 h-1.5 bg-gray-500 dark:bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+          <div className="w-1.5 h-1.5 bg-gray-500 dark:bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+          <div className="w-1.5 h-1.5 bg-gray-500 dark:bg-zinc-400 rounded-full animate-bounce" />
         </div>
       </div>
     </div>

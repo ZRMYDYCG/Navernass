@@ -149,6 +149,7 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
             <MessageBubble
               key={message.id}
               message={message}
+              streamingMessageId={streamingMessageId}
             />
           ))}
           {isLoading && <TypingIndicator />}

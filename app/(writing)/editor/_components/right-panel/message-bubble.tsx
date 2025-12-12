@@ -9,13 +9,15 @@ import { Avatar } from '@/components/ui/avatar'
 
 interface MessageBubbleProps {
   message: NovelMessage
+  streamingMessageId?: string | null
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, streamingMessageId }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
   const [copied, setCopied] = useState(false)
+  const isStreaming = streamingMessageId === message.id
 
   const displayedContent = message.content
 
@@ -48,7 +50,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           className={`rounded-lg px-2.5 py-1.5 text-[12px] transition-all duration-200 ${
             isUser
               ? 'bg-stone-100 dark:bg-zinc-800 text-[#333333] dark:text-zinc-100'
-              : 'bg-white dark:bg-zinc-800/80 text-[#333333] dark:text-zinc-100 border border-stone-200/50 dark:border-zinc-700/50 shadow-[0_1px_2px_rgba(0,0,0,0.02)]'
+              : isStreaming
+                ? 'bg-white dark:bg-zinc-800/80 text-[#333333] dark:text-zinc-100'
+                : 'bg-white dark:bg-zinc-800/80 text-[#333333] dark:text-zinc-100 border border-stone-200/50 dark:border-zinc-700/50 shadow-[0_1px_2px_rgba(0,0,0,0.02)]'
           }`}
         >
           {isUser
