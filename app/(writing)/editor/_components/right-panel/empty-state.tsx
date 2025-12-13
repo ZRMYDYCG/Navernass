@@ -1,32 +1,32 @@
-import type { LucideIcon } from 'lucide-react'
-import { Lightbulb, PenTool, Wand2 } from 'lucide-react'
+// import type { LucideIcon } from 'lucide-react'
+// import { Lightbulb, PenTool, Wand2 } from 'lucide-react'
 import Image from 'next/image'
 
-const FEATURES: Array<{
-  icon: LucideIcon
-  title: string
-  description: string
-  iconColor: string
-}> = [
-  {
-    icon: Wand2,
-    title: '续写故事',
-    description: '根据上下文智能续写',
-    iconColor: 'text-purple-500',
-  },
-  {
-    icon: PenTool,
-    title: '优化润色',
-    description: '让文字表达更精彩',
-    iconColor: 'text-blue-500',
-  },
-  {
-    icon: Lightbulb,
-    title: '创作建议',
-    description: '提供专业的写作指导',
-    iconColor: 'text-amber-500',
-  },
-]
+// const FEATURES: Array<{
+//   icon: LucideIcon
+//   title: string
+//   description: string
+//   iconColor: string
+// }> = [
+//   {
+//     icon: Wand2,
+//     title: '续写故事',
+//     description: '根据上下文智能续写',
+//     iconColor: 'text-purple-500',
+//   },
+//   {
+//     icon: PenTool,
+//     title: '优化润色',
+//     description: '让文字表达更精彩',
+//     iconColor: 'text-blue-500',
+//   },
+//   {
+//     icon: Lightbulb,
+//     title: '创作建议',
+//     description: '提供专业的写作指导',
+//     iconColor: 'text-amber-500',
+//   },
+// ]
 
 export function EmptyState() {
   return (
@@ -57,7 +57,7 @@ export function EmptyState() {
         我可以帮你续写剧情、优化文字、润色对话，让创作更轻松
       </p>
 
-      <div className="w-full max-w-sm space-y-2.5 mb-8">
+      {/* <div className="w-full max-w-sm space-y-2.5 mb-8">
         {FEATURES.map(feature => (
           <div
             key={feature.title}
@@ -78,14 +78,14 @@ export function EmptyState() {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
-      <p className="text-xs text-stone-400 dark:text-zinc-500 flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5">
+      {/* <p className="text-xs text-stone-400 dark:text-zinc-500 flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5">
         <span>在下方输入框开始对话，或使用快捷键</span>
         <kbd className="px-1.5 py-0.5 bg-white dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded text-[10px] font-sans shadow-sm">
           Ctrl+Shift+A
         </kbd>
-      </p>
+      </p> */}
     </div>
   )
 }
