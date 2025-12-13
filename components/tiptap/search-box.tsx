@@ -66,20 +66,51 @@ export function SearchBox({ editor, onClose, initialSearchTerm = '' }: SearchBox
   // 滚动到匹配位置
   const scrollToMatch = (match: { from: number, to: number }) => {
     const { from, to } = match
+
     // 选中匹配的文本
     editor.commands.setTextSelection({ from, to })
 
-    // 滚动到选中位置
     setTimeout(() => {
-      const { state } = editor.view
-      const { selection } = state
-      const { $from } = selection
-      const dom = editor.view.nodeDOM($from.pos) as HTMLElement
+      const { view } = editor
+      const coords = view.coordsAtPos(from)
 
-      if (dom) {
-        dom.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      if (coords) {
+        let scrollContainer: HTMLElement | null = null
+        let current: HTMLElement | null = view.dom as HTMLElement
+
+        while (current) {
+          const style = window.getComputedStyle(current)
+          if (
+            style.overflowY === 'auto'
+            || style.overflowY === 'scroll'
+            || (style.overflow === 'auto')
+            || (style.overflow === 'scroll')
+          ) {
+            scrollContainer = current
+            break
+          }
+          current = current.parentElement
+        }
+
+        if (!scrollContainer) {
+          scrollContainer = (view.dom.parentElement as HTMLElement) || null
+        }
+
+        if (scrollContainer) {
+          const containerRect = scrollContainer.getBoundingClientRect()
+          const targetTop = coords.top - containerRect.top
+          const currentScrollTop = scrollContainer.scrollTop
+          const containerHeight = scrollContainer.clientHeight
+
+          const targetScrollTop = currentScrollTop + targetTop - containerHeight / 2
+
+          scrollContainer.scrollTo({
+            top: Math.max(0, targetScrollTop),
+            behavior: 'smooth',
+          })
+        }
       }
-    }, 0)
+    }, 10)
   }
 
   // 执行搜索
