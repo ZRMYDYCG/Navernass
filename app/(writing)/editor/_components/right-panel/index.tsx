@@ -293,7 +293,7 @@ export default function RightPanel() {
   }
 
   return (
-    <div className="h-full w-full bg-transparent">
+    <div className="h-full w-full bg-transparent relative">
       <div
         className="h-full flex flex-col dark:border-zinc-700/50 bg-[#FAF9F6] dark:bg-zinc-900"
       >

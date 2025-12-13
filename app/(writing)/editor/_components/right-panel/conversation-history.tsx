@@ -71,7 +71,7 @@ export function ConversationHistory({
   const unpinnedConversations = conversations.filter(c => !c.is_pinned)
 
   return (
-    <div className="absolute inset-0 z-50 bg-[#FAF9F6] dark:bg-zinc-900 border-l border-stone-200/50 dark:border-zinc-800 flex flex-col shadow-none rounded-l-lg">
+    <div className="absolute inset-0 z-50 bg-[#FAF9F6] dark:bg-zinc-900 border-l border-stone-200/50 dark:border-zinc-800 flex flex-col shadow-none">
       {/* 头部 */}
       <div className="h-10 flex px-4 items-center justify-between border-b border-stone-200/50 dark:border-zinc-800 bg-stone-50/30 dark:bg-zinc-900">
         <div className="flex items-center gap-2">
@@ -109,8 +109,8 @@ export function ConversationHistory({
               <div className="py-2">
                 {/* 置顶会话 */}
                 {pinnedConversations.length > 0 && (
-                  <div className="px-2 mb-2">
-                    <div className="px-3 py-1.5 text-xs font-medium text-stone-400 dark:text-gray-500 uppercase tracking-wide">
+                  <div className="px-2 mb-1">
+                    <div className="px-2 py-1 text-xs font-medium text-stone-400 dark:text-gray-500 uppercase tracking-wide">
                       置顶
                     </div>
                     {pinnedConversations.map(conversation => (
@@ -131,7 +131,7 @@ export function ConversationHistory({
                 {unpinnedConversations.length > 0 && (
                   <div className="px-2">
                     {pinnedConversations.length > 0 && (
-                      <div className="px-3 py-1.5 text-xs font-medium text-stone-400 dark:text-gray-500 uppercase tracking-wide">
+                      <div className="px-2 py-1 text-xs font-medium text-stone-400 dark:text-gray-500 uppercase tracking-wide">
                         最近
                       </div>
                     )}
@@ -206,83 +206,63 @@ function ConversationItem({
     }
   }
   return (
-    <div
+    <button
+      type="button"
       onClick={onSelect}
-      className={`group relative mx-2 mb-1 px-3 py-2.5 rounded-lg cursor-pointer transition-all ${
+      className={`w-full px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-zinc-800/50 rounded-lg border border-transparent hover:border-stone-200/50 dark:hover:border-zinc-700 transition-all text-left flex items-center gap-2.5 cursor-pointer group ${
         isActive
-          ? 'bg-white dark:bg-zinc-800 border border-stone-200/50 dark:border-zinc-700 shadow-sm'
-          : 'hover:bg-stone-100 dark:hover:bg-zinc-800/50 border border-transparent'
+          ? 'bg-white dark:bg-zinc-800 border-stone-200/50 dark:border-zinc-700 shadow-sm'
+          : ''
       }`}
     >
-      <div className="flex items-start gap-2.5">
-        <div className="shrink-0 mt-0.5">
-          <MessageSquare
-            className={`w-4 h-4 ${
-              isActive
-                ? 'text-stone-600 dark:text-gray-300'
-                : 'text-stone-400 dark:text-gray-500'
-            }`}
-          />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1 mb-0.5">
+          {conversation.is_pinned && (
+            <Pin className="w-3 h-3 text-amber-500 dark:text-amber-400 fill-current shrink-0" />
+          )}
+          <span className="text-xs font-medium truncate text-[#333333] dark:text-zinc-300 group-hover:text-black dark:group-hover:text-zinc-100">
+            {conversation.title || '无标题对话'}
+          </span>
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-1">
-                {conversation.is_pinned && (
-                  <Pin className="w-3 h-3 text-amber-500 dark:text-amber-400 fill-current shrink-0" />
-                )}
-                <span
-                  className={`text-sm font-medium truncate ${
-                    isActive
-                      ? 'text-[#333333] dark:text-gray-100'
-                      : 'text-[#333333] dark:text-gray-100'
-                  }`}
-                >
-                  {conversation.title}
-                </span>
-              </div>
-              <div className="text-xs text-stone-500 dark:text-gray-400">
-                {formatTime(conversation.updated_at)}
-              </div>
-            </div>
-            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-              {onPin && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handlePin}
-                  disabled={isPinning}
-                  className="h-7 w-7 p-0 hover:bg-stone-200/50 dark:hover:bg-zinc-700 disabled:opacity-50 text-stone-400 hover:text-stone-600"
-                  title={conversation.is_pinned ? '取消置顶' : '置顶'}
-                >
-                  {isPinning
-                    ? (
-                        <Spinner className="w-3.5 h-3.5" />
-                      )
-                    : (
-                        <Pin
-                          className={`w-3.5 h-3.5 ${
-                            conversation.is_pinned
-                              ? 'text-amber-500 dark:text-amber-400 fill-current'
-                              : 'text-stone-400 dark:text-gray-500'
-                          }`}
-                        />
-                      )}
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onDelete}
-                className="h-7 w-7 p-0 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                title="删除"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-          </div>
+        <div className="text-[10px] text-stone-400 dark:text-zinc-500 group-hover:text-stone-500 dark:group-hover:text-zinc-400">
+          {formatTime(conversation.updated_at)}
         </div>
       </div>
-    </div>
+      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        {onPin && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handlePin}
+            disabled={isPinning}
+            className="h-6 w-6 p-0 hover:bg-stone-200/50 dark:hover:bg-zinc-700 disabled:opacity-50 text-stone-400 hover:text-stone-600"
+            title={conversation.is_pinned ? '取消置顶' : '置顶'}
+          >
+            {isPinning
+              ? (
+                  <Spinner className="w-3 h-3" />
+                )
+              : (
+                  <Pin
+                    className={`w-3 h-3 ${
+                      conversation.is_pinned
+                        ? 'text-amber-500 dark:text-amber-400 fill-current'
+                        : 'text-stone-400 dark:text-gray-500'
+                    }`}
+                  />
+                )}
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onDelete}
+          className="h-6 w-6 p-0 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+          title="删除"
+        >
+          <Trash2 className="w-3 h-3" />
+        </Button>
+      </div>
+    </button>
   )
 }
