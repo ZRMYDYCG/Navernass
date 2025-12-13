@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Globe, Copy, Check } from 'lucide-react'
+import { Check, Copy, Globe } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -9,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
 import { novelsApi } from '@/lib/supabase/sdk'
 
@@ -29,9 +29,10 @@ export function PublishDialog({
   const [publishedCount, setPublishedCount] = useState(0)
   const [isCopied, setIsCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false)
   const { toast } = useToast()
 
-  const publishUrl = novelId ? `http://localhost:3000/publish?id=${novelId}` : ''
+  const publishUrl = novelId ? `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/publish?id=${novelId}` : ''
   const hasPublishedChapters = publishedCount > 0
 
   useEffect(() => {
@@ -65,16 +66,16 @@ export function PublishDialog({
     }
 
     setIsLoading(true)
-    
+
     try {
       const results = await Promise.allSettled(
         chapterIds.map(id =>
-          fetch(`/api/chapters/${id}/publish`, { method: 'POST' })
-        )
+          fetch(`/api/chapters/${id}/publish`, { method: 'POST' }),
+        ),
       )
 
       const successCount = results.filter(r => r.status === 'fulfilled').length
-      
+
       if (successCount > 0) {
         if (novelId) {
           try {
@@ -106,12 +107,12 @@ export function PublishDialog({
     if (!chapterIds.length) return
 
     setIsLoading(true)
-    
+
     try {
       await Promise.allSettled(
         chapterIds.map(id =>
-          fetch(`/api/chapters/${id}/publish`, { method: 'DELETE' })
-        )
+          fetch(`/api/chapters/${id}/publish`, { method: 'DELETE' }),
+        ),
       )
 
       if (novelId) {
@@ -156,64 +157,72 @@ export function PublishDialog({
             <Globe className="w-8 h-8 text-sky-500" />
           </div>
 
-          {!hasPublishedChapters ? (
-            <>
-              <DialogHeader className="text-center space-y-2">
-                <DialogTitle className="text-xl text-stone-900 dark:text-zinc-100">
-                  发布此文档
-                </DialogTitle>
-                <DialogDescription className="text-stone-500 dark:text-zinc-400">
-                  与世界分享您的文档
-                </DialogDescription>
-              </DialogHeader>
+          {!hasPublishedChapters
+            ? (
+                <>
+                  <DialogHeader className="text-center space-y-2">
+                    <DialogTitle className="text-xl text-stone-900 dark:text-zinc-100">
+                      发布此文档
+                    </DialogTitle>
+                    <DialogDescription className="text-stone-500 dark:text-zinc-400">
+                      与世界分享您的文档
+                    </DialogDescription>
+                  </DialogHeader>
 
-              <Button
-                onClick={handlePublish}
-                disabled={isLoading || !chapterIds.length}
-                className="w-full h-11 rounded-lg font-medium bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-              >
-                {isLoading ? '发布中...' : '发布'}
-              </Button>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center gap-2 text-sm">
-                <Globe className="w-4 h-4 text-sky-500" />
-                <span className="text-stone-600 dark:text-zinc-300">
-                  已发布 {publishedCount} 个章节
-                </span>
-              </div>
+                  <Button
+                    onClick={handlePublish}
+                    disabled={isLoading || !chapterIds.length}
+                    className="w-full h-11 rounded-lg font-medium bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                  >
+                    {isLoading ? '发布中...' : '发布'}
+                  </Button>
+                </>
+              )
+            : (
+                <>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Globe className="w-4 h-4 text-sky-500" />
+                    <span className="text-stone-600 dark:text-zinc-300">
+                      已发布
+                      {' '}
+                      {publishedCount}
+                      {' '}
+                      个章节
+                    </span>
+                  </div>
 
-              <div className="w-full flex items-center gap-2 bg-white/80 dark:bg-zinc-900/60 rounded-lg p-3 border border-stone-200 dark:border-zinc-700">
-                <input
-                  type="text"
-                  value={publishUrl}
-                  readOnly
-                  className="flex-1 bg-transparent text-stone-800 dark:text-zinc-100 text-sm outline-none"
-                />
-                <Button
-                  onClick={handleCopy}
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 w-8 p-0 hover:bg-stone-100 dark:hover:bg-zinc-800"
-                >
-                  {isCopied ? (
-                    <Check className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-stone-400 dark:text-zinc-400" />
-                  )}
-                </Button>
-              </div>
+                  <div className="w-full flex items-center gap-2 bg-white/80 dark:bg-zinc-900/60 rounded-lg p-3 border border-stone-200 dark:border-zinc-700">
+                    <input
+                      type="text"
+                      value={publishUrl}
+                      readOnly
+                      className="flex-1 bg-transparent text-stone-800 dark:text-zinc-100 text-sm outline-none"
+                    />
+                    <Button
+                      onClick={handleCopy}
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 hover:bg-stone-100 dark:hover:bg-zinc-800"
+                    >
+                      {isCopied
+                        ? (
+                            <Check className="w-4 h-4 text-green-500" />
+                          )
+                        : (
+                            <Copy className="w-4 h-4 text-stone-400 dark:text-zinc-400" />
+                          )}
+                    </Button>
+                  </div>
 
-              <Button
-                onClick={handleUnpublish}
-                disabled={isLoading}
-                className="w-full h-11 rounded-lg font-medium bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-              >
-                {isLoading ? '取消中...' : '取消发布'}
-              </Button>
-            </>
-          )}
+                  <Button
+                    onClick={handleUnpublish}
+                    disabled={isLoading}
+                    className="w-full h-11 rounded-lg font-medium bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                  >
+                    {isLoading ? '取消中...' : '取消发布'}
+                  </Button>
+                </>
+              )}
         </div>
       </DialogContent>
     </Dialog>
