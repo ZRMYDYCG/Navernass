@@ -18,6 +18,7 @@ export default function ChaptersTab({
   onRenameChapter,
   onDeleteChapter,
   onCopyChapter,
+  onMoveChapter,
   onRenameVolume,
   onDeleteVolume,
 }: ChaptersTabProps) {
@@ -48,6 +49,7 @@ export default function ChaptersTab({
         onRenameChapter={onRenameChapter}
         onDeleteChapter={onDeleteChapter}
         onCopyChapter={onCopyChapter}
+        onMoveChapter={onMoveChapter}
         onRenameVolume={onRenameVolume}
         onDeleteVolume={onDeleteVolume}
         onCreateChapterInVolume={onCreateChapterInVolume}

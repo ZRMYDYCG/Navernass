@@ -2,7 +2,7 @@ import type { ChapterItemProps } from './types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import * as Popover from '@radix-ui/react-popover'
-import { Copy, Edit2, FileText, GripVertical, Trash2 } from 'lucide-react'
+import { ArrowRightLeft, Copy, Edit2, FileText, GripVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import {
   ContextMenu,
@@ -19,6 +19,7 @@ export function ChapterItem({
   onRename,
   onDelete,
   onCopy,
+  onMove,
 }: ChapterItemProps) {
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [isCopying, setIsCopying] = useState(false)
@@ -150,6 +151,18 @@ export function ChapterItem({
           >
             <Copy className="w-2.5 h-2.5" />
             {isCopying ? '创建副本中...' : '创建副本'}
+          </ContextMenuItem>
+        )}
+        {onMove && (
+          <ContextMenuItem
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation()
+              onMove(chapter)
+            }}
+            className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
+          >
+            <ArrowRightLeft className="w-2.5 h-2.5" />
+            将章节移入
           </ContextMenuItem>
         )}
         {onDelete && (

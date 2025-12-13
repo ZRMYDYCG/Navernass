@@ -24,6 +24,7 @@ import { LockScreen } from './_components/lock-screen'
 import { SetPasswordDialog } from './_components/lock-screen/set-password-dialog'
 import { RenameChapterDialog } from './_components/rename-chapter-dialog'
 import { RenameVolumeDialog } from './_components/rename-volume-dialog'
+import { MoveChapterDialog } from './_components/move-chapter-dialog'
 import RightPanel from './_components/right-panel'
 
 function NovelsEditContent() {
@@ -68,6 +69,9 @@ function NovelsEditContent() {
   const [volumeToDelete, setVolumeToDelete] = useState<Volume | null>(null)
   const [isDeletingVolume, setIsDeletingVolume] = useState(false)
   const [quickSearchOpen, setQuickSearchOpen] = useState(false)
+  const [moveChapterDialogOpen, setMoveChapterDialogOpen] = useState(false)
+  const [chapterToMove, setChapterToMove] = useState<Chapter | null>(null)
+  const [isMovingChapter, setIsMovingChapter] = useState(false)
 
   // 面板控制引用
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
@@ -584,6 +588,14 @@ function NovelsEditContent() {
     setDeleteChapterDialogOpen(true)
   }
 
+  const handleMoveChapter = (chapter: { id: string, title: string }) => {
+    const fullChapter = chapters.find(c => c.id === chapter.id)
+    if (!fullChapter) return
+
+    setChapterToMove(fullChapter)
+    setMoveChapterDialogOpen(true)
+  }
+
   const handleConfirmDeleteChapter = async () => {
     if (!chapterToDelete || !novelId) return
 
@@ -617,6 +629,32 @@ function NovelsEditContent() {
       toast.error(message)
     } finally {
       setIsDeletingChapter(false)
+    }
+  }
+
+  const handleConfirmMoveChapter = async (volumeId: string | null) => {
+    if (!chapterToMove || !novelId) return
+
+    try {
+      setIsMovingChapter(true)
+      await chaptersApi.update({
+        id: chapterToMove.id,
+        volume_id: volumeId,
+      })
+      toast.success(volumeId ? '章节已移入卷' : '章节已移出到根目录')
+
+      // 重新加载章节列表
+      const updatedChapters = await chaptersApi.getByNovelId(novelId)
+      setChapters(updatedChapters)
+
+      setMoveChapterDialogOpen(false)
+      setChapterToMove(null)
+    } catch (error) {
+      console.error('移动章节失败:', error)
+      const message = error instanceof Error ? error.message : '移动章节失败'
+      toast.error(message)
+    } finally {
+      setIsMovingChapter(false)
     }
   }
 
@@ -904,6 +942,7 @@ function NovelsEditContent() {
                           onRenameChapter={handleRenameChapter}
                           onDeleteChapter={handleDeleteChapter}
                           onCopyChapter={handleCopyChapter}
+                          onMoveChapter={handleMoveChapter}
                           onRenameVolume={handleRenameVolume}
                           onDeleteVolume={handleDeleteVolume}
                           onChaptersImported={handleChaptersImported}
@@ -1011,6 +1050,7 @@ function NovelsEditContent() {
                     onReorderChapters={handleReorderChapters}
                     onReorderVolumes={handleReorderVolumes}
                     onMoveChapterToVolume={handleMoveChapterToVolume}
+                    onMoveChapter={handleMoveChapter}
                     onChaptersImported={handleChaptersImported}
                   />
                 </div>
@@ -1064,6 +1104,15 @@ function NovelsEditContent() {
             description={`确定要删除章节"${chapterToDelete?.title}"吗？此操作不可恢复。`}
             onConfirm={handleConfirmDeleteChapter}
             isDeleting={isDeletingChapter}
+          />
+
+          <MoveChapterDialog
+            open={moveChapterDialogOpen}
+            onOpenChange={setMoveChapterDialogOpen}
+            chapterTitle={chapterToMove?.title || ''}
+            volumes={volumes || []}
+            onConfirm={handleConfirmMoveChapter}
+            isMoving={isMovingChapter}
           />
 
           <DeleteConfirmDialog

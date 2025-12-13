@@ -15,6 +15,7 @@ export interface ChaptersTabProps {
   onRenameChapter?: (chapter: Chapter) => void
   onDeleteChapter?: (chapter: Chapter) => void
   onCopyChapter?: (chapter: Chapter) => Promise<void>
+  onMoveChapter?: (chapter: Chapter) => void
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
 }
@@ -26,4 +27,5 @@ export interface ChapterItemProps {
   onRename?: (chapter: Chapter) => void
   onDelete?: (chapter: Chapter) => void
   onCopy?: (chapter: Chapter) => Promise<void>
+  onMove?: (chapter: Chapter) => void
 }

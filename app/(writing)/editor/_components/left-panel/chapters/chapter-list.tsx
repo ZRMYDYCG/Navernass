@@ -57,6 +57,7 @@ interface ChapterListProps {
   onRenameChapter?: (chapter: Chapter) => void
   onDeleteChapter?: (chapter: Chapter) => void
   onCopyChapter?: (chapter: Chapter) => Promise<void>
+  onMoveChapter?: (chapter: Chapter) => void
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
   onCreateChapterInVolume?: (volumeId: string) => void
@@ -74,6 +75,7 @@ export function ChapterList({
   onRenameChapter,
   onDeleteChapter,
   onCopyChapter,
+  onMoveChapter,
   onRenameVolume,
   onDeleteVolume,
   onCreateChapterInVolume,
@@ -348,6 +350,7 @@ export function ChapterList({
                           onRename={onRenameChapter}
                           onDelete={onDeleteChapter}
                           onCopy={onCopyChapter}
+                          onMove={onMoveChapter}
                         />
                       </div>
 
@@ -387,6 +390,7 @@ export function ChapterList({
                     onRename={onRenameChapter}
                     onDelete={onDeleteChapter}
                     onCopy={onCopyChapter}
+                    onMove={onMoveChapter}
                   />
                 </div>
 

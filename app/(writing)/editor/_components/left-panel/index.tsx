@@ -25,6 +25,7 @@ interface LeftPanelProps {
   onRenameChapter?: (chapter: Chapter) => void
   onDeleteChapter?: (chapter: Chapter) => void
   onCopyChapter?: (chapter: Chapter) => Promise<void>
+  onMoveChapter?: (chapter: Chapter) => void
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
   onChaptersImported?: () => void
@@ -46,6 +47,7 @@ export default function LeftPanel({
   onRenameChapter,
   onDeleteChapter,
   onCopyChapter,
+  onMoveChapter,
   onRenameVolume,
   onDeleteVolume,
   onChaptersImported,
@@ -86,6 +88,7 @@ export default function LeftPanel({
                 onRenameChapter={onRenameChapter}
                 onDeleteChapter={onDeleteChapter}
                 onCopyChapter={onCopyChapter}
+                onMoveChapter={onMoveChapter}
                 onRenameVolume={onRenameVolume}
                 onDeleteVolume={onDeleteVolume}
               />
