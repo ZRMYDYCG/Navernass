@@ -1,7 +1,7 @@
 'use client'
 
 import { Check, Copy, Globe } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -37,7 +37,7 @@ export function PublishDialog({
   const publishUrl = novelId ? `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/publish?id=${novelId}` : ''
   const hasPublishedChapters = publishedCount > 0
 
-  const checkPublishStatus = async () => {
+  const checkPublishStatus = useCallback(async () => {
     if (!novelId) return
 
     setIsCheckingStatus(true)
@@ -53,13 +53,13 @@ export function PublishDialog({
     } finally {
       setIsCheckingStatus(false)
     }
-  }
+  }, [novelId])
 
   useEffect(() => {
     if (open && novelId && chapterIds.length > 0) {
       checkPublishStatus()
     }
-  }, [open, novelId, chapterIds])
+  }, [open, novelId, chapterIds, checkPublishStatus])
 
   const handlePublish = async () => {
     if (!chapterIds.length) {
@@ -101,7 +101,7 @@ export function PublishDialog({
     } catch (error) {
       toast({
         title: '发布失败',
-        description: '请稍后重试',
+        description: `请稍后重试, ${(error as Error).message}`,
         variant: 'destructive',
       })
     } finally {
