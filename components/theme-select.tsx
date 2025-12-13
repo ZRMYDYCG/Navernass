@@ -16,7 +16,7 @@ export function ThemeSection() {
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
-        <button className="cursor-pointer border-0 bg-transparent p-0 text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-full transition-all duration-200">
+        <button className="cursor-pointer border-0 bg-transparent p-1.5 h-7 w-7 flex items-center justify-center rounded-full text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-all duration-200">
           <SwatchBook className="w-3.5 h-3.5" strokeWidth={1.5} />
         </button>
       </Popover.Trigger>
