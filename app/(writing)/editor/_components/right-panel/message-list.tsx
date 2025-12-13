@@ -19,7 +19,7 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
-  const lastStreamingContentLengthRef = useRef(0) // 跟踪流式传输消息的内容长度
+  const lastStreamingContentLengthRef = useRef(0)
   const [showScrollButton, setShowScrollButton] = useState(false)
   const isNearBottomRef = useRef(true)
 
@@ -119,11 +119,21 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
   }, [streamingMessageId, scrollToBottom])
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      scrollToBottom('auto')
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [scrollToBottom])
+    if (messages.length > 0) {
+      const timer = setTimeout(() => {
+        const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
+        if (scrollContainer) {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollHeight,
+            behavior: 'smooth',
+          })
+        } else {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        }
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [messages.length])
 
   useEffect(() => {
     const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
