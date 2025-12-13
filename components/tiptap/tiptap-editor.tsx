@@ -57,6 +57,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   const initTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const { showInputDialog } = useDialog()
   const [showSearchBox, setShowSearchBox] = useState(false)
+  const [initialSearchTerm, setInitialSearchTerm] = useState('')
   const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const [isContentUserEdited, setIsContentUserEdited] = useState(false)
@@ -360,6 +361,18 @@ function TiptapEditorInner(props: TiptapEditorProps) {
         if (isInEditor || !showSearchBox) {
           e.preventDefault()
           e.stopPropagation()
+
+          // 获取选中的文本作为初始搜索词
+          const { state } = editor.view
+          const { from, to } = state.selection
+          let selectedText = ''
+
+          if (from !== to) {
+            // 有选中文本
+            selectedText = state.doc.textBetween(from, to, ' ')
+          }
+
+          setInitialSearchTerm(selectedText)
           setShowSearchBox(true)
         }
       }
@@ -424,8 +437,10 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       {showSearchBox && (
         <SearchBox
           editor={editor}
+          initialSearchTerm={initialSearchTerm}
           onClose={() => {
             setShowSearchBox(false)
+            setInitialSearchTerm('')
             const { state, dispatch } = editor.view
             const tr = state.tr.setMeta('search-highlight', {
               keyword: null,

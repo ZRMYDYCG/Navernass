@@ -9,9 +9,10 @@ import { Input } from '@/components/ui/input'
 interface SearchBoxProps {
   editor: Editor
   onClose: () => void
+  initialSearchTerm?: string
 }
 
-export function SearchBox({ editor, onClose }: SearchBoxProps) {
+export function SearchBox({ editor, onClose, initialSearchTerm = '' }: SearchBoxProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [totalMatches, setTotalMatches] = useState(0)
@@ -128,6 +129,13 @@ export function SearchBox({ editor, onClose }: SearchBoxProps) {
     updateSearchHighlight(searchTerm, matches, prevIndex)
     scrollToMatch(matches[prevIndex])
   }
+
+  // 初始化搜索词
+  useEffect(() => {
+    if (initialSearchTerm) {
+      setSearchTerm(initialSearchTerm)
+    }
+  }, [initialSearchTerm])
 
   // 监听搜索词变化
   useEffect(() => {

@@ -233,12 +233,6 @@ export function SmartTabs({
         })}
       </div>
 
-      {/* 渐变遮罩 - 左侧 */}
-      {/* <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-gray-900 to-transparent pointer-events-none" /> */}
-
-      {/* 渐变遮罩 - 右侧 */}
-      {/* <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-gray-900 to-transparent pointer-events-none" /> */}
-
       <div
         className={`absolute bottom-0 left-0 right-0 h-0.5 transition-opacity duration-200 pointer-events-none ${
           showScrollbar && scrollbarWidth < 100 ? 'opacity-100' : 'opacity-0'

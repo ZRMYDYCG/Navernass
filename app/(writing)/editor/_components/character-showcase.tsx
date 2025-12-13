@@ -1,13 +1,14 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import type { Character as CardCharacter } from './character-card'
 import { Plus, Search } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { CharacterCard, type Character as CardCharacter } from './character-card'
+import { Input } from '@/components/ui/input'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
-import { toast } from 'sonner'
+import { CharacterCard } from './character-card'
 
 interface CharacterShowcaseProps {
   novelId: string
@@ -37,7 +38,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
       try {
         const data = await charactersApi.getByNovelId(novelId)
         if (cancelled) return
-        const mapped: CardCharacter[] = data.map((c) => ({
+        const mapped: CardCharacter[] = data.map(c => ({
           id: c.id,
           name: c.name,
           role: c.role || '',
@@ -307,4 +308,3 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
     </div>
   )
 }
-
