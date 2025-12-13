@@ -89,5 +89,5 @@ export const ctaConfig: CTAConfig = {
     '这个项目是我一个人从 0 到 1 创造的。一个人的精力有限，项目可能会存在一些隐藏的 BUG。希望大家能够及时在 GitHub 向我反馈，这样也好加以改正，不断改善，成为最佳！当然我更希望大家能够提交 PR 成为 Narraverse 的贡献者。大家一起参与进来，构建一个强大的小说创作平台！',
   ctaText: '立即加入',
   // TODO: 添加 github 链接
-  href: 'https://github.com/narraverse/narraverse-next-mvp',
+  href: 'https://gitee.com/versa-lab-private',
 }

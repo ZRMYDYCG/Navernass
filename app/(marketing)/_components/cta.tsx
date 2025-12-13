@@ -55,7 +55,7 @@ export default function CTA() {
                   {' '}
                   {/* TODO: 添加 github 链接 */}
                   <a
-                    href="https://github.com/narraverse/narraverse-next-mvp"
+                    href="#"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-semibold text-foreground hover:underline decoration-2 decoration-wavy underline-offset-4"
