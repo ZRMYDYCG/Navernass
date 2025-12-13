@@ -21,6 +21,7 @@ export function ChapterItem({
   onCopy,
 }: ChapterItemProps) {
   const [popoverOpen, setPopoverOpen] = useState(false)
+  const [isCopying, setIsCopying] = useState(false)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: chapter.id,
@@ -39,8 +40,8 @@ export function ChapterItem({
           ref={setNodeRef}
           style={style}
           className={`group px-2 py-0.5 my-0.5 min-h-[28px] flex items-center rounded-lg transition-all duration-300 ease-out ${
-            isSelected 
-              ? 'bg-white dark:bg-zinc-800 shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-none' 
+            isSelected
+              ? 'bg-white dark:bg-zinc-800 shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-none'
               : 'hover:bg-white/60 dark:hover:bg-zinc-800/50'
           }`}
         >
@@ -135,14 +136,20 @@ export function ChapterItem({
         )}
         {onCopy && (
           <ContextMenuItem
-            onClick={(e: React.MouseEvent) => {
+            onClick={async (e: React.MouseEvent) => {
               e.stopPropagation()
-              onCopy(chapter)
+              setIsCopying(true)
+              try {
+                await onCopy(chapter)
+              } finally {
+                setIsCopying(false)
+              }
             }}
+            disabled={isCopying}
             className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
             <Copy className="w-2.5 h-2.5" />
-            复制
+            {isCopying ? '创建副本中...' : '创建副本'}
           </ContextMenuItem>
         )}
         {onDelete && (

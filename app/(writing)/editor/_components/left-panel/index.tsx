@@ -24,7 +24,7 @@ interface LeftPanelProps {
   onMoveChapterToVolume?: (chapterId: string, volumeId: string | null) => void
   onRenameChapter?: (chapter: Chapter) => void
   onDeleteChapter?: (chapter: Chapter) => void
-  onCopyChapter?: (chapter: Chapter) => void
+  onCopyChapter?: (chapter: Chapter) => Promise<void>
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
   onChaptersImported?: () => void
