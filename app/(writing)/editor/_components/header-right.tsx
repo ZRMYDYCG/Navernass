@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/tooltip'
 import { PublishDialog } from './publish-dialog'
 
+const DEFAULT_CHAPTER_IDS: string[] = []
+
 interface HeaderRightProps {
   isFullscreen?: boolean
   onToggleFullscreen?: () => void
@@ -36,7 +38,7 @@ export function HeaderRight({
   onLock,
   onClose,
   novelId,
-  chapterIds = [],
+  chapterIds = DEFAULT_CHAPTER_IDS,
 }: HeaderRightProps) {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
 
