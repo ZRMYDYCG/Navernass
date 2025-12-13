@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
 import {
+  Bot,
+  Globe,
   LockKeyhole,
   Maximize2,
   Minimize2,
-  Bot,
-  Globe,
   XCircle,
 } from 'lucide-react'
+import { useState } from 'react'
 import { ThemeSection } from '@/components/theme-select'
 import {
   Tooltip,
@@ -33,7 +33,6 @@ export function HeaderRight({
   isFullscreen = false,
   onToggleFullscreen,
   onToggleAI,
-  onToggleTerminal,
   onLock,
   onClose,
   novelId,
@@ -41,8 +40,8 @@ export function HeaderRight({
 }: HeaderRightProps) {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
 
-  const buttonClass = "p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
-  const iconProps = { className: "w-3.5 h-3.5", strokeWidth: 1.5 }
+  const buttonClass = 'p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer'
+  const iconProps = { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }
 
   return (
     <TooltipProvider>
@@ -94,7 +93,7 @@ export function HeaderRight({
           </TooltipContent>
         </Tooltip>
 
-        {/* 主题切换按钮 - Custom styling wrapper to match */}
+        {/* 主题切换按钮 */}
         <div className={`[&_button]:${buttonClass.replace(/ /g, ' [&_button]:')} [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:stroke-[1.5]`}>
           <ThemeSection />
         </div>
