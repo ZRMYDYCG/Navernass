@@ -20,11 +20,13 @@ interface PublishDialogProps {
   chapterIds?: string[]
 }
 
+const DEFAULT_CHAPTER_IDS: string[] = []
+
 export function PublishDialog({
   open,
   onOpenChange,
   novelId,
-  chapterIds = [],
+  chapterIds = DEFAULT_CHAPTER_IDS,
 }: PublishDialogProps) {
   const [publishedCount, setPublishedCount] = useState(0)
   const [isCopied, setIsCopied] = useState(false)
@@ -34,12 +36,6 @@ export function PublishDialog({
 
   const publishUrl = novelId ? `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/publish?id=${novelId}` : ''
   const hasPublishedChapters = publishedCount > 0
-
-  useEffect(() => {
-    if (open && novelId && chapterIds.length > 0) {
-      checkPublishStatus()
-    }
-  }, [open, novelId, chapterIds])
 
   const checkPublishStatus = async () => {
     if (!novelId) return
@@ -58,6 +54,12 @@ export function PublishDialog({
       setIsCheckingStatus(false)
     }
   }
+
+  useEffect(() => {
+    if (open && novelId && chapterIds.length > 0) {
+      checkPublishStatus()
+    }
+  }, [open, novelId, chapterIds])
 
   const handlePublish = async () => {
     if (!chapterIds.length) {
@@ -135,7 +137,7 @@ export function PublishDialog({
     } catch (error) {
       toast({
         title: '操作失败',
-        description: '请稍后重试',
+        description: `请稍后重试, ${(error as Error).message}`,
         variant: 'destructive',
       })
     } finally {
