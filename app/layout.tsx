@@ -56,7 +56,7 @@ export default function RootLayout({
         <ThemeProvider>
           <FaviconProvider />
           {children}
-          <Toaster position="top-right" richColors closeButton />
+          <Toaster position="top-right" richColors />
           <RadixToaster />
         </ThemeProvider>
       </body>

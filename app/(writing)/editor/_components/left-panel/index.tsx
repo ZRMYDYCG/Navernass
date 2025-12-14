@@ -1,8 +1,7 @@
 import type { Chapter, LeftTabType, Volume } from './types'
-import { useState } from 'react'
-import { PaperLayer } from '@/components/motion/paper-layer'
-import { paperSlideInRight } from '@/components/motion/config'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useState } from 'react'
+import { paperSlideInRight } from '@/components/motion/config'
 import { CharacterShowcase } from '../character-showcase'
 import ChaptersTab from './chapters'
 import { SearchTab } from './search-tab'
@@ -55,7 +54,7 @@ export default function LeftPanel({
   const [activeTab, setActiveTab] = useState<LeftTabType>('files')
 
   return (
-    <div 
+    <div
       className="h-full flex border-r-0 rounded-none shadow-none"
     >
       <div className="flex-shrink-0 z-10 bg-[#FAF9F6] dark:bg-zinc-900/90 border-r border-stone-200 dark:border-zinc-800">
