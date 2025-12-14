@@ -1,12 +1,26 @@
+import type { Crop } from 'react-image-crop'
+import type { NovelFormData } from '../types'
 import type { Novel } from '@/lib/supabase/sdk'
 import { useEffect, useRef, useState } from 'react'
-import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from 'react-image-crop'
-import 'react-image-crop/dist/ReactCrop.css'
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import type { NovelFormData } from '../types'
+import 'react-image-crop/dist/ReactCrop.css'
 
 function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: number): Crop {
+  if (aspect === 1) {
+    return centerCrop(
+      {
+        unit: '%',
+        width: 90,
+        height: 90,
+        x: 5,
+        y: 5,
+      },
+      mediaWidth,
+      mediaHeight,
+    )
+  }
   return centerCrop(
     makeAspectCrop(
       {
@@ -36,7 +50,7 @@ async function getCroppedFile(image: HTMLImageElement, crop: Crop, fileName: str
   if (!ctx) throw new Error('Failed to get canvas context')
   ctx.drawImage(image, x, y, width, height, 0, 0, width, height)
   const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(b => {
+    canvas.toBlob((b) => {
       if (!b) {
         reject(new Error('Failed to create blob'))
         return
@@ -135,12 +149,12 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
             <input
               type="file"
               accept="image/*"
-              onChange={e => {
+              onChange={(e) => {
                 const file = e.target.files?.[0] || null
                 setCoverFile(file)
                 if (file) {
                   const url = URL.createObjectURL(file)
-                  setPreviewUrl(prev => {
+                  setPreviewUrl((prev) => {
                     if (prev && prev.startsWith('blob:')) URL.revokeObjectURL(prev)
                     return url
                   })
@@ -152,7 +166,9 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
             />
             {coverFile && (
               <p className="mt-1 text-xs text-stone-500 dark:text-zinc-400 truncate">
-                已选择: {coverFile.name}
+                已选择:
+                {' '}
+                {coverFile.name}
               </p>
             )}
             {previewUrl && (
@@ -161,9 +177,9 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                 <button
                   type="button"
                   onClick={() => setShowCropper(true)}
-                  className="w-20 aspect-[3/4] rounded-md overflow-hidden border border-stone-200 dark:border-zinc-700 bg-stone-100/60 dark:bg-zinc-800/60 hover:border-stone-400 dark:hover:border-zinc-500 transition-colors"
+                  className="inline-block max-w-[200px] rounded-md overflow-hidden border border-stone-200 dark:border-zinc-700 bg-stone-100/60 dark:bg-zinc-800/60 hover:border-stone-400 dark:hover:border-zinc-500 transition-colors"
                 >
-                  <img src={previewUrl} alt="封面预览" className="w-full h-full object-cover" />
+                  <img src={previewUrl} alt="封面预览" className="w-full h-auto object-contain" />
                 </button>
               </div>
             )}
@@ -205,7 +221,6 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
               <div className="w-full rounded-lg overflow-hidden border border-stone-200 dark:border-zinc-700 bg-stone-100/60 dark:bg-zinc-800/60">
                 <ReactCrop
                   crop={crop}
-                  aspect={3 / 4}
                   keepSelection
                   onChange={(_pixelCrop, percentCrop: Crop) => setCrop(percentCrop)}
                   className="w-full"
@@ -215,9 +230,9 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                     src={previewUrl}
                     alt="封面裁剪"
                     className="w-full max-h-96 object-contain"
-                    onLoad={e => {
+                    onLoad={(e) => {
                       const img = e.currentTarget
-                      setCrop((prev: Crop | undefined) => prev || centerAspectCrop(img.naturalWidth, img.naturalHeight, 3 / 4))
+                      setCrop((prev: Crop | undefined) => prev || centerAspectCrop(img.naturalWidth, img.naturalHeight, 1))
                     }}
                   />
                 </ReactCrop>
@@ -242,7 +257,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                     const cropped = await getCroppedFile(imageRef.current, crop, coverFile.name)
                     setCoverFile(cropped)
                     const url = URL.createObjectURL(cropped)
-                    setPreviewUrl(prev => {
+                    setPreviewUrl((prev) => {
                       if (prev && prev.startsWith('blob:')) URL.revokeObjectURL(prev)
                       return url
                     })
