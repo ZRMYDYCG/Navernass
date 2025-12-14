@@ -52,7 +52,7 @@ export function NovelCard({
     <PaperCard
       variant="default"
       isMenuActive={isMenuActive}
-      className="group aspect-3/4"
+      className="group aspect-[3/4] sm:aspect-3/4"
       onClick={() => onOpen(novel)}
     >
       <div className="h-[45%] w-full bg-stone-50/50 dark:bg-zinc-800/50 relative p-5 flex flex-col justify-between border-b border-stone-100 dark:border-zinc-700/50">
@@ -135,7 +135,7 @@ export function NovelCard({
         <div className="space-y-3">
           <h3
             className={cn(
-              'font-serif text-xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight line-clamp-2 transition-colors',
+              'font-serif text-lg sm:text-xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight transition-colors',
               {
                 'text-zinc-700 dark:text-zinc-300': isMenuActive,
                 'group-hover:text-zinc-700 dark:group-hover:text-zinc-300': !isMenuActive,
@@ -144,7 +144,7 @@ export function NovelCard({
           >
             {novel.title}
           </h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-3 font-light">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-light">
             {novel.description || '暂无简介...'}
           </p>
         </div>
@@ -152,7 +152,7 @@ export function NovelCard({
         <div className="flex flex-col gap-3 pt-2">
           {novel.tags && novel.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
-              {novel.tags.slice(0, 2).map(tag => (
+              {novel.tags.slice(0, 4).map(tag => (
                 <span
                   key={tag}
                   className="px-1.5 py-0.5 text-[10px] text-zinc-500 dark:text-zinc-400 border border-zinc-100 dark:border-zinc-800 rounded bg-zinc-50 dark:bg-zinc-800/50"

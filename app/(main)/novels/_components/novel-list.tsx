@@ -121,13 +121,13 @@ export function NovelList({
   if (novels.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-stone-400 dark:text-zinc-500 font-serif">
-        <p className="text-lg mb-4 italic">Empty pages...</p>
+        <p className="text-lg mb-4 italic">暂无创作，点击下方按钮开始创作。</p>
         <Button
           onClick={() => onCreateNovel?.()}
           className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 font-sans"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Start Writing
+          开始创作
         </Button>
       </div>
     )
@@ -146,7 +146,7 @@ export function NovelList({
         items={novels.map(n => n.id)}
         strategy={rectSortingStrategy}
       >
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 pb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 pb-8">
           {novels.map(novel => (
             <SortableNovelCard
               key={novel.id}
