@@ -18,84 +18,42 @@ interface PaperSheetProps extends React.HTMLAttributes<HTMLDivElement> {
 export function PaperSheet({
   className,
   children,
-  variant = 'plain',
   stackCount = 0,
   rotation = 0,
-  pin = false,
   tape = false,
-  clip = false,
-  holePunch = false,
-  tornEdge = false,
-  ...props
 }: PaperSheetProps) {
   return (
-    <div className="relative group">
-      {stackCount > 0
-        && Array.from({ length: stackCount }).map((_, i) => (
+    <div className="relative group perspective-1000" style={{ transform: `rotate(${rotation}deg)` }}>
+      {/* Stack Layers (The papers underneath) */}
+      {stackCount > 0 && Array.from({ length: stackCount }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute inset-0 bg-[#FDFCF8] border border-stone-200/60 rounded-sm shadow-sm transition-transform duration-500 group-hover:translate-y-1"
+          style={{
+            zIndex: -1 - i,
+            transform: `rotate(${-(i + 1) * 1.5}deg) translate(${i * 2}px, ${i * 2}px)`,
+          }}
+        />
+      ))}
+
+      {/* Main Sheet */}
+      <div className={`relative bg-[#FDFCF8] border border-stone-200 rounded-sm shadow-xl transition-all duration-500 ${className}`}>
+        {/* Tape Effect */}
+        {tape && (
           <div
-            key={i}
-            className="absolute inset-0 bg-background border border-border shadow-sm rounded-sm -z-10"
+            className="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-8 z-20 opacity-80"
             style={{
-              transform: `rotate(${(i + 1) * 1.5}deg) translate(${(i + 1) * 2}px, ${(i + 1) * 2}px)`,
-              opacity: 0.5 - i * 0.1,
+              backgroundColor: 'rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+              transform: 'rotate(1deg)',
+              backdropFilter: 'blur(1px)',
+              borderLeft: '1px solid rgba(255,255,255,0.6)',
+              borderRight: '1px solid rgba(255,255,255,0.6)',
             }}
           />
-        ))}
-
-      <motion.div
-        className={cn(
-          'relative bg-background border border-border shadow-paper-md rounded-sm overflow-hidden transition-transform duration-300',
-          tornEdge && 'paper-edge-tear pb-4',
-          className,
         )}
-        style={{ rotate: rotation }}
-        whileHover={{ rotate: 0, scale: 1.02 }}
-        {...props as any}
-      >
-        <div className="absolute inset-0 bg-paper-texture opacity-50 pointer-events-none" />
-
-        {variant === 'grid' && (
-          <div className="absolute inset-0 pointer-events-none opacity-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px]" />
-        )}
-        {variant === 'lined' && (
-          <div className="absolute inset-0 pointer-events-none opacity-10 bg-[linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:100%_24px]" />
-        )}
-        {variant === 'dotted' && (
-          <div className="absolute inset-0 pointer-events-none opacity-10 bg-[radial-gradient(#808080_1px,transparent_1px)] bg-[size:20px_20px]" />
-        )}
-
-        {holePunch && (
-          <div className="absolute left-3 top-0 bottom-0 flex flex-col justify-around py-4 z-20 pointer-events-none">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="w-4 h-4 rounded-full bg-background border border-border shadow-inner" />
-            ))}
-          </div>
-        )}
-
-        <div className={cn('relative z-10', holePunch && 'pl-12')}>
-          {children}
-        </div>
-      </motion.div>
-
-      {tape && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-8 bg-yellow-100/80 dark:bg-yellow-900/30 backdrop-blur-[1px] shadow-sm rotate-[-2deg] z-30 pointer-events-none border-l border-r border-white/20" />
-      )}
-
-      {pin && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
-          <div className="w-4 h-4 rounded-full bg-red-500 shadow-md border-2 border-red-600 relative z-10" />
-          <div className="w-1 h-3 bg-gray-400 absolute top-full left-1/2 -translate-x-1/2 -mt-1 -z-10 opacity-50" />
-        </div>
-      )}
-
-      {clip && (
-        <div className="absolute -top-2 right-8 z-30 pointer-events-none">
-          <svg width="20" height="40" viewBox="0 0 20 40" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
-            <path d="M10 0V30C10 35.5228 5.52285 40 0 40" />
-            <path d="M14 4V34C14 37.3137 11.3137 40 8 40C4.68629 40 2 37.3137 2 34V10" />
-          </svg>
-        </div>
-      )}
+        {children}
+      </div>
     </div>
   )
 }

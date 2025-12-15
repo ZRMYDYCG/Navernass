@@ -20,6 +20,17 @@ export interface Feature {
   bgColor: string
 }
 
+// BentoCard 类型
+export interface BentoCardProps {
+  colSpan?: string
+  title: string
+  subtitle: string
+  description: string
+  icon: React.ElementType
+  preview: React.ReactNode
+  theme: 'blue' | 'indigo' | 'amber' | 'stone' | 'green'
+  contentRight?: boolean
+}
 // Hero 区域配置类型
 export interface HeroConfig {
   title: {
@@ -90,4 +101,13 @@ export interface CTAConfig {
   subtitle: string
   ctaText: string
   href: string
+}
+
+// PaperSheet 类型
+export interface PaperSheetProps {
+  children: React.ReactNode
+  className?: string
+  stackCount?: number
+  tape?: boolean
+  rotation?: number
 }
