@@ -29,6 +29,9 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
 CREATE TABLE public.chapters (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   novel_id uuid NOT NULL,
@@ -121,12 +124,12 @@ CREATE TABLE public.novels (
   tags ARRAY DEFAULT '{}'::text[],
   word_count integer DEFAULT 0,
   chapter_count integer DEFAULT 0,
-  order_index integer NOT NULL DEFAULT 0,
   status text DEFAULT 'draft'::text CHECK (status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])),
   created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   published_at timestamp with time zone,
   characters jsonb DEFAULT '[]'::jsonb,
+  order_index integer NOT NULL DEFAULT 0,
   CONSTRAINT novels_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.user_settings (
