@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { heroConfig, navbarConfig } from '../config'
+import { AuthButton } from './auth-button'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -89,8 +90,6 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            {/* github按钮 */}
-            {/* TODO: 添加 github 按钮 */}
             <Button
               variant="ghost"
               size="icon"
@@ -109,12 +108,7 @@ export default function Navbar() {
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">{navbarConfig.themeToggleLabel}</span>
             </Button>
-            <Button
-              asChild
-              variant="outline"
-            >
-              <Link href="/chat">{navbarConfig.ctaText}</Link>
-            </Button>
+            <AuthButton />
           </motion.div>
 
           <button
@@ -165,7 +159,6 @@ export default function Navbar() {
                     </Link>
                   )
                 })}
-                {/* 主题切换和进入应用按钮 */}
                 <div className="flex flex-col gap-2 pt-4">
                   <Button
                     variant="ghost"
@@ -178,13 +171,7 @@ export default function Navbar() {
                     </div>
                     <span>{navbarConfig.themeToggleLabel}</span>
                   </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Link href="/chat">{navbarConfig.ctaText}</Link>
-                  </Button>
+                  <AuthButton />
                 </div>
               </div>
             </div>

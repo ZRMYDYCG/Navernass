@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { Toaster as RadixToaster } from '@/components/ui/toaster'
 import { FaviconProvider } from '@/providers/favicon-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
+import { AuthProvider } from '@/hooks/use-auth'
 import './globals.css'
 
 const inter = Inter({
@@ -54,10 +55,12 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${notoSerifSC.variable} ${caveat.variable} antialiased h-full font-sans`} suppressHydrationWarning>
         <ThemeProvider>
-          <FaviconProvider />
-          {children}
-          <Toaster position="top-right" richColors />
-          <RadixToaster />
+          <AuthProvider>
+            <FaviconProvider />
+            {children}
+            <Toaster position="top-right" richColors />
+            <RadixToaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
