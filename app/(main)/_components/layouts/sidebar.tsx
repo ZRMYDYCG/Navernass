@@ -1,7 +1,7 @@
 'use client'
 
 import type { LucideIcon } from 'lucide-react'
-import { Book, Bot, LayoutGrid, Settings, Trash2, X } from 'lucide-react'
+import { Book, Bot, ChevronLeft, ChevronRight, LayoutGrid, Settings, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -21,15 +21,15 @@ const menuItems: MenuItem[] = [
   { path: '/trash', label: '回收站', icon: Trash2 },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  onCollapsedChange?: (collapsed: boolean) => void
+}
+
+export function Sidebar({ onCollapsedChange }: SidebarProps) {
   const pathname = usePathname()
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-
-  useEffect(() => {
-    setIsMobileOpen(false)
-  }, [pathname])
 
   useEffect(() => {
     if (isMobileOpen) {
@@ -43,10 +43,8 @@ export function Sidebar() {
   }, [isMobileOpen])
 
   useEffect(() => {
-    if (!showSettings) {
-      setIsExpanded(false)
-    }
-  }, [showSettings])
+    onCollapsedChange?.(isCollapsed)
+  }, [isCollapsed, onCollapsedChange])
 
   const isActive = (item: MenuItem) => {
     if (item.exactMatch) {
@@ -74,22 +72,38 @@ export function Sidebar() {
       )}
 
       <aside
-        className={`fixed left-0 top-0 h-screen border-r border-sidebar-border transition-all duration-300 ease-out z-[60] ${
+        className={`${
           isMobileOpen
-            ? 'bg-sidebar w-56 translate-x-0'
-            : `bg-sidebar/95 backdrop-blur-xl ${(isExpanded || showSettings) ? 'w-56' : 'w-16'} -translate-x-full lg:translate-x-0`
-        }`}
-        onMouseEnter={() => !isMobileOpen && setIsExpanded(true)}
-        onMouseLeave={() => !isMobileOpen && !showSettings && setIsExpanded(false)}
+            ? 'fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar w-56 translate-x-0 z-[60]'
+            : `fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar ${
+                isCollapsed ? 'w-16' : 'w-56'
+              } translate-x-0 z-[60] hidden lg:block`
+        } transition-all duration-300 ease-out`}
       >
-        <div className="flex flex-col h-full py-4">
-          <div className={`flex items-center px-3 mb-8 transition-all duration-300 ${isExpanded || isMobileOpen || showSettings ? 'justify-start' : 'justify-center'}`}>
-            <AppLogo />
-            {(isExpanded || isMobileOpen || showSettings) && (
-              <span className="ml-3 text-lg font-semibold text-sidebar-foreground whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-200">
-                Narraverse
-              </span>
+        {!isMobileOpen && (
+          <button
+            type="button"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-[70] w-7 h-7 rounded-full bg-card border-2 border-border text-muted-foreground hover:text-foreground hover:border-sidebar-accent shadow-lg transition-all duration-200 hover:scale-110 flex items-center justify-center cursor-pointer"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
             )}
+          </button>
+        )}
+
+        <div className="flex flex-col h-full py-4">
+          <div className="flex items-center px-3 mb-8">
+            <div className="flex items-center flex-1">
+              <AppLogo />
+              {(!isCollapsed || isMobileOpen) && (
+                <span className="ml-3 text-lg font-semibold text-sidebar-foreground whitespace-nowrap">
+                  Narraverse
+                </span>
+              )}
+            </div>
           </div>
 
           <nav className="flex-1 px-2 space-y-1">
@@ -108,9 +122,8 @@ export function Sidebar() {
                   }`}
                 >
                   <Icon className={`w-5 h-5 shrink-0 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-105'}`} />
-
-                  {(isExpanded || isMobileOpen || showSettings) && (
-                    <span className="ml-3 text-sm font-medium whitespace-nowrap animate-in fade-in slide-in-from-left-1 duration-150">
+                  {(!isCollapsed || isMobileOpen) && (
+                    <span className="ml-3 text-sm font-medium whitespace-nowrap">
                       {item.label}
                     </span>
                   )}
@@ -126,9 +139,8 @@ export function Sidebar() {
               className="group relative flex items-center w-full px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
             >
               <Settings className="w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-105" />
-
-              {(isExpanded || isMobileOpen || showSettings) && (
-                <span className="ml-3 text-sm font-medium whitespace-nowrap animate-in fade-in slide-in-from-left-1 duration-150">
+              {(!isCollapsed || isMobileOpen) && (
+                <span className="ml-3 text-sm font-medium whitespace-nowrap">
                   设置
                 </span>
               )}
