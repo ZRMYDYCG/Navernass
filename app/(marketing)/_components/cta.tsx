@@ -15,7 +15,7 @@ export default function CTA() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
           <PaperSheet
-            className="p-8 md:p-16 bg-white"
+            className="p-8 md:p-16 bg-white dark:bg-yellow-900/5"
             stackCount={3}
             tape
             rotation={1}

@@ -28,7 +28,7 @@ export function PaperSheet({
       {stackCount > 0 && Array.from({ length: stackCount }).map((_, i) => (
         <div
           key={i}
-          className="absolute inset-0 bg-[#FDFCF8] border border-stone-200/60 rounded-sm shadow-sm transition-transform duration-500 group-hover:translate-y-1"
+          className="absolute inset-0 bg-[#FDFCF8] dark:bg-yellow-900/10 border border-stone-200/60 dark:border-yellow-800/30 rounded-sm shadow-sm transition-transform duration-500 group-hover:translate-y-1"
           style={{
             zIndex: -1 - i,
             transform: `rotate(${-(i + 1) * 1.5}deg) translate(${i * 2}px, ${i * 2}px)`,
@@ -36,8 +36,7 @@ export function PaperSheet({
         />
       ))}
 
-      {/* Main Sheet */}
-      <div className={`relative bg-[#FDFCF8] border border-stone-200 rounded-sm shadow-xl transition-all duration-500 ${className}`}>
+      <div className={`relative bg-[#FDFCF8] dark:bg-yellow-900/10 border border-stone-200 dark:border-yellow-800/30 rounded-sm shadow-xl transition-all duration-500 ${className}`}>
         {/* Tape Effect */}
         {tape && (
           <div
