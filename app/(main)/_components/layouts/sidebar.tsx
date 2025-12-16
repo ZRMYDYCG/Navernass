@@ -74,25 +74,23 @@ export function Sidebar({ onCollapsedChange }: SidebarProps) {
       <aside
         className={`${
           isMobileOpen
-            ? 'fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar w-56 translate-x-0 z-[60]'
+            ? 'fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar w-56 translate-x-0 z-[60] transition-transform duration-300 ease-out'
             : `fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar ${
                 isCollapsed ? 'w-16' : 'w-56'
-              } translate-x-0 z-[60] hidden lg:block`
-        } transition-all duration-300 ease-out`}
+              } -translate-x-full lg:translate-x-0 z-[60] transition-transform duration-300 ease-out lg:block`
+        }`}
       >
-        {!isMobileOpen && (
-          <button
-            type="button"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="absolute -right-3 top-1/2 -translate-y-1/2 z-[70] w-7 h-7 rounded-full bg-card border-2 border-border text-muted-foreground hover:text-foreground hover:border-sidebar-accent shadow-lg transition-all duration-200 hover:scale-110 flex items-center justify-center cursor-pointer"
-          >
-            {isCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <ChevronLeft className="w-4 h-4" />
-            )}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3 top-1/2 -translate-y-1/2 z-[70] w-7 h-7 rounded-full bg-card border-2 border-border text-muted-foreground hover:text-foreground hover:border-sidebar-accent shadow-lg transition-all duration-200 hover:scale-110 flex items-center justify-center cursor-pointer hidden lg:flex"
+        >
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
+        </button>
 
         <div className="flex flex-col h-full py-4">
           <div className="flex items-center px-3 mb-8">
