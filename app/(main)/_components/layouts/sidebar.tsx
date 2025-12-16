@@ -1,12 +1,13 @@
 'use client'
 
 import type { LucideIcon } from 'lucide-react'
-import { Book, Bot, ChevronLeft, ChevronRight, LayoutGrid, Settings, Trash2, X } from 'lucide-react'
+import { Book, Bot, ChevronLeft, ChevronRight, LayoutGrid, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AppLogo } from '../app-logo'
 import { SettingsDialog } from './settings-dialog'
+import { UserProfile } from './user-profile'
 
 interface MenuItem {
   path: string
@@ -76,8 +77,8 @@ export function Sidebar({ onCollapsedChange }: SidebarProps) {
           isMobileOpen
             ? 'fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar w-56 translate-x-0 z-[60] transition-transform duration-300 ease-out'
             : `fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar ${
-                isCollapsed ? 'w-16' : 'w-56'
-              } -translate-x-full lg:translate-x-0 z-[60] transition-transform duration-300 ease-out lg:block`
+              isCollapsed ? 'w-16' : 'w-56'
+            } -translate-x-full lg:translate-x-0 z-[60] transition-transform duration-300 ease-out lg:block`
         }`}
       >
         <button
@@ -85,14 +86,16 @@ export function Sidebar({ onCollapsedChange }: SidebarProps) {
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-3 top-1/2 -translate-y-1/2 z-[70] w-7 h-7 rounded-full bg-card border-2 border-border text-muted-foreground hover:text-foreground hover:border-sidebar-accent shadow-lg transition-all duration-200 hover:scale-110 flex items-center justify-center cursor-pointer hidden lg:flex"
         >
-          {isCollapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <ChevronLeft className="w-4 h-4" />
-          )}
+          {isCollapsed
+            ? (
+                <ChevronRight className="w-4 h-4" />
+              )
+            : (
+                <ChevronLeft className="w-4 h-4" />
+              )}
         </button>
 
-        <div className="flex flex-col h-full py-4">
+        <div className="flex flex-col h-full pt-4">
           <div className="flex items-center px-3 mb-8">
             <div className="flex items-center flex-1">
               <AppLogo />
@@ -130,20 +133,11 @@ export function Sidebar({ onCollapsedChange }: SidebarProps) {
             })}
           </nav>
 
-          <div className="px-2">
-            <button
-              type="button"
-              onClick={() => setShowSettings(true)}
-              className="group relative flex items-center w-full px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-            >
-              <Settings className="w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-105" />
-              {(!isCollapsed || isMobileOpen) && (
-                <span className="ml-3 text-sm font-medium whitespace-nowrap">
-                  设置
-                </span>
-              )}
-            </button>
-          </div>
+          <UserProfile
+            isCollapsed={isCollapsed}
+            isMobileOpen={isMobileOpen}
+            onSettingsClick={() => setShowSettings(true)}
+          />
         </div>
 
         <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
