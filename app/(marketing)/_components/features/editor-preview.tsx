@@ -21,19 +21,16 @@ export default function EditorPreview() {
   }, [fullText])
 
   return (
-    <div className="w-full h-full bg-white rounded-xl shadow-md border border-gray-100 p-6 font-serif relative overflow-hidden flex flex-col">
-      {/* Top progress bar */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-primary/30 rounded-b-full" />
+    <div className="w-full h-full bg-white dark:bg-yellow-900/10 rounded-xl shadow-md border border-gray-100 dark:border-yellow-800/30 p-6 font-serif relative overflow-hidden flex flex-col">
+      <div className="absolute top-0 left-0 w-full h-1 bg-primary/30 dark:bg-yellow-600/40 rounded-b-full" />
 
-      {/* Header */}
-      <div className="text-gray-400 text-xs mb-4 flex justify-between select-none">
+      <div className="text-gray-400 dark:text-yellow-200/70 text-xs mb-4 flex justify-between select-none">
         <span>Chapter 1</span>
         <span>Saving...</span>
       </div>
 
-      {/* Text Content */}
       <div className="flex-1 overflow-hidden">
-        <p className="text-gray-800 text-base sm:text-lg leading-relaxed break-words whitespace-pre-wrap">
+        <p className="text-gray-800 dark:text-yellow-50/90 text-base sm:text-lg leading-relaxed break-words whitespace-pre-wrap">
           {text}
           <motion.span
             animate={{ opacity: [1, 0] }}
@@ -43,8 +40,7 @@ export default function EditorPreview() {
         </p>
       </div>
 
-      {/* Focus Mode vignette */}
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-white/70 via-transparent to-white/50 rounded-xl" />
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-white/70 via-transparent to-white/50 dark:from-yellow-900/70 dark:via-transparent dark:to-yellow-900/50 rounded-xl" />
     </div>
   )
 }

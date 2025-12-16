@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react'
 
 export default function StructurePreview() {
   const [items, setItems] = useState([
-    { id: 1, text: '第一章：相遇', color: 'bg-blue-50' },
-    { id: 2, text: '第二章：冲突', color: 'bg-orange-50' },
-    { id: 3, text: '第三章：转折', color: 'bg-rose-50' },
+    { id: 1, text: '第一章：相遇', color: 'bg-blue-50 dark:bg-yellow-800/20' },
+    { id: 2, text: '第二章：冲突', color: 'bg-orange-50 dark:bg-yellow-700/20' },
+    { id: 3, text: '第三章：转折', color: 'bg-rose-50 dark:bg-yellow-600/20' },
   ])
 
   useEffect(() => {
@@ -35,11 +35,11 @@ export default function StructurePreview() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className={`p-3 rounded-md border border-black/5 flex items-center gap-3 shadow-xs ${item.color}`}
+            className={`p-3 rounded-md border border-black/5 dark:border-yellow-700/30 flex items-center gap-3 shadow-xs ${item.color}`}
           >
-            <div className="w-4 h-4 rounded-full bg-black/10" />
-            <div className="h-2 w-20 bg-black/10 rounded-full" />
-            <span className="text-xs text-gray-500 font-sans ml-auto">{item.text}</span>
+            <div className="w-4 h-4 rounded-full bg-black/10 dark:bg-yellow-600/20" />
+            <div className="h-2 w-20 bg-black/10 dark:bg-yellow-600/20 rounded-full" />
+            <span className="text-xs text-gray-500 dark:text-yellow-200/80 font-sans ml-auto">{item.text}</span>
           </motion.div>
         ))}
       </AnimatePresence>

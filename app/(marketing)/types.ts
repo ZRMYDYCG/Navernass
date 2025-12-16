@@ -24,9 +24,9 @@ export interface Feature {
 export interface BentoCardProps {
   colSpan?: string
   title: string
-  subtitle: string
+  subtitle?: string
   description: string
-  icon: React.ElementType
+  icon?: React.ElementType
   preview: React.ReactNode
   theme: 'blue' | 'indigo' | 'amber' | 'stone' | 'green'
   contentRight?: boolean

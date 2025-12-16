@@ -16,22 +16,19 @@ export default function ExportPreview() {
   }, [])
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-lg relative overflow-hidden group-hover:bg-gray-100 transition-colors">
+    <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-yellow-900/10 rounded-lg relative overflow-hidden group-hover:bg-gray-100 dark:group-hover:bg-yellow-800/20 transition-colors">
 
-      {/* Background sheets */}
-      <div className="absolute w-16 h-20 bg-white border border-gray-200 rotate-6 translate-x-2 opacity-50" />
-      <div className="absolute w-16 h-20 bg-white border border-gray-200 -rotate-6 -translate-x-2 opacity-50" />
+      <div className="absolute w-16 h-20 bg-white dark:bg-yellow-800/30 border border-gray-200 dark:border-yellow-700/50 rotate-6 translate-x-2 opacity-50" />
+      <div className="absolute w-16 h-20 bg-white dark:bg-yellow-800/30 border border-gray-200 dark:border-yellow-700/50 -rotate-6 -translate-x-2 opacity-50" />
 
-      {/* Main sheet */}
       <motion.div
-        className="relative z-10 w-16 h-20 bg-white border border-gray-200 shadow-md flex flex-col items-center justify-center gap-2 cursor-pointer"
+        className="relative z-10 w-16 h-20 bg-white dark:bg-yellow-800/30 border border-gray-200 dark:border-yellow-700/50 shadow-md flex flex-col items-center justify-center gap-2 cursor-pointer"
         whileHover={{ y: -5, scale: 1.05 }}
       >
-        <div className="w-8 h-1 bg-gray-200 rounded-full" />
-        <div className="w-8 h-1 bg-gray-200 rounded-full" />
-        <div className="w-5 h-1 bg-gray-200 rounded-full mr-3" />
+        <div className="w-8 h-1 bg-gray-200 dark:bg-yellow-600/60 rounded-full" />
+        <div className="w-8 h-1 bg-gray-200 dark:bg-yellow-600/60 rounded-full" />
+        <div className="w-5 h-1 bg-gray-200 dark:bg-yellow-600/60 rounded-full mr-3" />
 
-        {/* Format Badge */}
         <motion.div
           key={formats[index]}
           initial={{ rotate: -30, opacity: 0, y: 5 }}

@@ -23,8 +23,8 @@ export default function AIPreview() {
   return (
     <div className="
       w-full h-full rounded-xl p-5 relative flex flex-col
-      bg-gradient-to-br from-stone-50 via-white to-stone-100
-      border border-stone-200 shadow-sm
+      bg-gradient-to-br from-stone-50 via-white to-stone-100 dark:from-yellow-900/10 dark:via-yellow-900/5 dark:to-yellow-900/10
+      border border-stone-200 dark:border-yellow-800/30 shadow-sm
     "
     >
       {/* 顶部柔光点 */}
@@ -38,15 +38,15 @@ export default function AIPreview() {
         <motion.div
           animate={{ opacity: stage >= 0 ? 1 : 0, y: stage >= 0 ? 0 : 10 }}
           className="
-            bg-white/90 backdrop-blur-sm px-3 py-2
+            bg-white/90 dark:bg-yellow-900/30 backdrop-blur-sm px-3 py-2
             rounded-lg rounded-tr-none shadow
             self-end ml-auto max-w-[78%] max-h-36 overflow-y-auto
-            text-[11px] text-gray-700
-            border border-stone-200
+            text-[11px] text-gray-700 dark:text-yellow-100/80
+            border border-stone-200 dark:border-yellow-700/50
             font-serif leading-relaxed
           "
         >
-          如何形容“尴尬的沉默”？
+          如何形容"尴尬的沉默"？
         </motion.div>
 
         {/* AI Response */}
@@ -58,10 +58,9 @@ export default function AIPreview() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="flex gap-1 items-center pl-1"
             >
-              {/* 墨点扩散打字动画 */}
-              <span className="w-2 h-2 bg-stone-500 rounded-full animate-pulse" />
-              <span className="w-2 h-2 bg-stone-500 rounded-full animate-pulse delay-100" />
-              <span className="w-2 h-2 bg-stone-500 rounded-full animate-pulse delay-200" />
+              <span className="w-2 h-2 bg-stone-500 dark:bg-yellow-600/80 rounded-full animate-pulse" />
+              <span className="w-2 h-2 bg-stone-500 dark:bg-yellow-600/80 rounded-full animate-pulse delay-100" />
+              <span className="w-2 h-2 bg-stone-500 dark:bg-yellow-600/80 rounded-full animate-pulse delay-200" />
             </motion.div>
           )}
 
