@@ -4,6 +4,8 @@
 
 # Narraverse - 小说创作平台
 
+<img src="./landing-page.png" alt="Narraverse Landing Page" width="100%" />
+
 </div>
 
 ## 核心目标
@@ -31,6 +33,7 @@ SILICON_FLOW_MODEL=
 ```
 
 **API Key 配置说明：**
+
 - 用户可在应用设置界面中配置 API Key
 - API Key 将保存到 Supabase 云端数据库的 `user_settings` 表
 - 数据库表结构已包含在 `migrations/init_database.sql` 中
