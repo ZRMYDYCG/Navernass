@@ -227,27 +227,3 @@ export const newFeatureApi = {
   }
 }
 ```
-
-## 接口文档
-
-[文档](./app/api/api-doc.md)
-
-## 项目 Spinner、骨架屏 统一
-
-请不要自定义 loading, 需要保证项目 loading 风格, 特殊业务场景除外
-
-[Spinner](./components/ui/spinner.tsx)
-
-[骨架屏](./components/ui/secection.tsx)
-
-## 项目提示词整理
-
-当你实现了某一个还算复杂，需要描述很久才可以出来的交互，那你的这份提示词是不是可以考虑将其留下呢？未来也许会有相似的场景，你留下的词就派上用场了
-
-[提示词文档](./prompts.md)
-
-## 关于主题
-
-当前 mvp 版本，没有设计主题包
-
-一律按照 黑 灰 白 进行设计，否则后期样式溯源，徒增心智负担
