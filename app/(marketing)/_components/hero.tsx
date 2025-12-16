@@ -45,8 +45,8 @@ export default function Hero() {
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground tracking-tight leading-[1.1]">
             让写作回归
             <span className="italic font-serif text-foreground/60 mx-2">纯粹</span>
-            与
-            <span className="italic font-serif text-foreground/60 mx-2">自由</span>
+            <span className="ml-2">与</span>
+            <span className="italic font-serif text-foreground/60">自由</span>
           </h1>
         </motion.div>
 
