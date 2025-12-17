@@ -3,9 +3,15 @@ import type {
   PaginationParams,
   UpdateNovelDto,
 } from '../types'
-import { supabase } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export class NovelsService {
+  private supabase: SupabaseClient
+
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase
+  }
+
   /**
    * 获取小说列表
    */
@@ -15,7 +21,7 @@ export class NovelsService {
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
 
-    let query = supabase
+    let query = this.supabase
       .from('novels')
       .select('*', { count: 'exact' })
       .order('order_index', { ascending: true })
@@ -25,7 +31,6 @@ export class NovelsService {
     if (params?.status) {
       query = query.eq('status', params.status)
     } else {
-      // 默认排除已归档的小说
       query = query.neq('status', 'archived')
     }
 
@@ -45,7 +50,7 @@ export class NovelsService {
    * 获取小说详情
    */
   async getById(id: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('novels')
       .select('*')
       .eq('id', id)
@@ -68,7 +73,6 @@ export class NovelsService {
    * 创建小说
    */
   async create(novelData: CreateNovelDto) {
-    // 业务逻辑验证
     if (!novelData.title || novelData.title.trim().length === 0) {
       const validationError = new Error('Title is required') as Error & { statusCode: number, code: string }
       validationError.statusCode = 400
@@ -76,9 +80,12 @@ export class NovelsService {
       throw validationError
     }
 
-    const { data, error } = await supabase
+    const { data: { user } } = await this.supabase.auth.getUser()
+
+    const { data, error } = await this.supabase
       .from('novels')
       .insert({
+        user_id: user?.id,
         title: novelData.title,
         description: novelData.description,
         cover: novelData.cover,
@@ -93,14 +100,10 @@ export class NovelsService {
     return data
   }
 
-  /**
-   * 更新小说
-   */
   async update(id: string, updates: Partial<UpdateNovelDto>) {
-    // 先检查是否存在
     await this.getById(id)
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('novels')
       .update(updates)
       .eq('id', id)
@@ -111,38 +114,25 @@ export class NovelsService {
     return data
   }
 
-  /**
-   * 删除小说（硬删除）
-   */
   async delete(id: string) {
     await this.getById(id)
 
-    const { error } = await supabase.from('novels').delete().eq('id', id)
+    const { error } = await this.supabase.from('novels').delete().eq('id', id)
 
     if (error) throw error
   }
 
-  /**
-   * 归档小说
-   */
   async archive(id: string) {
     return this.update(id, { status: 'archived' })
   }
 
-  /**
-   * 恢复小说
-   */
   async restore(id: string) {
     return this.update(id, { status: 'draft' })
   }
 
-  /**
-   * 发布小说
-   */
   async publish(id: string) {
     const novel = await this.getById(id)
 
-    // 业务逻辑：检查是否可以发布
     if (novel.chapter_count === 0) {
       const publishError = new Error('Cannot publish a novel without chapters') as Error & { statusCode: number, code: string }
       publishError.statusCode = 400
@@ -150,8 +140,7 @@ export class NovelsService {
       throw publishError
     }
 
-    // 直接更新数据库（包含 published_at 字段）
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('novels')
       .update({
         status: 'published',
@@ -165,18 +154,12 @@ export class NovelsService {
     return data
   }
 
-  /**
-   * 取消发布
-   */
   async unpublish(id: string) {
     return this.update(id, { status: 'draft' })
   }
 
-  /**
-   * 获取归档的小说
-   */
   async getArchived() {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('novels')
       .select('*')
       .eq('status', 'archived')
@@ -188,7 +171,7 @@ export class NovelsService {
 
   async updateOrder(novels: Array<{ id: string, order_index: number }>) {
     const promises = novels.map(({ id, order_index }) =>
-      supabase.from('novels').update({ order_index }).eq('id', id),
+      this.supabase.from('novels').update({ order_index }).eq('id', id),
     )
 
     const results = await Promise.all(promises)

@@ -1,12 +1,17 @@
 import type { CreateNovelMessageDto } from '../types'
-import { supabase } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export class NovelMessagesService {
+  private supabase: SupabaseClient
+
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase
+  }
   /**
    * 获取会话的所有消息
    */
   async getByConversationId(conversationId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('novel_messages')
       .select('*')
       .eq('conversation_id', conversationId)
@@ -20,9 +25,12 @@ export class NovelMessagesService {
    * 创建消息
    */
   async create(messageData: CreateNovelMessageDto) {
-    const { data, error } = await supabase
+    const { data: { user } } = await this.supabase.auth.getUser()
+
+    const { data, error } = await this.supabase
       .from('novel_messages')
       .insert({
+        user_id: user?.id,
         conversation_id: messageData.conversation_id,
         novel_id: messageData.novel_id,
         role: messageData.role,
@@ -70,7 +78,7 @@ export class NovelMessagesService {
    * 批量创建消息（用于导入对话历史）
    */
   async createBatch(messages: CreateNovelMessageDto[]) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('novel_messages')
       .insert(messages)
       .select()

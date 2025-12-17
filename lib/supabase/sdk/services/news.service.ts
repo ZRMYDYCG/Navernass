@@ -1,7 +1,12 @@
 import type { CreateNewsDto, News, UpdateNewsDto } from '../types'
-import { supabase } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export class NewsService {
+  private supabase: SupabaseClient
+
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase
+  }
   /**
    * 获取新闻列表
    */
@@ -11,7 +16,7 @@ export class NewsService {
     page?: number
     pageSize?: number
   }) {
-    let query = supabase
+    let query = this.supabase
       .from('news')
       .select('*')
       .order('priority', { ascending: false })
@@ -53,7 +58,7 @@ export class NewsService {
    * 获取新闻详情
    */
   async getById(id: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('news')
       .select('*')
       .eq('id', id)
@@ -78,7 +83,7 @@ export class NewsService {
    * 创建新闻
    */
   async create(newsData: CreateNewsDto) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('news')
       .insert({
         type: newsData.type,
@@ -103,7 +108,7 @@ export class NewsService {
   async update(id: string, updates: Partial<UpdateNewsDto>) {
     await this.getById(id)
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('news')
       .update({
         type: updates.type,

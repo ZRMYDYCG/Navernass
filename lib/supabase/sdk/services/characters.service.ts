@@ -1,8 +1,13 @@
-import { supabase } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export class CharactersService {
+  private supabase: SupabaseClient
+
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase
+  }
   async getByNovelId(novelId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('novels')
       .select('characters')
       .eq('id', novelId)

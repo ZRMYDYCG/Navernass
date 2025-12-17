@@ -1,8 +1,9 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -21,6 +22,9 @@ export async function middleware(request: NextRequest) {
             name,
             value,
             ...options,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
           })
         },
         remove(name: string, options: any) {
@@ -28,27 +32,25 @@ export async function middleware(request: NextRequest) {
             name,
             value: '',
             ...options,
+            maxAge: 0,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
           })
         },
       },
-    }
+    },
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (request.nextUrl.pathname.startsWith('/auth')) {
-    if (user) {
-      return NextResponse.redirect(new URL('/chat', request.url))
-    }
-  }
+  const { data: { session }, error } = await supabase.auth.getSession()
 
   const protectedPaths = ['/chat', '/novels', '/trash', '/writing']
   const isProtectedPath = protectedPaths.some(path =>
-    request.nextUrl.pathname.startsWith(path)
+    request.nextUrl.pathname.startsWith(path),
   )
 
-  if (isProtectedPath && !user) {
-    const redirectUrl = new URL('/auth/login', request.url)
+  if (isProtectedPath && (!session || error)) {
+    const redirectUrl = new URL('/', request.url)
     redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
   }

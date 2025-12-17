@@ -1,12 +1,17 @@
 import type { CreateVolumeDto, UpdateVolumeDto } from '../types'
-import { supabase } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export class VolumesService {
+  private supabase: SupabaseClient
+
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase
+  }
   /**
    * 获取小说的所有卷
    */
   async getByNovelId(novelId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('volumes')
       .select('*')
       .eq('novel_id', novelId)
@@ -20,7 +25,7 @@ export class VolumesService {
    * 获取单个卷
    */
   async getById(id: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('volumes')
       .select('*')
       .eq('id', id)
@@ -46,9 +51,12 @@ export class VolumesService {
    * 创建卷
    */
   async create(volumeData: CreateVolumeDto) {
-    const { data, error } = await supabase
+    const { data: { user } } = await this.supabase.auth.getUser()
+
+    const { data, error } = await this.supabase
       .from('volumes')
       .insert({
+        user_id: user?.id,
         novel_id: volumeData.novel_id,
         title: volumeData.title,
         description: volumeData.description || '',
@@ -67,7 +75,7 @@ export class VolumesService {
   async update(id: string, updates: Partial<UpdateVolumeDto>) {
     await this.getById(id)
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('volumes')
       .update(updates)
       .eq('id', id)
@@ -123,7 +131,7 @@ export class VolumesService {
    * 获取卷下的所有章节
    */
   async getChapters(volumeId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('chapters')
       .select('*')
       .eq('volume_id', volumeId)

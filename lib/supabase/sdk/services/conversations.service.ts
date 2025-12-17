@@ -1,12 +1,17 @@
 import type { CreateConversationDto, UpdateConversationDto } from '../types'
-import { supabase } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export class ConversationsService {
+  private supabase: SupabaseClient
+
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase
+  }
   /**
    * 获取所有对话
    */
   async getList() {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('conversations')
       .select('*')
       .order('updated_at', { ascending: false })
@@ -19,7 +24,7 @@ export class ConversationsService {
    * 获取对话详情
    */
   async getById(id: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('conversations')
       .select('*')
       .eq('id', id)
@@ -44,9 +49,12 @@ export class ConversationsService {
    * 创建对话
    */
   async create(conversationData: CreateConversationDto) {
-    const { data, error } = await supabase
+    const { data: { user } } = await this.supabase.auth.getUser()
+
+    const { data, error } = await this.supabase
       .from('conversations')
       .insert({
+        user_id: user?.id,
         title: conversationData.title,
       })
       .select()
@@ -68,7 +76,7 @@ export class ConversationsService {
       updateData.pinned_at = updates.is_pinned ? new Date().toISOString() : null
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('conversations')
       .update(updateData)
       .eq('id', id)
@@ -95,7 +103,7 @@ export class ConversationsService {
    * 置顶的对话会优先显示
    */
   async getRecent(limit: number = 10) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('conversations')
       .select('*')
       .order('is_pinned', { ascending: false, nullsFirst: false })

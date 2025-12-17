@@ -1,15 +1,15 @@
 'use client'
 
+import { Loader2, Upload, User } from 'lucide-react'
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { useAuth } from '@/hooks/use-auth'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Upload, User, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useAuth } from '@/hooks/use-auth'
 import { AvatarCropper } from './avatar-cropper'
 
 interface AuthDialogProps {
@@ -129,7 +129,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   type="email"
                   placeholder="your@email.com"
                   value={loginForm.email}
-                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                  onChange={e => setLoginForm({ ...loginForm, email: e.target.value })}
                   required
                 />
               </div>
@@ -140,19 +140,21 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   type="password"
                   placeholder="••••••••"
                   value={loginForm.password}
-                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
                   required
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    登录中...
-                  </>
-                ) : (
-                  '登录'
-                )}
+                {loading
+                  ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        登录中...
+                      </>
+                    )
+                  : (
+                      '登录'
+                    )}
               </Button>
             </form>
           </TabsContent>
@@ -203,7 +205,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   type="text"
                   placeholder="张三"
                   value={registerForm.fullName}
-                  onChange={(e) => setRegisterForm({ ...registerForm, fullName: e.target.value })}
+                  onChange={e => setRegisterForm({ ...registerForm, fullName: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
@@ -213,7 +215,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   type="email"
                   placeholder="your@email.com"
                   value={registerForm.email}
-                  onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                  onChange={e => setRegisterForm({ ...registerForm, email: e.target.value })}
                   required
                 />
               </div>
@@ -224,7 +226,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   type="password"
                   placeholder="••••••••"
                   value={registerForm.password}
-                  onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                  onChange={e => setRegisterForm({ ...registerForm, password: e.target.value })}
                   required
                 />
               </div>
@@ -235,19 +237,21 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   type="password"
                   placeholder="••••••••"
                   value={registerForm.confirmPassword}
-                  onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
+                  onChange={e => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
                   required
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    注册中...
-                  </>
-                ) : (
-                  '注册'
-                )}
+                {loading
+                  ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        注册中...
+                      </>
+                    )
+                  : (
+                      '注册'
+                    )}
               </Button>
             </form>
           </TabsContent>

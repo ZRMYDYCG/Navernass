@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import ReactCrop, { Crop, PixelCrop } from 'react-image-crop'
+import type { Crop, PixelCrop } from 'react-image-crop'
+import { Check, X } from 'lucide-react'
+import { useRef, useState } from 'react'
+import ReactCrop from 'react-image-crop'
 import { Button } from '@/components/ui/button'
-import { X, Check } from 'lucide-react'
 import 'react-image-crop/dist/ReactCrop.css'
 
 interface AvatarCropperProps {
@@ -51,7 +52,7 @@ export function AvatarCropper({ image, onCropComplete, onCancel }: AvatarCropper
         0,
         0,
         image.naturalWidth,
-        image.naturalHeight
+        image.naturalHeight,
       )
 
       ctx.restore()
@@ -69,8 +70,8 @@ export function AvatarCropper({ image, onCropComplete, onCancel }: AvatarCropper
       <div className="max-w-sm mx-auto">
         <ReactCrop
           crop={crop}
-          onChange={(c) => setCrop(c)}
-          onComplete={(c) => setCompletedCrop(c)}
+          onChange={c => setCrop(c)}
+          onComplete={c => setCompletedCrop(c)}
           aspect={1}
           circularCrop
           className="max-h-[300px]"

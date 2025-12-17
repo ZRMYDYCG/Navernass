@@ -1,12 +1,17 @@
 import type { CreateMessageDto, Message } from '../types'
-import { supabase } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export class MessagesService {
+  private supabase: SupabaseClient
+
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase
+  }
   /**
    * 获取对话的所有消息
    */
   async getByConversationId(conversationId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('messages')
       .select('*')
       .eq('conversation_id', conversationId)
@@ -20,9 +25,12 @@ export class MessagesService {
    * 创建消息
    */
   async create(messageData: CreateMessageDto) {
-    const { data, error } = await supabase
+    const { data: { user } } = await this.supabase.auth.getUser()
+
+    const { data, error } = await this.supabase
       .from('messages')
       .insert({
+        user_id: user?.id,
         conversation_id: messageData.conversation_id,
         role: messageData.role,
         content: messageData.content,
@@ -47,7 +55,7 @@ export class MessagesService {
    * 更新消息
    */
   async update(id: string, updates: Partial<Pick<Message, 'content'>>) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('messages')
       .update(updates)
       .eq('id', id)
@@ -92,7 +100,7 @@ export class MessagesService {
    * 批量创建消息（用于导入对话历史）
    */
   async createBatch(messages: CreateMessageDto[]) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('messages')
       .insert(messages)
       .select()

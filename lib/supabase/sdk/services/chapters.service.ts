@@ -1,12 +1,17 @@
 import type { CreateChapterDto, UpdateChapterDto } from '../types'
-import { supabase } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export class ChaptersService {
+  private supabase: SupabaseClient
+
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase
+  }
   /**
    * 获取小说的所有章节
    */
   async getByNovelId(novelId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('chapters')
       .select('*')
       .eq('novel_id', novelId)
@@ -20,7 +25,7 @@ export class ChaptersService {
    * 获取单个章节
    */
   async getById(id: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('chapters')
       .select('*')
       .eq('id', id)
@@ -70,11 +75,14 @@ export class ChaptersService {
    * 创建章节
    */
   async create(chapterData: CreateChapterDto) {
+    const { data: { user } } = await this.supabase.auth.getUser()
+
     const wordCount = chapterData.content
       ? chapterData.content.replace(/<[^>]*>/g, '').length
       : 0
 
     const insertData: Record<string, unknown> = {
+      user_id: user?.id,
       novel_id: chapterData.novel_id,
       title: chapterData.title,
       content: chapterData.content || '',
@@ -87,7 +95,7 @@ export class ChaptersService {
       insertData.volume_id = chapterData.volume_id || null
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('chapters')
       .insert(insertData)
       .select()
@@ -112,7 +120,7 @@ export class ChaptersService {
       updateData.word_count = updates.content.replace(/<[^>]*>/g, '').length
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('chapters')
       .update(updateData)
       .eq('id', id)
