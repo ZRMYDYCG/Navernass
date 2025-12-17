@@ -50,7 +50,7 @@ export class ChaptersService {
    * 更新小说的章节数和字数统计
    */
   private async updateNovelStats(novelId: string) {
-    const { data: chapters, error } = await supabase
+    const { data: chapters, error } = await this.supabase
       .from('chapters')
       .select('word_count')
       .eq('novel_id', novelId)
@@ -60,7 +60,7 @@ export class ChaptersService {
     const chapterCount = chapters?.length || 0
     const wordCount = chapters?.reduce((sum, chapter) => sum + (chapter.word_count || 0), 0) || 0
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await this.supabase
       .from('novels')
       .update({
         chapter_count: chapterCount,
@@ -145,7 +145,7 @@ export class ChaptersService {
   async delete(id: string) {
     const chapter = await this.getById(id)
 
-    const { error } = await supabase.from('chapters').delete().eq('id', id)
+    const { error } = await this.supabase.from('chapters').delete().eq('id', id)
 
     if (error) throw error
 
@@ -157,7 +157,7 @@ export class ChaptersService {
    */
   async updateOrder(chapters: Array<{ id: string, order_index: number }>) {
     const promises = chapters.map(({ id, order_index }) =>
-      supabase.from('chapters').update({ order_index }).eq('id', id),
+      this.supabase.from('chapters').update({ order_index }).eq('id', id),
     )
 
     const results = await Promise.all(promises)
@@ -199,7 +199,7 @@ export class ChaptersService {
     const { novelId, keyword, volumeId, excludeVolumeId } = params
 
     // 构建查询
-    let query = supabase
+    let query = this.supabase
       .from('chapters')
       .select('*')
       .eq('novel_id', novelId)

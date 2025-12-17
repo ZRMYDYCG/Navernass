@@ -1,9 +1,9 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-export function createClient(request?: Request) {
+export async function createClient(request?: Request) {
   if (!request) {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
 
     return createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,7 +31,7 @@ export function createClient(request?: Request) {
   }
 
   const cookieHeader = request.headers.get('cookie') || ''
-  const cookies = Object.fromEntries(
+  const parsedCookies = Object.fromEntries(
     cookieHeader.split(';').map(v => {
       const [key, ...value] = v.trim().split('=')
       return [key, value.join('=')]
@@ -44,7 +44,7 @@ export function createClient(request?: Request) {
     {
       cookies: {
         get(name: string) {
-          return cookies[name]
+          return parsedCookies[name]
         },
         set(name: string, value: string, options: CookieOptions) {
         },

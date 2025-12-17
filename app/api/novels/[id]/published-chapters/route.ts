@@ -1,10 +1,11 @@
 import type { NextRequest } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
 
 export const GET = withErrorHandler(
-  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+  async (_req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const supabase = await createClient()
     const { id } = await params
 
     const { data: novel, error: novelError } = await supabase

@@ -2,15 +2,12 @@ import type { NextRequest } from 'next/server'
 import { ChaptersService } from '@/lib/supabase/sdk/services/chapters.service'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
+import { createClient } from '@/lib/supabase/server'
 
-const chaptersService = new ChaptersService()
-
-/**
- * GET /api/novels/:id/chapters
- * 获取小说的所有章节
- */
 export const GET = withErrorHandler(
-  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+  async (_req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const supabase = await createClient()
+    const chaptersService = new ChaptersService(supabase)
     const { id } = await params
     const chapters = await chaptersService.getByNovelId(id)
     return ApiResponseBuilder.success(chapters)
