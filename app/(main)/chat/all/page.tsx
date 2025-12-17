@@ -142,7 +142,7 @@ export default function AllChatsPage() {
                       {Array.from({ length: groupIndex === 0 ? 6 : 3 }).map((_, itemIndex) => (
                         <div
                           key={`skeleton-item-${groupIndex}-${itemIndex}`}
-                          className="bg-white dark:bg-zinc-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                          className="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
                         >
                           <div className="space-y-4">
                             <div className="flex items-start justify-between">
@@ -155,7 +155,7 @@ export default function AllChatsPage() {
                               <Skeleton className="h-4 w-[92%]" />
                               <Skeleton className="h-4 w-[85%]" />
                             </div>
-                            <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
                               <Skeleton className="h-3.5 w-24" />
                               <Skeleton className="h-3.5 w-20" />
                             </div>

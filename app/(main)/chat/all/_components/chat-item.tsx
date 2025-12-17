@@ -23,7 +23,7 @@ export function ChatItemComponent({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 p-3 rounded-lg bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors',
+        'flex items-center gap-3 p-3 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors',
         isSelectionMode && 'cursor-pointer',
       )}
       onClick={() => {

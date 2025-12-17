@@ -96,7 +96,7 @@ export function ChatInputBox({
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8">
-      <div className="bg-card rounded-xl shadow-lg border border-border transition-all flex flex-col min-h-[120px] max-w-4xl mx-auto focus-within:shadow-xl focus-within:border-primary/20">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transition-all flex flex-col min-h-[120px] max-w-4xl mx-auto focus-within:shadow-xl focus-within:border-gray-300 dark:focus-within:border-gray-600">
         <div
           ref={editorRef}
           contentEditable={!disabled}
@@ -116,7 +116,7 @@ export function ChatInputBox({
               variant="ghost"
               size="icon"
               onClick={handleVoiceClick}
-              className={`h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full ${
+              className={`h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full ${
                 isRecording ? 'text-destructive animate-pulse' : ''
               }`}
             >

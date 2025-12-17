@@ -45,7 +45,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
       return inline
         ? (
             <code
-              className="bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-sm font-mono text-red-600 dark:text-red-400"
+              className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-red-600 dark:text-red-400"
               {...props}
             >
               {children}

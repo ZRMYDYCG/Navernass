@@ -45,7 +45,7 @@ export function NewsCard({ item }: NewsCardProps) {
       </div>
 
       <div className="px-6 pb-4">
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-zinc-700">
+        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
           <img
             src={item.coverImage}
             alt={item.title}

@@ -26,10 +26,10 @@ export function PromptButtons({ onPromptClick, disabled = false }: PromptButtons
             disabled={disabled}
             className={cn(
               'px-4 py-2.5 rounded-lg border text-sm transition-all font-serif',
-              'bg-card border-border/60',
-              'text-muted-foreground',
-              'hover:border-border hover:text-foreground',
-              'hover:bg-accent',
+              'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700/60',
+              'text-gray-600 dark:text-gray-400',
+              'hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-900 dark:hover:text-gray-100',
+              'hover:bg-gray-50 dark:hover:bg-gray-700',
               'active:scale-[0.98]',
               disabled
                 ? 'opacity-50 cursor-not-allowed'

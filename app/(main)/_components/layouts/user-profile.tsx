@@ -29,18 +29,18 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
   })
 
   return (
-    <div className="mt-auto px-3 py-2 border-sidebar-border">
+    <div className="mt-auto px-3 py-2 border-t border-gray-200 dark:border-gray-800">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             className={`w-full h-auto p-2 group relative ${
-              isCollapsed && !isMobileOpen ? 'hover:bg-transparent' : 'hover:bg-sidebar-accent/50'
+              isCollapsed && !isMobileOpen ? 'hover:bg-transparent' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
             }`}
           >
             <div className={`flex items-center w-full ${(!isCollapsed || isMobileOpen) ? 'gap-3' : 'justify-center'}`}>
               <div className="relative flex-shrink-0">
-                <Avatar className="w-9 h-9 ring-2 ring-sidebar-accent">
+                <Avatar className="w-9 h-9 ring-2 ring-gray-300 dark:ring-gray-700">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback>
                     {user.name.charAt(0)}
@@ -52,7 +52,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
                 ? (
                     <>
                       <div className="flex-1 min-w-0 text-left">
-                        <p className="text-sm font-medium text-sidebar-foreground truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                           {user.name}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">

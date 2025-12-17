@@ -143,7 +143,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
 
         <aside
           className={cn(
-            'fixed lg:relative top-0 left-0 h-full bg-sidebar border-r border-sidebar-border z-50 flex flex-col',
+            'fixed lg:relative top-0 left-0 h-full bg-gray-50 dark:bg-zinc-900 border-r border-gray-200 dark:border-gray-800 z-50 flex flex-col',
             // 移动端：固定宽度 + transform
             'w-72 transition-transform duration-300',
             // 桌面端：宽度变化动画
@@ -156,15 +156,15 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
         >
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-sidebar-accent flex items-center justify-center border border-sidebar-border">
-                <Bot className="w-5 h-5 text-sidebar-foreground/70" />
+              <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                <Bot className="w-5 h-5 text-gray-700 dark:text-gray-300" />
               </div>
-              <span className="font-medium text-sidebar-foreground font-serif">Narraverse AI</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100 font-serif">Narraverse AI</span>
             </div>
             <Button
               variant="ghost"
               size="icon-sm"
-              className="text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent cursor-pointer"
+              className="text-muted-foreground hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
               onClick={onClose}
               aria-label="收起侧边栏"
             >
@@ -177,11 +177,11 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
               type="button"
               onClick={() => router.push('/chat')}
               disabled={isNewChatPage}
-              className="w-full flex items-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-accent/50 px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:shadow-sm transition-all duration-200 cursor-pointer disabled:text-muted-foreground disabled:border-sidebar-border/50 disabled:shadow-none disabled:bg-transparent disabled:cursor-not-allowed group"
+              className="w-full flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 px-3 py-2.5 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 hover:shadow-sm transition-all duration-200 cursor-pointer disabled:text-muted-foreground disabled:border-gray-200/50 disabled:shadow-none disabled:bg-transparent disabled:cursor-not-allowed group"
             >
-              <Edit3 className="w-4 h-4 group-hover:text-sidebar-foreground transition-colors" />
+              <Edit3 className="w-4 h-4 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors" />
               <span className="font-serif">新对话</span>
-              <span className="ml-auto text-xs text-muted-foreground font-mono group-hover:text-sidebar-foreground/70">Ctrl K</span>
+              <span className="ml-auto text-xs text-muted-foreground font-mono group-hover:text-gray-700 dark:group-hover:text-gray-300">Ctrl K</span>
             </button>
           </div>
 
@@ -192,13 +192,13 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="ml-auto text-muted-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer h-6 w-6"
+                  className="ml-auto text-muted-foreground/70 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer h-6 w-6"
                   onClick={() => router.push('/chat/all')}
                 >
                   <AlertCircle className="w-3.5 h-3.5" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top" className="bg-sidebar-foreground text-sidebar-primary-foreground text-xs">
+              <TooltipContent side="top" className="bg-gray-900 dark:bg-gray-100 text-gray-100 dark:text-gray-900 text-xs">
                 <p>查看全部对话</p>
               </TooltipContent>
             </Tooltip>
