@@ -5,17 +5,19 @@ import { ChaptersService } from '@/lib/supabase/sdk/services/chapters.service'
 import { NovelConversationsService } from '@/lib/supabase/sdk/services/novel-conversations.service'
 import { NovelMessagesService } from '@/lib/supabase/sdk/services/novel-messages.service'
 import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.service'
-import { getNovelPrompt, buildChapterContext } from '@/prompts'
-
-const conversationsService = new NovelConversationsService()
-const messagesService = new NovelMessagesService()
-const chaptersService = new ChaptersService()
+import { createClient } from '@/lib/supabase/server'
+import { buildChapterContext, getNovelPrompt } from '@/prompts'
 
 /**
  * POST /api/editor/novel-conversations/stream
  * 流式发送消息并获取AI回复（小说编辑器）
  */
 export async function POST(req: NextRequest) {
+  const supabase = await createClient()
+  const conversationsService = new NovelConversationsService(supabase)
+  const messagesService = new NovelMessagesService(supabase)
+  const chaptersService = new ChaptersService(supabase)
+
   const body: SendNovelMessageRequest = await req.json()
   const { novelId, conversationId, message, selectedChapterIds, mode, model } = body
 
