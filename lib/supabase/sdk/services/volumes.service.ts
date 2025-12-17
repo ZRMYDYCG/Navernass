@@ -93,14 +93,14 @@ export class VolumesService {
     await this.getById(id)
 
     // 删除卷时，将其下的章节的 volume_id 设置为 null
-    const { error: chapterError } = await supabase
+    const { error: chapterError } = await this.supabase
       .from('chapters')
       .update({ volume_id: null })
       .eq('volume_id', id)
 
     if (chapterError) throw chapterError
 
-    const { error } = await supabase.from('volumes').delete().eq('id', id)
+    const { error } = await this.supabase.from('volumes').delete().eq('id', id)
 
     if (error) throw error
   }
@@ -110,7 +110,7 @@ export class VolumesService {
    */
   async updateOrder(volumes: Array<{ id: string, order_index: number }>) {
     const promises = volumes.map(({ id, order_index }) =>
-      supabase.from('volumes').update({ order_index }).eq('id', id),
+      this.supabase.from('volumes').update({ order_index }).eq('id', id),
     )
 
     const results = await Promise.all(promises)

@@ -45,7 +45,7 @@ export class NovelMessagesService {
     if (error) throw error
 
     // 更新会话的 updated_at
-    await supabase
+    await this.supabase
       .from('novel_conversations')
       .update({ updated_at: new Date().toISOString() })
       .eq('id', messageData.conversation_id)
@@ -57,7 +57,7 @@ export class NovelMessagesService {
    * 删除消息
    */
   async delete(id: string) {
-    const { error } = await supabase.from('novel_messages').delete().eq('id', id)
+    const { error } = await this.supabase.from('novel_messages').delete().eq('id', id)
 
     if (error) throw error
   }
@@ -66,7 +66,7 @@ export class NovelMessagesService {
    * 清空会话的所有消息
    */
   async clearByConversationId(conversationId: string) {
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('novel_messages')
       .delete()
       .eq('conversation_id', conversationId)

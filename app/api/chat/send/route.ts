@@ -7,15 +7,12 @@ import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.ser
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
 import { getChatPrompt } from '@/prompts'
+import { createClient } from '@/lib/supabase/server'
 
-const conversationsService = new ConversationsService()
-const messagesService = new MessagesService()
-
-/**
- * POST /api/chat/send
- * 发送消息并获取AI回复
- */
 export const POST = withErrorHandler(async (req: NextRequest) => {
+  const supabase = await createClient()
+  const conversationsService = new ConversationsService(supabase)
+  const messagesService = new MessagesService(supabase)
   const body: SendMessageRequest = await req.json()
   const { conversationId, message } = body
 
@@ -27,52 +24,42 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   const aiService = new SiliconFlowService(userApiKey || undefined)
 
   try {
-    // 获取或创建对话
     let conversation
 
-    // 验证conversationId是否为有效的UUID
     const isValidUUID = conversationId
       && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(conversationId)
 
     if (isValidUUID) {
-      // 尝试获取现有对话
       try {
         conversation = await conversationsService.getById(conversationId)
       } catch {
-        // 如果对话不存在，创建新对话
         const title = await aiService.generateTitle(message)
         conversation = await conversationsService.create({
           title,
         })
       }
     } else {
-      // 创建新对话
       const title = await aiService.generateTitle(message)
       conversation = await conversationsService.create({
         title,
       })
     }
 
-    // 获取对话历史消息（最多20条）
     const historyMessages = await messagesService.getByConversationId(conversation.id)
     const recentHistory = historyMessages.slice(-20)
 
-    // 构建消息列表
     const chatMessages = recentHistory.map(msg => ({
       role: msg.role as 'user' | 'assistant' | 'system',
       content: msg.content,
     }))
 
-    // 添加当前用户消息
     chatMessages.push({
       role: 'user' as const,
       content: message,
     })
 
-    // 调用AI服务获取回复（使用聊天提示词）
     const aiResponse = await aiService.chat(chatMessages, getChatPrompt('default'))
 
-    // 保存用户消息
     const userMessage = await messagesService.create({
       conversation_id: conversation.id,
       role: 'user',
@@ -81,7 +68,6 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       tokens: aiResponse.tokens,
     })
 
-    // 保存AI回复
     const assistantMessage = await messagesService.create({
       conversation_id: conversation.id,
       role: 'assistant',

@@ -101,7 +101,7 @@ export class NovelConversationsService {
   async delete(id: string) {
     await this.getById(id)
 
-    const { error } = await supabase.from('novel_conversations').delete().eq('id', id)
+    const { error } = await this.supabase.from('novel_conversations').delete().eq('id', id)
 
     if (error) throw error
   }

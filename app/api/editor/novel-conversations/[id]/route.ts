@@ -1,9 +1,8 @@
 import type { NextRequest } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { NovelConversationsService } from '@/lib/supabase/sdk/services/novel-conversations.service'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
-
-const conversationsService = new NovelConversationsService()
 
 /**
  * GET /api/editor/novel-conversations/[id]
@@ -13,6 +12,9 @@ export const GET = withErrorHandler(async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) => {
+  const supabase = await createClient()
+  const conversationsService = new NovelConversationsService(supabase)
+
   const { id } = await params
   try {
     const conversation = await conversationsService.getById(id)
@@ -34,6 +36,9 @@ export const PATCH = withErrorHandler(async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) => {
+  const supabase = await createClient()
+  const conversationsService = new NovelConversationsService(supabase)
+
   const { id } = await params
   const body = await req.json()
   try {
@@ -56,6 +61,9 @@ export const DELETE = withErrorHandler(async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) => {
+  const supabase = await createClient()
+  const conversationsService = new NovelConversationsService(supabase)
+
   const { id } = await params
   try {
     await conversationsService.delete(id)

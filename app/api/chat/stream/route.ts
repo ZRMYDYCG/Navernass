@@ -1,19 +1,21 @@
 import type { NextRequest } from 'next/server'
 import type { SendMessageRequest } from '@/lib/supabase/sdk/types'
 import { getApiKey } from '@/lib/api-key'
+import { createClient } from '@/lib/supabase/server'
 import { ConversationsService } from '@/lib/supabase/sdk/services/conversations.service'
 import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
 import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.service'
 import { getChatPrompt } from '@/prompts'
-
-const conversationsService = new ConversationsService()
-const messagesService = new MessagesService()
 
 /**
  * POST /api/chat/stream
  * 流式发送消息并获取AI回复
  */
 export async function POST(req: NextRequest) {
+  const supabase = await createClient()
+  const conversationsService = new ConversationsService(supabase)
+  const messagesService = new MessagesService(supabase)
+
   const body: SendMessageRequest = await req.json()
   const { conversationId, message } = body
 

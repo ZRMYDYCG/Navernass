@@ -134,7 +134,7 @@ export class NewsService {
   async delete(id: string) {
     await this.getById(id)
 
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('news')
       .delete()
       .eq('id', id)
@@ -146,7 +146,7 @@ export class NewsService {
    * 增加阅读计数
    */
   async incrementReadCount(id: string) {
-    const { error } = await supabase.rpc('increment_news_read_count', {
+    const { error } = await this.supabase.rpc('increment_news_read_count', {
       news_id: id,
     })
 

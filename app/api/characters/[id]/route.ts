@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
 
@@ -11,6 +11,8 @@ export const GET = withErrorHandler(
 
 export const PUT = withErrorHandler(
   async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const supabase = await createClient()
+
     const { id } = await params
     const body = await req.json() as { novel_id: string } & Record<string, unknown>
     const { novel_id, ...updates } = body
@@ -53,6 +55,8 @@ export const PUT = withErrorHandler(
 
 export const DELETE = withErrorHandler(
   async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const supabase = await createClient()
+
     const { id } = await params
     const url = new URL(req.url)
     const novelId = url.searchParams.get('novelId')

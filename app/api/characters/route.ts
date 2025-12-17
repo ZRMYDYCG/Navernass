@@ -1,10 +1,12 @@
 import type { NextRequest } from 'next/server'
 import type { CreateCharacterDto } from '@/lib/supabase/sdk/types'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
 
 export const POST = withErrorHandler(async (req: NextRequest) => {
+  const supabase = await createClient()
+
   const body: CreateCharacterDto = await req.json()
   const { novel_id, name, role, avatar, description, traits, keywords, first_appearance, note, order_index } = body
 
