@@ -78,19 +78,26 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
   const uploadIllustration = async (file: File) => {
     setIsUploadingImage(true)
-    const ext = file.name.split('.').pop() || 'png'
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { data, error } = await supabase.storage.from('narraverse').upload(`illustrations/${fileName}`, file, {
-      cacheControl: '3600',
-      upsert: false,
-    })
-    if (error) {
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'illustration')
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error?.message || '插图上传失败')
+      }
+
+      const result = await response.json()
+      return result.data.url
+    } finally {
       setIsUploadingImage(false)
-      throw error
     }
-    const { data: publicData } = supabase.storage.from('narraverse').getPublicUrl(data.path)
-    setIsUploadingImage(false)
-    return publicData.publicUrl
   }
 
   const extensions = useMemo(

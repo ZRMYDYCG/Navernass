@@ -77,17 +77,22 @@ function NovelsContent() {
   }
 
   const uploadCover = useCallback(async (file: File) => {
-    const ext = file.name.split('.').pop() || 'jpg'
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { data, error } = await supabase.storage.from('narraverse').upload(`covers/${fileName}`, file, {
-      cacheControl: '3600',
-      upsert: false,
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('type', 'cover')
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
     })
-    if (error) {
-      throw error
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error?.message || '封面上传失败')
     }
-    const { data: publicData } = supabase.storage.from('narraverse').getPublicUrl(data.path)
-    return publicData.publicUrl
+
+    const result = await response.json()
+    return result.data.url
   }, [])
 
   const handleSaveNovel = async (data: NovelFormData) => {

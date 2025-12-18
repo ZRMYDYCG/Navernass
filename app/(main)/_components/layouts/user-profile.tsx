@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useAuth } from '@/hooks/use-auth'
 
 interface UserProfileProps {
   isCollapsed?: boolean
@@ -20,13 +21,34 @@ interface UserProfileProps {
 }
 
 export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSettingsClick }: UserProfileProps) {
-  const [user] = useState({
-    name: '张三',
-    email: 'zhangsan@example.com',
-    avatar: '',
-    role: '创作者',
-    isOnline: true,
-  })
+  const { user, profile, signOut } = useAuth()
+  const [isSigningOut, setIsSigningOut] = useState(false)
+
+  const handleSignOut = async () => {
+    try {
+      setIsSigningOut(true)
+      await signOut()
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
+
+  if (!user) {
+    return (
+      <div className="mt-auto px-3 py-2 border-t border-gray-200 dark:border-gray-800">
+        <Button
+          variant="ghost"
+          className="w-full h-auto p-2"
+          onClick={onSettingsClick}
+        >
+          <User className="w-5 h-5" />
+        </Button>
+      </div>
+    )
+  }
+
+  const displayName = profile?.full_name || profile?.username || user.email?.split('@')[0] || '用户'
+  const avatarUrl = profile?.avatar_url
 
   return (
     <div className="mt-auto px-3 py-2 border-t border-gray-200 dark:border-gray-800">
@@ -41,9 +63,9 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
             <div className={`flex items-center w-full ${(!isCollapsed || isMobileOpen) ? 'gap-3' : 'justify-center'}`}>
               <div className="relative flex-shrink-0">
                 <Avatar className="w-9 h-9 ring-2 ring-gray-300 dark:ring-gray-700">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={avatarUrl} alt={displayName} />
                   <AvatarFallback>
-                    {user.name.charAt(0)}
+                    {displayName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </div>
@@ -53,10 +75,10 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
                     <>
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {user.name}
+                          {displayName}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {user.role}
+                          {user.email}
                         </p>
                       </div>
 
@@ -71,7 +93,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
         <DropdownMenuContent align="end" side="right" sideOffset={8} className="w-64">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{user.name}</p>
+              <p className="text-sm font-medium leading-none">{displayName}</p>
               <p className="text-xs leading-none text-muted-foreground">
                 {user.email}
               </p>
@@ -95,9 +117,13 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600">
+          <DropdownMenuItem
+            className="cursor-pointer text-red-600 focus:text-red-600"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+          >
             <LogOut className="mr-2 h-4 w-4" />
-            <span>退出登录</span>
+            <span>{isSigningOut ? '退出中...' : '退出登录'}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
