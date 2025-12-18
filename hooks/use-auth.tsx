@@ -78,6 +78,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const result = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+      },
     })
     return result
   }
