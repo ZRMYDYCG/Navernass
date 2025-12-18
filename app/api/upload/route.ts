@@ -32,6 +32,8 @@ export const POST = async (req: NextRequest) => {
       path = `covers/${fileName}`
     } else if (type === 'illustration') {
       path = `illustrations/${fileName}`
+    } else if (type === 'avatar') {
+      path = `avatars/${fileName}`
     } else {
       return new Response(
         JSON.stringify({ error: { message: '无效的文件类型' } }),

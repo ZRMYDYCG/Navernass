@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
 
   if (error || !user) {
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
 
   if (error || !user) {
@@ -31,11 +31,11 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json()
-  const { username, full_name, website } = body
+  const { username, full_name, website, avatar_url } = body
 
   const { data, error: updateError } = await supabase
     .from('profiles')
-    .update({ username, full_name, website })
+    .update({ username, full_name, website, avatar_url })
     .eq('id', user.id)
     .select()
     .single()
