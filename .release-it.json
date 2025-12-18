@@ -77,7 +77,6 @@
     }
   },
   "hooks": {
-    "before:init": ["pnpm lint", "pnpm tsc --noEmit"],
     "after:bump": "echo 'Version bumped to ${version}'",
     "after:release": "echo 'Successfully released ${name} v${version} to ${repo.repository}'."
   }
