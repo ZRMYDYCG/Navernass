@@ -1,16 +1,14 @@
 'use client'
 
-import { Loader2, Upload, User } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuth } from '@/hooks/use-auth'
-import { AvatarCropper } from './avatar-cropper'
 
 interface AuthDialogProps {
   open: boolean
@@ -27,8 +25,6 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     confirmPassword: '',
     fullName: '',
   })
-  const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string>('')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,29 +74,11 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           confirmPassword: '',
           fullName: '',
         })
-        setAvatarPreview('')
-        setAvatarFile(null)
       }
     } catch (error) {
       toast.error('注册失败，请重试')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('图片大小不能超过5MB')
-        return
-      }
-      setAvatarFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -161,43 +139,6 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
           <TabsContent value="register">
             <form onSubmit={handleRegister} className="space-y-4">
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative">
-                  <Avatar className="h-24 w-24">
-                    <AvatarImage src={avatarPreview} />
-                    <AvatarFallback>
-                      <User className="h-12 w-12" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <Label
-                    htmlFor="avatar-upload"
-                    className="absolute bottom-0 right-0 rounded-full bg-primary p-2 cursor-pointer hover:bg-primary/90 transition-colors"
-                  >
-                    <Upload className="h-4 w-4 text-white" />
-                  </Label>
-                  <Input
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarChange}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground text-center">
-                  点击上传头像（可选）
-                </p>
-              </div>
-
-              {avatarPreview && (
-                <AvatarCropper
-                  image={avatarPreview}
-                  onCropComplete={(croppedBlob) => {
-                    const file = new File([croppedBlob], 'avatar.jpg', { type: 'image/jpeg' })
-                    setAvatarFile(file)
-                  }}
-                />
-              )}
-
               <div className="space-y-2">
                 <Label htmlFor="register-name">姓名</Label>
                 <Input

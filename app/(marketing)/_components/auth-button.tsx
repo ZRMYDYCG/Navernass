@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { LogOut, User } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { useAuth } from '@/hooks/use-auth'
-import { AuthDialog } from './auth-dialog'
+import { useState } from 'react'
+import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { LogOut, Settings, User } from 'lucide-react'
-import Link from 'next/link'
-import { toast } from 'sonner'
+import { useAuth } from '@/hooks/use-auth'
+import { AuthDialog } from './auth-dialog'
 
 export function AuthButton() {
   const { user, profile, signOut, loading } = useAuth()
@@ -86,12 +86,6 @@ export function AuthButton() {
           <Link href="/chat" className="flex items-center">
             <User className="mr-2 h-4 w-4" />
             <span>进入应用</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/settings" className="flex items-center">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>设置</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
