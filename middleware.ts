@@ -44,12 +44,15 @@ export async function middleware(request: NextRequest) {
 
   const { data: { session }, error } = await supabase.auth.getSession()
 
+  console.log('Middleware session:', session ? 'exists' : 'none', 'error:', error)
+
   const protectedPaths = ['/chat', '/novels', '/trash', '/writing']
   const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path),
   )
 
   if (isProtectedPath && (!session || error)) {
+    console.log('No session, redirecting to home')
     const redirectUrl = new URL('/', request.url)
     redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
