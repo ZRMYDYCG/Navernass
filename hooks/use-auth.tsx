@@ -32,9 +32,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let isMounted = true
+    const loadingTimeout = setTimeout(() => {
+      if (isMounted && loading) {
+        console.warn('Auth loading timeout, forcing loading to false')
+        setLoading(false)
+      }
+    }, 3000)
+
     const getInitialSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
+        if (!isMounted) return
+
         setUser(session?.user ?? null)
 
         if (session?.user) {
@@ -44,12 +54,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq('id', session.user.id)
             .single()
 
-          setProfile(data)
+          if (isMounted) {
+            setProfile(data)
+          }
         }
       } catch (error) {
         console.error('Error fetching session:', error)
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+          clearTimeout(loadingTimeout)
+        }
       }
     }
 
@@ -58,7 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email)
+        if (!isMounted) return
+
         setUser(session?.user ?? null)
+        setLoading(false)
+        clearTimeout(loadingTimeout)
 
         if (session?.user) {
           try {
@@ -68,20 +87,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .eq('id', session.user.id)
               .single()
 
-            setProfile(data)
+            if (isMounted) {
+              setProfile(data)
+            }
           } catch (error) {
             console.error('Error fetching profile:', error)
-            setProfile(null)
+            if (isMounted) {
+              setProfile(null)
+            }
           }
         } else {
           setProfile(null)
         }
-
-        setLoading(false)
       },
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      clearTimeout(loadingTimeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signUp = async (email: string, password: string) => {
