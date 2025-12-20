@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { supabase } from '@/lib/supabase/sdk'
+import { supabase } from '@/lib/supabase'
 import CTA from './cta'
 import Features from './features/features'
 import Hero from './hero'
