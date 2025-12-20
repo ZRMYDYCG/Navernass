@@ -10,12 +10,14 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
       console.error('Auth callback error:', error)
-      return NextResponse.redirect(new URL('/auth/verify-success', request.url))
+      const errorMessage = encodeURIComponent(error.message)
+      return NextResponse.redirect(new URL(`/auth/verify-success?error=${errorMessage}`, request.url))
     } else {
       console.log('Auth callback success:', data)
-      await new Promise(resolve => setTimeout(resolve, 500))
+      return NextResponse.redirect(new URL('/auth/verify-success?status=success', request.url))
     }
+  } else {
+    const errorMessage = encodeURIComponent('Missing authorization code')
+    return NextResponse.redirect(new URL(`/auth/verify-success?error=${errorMessage}`, request.url))
   }
-
-  return NextResponse.redirect(new URL('/auth/verify-success', request.url))
 }

@@ -9,10 +9,19 @@ export default function VerifySuccessPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
   const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying')
+  const [errorMessage, setErrorMessage] = useState<string>('')
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const error = searchParams.get('error')
+    const success = searchParams.get('status')
+
+    if (error) {
+      setErrorMessage(decodeURIComponent(error))
+    }
+
     if (!loading) {
-      if (user) {
+      if (user || success) {
         setStatus('success')
         setTimeout(() => {
           router.push('/chat')
@@ -49,7 +58,15 @@ export default function VerifySuccessPage() {
               <span className="text-3xl">✕</span>
             </div>
             <h2 className="text-2xl font-semibold text-red-600">验证失败</h2>
-            <p className="text-muted-foreground">验证链接无效或已过期，正在跳转到首页...</p>
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>验证链接无效或已过期</p>
+              {errorMessage && (
+                <p className="text-xs text-red-500 bg-red-50 p-2 rounded">
+                  错误详情：{errorMessage}
+                </p>
+              )}
+            </div>
+            <p className="text-muted-foreground">正在跳转到首页...</p>
           </>
         )}
       </div>

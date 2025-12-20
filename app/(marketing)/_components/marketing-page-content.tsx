@@ -38,23 +38,8 @@ export default function MarketingPageContent() {
     }
   }, [user, loading, redirectTo, router, isClientReady])
 
-  const shouldShowRedirectMessage = redirectTo && (loading || !user)
-
   return (
     <main className="min-h-screen bg-background selection:bg-primary/20 selection:text-primary-foreground">
-      {shouldShowRedirectMessage && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-100 text-black px-4 py-2 rounded-lg shadow-lg">
-          <p className="text-sm">
-            需要登录才能访问: {redirectTo}
-            {!loading && !user && (
-              <span className="ml-2 text-red-500">（请先登录）</span>
-            )}
-            {loading && (
-              <span className="ml-2 text-blue-500">（加载中...）</span>
-            )}
-          </p>
-        </div>
-      )}
       <Hero />
       <Features />
       <CTA />
