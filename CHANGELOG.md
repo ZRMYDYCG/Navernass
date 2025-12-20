@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 (2025-12-20)
+
+* fix: "验证后还需重新登录"和"一直加载"的问题 ([366dc28](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/366dc28))
+* fix: 线上发送验证邮箱 验证页面重定向功能开发 ([b3af5f2](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/b3af5f2))
+* fix: 线上发送验证邮箱 验证页面重定向功能开发 ([a03a214](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/a03a214))
+* fix: 用户注册 → 显示"注册成功！请检查邮箱验证" ([7b80bbc](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/7b80bbc))
+* fix: auth-button 一直显示加载状态问题 ([0a87715](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/0a87715))
+* fix: build for production ([e75cf73](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/e75cf73))
+* feat: 完善邮箱验证流程 ([7f7032b](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/7f7032b))
+* feat: 完善邮箱验证流程 ([13a6b20](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/13a6b20))
+
 ## 0.2.0 (2025-12-18)
 
 * chore: 发版脚本配置 ([7c25ac8](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/7c25ac8))
