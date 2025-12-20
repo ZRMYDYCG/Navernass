@@ -15,13 +15,19 @@ export default function VerifySuccessPage() {
     const searchParams = new URLSearchParams(window.location.search)
     const error = searchParams.get('error')
     const success = searchParams.get('status')
+    const timestamp = searchParams.get('timestamp')
 
     if (error) {
       setErrorMessage(decodeURIComponent(error))
     }
 
     if (!loading) {
-      if (user || success) {
+      if (user) {
+        setStatus('success')
+        setTimeout(() => {
+          router.push('/chat')
+        }, 1500)
+      } else if (success) {
         setStatus('success')
         setTimeout(() => {
           router.push('/chat')
@@ -34,6 +40,19 @@ export default function VerifySuccessPage() {
       }
     }
   }, [user, loading, router])
+
+  useEffect(() => {
+    const handleAuthStateChange = () => {
+      if (user && status === 'verifying') {
+        setStatus('success')
+        setTimeout(() => {
+          router.push('/chat')
+        }, 1000)
+      }
+    }
+
+    handleAuthStateChange()
+  }, [user, router, status])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">

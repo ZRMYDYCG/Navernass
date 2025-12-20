@@ -14,7 +14,9 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL(`/auth/verify-success?error=${errorMessage}`, request.url))
     } else {
       console.log('Auth callback success:', data)
-      return NextResponse.redirect(new URL('/auth/verify-success?status=success', request.url))
+      const redirectUrl = new URL('/auth/verify-success?status=success', request.url)
+      redirectUrl.searchParams.set('timestamp', Date.now().toString())
+      return NextResponse.redirect(redirectUrl)
     }
   } else {
     const errorMessage = encodeURIComponent('Missing authorization code')
