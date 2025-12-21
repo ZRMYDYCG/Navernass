@@ -112,30 +112,30 @@ export function ImageCompare({
       </div>
 
       {/* Before Label - 移到裁剪容器外并提高层级 */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm text-gray-900 dark:text-white text-sm font-medium shadow-lg border border-gray-200 dark:border-gray-700">
+      <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm text-foreground text-sm font-medium shadow-lg border border-border">
         <div className="w-2 h-2 rounded-full bg-orange-500" />
         {beforeLabel}
       </div>
 
       {/* After Label - 提高层级 */}
-      <div className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/70 dark:bg-white/90 backdrop-blur-sm text-white dark:text-gray-900 text-sm font-medium shadow-lg border border-white/20 dark:border-gray-200">
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-foreground/70 backdrop-blur-sm text-background text-sm font-medium shadow-lg border border-border/20">
         <div className="w-2 h-2 rounded-full bg-blue-500" />
         {afterLabel}
       </div>
 
       {/* Slider Handle */}
       <div
-        className="absolute inset-y-0 w-1.5 bg-white dark:bg-zinc-100 shadow-lg cursor-col-resize z-10"
+        className="absolute inset-y-0 w-1.5 bg-foreground shadow-lg cursor-col-resize z-10"
         style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         {/* Handle Circle */}
-        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 bg-white dark:bg-zinc-100 rounded-full shadow-xl flex items-center justify-center border-4 border-border hover:scale-110 active:scale-95 transition-all duration-200">
+        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 bg-background rounded-full shadow-xl flex items-center justify-center border-4 border-border hover:scale-110 active:scale-95 transition-all duration-200">
           <div className="flex gap-0.5">
-            <div className="w-0.5 h-4 bg-gray-400 dark:bg-zinc-500 rounded-full" />
-            <div className="w-0.5 h-4 bg-gray-400 dark:bg-zinc-500 rounded-full" />
+            <div className="w-0.5 h-4 bg-muted-foreground rounded-full" />
+            <div className="w-0.5 h-4 bg-muted-foreground rounded-full" />
           </div>
         </div>
       </div>

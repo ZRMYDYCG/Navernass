@@ -64,8 +64,8 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
 
   if (props.items.length === 0) {
     return (
-      <div className="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
-        <div className="text-sm text-gray-500 dark:text-gray-400">没有找到匹配的命令</div>
+      <div className="bg-popover border border-border rounded-lg shadow-lg p-3">
+        <div className="text-sm text-muted-foreground">没有找到匹配的命令</div>
       </div>
     )
   }
@@ -86,10 +86,10 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
   }
 
   return (
-    <div className="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden max-h-80 overflow-y-auto">
+    <div className="bg-popover border border-border rounded-lg shadow-lg overflow-hidden max-h-80 overflow-y-auto">
       {Object.entries(categorizedItems).map(([category, items]) => (
         <div key={category} className="py-1">
-          <div className="px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-900/50">
+          <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground bg-accent/50">
             {categoryLabels[category] || category}
           </div>
           {items.map((item) => {
@@ -103,8 +103,8 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
                 onClick={() => selectItem(globalIndex)}
                 className={`w-full text-left px-3 py-2 flex items-start gap-3 transition-colors ${
                   isSelected
-                    ? 'bg-gray-100 dark:bg-zinc-700 text-gray-900 dark:text-gray-100'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-900 dark:text-gray-100'
+                    ? 'bg-accent text-accent-foreground'
+                    : 'hover:bg-accent/50 text-popover-foreground'
                 }`}
               >
                 <span className="shrink-0 w-5 h-5 flex items-center justify-center">
@@ -112,12 +112,12 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium">{item.title}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-muted-foreground">
                     {item.description}
                   </div>
                 </div>
                 {isSelected && (
-                  <span className="text-xs text-gray-600 dark:text-gray-400 shrink-0">
+                  <span className="text-xs text-muted-foreground shrink-0">
                     ↵
                   </span>
                 )}

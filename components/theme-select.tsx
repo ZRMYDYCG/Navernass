@@ -16,13 +16,13 @@ export function ThemeSection() {
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
-        <button className="cursor-pointer border-0 bg-transparent p-1.5 h-7 w-7 flex items-center justify-center rounded-full text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-all duration-200">
+        <button className="cursor-pointer border-0 bg-transparent p-1.5 h-7 w-7 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200">
           <SwatchBook className="w-3.5 h-3.5" strokeWidth={1.5} />
         </button>
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          className="popover-content bg-white dark:bg-zinc-900 rounded-lg p-3 z-50 focus:outline-none w-[240px] border border-gray-200 dark:border-gray-700"
+          className="popover-content bg-popover rounded-lg p-3 z-50 focus:outline-none w-[240px] border border-border"
           sideOffset={8}
           align="end"
           style={{
@@ -30,9 +30,9 @@ export function ThemeSection() {
           }}
         >
           <div className="mb-3">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Theme</h3>
+            <h3 className="text-sm font-semibold text-foreground">Theme</h3>
           </div>
-          <div className="flex gap-2 p-1 bg-gray-100 dark:bg-zinc-800 rounded-lg">
+          <div className="flex gap-2 p-1 bg-muted rounded-lg">
             {themeOptions.map((option) => {
               const Icon = option.icon;
               const isActive = theme === option.value;
@@ -42,8 +42,8 @@ export function ThemeSection() {
                   onClick={(e) => setTheme(option.value, e)}
                   className={`flex-1 flex flex-col items-center gap-1 px-3 py-2 rounded-md transition-all ${
                     isActive
-                      ? "bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 shadow-sm"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <Icon className="w-5 h-5" />

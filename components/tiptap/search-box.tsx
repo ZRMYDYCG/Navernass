@@ -207,7 +207,7 @@ export function SearchBox({ editor, onClose, initialSearchTerm = '' }: SearchBox
   }, [])
 
   return (
-    <div className="absolute top-0 right-0 z-50 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 flex items-center gap-2 min-w-[250px] sm:min-w-[300px] transform scale-95 sm:scale-100 origin-top-right">
+    <div className="absolute top-0 right-0 z-50 bg-popover border border-border rounded-lg shadow-lg p-2 flex items-center gap-2 min-w-[250px] sm:min-w-[300px] transform scale-95 sm:scale-100 origin-top-right">
       <Input
         ref={inputRef}
         type="text"
@@ -225,7 +225,7 @@ export function SearchBox({ editor, onClose, initialSearchTerm = '' }: SearchBox
           }
         }}
       />
-      <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
         {totalMatches > 0
           ? (
               <>

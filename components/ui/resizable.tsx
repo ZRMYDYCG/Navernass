@@ -36,7 +36,7 @@ function ResizableHandle({
       data-slot="resizable-handle"
       className={cn(
         'group relative flex items-center justify-center transition-all duration-200',
-        'bg-transparent hover:bg-gray-200/50 dark:hover:bg-gray-800/50',
+        'bg-transparent hover:bg-muted/50',
         'focus-visible:outline-none',
         'w-px after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-4 after:cursor-col-resize',
         'data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full',
@@ -47,8 +47,8 @@ function ResizableHandle({
       {...props}
     >
       {withHandle && (
-        <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <GripVerticalIcon className="w-2.5 h-2.5 text-gray-600 dark:text-gray-400" />
+        <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border border-border bg-muted opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <GripVerticalIcon className="w-2.5 h-2.5 text-muted-foreground" />
         </div>
       )}
     </ResizablePrimitive.PanelResizeHandle>
