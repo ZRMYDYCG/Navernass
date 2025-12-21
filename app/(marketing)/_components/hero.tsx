@@ -1,6 +1,7 @@
 'use client'
 
 import { TiptapEditor } from '@/components/tiptap/index'
+import { Highlighter } from '@/components/ui/highlighter'
 
 export default function Hero() {
   return (
@@ -9,9 +10,9 @@ export default function Hero() {
         <div>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground tracking-tight leading-[1.1]">
             让写作回归
-            <span className="italic font-serif text-foreground/60 mx-2">纯粹</span>
-            <span className="ml-2">与</span>
-            <span className="italic font-serif text-foreground/60">自由</span>
+            <Highlighter action="underline" color="#87CEFA">纯粹</Highlighter>
+            <span className="m-2">与</span>
+            <Highlighter action="underline" color="#87CEFA">自由</Highlighter>
           </h1>
         </div>
 
