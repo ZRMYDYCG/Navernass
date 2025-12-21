@@ -9,10 +9,7 @@ export default function Hero() {
       <div className="max-w-4xl mx-auto text-center z-20 relative pt-16 sm:pt-20">
         <div>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground tracking-tight leading-[1.1]">
-            让写作回归
-            <Highlighter action="underline" color="#87CEFA">纯粹</Highlighter>
-            <span className="m-2">与</span>
-            <Highlighter action="underline" color="#87CEFA">自由</Highlighter>
+            让写作回归<Highlighter action="underline" color="#87CEFA">纯粹</Highlighter><span>与</span><Highlighter action="underline" color="#87CEFA">自由</Highlighter>
           </h1>
         </div>
 
