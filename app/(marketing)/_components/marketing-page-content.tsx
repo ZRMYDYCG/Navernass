@@ -39,9 +39,7 @@ export default function MarketingPageContent() {
       if (!document.hidden) {
         try {
           const { data: { session } } = await supabase.auth.getSession()
-          if (session?.user) {
-            console.log('Refreshing auth state from marketing page')
-          }
+          if (session?.user) { /* empty */ }
         } catch (error) {
           console.error('Error refreshing session:', error)
         }
