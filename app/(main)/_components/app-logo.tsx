@@ -17,7 +17,7 @@ export function AppLogo() {
 
   if (!mounted) {
     return (
-      <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-zinc-800 animate-pulse" />
+      <div className="w-10 h-10 rounded-lg bg-secondary animate-pulse" />
     )
   }
 

@@ -206,8 +206,8 @@ export function SmartTabs({
               onContextMenu={e => handleContextMenu(e, tab)}
               className={`group relative flex items-center px-4 py-2.5 cursor-pointer transition-all duration-200 shrink-0 ${
                 isActive
-                  ? 'bg-white/60 dark:bg-zinc-800/60 text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100'
+                  ? 'bg-background/60 text-foreground border-b-2 border-foreground'
+                  : 'text-muted-foreground hover:bg-background/30 hover:text-foreground'
               }`}
               style={{
                 paddingRight: 'var(--close-btn-padding, 1rem)',
@@ -224,7 +224,7 @@ export function SmartTabs({
                   e.stopPropagation()
                   onTabClose(tab.id)
                 }}
-                className="absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 hover:bg-gray-200 dark:hover:bg-gray-700 pointer-events-none group-hover:pointer-events-auto cursor-pointer"
+                className="absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 hover:bg-accent pointer-events-none group-hover:pointer-events-auto cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -239,7 +239,7 @@ export function SmartTabs({
         }`}
       >
         <div
-          className="h-full bg-gray-300 dark:bg-zinc-600 rounded-full transition-all duration-200"
+          className="h-full bg-muted-foreground rounded-full transition-all duration-200"
           style={{
             width: `${scrollbarWidth}%`,
             marginLeft: `${scrollbarLeft}%`,

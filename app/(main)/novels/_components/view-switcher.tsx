@@ -8,14 +8,14 @@ interface ViewSwitcherProps {
 
 export function ViewSwitcher({ value, onChange }: ViewSwitcherProps) {
   return (
-    <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700">
+    <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-secondary border border-border">
       <button
         type="button"
         onClick={() => onChange('grid')}
         className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
           value === 'grid'
-            ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 shadow-sm'
-            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
         }`}
         aria-label="卡片视图"
         title="卡片视图"
@@ -28,8 +28,8 @@ export function ViewSwitcher({ value, onChange }: ViewSwitcherProps) {
         onClick={() => onChange('table')}
         className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
           value === 'table'
-            ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 shadow-sm'
-            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
         }`}
         aria-label="表格视图"
         title="表格视图"

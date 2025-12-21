@@ -105,7 +105,7 @@ export function TabContextMenu({
   return (
     <div
       ref={menuRef}
-      className="fixed bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+      className="fixed bg-card rounded-lg shadow-lg border border-border p-1 z-50 min-w-[160px]"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -119,7 +119,7 @@ export function TabContextMenu({
           onClose(tab.id)
           onCloseMenu()
         }}
-        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
       >
         <X className="w-4 h-4" />
         关闭
@@ -134,7 +134,7 @@ export function TabContextMenu({
               onCloseOthers(tab.id)
               onCloseMenu()
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
           >
             <CircleDot className="w-4 h-4" />
             关闭其他
@@ -147,7 +147,7 @@ export function TabContextMenu({
               onCloseAll()
               onCloseMenu()
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
           >
             <Circle className="w-4 h-4" />
             关闭所有
@@ -163,7 +163,7 @@ export function TabContextMenu({
             onCloseLeft(tab.id)
             onCloseMenu()
           }}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           关闭左侧
@@ -178,14 +178,14 @@ export function TabContextMenu({
             onCloseRight(tab.id)
             onCloseMenu()
           }}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
         >
           <ChevronRight className="w-4 h-4" />
           关闭右侧
         </button>
       )}
 
-      <div className="h-px bg-gray-200 dark:bg-zinc-700 my-1" />
+      <div className="h-px bg-border my-1" />
 
       <button
         type="button"
@@ -193,7 +193,7 @@ export function TabContextMenu({
           e.stopPropagation()
           handleCopyTitle()
         }}
-        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
       >
         <Copy className="w-4 h-4" />
         复制标题

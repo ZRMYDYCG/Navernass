@@ -37,7 +37,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
 
   if (!user) {
     return (
-      <div className="mt-auto px-3 py-2 border-t border-gray-200 dark:border-gray-800">
+      <div className="mt-auto px-3 py-2 border-t border-border">
         <Button
           variant="ghost"
           className="w-full h-auto p-2"
@@ -54,18 +54,18 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
 
   return (
     <>
-      <div className="mt-auto px-3 py-2 border-t border-gray-200 dark:border-gray-800">
+      <div className="mt-auto px-3 py-2 border-t border-border">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               className={`w-full h-auto p-2 group relative ${
-                isCollapsed && !isMobileOpen ? 'hover:bg-transparent' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                isCollapsed && !isMobileOpen ? 'hover:bg-transparent' : 'hover:bg-accent'
               }`}
             >
               <div className={`flex items-center w-full ${(!isCollapsed || isMobileOpen) ? 'gap-3' : 'justify-center'}`}>
                 <div className="relative flex-shrink-0">
-                  <Avatar className="w-9 h-9 ring-2 ring-gray-300 dark:ring-gray-700">
+                  <Avatar className="w-9 h-9 ring-2 ring-border">
                     <AvatarImage src={avatarUrl} alt={displayName} />
                     <AvatarFallback>
                       {displayName.charAt(0).toUpperCase()}
@@ -77,7 +77,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
                   ? (
                       <>
                         <div className="flex-1 min-w-0 text-left">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                          <p className="text-sm font-medium text-foreground truncate">
                             {displayName}
                           </p>
                           <p className="text-xs text-muted-foreground truncate">

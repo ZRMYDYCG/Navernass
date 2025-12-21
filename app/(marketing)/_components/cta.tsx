@@ -10,7 +10,6 @@ import TechStack from './tech-stack'
 export default function CTA() {
   return (
     <section className="relative pb-24 overflow-hidden">
-      {/* 背景纸张纹理 */}
       <div className="dark:opacity-[0.05] dark:invert absolute inset-0 bg-paper-texture opacity-20 pointer-events-none" />
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto">

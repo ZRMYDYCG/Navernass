@@ -47,10 +47,10 @@ export function AIInputBox({
         type="button"
         onClick={onToggle}
         disabled={isLoading}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded shadow-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-card border border-border rounded shadow-lg hover:bg-accent transition-colors disabled:opacity-50"
       >
-        <Star className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-        <span className="text-xs text-gray-700 dark:text-gray-300">向智能助手提问...</span>
+        <Star className="w-3 h-3 text-muted-foreground" />
+        <span className="text-xs text-foreground">向智能助手提问...</span>
         <div className="ml-auto">
           {mounted
             ? (
@@ -63,7 +63,7 @@ export function AIInputBox({
                 />
               )
             : (
-                <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+                <div className="w-3 h-3 bg-muted rounded animate-pulse" />
               )}
         </div>
       </button>
@@ -71,9 +71,9 @@ export function AIInputBox({
   }
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded shadow-xl w-[320px] overflow-hidden">
-      <div className="flex items-center gap-1.5 px-2.5 py-1.5 border-b border-gray-200 dark:border-zinc-700">
-        <Star className="w-3 h-3 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+    <div className="bg-popover border border-border rounded shadow-xl w-[320px] overflow-hidden">
+      <div className="flex items-center gap-1.5 px-2.5 py-1.5 border-b border-border">
+        <Star className="w-3 h-3 text-muted-foreground flex-shrink-0" />
         <input
           type="text"
           value={prompt}
@@ -86,7 +86,7 @@ export function AIInputBox({
           }}
           placeholder="向智能助手提问..."
           disabled={isLoading}
-          className="flex-1 bg-transparent text-xs text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none disabled:opacity-50"
+          className="flex-1 bg-transparent text-xs text-popover-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
           autoFocus
         />
         <div className="flex items-center gap-1.5">
@@ -102,14 +102,14 @@ export function AIInputBox({
                   />
                 )
               : (
-                  <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+                  <div className="w-3 h-3 bg-muted rounded animate-pulse" />
                 )}
           </div>
           <button
             type="button"
             onClick={handleCloseClick}
             disabled={isLoading}
-            className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed p-0.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded"
+            className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed p-0.5 hover:bg-accent rounded"
             title={hasActiveConversation ? '关闭对话（将提示确认）' : '关闭'}
           >
             <X className="w-3 h-3" />

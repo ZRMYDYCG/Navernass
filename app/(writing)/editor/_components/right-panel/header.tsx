@@ -15,7 +15,7 @@ interface HeaderProps {
 
 export function Header({ onNewChat, onShowHistory }: HeaderProps) {
   return (
-    <div className="h-10 flex px-3 items-center justify-end bg-[#FAF9F6] dark:bg-zinc-900">
+    <div className="h-10 flex px-3 items-center justify-end bg-background">
       <TooltipProvider>
         <div className="flex items-center gap-1">
           <Tooltip>
@@ -23,7 +23,7 @@ export function Header({ onNewChat, onShowHistory }: HeaderProps) {
               <button
                 type="button"
                 onClick={onNewChat}
-                className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-stone-200/50 dark:hover:bg-zinc-800 rounded-md transition-all duration-200 text-stone-500 hover:text-stone-800 dark:text-zinc-400 dark:hover:text-zinc-200 cursor-pointer"
+                className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all duration-200 text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <MessageSquarePlus className="w-4 h-4" />
               </button>
@@ -37,7 +37,7 @@ export function Header({ onNewChat, onShowHistory }: HeaderProps) {
               <button
                 type="button"
                 onClick={onShowHistory}
-                className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-stone-200/50 dark:hover:bg-zinc-800 rounded-md transition-all duration-200 text-stone-500 hover:text-stone-800 dark:text-zinc-400 dark:hover:text-zinc-200 cursor-pointer"
+                className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all duration-200 text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <Clock className="w-4 h-4" />
               </button>

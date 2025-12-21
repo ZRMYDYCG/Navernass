@@ -42,7 +42,7 @@ export function HeaderRight({
 }: HeaderRightProps) {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
 
-  const buttonClass = 'p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer'
+  const buttonClass = 'p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer'
   const iconProps = { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }
 
   return (
@@ -119,7 +119,7 @@ export function HeaderRight({
         </Tooltip>
 
         {/* 分隔线 */}
-        <div className="w-px h-3 bg-stone-200 dark:bg-stone-700 mx-1" />
+        <div className="w-px h-3 bg-border mx-1" />
 
         {/* 关闭按钮 */}
         <Tooltip>
@@ -127,7 +127,7 @@ export function HeaderRight({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-stone-400 hover:text-red-500 dark:text-stone-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer"
+              className="p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-muted-foreground hover:text-red-500 hover:bg-red-50 cursor-pointer"
             >
               <XCircle {...iconProps} />
             </button>

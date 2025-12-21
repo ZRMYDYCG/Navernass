@@ -21,6 +21,7 @@ import {
 import { useEffect, useState } from 'react'
 import { ChapterItem } from './chapter-item'
 import { VolumeItem } from './volume-item'
+import { EmptyChapters } from './empty-chapters'
 
 // 根目录放置区组件
 function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver: boolean, isDraggingFromVolume: boolean }) {
@@ -35,11 +36,11 @@ function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver
       ref={setNodeRef}
       className={`transition-all duration-200 ${
         isOver
-          ? 'h-16 mb-1 border-2 border-dashed border-stone-300 dark:border-zinc-600 rounded-lg flex items-center justify-center bg-stone-50 dark:bg-zinc-800/50'
-          : 'h-12 mb-1 border-2 border-dashed border-stone-200 dark:border-zinc-700 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:border-stone-300 dark:hover:border-zinc-600'
+          ? 'h-16 mb-1 border-2 border-dashed border-border rounded-lg flex items-center justify-center bg-accent'
+          : 'h-12 mb-1 border-2 border-dashed border-border rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:border-border'
       }`}
     >
-      <span className="text-sm text-stone-500 dark:text-zinc-400">
+      <span className="text-sm text-muted-foreground">
         {isOver ? '松开以移出到根目录' : '拖到这里移出到根目录'}
       </span>
     </div>
@@ -61,6 +62,8 @@ interface ChapterListProps {
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
   onCreateChapterInVolume?: (volumeId: string) => void
+  onCreateChapter?: () => void
+  onCreateVolume?: () => void
   onCollapseAllRef?: React.MutableRefObject<(() => void) | null>
 }
 
@@ -79,6 +82,8 @@ export function ChapterList({
   onRenameVolume,
   onDeleteVolume,
   onCreateChapterInVolume,
+  onCreateChapter,
+  onCreateVolume,
   onCollapseAllRef,
 }: ChapterListProps) {
   const [localChapters, setLocalChapters] = useState(() => chapters || [])
@@ -291,9 +296,17 @@ export function ChapterList({
     ...localChapters.map(c => c.id),
   ]
 
+  const hasContent = localChapters.length > 0 || localVolumes.length > 0
+
   return (
-    <div className="flex-1 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-stone-200 dark:scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-      <DndContext
+    <div className="flex-1 overflow-y-auto p-2">
+      {!hasContent ? (
+        <EmptyChapters
+          onCreateChapter={onCreateChapter}
+          onCreateVolume={onCreateVolume}
+        />
+      ) : (
+        <DndContext
         sensors={sensors}
         collisionDetection={pointerWithin}
         onDragStart={handleDragStart}
@@ -314,7 +327,7 @@ export function ChapterList({
             <div
               key={volume.id}
               className={overId === volume.id && activeId && localChapters.find(c => c.id === activeId)
-                ? 'border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg'
+                ? 'border-2 border-dashed border-border rounded-lg'
                 : ''}
             >
               <VolumeItem
@@ -335,12 +348,12 @@ export function ChapterList({
                     <div key={chapter.id} className="relative">
                       {/* 顶部插入指示线 */}
                       {isOver && sameContainer && index === 0 && (
-                        <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10" />
+                        <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
                       )}
 
                       <div
                         className={isOver
-                          ? 'bg-stone-100 dark:bg-zinc-800 transition-colors rounded-lg'
+                          ? 'bg-accent transition-colors rounded-lg'
                           : ''}
                       >
                         <ChapterItem
@@ -356,7 +369,7 @@ export function ChapterList({
 
                       {/* 底部插入指示线 */}
                       {isOver && sameContainer && (
-                        <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10" />
+                        <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
                       )}
                     </div>
                   )
@@ -375,12 +388,12 @@ export function ChapterList({
               <div key={chapter.id} className="relative">
                 {/* 顶部插入指示线 */}
                 {isOver && sameContainer && index === 0 && (
-                  <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10" />
+                  <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
                 )}
 
                 <div
                   className={isOver
-                    ? 'bg-stone-100 dark:bg-zinc-800 transition-colors rounded-lg'
+                    ? 'bg-accent transition-colors rounded-lg'
                     : ''}
                 >
                   <ChapterItem
@@ -396,7 +409,7 @@ export function ChapterList({
 
                 {/* 底部插入指示线 */}
                 {isOver && sameContainer && (
-                  <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10" />
+                  <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
                 )}
               </div>
             )
@@ -407,8 +420,8 @@ export function ChapterList({
         <DragOverlay dropAnimation={null}>
           {activeItem && 'title' in activeItem && 'wordCount' in activeItem
             ? (
-                <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-3 border-2 border-dashed border-gray-400 dark:border-gray-600">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <div className="bg-card rounded-lg shadow-lg p-3 border-2 border-dashed border-border">
+                  <div className="text-sm font-medium text-foreground flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -418,8 +431,8 @@ export function ChapterList({
               )
             : activeItem && 'description' in activeItem
               ? (
-                  <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-3 border-2 border-dashed border-gray-400 dark:border-gray-600">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <div className="bg-card rounded-lg shadow-lg p-3 border-2 border-dashed border-border">
+                    <div className="text-sm font-medium text-foreground flex items-center gap-2">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                       </svg>
@@ -430,6 +443,7 @@ export function ChapterList({
               : null}
         </DragOverlay>
       </DndContext>
+      )}
     </div>
   )
 }

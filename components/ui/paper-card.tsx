@@ -11,15 +11,13 @@ function PaperCard({ ref, className, variant = 'default', isMenuActive, ...props
     <div
       ref={ref}
       className={cn(
-        'relative bg-[#FDFBF7] dark:bg-zinc-800 rounded-xl border border-stone-200/60 dark:border-zinc-700/50',
+        'relative bg-card rounded-xl border border-border',
         'shadow-sm transition-all duration-300',
         'overflow-hidden',
-        // Paper texture overlay
-        'before:absolute before:inset-0 before:bg-paper-texture before:opacity-40 before:pointer-events-none before:z-0',
         {
           'hover:shadow-md hover:-translate-y-1': variant === 'default' && !isMenuActive,
           'shadow-md -translate-y-1': variant === 'default' && isMenuActive,
-          'shadow-md rotate-1 after:absolute after:inset-0 after:bg-[#FDFBF7] after:dark:bg-zinc-800 after:rounded-xl after:border after:border-stone-200/60 after:dark:border-zinc-700/50 after:-z-10 after:-rotate-2 after:shadow-sm': variant === 'stack',
+          'shadow-md rotate-1 after:absolute after:inset-0 after:bg-card after:rounded-xl after:border after:border-border after:-z-10 after:-rotate-2 after:shadow-sm': variant === 'stack',
           'hover:shadow-xl hover:-translate-y-1': variant === 'floating' && !isMenuActive,
           'shadow-xl -translate-y-1': variant === 'floating' && isMenuActive,
         },

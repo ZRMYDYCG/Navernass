@@ -20,7 +20,7 @@ export function NewsCard({ item }: NewsCardProps) {
     <div className="rounded-lg overflow-hidden">
       <div className="p-6 pb-4">
         <div className="flex items-start justify-between gap-4 mb-3">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex-1">
+          <h3 className="text-lg font-semibold text-foreground flex-1">
             {item.title}
           </h3>
           <div className="flex items-center gap-3 shrink-0">
@@ -33,19 +33,19 @@ export function NewsCard({ item }: NewsCardProps) {
                 {statusLabel}
               </Button>
             )}
-            <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+            <span className="text-sm text-muted-foreground whitespace-nowrap">
               {item.date}
             </span>
           </div>
         </div>
 
-        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4">
           {item.description}
         </p>
       </div>
 
       <div className="px-6 pb-4">
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-secondary">
           <img
             src={item.coverImage}
             alt={item.title}

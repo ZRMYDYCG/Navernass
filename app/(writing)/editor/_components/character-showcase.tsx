@@ -200,20 +200,20 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
     <div className="h-full flex flex-col">
       <div className="p-4 pb-2 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">角色档案</h2>
+          <h2 className="text-sm font-medium text-foreground">角色档案</h2>
           <button
             type="button"
             onClick={handleOpenCreate}
-            className="p-1.5 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-md text-gray-500 transition-colors"
+            className="p-1.5 hover:bg-accent rounded-md text-muted-foreground transition-colors"
           >
             <Plus className="w-4 h-4" />
           </button>
         </div>
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <Input
             placeholder="搜索角色..."
-            className="h-8 pl-8 bg-white dark:bg-zinc-800/50 border-gray-200 dark:border-gray-700 text-xs"
+            className="h-8 pl-8 bg-background border-border text-xs"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -223,11 +223,11 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
       <div className="flex-1 overflow-y-auto p-4 pt-2">
         <div className="space-y-4 pb-10">
           {loading && characters.length === 0 && (
-            <div className="text-xs text-gray-400 dark:text-gray-500 px-1">加载角色中...</div>
+            <div className="text-xs text-muted-foreground px-1">加载角色中...</div>
           )}
 
           {!loading && characters.length === 0 && (
-            <div className="text-xs text-gray-400 dark:text-gray-500 px-1">还没有角色，先写一个吧。</div>
+            <div className="text-xs text-muted-foreground px-1">还没有角色，先写一个吧。</div>
           )}
 
           {filtered.map(char => (
@@ -237,12 +237,12 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
           <button
             type="button"
             onClick={handleOpenCreate}
-            className="w-full p-4 rounded-sm border-2 border-dashed border-gray-200 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-all duration-300 group flex flex-col items-center justify-center gap-2 min-h-[120px]"
+            className="w-full p-4 rounded-sm border-2 border-dashed border-border hover:border-border hover:bg-accent transition-all duration-300 group flex flex-col items-center justify-center gap-2 min-h-[120px]"
           >
-            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Plus className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Plus className="w-5 h-5 text-muted-foreground" />
             </div>
-            <span className="text-xs text-gray-400 font-medium">新建角色档案</span>
+            <span className="text-xs text-muted-foreground font-medium">新建角色档案</span>
           </button>
         </div>
       </div>
@@ -266,7 +266,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
               placeholder="一句话描述这个角色"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="min-h-[72px] w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-gray-900/5 focus:border-gray-400 resize-none"
+              className="min-h-[72px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring focus:border-ring resize-none"
             />
             <Input
               placeholder="关键特质（用逗号分隔）"
@@ -287,7 +287,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
               placeholder="灵感备注"
               value={note}
               onChange={e => setNote(e.target.value)}
-              className="min-h-[60px] w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-gray-900/5 focus:border-gray-400 resize-none"
+              className="min-h-[60px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring focus:border-ring resize-none"
             />
           </div>
           <DialogFooter>

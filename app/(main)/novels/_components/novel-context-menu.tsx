@@ -22,7 +22,7 @@ export function NovelContextMenu({
 
   return (
     <div
-      className="fixed bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+      className="fixed bg-card rounded-lg shadow-lg border border-border p-1 z-50 min-w-[160px]"
       data-type="novel-context-menu"
       style={{
         left: `${position.x}px`,
@@ -37,7 +37,7 @@ export function NovelContextMenu({
           onOpen(novel)
           onClose()
         }}
-        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
       >
         <ExternalLink className="w-4 h-4" />
         打开
@@ -49,7 +49,7 @@ export function NovelContextMenu({
           onEdit(novel)
           onClose()
         }}
-        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
       >
         <Edit className="w-4 h-4" />
         编辑

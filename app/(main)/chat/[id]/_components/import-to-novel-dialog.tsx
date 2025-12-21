@@ -148,7 +148,7 @@ export function ImportToNovelDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-gray-800">
+      <DialogContent className="sm:max-w-[500px] bg-popover border-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
@@ -162,7 +162,7 @@ export function ImportToNovelDialog({
         <div className="space-y-4 py-4">
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">选择小说 *</label>
+            <label className="block text-sm font-medium text-foreground">选择小说 *</label>
             <Select
               value={selectedNovelId}
               onValueChange={setSelectedNovelId}
@@ -183,7 +183,7 @@ export function ImportToNovelDialog({
 
           {selectedNovelId && (
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">选择卷（可选）</label>
+              <label className="block text-sm font-medium text-foreground">选择卷（可选）</label>
               <Select
                 value={selectedVolumeId || '__none__'}
                 onValueChange={value => setSelectedVolumeId(value === '__none__' ? '' : value)}
@@ -205,7 +205,7 @@ export function ImportToNovelDialog({
           )}
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">章节标题 *</label>
+            <label className="block text-sm font-medium text-foreground">章节标题 *</label>
             <Input
               value={chapterTitle}
               onChange={e => setChapterTitle(e.target.value)}

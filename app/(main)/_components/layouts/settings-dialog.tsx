@@ -83,7 +83,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-md bg-white dark:bg-zinc-900 border-gray-200 dark:border-gray-800"
+        className="sm:max-w-md bg-popover border-border"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -92,7 +92,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
         <div className="space-y-6 py-4">
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">API Key</h3>
+            <h3 className="text-sm font-medium text-foreground">API Key</h3>
             <div className="space-y-2">
               <div className="relative">
                 <input
@@ -101,13 +101,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx"
                   disabled={isLoading}
-                  className="w-full px-3 py-2 pr-10 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent disabled:opacity-50"
+                  className="w-full px-3 py-2 pr-10 text-sm rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
                 />
                 <button
                   type="button"
                   onClick={() => setShowApiKey(!showApiKey)}
                   disabled={isLoading}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
                 >
                   {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -117,7 +117,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   type="button"
                   onClick={handleSaveApiKey}
                   disabled={!apiKey.trim() || isSaving || isLoading}
-                  className="flex-1 px-3 py-1.5 text-sm font-medium rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="flex-1 px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {isSaving ? '保存中...' : isSaved ? '已保存' : '保存'}
                 </button>
@@ -125,13 +125,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   type="button"
                   onClick={handleClearApiKey}
                   disabled={!apiKey || isSaving || isLoading}
-                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border text-muted-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   清除
                 </button>
               </div>
               {isLoading ? (
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-muted-foreground">
                   加载中...
                 </p>
               ) : apiKey ? (
@@ -139,7 +139,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   ✓ API Key 已保存到云端
                 </p>
               ) : (
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-muted-foreground">
                   请输入您的 API Key，将安全保存到云端
                 </p>
               )}
@@ -147,7 +147,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">主题</h3>
+            <h3 className="text-sm font-medium text-foreground">主题</h3>
             <div className="grid grid-cols-3 gap-2">
               {themeOptions.map((option) => {
                 const Icon = option.icon
@@ -159,8 +159,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     onClick={(e) => setTheme(option.value, e)}
                     className={`flex flex-col items-center gap-2 px-3 py-3 rounded-lg border transition-all duration-200 ${
                       isActive
-                        ? 'bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white'
-                        : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:border-gray-300 dark:hover:border-gray-600'
+                        ? 'bg-secondary border-ring text-foreground'
+                        : 'border-border text-muted-foreground hover:bg-accent hover:border-ring'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -172,10 +172,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">语言</h3>
-            <div className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-zinc-800/50">
-              <span className="text-sm text-gray-700 dark:text-gray-300">简体中文</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">默认</span>
+            <h3 className="text-sm font-medium text-foreground">语言</h3>
+            <div className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-border bg-secondary">
+              <span className="text-sm text-foreground">简体中文</span>
+              <span className="text-xs text-muted-foreground">默认</span>
             </div>
           </div>
         </div>

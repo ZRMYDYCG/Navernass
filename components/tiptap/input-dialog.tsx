@@ -65,11 +65,11 @@ export function InputDialog({
       />
 
       {/* Dialog 内容 */}
-      <div className="relative bg-white dark:bg-zinc-900 rounded-lg shadow-2xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700">
+      <div className="relative bg-popover rounded-lg shadow-2xl w-full max-w-md mx-4 border border-border">
         <form onSubmit={handleSubmit}>
           {/* 标题 */}
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <div className="px-6 py-4 border-b border-border">
+            <h3 className="text-lg font-medium text-foreground">
               {title}
             </h3>
           </div>
@@ -83,23 +83,23 @@ export function InputDialog({
               onChange={e => setValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-900 dark:focus:border-gray-200 focus:ring-0 focus-visible:ring-1 focus-visible:ring-gray-900/40 dark:focus-visible:ring-gray-100/30"
+              className="w-full px-4 py-2.5 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-0 focus-visible:ring-1 focus-visible:ring-ring/50"
             />
           </div>
 
           {/* 按钮组 */}
-          <div className="px-6 py-4 bg-gray-50 dark:bg-zinc-800/50 rounded-b-lg flex items-center justify-end gap-3">
+          <div className="px-6 py-4 bg-accent/50 rounded-b-lg flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+              className="px-4 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
             >
               取消
             </button>
             <button
               type="submit"
               disabled={!value.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-900 dark:disabled:hover:bg-gray-100"
+              className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
             >
               确定
             </button>

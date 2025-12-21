@@ -18,7 +18,7 @@ export function TrashContextMenu({
 }: TrashContextMenuProps) {
   return (
     <div
-      className="fixed bg-white dark:bg-zinc-800/95 backdrop-blur-sm rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[140px]"
+      className="fixed bg-card/95 backdrop-blur-sm rounded-md shadow-lg border border-border p-1 z-50 min-w-[140px]"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -31,7 +31,7 @@ export function TrashContextMenu({
           onRestore(novel)
           onClose()
         }}
-        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-foreground hover:bg-accent rounded transition-colors"
       >
         <RotateCcw className="w-3.5 h-3.5" />
         恢复
@@ -42,7 +42,7 @@ export function TrashContextMenu({
           onPermanentDelete(novel)
           onClose()
         }}
-        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent rounded transition-colors"
       >
         <Trash2 className="w-3.5 h-3.5" />
         永久删除

@@ -178,7 +178,7 @@ export default function Trash() {
   }
 
   return (
-    <div className="flex flex-col dark:bg-zinc-900 transition-colors h-full">
+    <div className="flex flex-col bg-background transition-colors h-full">
 
       {/* 列表区域 */}
       <div className="flex-1 px-4 sm:px-6 py-2">

@@ -57,11 +57,11 @@ export default function LeftPanel({
     <div
       className="h-full flex border-r-0 rounded-none shadow-none"
     >
-      <div className="flex-shrink-0 z-10 bg-[#FAF9F6] dark:bg-zinc-900/90 border-r border-stone-200 dark:border-zinc-800">
+      <div className="flex-shrink-0 z-10 bg-background/90 border-r border-border">
         <TabSwitcher activeTab={activeTab} onChange={setActiveTab} />
       </div>
 
-      <div className="flex-1 overflow-hidden relative bg-[#FAF9F6] dark:bg-zinc-900">
+      <div className="flex-1 overflow-hidden relative bg-background">
         <AnimatePresence mode="wait">
           {activeTab === 'files' && (
             <motion.div

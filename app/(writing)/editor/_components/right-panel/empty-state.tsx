@@ -50,10 +50,10 @@ export function EmptyState() {
         </div>
       </div>
 
-      <h3 className="text-lg font-medium text-[#333333] dark:text-zinc-100 mb-2 tracking-tight">
+      <h3 className="text-lg font-medium text-foreground mb-2 tracking-tight">
         AI 写作助手
       </h3>
-      <p className="text-sm text-stone-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">
+      <p className="text-sm text-muted-foreground mb-8 max-w-xs leading-relaxed">
         我可以帮你续写剧情、优化文字、润色对话，让创作更轻松
       </p>
 

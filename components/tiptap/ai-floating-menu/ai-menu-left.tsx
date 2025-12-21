@@ -47,7 +47,7 @@ export function AIMenuLeft({ onPresetAction, onEditAdjust, isLoading, editor }: 
   }
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded shadow-xl w-[220px] overflow-hidden">
+    <div className="bg-popover border border-border rounded shadow-xl w-[220px] overflow-hidden">
       <div className="py-0.5">
         {editItems.map(item => (
           <button
@@ -55,11 +55,11 @@ export function AIMenuLeft({ onPresetAction, onEditAdjust, isLoading, editor }: 
             type="button"
             onClick={() => handleClick(item)}
             disabled={isLoading}
-            className="w-full px-2.5 py-1.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-2.5 py-1.5 text-left text-xs text-popover-foreground hover:bg-accent transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>{item.label}</span>
             {item.hasSubmenu && (
-              <ChevronRight className="w-3 h-3 text-gray-400" />
+              <ChevronRight className="w-3 h-3 text-muted-foreground" />
             )}
           </button>
         ))}

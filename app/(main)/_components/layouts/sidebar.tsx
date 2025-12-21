@@ -75,8 +75,8 @@ export function Sidebar({ onCollapsedChange }: SidebarProps) {
       <aside
         className={`${
           isMobileOpen
-            ? 'fixed left-0 top-0 h-screen border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-zinc-900 w-56 translate-x-0 z-[60] transition-transform duration-300 ease-out'
-            : `fixed left-0 top-0 h-screen border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-zinc-900 ${
+            ? 'fixed left-0 top-0 h-screen border-r border-border bg-background w-56 translate-x-0 z-[60] transition-transform duration-300 ease-out'
+            : `fixed left-0 top-0 h-screen border-r border-border bg-background ${
               isCollapsed ? 'w-16' : 'w-56'
             } -translate-x-full lg:translate-x-0 z-[60] transition-transform duration-300 ease-out lg:block`
         }`}
@@ -84,7 +84,7 @@ export function Sidebar({ onCollapsedChange }: SidebarProps) {
         <button
           type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-1/2 -translate-y-1/2 z-[70] w-7 h-7 rounded-full bg-card border-2 border-border text-muted-foreground hover:text-foreground hover:border-gray-300 dark:hover:border-gray-700 shadow-lg transition-all duration-200 hover:scale-110 flex items-center justify-center cursor-pointer hidden lg:flex"
+          className="absolute -right-3 top-1/2 -translate-y-1/2 z-[70] w-7 h-7 rounded-full bg-card border-2 border-border text-muted-foreground hover:text-foreground hover:border-ring shadow-lg transition-all duration-200 hover:scale-110 flex items-center justify-center cursor-pointer hidden lg:flex"
         >
           {isCollapsed
             ? (
@@ -100,7 +100,7 @@ export function Sidebar({ onCollapsedChange }: SidebarProps) {
             <div className="flex items-center flex-1">
               <AppLogo />
               {(!isCollapsed || isMobileOpen) && (
-                <span className="ml-3 text-lg font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                <span className="ml-3 text-lg font-semibold text-foreground whitespace-nowrap">
                   Narraverse
                 </span>
               )}
@@ -118,8 +118,8 @@ export function Sidebar({ onCollapsedChange }: SidebarProps) {
                   href={item.path}
                   className={`group relative flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer ${
                     active
-                      ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+                      ? 'bg-secondary text-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                   }`}
                 >
                   <Icon className={`w-5 h-5 shrink-0 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-105'}`} />

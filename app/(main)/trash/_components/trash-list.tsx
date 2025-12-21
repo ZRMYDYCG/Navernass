@@ -21,8 +21,8 @@ export function TrashList({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <Spinner className="w-6 h-6 text-stone-400" />
-        <span className="text-sm text-stone-400 font-serif">加载中...</span>
+        <Spinner className="w-6 h-6 text-muted-foreground" />
+        <span className="text-sm text-muted-foreground font-serif">加载中...</span>
       </div>
     )
   }

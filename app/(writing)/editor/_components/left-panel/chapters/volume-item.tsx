@@ -53,7 +53,7 @@ export function VolumeItem({
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div ref={setNodeRef} style={style} className="group mb-0.5">
-          <div className="px-2 py-0.5 flex items-center rounded-lg transition-colors hover:bg-stone-200/30 dark:hover:bg-zinc-800/50 min-h-[26px]">
+          <div className="px-2 py-0.5 flex items-center rounded-lg transition-colors hover:bg-accent min-h-[26px]">
             <div className="flex items-center gap-1.5 w-full">
               <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <Popover.Trigger asChild>
@@ -61,17 +61,17 @@ export function VolumeItem({
                     type="button"
                     {...attributes}
                     {...listeners}
-                    className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-opacity ${
+                    className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded transition-opacity ${
                       isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-40'
                     }`}
                     onClick={e => e.stopPropagation()}
                   >
-                    <GripVertical className="w-3.5 h-3.5 text-stone-400 dark:text-zinc-500" />
+                    <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
                 </Popover.Trigger>
                 <Popover.Portal>
                   <Popover.Content
-                    className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-stone-200 dark:border-zinc-700 p-1 z-50 min-w-[160px]"
+                    className="bg-card rounded-lg shadow-lg border border-border p-1 z-50 min-w-[160px]"
                     sideOffset={5}
                     align="start"
                   >
@@ -83,7 +83,7 @@ export function VolumeItem({
                           onRename(volume)
                           setPopoverOpen(false)
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-700 rounded-md transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                         重命名
@@ -97,7 +97,7 @@ export function VolumeItem({
                           onDelete(volume)
                           setPopoverOpen(false)
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         删除
@@ -110,7 +110,7 @@ export function VolumeItem({
               <button
                 type="button"
                 onClick={onToggle}
-                className="p-1 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-colors text-stone-500 dark:text-zinc-400"
+                className="p-1 hover:bg-accent rounded transition-colors text-muted-foreground"
               >
                 {isExpanded
                   ? (
@@ -123,8 +123,8 @@ export function VolumeItem({
 
               <div className="flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
                 <div className="flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-stone-500 dark:text-zinc-400 flex-shrink-0" />
-                  <h3 className="text-[12px] font-medium text-[#333333] dark:text-zinc-100 truncate leading-snug">
+                  <BookOpen className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                  <h3 className="text-[12px] font-medium text-foreground truncate leading-snug">
                     {volume.title}
                   </h3>
                 </div>
@@ -133,7 +133,7 @@ export function VolumeItem({
           </div>
 
           {isExpanded && children && (
-            <div className="ml-3 border-l border-stone-200/50 dark:border-zinc-800 pl-1.5 mt-0.5 space-y-0.5">
+            <div className="ml-3 border-l border-border pl-1.5 mt-0.5 space-y-0.5">
               {children}
             </div>
           )}
@@ -172,7 +172,7 @@ export function VolumeItem({
                 e.stopPropagation()
                 onDelete(volume)
               }}
-              className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20"
+              className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] text-red-600 focus:text-red-600 focus:bg-red-50"
             >
               <Trash2 className="w-2.5 h-2.5" />
               删除卷

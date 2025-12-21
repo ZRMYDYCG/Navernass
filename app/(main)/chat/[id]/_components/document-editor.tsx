@@ -85,12 +85,12 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
   if (!isOpen) return null
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-l border-gray-200 dark:border-gray-800">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+    <div className="flex flex-col h-full bg-card border-l border-border">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 lg:hidden"
+          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground lg:hidden"
           onClick={() => {
             const menuButton = document.querySelector('button[aria-label="Toggle menu"]') as HTMLButtonElement
             if (menuButton) menuButton.click()
@@ -102,7 +102,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
           onClick={onClose}
         >
           <X className="w-4 h-4" />
@@ -122,11 +122,11 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
         </div>
       </div>
 
-      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-800">
+      <div className="flex items-center justify-between px-4 py-3 border-t border-border">
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 px-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+          className="h-8 px-3 text-muted-foreground hover:text-foreground"
           onClick={() => setShowImportDialog(true)}
         >
           <BookPlus className="w-4 h-4 mr-1.5" />
@@ -137,7 +137,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 px-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+            className="h-8 px-3 text-muted-foreground hover:text-foreground"
             onClick={handleCopy}
           >
             <Copy className="w-4 h-4 mr-1.5" />
@@ -146,7 +146,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 px-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+            className="h-8 px-3 text-muted-foreground hover:text-foreground"
             onClick={handleDownload}
           >
             <Download className="w-4 h-4 mr-1.5" />

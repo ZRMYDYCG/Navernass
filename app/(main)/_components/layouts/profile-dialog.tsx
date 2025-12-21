@@ -137,7 +137,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-[#F9F8F4] dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800">
+      <DialogContent className="sm:max-w-md bg-popover border border-border">
         <DialogHeader>
           <DialogTitle>编辑个人资料</DialogTitle>
         </DialogHeader>
@@ -145,7 +145,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
         <div className="space-y-6 py-4">
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
-              <Avatar className="w-24 h-24 ring-4 ring-stone-200 dark:ring-zinc-700">
+              <Avatar className="w-24 h-24 ring-4 ring-border">
                 <AvatarImage src={avatarUrl} alt={displayName} />
                 <AvatarFallback className="text-2xl">
                   {displayName.charAt(0).toUpperCase()}
@@ -169,7 +169,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
                 className="hidden"
               />
             </div>
-            <p className="text-xs text-stone-500 dark:text-zinc-400">
+            <p className="text-xs text-muted-foreground">
               点击相机图标上传头像
             </p>
           </div>
@@ -182,7 +182,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 placeholder="输入用户名"
-                className="bg-white dark:bg-zinc-800"
+                className="bg-card"
               />
             </div>
 
@@ -193,7 +193,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                 placeholder="输入姓名"
-                className="bg-white dark:bg-zinc-800"
+                className="bg-card"
               />
             </div>
 
@@ -204,7 +204,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                 placeholder="https://example.com"
-                className="bg-white dark:bg-zinc-800"
+                className="bg-card"
               />
             </div>
           </div>
@@ -222,7 +222,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
           <Button
             onClick={handleSave}
             disabled={isSaving || isUploading}
-            className="flex-1 bg-black dark:bg-zinc-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isUploading ? '上传中...' : isSaving ? '保存中...' : '保存'}
           </Button>

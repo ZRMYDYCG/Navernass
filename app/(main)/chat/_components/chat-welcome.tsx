@@ -26,12 +26,12 @@ export function ChatWelcome({ isLoading = false }: ChatWelcomeProps) {
   return (
     <div className="text-center mb-3 space-y-6">
       <div className="space-y-3">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+        <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
           {greeting}
           ，准备好开始创作了吗？
         </h1>
 
-        <p className="text-lg text-gray-500 dark:text-gray-400">
+        <p className="text-lg text-muted-foreground">
           {isLoading ? '正在创建对话...' : '让 AI 助手陪你一起编织精彩的故事'}
         </p>
       </div>

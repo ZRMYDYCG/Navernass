@@ -173,7 +173,7 @@ export default function EditorContent({
   }, [isSaving, lastSaved])
 
   return (
-    <div className="h-full flex flex-col bg-linear-to-b from-[#fdfbf7] to-[#f3f4f6] dark:from-[#1f1f22] dark:to-[#18181b]">
+    <div className="h-full flex flex-col bg-background">
       {/* 顶部页签区域 */}
       <SmartTabs
         tabs={openTabs}
@@ -201,8 +201,8 @@ export default function EditorContent({
         {loading
           ? (
               <div className="h-full flex flex-col items-center justify-center gap-3">
-                <Spinner className="w-8 h-8 text-stone-400" />
-                <span className="text-sm text-stone-500 dark:text-stone-400 font-light tracking-wider">正在铺开纸张...</span>
+                <Spinner className="w-8 h-8 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground font-light tracking-wider">正在铺开纸张...</span>
               </div>
             )
           : (
@@ -224,8 +224,8 @@ export default function EditorContent({
       </div>
 
       {/* 底部状态栏 */}
-      <div className="h-10 px-6 flex items-center justify-end bg-transparent border-t border-stone-200/30 dark:border-zinc-800/30 backdrop-blur-sm">
-        <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400 font-light tracking-wide">
+      <div className="h-10 px-6 flex items-center justify-end bg-transparent border-t border-border backdrop-blur-sm">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground font-light tracking-wide">
           <span>
             字数
             {' '}
@@ -240,7 +240,7 @@ export default function EditorContent({
           <span className="opacity-30">|</span>
           {isSaving
             ? (
-                <span className="text-stone-600 dark:text-stone-300 animate-pulse">保存中...</span>
+                <span className="text-foreground animate-pulse">保存中...</span>
               )
             : lastSaved
               ? (

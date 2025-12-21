@@ -70,15 +70,15 @@ export function SetPasswordDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 animate-in fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
-          <div className="bg-[#FAF9F6] dark:bg-zinc-900 rounded-xl shadow-xl border border-stone-200 dark:border-zinc-800 p-6">
-            <Dialog.Title className="text-lg font-medium text-[#333333] dark:text-zinc-100 mb-6">
+          <div className="bg-background rounded-xl shadow-xl border border-border p-6">
+            <Dialog.Title className="text-lg font-medium text-foreground mb-6">
               设置锁屏密码
             </Dialog.Title>
 
             <div className="space-y-5">
               {/* 密码输入 */}
               <div>
-                <label className="block text-xs font-medium text-stone-500 dark:text-zinc-400 mb-1.5 ml-1">
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5 ml-1">
                   密码
                   {' '}
                   <span className="text-red-500">*</span>
@@ -92,14 +92,14 @@ export function SetPasswordDialog({
                       setError('')
                     }}
                     placeholder="输入密码（至少4位）"
-                    className="w-full h-10 pr-10 bg-white dark:bg-zinc-800 border-stone-200 dark:border-zinc-700 text-[#333333] dark:text-zinc-100 placeholder:text-stone-400 dark:placeholder:text-zinc-500 focus:border-stone-400 dark:focus:border-zinc-500 focus:ring-0 rounded-lg transition-all"
+                    className="w-full h-10 pr-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-ring focus:ring-0 rounded-lg transition-all"
                     autoFocus
                     onKeyDown={handleKeyDown}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 dark:text-zinc-500 hover:text-stone-600 dark:hover:text-zinc-300 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showPassword
                       ? <EyeOff className="w-4 h-4" />
@@ -110,7 +110,7 @@ export function SetPasswordDialog({
 
               {/* 确认密码输入 */}
               <div>
-                <label className="block text-xs font-medium text-stone-500 dark:text-zinc-400 mb-1.5 ml-1">
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5 ml-1">
                   确认密码
                   {' '}
                   <span className="text-red-500">*</span>
@@ -124,13 +124,13 @@ export function SetPasswordDialog({
                       setError('')
                     }}
                     placeholder="再次输入密码"
-                    className="w-full h-10 pr-10 bg-white dark:bg-zinc-800 border-stone-200 dark:border-zinc-700 text-[#333333] dark:text-zinc-100 placeholder:text-stone-400 dark:placeholder:text-zinc-500 focus:border-stone-400 dark:focus:border-zinc-500 focus:ring-0 rounded-lg transition-all"
+                    className="w-full h-10 pr-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-ring focus:ring-0 rounded-lg transition-all"
                     onKeyDown={handleKeyDown}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 dark:text-zinc-500 hover:text-stone-600 dark:hover:text-zinc-300 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showConfirmPassword
                       ? <EyeOff className="w-4 h-4" />
@@ -141,7 +141,7 @@ export function SetPasswordDialog({
 
               {/* 错误提示 */}
               {error && (
-                <div className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1">
+                <div className="text-sm text-red-500 animate-in fade-in slide-in-from-top-1">
                   {error}
                 </div>
               )}
@@ -152,7 +152,7 @@ export function SetPasswordDialog({
               <Dialog.Close asChild>
                 <Button
                   type="button"
-                  className="flex-1 h-10 bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-zinc-300 hover:bg-stone-200 dark:hover:bg-zinc-700 border border-transparent dark:border-zinc-700 rounded-lg"
+                  className="flex-1 h-10 bg-secondary text-foreground hover:bg-accent border border-border rounded-lg"
                   disabled={isSetting}
                 >
                   取消
@@ -160,7 +160,7 @@ export function SetPasswordDialog({
               </Dialog.Close>
               <Button
                 onClick={handleConfirm}
-                className="flex-1 h-10 bg-[#333333] dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-black dark:hover:bg-white rounded-lg shadow-sm"
+                className="flex-1 h-10 bg-primary text-primary-foreground hover:opacity-90 rounded-lg shadow-sm"
                 disabled={isSetting || !password.trim() || !confirmPassword.trim()}
               >
                 {isSetting ? '设置中...' : '确定'}

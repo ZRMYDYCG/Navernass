@@ -24,16 +24,16 @@ export function DeleteConfirmDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
-          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-card rounded-lg shadow-lg border border-border p-6">
             <div className="flex items-start gap-4 mb-6">
               <div className="shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div className="flex-1">
-                <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                <Dialog.Title className="text-lg font-semibold text-foreground mb-2">
                   {title}
                 </Dialog.Title>
-                <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400">
+                <Dialog.Description className="text-sm text-muted-foreground">
                   {description}
                 </Dialog.Description>
               </div>
@@ -43,7 +43,7 @@ export function DeleteConfirmDialog({
               <Dialog.Close asChild>
                 <Button
                   type="button"
-                  className="flex-1 bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  className="flex-1 bg-secondary text-foreground hover:bg-accent"
                   disabled={loading}
                 >
                   取消

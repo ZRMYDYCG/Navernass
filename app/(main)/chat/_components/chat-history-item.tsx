@@ -174,7 +174,7 @@ export function ChatHistoryItem({
                   onKeyDown={handleKeyDown}
                   onBlur={handleRenameSubmit}
                   disabled={isRenaming}
-                  className="h-7 text-sm flex-1 min-w-0 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500"
+                  className="h-7 text-sm flex-1 min-w-0 bg-card border-border focus-visible:ring-ring"
                   autoFocus
                 />
                 <Button
@@ -182,7 +182,7 @@ export function ChatHistoryItem({
                   size="icon-sm"
                   onClick={handleRenameSubmit}
                   disabled={isRenaming}
-                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
                 >
                   <Check className="w-3.5 h-3.5" />
                 </Button>
@@ -191,7 +191,7 @@ export function ChatHistoryItem({
                   size="icon-sm"
                   onClick={handleRenameCancel}
                   disabled={isRenaming}
-                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
                 >
                   <X className="w-3.5 h-3.5" />
                 </Button>
@@ -201,8 +201,8 @@ export function ChatHistoryItem({
               <Button
                 variant="ghost"
                 className={cn(
-                  'w-full justify-start px-3 py-2 h-9 text-left hover:bg-gray-100 dark:hover:bg-gray-800 relative transition-all duration-200 overflow-hidden cursor-pointer rounded-lg',
-                  isActive && 'bg-gray-200 dark:bg-gray-800 shadow-sm border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-md',
+                  'w-full justify-start px-3 py-2 h-9 text-left hover:bg-accent relative transition-all duration-200 overflow-hidden cursor-pointer rounded-lg',
+                  isActive && 'bg-secondary shadow-sm border border-border hover:bg-secondary hover:shadow-md',
                 )}
                 onClick={handleClick}
               >
@@ -244,7 +244,7 @@ export function ChatHistoryItem({
                 variant="ghost"
                 size="icon-sm"
                 className={cn(
-                  'absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800 transition-opacity duration-200 z-10 cursor-pointer h-7 w-7',
+                  'absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:bg-accent transition-opacity duration-200 z-10 cursor-pointer h-7 w-7',
                   shouldShowButton ? 'opacity-100' : 'opacity-0 pointer-events-none',
                 )}
                 onClick={e => e.stopPropagation()}
@@ -252,8 +252,8 @@ export function ChatHistoryItem({
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-paper-md">
-              <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-700" onClick={handlePinClick}>
+            <DropdownMenuContent align="end" className="w-40 bg-popover border border-border shadow-paper-md">
+              <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-accent" onClick={handlePinClick}>
                 {chat.isPinned
                   ? (
                       <>
@@ -268,13 +268,13 @@ export function ChatHistoryItem({
                       </>
                     )}
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-700" onClick={handleRenameClick}>
+              <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-accent" onClick={handleRenameClick}>
                 <Edit3 className="w-4 h-4" />
                 <span>重命名</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+              <DropdownMenuSeparator className="bg-border" />
               <DropdownMenuItem
-                className="gap-2 text-destructive cursor-pointer focus:bg-red-100 dark:focus:bg-red-900/20"
+                className="gap-2 text-destructive cursor-pointer focus:bg-destructive/10"
                 onClick={handleDeleteClick}
               >
                 <Trash2 className="w-4 h-4" />
@@ -286,7 +286,7 @@ export function ChatHistoryItem({
 
         {/* 删除确认对话框 */}
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <DialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <DialogContent className="bg-popover border-border">
             <DialogHeader>
               <DialogTitle>删除对话</DialogTitle>
               <DialogDescription>

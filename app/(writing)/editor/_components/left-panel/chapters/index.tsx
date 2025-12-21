@@ -53,6 +53,8 @@ export default function ChaptersTab({
         onRenameVolume={onRenameVolume}
         onDeleteVolume={onDeleteVolume}
         onCreateChapterInVolume={onCreateChapterInVolume}
+        onCreateChapter={onCreateChapter}
+        onCreateVolume={onCreateVolume}
         onCollapseAllRef={collapseAllRef}
       />
     </div>

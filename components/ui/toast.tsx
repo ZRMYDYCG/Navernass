@@ -28,11 +28,11 @@ function Toast({ ref, className, variant = 'default', ...props }: React.Componen
     <ToastPrimitives.Root
       ref={ref}
       className={cn(
-        'group pointer-events-auto relative flex w-full items-start space-x-3 overflow-hidden rounded-xl border border-stone-200/60 dark:border-zinc-700/50 p-4 sm:p-5 shadow-sm transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full',
-        'bg-[#FDFBF7] dark:bg-zinc-800',
+        'group pointer-events-auto relative flex w-full items-start space-x-3 overflow-hidden rounded-xl border border-border p-4 sm:p-5 shadow-sm transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full',
+        'bg-card',
         'bg-paper-texture',
         'scale-90 sm:scale-100',
-        variant === 'destructive' && 'border-red-200/60 dark:border-red-800/50 bg-red-50/80 dark:bg-red-900/20',
+        variant === 'destructive' && 'border-destructive/50 bg-destructive/10',
         className,
       )}
       {...props}
@@ -46,7 +46,7 @@ function ToastAction({ ref, className, ...props }: React.ComponentPropsWithoutRe
     <ToastPrimitives.Action
       ref={ref}
       className={cn(
-        'inline-flex h-7 shrink-0 items-center justify-center rounded-lg border border-stone-200 dark:border-zinc-700 bg-transparent px-3 text-sm font-serif font-medium text-stone-700 dark:text-zinc-300 transition-all hover:bg-stone-100 dark:hover:bg-zinc-700/50 focus:outline-none focus:ring-1 focus:ring-stone-400 dark:focus:ring-zinc-600 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-red-200/60 dark:group-[.destructive]:border-red-800/50 group-[.destructive]:text-red-700 dark:group-[.destructive]:text-red-400 group-[.destructive]:hover:bg-red-50 dark:group-[.destructive]:hover:bg-red-900/20',
+        'inline-flex h-7 shrink-0 items-center justify-center rounded-lg border border-border bg-transparent px-3 text-sm font-serif font-medium text-foreground transition-all hover:bg-accent focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-destructive/50 group-[.destructive]:text-destructive group-[.destructive]:hover:bg-destructive/20',
         className,
       )}
       {...props}
@@ -60,7 +60,7 @@ function ToastClose({ ref, className, ...props }: React.ComponentPropsWithoutRef
     <ToastPrimitives.Close
       ref={ref}
       className={cn(
-        'absolute right-3 top-3 rounded-full p-1 text-stone-400 hover:text-stone-600 dark:text-zinc-500 dark:hover:text-zinc-300 opacity-0 group-hover:opacity-100 transition-all hover:bg-stone-100 dark:hover:bg-zinc-700/50',
+        'absolute right-3 top-3 rounded-full p-1 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-accent',
         'focus:opacity-100 focus:outline-none',
         className,
       )}
@@ -77,7 +77,7 @@ function ToastTitle({ ref, className, ...props }: React.ComponentPropsWithoutRef
   return (
     <ToastPrimitives.Title
       ref={ref}
-      className={cn('text-sm font-serif font-medium text-stone-800 dark:text-zinc-200', className)}
+      className={cn('text-sm font-serif font-medium text-foreground', className)}
       {...props}
     />
   )
@@ -88,7 +88,7 @@ function ToastDescription({ ref, className, ...props }: React.ComponentPropsWith
   return (
     <ToastPrimitives.Description
       ref={ref}
-      className={cn('text-sm font-serif text-stone-600 dark:text-zinc-400 leading-relaxed', className)}
+      className={cn('text-sm font-serif text-muted-foreground leading-relaxed', className)}
       {...props}
     />
   )

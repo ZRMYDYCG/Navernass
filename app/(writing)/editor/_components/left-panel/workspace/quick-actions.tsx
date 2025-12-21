@@ -140,7 +140,7 @@ export function QuickActions({
 
   return (
     <div className="flex items-center justify-between">
-      <span className="text-xs font-medium text-stone-600 dark:text-stone-300 px-1 font-serif">
+      <span className="text-xs font-medium text-foreground px-1 font-serif">
         快速操作
       </span>
       <div className="flex gap-1">
@@ -150,15 +150,15 @@ export function QuickActions({
               type="button"
               onClick={handleCreateChapter}
               disabled={isProcessing}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-zinc-700/50 rounded-md transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:shadow-sm"
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all text-muted-foreground hover:text-foreground hover:shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Content className="bg-stone-800 dark:bg-zinc-700 text-stone-50 text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+            <Tooltip.Content className="bg-foreground text-background text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
               新建章节
-              <Tooltip.Arrow className="fill-stone-800 dark:fill-zinc-700" />
+              <Tooltip.Arrow className="fill-foreground" />
             </Tooltip.Content>
           </Tooltip.Portal>
         </Tooltip.Root>
@@ -169,15 +169,15 @@ export function QuickActions({
               type="button"
               onClick={handleBatchCopy}
               disabled={isProcessing || chaptersCount === 0}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-zinc-700/50 rounded-md transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all text-muted-foreground hover:text-foreground hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Copy className="w-3.5 h-3.5" />
             </button>
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Content className="bg-stone-800 dark:bg-zinc-700 text-stone-50 text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+            <Tooltip.Content className="bg-foreground text-background text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
               批量复制
-              <Tooltip.Arrow className="fill-stone-800 dark:fill-zinc-700" />
+              <Tooltip.Arrow className="fill-foreground" />
             </Tooltip.Content>
           </Tooltip.Portal>
         </Tooltip.Root>
@@ -188,15 +188,15 @@ export function QuickActions({
               type="button"
               onClick={handleBatchDelete}
               disabled={isProcessing || chaptersCount === 0}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-zinc-700/50 rounded-md transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:shadow-sm hover:text-rose-700 dark:hover:text-rose-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all text-muted-foreground hover:text-foreground hover:shadow-sm hover:text-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Content className="bg-stone-800 dark:bg-zinc-700 text-stone-50 text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+            <Tooltip.Content className="bg-foreground text-background text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
               批量删除
-              <Tooltip.Arrow className="fill-stone-800 dark:fill-zinc-700" />
+              <Tooltip.Arrow className="fill-foreground" />
             </Tooltip.Content>
           </Tooltip.Portal>
         </Tooltip.Root>

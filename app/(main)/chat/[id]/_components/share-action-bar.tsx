@@ -22,9 +22,9 @@ export function ShareActionBar({
   isGeneratingImage,
 }: ShareActionBarProps) {
   return (
-    <div className="border-t border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3">
+    <div className="border-t border-border bg-card px-4 py-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>
             已选中
             {selectedCount}

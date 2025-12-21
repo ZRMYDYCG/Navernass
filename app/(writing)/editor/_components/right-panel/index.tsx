@@ -295,7 +295,7 @@ export default function RightPanel() {
   return (
     <div className="h-full w-full bg-transparent relative">
       <div
-        className="h-full flex flex-col dark:border-zinc-700/50 bg-[#FAF9F6] dark:bg-zinc-900"
+        className="h-full flex flex-col border-border bg-background"
       >
         <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 
@@ -303,8 +303,8 @@ export default function RightPanel() {
           {isLoadingMessages
             ? (
                 <div className="h-full flex flex-col items-center justify-center gap-2">
-                  <Spinner className="w-6 h-6 text-stone-400 dark:text-zinc-500" />
-                  <span className="text-xs text-stone-500 dark:text-zinc-400">正在载入对话...</span>
+                  <Spinner className="w-6 h-6 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">正在载入对话...</span>
                 </div>
               )
             : messages.length === 0
@@ -320,7 +320,7 @@ export default function RightPanel() {
                 )}
         </div>
 
-        <div className="px-3 py-2 space-y-2 bg-[#FAF9F6] dark:bg-zinc-900 rounded-b-lg z-10">
+        <div className="px-3 py-2 space-y-2 bg-background rounded-b-lg z-10">
           {messages.length === 0 && !isLoadingMessages && (
             <RecentConversations
               conversations={conversations}

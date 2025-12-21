@@ -93,22 +93,22 @@ export function ChapterQuickSearchDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-24 z-50 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-zinc-900 dark:ring-zinc-700">
-          <div className="flex items-center gap-2 px-4 py-2 border-b border-zinc-200 dark:border-zinc-800">
-            <Search className="h-4 w-4 text-zinc-400" />
+        <Dialog.Content className="fixed left-1/2 top-24 z-50 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-xl bg-card shadow-xl ring-1 ring-black/5">
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-border">
+            <Search className="h-4 w-4 text-muted-foreground" />
             <input
               autoFocus
               value={query}
               onChange={event => setQuery(event.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 outline-none dark:text-zinc-50"
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
               placeholder="搜索章节标题"
             />
             <Button
               type="button"
               size="icon"
               variant="ghost"
-              className="h-7 w-7 text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-200"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground"
               onClick={() => onOpenChange(false)}
             >
               <X className="h-4 w-4" />
@@ -116,7 +116,7 @@ export function ChapterQuickSearchDialog({
           </div>
           <div className="max-h-[60vh] overflow-y-auto py-1">
             {filtered.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-zinc-400">暂无匹配章节</div>
+              <div className="px-4 py-6 text-center text-sm text-muted-foreground">暂无匹配章节</div>
             ) : (
               <ul className="py-1">
                 {filtered.map((item, index) => {
@@ -129,13 +129,13 @@ export function ChapterQuickSearchDialog({
                         onClick={() => handleItemClick(item.id)}
                         className={`flex w-full items-center justify-between px-4 py-2 text-left text-sm transition-colors ${
                           isActive
-                            ? "bg-primary/10 text-primary dark:bg-primary/20"
-                            : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/70"
+                            ? "bg-primary/10 text-primary"
+                            : "text-foreground hover:bg-accent"
                         }`}
                       >
                         <span className="truncate">{item.title}</span>
                         {isCurrent && (
-                          <span className="ml-2 rounded bg-zinc-200 px-1.5 py-0.5 text-[11px] font-medium text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
+                          <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[11px] font-medium text-foreground">
                             当前
                           </span>
                         )}

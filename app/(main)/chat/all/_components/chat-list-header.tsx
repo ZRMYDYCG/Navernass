@@ -1,7 +1,6 @@
 'use client'
 
 import type { Dispatch, SetStateAction } from 'react'
-import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '../config'
@@ -39,20 +38,20 @@ export function ChatListHeader({
   const router = useRouter()
 
   return (
-    <header className="flex items-center justify-between p-4 bg-gray-50 dark:bg-zinc-900">
+    <header className="flex items-center justify-between p-4 bg-background">
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="sm"
           onClick={() => router.push(ROUTES.chat)}
-          className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+          className="text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="w-5 h-5" />
+          返回
         </Button>
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h1 className="text-lg font-semibold text-foreground">
           {title}
           {!isLoading && (
-            <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+            <span className="text-sm font-normal text-muted-foreground ml-2">
               ({chatCount})
             </span>
           )}
