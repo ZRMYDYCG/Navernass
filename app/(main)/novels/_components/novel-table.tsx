@@ -34,25 +34,25 @@ export function NovelTable({
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <Spinner className="w-8 h-8" />
-        <span className="text-sm text-gray-500 dark:text-gray-400">加载中...</span>
+        <span className="text-sm text-muted-foreground">加载中...</span>
       </div>
     )
   }
 
   if (novels.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
+      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
         <p className="text-lg mb-2">还没有小说</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">点击右上角创建你的第一部小说</p>
+        <p className="text-sm text-muted-foreground">点击右上角创建你的第一部小说</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-800 -mx-2 sm:mx-0">
+    <div className="rounded-lg border border-border -mx-2 sm:mx-0">
       <Table className="min-w-[900px]">
         <TableHeader>
-          <TableRow className="bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-50 dark:hover:bg-zinc-800/50">
+          <TableRow className="bg-secondary hover:bg-secondary">
             <TableHead className="min-w-[200px] py-3 px-4 font-semibold text-center">标题</TableHead>
             <TableHead className="min-w-[250px] py-3 px-4 font-semibold text-center">描述</TableHead>
             <TableHead className="min-w-[80px] py-3 px-4 font-semibold text-center">状态</TableHead>
@@ -68,7 +68,7 @@ export function NovelTable({
               key={novel.id}
               onContextMenu={onContextMenu ? e => onContextMenu(e, novel) : undefined}
               className={`group ${
-                index % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50/30 dark:bg-zinc-800/20'
+                index % 2 === 0 ? 'bg-background' : 'bg-muted'
               }`}
             >
               <TableCell className="py-4 px-4 text-center">
@@ -93,7 +93,7 @@ export function NovelTable({
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     novel.status === 'published'
                       ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-gray-100 text-gray-800 dark:bg-zinc-800 dark:text-gray-400'
+                      : 'bg-secondary text-foreground'
                   }`}
                 >
                   {novel.status === 'published' ? '已发布' : '草稿'}
@@ -127,15 +127,15 @@ export function NovelTable({
                     <Popover.Trigger asChild>
                       <button
                         type="button"
-                        className="p-1.5 cursor-pointer rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        className="p-1.5 cursor-pointer rounded hover:bg-accent transition-colors"
                         onClick={e => e.stopPropagation()}
                       >
-                        <MoreHorizontal className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                       </button>
                     </Popover.Trigger>
                     <Popover.Portal>
                       <Popover.Content
-                        className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-1 z-50 min-w-[160px]"
+                        className="bg-card rounded-lg shadow-lg border border-border p-1 z-50 min-w-[160px]"
                         sideOffset={5}
                         align="end"
                       >
@@ -145,7 +145,7 @@ export function NovelTable({
                             e.stopPropagation()
                             onOpenNovel(novel)
                           }}
-                          className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                          className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
                         >
                           <Play className="w-4 h-4" />
                           开始创作
@@ -156,7 +156,7 @@ export function NovelTable({
                             e.stopPropagation()
                             onEditNovel(novel)
                           }}
-                          className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                          className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                           编辑信息

@@ -112,19 +112,19 @@ export function NovelList({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <Spinner className="w-6 h-6 text-stone-400" />
-        <span className="text-sm text-stone-400 font-serif">加载中...</span>
+        <Spinner className="w-6 h-6 text-muted-foreground" />
+        <span className="text-sm text-muted-foreground font-serif">加载中...</span>
       </div>
     )
   }
 
   if (novels.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-stone-400 dark:text-zinc-500 font-serif">
+      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground font-serif">
         <p className="text-lg mb-4 italic">暂无创作，点击下方按钮开始创作。</p>
         <Button
           onClick={() => onCreateNovel?.()}
-          className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 font-sans"
+          className="bg-primary text-primary-foreground hover:opacity-90 font-sans"
         >
           <Plus className="w-4 h-4 mr-2" />
           开始创作
