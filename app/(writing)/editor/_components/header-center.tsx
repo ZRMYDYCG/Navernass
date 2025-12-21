@@ -27,8 +27,8 @@ export function HeaderCenter({
         disabled={!canGoBack}
         className={`p-1.5 h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 ${
           canGoBack
-            ? 'bg-transparent text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer'
-            : 'bg-transparent text-stone-400 dark:text-stone-600 cursor-not-allowed opacity-60'
+            ? 'bg-transparent text-foreground hover:bg-accent cursor-pointer'
+            : 'bg-transparent text-muted-foreground cursor-not-allowed opacity-60'
         }`}
         title="上一章节"
       >
@@ -37,7 +37,7 @@ export function HeaderCenter({
 
       <div
         onClick={onTitleClick}
-        className="group flex-1 max-w-[240px] h-7 px-3 flex items-center justify-center gap-2 text-sm text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 cursor-pointer transition-colors"
+        className="group flex-1 max-w-[240px] h-7 px-3 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
         title="点击搜索章节"
       >
         <span className="truncate font-medium font-serif tracking-wide opacity-90 group-hover:opacity-100 transition-opacity">
@@ -52,8 +52,8 @@ export function HeaderCenter({
         disabled={!canGoForward}
         className={`p-1.5 h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 ${
           canGoForward
-            ? 'bg-transparent text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer'
-            : 'bg-transparent text-stone-400 dark:text-stone-600 cursor-not-allowed opacity-60'
+            ? 'bg-transparent text-foreground hover:bg-accent cursor-pointer'
+            : 'bg-transparent text-muted-foreground cursor-not-allowed opacity-60'
         }`}
         title="下一章节"
       >

@@ -28,8 +28,8 @@ export function TabSwitcher({ activeTab, onChange }: TabSwitcherProps) {
                   onClick={() => onChange(tab.value)}
                   className={`w-9 h-9 flex items-center justify-center rounded-md cursor-pointer text-xs transition-colors ${
                     isActive
-                      ? 'bg-gray-200 text-gray-900 dark:bg-zinc-700 dark:text-gray-100'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-zinc-800 dark:hover:text-gray-100'
+                      ? 'bg-secondary text-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                   }`}
                 >
                   {Icon

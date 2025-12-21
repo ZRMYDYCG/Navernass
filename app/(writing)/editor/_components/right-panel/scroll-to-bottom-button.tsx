@@ -17,7 +17,7 @@ export function ScrollToBottomButton({ onClick, show }: ScrollToBottomButtonProp
       <Button
         onClick={onClick}
         size="icon"
-        className="h-9 w-9 rounded-full shadow-lg bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-opacity"
+        className="h-9 w-9 rounded-full shadow-lg bg-background text-foreground hover:bg-accent border border-border transition-opacity"
         variant="outline"
         title="回到底部"
       >

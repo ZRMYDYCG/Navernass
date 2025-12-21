@@ -240,7 +240,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
       const key = `${part.isHighlight ? 'highlight' : 'text'}-${part.text.substring(0, 10)}-${idx}`
       return part.isHighlight
         ? (
-            <mark key={key} className="bg-gray-200 dark:bg-zinc-600 px-0.5 rounded">
+            <mark key={key} className="bg-muted px-0.5 rounded">
               {part.text}
             </mark>
           )
@@ -260,10 +260,10 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
   return (
     <div className="h-full flex flex-col">
       {/* 搜索输入区域 */}
-      <div className="p-1.5 space-y-1.5 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-1.5 space-y-1.5 border-b border-border">
         {/* 关键字输入 */}
         <div className="space-y-0.5">
-          <label className="text-[10px] text-gray-600 dark:text-gray-400 px-1">
+          <label className="text-[10px] text-muted-foreground px-1">
             搜索关键字
           </label>
           <Input
@@ -277,7 +277,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
 
         {/* 检索的卷 */}
         <div className="space-y-0.5">
-          <label className="text-[10px] text-gray-600 dark:text-gray-400 px-1">
+          <label className="text-[10px] text-muted-foreground px-1">
             检索范围
           </label>
           <Select
@@ -306,7 +306,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
 
         {/* 跳过检索的卷 */}
         <div className="space-y-0.5">
-          <label className="text-[10px] text-gray-600 dark:text-gray-400 px-1">
+          <label className="text-[10px] text-muted-foreground px-1">
             排除范围
           </label>
           <Select
@@ -342,13 +342,13 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
           </div>
         ) : results.length === 0 ? (
           <div className="flex items-center justify-center h-32">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-muted-foreground">
               {keyword ? '未找到匹配的章节' : '输入关键字开始搜索'}
             </p>
           </div>
         ) : (
           <div className="p-1 space-y-0.5">
-            <div className="px-1.5 py-1 text-xs text-gray-500 dark:text-gray-400">
+            <div className="px-1.5 py-1 text-xs text-muted-foreground">
               {results.length}
               {' '}
               个结果
@@ -360,7 +360,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
               return (
                 <div
                   key={chapter.id}
-                  className="border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="border border-border rounded hover:bg-accent transition-colors"
                 >
                   {/* 章节标题行 */}
                   <div
@@ -369,14 +369,14 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                   >
                     {isExpanded
                       ? (
-                          <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
+                          <ChevronDown className="w-3 h-3 text-muted-foreground shrink-0" />
                         )
                       : (
-                          <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
+                          <ChevronRight className="w-3 h-3 text-muted-foreground shrink-0" />
                         )}
-                    <FileText className="w-3 h-3 text-gray-400 shrink-0" />
+                    <FileText className="w-3 h-3 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                      <div className="text-xs font-medium text-foreground truncate">
                         {result.titleMatches.length > 0
                           ? (
                               highlightText(chapter.title, keyword, result.titleMatches)
@@ -385,7 +385,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                               chapter.title
                             )}
                       </div>
-                      <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
                         {getVolumeTitle(chapter.volume_id)}
                         {' '}
                         ·
@@ -403,7 +403,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                           e.stopPropagation()
                           onSelectChapter(chapter.id)
                         }}
-                        className="h-5 px-1.5 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                        className="h-5 px-1.5 text-[10px] text-muted-foreground hover:text-foreground"
                       >
                         打开
                       </Button>
@@ -412,14 +412,14 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
 
                   {/* 展开的内容 */}
                   {isExpanded && (
-                    <div className="px-1.5 pb-1.5 pt-0.5 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                    <div className="px-1.5 pb-1.5 pt-0.5 border-t border-border space-y-1">
                       {/* 标题匹配 */}
                       {result.titleMatches.length > 0 && (
                         <div>
-                          <div className="text-[10px] font-medium text-gray-600 dark:text-gray-400 mb-0.5">
+                          <div className="text-[10px] font-medium text-muted-foreground mb-0.5">
                             标题匹配:
                           </div>
-                          <div className="text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-zinc-800 p-1 rounded">
+                          <div className="text-xs text-foreground bg-muted p-1 rounded">
                             {highlightText(chapter.title, keyword, result.titleMatches)}
                           </div>
                         </div>
@@ -428,7 +428,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                       {/* 内容匹配 */}
                       {result.contentMatches.length > 0 && (
                         <div>
-                          <div className="text-[10px] font-medium text-gray-600 dark:text-gray-400 mb-0.5">
+                          <div className="text-[10px] font-medium text-muted-foreground mb-0.5">
                             内容匹配 (
                             {result.contentMatches.length}
                             {' '}
@@ -447,7 +447,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                                 return (
                                   <div
                                     key={matchKey}
-                                    className="text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-zinc-800 p-1 rounded"
+                                    className="text-xs text-foreground bg-muted p-1 rounded"
                                   >
                                     ...
                                     {match.text}
@@ -463,11 +463,11 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                               return (
                                 <div
                                   key={matchKey}
-                                  className="text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-zinc-800 p-1 rounded"
+                                  className="text-xs text-foreground bg-muted p-1 rounded"
                                 >
                                   ...
                                   {beforeMatch}
-                                  <mark className="bg-gray-200 dark:bg-zinc-600 px-0.5 rounded">
+                                  <mark className="bg-muted px-0.5 rounded">
                                     {matchText}
                                   </mark>
                                   {afterMatch}

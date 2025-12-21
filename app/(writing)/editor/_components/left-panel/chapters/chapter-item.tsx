@@ -42,8 +42,8 @@ export function ChapterItem({
           style={style}
           className={`group px-2 py-0.5 my-0.5 min-h-[28px] flex items-center rounded-lg transition-all duration-300 ease-out ${
             isSelected
-              ? 'bg-white dark:bg-zinc-800 shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-none'
-              : 'hover:bg-white/60 dark:hover:bg-zinc-800/50'
+              ? 'bg-background shadow-[0_1px_3px_rgba(0,0,0,0.05)]'
+              : 'hover:bg-background/60'
           }`}
         >
           <div className="flex items-center gap-1.5 w-full">
@@ -53,17 +53,17 @@ export function ChapterItem({
                   type="button"
                   {...attributes}
                   {...listeners}
-                  className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-stone-200/50 dark:hover:bg-zinc-700 rounded transition-opacity ${
+                  className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded transition-opacity ${
                     isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-30'
                   }`}
                   onClick={e => e.stopPropagation()}
                 >
-                  <GripVertical className="w-3.5 h-3.5 text-stone-400 dark:text-zinc-500" />
+                  <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </Popover.Trigger>
               <Popover.Portal>
                 <Popover.Content
-                  className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-stone-200 dark:border-zinc-700 p-1 z-50 min-w-[160px]"
+                  className="bg-card rounded-lg shadow-lg border border-border p-1 z-50 min-w-[160px]"
                   sideOffset={5}
                   align="start"
                 >
@@ -75,7 +75,7 @@ export function ChapterItem({
                         onRename(chapter)
                         setPopoverOpen(false)
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-700 rounded-md transition-colors"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                       重命名
@@ -89,7 +89,7 @@ export function ChapterItem({
                         onDelete(chapter)
                         setPopoverOpen(false)
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       删除
@@ -101,10 +101,10 @@ export function ChapterItem({
 
             <div className="flex-1 min-w-0 flex items-baseline justify-between gap-1.5" onClick={onSelect}>
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                <FileText className="w-3.5 h-3.5 text-stone-500 dark:text-zinc-400 flex-shrink-0" />
+                <FileText className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                 <h3
                   className={`text-[12px] font-normal leading-snug truncate flex-1 transition-colors ${
-                    isSelected ? 'text-[#333333] dark:text-zinc-100 font-medium' : 'text-[#333333]/80 dark:text-zinc-300'
+                    isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'
                   }`}
                 >
                   {chapter.title}
@@ -113,7 +113,7 @@ export function ChapterItem({
 
               <span
                 className={`text-[10px] flex-shrink-0 transition-opacity ${
-                  isSelected ? 'text-stone-500 dark:text-zinc-400' : 'text-stone-400 dark:text-zinc-500 opacity-0 group-hover:opacity-100'
+                  isSelected ? 'text-muted-foreground' : 'text-muted-foreground opacity-0 group-hover:opacity-100'
                 }`}
               >
                 {chapter.wordCount}
@@ -173,7 +173,7 @@ export function ChapterItem({
                 e.stopPropagation()
                 onDelete(chapter)
               }}
-              className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20"
+              className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] text-red-600 focus:text-red-600 focus:bg-red-50"
             >
               <Trash2 className="w-2.5 h-2.5" />
               删除

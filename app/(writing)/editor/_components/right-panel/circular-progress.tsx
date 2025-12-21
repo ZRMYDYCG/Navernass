@@ -11,7 +11,7 @@ export function CircularProgress({ messageCount, maxMessages = 50 }: CircularPro
   const strokeDashoffset = circumference - (progress / 100) * circumference
 
   return (
-    <div className="relative w-3.5 h-3.5 flex-shrink-0 text-stone-300 dark:text-zinc-600">
+    <div className="relative w-3.5 h-3.5 flex-shrink-0 text-muted-foreground">
       <svg className="w-full h-full -rotate-90" viewBox="0 0 12 12" aria-hidden="true">
         <circle
           cx="6"
@@ -32,7 +32,7 @@ export function CircularProgress({ messageCount, maxMessages = 50 }: CircularPro
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="text-stone-500 dark:text-zinc-400 transition-all duration-300"
+          className="text-muted-foreground transition-all duration-300"
         />
       </svg>
     </div>

@@ -26,8 +26,8 @@ export function HeaderLeft({ showLeftPanel, onToggleLeftPanel }: HeaderLeftProps
               onClick={onToggleLeftPanel}
               className={`p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer ${
                 showLeftPanel
-                  ? 'text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800'
-                  : 'text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                  ? 'text-foreground bg-accent'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
             >
               <LayoutPanelLeft className="w-3.5 h-3.5" strokeWidth={1.5} />

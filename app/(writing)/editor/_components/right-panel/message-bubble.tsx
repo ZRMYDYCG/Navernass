@@ -49,10 +49,10 @@ export function MessageBubble({ message, streamingMessageId }: MessageBubbleProp
         <div
           className={`rounded-lg px-2.5 py-1.5 text-[12px] transition-all duration-200 ${
             isUser
-              ? 'bg-stone-100 dark:bg-zinc-800 text-[#333333] dark:text-zinc-100'
+              ? 'bg-secondary text-foreground'
               : isStreaming
-                ? 'bg-white dark:bg-zinc-800/80 text-[#333333] dark:text-zinc-100'
-                : 'bg-white dark:bg-zinc-800/80 text-[#333333] dark:text-zinc-100 border border-stone-200/50 dark:border-zinc-700/50 shadow-[0_1px_2px_rgba(0,0,0,0.02)]'
+                ? 'bg-card text-foreground'
+                : 'bg-card text-foreground border border-border shadow-[0_1px_2px_rgba(0,0,0,0.02)]'
           }`}
         >
           {isUser
@@ -69,7 +69,7 @@ export function MessageBubble({ message, streamingMessageId }: MessageBubbleProp
                       <button
                         type="button"
                         onClick={handleCopy}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] text-stone-400 dark:text-zinc-500 hover:text-stone-700 dark:hover:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-700/50 cursor-pointer transition-colors"
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer transition-colors"
                       >
                         复制
                         {copied && <Check className="w-3 h-3 text-emerald-500" />}
