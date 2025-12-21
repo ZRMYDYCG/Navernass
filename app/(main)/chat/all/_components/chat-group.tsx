@@ -1,7 +1,6 @@
 'use client'
 
 import type { ChatItem, DateGroup } from '../types'
-import { Calendar } from 'lucide-react'
 import { ROUTES } from '../config'
 import { ChatItemComponent } from './chat-item'
 
@@ -20,14 +19,11 @@ export function ChatGroup({
   onToggleSelect,
 }: ChatGroupProps) {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 text-sm font-medium text-foreground sticky top-0 bg-background py-2 -mx-4 px-4">
-        <Calendar className="w-4 h-4" />
+    <div className="space-y-3">
+      <div className="text-sm font-medium text-foreground sticky top-0 bg-background py-2">
         <span>{group.label}</span>
-        <span className="text-xs text-muted-foreground">
-          {group.chats.length}
-          {' '}
-          个对话
+        <span className="ml-2 text-xs text-muted-foreground">
+          ({group.chats.length})
         </span>
       </div>
 

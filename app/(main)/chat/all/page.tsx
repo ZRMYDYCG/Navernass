@@ -130,35 +130,22 @@ export default function AllChatsPage() {
         chatCount={conversations.length}
       />
 
-      {/* 对话列表 */}
       {isLoading
         ? (
             <ScrollArea className="flex-1">
-              <div className="max-w-5xl mx-auto p-6 space-y-8">
+              <div className="p-4 space-y-6">
                 {Array.from({ length: 3 }).map((_, groupIndex) => (
-                  <div key={`skeleton-group-${groupIndex}`} className="space-y-4">
-                    <Skeleton className="h-7 w-32" />
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div key={`skeleton-group-${groupIndex}`} className="space-y-3">
+                    <Skeleton className="h-6 w-24" />
+                    <div className="space-y-1">
                       {Array.from({ length: groupIndex === 0 ? 6 : 3 }).map((_, itemIndex) => (
                         <div
                           key={`skeleton-item-${groupIndex}-${itemIndex}`}
-                          className="bg-card rounded-lg p-5 border border-border hover:shadow-md transition-shadow"
+                          className="p-3 rounded border border-border"
                         >
-                          <div className="space-y-4">
-                            <div className="flex items-start justify-between">
-                              <Skeleton className="h-6 w-4/5" />
-                              <Skeleton className="w-9 h-9 rounded-md" />
-                            </div>
-                            <div className="space-y-2.5">
-                              <Skeleton className="h-4 w-full" />
-                              <Skeleton className="h-4 w-full" />
-                              <Skeleton className="h-4 w-[92%]" />
-                              <Skeleton className="h-4 w-[85%]" />
-                            </div>
-                            <div className="flex items-center justify-between pt-2 border-t border-border">
-                              <Skeleton className="h-3.5 w-24" />
-                              <Skeleton className="h-3.5 w-20" />
-                            </div>
+                          <div className="space-y-2">
+                            <Skeleton className="h-5 w-3/4" />
+                            <Skeleton className="h-3 w-1/3" />
                           </div>
                         </div>
                       ))}

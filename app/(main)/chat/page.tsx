@@ -56,15 +56,17 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-screen">
       <ChatWelcomeHeader />
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
-        <ChatWelcome isLoading={isSending} />
+      <div className="flex-1 flex items-center justify-center px-6 pb-32">
+        <div className="w-full max-w-3xl flex flex-col items-center space-y-6">
+          <ChatWelcome isLoading={isSending} />
 
-        <div className="w-full max-w-3xl space-y-4">
-          <ChatInputBox onSend={handleSendMessage} disabled={isSending} />
-          <PromptButtons onPromptClick={handleSendMessage} disabled={isSending} />
+          <div className="w-full space-y-4">
+            <ChatInputBox onSend={handleSendMessage} disabled={isSending} />
+            <PromptButtons onPromptClick={handleSendMessage} disabled={isSending} />
+          </div>
         </div>
       </div>
     </div>

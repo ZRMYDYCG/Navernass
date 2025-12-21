@@ -1,7 +1,6 @@
 'use client'
 
 import type { Dispatch, SetStateAction } from 'react'
-import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '../config'
@@ -43,11 +42,11 @@ export function ChatListHeader({
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="sm"
           onClick={() => router.push(ROUTES.chat)}
           className="text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="w-5 h-5" />
+          返回
         </Button>
         <h1 className="text-lg font-semibold text-foreground">
           {title}

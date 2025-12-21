@@ -1,7 +1,6 @@
 'use client'
 
 import type { DateGroup } from '../types'
-import { MessageCircle } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { UI_CONFIG } from '../config'
 import { ChatGroup } from './chat-group'
@@ -24,7 +23,6 @@ export function ChatListContent({
   if (groupedChats.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-        <MessageCircle className="w-12 h-12 mb-3 opacity-50" />
         <p>{UI_CONFIG.empty.message}</p>
       </div>
     )
