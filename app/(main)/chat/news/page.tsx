@@ -6,7 +6,7 @@ import { mockNewsItems } from './config'
 
 export default function NewsPage() {
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-zinc-900">
+    <div className="flex flex-col h-screen bg-background">
       {/* 页面头部 */}
       <NewsHeader />
 

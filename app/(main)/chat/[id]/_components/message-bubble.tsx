@@ -67,8 +67,8 @@ export function MessageBubble({
             className={cn(
               'rounded-2xl px-4 py-3 border border-transparent transition-all w-fit max-w-full',
               isUser
-                ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
+                ? 'bg-secondary text-foreground'
+                : 'bg-card text-foreground',
               isShareMode && (isSelected ? 'ring-2 ring-primary/70 border-primary/60' : 'ring-1 ring-transparent'),
             )}
           >
@@ -85,7 +85,7 @@ export function MessageBubble({
 
           <div
             className={cn(
-              'flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 transition-opacity',
+              'flex items-center gap-2 text-xs text-muted-foreground transition-opacity',
               isUser ? 'justify-end' : 'justify-start',
               shouldAlwaysShowActions
                 ? 'opacity-100 pointer-events-auto'

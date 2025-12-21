@@ -45,7 +45,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
       return inline
         ? (
             <code
-              className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-red-600 dark:text-red-400"
+              className="bg-secondary px-1.5 py-0.5 rounded text-sm font-mono text-destructive"
               {...props}
             >
               {children}
@@ -89,7 +89,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
     table({ children, ...props }: TableProps) {
       return (
         <div className="overflow-x-auto my-4">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700" {...props}>
+          <table className="min-w-full divide-y divide-border" {...props}>
             {children}
           </table>
         </div>
@@ -99,7 +99,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
     blockquote({ children, ...props }: BlockquoteProps) {
       return (
         <blockquote
-          className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-700 dark:text-gray-300"
+          className="border-l-4 border-border pl-4 italic text-muted-foreground"
           {...props}
         >
           {children}

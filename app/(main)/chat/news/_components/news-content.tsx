@@ -11,13 +11,13 @@ export function NewsContent({ items }: NewsContentProps) {
   if (items.length === 0) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-gray-500 dark:text-gray-400 text-sm">暂无动态</p>
+        <p className="text-muted-foreground text-sm">暂无动态</p>
       </div>
     )
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-zinc-900">
+    <div className="flex-1 overflow-y-auto bg-background">
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="space-y-6">
           {items.map(item => (

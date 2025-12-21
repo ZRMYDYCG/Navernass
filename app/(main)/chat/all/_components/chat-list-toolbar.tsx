@@ -51,7 +51,7 @@ export function ChatListToolbar({
         {/* 搜索框 */}
         <div className="relative hidden md:block">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 z-[999]">
-            <Search className="w-4 h-4 text-gray-400 drop-shadow-sm" />
+            <Search className="w-4 h-4 text-muted-foreground drop-shadow-sm" />
           </div>
           <Input
             type="text"
@@ -60,9 +60,9 @@ export function ChatListToolbar({
             onChange={e => setSearchQuery(e.target.value)}
             className={`pl-9 ${UI_CONFIG.search.width}
               bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10
-              border border-gray-200/50 dark:border-gray-700/50
+              border border-border
               focus:border-0 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none
-              hover:border-gray-300/70 dark:hover:border-gray-600/70
+              hover:border-ring
               backdrop-blur-sm`}
           />
         </div>
@@ -73,7 +73,7 @@ export function ChatListToolbar({
             <Button
               variant="ghost"
               size="icon-sm"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              className="text-muted-foreground hover:text-foreground"
             >
               <MoreHorizontal className="w-5 h-5" />
             </Button>
@@ -108,7 +108,7 @@ export function ChatListToolbar({
         variant="ghost"
         size="sm"
         onClick={toggleSelectAll}
-        className="text-gray-600 dark:text-gray-400"
+        className="text-muted-foreground"
       >
         {selectedChats.size === 0
           ? (
@@ -125,7 +125,7 @@ export function ChatListToolbar({
             )}
       </Button>
 
-      <span className="text-sm text-gray-500 dark:text-gray-400">
+      <span className="text-sm text-muted-foreground">
         已选择
         {' '}
         {selectedChats.size}
@@ -138,7 +138,7 @@ export function ChatListToolbar({
           <Button
             variant="ghost"
             size="icon-sm"
-            className="text-gray-600 dark:text-gray-400"
+            className="text-muted-foreground"
           >
             <MoreHorizontal className="w-5 h-5" />
           </Button>
@@ -178,7 +178,7 @@ export function ChatListToolbar({
         onClick={() => {
           setIsSelectionMode(false)
         }}
-        className="text-gray-600 dark:text-gray-400"
+        className="text-muted-foreground"
       >
         取消
       </Button>

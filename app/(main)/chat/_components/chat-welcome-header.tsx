@@ -99,7 +99,7 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
 
   return (
     <TooltipProvider>
-      <header className="h-16 flex items-center justify-between px-4 bg-gray-50 dark:bg-zinc-900 transition-colors">
+      <header className="h-16 flex items-center justify-between px-4 bg-background transition-colors">
         <div className="flex items-center gap-3">
           {!isOpen && (
             <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    className="text-muted-foreground hover:text-foreground cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="text-muted-foreground hover:text-foreground cursor-pointer hover:bg-accent"
                     onClick={open}
                     aria-label="打开侧边栏"
                   >
@@ -127,7 +127,7 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                     size="icon-sm"
                     onClick={() => router.push('/chat')}
                     disabled={isNewChatPage}
-                    className="text-muted-foreground hover:text-foreground cursor-pointer disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="text-muted-foreground hover:text-foreground cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
                     aria-label="新建对话"
                   >
                     <PencilLine className="hidden sm:block w-5 h-5" />
@@ -150,7 +150,7 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                   <div className="flex items-center gap-3">
                     <Button
                       variant="ghost"
-                      className="text-lg font-semibold text-foreground hover:bg-gray-100 dark:hover:bg-gray-800 font-serif tracking-wide"
+                      className="text-lg font-semibold text-foreground hover:bg-accent font-serif tracking-wide"
                       onClick={() => setIsEditDialogOpen(true)}
                     >
                       {chatTitle}
@@ -174,7 +174,7 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                         <Button
                           variant={isShareMode ? 'secondary' : 'ghost'}
                           size="icon-sm"
-                          className="text-muted-foreground hover:text-foreground cursor-pointer aria-pressed:text-primary hover:bg-gray-100 dark:hover:bg-gray-800"
+                          className="text-muted-foreground hover:text-foreground cursor-pointer aria-pressed:text-primary hover:bg-accent"
                           onClick={handleShareClick}
                           aria-label="分享对话"
                           aria-pressed={isShareMode}
@@ -198,7 +198,7 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          className="relative text-muted-foreground hover:text-foreground cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                          className="relative text-muted-foreground hover:text-foreground cursor-pointer hover:bg-accent"
                           onClick={() => router.push('/chat/news')}
                           aria-label="产品更新动态"
                         >

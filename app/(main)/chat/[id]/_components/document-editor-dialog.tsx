@@ -91,11 +91,11 @@ export function DocumentEditorDialog({
       />
 
       <div
-        className={`fixed right-0 top-0 h-full w-full sm:w-[600px] bg-white dark:bg-zinc-900 shadow-2xl z-50 flex flex-col transition-transform duration-300 ${
+        className={`fixed right-0 top-0 h-full w-full sm:w-[600px] bg-card shadow-2xl z-50 flex flex-col transition-transform duration-300 ${
           open ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
         }`}
       >
-        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
