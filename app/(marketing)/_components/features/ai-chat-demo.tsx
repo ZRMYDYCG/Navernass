@@ -4,7 +4,7 @@ import { Bot, User } from 'lucide-react'
 
 export function AiChatDemo() {
   return (
-    <div className="w-full p-4 shadow-md bg-card border border-border rounded-lg">
+    <div className="w-full h-full p-4 shadow-md bg-card border border-border rounded-lg">
       <h3 className="text-lg font-semibold mb-3 text-foreground">AI 智能对话</h3>
       <p className="text-sm text-muted-foreground mb-4">
         与AI助手实时交流，获取创作灵感、优化建议和故事发展思路
