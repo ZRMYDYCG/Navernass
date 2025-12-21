@@ -2,13 +2,14 @@
 
 import {
   Bell,
-  PanelLeftOpen,
+  History,
   PencilLine,
   Share2,
 } from 'lucide-react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Tooltip,
@@ -17,7 +18,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { conversationsApi } from '@/lib/supabase/sdk'
-import { useChatSidebar } from './chat-sidebar-provider'
+import { ChatHistoryPopover } from './chat-history-popover'
 import { EditChatTitleDialog } from './edit-chat-title-dialog'
 
 interface ChatWelcomeHeaderProps {
@@ -27,7 +28,6 @@ interface ChatWelcomeHeaderProps {
 
 export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
   const { onShareConversation, isShareMode = false } = props
-  const { isOpen, open, updateConversationTitle, onTitleUpdate } = useChatSidebar()
   const pathname = usePathname()
   const params = useParams()
   const router = useRouter()
@@ -36,7 +36,6 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
   const isNewChatPage = pathname === '/chat'
   const isConversationPage = !!conversationId
 
-  // 对话标题编辑状态
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [chatTitle, setChatTitle] = useState('新建对话')
   const [isLoadingTitle, setIsLoadingTitle] = useState(false)
@@ -62,31 +61,15 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
     loadConversationTitle()
   }, [conversationId])
 
-  // 监听标题更新（侧边栏修改标题时同步）
-  useEffect(() => {
-    if (!conversationId) return
-
-    const unsubscribe = onTitleUpdate((updatedConvId, newTitle) => {
-      // 只更新当前对话的标题
-      if (updatedConvId === conversationId) {
-        setChatTitle(newTitle)
-      }
-    })
-
-    return unsubscribe
-  }, [conversationId, onTitleUpdate])
-
   const handleSaveTitle = useCallback(async (id: string, newTitle: string) => {
     try {
       await conversationsApi.update({ id, title: newTitle })
       setChatTitle(newTitle)
-      // 通知侧边栏更新标题
-      updateConversationTitle(id, newTitle)
     } catch (error) {
       console.error('Failed to update conversation title:', error)
       throw error
     }
-  }, [updateConversationTitle])
+  }, [])
 
   const handleShareClick = useCallback(() => {
     if (onShareConversation) {
@@ -101,45 +84,26 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
     <TooltipProvider>
       <header className="h-16 flex items-center justify-between px-4 bg-background transition-colors">
         <div className="flex items-center gap-3">
-          {!isOpen && (
-            <div className="flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="text-muted-foreground hover:text-foreground cursor-pointer hover:bg-accent"
-                    onClick={open}
-                    aria-label="打开侧边栏"
-                  >
-                    <PanelLeftOpen className="w-5 h-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>展开侧边栏</p>
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => router.push('/chat')}
-                    disabled={isNewChatPage}
-                    className="text-muted-foreground hover:text-foreground cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
-                    aria-label="新建对话"
-                  >
-                    <PencilLine className="hidden sm:block w-5 h-5" />
-                    <PencilLine className="sm:hidden w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>新建对话</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => router.push('/chat')}
+                  disabled={isNewChatPage}
+                  className="text-muted-foreground hover:text-foreground cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
+                  aria-label="新建对话"
+                >
+                  <PencilLine className="hidden sm:block w-5 h-5" />
+                  <PencilLine className="sm:hidden w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>新建对话</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
           {isConversationPage && (
             isLoadingTitle
@@ -162,6 +126,29 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
         </div>
 
         <div className="flex items-center gap-2">
+          <Popover>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="text-muted-foreground hover:text-foreground cursor-pointer hover:bg-accent"
+                    aria-label="历史对话"
+                  >
+                    <History className="w-5 h-5" />
+                  </Button>
+                </PopoverTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>历史对话</p>
+              </TooltipContent>
+            </Tooltip>
+            <PopoverContent align="end" className="w-80 p-0">
+              <ChatHistoryPopover />
+            </PopoverContent>
+          </Popover>
+
           {isConversationPage && (
             <>
               {isLoadingTitle
@@ -215,7 +202,6 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
         </div>
       </header>
 
-      {/* 编辑标题弹窗 */}
       {conversationId && (
         <EditChatTitleDialog
           key={`${conversationId}-${chatTitle}`}

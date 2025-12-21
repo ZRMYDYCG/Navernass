@@ -4,7 +4,6 @@ import { useParams } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 
 import { ChatInputBox } from '../_components/chat-input-box'
-import { useChatSidebar } from '../_components/chat-sidebar-provider'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
 import { DocumentEditorDialog } from './_components/document-editor-dialog'
 import { MessageList } from './_components/message-list'
@@ -19,7 +18,6 @@ import { useShareMode } from './_hooks/use-share-mode'
 export default function ConversationPage() {
   const params = useParams()
   const conversationId = params.id as string
-  const { close: closeSidebar } = useChatSidebar()
 
   const {
     messages,
@@ -72,9 +70,8 @@ export default function ConversationPage() {
   } = useDocumentEditor(handleMessageUpdate)
 
   const handleEditMessage = useCallback((message) => {
-    closeSidebar()
     originalHandleEditMessage(message)
-  }, [closeSidebar, originalHandleEditMessage])
+  }, [originalHandleEditMessage])
 
   const displayLatestAssistantMessage = useMemo(() => {
     if (!showDocumentEditor) return null
