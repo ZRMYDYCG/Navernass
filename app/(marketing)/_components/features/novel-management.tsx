@@ -36,7 +36,7 @@ export function NovelManagement() {
             </div>
             <div className="h-20 rounded-md mb-1.5 overflow-hidden relative bg-muted">
               <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&q=80"
+                src=""
                 alt="星辰之约"
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -61,7 +61,7 @@ export function NovelManagement() {
             </div>
             <div className="h-20 rounded-md mb-1.5 overflow-hidden relative bg-muted">
               <img
-                src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=300&fit=crop&q=80"
+                src=""
                 alt="月光下的诗"
                 className="absolute inset-0 w-full h-full object-cover"
               />

@@ -1,7 +1,6 @@
 'use client'
 
-import type { ContextMenuState, NovelFilterType, NovelFormData } from './types'
-// import type { ViewMode } from './types'
+import type { ContextMenuState, NovelFilterType, NovelFormData, ViewMode } from './types'
 import type { Novel } from '@/lib/supabase/sdk'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useState } from 'react'
@@ -13,11 +12,10 @@ import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import { NovelContextMenu } from './_components/novel-context-menu'
 import { NovelDialog } from './_components/novel-dialog'
 import { NovelList } from './_components/novel-list'
-// import { NovelTable } from './_components/novel-table'
+import { NovelTable } from './_components/novel-table'
 import { SmartPagination } from './_components/smart-pagination'
-// import { ViewSwitcher } from './_components/view-switcher'
-import { DEFAULT_FILTER, ITEMS_PER_PAGE, TOAST_MESSAGES } from './config'
-// import { DEFAULT_VIEW_MODE } from './config'
+import { ViewSwitcher } from './_components/view-switcher'
+import { DEFAULT_FILTER, DEFAULT_VIEW_MODE, ITEMS_PER_PAGE, TOAST_MESSAGES } from './config'
 
 function NovelsContent() {
   const router = useRouter()
@@ -28,7 +26,7 @@ function NovelsContent() {
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [filter, setFilter] = useState<NovelFilterType>(DEFAULT_FILTER)
-  // const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
+  const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingNovel, setEditingNovel] = useState<Novel | null>(null)
@@ -237,22 +235,6 @@ function NovelsContent() {
 
   return (
     <div className="flex flex-col bg-background transition-colors h-full font-serif">
-      {/* Header 部分 - 已注释 */}
-      {/* <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 px-8 pt-8 pb-6 shrink-0">
-        <div className="flex-1 hidden sm:block" />
-        <SegmentedControl
-          value={filter}
-          onValueChange={value => setFilter(value as NovelFilterType)}
-          className="w-full sm:w-fit bg-transparent p-1 border border-stone-200 dark:border-zinc-800 rounded-lg"
-        >
-          <SegmentedControlItem value="all" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">全部</SegmentedControlItem>
-          <SegmentedControlItem value="draft" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">草稿</SegmentedControlItem>
-          <SegmentedControlItem value="published" className="data-[state=active]:bg-stone-200 dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm rounded-md text-stone-600 dark:text-zinc-400">已发布</SegmentedControlItem>
-        </SegmentedControl>
-        <div className="flex-1 flex justify-end">
-          <ViewSwitcher value={viewMode} onChange={setViewMode} />
-        </div>
-      </section> */}
 
       <div className="flex-1 py-2 px-8 overflow-y-auto">
         {/* 筛选器和新建按钮 */}
@@ -277,16 +259,34 @@ function NovelsContent() {
             新建小说
           </button>
         </div>
-        {/* 卡片模式 */}
-        <NovelList
-          novels={novels}
-          loading={loading}
-          onOpenNovel={handleOpenNovel}
-          onEditNovel={handleEditNovel}
-          onDeleteNovel={handleDeleteNovel}
-          onContextMenu={handleContextMenu}
-          onReorder={handleReorder}
-        />
+
+        {/* 视图切换 */}
+        <div className="mb-6 flex justify-end">
+          <ViewSwitcher value={viewMode} onChange={setViewMode} />
+        </div>
+
+        {viewMode === 'grid'
+          ? (
+              <NovelList
+                novels={novels}
+                loading={loading}
+                onOpenNovel={handleOpenNovel}
+                onEditNovel={handleEditNovel}
+                onDeleteNovel={handleDeleteNovel}
+                onContextMenu={handleContextMenu}
+                onReorder={handleReorder}
+              />
+            )
+          : (
+              <NovelTable
+                novels={novels}
+                loading={loading}
+                onOpenNovel={handleOpenNovel}
+                onEditNovel={handleEditNovel}
+                onDeleteNovel={handleDeleteNovel}
+                onContextMenu={handleContextMenu}
+              />
+            )}
 
         {contextMenuState.novel && contextMenuState.position && (
           <NovelContextMenu
@@ -301,29 +301,6 @@ function NovelsContent() {
             onClose={handleCloseContextMenu}
           />
         )}
-
-        {/* 表格模式 - 已注释 */}
-        {/* {viewMode === 'grid'
-          ? (
-              <NovelList
-                novels={novels}
-                loading={loading}
-                onOpenNovel={handleOpenNovel}
-                onEditNovel={handleEditNovel}
-                onDeleteNovel={handleDeleteNovel}
-                onCreateNovel={handleOpenCreateDialog}
-                onReorder={handleReorder}
-              />
-            )
-          : (
-              <NovelTable
-                novels={novels}
-                loading={loading}
-                onOpenNovel={handleOpenNovel}
-                onEditNovel={handleEditNovel}
-                onDeleteNovel={handleDeleteNovel}
-              />
-            )} */}
 
       </div>
 

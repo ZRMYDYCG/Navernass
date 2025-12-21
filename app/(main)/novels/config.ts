@@ -10,7 +10,7 @@ export const ITEMS_PER_PAGE = 8
 /**
  * 默认视图模式
  */
-export const DEFAULT_VIEW_MODE = 'table' as const
+export const DEFAULT_VIEW_MODE = 'grid' as const
 
 /**
  * 默认筛选类型
