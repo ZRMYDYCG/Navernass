@@ -145,16 +145,16 @@ export function ImportChapterDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95 max-h-[90vh] overflow-hidden flex flex-col">
-          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col h-full">
+          <div className="bg-card rounded-lg shadow-lg border border-border flex flex-col h-full">
             {/* 标题栏 */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <Dialog.Title className="text-xl font-semibold text-foreground">
                 批量导入章节
               </Dialog.Title>
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-500 dark:text-gray-400"
+                  className="p-1 hover:bg-accent rounded transition-colors text-muted-foreground"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -165,7 +165,7 @@ export function ImportChapterDialog({
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* 文件选择 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   选择文件
                 </label>
                 <div className="flex items-center gap-3">
@@ -179,16 +179,16 @@ export function ImportChapterDialog({
                   />
                   <label
                     htmlFor="file-input"
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg cursor-pointer transition-colors text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-secondary rounded-lg cursor-pointer transition-colors text-sm"
                   >
                     <Upload className="w-4 h-4" />
                     选择 TXT 文件
                   </label>
                   {file && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <FileText className="w-4 h-4" />
                       <span>{file.name}</span>
-                      <span className="text-gray-400 dark:text-gray-500">
+                      <span className="text-muted-foreground">
                         (
                         {(file.size / 1024).toFixed(1)}
                         {' '}
@@ -201,16 +201,16 @@ export function ImportChapterDialog({
 
               {/* 错误提示 */}
               {error && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
                   {error}
                 </div>
               )}
 
               {/* 导入到卷 */}
               {fileContent && volumes.length > 0 && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="border-t border-border pt-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       导入到卷（可选）
                     </label>
                     <Select
@@ -229,7 +229,7 @@ export function ImportChapterDialog({
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       选择要将章节导入到哪个卷中，留空则导入到根目录
                     </p>
                   </div>
@@ -238,11 +238,11 @@ export function ImportChapterDialog({
             </div>
 
             {/* 按钮组 */}
-            <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex gap-3 p-6 border-t border-border">
               <Dialog.Close asChild>
                 <Button
                   type="button"
-                  className="flex-1 bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  className="flex-1 bg-secondary text-foreground hover:bg-accent"
                   disabled={isImporting}
                 >
                   取消
@@ -250,7 +250,7 @@ export function ImportChapterDialog({
               </Dialog.Close>
               <Button
                 onClick={handleImport}
-                className="flex-1 bg-black dark:bg-zinc-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+                className="flex-1 bg-primary text-primary-foreground hover:opacity-90"
                 disabled={isImporting || !file || !fileContent}
               >
                 {isImporting ? '导入中...' : '导入'}

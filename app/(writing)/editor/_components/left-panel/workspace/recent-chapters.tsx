@@ -47,10 +47,10 @@ export function RecentChapters({
   if (recentChapters.length === 0) {
     return (
       <div className="space-y-1.5">
-        <h3 className="text-xs font-medium text-stone-600 dark:text-stone-300 px-1 font-serif">
+        <h3 className="text-xs font-medium text-foreground px-1 font-serif">
           最近编辑
         </h3>
-        <div className="px-1.5 py-4 text-center text-[10px] text-stone-400 dark:text-stone-500 italic">
+        <div className="px-1.5 py-4 text-center text-[10px] text-muted-foreground italic">
           暂无最近编辑的章节
         </div>
       </div>
@@ -59,7 +59,7 @@ export function RecentChapters({
 
   return (
     <div className="space-y-1.5">
-      <h3 className="text-xs font-medium text-stone-600 dark:text-stone-300 px-1 font-serif">
+      <h3 className="text-xs font-medium text-foreground px-1 font-serif">
         最近编辑
       </h3>
       <div className="space-y-0.5">
@@ -68,14 +68,14 @@ export function RecentChapters({
             key={chapter.id}
             type="button"
             onClick={() => onSelectChapter?.(chapter.id)}
-            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left hover:bg-stone-100 dark:hover:bg-zinc-700/50 transition-all group"
+            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left hover:bg-accent transition-all group"
           >
-            <FileText className="w-3.5 h-3.5 text-stone-400 dark:text-stone-500 shrink-0 group-hover:text-stone-600 dark:group-hover:text-stone-300 transition-colors" />
+            <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-stone-700 dark:text-stone-200 truncate leading-tight group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors">
+              <div className="text-xs font-medium text-foreground truncate leading-tight group-hover:text-foreground transition-colors">
                 {chapter.title}
               </div>
-              <div className="flex items-center gap-1 text-[10px] text-stone-400 dark:text-stone-500 leading-tight mt-0.5">
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground leading-tight mt-0.5">
                 <Clock className="w-2.5 h-2.5" />
                 {formatTime(chapter.updated_at)}
               </div>

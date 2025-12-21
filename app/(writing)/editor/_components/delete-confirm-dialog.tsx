@@ -49,7 +49,7 @@ export function DeleteConfirmDialog({
               </Dialog.Close>
               <Button
                 onClick={handleConfirm}
-                className="flex-1 bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-800"
+                className="flex-1 bg-red-600 text-white hover:bg-red-700"
                 disabled={isDeleting}
               >
                 <Trash2 className="w-4 h-4 mr-1" />

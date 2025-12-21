@@ -88,22 +88,22 @@ export function BatchActionsDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
-          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+          <div className="bg-card rounded-lg shadow-lg border border-border">
             {/* 标题栏 */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
                 {mode === 'copy'
                   ? (
-                      <Copy className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      <Copy className="w-5 h-5 text-muted-foreground" />
                     )
                   : (
-                      <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      <Trash2 className="w-5 h-5 text-red-600" />
                     )}
-                <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <Dialog.Title className="text-lg font-semibold text-foreground">
                   批量
                   {modeText}
                 </Dialog.Title>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-muted-foreground">
                   (
                   {selectedCount}
                   /
@@ -114,7 +114,7 @@ export function BatchActionsDialog({
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-500 dark:text-gray-400"
+                  className="p-1 hover:bg-accent rounded transition-colors text-muted-foreground"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -127,11 +127,11 @@ export function BatchActionsDialog({
                 <button
                   type="button"
                   onClick={toggleSelectAll}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                  className="text-sm text-muted-foreground hover:text-foreground"
                 >
                   {selectedIds.size === chapters.length ? '取消全选' : '全选'}
                 </button>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-muted-foreground">
                   已选择
                   {' '}
                   {selectedCount}
@@ -143,7 +143,7 @@ export function BatchActionsDialog({
               <div className="max-h-96 overflow-y-auto space-y-1">
                 {chapters.length === 0
                   ? (
-                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                      <div className="text-center py-8 text-muted-foreground">
                         <p className="text-sm">暂无章节</p>
                       </div>
                     )
@@ -157,22 +157,22 @@ export function BatchActionsDialog({
                             onClick={() => toggleSelect(chapter.id)}
                             className={`w-full flex items-center gap-3 p-2 rounded-lg border transition-colors text-left ${
                               isSelected
-                                ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-zinc-700'
-                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                                ? 'border-primary bg-accent'
+                                : 'border-border hover:border-border'
                             }`}
                           >
                             <div
                               className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center ${
                                 isSelected
-                                  ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-zinc-100'
-                                  : 'border-gray-300 dark:border-gray-500'
+                                  ? 'border-primary bg-primary'
+                                  : 'border-border'
                               }`}
                             >
                               {isSelected && (
-                                <Check className="w-3.5 h-3.5 text-white dark:text-gray-900" />
+                                <Check className="w-3.5 h-3.5 text-primary-foreground" />
                               )}
                             </div>
-                            <span className="flex-1 text-sm text-gray-900 dark:text-gray-100 truncate">
+                            <span className="flex-1 text-sm text-foreground truncate">
                               {chapter.title}
                             </span>
                           </button>
@@ -183,11 +183,11 @@ export function BatchActionsDialog({
             </div>
 
             {/* 按钮组 */}
-            <div className="flex gap-3 p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex gap-3 p-4 border-t border-border">
               <Dialog.Close asChild>
                 <Button
                   type="button"
-                  className="flex-1 bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  className="flex-1 bg-secondary text-foreground hover:bg-accent"
                   disabled={isProcessing}
                 >
                   取消
@@ -199,8 +199,8 @@ export function BatchActionsDialog({
                 disabled={isProcessing || selectedCount === 0}
                 className={`flex-1 ${
                   mode === 'delete'
-                    ? 'bg-red-600 dark:bg-red-500 text-white hover:bg-red-700 dark:hover:bg-red-600'
-                    : 'bg-black dark:bg-zinc-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200'
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-primary text-primary-foreground hover:opacity-90'
                 }`}
               >
                 {isProcessing ? `${modeText}中...` : `确认${modeText}`}
