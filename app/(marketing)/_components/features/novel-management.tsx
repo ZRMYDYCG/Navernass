@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpen, FolderOpen, Pencil, Plus } from 'lucide-react'
+import { FolderOpen, Pencil, Plus } from 'lucide-react'
 
 export function NovelManagement() {
   return (
@@ -25,17 +25,21 @@ export function NovelManagement() {
       <div className="space-y-3 max-h-[280px] overflow-y-auto">
         <div className="grid grid-cols-2 gap-3">
           {/* 小说卡片 1 */}
-          <div className="relative bg-secondary rounded-lg border border-border p-2.5 cursor-pointer hover:shadow-md transition-shadow group">
-            <div className="flex items-start justify-between mb-1.5">
-              <span className="text-[10px] px-1.5 py-0.5 rounded border border-emerald-200 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400">
+          <div className="relative bg-secondary rounded-lg border border-border p-2.5 cursor-pointer hover:shadow-md transition-shadow group overflow-hidden">
+            <div className="flex items-start justify-between mb-1.5 z-10 relative">
+              <span className="text-[10px] px-1.5 py-0.5 rounded border border-emerald-200 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400 bg-background/80 backdrop-blur-sm">
                 已发布
               </span>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm rounded p-0.5">
                 <Pencil className="w-3 h-3 text-muted-foreground" />
               </div>
             </div>
-            <div className="h-20 bg-muted rounded-md flex items-center justify-center mb-1.5">
-              <BookOpen className="w-5 h-5 text-muted-foreground" />
+            <div className="h-20 rounded-md mb-1.5 overflow-hidden relative bg-muted">
+              <img
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&q=80"
+                alt="星辰之约"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
             </div>
             <h4 className="text-xs font-medium text-foreground mb-1 line-clamp-1">星辰之约</h4>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
@@ -46,17 +50,21 @@ export function NovelManagement() {
           </div>
 
           {/* 小说卡片 2 */}
-          <div className="relative bg-secondary rounded-lg border border-border p-2.5 cursor-pointer hover:shadow-md transition-shadow group">
-            <div className="flex items-start justify-between mb-1.5">
-              <span className="text-[10px] px-1.5 py-0.5 rounded border border-border text-muted-foreground">
+          <div className="relative bg-secondary rounded-lg border border-border p-2.5 cursor-pointer hover:shadow-md transition-shadow group overflow-hidden">
+            <div className="flex items-start justify-between mb-1.5 z-10 relative">
+              <span className="text-[10px] px-1.5 py-0.5 rounded border border-border text-muted-foreground bg-background/80 backdrop-blur-sm">
                 草稿
               </span>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm rounded p-0.5">
                 <Pencil className="w-3 h-3 text-muted-foreground" />
               </div>
             </div>
-            <div className="h-20 bg-muted rounded-md flex items-center justify-center mb-1.5">
-              <BookOpen className="w-5 h-5 text-muted-foreground" />
+            <div className="h-20 rounded-md mb-1.5 overflow-hidden relative bg-muted">
+              <img
+                src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=300&fit=crop&q=80"
+                alt="月光下的诗"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
             </div>
             <h4 className="text-xs font-medium text-foreground mb-1 line-clamp-1">月光下的诗</h4>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
