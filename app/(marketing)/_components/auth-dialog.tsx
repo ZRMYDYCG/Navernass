@@ -39,7 +39,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         onOpenChange(false)
         setLoginForm({ email: '', password: '' })
       }
-    } catch (error) {
+    } catch {
       toast.error('登录失败，请重试')
     } finally {
       setLoading(false)
@@ -75,7 +75,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           fullName: '',
         })
       }
-    } catch (error) {
+    } catch {
       toast.error('注册失败，请重试')
     } finally {
       setLoading(false)

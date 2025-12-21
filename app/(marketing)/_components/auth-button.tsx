@@ -28,12 +28,12 @@ export function AuthButton() {
       await signOut()
       toast.success('已退出登录')
       router.push('/')
-    } catch (error) {
+    } catch {
       toast.error('退出失败')
     }
   }
 
-  if (loading && !user) {
+  if (loading) {
     return (
       <Button variant="outline" disabled>
         <div className="animate-pulse">加载中...</div>

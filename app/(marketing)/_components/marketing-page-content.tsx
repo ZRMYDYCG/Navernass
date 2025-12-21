@@ -1,35 +1,30 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { supabase } from '@/lib/supabase'
-import CTA from './cta'
-import Features from './features/features'
+import Features from './features'
 import Hero from './hero'
+import Navbar from './navbar'
 
 export default function MarketingPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { user, loading } = useAuth()
   const hasRedirectedRef = useRef(false)
-  const [isClientReady, setIsClientReady] = useState(false)
 
   const redirectTo = searchParams.get('redirectTo')
 
   useEffect(() => {
-    setIsClientReady(true)
-  }, [])
-
-  useEffect(() => {
-    if (!loading && user && redirectTo && !hasRedirectedRef.current && isClientReady) {
+    if (!loading && user && redirectTo && !hasRedirectedRef.current) {
       hasRedirectedRef.current = true
       router.push(redirectTo)
     }
-  }, [user, loading, redirectTo, router, isClientReady])
+  }, [user, loading, redirectTo, router])
 
   useEffect(() => {
-    if (isClientReady && redirectTo && !loading && user) {
+    if (redirectTo && !loading && user) {
       const timer = setTimeout(() => {
         if (hasRedirectedRef.current) {
           router.push(redirectTo)
@@ -37,7 +32,7 @@ export default function MarketingPageContent() {
       }, 200)
       return () => clearTimeout(timer)
     }
-  }, [user, loading, redirectTo, router, isClientReady])
+  }, [user, loading, redirectTo, router])
 
   useEffect(() => {
     const handleVisibilityChange = async () => {
@@ -61,9 +56,9 @@ export default function MarketingPageContent() {
 
   return (
     <main className="min-h-screen bg-background selection:bg-primary/20 selection:text-primary-foreground">
+      <Navbar />
       <Hero />
       <Features />
-      <CTA />
     </main>
   )
 }
