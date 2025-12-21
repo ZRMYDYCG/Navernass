@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.4.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.3.0...v0.4.0) (2025-12-21)
+
+### ✨ Features
+
+* 编辑器主题包适配 ([57dac04](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/57dac047f7a75e613a7dd3fbeab201658ec773ad))
+* 初始化文案 ([970a0aa](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/970a0aa82d1f2884808458d3d613e6aa0a1d0e71))
+* 打开表格展示模式 ([59f0c5c](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/59f0c5c6fef5ecd830a63348ec85b20c168afc1e))
+* 全部历史对话重构 ([912bdb8](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/912bdb843fb184a10b49943131c02ec317d3a9ee))
+* 添加高亮组件以增强文本展示功能，并更新英雄组件以使用新高亮功能 ([3fadb2f](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/3fadb2fcf165e7c78da488d74b5f839a39236709))
+* 重构会话列表侧边栏 调整到右上角下拉框显示 ([23731f8](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/23731f8f652a6aec5172c71809fef782c17fce1c))
+* editor 主题包适配 ([5917549](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/5917549b222383ac4fca8c41161a65fa33937b00))
+* landpage 相关代码提交 ([a8843ef](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/a8843ef631a3a10e417ccd3d029d3e8d9a047c48))
+* landpage 引入编辑器 ([abde715](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/abde715cc8160a42edd7ee4914df4c0aa031f948))
+* **theme -> chat:** narraverse-ai 模块 应用新主题包变量 代替死值 切换到当前实践方案 ([3e284db](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/3e284db07dedef91afd8bd877c8d1edcf5652c64))
+* **theme -> layout:** 主layout 应用新主题包变量 代替死值 切换到当前实践方案 ([4a21aaf](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/4a21aaff7510d86dfe00c3a6a1c74f545aa41546))
+* **theme -> novels:** novels模块 应用新主题包变量 代替死值 切换到当前实践方案 ([af7b376](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/af7b3769071fba64e7abb6e938d108eb15daadc6))
+* **theme -> trash:** trash模块 应用新主题包变量 代替死值 切换到当前实践方案 ([2e086ad](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/2e086ad4a0bf345aec866fa3959e9369e842716d))
+* **theme:** 主题包 黑夜 白天模式定制 ([2f60d1f](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/2f60d1f57be0fb6151fc94a61d0bc71bba3712ab))
+* **tiptap:** 编辑器适配新主题包 ([2d9f7dc](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/2d9f7dc6847e6f057c0caf281c4461691cc98475))
+
+### 🐛 Bug Fixes
+
+* 章节列表新增空状态 ([65a0eb9](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/65a0eb95e4e083591e721f69a44c7614c4ca3299))
+
+### 💄 Styles
+
+* 调整英雄组件的间距和小说管理卡片的样式，优化视觉效果 ([b6a21a4](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/b6a21a48f70d68b1b7a0070d27eae983827249d3))
+* 更新组件样式以支持深色模式，调整小说管理卡片布局 ([a2e2f37](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/a2e2f3788b8f580179a2d37a1e3a07402c49526d))
+
+### ♻️ Code Refactoring
+
+* 移除旧的配置和组件，添加新的功能组件以支持创作环境 ([3761b2a](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/3761b2a2e0dae994af9231d3dc4466b29beea088))
+* simplify session user check in marketing page content ([e4a345b](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/e4a345bc157e168c5fa9808632ffb643936bb494))
+
 ## 0.3.0 (2025-12-20)
 
 * fix: "验证后还需重新登录"和"一直加载"的问题 ([366dc28](https://gitee.com/versa-lab-private/narraverse-next-mvp/commits/366dc28))
