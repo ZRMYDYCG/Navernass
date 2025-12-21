@@ -6,7 +6,7 @@ import { Highlighter } from '@/components/ui/highlighter'
 export default function Hero() {
   return (
     <section className="min-h-screen flex justify-center flex-col overflow-hidden bg-background selection:bg-primary/10 selection:text-primary">
-      <div className="max-w-4xl mx-auto text-center z-20 relative pt-8 sm:-mt-12">
+      <div className="max-w-4xl mx-auto text-center z-20 relative pt-16 sm:pt-20">
         <div>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground tracking-tight leading-[1.1]">
             让写作回归
@@ -21,10 +21,11 @@ export default function Hero() {
         </p>
       </div>
 
-      <div className="mx-auto z-20 relative pt-8 sm:pt-12 w-full max-w-4xl">
+      <div className="mx-auto z-20 relative pt-16 sm:pt-20 w-full max-w-4xl">
         <div className="bg-background p-2 w-full border border-border rounded-lg h-[500px]">
           <TiptapEditor
             placeholder="在这里开始你的创作之旅..."
+            content="如果有来世，就让我们做一对小小的老鼠，笨笨的相爱，呆呆的过日子，拙拙的相守，傻傻的在一起。即使大雪封山，还可以窝在暖暖的草堆，紧紧地抱着你，轻轻地咬你的耳朵。"
             className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto"
           />
         </div>
