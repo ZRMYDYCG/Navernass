@@ -21,6 +21,7 @@ import {
 import { useEffect, useState } from 'react'
 import { ChapterItem } from './chapter-item'
 import { VolumeItem } from './volume-item'
+import { EmptyChapters } from './empty-chapters'
 
 // 根目录放置区组件
 function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver: boolean, isDraggingFromVolume: boolean }) {
@@ -61,6 +62,8 @@ interface ChapterListProps {
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
   onCreateChapterInVolume?: (volumeId: string) => void
+  onCreateChapter?: () => void
+  onCreateVolume?: () => void
   onCollapseAllRef?: React.MutableRefObject<(() => void) | null>
 }
 
@@ -79,6 +82,8 @@ export function ChapterList({
   onRenameVolume,
   onDeleteVolume,
   onCreateChapterInVolume,
+  onCreateChapter,
+  onCreateVolume,
   onCollapseAllRef,
 }: ChapterListProps) {
   const [localChapters, setLocalChapters] = useState(() => chapters || [])
@@ -291,9 +296,17 @@ export function ChapterList({
     ...localChapters.map(c => c.id),
   ]
 
+  const hasContent = localChapters.length > 0 || localVolumes.length > 0
+
   return (
     <div className="flex-1 overflow-y-auto p-2">
-      <DndContext
+      {!hasContent ? (
+        <EmptyChapters
+          onCreateChapter={onCreateChapter}
+          onCreateVolume={onCreateVolume}
+        />
+      ) : (
+        <DndContext
         sensors={sensors}
         collisionDetection={pointerWithin}
         onDragStart={handleDragStart}
@@ -430,6 +443,7 @@ export function ChapterList({
               : null}
         </DragOverlay>
       </DndContext>
+      )}
     </div>
   )
 }
