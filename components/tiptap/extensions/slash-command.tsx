@@ -9,6 +9,7 @@ import {
   Heading1,
   Heading2,
   Heading3,
+  Image as ImageIcon,
   Lightbulb,
   List,
   ListOrdered,
@@ -18,7 +19,7 @@ import {
 } from 'lucide-react'
 import tippy from 'tippy.js'
 import { CommandList } from '../command-list'
-import { showGlobalInputDialog } from '../dialog-manager'
+import { showGlobalInputDialog, showGlobalImageGenerationDialog } from '../dialog-manager'
 
 export interface CommandItem {
   title: string
@@ -83,6 +84,17 @@ export const SlashCommand = Extension.create({
                 editor.chain().focus().deleteRange(range).run()
                 // 触发 AI 大纲生成
                 triggerAIOutline(editor)
+              },
+            },
+            {
+              title: 'AI 生成插画',
+              description: '使用 AI 生成图片',
+              icon: ImageIcon,
+              category: 'ai',
+              command: ({ editor, range }) => {
+                editor.chain().focus().deleteRange(range).run()
+                // 触发 AI 图片生成
+                triggerAIImageGeneration(editor)
               },
             },
             // 基础命令
@@ -225,8 +237,8 @@ export const SlashCommand = Extension.create({
               return (component.ref as any)?.onKeyDown(props)
             },
             onExit() {
-              popup[0].destroy()
-              component.destroy()
+              popup?.[0]?.destroy()
+              component?.destroy()
             },
           }
         },
@@ -427,4 +439,64 @@ async function triggerAIOutline(editor: any) {
   } catch (error) {
     console.error('AI 大纲生成失败:', error)
   }
+}
+
+// AI 图片生成
+async function triggerAIImageGeneration(editor: any) {
+  showGlobalImageGenerationDialog({
+    onConfirm: async (prompt: string, size: string) => {
+      try {
+        editor.chain().focus().insertContent('🎨 AI 正在生成图片...').run()
+
+        const response = await fetch('/api/images/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'text-to-image',
+            prompt,
+            size,
+            num_images: 1,
+          }),
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || '图片生成失败')
+        }
+
+        const data = await response.json()
+
+        if (data.images && data.images.length > 0) {
+          const imageUrl = data.images[0].url
+
+          const loadingText = '🎨 AI 正在生成图片...'
+          const currentPos = editor.state.selection.from
+          editor
+            .chain()
+            .focus()
+            .deleteRange({ from: currentPos - loadingText.length, to: currentPos })
+            .run()
+
+          const editorEvent = new CustomEvent('novel-insert-image-to-editor', {
+            detail: { imageUrl }
+          })
+          window.dispatchEvent(editorEvent)
+        } else {
+          throw new Error('未返回生成的图片')
+        }
+      } catch (error: any) {
+        console.error('图片生成失败:', error)
+        const loadingText = '🎨 AI 正在生成图片...'
+        const currentPos = editor.state.selection.from
+        editor
+          .chain()
+          .focus()
+          .deleteRange({ from: currentPos - loadingText.length, to: currentPos })
+          .run()
+        editor.chain().focus().insertContent('\n图片生成失败，请稍后重试\n').run()
+      }
+    },
+  })
 }

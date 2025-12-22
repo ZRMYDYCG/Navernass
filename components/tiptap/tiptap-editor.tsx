@@ -55,7 +55,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const initTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
-  const { showInputDialog } = useDialog()
+  const { showInputDialog, showImageGenerationDialog } = useDialog()
   const [showSearchBox, setShowSearchBox] = useState(false)
   const [initialSearchTerm, setInitialSearchTerm] = useState('')
   const [isUploadingImage, setIsUploadingImage] = useState(false)
@@ -64,8 +64,8 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   const lastContentRef = useRef('')
 
   useEffect(() => {
-    setGlobalDialog(showInputDialog)
-  }, [showInputDialog])
+    setGlobalDialog(showInputDialog, showImageGenerationDialog)
+  }, [showInputDialog, showImageGenerationDialog])
 
   const calculateStats = (text: string) => {
     const characters = text.length
@@ -426,17 +426,17 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     if (!editor) return
 
     const handleInsertImage = (event: Event) => {
-      const customEvent = event as CustomEvent<{ imageUrl: string }>
+      const customEvent = event as CustomEvent<{ imageUrl: string, chapterId?: string }>
       const imageUrl = customEvent.detail?.imageUrl
-      if (!imageUrl) return
+      if (!imageUrl || !editor) return
 
-      const { state, dispatch } = editor.view
-      const imageNode = state.schema.nodes.image.create({
-        src: imageUrl,
-        alt: 'AI Generated Image',
-      })
-      const tr = state.tr.replaceSelectionWith(imageNode)
-      dispatch(tr)
+      editor.chain().focus().insertContent({
+        type: 'image',
+        attrs: {
+          src: imageUrl,
+          alt: 'AI Generated Image',
+        },
+      }).run()
     }
 
     window.addEventListener('novel-insert-image-to-editor', handleInsertImage)
