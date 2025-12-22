@@ -5,7 +5,15 @@ import { Highlighter } from '@/components/ui/highlighter'
 
 export default function Hero() {
   return (
-    <section className="min-h-screen flex justify-center flex-col overflow-hidden bg-background selection:bg-primary/10 selection:text-primary px-4 md:px-6">
+    <section className="min-h-screen flex justify-center flex-col overflow-hidden bg-background selection:bg-primary/10 selection:text-primary px-4 md:px-6 relative">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10 hidden dark:block">
+        <div className="absolute top-[8%] left-[5%] w-[90%] h-[0.5px] bg-gradient-to-r from-transparent via-violet-500/60 to-transparent rotate-[-12deg] animate-pulse [animation-duration:3s]" />
+        <div className="absolute top-[18%] right-[0%] w-[85%] h-[0.5px] bg-gradient-to-r from-transparent via-sky-400/60 to-transparent rotate-[8deg] animate-pulse [animation-duration:4s] [animation-delay:1s]" />
+        <div className="absolute top-[45%] left-[0%] w-[75%] h-[0.5px] bg-gradient-to-r from-transparent via-pink-400/50 to-transparent rotate-[-5deg] animate-pulse [animation-duration:3.5s] [animation-delay:0.5s]" />
+        <div className="absolute top-[65%] right-[5%] w-[80%] h-[0.5px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent rotate-[6deg] animate-pulse [animation-duration:4.5s] [animation-delay:1.5s]" />
+        <div className="absolute top-[85%] left-[10%] w-[70%] h-[0.5px] bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent rotate-[-3deg] animate-pulse [animation-duration:5s] [animation-delay:2s]" />
+      </div>
+
       <div className="max-w-4xl mx-auto text-center z-20 relative pt-16 sm:pt-20">
         <div>
           <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground tracking-tight leading-[1.1]">
