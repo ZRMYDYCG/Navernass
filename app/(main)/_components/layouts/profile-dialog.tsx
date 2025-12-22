@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Camera } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
-import { Camera } from 'lucide-react'
 
 interface ProfileDialogProps {
   open: boolean
@@ -180,7 +180,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
               <Input
                 id="username"
                 value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                onChange={e => setFormData({ ...formData, username: e.target.value })}
                 placeholder="输入用户名"
                 className="bg-card"
               />
@@ -191,7 +191,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
               <Input
                 id="full_name"
                 value={formData.full_name}
-                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                onChange={e => setFormData({ ...formData, full_name: e.target.value })}
                 placeholder="输入姓名"
                 className="bg-card"
               />
@@ -202,7 +202,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
               <Input
                 id="website"
                 value={formData.website}
-                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                onChange={e => setFormData({ ...formData, website: e.target.value })}
                 placeholder="https://example.com"
                 className="bg-card"
               />

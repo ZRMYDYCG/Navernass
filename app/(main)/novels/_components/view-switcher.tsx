@@ -14,7 +14,7 @@ export function ViewSwitcher({ value, onChange }: ViewSwitcherProps) {
         onClick={() => onChange('grid')}
         className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
           value === 'grid'
-            ? 'bg-secondary text-foreground shadow-sm'
+            ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
         aria-label="卡片视图"
@@ -28,7 +28,7 @@ export function ViewSwitcher({ value, onChange }: ViewSwitcherProps) {
         onClick={() => onChange('table')}
         className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
           value === 'table'
-            ? 'bg-secondary text-foreground shadow-sm'
+            ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
         aria-label="表格视图"
