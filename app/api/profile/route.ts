@@ -31,11 +31,16 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json()
-  const { username, full_name, website, avatar_url } = body
+  const updateData: Record<string, unknown> = {}
+
+  if (body.username !== undefined) updateData.username = body.username
+  if (body.full_name !== undefined) updateData.full_name = body.full_name
+  if (body.website !== undefined) updateData.website = body.website
+  if (body.avatar_url !== undefined) updateData.avatar_url = body.avatar_url
 
   const { data, error: updateError } = await supabase
     .from('profiles')
-    .update({ username, full_name, website, avatar_url })
+    .update(updateData)
     .eq('id', user.id)
     .select()
     .single()

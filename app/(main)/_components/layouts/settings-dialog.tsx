@@ -1,10 +1,10 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { clearApiKey, getApiKey, saveApiKey } from '@/lib/api-key'
 import { Eye, EyeOff, Monitor, Moon, Sun } from 'lucide-react'
-import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { useEffect, useState } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useThemeTransition } from '@/hooks/use-theme-transition'
+import { clearApiKey, getApiKey, saveApiKey } from '@/lib/api-key'
 
 const DEFAULT_USER_ID = 'default-user'
 
@@ -82,9 +82,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-md bg-popover border-border"
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        onOpenAutoFocus={e => e.preventDefault()}
       >
         <DialogHeader>
           <DialogTitle>设置</DialogTitle>
@@ -98,7 +98,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <input
                   type={showApiKey ? 'text' : 'password'}
                   value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  onChange={e => setApiKey(e.target.value)}
                   placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx"
                   disabled={isLoading}
                   className="w-full px-3 py-2 pr-10 text-sm rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
@@ -130,19 +130,23 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   清除
                 </button>
               </div>
-              {isLoading ? (
-                <p className="text-xs text-muted-foreground">
-                  加载中...
-                </p>
-              ) : apiKey ? (
-                <p className="text-xs text-green-600 dark:text-green-400">
-                  ✓ API Key 已保存到云端
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  请输入您的 API Key，将安全保存到云端
-                </p>
-              )}
+              {isLoading
+                ? (
+                    <p className="text-xs text-muted-foreground">
+                      加载中...
+                    </p>
+                  )
+                : apiKey
+                  ? (
+                      <p className="text-xs text-green-600 dark:text-green-400">
+                        ✓ API Key 已保存到云端
+                      </p>
+                    )
+                  : (
+                      <p className="text-xs text-muted-foreground">
+                        请输入您的 API Key，将安全保存到云端
+                      </p>
+                    )}
             </div>
           </div>
 
@@ -156,7 +160,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <button
                     key={option.value}
                     type="button"
-                    onClick={(e) => setTheme(option.value, e)}
+                    onClick={e => setTheme(option.value, e)}
                     className={`flex flex-col items-center gap-2 px-3 py-3 rounded-lg border transition-all duration-200 ${
                       isActive
                         ? 'bg-secondary border-ring text-foreground'

@@ -17,28 +17,26 @@ interface ProfileDialogProps {
 
 export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
   const { user, profile, refreshProfile } = useAuth()
-  const [formData, setFormData] = useState({
-    username: profile?.username || '',
-    full_name: profile?.full_name || '',
-    website: profile?.website || '',
-  })
-  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
+  const [username, setUsername] = useState('')
+  const [website, setWebsite] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const initializedRef = useRef(false)
 
-  useEffect(() => {
-    if (open && profile) {
-      setFormData({
-        username: profile.username || '',
-        full_name: profile.full_name || '',
-        website: profile.website || '',
-      })
-      setAvatarUrl(profile.avatar_url || '')
-      setAvatarFile(null)
-    }
-  }, [open, profile])
+  if (open && profile && !initializedRef.current) {
+    initializedRef.current = true
+    setUsername(profile.username || '')
+    setWebsite(profile.website || '')
+    setAvatarUrl(profile.avatar_url || '')
+    setAvatarFile(null)
+  }
+
+  if (!open && initializedRef.current) {
+    initializedRef.current = false
+  }
 
   useEffect(() => {
     return () => {
@@ -86,13 +84,13 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
 
       if (avatarFile) {
         setIsUploading(true)
-        const formData = new FormData()
-        formData.append('file', avatarFile)
-        formData.append('type', 'avatar')
+        const uploadFormData = new FormData()
+        uploadFormData.append('file', avatarFile)
+        uploadFormData.append('type', 'avatar')
 
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
-          body: formData,
+          body: uploadFormData,
         })
 
         if (!uploadResponse.ok) {
@@ -110,7 +108,8 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
+          username,
+          website,
           avatar_url: finalAvatarUrl,
         }),
       })
@@ -121,7 +120,11 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
         return
       }
 
-      await refreshProfile()
+      try {
+        await refreshProfile()
+      } catch (e) {
+        console.error('刷新资料失败:', e)
+      }
       toast.success('个人资料更新成功')
       onOpenChange(false)
     } catch (error) {
@@ -133,7 +136,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
     }
   }
 
-  const displayName = formData.full_name || formData.username || user?.email?.split('@')[0] || '用户'
+  const displayName = username || user?.email?.split('@')[0] || '用户'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -174,39 +177,26 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">用户名</Label>
-              <Input
-                id="username"
-                value={formData.username}
-                onChange={e => setFormData({ ...formData, username: e.target.value })}
-                placeholder="输入用户名"
-                className="bg-card"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="username">笔名</Label>
+            <Input
+              id="username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="输入你的笔名"
+              className="bg-card"
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="full_name">姓名</Label>
-              <Input
-                id="full_name"
-                value={formData.full_name}
-                onChange={e => setFormData({ ...formData, full_name: e.target.value })}
-                placeholder="输入姓名"
-                className="bg-card"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="website">网站</Label>
-              <Input
-                id="website"
-                value={formData.website}
-                onChange={e => setFormData({ ...formData, website: e.target.value })}
-                placeholder="https://example.com"
-                className="bg-card"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="website">网站</Label>
+            <Input
+              id="website"
+              value={website}
+              onChange={e => setWebsite(e.target.value)}
+              placeholder="https://example.com"
+              className="bg-card"
+            />
           </div>
         </div>
 
