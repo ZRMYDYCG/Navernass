@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
           novel_id: novelId,
           role: 'user',
           content: message, // 保存原始消息，不包含上下文
-          model: model || 'deepseek-chat',
+          model: model || 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B',
           tokens: 0,
         })
 
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
         // 流式调用AI服务
         let fullContent = ''
         let tokens = 0
-        let finalModel = model || 'deepseek-chat'
+        let finalModel = model || 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
 
         // 构建完整的消息列表（包含系统提示）
         const fullMessages = [
@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
             // Controller 已关闭，客户端可能已断开连接
             console.warn('Controller closed during streaming')
           }
-        })
+        }, undefined, model)
 
         // 保存AI回复
         const assistantMessage = await messagesService.create({

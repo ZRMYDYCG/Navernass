@@ -43,7 +43,7 @@ export function HeaderCenter({
         <span className="truncate font-medium font-serif tracking-wide opacity-90 group-hover:opacity-100 transition-opacity">
           {title || '未选择章节'}
         </span>
-        <Search className="w-3.5 h-3.5 mt-1 opacity-60 group-hover:opacity-100 transition-opacity duration-300" strokeWidth={1.6} />
+        <Search className="w-3.5 h-3.5 mt-1 opacity-0 group-hover:opacity-60 transition-opacity duration-300" strokeWidth={1.6} />
       </div>
 
       <button

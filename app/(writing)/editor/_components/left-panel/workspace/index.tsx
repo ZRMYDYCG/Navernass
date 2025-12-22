@@ -18,6 +18,7 @@ interface WorkspaceTabProps {
   onChaptersImported?: () => void
   onCreateChapter?: () => void
   onSelectChapter?: (chapterId: string) => void
+  onImageGenerated?: (imageUrl: string) => void
 }
 
 const EMPTY_VOLUMES: Volume[] = []
@@ -29,6 +30,7 @@ export default function WorkspaceTab({
   onChaptersImported,
   onCreateChapter,
   onSelectChapter,
+  onImageGenerated,
 }: WorkspaceTabProps) {
   // 计算统计数据
   const totalWords = chapters.reduce((sum, ch) => sum + (ch.word_count || 0), 0)
@@ -52,6 +54,7 @@ export default function WorkspaceTab({
         novelId={novelId}
         onChaptersChanged={onChaptersImported}
         chaptersCount={chapters.length}
+        onImageGenerated={onImageGenerated}
       />
 
       {/* 最近编辑 */}

@@ -7,6 +7,7 @@ interface EditorAIRequest {
   text: string
   prompt?: string
   context?: string
+  model?: string
 }
 
 /**
@@ -15,7 +16,7 @@ interface EditorAIRequest {
  */
 export async function POST(req: NextRequest) {
   const body: EditorAIRequest = await req.json()
-  const { action, text, prompt, context } = body
+  const { action, text, prompt, context, model } = body
 
   if (!text || text.trim().length === 0) {
     return new Response('Text cannot be empty', { status: 400 })
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
   const encoder = new TextEncoder()
   const apiKey = userApiKey || process.env.SILICON_FLOW_API_KEY || ''
   const baseUrl = process.env.SILICON_FLOW_BASE_URL || 'https://api.siliconflow.cn/v1'
-  const model = process.env.SILICON_FLOW_MODEL || 'deepseek-chat'
+  const selectedModel = model || process.env.SILICON_FLOW_MODEL || 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
             'Authorization': `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            model,
+            model: selectedModel,
             messages: [
               {
                 role: 'system',

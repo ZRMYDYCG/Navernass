@@ -25,7 +25,7 @@ export const POST = withErrorHandler(
 
     const apiKey = userApiKey || process.env.SILICON_FLOW_API_KEY || ''
     const baseUrl = process.env.SILICON_FLOW_BASE_URL || 'https://api.siliconflow.cn/v1'
-    const model = process.env.SILICON_FLOW_MODEL || 'deepseek-chat'
+    const model = process.env.SILICON_FLOW_MODEL || 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
 
     const systemPrompt = `你是一个专业的文学编辑。请为以下章节内容生成一段简洁的摘要（100-150字），概括主要情节和核心内容。
 

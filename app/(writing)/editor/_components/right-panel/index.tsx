@@ -27,7 +27,7 @@ export default function RightPanel() {
   const [conversations, setConversations] = useState<NovelConversation[]>([])
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [mode, setMode] = useState<AiMode>('ask')
-  const [model, setModel] = useState<AiModel>('Qwen/Qwen2.5-7B-Instruct')
+  const [model, setModel] = useState<AiModel>('deepseek-ai/DeepSeek-R1-Distill-Qwen-7B')
   const [input, setInput] = useState('')
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([])
   const [showChapterSelector, setShowChapterSelector] = useState(false)

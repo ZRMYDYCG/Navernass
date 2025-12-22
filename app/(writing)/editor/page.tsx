@@ -3,6 +3,7 @@
 import type { ImperativePanelHandle } from 'react-resizable-panels'
 import type { Chapter, Novel, Volume } from '@/lib/supabase/sdk'
 import * as Tooltip from '@radix-ui/react-tooltip'
+import { PenTool } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
@@ -91,6 +92,13 @@ function NovelsEditContent() {
       }
     }
   }, [isMobile])
+
+  const handleImageGenerated = (imageUrl: string) => {
+    const editorEvent = new CustomEvent('novel-insert-image-to-editor', {
+      detail: { imageUrl, chapterId: selectedChapter }
+    })
+    window.dispatchEvent(editorEvent)
+  }
 
   const handleToggleRightPanel = useCallback(() => {
     if (isMobile) {
@@ -865,11 +873,8 @@ function NovelsEditContent() {
                           <div className="h-full overflow-y-auto bg-background">
                             <div className="min-h-full flex flex-col items-center justify-center p-4">
                               <div className="flex flex-col items-center gap-6 text-muted-foreground">
-                                <Image
-                                  src="/assets/svg/logo-eye.svg"
-                                  width={120}
-                                  height={120}
-                                  alt="Logo"
+                                <PenTool
+                                  size={120}
                                   className="opacity-40"
                                 />
                                 <p className="text-sm text-center">选择一个章节开始编辑</p>
@@ -946,6 +951,7 @@ function NovelsEditContent() {
                           onRenameVolume={handleRenameVolume}
                           onDeleteVolume={handleDeleteVolume}
                           onChaptersImported={handleChaptersImported}
+                          onImageGenerated={handleImageGenerated}
                         />
                       )}
                     </ResizablePanel>
@@ -965,11 +971,8 @@ function NovelsEditContent() {
                             <div className="h-full overflow-y-auto bg-background">
                               <div className="min-h-full flex flex-col items-center justify-center p-4">
                                 <div className="flex flex-col items-center gap-6 text-muted-foreground">
-                                  <Image
-                                    src="/assets/svg/logo-eye.svg"
-                                    width={120}
-                                    height={120}
-                                    alt="Logo"
+                                  <PenTool
+                                    size={120}
                                     className="opacity-40"
                                   />
                                   <p className="text-sm">选择一个章节开始编辑</p>
@@ -1052,6 +1055,7 @@ function NovelsEditContent() {
                     onMoveChapterToVolume={handleMoveChapterToVolume}
                     onMoveChapter={handleMoveChapter}
                     onChaptersImported={handleChaptersImported}
+                    onImageGenerated={handleImageGenerated}
                   />
                 </div>
               </DrawerContent>

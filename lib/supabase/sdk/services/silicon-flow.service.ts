@@ -31,10 +31,10 @@ export class SiliconFlowService {
   private baseUrl: string
   private model: string
 
-  constructor(apiKey?: string) {
+  constructor(apiKey?: string, model?: string) {
     this.apiKey = apiKey || process.env.SILICON_FLOW_API_KEY || ''
     this.baseUrl = process.env.SILICON_FLOW_BASE_URL || 'https://api.siliconflow.cn/v1'
-    this.model = process.env.SILICON_FLOW_MODEL || 'deepseek-chat'
+    this.model = model || process.env.SILICON_FLOW_MODEL || 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
 
     if (!this.apiKey) {
       console.warn('SILICON_FLOW_API_KEY is not set')
@@ -115,6 +115,7 @@ export class SiliconFlowService {
     messages: ChatMessage[],
     onChunk: (chunk: { content: string, tokens?: number, model?: string }) => void,
     systemPrompt?: string,
+    customModel?: string,
   ): Promise<void> {
     try {
       // 转换消息格式
@@ -140,7 +141,7 @@ export class SiliconFlowService {
           'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          model: this.model,
+          model: customModel || this.model,
           messages: siliconMessages,
           temperature: 0.7,
           max_tokens: 2000,

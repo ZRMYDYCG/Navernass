@@ -23,6 +23,33 @@ export function MessageBubble({ message, streamingMessageId }: MessageBubbleProp
 
   const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
 
+  const renderContent = (content: string) => {
+    const imageRegex = /\[图片\]\((https?:\/\/[^\s)]+)\)/g
+    const parts = content.split(imageRegex)
+    const elements: React.ReactNode[] = []
+
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {
+        elements.push(
+          <div key={i} className="my-2">
+            <img
+              src={parts[i]}
+              alt="Generated image"
+              className="max-w-full h-auto rounded-lg border border-border"
+              style={{ maxHeight: '300px' }}
+            />
+          </div>
+        )
+      } else if (parts[i]) {
+        elements.push(
+          <MarkdownRenderer key={i} content={parts[i]} />
+        )
+      }
+    }
+
+    return elements.length > 0 ? elements : <MarkdownRenderer content={content} />
+  }
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(displayedContent)
@@ -62,7 +89,7 @@ export function MessageBubble({ message, streamingMessageId }: MessageBubbleProp
             : (
                 <>
                   <div className="relative break-words break-all [&_.prose]:!text-[12px] [&_.prose]:!leading-snug [&_.prose_p]:!my-1 [&_.prose_p]:!text-[12px] [&_.prose_h1]:!text-[14px] [&_.prose_h1]:!my-1.5 [&_.prose_h2]:!text-[13px] [&_.prose_h2]:!my-1.5 [&_.prose_h3]:!text-[12px] [&_.prose_h3]:!my-1 [&_.prose_ul]:!my-1 [&_.prose_ol]:!my-1 [&_.prose_li]:!text-[12px] [&_.prose_li]:!my-0.5 [&_.prose_code]:!text-[10px] [&_.prose_pre]:!my-1.5 [&_.prose_pre]:!p-1.5 [&_.prose_pre]:!text-[10px] [&_.prose_blockquote]:!my-1.5 [&_.prose_blockquote]:!pl-3 [&_.prose_table]:!my-1.5 [&_.prose_th]:!text-[12px] [&_.prose_th]:!px-2 [&_.prose_th]:!py-1 [&_.prose_td]:!text-[12px] [&_.prose_td]:!px-2 [&_.prose_td]:!py-1">
-                    <MarkdownRenderer content={displayedContent} />
+                    {renderContent(displayedContent)}
                   </div>
                   {!isStreaming && (
                     <div className="mt-1 flex justify-end">

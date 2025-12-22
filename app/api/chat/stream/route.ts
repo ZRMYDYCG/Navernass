@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
           conversation_id: conversation.id,
           role: 'user',
           content: message,
-          model: 'deepseek-chat',
+          model: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B',
           tokens: 0,
         })
 
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
         // 流式调用AI服务
         let fullContent = ''
         let tokens = 0
-        let model = 'deepseek-chat'
+        let model = 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
 
         await aiService.chatStream(chatMessages, (chunk) => {
           fullContent += chunk.content

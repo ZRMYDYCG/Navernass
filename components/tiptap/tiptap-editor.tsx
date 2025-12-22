@@ -422,6 +422,30 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     }
   }, [editor, chapterId])
 
+  useEffect(() => {
+    if (!editor) return
+
+    const handleInsertImage = (event: Event) => {
+      const customEvent = event as CustomEvent<{ imageUrl: string }>
+      const imageUrl = customEvent.detail?.imageUrl
+      if (!imageUrl) return
+
+      const { state, dispatch } = editor.view
+      const imageNode = state.schema.nodes.image.create({
+        src: imageUrl,
+        alt: 'AI Generated Image',
+      })
+      const tr = state.tr.replaceSelectionWith(imageNode)
+      dispatch(tr)
+    }
+
+    window.addEventListener('novel-insert-image-to-editor', handleInsertImage)
+
+    return () => {
+      window.removeEventListener('novel-insert-image-to-editor', handleInsertImage)
+    }
+  }, [editor])
+
   if (!editor) {
     return null
   }

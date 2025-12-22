@@ -28,6 +28,7 @@ interface LeftPanelProps {
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
   onChaptersImported?: () => void
+  onImageGenerated?: (imageUrl: string) => void
 }
 
 export default function LeftPanel({
@@ -50,6 +51,7 @@ export default function LeftPanel({
   onRenameVolume,
   onDeleteVolume,
   onChaptersImported,
+  onImageGenerated,
 }: LeftPanelProps) {
   const [activeTab, setActiveTab] = useState<LeftTabType>('files')
 
@@ -136,7 +138,6 @@ export default function LeftPanel({
             >
               <WorkspaceTab
                 chapters={chapters.map((c) => {
-                  // 从 wordCount 字符串中提取数字（如 "1.5k字" -> 1500）
                   const wordCountStr = c.wordCount || '0'
                   const wordCountNum = Number.parseFloat(wordCountStr.replace(/[^0-9.]/g, '')) || 0
                   const multiplier = wordCountStr.includes('k') ? 1000 : 1
@@ -152,6 +153,7 @@ export default function LeftPanel({
                 onChaptersImported={onChaptersImported}
                 onCreateChapter={onCreateChapter}
                 onSelectChapter={onSelectChapter}
+                onImageGenerated={onImageGenerated}
               />
             </motion.div>
           )}

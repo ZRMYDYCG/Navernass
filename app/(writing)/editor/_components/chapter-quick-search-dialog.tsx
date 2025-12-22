@@ -93,7 +93,7 @@ export function ChapterQuickSearchDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-24 z-50 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-xl bg-card shadow-xl ring-1 ring-black/5">
+        <Dialog.Content className="fixed left-1/2 top-1/3 z-50 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-xl bg-card shadow-xl ring-1 ring-black/5">
           <div className="flex items-center gap-2 px-4 py-2 border-b border-border">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
