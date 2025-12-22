@@ -32,8 +32,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* 主题切换和进入应用按钮 */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3 scale-90 md:scale-100">
             <Button
               variant="ghost"
               size="icon"
