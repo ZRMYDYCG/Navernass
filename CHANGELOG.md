@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.5.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.4.0...v0.5.0) (2025-12-22)
+
+### ✨ Features
+
+* 编辑器内 AI 支持生成不同比例插画 ([180ba5e](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/180ba5ea817397cd41dc553f30db10f4d7ccc283))
+* 新增文生图、图生图 ([16abb25](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/16abb25b1ece76a88c3cd6721cfcd47aa88d8586))
+
+### 🐛 Bug Fixes
+
+* 修复用户资料无法更新问题 ([99c5ffa](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/99c5ffae566811fd6d40c9fc2013dbd8156c42b1))
+* 修复重构会话消息历史会话栏之后导致的 消息列表高度继承问题 ([556f6df](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/556f6dfd46b9f0bf0777c4180dfd4c4da1b48e9c))
+* 修复landingpage移动端适配问题 ([63d411f](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/63d411fb9a37fc38638708cd8b33ac643c8db5b7))
+* 样式优化 ([3dbe145](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/3dbe1455926ad8732602c422fbc3fa8828710f57))
+* 移动端支持登录 ([9ff083c](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/9ff083cc2f4c584ff3fc9491a316acf58154309c))
+* landing page 移动端适配 ([73ced6c](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/73ced6c822e7463a0b09754694a13f481408b867))
+* landing-page 黑夜模式优化 ([ba637fb](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/ba637fb8930396ec544c94bbba1d4a2ea6345b3c))
+
+### 💄 Styles
+
+* 样式修复 ([9317357](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/9317357218e9fe93a4209baf8bcd4ab35f972b00))
+
 ## [0.4.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.3.0...v0.4.0) (2025-12-21)
 
 ### ✨ Features
