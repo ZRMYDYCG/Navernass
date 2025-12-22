@@ -4,8 +4,6 @@
 
 # Narraverse - 小说创作平台
 
-<img src="./landing-page.png" alt="Narraverse Landing Page" width="100%" />
-
 </div>
 
 ## 核心目标
