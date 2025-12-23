@@ -2,16 +2,14 @@
 
 import type { Message } from '@/lib/supabase/sdk/types'
 
-import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { toast } from 'sonner'
 
-import { chatApi, conversationsApi, messagesApi } from '@/lib/supabase/sdk'
+import { conversationsApi, messagesApi } from '@/lib/supabase/sdk'
 import { copyTextToClipboard } from '@/lib/utils'
 
 export function useConversationMessages(conversationId: string) {
-  const router = useRouter()
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
@@ -19,7 +17,6 @@ export function useConversationMessages(conversationId: string) {
 
   const isProcessingRef = useRef(false)
   const abortControllerRef = useRef<AbortController | null>(null)
-  const hasInitializedRef = useRef(false)
 
   const latestAssistantMessage = useMemo(() => {
     const assistantMessages = messages.filter(msg => msg.role === 'assistant')
@@ -36,86 +33,15 @@ export function useConversationMessages(conversationId: string) {
     }
   }, [])
 
-  const sendMessageStream = useCallback(async (content: string, isInitialMessage = false) => {
-    let aiMessageId: string | null = null
-    let accumulatedContent = ''
+  const updateStreamingMessage = useCallback((content: string) => {
+    setMessages(prev =>
+      prev.map(msg =>
+        msg.id === streamingMessageId ? { ...msg, content } : msg,
+      ),
+    )
+  }, [streamingMessageId])
 
-    const tempUserMessage: Message = {
-      id: `temp-user-${Date.now()}`,
-      conversation_id: conversationId,
-      user_id: 'default-user',
-      role: 'user',
-      content,
-      created_at: new Date().toISOString(),
-    }
-
-    if (isInitialMessage) {
-      setMessages([tempUserMessage])
-    } else {
-      setMessages(prev => [...prev, tempUserMessage])
-    }
-
-    try {
-      await chatApi.sendMessageStream(
-        {
-          conversationId,
-          message: content,
-        },
-        {
-          onContent: (chunk) => {
-            accumulatedContent += chunk
-
-            if (!aiMessageId) {
-              const tempAiMessage: Message = {
-                id: `temp-ai-${Date.now()}`,
-                conversation_id: conversationId,
-                user_id: 'default-user',
-                role: 'assistant',
-                content: accumulatedContent,
-                created_at: new Date().toISOString(),
-              }
-              aiMessageId = tempAiMessage.id
-              setStreamingMessageId(aiMessageId)
-              setMessages(prev => [...prev, tempAiMessage])
-            } else {
-              setMessages(prev =>
-                prev.map(msg =>
-                  msg.id === aiMessageId ? { ...msg, content: accumulatedContent } : msg,
-                ),
-              )
-            }
-          },
-          onDone: async () => {
-            setStreamingMessageId(null)
-            setIsLoading(false)
-            isProcessingRef.current = false
-            abortControllerRef.current = null
-          },
-          onError: (error) => {
-            console.error('Streaming error:', error)
-            setIsLoading(false)
-            setStreamingMessageId(null)
-            isProcessingRef.current = false
-            abortControllerRef.current = null
-            if (isInitialMessage) {
-              router.replace('/chat')
-            }
-          },
-        },
-      )
-    } catch (error) {
-      console.error('Failed to send message:', error)
-      setIsLoading(false)
-      setStreamingMessageId(null)
-      isProcessingRef.current = false
-      abortControllerRef.current = null
-      if (isInitialMessage) {
-        router.replace('/chat')
-      }
-    }
-  }, [conversationId, router])
-
-  const handleSendMessage = useCallback(async (content: string) => {
+  const handleSendMessage = useCallback(async (content: string, onStreamingId?: (id: string) => void) => {
     if (!content.trim() || isLoading || isProcessingRef.current) return
     if (!conversationId) return
 
@@ -127,72 +53,123 @@ export function useConversationMessages(conversationId: string) {
     }
     abortControllerRef.current = new AbortController()
 
-    await sendMessageStream(content.trim())
-  }, [conversationId, isLoading, sendMessageStream])
-
-  const handleCopyMessage = useCallback(async (message: Message) => {
-    if (!message?.content) return
-
-    try {
-      await copyTextToClipboard(message.content)
-      toast.success('消息内容已复制')
-    } catch (error) {
-      console.error('Failed to copy message:', error)
-      toast.error('复制失败，请重试')
-    }
-  }, [])
-
-  const handleShareMessage = useCallback(async (message: Message) => {
-    if (!message?.content) return
-
-    const sharePayload = {
-      title: '来自 Narraverse 的聊天消息',
-      text: message.content,
+    const tempUserMessage: Message = {
+      id: `temp-user-${Date.now()}`,
+      conversation_id: conversationId,
+      user_id: 'default-user',
+      role: 'user',
+      content: content.trim(),
+      created_at: new Date().toISOString(),
     }
 
+    setMessages(prev => [...prev, tempUserMessage])
+
+    const tempAiMessageId = `temp-ai-${Date.now()}`
+    setStreamingMessageId(tempAiMessageId)
+    onStreamingId?.(tempAiMessageId)
+
+    const tempAiMessage: Message = {
+      id: tempAiMessageId,
+      conversation_id: conversationId,
+      user_id: 'default-user',
+      role: 'assistant',
+      content: '',
+      created_at: new Date().toISOString(),
+    }
+
+    setMessages(prev => [...prev, tempAiMessage])
+
     try {
-      if ('share' in navigator && typeof navigator.share === 'function') {
-        await navigator.share(sharePayload)
-      } else {
-        await copyTextToClipboard(message.content)
-        toast.success('已复制消息内容，粘贴即可分享')
+      const response = await fetch('/api/chat/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          conversationId,
+          message: content.trim(),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send message')
       }
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+
+      if (!reader) {
+        throw new Error('No response body')
+      }
+
+      let buffer = ''
+      let fullContent = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          const trimmedLine = line.trim()
+          if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue
+
+          try {
+            const jsonStr = trimmedLine.slice(6)
+            const event = JSON.parse(jsonStr)
+
+            if (event.type === 'content') {
+              fullContent += event.data
+              updateStreamingMessage(fullContent)
+            }
+          } catch {
+            console.warn('Failed to parse SSE event:', trimmedLine)
+          }
+        }
+      }
+
+      setStreamingMessageId(null)
+      setIsLoading(false)
+      isProcessingRef.current = false
+      abortControllerRef.current = null
+
+      await loadConversationHistory(conversationId)
     } catch (error) {
-      console.error('Failed to share message:', error)
-      toast.error('分享失败，请稍后再试')
+      console.error('Failed to send message:', error)
+
+      setMessages(prev => prev.filter(msg => msg.id !== tempAiMessageId))
+      setStreamingMessageId(null)
+      setIsLoading(false)
+      isProcessingRef.current = false
+      abortControllerRef.current = null
+
+      toast.error('发送失败，请重试')
     }
-  }, [])
+  }, [conversationId, isLoading, loadConversationHistory, updateStreamingMessage])
+
+  const handleRetry = useCallback(async (content: string) => {
+    await handleSendMessage(content)
+  }, [handleSendMessage])
 
   useEffect(() => {
-    if (hasInitializedRef.current || !conversationId) return
-    hasInitializedRef.current = true
+    if (!conversationId) return
 
     const initialize = async () => {
-      const initialMessage = sessionStorage.getItem('newChatMessage')
-      const storedConvId = sessionStorage.getItem('newConversationId')
-
-      if (initialMessage && storedConvId === conversationId) {
-        sessionStorage.removeItem('newChatMessage')
-        sessionStorage.removeItem('newConversationId')
-
-        isProcessingRef.current = true
-        setIsLoading(true)
-
-        await sendMessageStream(initialMessage, true)
-      } else {
-        try {
-          setIsLoading(true)
-          await loadConversationHistory(conversationId)
-        } catch (error) {
-          console.error('Failed to load conversation:', error)
-        } finally {
-          setIsLoading(false)
-        }
+      setIsLoading(true)
+      try {
+        await loadConversationHistory(conversationId)
+      } catch (error) {
+        console.error('Failed to load conversation:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
     initialize()
-  }, [conversationId, loadConversationHistory, sendMessageStream])
+  }, [conversationId, loadConversationHistory])
 
   useEffect(() => {
     const fetchTitle = async () => {
@@ -226,7 +203,34 @@ export function useConversationMessages(conversationId: string) {
     conversationTitle,
     latestAssistantMessage,
     handleSendMessage,
-    handleCopyMessage,
-    handleShareMessage,
+    handleRetry,
+    handleCopyMessage: async (message: Message) => {
+      if (!message?.content) return
+      try {
+        await copyTextToClipboard(message.content)
+        toast.success('消息内容已复制')
+      } catch (error) {
+        console.error('Failed to copy message:', error)
+        toast.error('复制失败，请重试')
+      }
+    },
+    handleShareMessage: async (message: Message) => {
+      if (!message?.content) return
+      const sharePayload = {
+        title: '来自 Narraverse 的聊天消息',
+        text: message.content,
+      }
+      try {
+        if ('share' in navigator && typeof navigator.share === 'function') {
+          await navigator.share(sharePayload)
+        } else {
+          await copyTextToClipboard(message.content)
+          toast.success('已复制消息内容，粘贴即可分享')
+        }
+      } catch (error) {
+        console.error('Failed to share message:', error)
+        toast.error('分享失败，请稍后再试')
+      }
+    },
   }
 }

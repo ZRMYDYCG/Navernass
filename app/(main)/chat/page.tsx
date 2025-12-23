@@ -12,6 +12,7 @@ export default function ChatPage() {
   const router = useRouter()
   const [isSending, setIsSending] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const pendingMessageRef = useRef<string | null>(null)
 
   useEffect(() => {
     return () => {
@@ -25,6 +26,7 @@ export default function ChatPage() {
     if (!content.trim() || isSending) return
 
     setIsSending(true)
+    pendingMessageRef.current = content.trim()
 
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
@@ -37,21 +39,33 @@ export default function ChatPage() {
           message: content.trim(),
         },
         {
-          onConversationId: (id) => {
-            sessionStorage.setItem('newChatMessage', content.trim())
-            sessionStorage.setItem('newConversationId', id)
-            router.push(`/chat/${id}`)
+          onConversationId: (id, isNew) => {
+            if (isNew) {
+              sessionStorage.setItem('newConversationId', id)
+            } else {
+              sessionStorage.removeItem('newConversationId')
+            }
+          },
+          onDone: () => {
+            const id = sessionStorage.getItem('newConversationId')
+            if (id) {
+              sessionStorage.removeItem('newConversationId')
+              router.push(`/chat/${id}`)
+            }
             setIsSending(false)
+            pendingMessageRef.current = null
           },
           onError: (error) => {
             console.error('Failed to create conversation:', error)
             setIsSending(false)
+            pendingMessageRef.current = null
           },
         },
       )
     } catch (error) {
       console.error('Failed to send message:', error)
       setIsSending(false)
+      pendingMessageRef.current = null
     }
   }
 

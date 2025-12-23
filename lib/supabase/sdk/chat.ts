@@ -15,7 +15,7 @@ export const chatApi = {
   sendMessageStream: async (
     data: SendMessageRequest,
     callbacks: {
-      onConversationId?: (id: string) => void
+      onConversationId?: (id: string, isNew: boolean) => void
       onUserMessageId?: (id: string) => void
       onContent?: (content: string) => void
       onDone?: (data: { messageId: string, tokens: number, model: string }) => void
@@ -60,7 +60,7 @@ export const chatApi = {
 
           switch (event.type) {
             case 'conversation_id':
-              callbacks.onConversationId?.(event.data)
+              callbacks.onConversationId?.(event.data.id, event.data.created)
               break
             case 'user_message_id':
               callbacks.onUserMessageId?.(event.data)

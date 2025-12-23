@@ -57,9 +57,9 @@ export async function POST(req: NextRequest) {
           })
         }
 
-        // 发送对话ID
+        // 发送对话ID和是否新建标志
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: 'conversation_id', data: conversation.id })}\n\n`),
+          encoder.encode(`data: ${JSON.stringify({ type: 'conversation_id', data: { id: conversation.id, created: !isValidUUID } })}\n\n`),
         )
 
         // 获取对话历史消息（最多20条）
