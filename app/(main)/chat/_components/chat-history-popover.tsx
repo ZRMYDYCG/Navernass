@@ -129,7 +129,7 @@ export function ChatHistoryPopover() {
         </Button>
       </div>
 
-      <ScrollArea className="max-h-[400px]">
+      <ScrollArea className="h-[400px]">
         <div className="p-2 space-y-0.5">
           {isLoading
             ? (
@@ -144,7 +144,7 @@ export function ChatHistoryPopover() {
               )
             : chatHistory.length === 0
               ? (
-                  <div className="text-center py-8 text-muted-foreground text-xs font-serif italic">
+                  <div className="h-[360px] flex items-center justify-center text-muted-foreground text-xs font-serif italic">
                     还没有对话历史
                   </div>
                 )
