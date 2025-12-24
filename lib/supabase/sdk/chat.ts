@@ -1,7 +1,27 @@
-import type { SendMessageRequest, SendMessageResponse } from './types'
+import type { SendMessageRequest, SendMessageResponse, Conversation } from './types'
 import { apiClient } from './client'
 
 export const chatApi = {
+  /**
+   * 创建新对话
+   */
+  createConversation: async (message?: string): Promise<Conversation> => {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create conversation')
+    }
+
+    const data = await response.json()
+    return data.data.conversation
+  },
+
   /**
    * 发送消息并获取AI回复
    */

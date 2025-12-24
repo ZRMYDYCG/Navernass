@@ -206,6 +206,7 @@ export function MessageList({
               {messages.map((message, index) => {
                 const isLastMessage = index === messages.length - 1
                 const shouldAlwaysShowActions = isShareMode || (isLastMessage && !streamingMessageId && !isLoading)
+                const isStreaming = streamingMessageId === message.id
                 return (
                   <MessageBubble
                     key={message.id}
@@ -217,6 +218,7 @@ export function MessageList({
                     isSelected={selectedMessageIds.includes(message.id)}
                     onToggleSelect={onToggleSelectMessage}
                     alwaysShowActions={shouldAlwaysShowActions}
+                    isStreaming={isStreaming}
                   />
                 )
               })}

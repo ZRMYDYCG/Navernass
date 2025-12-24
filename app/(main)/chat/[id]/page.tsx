@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 
 import { ChatInputBox } from '../_components/chat-input-box'
@@ -17,7 +17,9 @@ import { useShareMode } from './_hooks/use-share-mode'
 
 export default function ConversationPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const conversationId = params.id as string
+  const initialMessage = searchParams.get('message') || undefined
 
   const {
     messages,
@@ -29,7 +31,7 @@ export default function ConversationPage() {
     handleSendMessage,
     handleCopyMessage,
     handleShareMessage,
-  } = useConversationMessages(conversationId)
+  } = useConversationMessages({ conversationId, initialMessage })
 
   const {
     isShareMode,

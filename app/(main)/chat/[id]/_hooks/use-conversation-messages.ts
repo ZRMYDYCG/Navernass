@@ -1,15 +1,17 @@
 'use client'
 
 import type { Message } from '@/lib/supabase/sdk/types'
-
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-
 import { toast } from 'sonner'
-
 import { conversationsApi, messagesApi } from '@/lib/supabase/sdk'
 import { copyTextToClipboard } from '@/lib/utils'
 
-export function useConversationMessages(conversationId: string) {
+interface UseConversationMessagesProps {
+  conversationId: string
+  initialMessage?: string
+}
+
+export function useConversationMessages({ conversationId, initialMessage }: UseConversationMessagesProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
@@ -17,6 +19,7 @@ export function useConversationMessages(conversationId: string) {
 
   const isProcessingRef = useRef(false)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const initialMessageSentRef = useRef(false)
 
   const latestAssistantMessage = useMemo(() => {
     const assistantMessages = messages.filter(msg => msg.role === 'assistant')
@@ -33,24 +36,60 @@ export function useConversationMessages(conversationId: string) {
     }
   }, [])
 
-  const updateStreamingMessage = useCallback((content: string) => {
-    setMessages(prev =>
-      prev.map(msg =>
-        msg.id === streamingMessageId ? { ...msg, content } : msg,
-      ),
-    )
-  }, [streamingMessageId])
+  const streamMessage = useCallback(async (content: string, tempAiMessageId: string) => {
+    const response = await fetch('/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversationId, message: content.trim() }),
+    })
+
+    if (!response.ok) throw new Error('Failed to send message')
+
+    const reader = response.body?.getReader()
+    const decoder = new TextDecoder()
+    if (!reader) throw new Error('No response body')
+
+    let buffer = ''
+    let fullContent = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        const trimmedLine = line.trim()
+        if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue
+
+        try {
+          const jsonStr = trimmedLine.slice(6)
+          const event = JSON.parse(jsonStr)
+
+          if (event.type === 'content') {
+            fullContent += event.data
+            setMessages(prev =>
+              prev.map(msg => msg.id === tempAiMessageId ? { ...msg, content: fullContent } : msg),
+            )
+          }
+        } catch {
+          console.warn('Failed to parse SSE event:', trimmedLine)
+        }
+      }
+    }
+
+    return fullContent
+  }, [conversationId])
 
   const handleSendMessage = useCallback(async (content: string, onStreamingId?: (id: string) => void) => {
-    if (!content.trim() || isLoading || isProcessingRef.current) return
-    if (!conversationId) return
+    if (!content.trim() || isLoading || isProcessingRef.current || !conversationId) return
 
     isProcessingRef.current = true
     setIsLoading(true)
 
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
+    if (abortControllerRef.current) abortControllerRef.current.abort()
     abortControllerRef.current = new AbortController()
 
     const tempUserMessage: Message = {
@@ -80,56 +119,7 @@ export function useConversationMessages(conversationId: string) {
     setMessages(prev => [...prev, tempAiMessage])
 
     try {
-      const response = await fetch('/api/chat/stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          conversationId,
-          message: content.trim(),
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to send message')
-      }
-
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
-
-      if (!reader) {
-        throw new Error('No response body')
-      }
-
-      let buffer = ''
-      let fullContent = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          const trimmedLine = line.trim()
-          if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue
-
-          try {
-            const jsonStr = trimmedLine.slice(6)
-            const event = JSON.parse(jsonStr)
-
-            if (event.type === 'content') {
-              fullContent += event.data
-              updateStreamingMessage(fullContent)
-            }
-          } catch {
-            console.warn('Failed to parse SSE event:', trimmedLine)
-          }
-        }
-      }
+      await streamMessage(content, tempAiMessageId)
 
       setStreamingMessageId(null)
       setIsLoading(false)
@@ -148,7 +138,7 @@ export function useConversationMessages(conversationId: string) {
 
       toast.error('发送失败，请重试')
     }
-  }, [conversationId, isLoading, loadConversationHistory, updateStreamingMessage])
+  }, [conversationId, isLoading, loadConversationHistory, streamMessage])
 
   const handleRetry = useCallback(async (content: string) => {
     await handleSendMessage(content)
@@ -161,8 +151,6 @@ export function useConversationMessages(conversationId: string) {
       setIsLoading(true)
       try {
         await loadConversationHistory(conversationId)
-      } catch (error) {
-        console.error('Failed to load conversation:', error)
       } finally {
         setIsLoading(false)
       }
@@ -172,13 +160,22 @@ export function useConversationMessages(conversationId: string) {
   }, [conversationId, loadConversationHistory])
 
   useEffect(() => {
+    if (!conversationId || !initialMessage || initialMessageSentRef.current) return
+
+    const sendInitialMessage = async () => {
+      initialMessageSentRef.current = true
+      await handleSendMessage(initialMessage)
+    }
+
+    sendInitialMessage()
+  }, [conversationId, initialMessage, handleSendMessage])
+
+  useEffect(() => {
     const fetchTitle = async () => {
       if (!conversationId) return
       try {
         const conversation = await conversationsApi.getById(conversationId)
-        if (conversation?.title) {
-          setConversationTitle(conversation.title)
-        }
+        if (conversation?.title) setConversationTitle(conversation.title)
       } catch (error) {
         console.error('Failed to load conversation title:', error)
       }
@@ -189,9 +186,7 @@ export function useConversationMessages(conversationId: string) {
 
   useEffect(() => {
     return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
+      if (abortControllerRef.current) abortControllerRef.current.abort()
     }
   }, [])
 
@@ -216,10 +211,7 @@ export function useConversationMessages(conversationId: string) {
     },
     handleShareMessage: async (message: Message) => {
       if (!message?.content) return
-      const sharePayload = {
-        title: '来自 Narraverse 的聊天消息',
-        text: message.content,
-      }
+      const sharePayload = { title: '来自 Narraverse 的聊天消息', text: message.content }
       try {
         if ('share' in navigator && typeof navigator.share === 'function') {
           await navigator.share(sharePayload)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { chatApi } from '@/lib/supabase/sdk'
 import { ChatInputBox } from './_components/chat-input-box'
@@ -10,9 +10,17 @@ import { PromptButtons } from './_components/prompt-buttons'
 
 export default function ChatPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isSending, setIsSending] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
-  const pendingMessageRef = useRef<string | null>(null)
+
+  const initialMessage = searchParams.get('message')
+
+  useEffect(() => {
+    if (initialMessage) {
+      handleSendMessage(initialMessage)
+    }
+  }, [initialMessage])
 
   useEffect(() => {
     return () => {
@@ -26,7 +34,6 @@ export default function ChatPage() {
     if (!content.trim() || isSending) return
 
     setIsSending(true)
-    pendingMessageRef.current = content.trim()
 
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
@@ -34,38 +41,11 @@ export default function ChatPage() {
     abortControllerRef.current = new AbortController()
 
     try {
-      await chatApi.sendMessageStream(
-        {
-          message: content.trim(),
-        },
-        {
-          onConversationId: (id, isNew) => {
-            if (isNew) {
-              sessionStorage.setItem('newConversationId', id)
-            } else {
-              sessionStorage.removeItem('newConversationId')
-            }
-          },
-          onDone: () => {
-            const id = sessionStorage.getItem('newConversationId')
-            if (id) {
-              sessionStorage.removeItem('newConversationId')
-              router.push(`/chat/${id}`)
-            }
-            setIsSending(false)
-            pendingMessageRef.current = null
-          },
-          onError: (error) => {
-            console.error('Failed to create conversation:', error)
-            setIsSending(false)
-            pendingMessageRef.current = null
-          },
-        },
-      )
+      const conversation = await chatApi.createConversation(content.trim())
+      router.push(`/chat/${conversation.id}?message=${encodeURIComponent(content.trim())}`)
     } catch (error) {
-      console.error('Failed to send message:', error)
+      console.error('Failed to create conversation:', error)
       setIsSending(false)
-      pendingMessageRef.current = null
     }
   }
 
