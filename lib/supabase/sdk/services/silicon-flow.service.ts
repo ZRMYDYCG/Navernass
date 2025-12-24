@@ -145,7 +145,8 @@ export class SiliconFlowService {
           messages: siliconMessages,
           temperature: 0.7,
           max_tokens: 2000,
-          stream: true, // 启用流式输出
+          stream: true,
+          enable_thinking: false,
         }),
       })
 

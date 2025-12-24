@@ -1,8 +1,8 @@
 import type { NextRequest } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { getApiKey } from '@/lib/api-key'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
+import { createClient } from '@/lib/supabase/server'
 
 export const POST = withErrorHandler(
   async (_req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
@@ -56,6 +56,7 @@ export const POST = withErrorHandler(
         ],
         temperature: 0.8,
         max_tokens: 500,
+        enable_thinking: false,
       }),
     })
 
