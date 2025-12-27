@@ -1,32 +1,4 @@
-// import type { LucideIcon } from 'lucide-react'
-// import { Lightbulb, PenTool, Wand2 } from 'lucide-react'
 import Image from 'next/image'
-
-// const FEATURES: Array<{
-//   icon: LucideIcon
-//   title: string
-//   description: string
-//   iconColor: string
-// }> = [
-//   {
-//     icon: Wand2,
-//     title: '续写故事',
-//     description: '根据上下文智能续写',
-//     iconColor: 'text-purple-500',
-//   },
-//   {
-//     icon: PenTool,
-//     title: '优化润色',
-//     description: '让文字表达更精彩',
-//     iconColor: 'text-blue-500',
-//   },
-//   {
-//     icon: Lightbulb,
-//     title: '创作建议',
-//     description: '提供专业的写作指导',
-//     iconColor: 'text-amber-500',
-//   },
-// ]
 
 export function EmptyState() {
   return (

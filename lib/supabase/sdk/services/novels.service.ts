@@ -4,6 +4,8 @@ import type {
   UpdateNovelDto,
 } from '../types'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { ChaptersService } from './chapters.service'
+import { VolumesService } from './volumes.service'
 
 export class NovelsService {
   private supabase: SupabaseClient
@@ -115,7 +117,13 @@ export class NovelsService {
   }
 
   async delete(id: string) {
-    await this.getById(id)
+    const novel = await this.getById(id)
+
+    const chaptersService = new ChaptersService(this.supabase)
+    const volumesService = new VolumesService(this.supabase)
+
+    await chaptersService.deleteByNovelId(id)
+    await volumesService.deleteByNovelId(id)
 
     const { error } = await this.supabase.from('novels').delete().eq('id', id)
 
@@ -123,11 +131,29 @@ export class NovelsService {
   }
 
   async archive(id: string) {
-    return this.update(id, { status: 'archived' })
+    const chaptersService = new ChaptersService(this.supabase)
+    const volumesService = new VolumesService(this.supabase)
+
+    await Promise.all([
+      this.update(id, { status: 'archived' }),
+      chaptersService.archiveByNovelId(id),
+      volumesService.archiveByNovelId(id),
+    ])
+
+    return this.getById(id)
   }
 
   async restore(id: string) {
-    return this.update(id, { status: 'draft' })
+    const chaptersService = new ChaptersService(this.supabase)
+    const volumesService = new VolumesService(this.supabase)
+
+    await Promise.all([
+      this.update(id, { status: 'draft' }),
+      chaptersService.restoreByNovelId(id),
+      volumesService.restoreByNovelId(id),
+    ])
+
+    return this.getById(id)
   }
 
   async publish(id: string) {

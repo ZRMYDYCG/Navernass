@@ -45,6 +45,7 @@ CREATE TABLE public.chapters (
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   volume_id uuid,
   summary text,
+  deleted_at timestamp with time zone,
   CONSTRAINT chapters_pkey PRIMARY KEY (id),
   CONSTRAINT chapters_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id),
   CONSTRAINT chapters_volume_id_fkey FOREIGN KEY (volume_id) REFERENCES public.volumes(id)
@@ -149,6 +150,7 @@ CREATE TABLE public.volumes (
   order_index integer NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  deleted_at timestamp with time zone,
   CONSTRAINT volumes_pkey PRIMARY KEY (id),
   CONSTRAINT volumes_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id)
 );

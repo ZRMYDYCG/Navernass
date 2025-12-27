@@ -8,9 +8,24 @@ export class ChaptersService {
     this.supabase = supabase
   }
   /**
-   * 获取小说的所有章节
+   * 获取小说的所有章节（不包含已删除的）
    */
   async getByNovelId(novelId: string) {
+    const { data, error } = await this.supabase
+      .from('chapters')
+      .select('*')
+      .eq('novel_id', novelId)
+      .is('deleted_at', null)
+      .order('order_index', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  }
+
+  /**
+   * 获取小说的所有章节（包括已删除的，用于恢复）
+   */
+  async getAllByNovelId(novelId: string) {
     const { data, error } = await this.supabase
       .from('chapters')
       .select('*')
@@ -54,6 +69,7 @@ export class ChaptersService {
       .from('chapters')
       .select('word_count')
       .eq('novel_id', novelId)
+      .is('deleted_at', null)
 
     if (error) throw error
 
@@ -140,16 +156,57 @@ export class ChaptersService {
   }
 
   /**
-   * 删除章节
+   * 删除章节（软删除）
    */
   async delete(id: string) {
     const chapter = await this.getById(id)
 
-    const { error } = await this.supabase.from('chapters').delete().eq('id', id)
+    const { error } = await this.supabase
+      .from('chapters')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', id)
 
     if (error) throw error
 
     await this.updateNovelStats(chapter.novel_id)
+  }
+
+  /**
+   * 归档小说的所有章节（软删除）
+   */
+  async archiveByNovelId(novelId: string) {
+    const { error } = await this.supabase
+      .from('chapters')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('novel_id', novelId)
+      .is('deleted_at', null)
+
+    if (error) throw error
+  }
+
+  /**
+   * 恢复小说的所有章节
+   */
+  async restoreByNovelId(novelId: string) {
+    const { error } = await this.supabase
+      .from('chapters')
+      .update({ deleted_at: null })
+      .eq('novel_id', novelId)
+      .not('deleted_at', 'is', null)
+
+    if (error) throw error
+  }
+
+  /**
+   * 永久删除小说的所有章节
+   */
+  async deleteByNovelId(novelId: string) {
+    const { error } = await this.supabase
+      .from('chapters')
+      .delete()
+      .eq('novel_id', novelId)
+
+    if (error) throw error
   }
 
   /**

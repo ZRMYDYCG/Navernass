@@ -8,9 +8,24 @@ export class VolumesService {
     this.supabase = supabase
   }
   /**
-   * 获取小说的所有卷
+   * 获取小说的所有卷（不包含已删除的）
    */
   async getByNovelId(novelId: string) {
+    const { data, error } = await this.supabase
+      .from('volumes')
+      .select('*')
+      .eq('novel_id', novelId)
+      .is('deleted_at', null)
+      .order('order_index', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  }
+
+  /**
+   * 获取小说的所有卷（包括已删除的，用于恢复）
+   */
+  async getAllByNovelId(novelId: string) {
     const { data, error } = await this.supabase
       .from('volumes')
       .select('*')
@@ -87,20 +102,53 @@ export class VolumesService {
   }
 
   /**
-   * 删除卷
+   * 删除卷（软删除）
    */
   async delete(id: string) {
     await this.getById(id)
 
-    // 删除卷时，将其下的章节的 volume_id 设置为 null
-    const { error: chapterError } = await this.supabase
-      .from('chapters')
-      .update({ volume_id: null })
-      .eq('volume_id', id)
+    const { error } = await this.supabase
+      .from('volumes')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', id)
 
-    if (chapterError) throw chapterError
+    if (error) throw error
+  }
 
-    const { error } = await this.supabase.from('volumes').delete().eq('id', id)
+  /**
+   * 归档小说的所有卷（软删除）
+   */
+  async archiveByNovelId(novelId: string) {
+    const { error } = await this.supabase
+      .from('volumes')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('novel_id', novelId)
+      .is('deleted_at', null)
+
+    if (error) throw error
+  }
+
+  /**
+   * 恢复小说的所有卷
+   */
+  async restoreByNovelId(novelId: string) {
+    const { error } = await this.supabase
+      .from('volumes')
+      .update({ deleted_at: null })
+      .eq('novel_id', novelId)
+      .not('deleted_at', 'is', null)
+
+    if (error) throw error
+  }
+
+  /**
+   * 永久删除小说的所有卷
+   */
+  async deleteByNovelId(novelId: string) {
+    const { error } = await this.supabase
+      .from('volumes')
+      .delete()
+      .eq('novel_id', novelId)
 
     if (error) throw error
   }
