@@ -1,6 +1,7 @@
 'use client'
 
-import { ChevronUp, LogOut, Settings, User } from 'lucide-react'
+import { Bell, ChevronUp, LogOut, Settings, User } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ interface UserProfileProps {
 
 export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSettingsClick }: UserProfileProps) {
   const { user, profile, signOut } = useAuth()
+  const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
 
@@ -116,6 +118,14 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
             >
               <Settings className="mr-2 h-4 w-4" />
               <span>设置</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => router.push('/chat/news')}
+            >
+              <Bell className="mr-2 h-4 w-4" />
+              <span>产品更新动态</span>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />

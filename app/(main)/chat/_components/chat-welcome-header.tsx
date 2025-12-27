@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  Bell,
   History,
   PencilLine,
   Share2,
@@ -175,28 +174,6 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                     </Tooltip>
                   )}
 
-              {isLoadingTitle
-                ? (
-                    <Skeleton className="w-8 h-8 rounded-md" />
-                  )
-                : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="relative text-muted-foreground hover:text-foreground cursor-pointer hover:bg-accent"
-                          onClick={() => router.push('/chat/news')}
-                          aria-label="产品更新动态"
-                        >
-                          <Bell className="w-5 h-5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>产品更新动态</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
             </>
           )}
         </div>
