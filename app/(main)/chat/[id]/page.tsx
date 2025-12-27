@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { useParams, useSearchParams, useRouter, Suspense } from 'next/navigation'
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { ChatInputBox } from '../_components/chat-input-box'
@@ -15,7 +15,7 @@ import { useDocumentEditor } from './_hooks/use-document-editor'
 import { useImageGeneration } from './_hooks/use-image-generation'
 import { useShareMode } from './_hooks/use-share-mode'
 
-export default function ConversationPage() {
+function ConversationContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -155,5 +155,13 @@ export default function ConversationPage() {
         onDownload={handleDownloadPreview}
       />
     </div>
+  )
+}
+
+export default function ConversationPage() {
+  return (
+    <Suspense fallback={null}>
+      <ConversationContent />
+    </Suspense>
   )
 }
