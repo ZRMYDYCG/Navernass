@@ -20,6 +20,7 @@ export default function ConversationPage() {
   const searchParams = useSearchParams()
   const conversationId = params.id as string
   const initialMessage = searchParams.get('message') || undefined
+  const isNewConversation = !!initialMessage
 
   const {
     messages,
@@ -31,7 +32,7 @@ export default function ConversationPage() {
     handleSendMessage,
     handleCopyMessage,
     handleShareMessage,
-  } = useConversationMessages({ conversationId, initialMessage })
+  } = useConversationMessages({ conversationId, initialMessage, isNewConversation })
 
   const {
     isShareMode,

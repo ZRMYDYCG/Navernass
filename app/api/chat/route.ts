@@ -26,10 +26,12 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     }
   }
 
+  const { data: { user } } = await supabase.auth.getUser()
+
   const { data: conversation, error } = await supabase
     .from('conversations')
     .insert({
-      user_id: 'default-user',
+      user_id: user?.id,
       title,
     })
     .select()

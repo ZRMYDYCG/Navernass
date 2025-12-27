@@ -13,6 +13,7 @@ import { getChatPrompt } from '@/prompts'
  */
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   const conversationsService = new ConversationsService(supabase)
   const messagesService = new MessagesService(supabase)
 
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     return new Response('Message cannot be empty', { status: 400 })
   }
 
-  const userApiKey = await getApiKey('default-user')
+  const userApiKey = user ? await getApiKey(user.id) : null
   const aiService = new SiliconFlowService(userApiKey || undefined)
 
   // 创建流式响应
