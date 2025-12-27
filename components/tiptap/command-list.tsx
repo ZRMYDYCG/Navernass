@@ -80,7 +80,7 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
   }, {})
 
   const categoryLabels: Record<string, string> = {
-    ai: 'Narraverse AI Commands',
+    ai: '指令',
     format: '格式',
     basic: '基础',
   }

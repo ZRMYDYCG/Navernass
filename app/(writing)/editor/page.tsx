@@ -4,7 +4,6 @@ import type { ImperativePanelHandle } from 'react-resizable-panels'
 import type { Chapter, Novel, Volume } from '@/lib/supabase/sdk'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { PenTool } from 'lucide-react'
-import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -23,9 +22,9 @@ import EditorHeader from './_components/editor-header'
 import LeftPanel from './_components/left-panel'
 import { LockScreen } from './_components/lock-screen'
 import { SetPasswordDialog } from './_components/lock-screen/set-password-dialog'
+import { MoveChapterDialog } from './_components/move-chapter-dialog'
 import { RenameChapterDialog } from './_components/rename-chapter-dialog'
 import { RenameVolumeDialog } from './_components/rename-volume-dialog'
-import { MoveChapterDialog } from './_components/move-chapter-dialog'
 import RightPanel from './_components/right-panel'
 
 function NovelsEditContent() {
@@ -95,7 +94,7 @@ function NovelsEditContent() {
 
   const handleImageGenerated = (imageUrl: string) => {
     const editorEvent = new CustomEvent('novel-insert-image-to-editor', {
-      detail: { imageUrl, chapterId: selectedChapter }
+      detail: { imageUrl, chapterId: selectedChapter },
     })
     window.dispatchEvent(editorEvent)
   }
@@ -846,7 +845,6 @@ function NovelsEditContent() {
             onToggleLeftPanel={handleToggleLeftPanel}
             onSelectChapter={handleSelectChapter}
             onToggleAI={() => {
-            // TODO: 实现 AI 面板切换
               handleToggleRightPanel()
             }}
             onToggleTerminal={() => {

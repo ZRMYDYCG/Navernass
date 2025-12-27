@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { HeaderCenter } from './header-center'
 import { HeaderLeft } from './header-left'
 import { HeaderRight } from './header-right'
@@ -32,13 +32,49 @@ export default function EditorHeader({
   onLock,
   onBack,
   novelId,
-  chapterIds = [],
+  chapterIds,
   onOpenChapterSearch,
 }: EditorHeaderProps) {
   const router = useRouter()
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [chapterHistory, setChapterHistory] = useState<string[]>([])
-  const [historyIndex, setHistoryIndex] = useState(-1)
+
+  interface HistoryState {
+    history: string[]
+    index: number
+  }
+
+  interface HistoryAction {
+    type: 'navigate' | 'updateIndex'
+    chapterId?: string
+    index?: number
+  }
+
+  const [historyState, _dispatch] = useReducer((state: HistoryState, action: HistoryAction): HistoryState => {
+    if (action.type === 'updateIndex' && action.index !== undefined) {
+      return { ...state, index: action.index }
+    }
+
+    const { chapterId } = action
+    const existingIndex = state.history.indexOf(chapterId!)
+
+    if (existingIndex !== -1) {
+      return { ...state, history: state.history.slice(0, existingIndex + 1), index: existingIndex }
+    }
+
+    if (state.index < state.history.length - 1) {
+      return {
+        ...state,
+        history: [...state.history.slice(0, state.index + 1), chapterId!],
+        index: state.index + 1,
+      }
+    }
+
+    return { ...state, history: [...state.history, chapterId!], index: state.history.length }
+  }, { history: [], index: -1 })
+
+  const chapterHistory = historyState.history
+  const historyIndex = historyState.index
+
   const prevChapterIdRef = useRef<string | null | undefined>(null)
   const isNavigatingHistoryRef = useRef(false)
 
@@ -51,7 +87,6 @@ export default function EditorHeader({
       return
     }
 
-    // 如果是通过历史导航切换的，只更新索引，不修改历史记录
     if (isNavigatingHistoryRef.current) {
       isNavigatingHistoryRef.current = false
       prevChapterIdRef.current = currentChapterId
@@ -59,36 +94,7 @@ export default function EditorHeader({
     }
 
     prevChapterIdRef.current = currentChapterId
-
-    setChapterHistory((prev) => {
-      // 如果当前章节已经在历史记录中，移除它后面的记录
-      const existingIndex = prev.indexOf(currentChapterId)
-      if (existingIndex !== -1) {
-        const newHistory = prev.slice(0, existingIndex + 1)
-        setHistoryIndex(newHistory.length - 1)
-        return newHistory
-      }
-
-      // 获取当前历史索引并更新
-      setHistoryIndex((currentHistoryIndex) => {
-        let newHistory: string[]
-
-        // 如果当前在历史记录的中间位置，移除后面的记录
-        if (currentHistoryIndex < prev.length - 1) {
-          newHistory = prev.slice(0, currentHistoryIndex + 1)
-          newHistory.push(currentChapterId)
-        } else {
-          // 添加新章节到历史记录
-          newHistory = [...prev, currentChapterId]
-        }
-
-        setChapterHistory(newHistory)
-        setHistoryIndex(newHistory.length - 1)
-        return newHistory.length - 1
-      })
-
-      return prev
-    })
+    _dispatch({ type: 'navigate', chapterId: currentChapterId })
   }, [currentChapterId])
 
   // 全屏切换
@@ -130,7 +136,7 @@ export default function EditorHeader({
       const prevChapterId = chapterHistory[newIndex]
       if (prevChapterId) {
         isNavigatingHistoryRef.current = true
-        setHistoryIndex(newIndex)
+        _dispatch({ type: 'updateIndex', index: newIndex })
         onSelectChapter(prevChapterId)
       }
     }
@@ -142,7 +148,7 @@ export default function EditorHeader({
       const nextChapterId = chapterHistory[newIndex]
       if (nextChapterId) {
         isNavigatingHistoryRef.current = true
-        setHistoryIndex(newIndex)
+        _dispatch({ type: 'updateIndex', index: newIndex })
         onSelectChapter(nextChapterId)
       }
     }
