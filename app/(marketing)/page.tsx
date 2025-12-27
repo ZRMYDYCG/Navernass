@@ -1,11 +1,20 @@
 'use client'
 
 import { Suspense } from 'react'
-import MarketingPageContent from './_components/marketing-page-content'
+import { MarketingSkeleton } from './_components/marketing-skeleton'
+import dynamic from 'next/dynamic'
+
+const MarketingPageContent = dynamic(
+  () => import('./_components/marketing-page-content'),
+  {
+    ssr: true,
+    loading: () => <MarketingSkeleton />,
+  }
+)
 
 export default function MarketingPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+    <Suspense fallback={<MarketingSkeleton />}>
       <MarketingPageContent />
     </Suspense>
   )

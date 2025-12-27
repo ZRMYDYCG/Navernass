@@ -2,25 +2,28 @@ import type { Metadata } from 'next'
 import { Caveat, Inter, Noto_Serif_SC } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { Toaster as RadixToaster } from '@/components/ui/toaster'
-import { FaviconProvider } from '@/providers/favicon-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 import { AuthProvider } from '@/hooks/use-auth'
+import { FaviconProvider } from '@/providers/favicon-provider'
 import './globals.css'
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
 })
 
 const notoSerifSC = Noto_Serif_SC({
   weight: ['400', '500', '700'],
   subsets: ['latin'],
   variable: '--font-serif',
+  display: 'swap',
 })
 
 const caveat = Caveat({
   subsets: ['latin'],
   variable: '--font-handwriting',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {

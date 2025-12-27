@@ -18,6 +18,9 @@ const withPWA = withPWAInit({
 })
 
 const nextConfig: NextConfig = {
+  compress: true,
+  poweredByHeader: false,
+  swcMinify: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -25,7 +28,12 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['vdkyjmlalrspsebjhkya.supabase.co'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'vdkyjmlalrspsebjhkya.supabase.co',
+      },
+    ],
   },
   experimental: {
     reactCompiler: true,
