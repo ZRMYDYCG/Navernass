@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { CloseConfirmDialog } from './close-confirm-dialog'
 import { PublishDialog } from './publish-dialog'
 
 const DEFAULT_CHAPTER_IDS: string[] = []
@@ -41,6 +42,7 @@ export function HeaderRight({
   chapterIds = DEFAULT_CHAPTER_IDS,
 }: HeaderRightProps) {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false)
 
   const buttonClass = 'p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer'
   const iconProps = { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }
@@ -126,8 +128,8 @@ export function HeaderRight({
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={onClose}
-              className="p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 text-muted-foreground hover:text-red-500 hover:bg-red-50 cursor-pointer"
+              onClick={() => setCloseDialogOpen(true)}
+              className={buttonClass}
             >
               <XCircle {...iconProps} />
             </button>
@@ -143,6 +145,12 @@ export function HeaderRight({
         onOpenChange={setPublishDialogOpen}
         novelId={novelId}
         chapterIds={chapterIds}
+      />
+
+      <CloseConfirmDialog
+        open={closeDialogOpen}
+        onOpenChange={setCloseDialogOpen}
+        onConfirm={() => onClose?.()}
       />
     </TooltipProvider>
   )
