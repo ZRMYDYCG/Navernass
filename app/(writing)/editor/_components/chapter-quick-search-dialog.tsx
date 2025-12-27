@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import * as Dialog from "@radix-ui/react-dialog"
-import { useEffect, useMemo, useState } from "react"
-import { Search, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import * as Dialog from '@radix-ui/react-dialog'
+import { Search, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Button } from '@/components/ui/button'
 
 interface ChapterQuickSearchDialogProps {
   open: boolean
@@ -23,26 +23,8 @@ export function ChapterQuickSearchDialog({
   currentChapterId,
   onSelectChapter,
 }: ChapterQuickSearchDialogProps) {
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
-
-  useEffect(() => {
-    if (!open) {
-      setQuery("")
-      setActiveIndex(0)
-      return
-    }
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault()
-        onOpenChange(false)
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [open, onOpenChange])
 
   const filtered = useMemo(() => {
     if (!query.trim()) {
@@ -54,27 +36,35 @@ export function ChapterQuickSearchDialog({
 
   useEffect(() => {
     if (!open) return
-    if (filtered.length === 0) {
-      setActiveIndex(0)
-      return
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onOpenChange(false)
+      }
     }
-    const currentIndex = filtered.findIndex(item => item.id === currentChapterId)
-    if (currentIndex >= 0) {
-      setActiveIndex(currentIndex)
-    } else {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [open, onOpenChange])
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setQuery('')
       setActiveIndex(0)
     }
-  }, [open, filtered, currentChapterId])
+    onOpenChange(newOpen)
+  }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (!filtered.length) return
-    if (event.key === "ArrowDown") {
+    if (event.key === 'ArrowDown') {
       event.preventDefault()
       setActiveIndex(prev => (prev + 1) % filtered.length)
-    } else if (event.key === "ArrowUp") {
+    } else if (event.key === 'ArrowUp') {
       event.preventDefault()
       setActiveIndex(prev => (prev - 1 + filtered.length) % filtered.length)
-    } else if (event.key === "Enter") {
+    } else if (event.key === 'Enter') {
       event.preventDefault()
       const target = filtered[activeIndex]
       if (target) {
@@ -90,7 +80,7 @@ export function ChapterQuickSearchDialog({
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
         <Dialog.Content className="fixed left-1/2 top-1/3 z-50 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-xl bg-card shadow-xl ring-1 ring-black/5">
@@ -115,36 +105,38 @@ export function ChapterQuickSearchDialog({
             </Button>
           </div>
           <div className="max-h-[60vh] overflow-y-auto py-1">
-            {filtered.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-muted-foreground">暂无匹配章节</div>
-            ) : (
-              <ul className="py-1">
-                {filtered.map((item, index) => {
-                  const isActive = index === activeIndex
-                  const isCurrent = item.id === currentChapterId
-                  return (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        onClick={() => handleItemClick(item.id)}
-                        className={`flex w-full items-center justify-between px-4 py-2 text-left text-sm transition-colors ${
-                          isActive
-                            ? "bg-primary/10 text-primary"
-                            : "text-foreground hover:bg-accent"
-                        }`}
-                      >
-                        <span className="truncate">{item.title}</span>
-                        {isCurrent && (
-                          <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[11px] font-medium text-foreground">
-                            当前
-                          </span>
-                        )}
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
+            {filtered.length === 0
+              ? (
+                  <div className="px-4 py-6 text-center text-sm text-muted-foreground">暂无匹配章节</div>
+                )
+              : (
+                  <ul className="py-1">
+                    {filtered.map((item, index) => {
+                      const isActive = index === activeIndex
+                      const isCurrent = item.id === currentChapterId
+                      return (
+                        <li key={item.id}>
+                          <button
+                            type="button"
+                            onClick={() => handleItemClick(item.id)}
+                            className={`flex w-full items-center justify-between px-4 py-2 text-left text-sm transition-colors ${
+                              isActive
+                                ? 'bg-primary/10 text-primary'
+                                : 'text-foreground hover:bg-accent'
+                            }`}
+                          >
+                            <span className="truncate">{item.title}</span>
+                            {isCurrent && (
+                              <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[11px] font-medium text-foreground">
+                                当前
+                              </span>
+                            )}
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
           </div>
         </Dialog.Content>
       </Dialog.Portal>
