@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter, useSearchParams, Suspense } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { chatApi } from '@/lib/supabase/sdk'
 import { ChatInputBox } from './_components/chat-input-box'
 import { ChatWelcome } from './_components/chat-welcome'

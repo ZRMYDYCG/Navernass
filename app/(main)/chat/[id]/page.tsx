@@ -1,7 +1,7 @@
 'use client'
 
-import { useParams, useSearchParams, useRouter, Suspense } from 'next/navigation'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { Suspense, useCallback, useEffect, useMemo } from 'react'
 
 import { ChatInputBox } from '../_components/chat-input-box'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
