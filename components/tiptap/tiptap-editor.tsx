@@ -1,4 +1,3 @@
-import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
 import Image from '@tiptap/extension-image'
@@ -6,6 +5,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
 import { TextStyle } from '@tiptap/extension-text-style'
 import Underline from '@tiptap/extension-underline'
+import { Slice } from '@tiptap/pm/model'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -177,19 +177,12 @@ function TiptapEditorInner(props: TiptapEditorProps) {
             const { state, dispatch } = view
             const { schema } = state
             const doc = parseMarkdownContent(pastedText, schema)
-            // 获取 doc 的所有节点并插入
-            const nodes: ProseMirrorNode[] = []
-            doc.content.forEach((node: ProseMirrorNode) => {
-              nodes.push(node)
-            })
-            if (nodes.length === 0) {
+            if (doc.content.childCount === 0) {
               return false
             }
-            // 将所有节点插入到当前位置
-            let tr = state.tr.replaceSelectionWith(nodes[0])
-            for (let i = 1; i < nodes.length; i += 1) {
-              tr = tr.insert(tr.selection.$to.pos, nodes[i])
-            }
+            const { from, to } = state.selection
+            const slice = new Slice(doc.content, 0, 0)
+            const tr = state.tr.replace(from, to, slice)
             dispatch(tr)
             return true
           }
