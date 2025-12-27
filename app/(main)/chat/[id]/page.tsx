@@ -1,7 +1,7 @@
 'use client'
 
-import { useParams, useSearchParams } from 'next/navigation'
-import { useCallback, useMemo } from 'react'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import { ChatInputBox } from '../_components/chat-input-box'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
@@ -18,6 +18,7 @@ import { useShareMode } from './_hooks/use-share-mode'
 export default function ConversationPage() {
   const params = useParams()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const conversationId = params.id as string
   const initialMessage = searchParams.get('message') || undefined
   const isNewConversation = !!initialMessage
@@ -33,6 +34,12 @@ export default function ConversationPage() {
     handleCopyMessage,
     handleShareMessage,
   } = useConversationMessages({ conversationId, initialMessage, isNewConversation })
+
+  useEffect(() => {
+    if (initialMessage && messages.length > 1) {
+      router.replace(`/chat/${conversationId}`, { scroll: false })
+    }
+  }, [initialMessage, messages, conversationId, router])
 
   const {
     isShareMode,
