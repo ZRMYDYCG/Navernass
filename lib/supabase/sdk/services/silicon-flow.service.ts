@@ -146,7 +146,6 @@ export class SiliconFlowService {
           temperature: 0.7,
           max_tokens: 2000,
           stream: true,
-          enable_thinking: false,
         }),
       })
 
