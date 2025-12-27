@@ -30,8 +30,15 @@ import Image from 'next/image'
 
 export function EmptyState() {
   return (
-    <div className="h-full flex flex-col items-center justify-center text-center px-6">
-      <div className="mb-6 relative">
+    <div className="h-full flex flex-col items-center justify-center text-center px-6 relative">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none hidden dark:block">
+        <div className="absolute top-[15%] left-[10%] w-[60%] h-[0.5px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent rotate-[-15deg] animate-pulse [animation-duration:3s]" />
+        <div className="absolute top-[35%] right-[5%] w-[55%] h-[0.5px] bg-gradient-to-r from-transparent via-sky-400/50 to-transparent rotate-[10deg] animate-pulse [animation-duration:4s] [animation-delay:0.5s]" />
+        <div className="absolute top-[60%] left-[15%] w-[50%] h-[0.5px] bg-gradient-to-r from-transparent via-pink-400/40 to-transparent rotate-[-8deg] animate-pulse [animation-duration:3.5s] [animation-delay:1s]" />
+        <div className="absolute top-[80%] right-[10%] w-[45%] h-[0.5px] bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent rotate-[6deg] animate-pulse [animation-duration:4.5s] [animation-delay:1.5s]" />
+      </div>
+
+      <div className="mb-6 relative z-10">
         <div className="w-20 h-20 rounded-full flex items-center justify-center">
           <Image
             src="/assets/svg/logo-dark.svg"
@@ -50,42 +57,14 @@ export function EmptyState() {
         </div>
       </div>
 
-      <h3 className="text-lg font-medium text-foreground mb-2 tracking-tight">
-        AI 写作助手
-      </h3>
-      <p className="text-sm text-muted-foreground mb-8 max-w-xs leading-relaxed">
-        我可以帮你续写剧情、优化文字、润色对话，让创作更轻松
-      </p>
-
-      {/* <div className="w-full max-w-sm space-y-2.5 mb-8">
-        {FEATURES.map(feature => (
-          <div
-            key={feature.title}
-            className="bg-stone-50/50 dark:bg-zinc-800/30 rounded-xl p-3 text-left border border-stone-100 dark:border-zinc-800 transition-colors hover:bg-stone-100 dark:hover:bg-zinc-800/50 hover:border-stone-200 dark:hover:border-zinc-700"
-          >
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 flex items-center justify-center shrink-0 shadow-sm border border-stone-100 dark:border-zinc-700">
-                <feature.icon className={`w-4 h-4 ${feature.iconColor}`} />
-              </div>
-              <div>
-                <div className="text-sm font-medium text-[#333333] dark:text-zinc-100 mb-0.5">
-                  {feature.title}
-                </div>
-                <div className="text-xs text-stone-500 dark:text-zinc-400">
-                  {feature.description}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div> */}
-
-      {/* <p className="text-xs text-stone-400 dark:text-zinc-500 flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5">
-        <span>在下方输入框开始对话，或使用快捷键</span>
-        <kbd className="px-1.5 py-0.5 bg-white dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded text-[10px] font-sans shadow-sm">
-          Ctrl+Shift+A
-        </kbd>
-      </p> */}
+      <div className="relative z-10">
+        <h3 className="text-lg font-medium text-foreground mb-2 tracking-tight">
+          AI 写作助手
+        </h3>
+        <p className="text-sm text-muted-foreground mb-8 max-w-xs leading-relaxed">
+          我可以帮你续写剧情、优化文字、润色对话，让创作更轻松
+        </p>
+      </div>
     </div>
   )
 }
