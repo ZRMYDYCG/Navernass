@@ -181,7 +181,10 @@ function TiptapEditorInner(props: TiptapEditorProps) {
               return false
             }
             const { from, to } = state.selection
-            const slice = new Slice(doc.content, 0, 0)
+            const $from = state.doc.resolve(from)
+            const openStart = $from.depth > 0 ? 1 : 0
+            const openEnd = to !== from && state.doc.resolve(to).depth > 0 ? 1 : 0
+            const slice = new Slice(doc.content, openStart, openEnd)
             const tr = state.tr.replace(from, to, slice)
             dispatch(tr)
             return true
