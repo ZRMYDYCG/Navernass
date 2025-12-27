@@ -144,7 +144,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              封面图片（可选）
+              上传小说封面
             </label>
             <input
               type="file"
