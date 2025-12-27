@@ -46,6 +46,7 @@ function NovelsEditContent() {
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [createChapterDialogOpen, setCreateChapterDialogOpen] = useState(false)
   const [newChapterTitle, setNewChapterTitle] = useState('')
+  const [newChapterVolumeId, setNewChapterVolumeId] = useState<string>('')
   const [isCreatingChapter, setIsCreatingChapter] = useState(false)
   const [createVolumeDialogOpen, setCreateVolumeDialogOpen] = useState(false)
   const [newVolumeTitle, setNewVolumeTitle] = useState('')
@@ -250,6 +251,7 @@ function NovelsEditContent() {
   // 打开创建章节对话框
   const handleOpenCreateChapterDialog = () => {
     setNewChapterTitle('')
+    setNewChapterVolumeId('')
     setCreateChapterDialogOpen(true)
   }
 
@@ -413,7 +415,7 @@ function NovelsEditContent() {
   }
 
   // 创建新章节
-  const handleCreateChapter = async () => {
+  const handleCreateChapter = async (volumeId?: string) => {
     if (!novelId) return
     if (!newChapterTitle.trim()) {
       toast.error('请输入章节标题')
@@ -422,11 +424,31 @@ function NovelsEditContent() {
 
     try {
       setIsCreatingChapter(true)
+
+      let newOrderIndex: number
+      if (volumeId) {
+        const volumeChapters = chapters
+          .filter(c => c.volume_id === volumeId)
+          .sort((a, b) => a.order_index - b.order_index)
+        const volume = volumes.find(v => v.id === volumeId)
+        newOrderIndex = volumeChapters.length > 0
+          ? volumeChapters[volumeChapters.length - 1].order_index + 1
+          : (volume?.order_index ?? 0) * 1000
+      } else {
+        const rootChapters = chapters
+          .filter(c => !c.volume_id)
+          .sort((a, b) => a.order_index - b.order_index)
+        newOrderIndex = rootChapters.length > 0
+          ? rootChapters[rootChapters.length - 1].order_index + 1
+          : chapters.length
+      }
+
       const newChapter = await chaptersApi.create({
         novel_id: novelId,
         title: newChapterTitle.trim(),
-        order_index: chapters.length,
+        order_index: newOrderIndex,
         content: '',
+        volume_id: volumeId || undefined,
       })
 
       toast.success('章节创建成功！')
@@ -1067,6 +1089,9 @@ function NovelsEditContent() {
             onTitleChange={setNewChapterTitle}
             onConfirm={handleCreateChapter}
             isCreating={isCreatingChapter}
+            volumes={volumes}
+            selectedVolumeId={newChapterVolumeId}
+            onSelectedVolumeIdChange={setNewChapterVolumeId}
           />
 
           {/* 创建卷对话框 */}

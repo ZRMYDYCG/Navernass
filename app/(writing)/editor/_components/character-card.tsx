@@ -1,9 +1,9 @@
 'use client'
 
-import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
-import { User, Tag, BookOpen, Sparkles, GripHorizontal } from 'lucide-react'
+import { Sparkles, User } from 'lucide-react'
 import Image from 'next/image'
+import { cn } from '@/lib/utils'
 
 export interface Character {
   id: string
@@ -26,23 +26,23 @@ interface CharacterCardProps {
 export function CharacterCard({ character, onClick, className }: CharacterCardProps) {
   return (
     <motion.div
-      whileHover={{ 
-        y: -4, 
+      whileHover={{
+        y: -4,
         rotate: 0.5,
-        boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)"
+        boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)',
       }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
       onClick={onClick}
       className={cn(
-        "group relative w-full cursor-pointer overflow-hidden",
-        "bg-card/90 backdrop-blur-sm",
-        "border border-border/50",
-        "shadow-[2px_2px_10px_-2px_rgba(0,0,0,0.05)]",
-        "rounded-sm",
-        className
+        'group relative w-full cursor-pointer overflow-hidden',
+        'bg-card/90 backdrop-blur-sm',
+        'border border-border/50',
+        'shadow-[2px_2px_10px_-2px_rgba(0,0,0,0.05)]',
+        'rounded-sm',
+        className,
       )}
       style={{
-        boxShadow: "1px 1px 2px rgba(0,0,0,0.02), 0 0 0 1px rgba(0,0,0,0.01) inset" 
+        boxShadow: '1px 1px 2px rgba(0,0,0,0.02), 0 0 0 1px rgba(0,0,0,0.01) inset',
       }}
     >
       <div className="absolute inset-0 bg-paper-texture opacity-40 pointer-events-none z-0" />
@@ -53,7 +53,9 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
             <div className="absolute inset-0 bg-muted/10 rotate-3 transform skew-x-12 rounded-sm blur-[0.5px]" />
             <div className="relative px-2.5 py-0.5 bg-muted border border-border shadow-sm transform rotate-3 origin-top-right rounded-bl-md rounded-tr-md">
               <span className="text-[10px] font-handwriting text-muted-foreground font-bold tracking-wide">
-                {character.chapters[0]} 登场
+                {character.chapters[0]}
+                {' '}
+                登场
               </span>
             </div>
           </div>
@@ -63,18 +65,20 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
       <div className="relative z-10 p-5 flex flex-col gap-4">
         <div className="flex items-start gap-4">
           <div className="relative shrink-0 w-16 h-16 overflow-hidden rounded-full border-2 border-border bg-muted shadow-inner">
-            {character.avatar ? (
-              <Image 
-                src={character.avatar} 
-                alt={character.name}
-                fill
-                className="object-cover opacity-80 grayscale-[0.3] contrast-125 mix-blend-multiply"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                <User className="w-8 h-8 stroke-[1.5]" />
-              </div>
-            )}
+            {character.avatar
+              ? (
+                  <Image
+                    src={character.avatar}
+                    alt={character.name}
+                    fill
+                    className="object-cover opacity-80 grayscale-[0.3] contrast-125 mix-blend-multiply"
+                  />
+                )
+              : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <User className="w-8 h-8 stroke-[1.5]" />
+                  </div>
+                )}
             <div className="absolute inset-0 bg-noise opacity-10 mix-blend-overlay" />
           </div>
 
@@ -108,8 +112,8 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
 
         <div className="flex flex-wrap gap-2">
           {character.keywords.map((keyword, i) => (
-            <span 
-              key={i} 
+            <span
+              key={i}
               className="inline-flex px-2 py-1 text-[10px] font-mono text-muted-foreground bg-muted/50 border border-border rounded-[1px] uppercase tracking-wider shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
             >
               {keyword}
@@ -122,7 +126,7 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
             <div className="absolute inset-0 bg-black/20 translate-y-1 translate-x-1 rounded-sm rotate-1 blur-sm" />
             <div className="relative bg-background p-3 rounded-sm shadow-sm border border-amber-100/50 rotate-1 transform transition-transform duration-300 group-hover:rotate-0">
               <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-4 bg-background/40 backdrop-blur-sm rotate-[-2deg] shadow-sm" />
-              
+
               <div className="flex gap-2">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400/70 mt-0.5 shrink-0" />
                 <p className="text-xs font-handwriting text-muted-foreground leading-5">
@@ -137,4 +141,3 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
     </motion.div>
   )
 }
-

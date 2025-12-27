@@ -1,13 +1,23 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface CreateChapterDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
   onTitleChange: (title: string) => void
-  onConfirm: () => void
+  onConfirm: (volumeId?: string) => void
   isCreating: boolean
+  volumes?: Array<{ id: string, title: string }>
+  selectedVolumeId?: string
+  onSelectedVolumeIdChange?: (id: string) => void
 }
 
 export function CreateChapterDialog({
@@ -17,11 +27,14 @@ export function CreateChapterDialog({
   onTitleChange,
   onConfirm,
   isCreating,
+  volumes = [],
+  selectedVolumeId,
+  onSelectedVolumeIdChange,
 }: CreateChapterDialogProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      onConfirm()
+      onConfirm(selectedVolumeId)
     }
   }
 
@@ -36,7 +49,6 @@ export function CreateChapterDialog({
             </Dialog.Title>
 
             <div className="space-y-4">
-              {/* 标题输入 */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   章节标题
@@ -53,9 +65,32 @@ export function CreateChapterDialog({
                   onKeyDown={handleKeyDown}
                 />
               </div>
+
+              {volumes.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    导入到卷（可选）
+                  </label>
+                  <Select
+                    value={selectedVolumeId || '__none__'}
+                    onValueChange={value => onSelectedVolumeIdChange?.(value === '__none__' ? '' : value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="不导入到卷（根目录）" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">不导入到卷（根目录）</SelectItem>
+                      {volumes.map(volume => (
+                        <SelectItem key={volume.id} value={volume.id}>
+                          {volume.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
-            {/* 按钮组 */}
             <div className="flex gap-3 mt-6">
               <Dialog.Close asChild>
                 <Button
@@ -67,7 +102,7 @@ export function CreateChapterDialog({
                 </Button>
               </Dialog.Close>
               <Button
-                onClick={onConfirm}
+                onClick={() => onConfirm(selectedVolumeId)}
                 className="flex-1 bg-primary text-primary-foreground hover:opacity-90"
                 disabled={isCreating || !title.trim()}
               >

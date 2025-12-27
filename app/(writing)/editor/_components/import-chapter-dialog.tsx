@@ -85,13 +85,6 @@ export function ImportChapterDialog({
     }
   }, [parseAndPreview])
 
-  // 当设置改变时重新解析
-  React.useEffect(() => {
-    if (fileContent) {
-      parseAndPreview(fileContent)
-    }
-  }, [fileContent, parseAndPreview])
-
   // 处理导入
   const handleImport = () => {
     if (previewChapters.length === 0) {
