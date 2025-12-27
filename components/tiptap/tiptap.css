@@ -63,8 +63,8 @@
   caret-color: #a8a29e;
 }
 .ProseMirror p {
-  line-height: 2.2;
-  margin-bottom: 1.8em;
+  line-height: 1.6;
+  margin-bottom: 0.8em;
   color: #44403c;
   animation: slideInPaper 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
