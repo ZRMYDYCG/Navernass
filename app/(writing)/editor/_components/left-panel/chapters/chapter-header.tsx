@@ -41,7 +41,7 @@ export function ChapterHeader({
                 <FolderPlus className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+            <TooltipContent side="top" className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95 z-[9999]">
               <p>新建卷</p>
             </TooltipContent>
           </Tooltip>
@@ -55,7 +55,7 @@ export function ChapterHeader({
                 <BookOpen className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+            <TooltipContent side="top" className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95 z-[9999]">
               <p>新建章节</p>
             </TooltipContent>
           </Tooltip>
@@ -69,7 +69,7 @@ export function ChapterHeader({
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+            <TooltipContent side="top" className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95 z-[9999]">
               <p>刷新</p>
             </TooltipContent>
           </Tooltip>
@@ -83,7 +83,7 @@ export function ChapterHeader({
                 <Minus className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
+            <TooltipContent side="top" className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95 z-[9999]">
               <p>收起全部</p>
             </TooltipContent>
           </Tooltip>

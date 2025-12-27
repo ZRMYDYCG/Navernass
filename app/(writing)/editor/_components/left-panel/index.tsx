@@ -1,7 +1,5 @@
 import type { Chapter, LeftTabType, Volume } from './types'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
-import { paperSlideInRight } from '@/components/motion/config'
 import { CharacterShowcase } from '../character-showcase'
 import ChaptersTab from './chapters'
 import { SearchTab } from './search-tab'
@@ -57,107 +55,77 @@ export default function LeftPanel({
 
   return (
     <div
-      className="h-full flex border-r-0 rounded-none shadow-none"
+      className="h-full flex border-r-0 rounded-none shadow-none isolate"
     >
-      <div className="flex-shrink-0 z-10 bg-background/90 border-r border-border">
+      <div className="flex-shrink-0 bg-background/90 border-r border-border">
         <TabSwitcher activeTab={activeTab} onChange={setActiveTab} />
       </div>
 
       <div className="flex-1 overflow-hidden relative bg-background">
-        <AnimatePresence mode="wait">
-          {activeTab === 'files' && (
-            <motion.div
-              key="files"
-              variants={paperSlideInRight}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="h-full w-full absolute inset-0"
-            >
-              <ChaptersTab
-                novelTitle={novelTitle}
-                chapters={chapters}
-                volumes={volumes}
-                selectedChapter={selectedChapter}
-                onSelectChapter={onSelectChapter}
-                onCreateChapter={onCreateChapter}
-                onCreateChapterInVolume={onCreateChapterInVolume}
-                onCreateVolume={onCreateVolume}
-                onReorderChapters={onReorderChapters}
-                onReorderVolumes={onReorderVolumes}
-                onMoveChapterToVolume={onMoveChapterToVolume}
-                onRenameChapter={onRenameChapter}
-                onDeleteChapter={onDeleteChapter}
-                onCopyChapter={onCopyChapter}
-                onMoveChapter={onMoveChapter}
-                onRenameVolume={onRenameVolume}
-                onDeleteVolume={onDeleteVolume}
-              />
-            </motion.div>
-          )}
+        {activeTab === 'files' && (
+          <div className="h-full w-full absolute inset-0">
+            <ChaptersTab
+              novelTitle={novelTitle}
+              chapters={chapters}
+              volumes={volumes}
+              selectedChapter={selectedChapter}
+              onSelectChapter={onSelectChapter}
+              onCreateChapter={onCreateChapter}
+              onCreateChapterInVolume={onCreateChapterInVolume}
+              onCreateVolume={onCreateVolume}
+              onReorderChapters={onReorderChapters}
+              onReorderVolumes={onReorderVolumes}
+              onMoveChapterToVolume={onMoveChapterToVolume}
+              onRenameChapter={onRenameChapter}
+              onDeleteChapter={onDeleteChapter}
+              onCopyChapter={onCopyChapter}
+              onMoveChapter={onMoveChapter}
+              onRenameVolume={onRenameVolume}
+              onDeleteVolume={onDeleteVolume}
+            />
+          </div>
+        )}
 
-          {activeTab === 'search' && (
-            <motion.div
-              key="search"
-              variants={paperSlideInRight}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="h-full w-full absolute inset-0"
-            >
-              <SearchTab
-                novelId={novelId}
-                volumes={volumes}
-                selectedChapter={selectedChapter}
-                onSelectChapter={onSelectChapter}
-              />
-            </motion.div>
-          )}
+        {activeTab === 'search' && (
+          <div className="h-full w-full absolute inset-0">
+            <SearchTab
+              novelId={novelId}
+              volumes={volumes}
+              selectedChapter={selectedChapter}
+              onSelectChapter={onSelectChapter}
+            />
+          </div>
+        )}
 
-          {activeTab === 'characters' && (
-            <motion.div
-              key="characters"
-              variants={paperSlideInRight}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="h-full w-full absolute inset-0"
-            >
-              <CharacterShowcase novelId={novelId} />
-            </motion.div>
-          )}
+        {activeTab === 'characters' && (
+          <div className="h-full w-full absolute inset-0">
+            <CharacterShowcase novelId={novelId} />
+          </div>
+        )}
 
-          {activeTab === 'workspace' && (
-            <motion.div
-              key="workspace"
-              variants={paperSlideInRight}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="h-full w-full absolute inset-0"
-            >
-              <WorkspaceTab
-                chapters={chapters.map((c) => {
-                  const wordCountStr = c.wordCount || '0'
-                  const wordCountNum = Number.parseFloat(wordCountStr.replace(/[^0-9.]/g, '')) || 0
-                  const multiplier = wordCountStr.includes('k') ? 1000 : 1
-                  return {
-                    id: c.id,
-                    title: c.title,
-                    word_count: wordCountNum * multiplier,
-                    updated_at: (c as { updated_at?: string }).updated_at,
-                  }
-                })}
-                novelId={novelId}
-                volumes={volumes}
-                onChaptersImported={onChaptersImported}
-                onCreateChapter={onCreateChapter}
-                onSelectChapter={onSelectChapter}
-                onImageGenerated={onImageGenerated}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {activeTab === 'workspace' && (
+          <div className="h-full w-full absolute inset-0">
+            <WorkspaceTab
+              chapters={chapters.map((c) => {
+                const wordCountStr = c.wordCount || '0'
+                const wordCountNum = Number.parseFloat(wordCountStr.replace(/[^0-9.]/g, '')) || 0
+                const multiplier = wordCountStr.includes('k') ? 1000 : 1
+                return {
+                  id: c.id,
+                  title: c.title,
+                  word_count: wordCountNum * multiplier,
+                  updated_at: (c as { updated_at?: string }).updated_at,
+                }
+              })}
+              novelId={novelId}
+              volumes={volumes}
+              onChaptersImported={onChaptersImported}
+              onCreateChapter={onCreateChapter}
+              onSelectChapter={onSelectChapter}
+              onImageGenerated={onImageGenerated}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

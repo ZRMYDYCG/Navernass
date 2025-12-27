@@ -25,7 +25,7 @@ export default function ChaptersTab({
   const collapseAllRef = useRef<(() => void) | null>(null)
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col isolate">
       <ChapterHeader
         novelTitle={novelTitle}
         onCreateChapter={onCreateChapter}
