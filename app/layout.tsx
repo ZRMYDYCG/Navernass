@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import { Caveat, Inter, Noto_Serif_SC } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { Toaster as RadixToaster } from '@/components/ui/toaster'
-import { ThemeProvider } from '@/providers/theme-provider'
 import { AuthProvider } from '@/hooks/use-auth'
 import { FaviconProvider } from '@/providers/favicon-provider'
+import { ThemeProvider } from '@/providers/theme-provider'
 import './globals.css'
 
 const inter = Inter({
