@@ -1,0 +1,64 @@
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 1px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 1px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.7);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 85, 99, 0.5);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(107, 114, 128, 0.7);
+  }
+}
+
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+.input-area-scrollbar::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+.input-area-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.input-area-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 1px;
+  transition: background-color 0.2s ease;
+}
+
+.input-area-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  .input-area-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 85, 99, 0.3);
+  }
+  .input-area-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(75, 85, 99, 0.5);
+  }
+}

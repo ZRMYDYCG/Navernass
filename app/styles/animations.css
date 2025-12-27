@@ -1,0 +1,127 @@
+@keyframes cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-cursor-blink {
+  animation: cursor-blink 1.2s var(--ease-slow-breath) infinite;
+}
+
+@keyframes float-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float-breathe {
+  animation: float-breathe 6s ease-in-out infinite;
+}
+
+@keyframes text-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-text-fade-in {
+  animation: text-fade-in 0.6s var(--ease-paper) forwards;
+}
+
+@keyframes slideUpAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideRightAndFade {
+  from {
+    opacity: 0;
+    transform: translateX(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideDownAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeftAndFade {
+  from {
+    opacity: 0;
+    transform: translateX(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.popover-content {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.popover-content[data-state='open'][data-side='top'] {
+  animation-name: slideDownAndFade;
+}
+
+.popover-content[data-state='open'][data-side='right'] {
+  animation-name: slideLeftAndFade;
+}
+
+.popover-content[data-state='open'][data-side='bottom'] {
+  animation-name: slideUpAndFade;
+}
+
+.popover-content[data-state='open'][data-side='left'] {
+  animation-name: slideRightAndFade;
+}
+
+@keyframes circle-expand {
+  from {
+    clip-path: circle(0px at var(--x, 50%) var(--y, 50%));
+  }
+  to {
+    clip-path: circle(var(--r, 100vmax) at var(--x, 50%) var(--y, 50%));
+  }
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+  animation: none;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+  animation: circle-expand 0.6s ease-in-out;
+}
