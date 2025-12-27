@@ -1,11 +1,11 @@
 import type { LeftTabType } from './types'
-import { TAB_CONFIGS } from './constants'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { TAB_CONFIGS } from './constants'
 
 interface TabSwitcherProps {
   activeTab: LeftTabType
@@ -16,7 +16,7 @@ export function TabSwitcher({ activeTab, onChange }: TabSwitcherProps) {
   return (
     <TooltipProvider>
       <div className="h-full flex flex-col items-center gap-2 py-4 px-1">
-        {TAB_CONFIGS.map(tab => {
+        {TAB_CONFIGS.map((tab) => {
           const Icon = tab.icon
           const isActive = activeTab === tab.value
 

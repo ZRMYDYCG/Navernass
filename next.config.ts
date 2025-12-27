@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next'
 import withPWAInit from '@ducanh2912/next-pwa'
 import bundleAnalyzer from '@next/bundle-analyzer'
+import { codeInspectorPlugin } from 'code-inspector-plugin'
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -37,6 +38,11 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     reactCompiler: true,
+  },
+  turbopack: {
+    rules: codeInspectorPlugin({
+      bundler: 'turbopack',
+    }),
   },
 }
 
