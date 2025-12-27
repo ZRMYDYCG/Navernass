@@ -1,7 +1,7 @@
 'use client'
 
 import { Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -9,6 +9,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuth } from '@/hooks/use-auth'
+
+const EMAIL_DOMAINS = [
+  { label: 'gmail.com', value: '@gmail.com' },
+  { label: 'outlook.com', value: '@outlook.com' },
+  { label: 'qq.com', value: '@qq.com' },
+  { label: '163.com', value: '@163.com' },
+  { label: 'foxmail.com', value: '@foxmail.com' },
+  { label: 'yahoo.com', value: '@yahoo.com' },
+  { label: 'icloud.com', value: '@icloud.com' },
+]
 
 interface AuthDialogProps {
   open: boolean
@@ -25,6 +35,72 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     confirmPassword: '',
     fullName: '',
   })
+
+  const [loginShowDomains, setLoginShowDomains] = useState(false)
+  const [registerShowDomains, setRegisterShowDomains] = useState(false)
+  const [loginEmailInput, setLoginEmailInput] = useState('')
+  const [registerEmailInput, setRegisterEmailInput] = useState('')
+
+  const loginInputRef = useRef<HTMLInputElement>(null)
+  const registerInputRef = useRef<HTMLInputElement>(null)
+  const loginDropdownRef = useRef<HTMLDivElement>(null)
+  const registerDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (loginDropdownRef.current && !loginDropdownRef.current.contains(e.target as Node)
+        && loginInputRef.current && !loginInputRef.current.contains(e.target as Node)) {
+        setLoginShowDomains(false)
+      }
+      if (registerDropdownRef.current && !registerDropdownRef.current.contains(e.target as Node)
+        && registerInputRef.current && !registerInputRef.current.contains(e.target as Node)) {
+        setRegisterShowDomains(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleLoginEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setLoginForm({ ...loginForm, email: value })
+    setLoginEmailInput(value)
+    setLoginShowDomains(value.includes('@'))
+  }
+
+  const handleRegisterEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setRegisterForm({ ...registerForm, email: value })
+    setRegisterEmailInput(value)
+    setRegisterShowDomains(value.includes('@'))
+  }
+
+  const applyLoginDomain = (domain: string) => {
+    const parts = loginEmailInput.split('@')
+    const prefix = parts[0] || ''
+    const newEmail = prefix + domain
+    setLoginForm({ ...loginForm, email: newEmail })
+    setLoginEmailInput(newEmail)
+    setLoginShowDomains(false)
+    loginInputRef.current?.focus()
+  }
+
+  const applyRegisterDomain = (domain: string) => {
+    const parts = registerEmailInput.split('@')
+    const prefix = parts[0] || ''
+    const newEmail = prefix + domain
+    setRegisterForm({ ...registerForm, email: newEmail })
+    setRegisterEmailInput(newEmail)
+    setRegisterShowDomains(false)
+    registerInputRef.current?.focus()
+  }
+
+  const filteredLoginDomains = EMAIL_DOMAINS.filter(d =>
+    d.value.toLowerCase().includes(loginEmailInput.split('@')[1]?.toLowerCase() || ''),
+  )
+  const filteredRegisterDomains = EMAIL_DOMAINS.filter(d =>
+    d.value.toLowerCase().includes(registerEmailInput.split('@')[1]?.toLowerCase() || ''),
+  )
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -102,14 +178,46 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="login-email">邮箱</Label>
-                <Input
-                  id="login-email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={loginForm.email}
-                  onChange={e => setLoginForm({ ...loginForm, email: e.target.value })}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    ref={loginInputRef}
+                    id="login-email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={loginForm.email}
+                    onChange={handleLoginEmailChange}
+                    required
+                  />
+                  {loginShowDomains && (
+                    <div
+                      ref={loginDropdownRef}
+                      className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-48 overflow-y-auto"
+                    >
+                      {filteredLoginDomains.length > 0
+                        ? (
+                            filteredLoginDomains.map(domain => (
+                              <button
+                                key={domain.value}
+                                type="button"
+                                className="w-full px-4 py-2 text-left hover:bg-accent hover:text-accent-foreground"
+                                onClick={() => applyLoginDomain(domain.value)}
+                              >
+                                {domain.label}
+                              </button>
+                            ))
+                          )
+                        : (
+                            <button
+                              type="button"
+                              className="w-full px-4 py-2 text-left hover:bg-accent hover:text-accent-foreground"
+                              onClick={() => applyLoginDomain('')}
+                            >
+                              使用自定义邮箱地址
+                            </button>
+                          )}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="login-password">密码</Label>
@@ -151,14 +259,46 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="register-email">邮箱</Label>
-                <Input
-                  id="register-email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={registerForm.email}
-                  onChange={e => setRegisterForm({ ...registerForm, email: e.target.value })}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    ref={registerInputRef}
+                    id="register-email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={registerForm.email}
+                    onChange={handleRegisterEmailChange}
+                    required
+                  />
+                  {registerShowDomains && (
+                    <div
+                      ref={registerDropdownRef}
+                      className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-48 overflow-y-auto"
+                    >
+                      {filteredRegisterDomains.length > 0
+                        ? (
+                            filteredRegisterDomains.map(domain => (
+                              <button
+                                key={domain.value}
+                                type="button"
+                                className="w-full px-4 py-2 text-left hover:bg-accent hover:text-accent-foreground"
+                                onClick={() => applyRegisterDomain(domain.value)}
+                              >
+                                {domain.label}
+                              </button>
+                            ))
+                          )
+                        : (
+                            <button
+                              type="button"
+                              className="w-full px-4 py-2 text-left hover:bg-accent hover:text-accent-foreground"
+                              onClick={() => applyRegisterDomain('')}
+                            >
+                              使用自定义邮箱地址
+                            </button>
+                          )}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="register-password">密码</Label>
