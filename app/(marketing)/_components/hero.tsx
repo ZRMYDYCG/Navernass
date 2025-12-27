@@ -113,7 +113,7 @@ export default function Hero() {
             <TiptapEditor
               placeholder="在这里开始你的创作之旅..."
               content={HERO_SAMPLE_CONTENT}
-              className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto [&_.ProseMirror]:scrollbar-none [&_.ProseMirror::-webkit-scrollbar]:hidden [&_.ProseMirror::selection]:bg-stone-200/60 [&_.ProseMirror::selection]:text-stone-900 dark:[&_.ProseMirror::selection]:bg-stone-600/50 dark:[&_.ProseMirror::selection]:text-stone-100"
+              className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[380px] sm:[&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto [&_.ProseMirror]:scrollbar-none [&_.ProseMirror::-webkit-scrollbar]:hidden [&_.ProseMirror::selection]:bg-stone-200/60 [&_.ProseMirror::selection]:text-stone-900 dark:[&_.ProseMirror::selection]:bg-stone-600/50 dark:[&_.ProseMirror::selection]:text-stone-100"
             />
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function Hero() {
           <TiptapEditor
             placeholder="在这里开始你的创作之旅..."
             content={HERO_SAMPLE_CONTENT}
-            className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto [&_.ProseMirror]:scrollbar-none [&_.ProseMirror::-webkit-scrollbar]:hidden [&_.ProseMirror::selection]:bg-stone-200/60 [&_.ProseMirror::selection]:text-stone-900 dark:[&_.ProseMirror::selection]:bg-stone-600/50 dark:[&_.ProseMirror::selection]:text-stone-100"
+            className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[380px] sm:[&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto [&_.ProseMirror]:scrollbar-none [&_.ProseMirror::-webkit-scrollbar]:hidden [&_.ProseMirror::selection]:bg-stone-200/60 [&_.ProseMirror::selection]:text-stone-900 dark:[&_.ProseMirror::selection]:bg-stone-600/50 dark:[&_.ProseMirror::selection]:text-stone-100"
           />
         </div>
       </div>
