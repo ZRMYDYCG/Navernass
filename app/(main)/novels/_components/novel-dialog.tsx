@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import 'react-image-crop/dist/ReactCrop.css'
 
 function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: number): Crop {
@@ -120,12 +121,10 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
               {' '}
               <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
+            <Input
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="请输入小说标题"
-              className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground focus:ring-0 focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
 
@@ -144,7 +143,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              上传小说封面
+              封面图片（可选）
             </label>
             <input
               type="file"
@@ -162,25 +161,36 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                   setShowCropper(true)
                 }
               }}
-              className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:opacity-90"
+              className="hidden"
+              id="cover-upload"
             />
-            {coverFile && (
-              <p className="mt-1 text-xs text-muted-foreground truncate">
-                已选择:
-                {' '}
-                {coverFile.name}
-              </p>
-            )}
-            {previewUrl && (
-              <div className="mt-3">
-                <div className="mb-1 text-xs text-muted-foreground">封面预览（点击可裁剪）</div>
-                <button
-                  type="button"
-                  onClick={() => setShowCropper(true)}
-                  className="inline-block max-w-[200px] rounded-md overflow-hidden border border-border bg-secondary hover:border-muted-foreground transition-colors"
+            {!previewUrl ? (
+              <label
+                htmlFor="cover-upload"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-muted-foreground hover:bg-accent/50 transition-colors"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <p className="text-sm text-muted-foreground">点击上传封面图片</p>
+                </div>
+              </label>
+            ) : (
+              <div className="space-y-3">
+                <label
+                  htmlFor="cover-upload"
+                  className="flex items-center justify-center w-full px-4 py-2 text-sm border border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors"
                 >
-                  <img src={previewUrl} alt="封面预览" className="w-full h-auto object-contain" />
-                </button>
+                  更换封面
+                </label>
+                <div>
+                  <div className="mb-1 text-xs text-muted-foreground">封面预览（点击可裁剪）</div>
+                  <button
+                    type="button"
+                    onClick={() => setShowCropper(true)}
+                    className="inline-block max-w-[200px] rounded-md overflow-hidden border border-border bg-secondary hover:border-muted-foreground transition-colors"
+                  >
+                    <img src={previewUrl} alt="封面预览" className="w-full h-auto object-contain" />
+                  </button>
+                </div>
               </div>
             )}
           </div>
