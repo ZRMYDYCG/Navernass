@@ -123,13 +123,20 @@ export function SmartTabs({
     const container = scrollContainerRef.current
     if (!container) return
 
-    updateScrollbar()
-    container.addEventListener('scroll', updateScrollbar)
-    window.addEventListener('resize', updateScrollbar)
+    let rafId: number
+
+    const handleUpdate = () => {
+      rafId = requestAnimationFrame(() => updateScrollbar())
+    }
+
+    handleUpdate()
+    container.addEventListener('scroll', handleUpdate)
+    window.addEventListener('resize', handleUpdate)
 
     return () => {
-      container.removeEventListener('scroll', updateScrollbar)
-      window.removeEventListener('resize', updateScrollbar)
+      if (rafId) cancelAnimationFrame(rafId)
+      container.removeEventListener('scroll', handleUpdate)
+      window.removeEventListener('resize', handleUpdate)
     }
   }, [tabs, updateScrollbar])
 
@@ -213,7 +220,7 @@ export function SmartTabs({
                 paddingRight: 'var(--close-btn-padding, 1rem)',
               }}
             >
-              <span className="text-sm truncate max-w-[150px] transition-all duration-200 group-hover:max-w-[130px]">
+              <span className="text-sm truncate flex-1 min-w-0 transition-all duration-200 group-hover:pr-6">
                 {tab.title}
               </span>
 
