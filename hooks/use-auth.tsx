@@ -4,7 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/index'
 
-interface Profile {
+export interface Profile {
   id: string
   username?: string
   full_name?: string
@@ -22,6 +22,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ data: any, error: any }>
   signOut: () => Promise<{ error: any }>
   refreshProfile: () => Promise<void>
+  setProfile: (profile: Profile | null) => void
 }
 
 const authContext = createContext<AuthContextType | undefined>(undefined)
@@ -153,6 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signOut,
     refreshProfile,
+    setProfile,
   }
 
   return (

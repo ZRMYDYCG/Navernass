@@ -16,7 +16,7 @@ interface ProfileDialogProps {
 }
 
 export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
-  const { user, profile, refreshProfile } = useAuth()
+  const { user, profile, setProfile } = useAuth()
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -120,11 +120,14 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
         return
       }
 
-      try {
-        await refreshProfile()
-      } catch (e) {
-        console.error('刷新资料失败:', e)
+      const updateData: Record<string, string> = {}
+      if (username) updateData.username = username
+      if (website) updateData.website = website
+      if (finalAvatarUrl) updateData.avatar_url = finalAvatarUrl
+      if (profile) {
+        setProfile({ ...profile, ...updateData })
       }
+
       toast.success('个人资料更新成功')
       onOpenChange(false)
     } catch (error) {
