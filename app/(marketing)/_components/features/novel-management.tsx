@@ -59,11 +59,11 @@ export function NovelManagement() {
             <div className="h-20 rounded-md mb-1.5 overflow-hidden relative bg-muted">
               <img
                 src="/landing-page-2.png"
-                alt="做个废物挺好的"
+                alt="写给北京，也写给我北漂的九年"
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
-            <h4 className="text-xs font-medium text-foreground mb-1 line-clamp-1">做个废物挺好的</h4>
+            <h4 className="text-xs font-medium text-foreground mb-1 line-clamp-1">写给北京，也写给我北漂的九年</h4>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
               <span>5章</span>
               <span>·</span>

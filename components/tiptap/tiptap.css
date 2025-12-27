@@ -120,14 +120,10 @@
 .ProseMirror ::selection {
   background-color: rgba(231, 229, 228, 0.6);
   color: inherit;
-  text-decoration: underline;
-  text-decoration-color: rgba(120, 113, 108, 0.3);
-  text-decoration-thickness: 1px;
 }
 
 .dark .ProseMirror ::selection {
   background-color: rgba(68, 64, 60, 0.5);
-  text-decoration-color: rgba(168, 162, 158, 0.3);
 }
 .ProseMirror mark {
   background-color: #fef3c7;
