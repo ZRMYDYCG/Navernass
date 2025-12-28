@@ -1,6 +1,7 @@
 'use client'
 
 import type { NovelMessage } from '@/lib/supabase/sdk/types'
+import { useAuth } from '@/hooks/use-auth'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { MessageBubble } from './message-bubble'
@@ -16,6 +17,7 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, streamingMessageId = null, isLoading = false }: MessageListProps) {
+  const { profile } = useAuth()
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
@@ -160,6 +162,7 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
               key={message.id}
               message={message}
               streamingMessageId={streamingMessageId}
+              userAvatar={profile?.avatar_url}
             />
           ))}
           {isLoading && <TypingIndicator />}

@@ -2,17 +2,18 @@
 
 import type { NovelMessage } from '@/lib/supabase/sdk/types'
 import { Check } from 'lucide-react'
-import { useState } from 'react'
 import { useTheme } from 'next-themes'
+import { useState } from 'react'
 import { MarkdownRenderer } from '@/app/(main)/chat/[id]/_components/markdown-renderer'
 import { Avatar } from '@/components/ui/avatar'
 
 interface MessageBubbleProps {
   message: NovelMessage
   streamingMessageId?: string | null
+  userAvatar?: string | null
 }
 
-export function MessageBubble({ message, streamingMessageId }: MessageBubbleProps) {
+export function MessageBubble({ message, streamingMessageId, userAvatar }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
@@ -38,11 +39,11 @@ export function MessageBubble({ message, streamingMessageId }: MessageBubbleProp
               className="max-w-full h-auto rounded-lg border border-border"
               style={{ maxHeight: '300px' }}
             />
-          </div>
+          </div>,
         )
       } else if (parts[i]) {
         elements.push(
-          <MarkdownRenderer key={i} content={parts[i]} />
+          <MarkdownRenderer key={i} content={parts[i]} />,
         )
       }
     }
@@ -68,6 +69,11 @@ export function MessageBubble({ message, streamingMessageId }: MessageBubbleProp
         {isAssistant && (
           <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
             <img src={avatarSrc} alt="AI Avatar" className="w-full h-full object-cover" />
+          </Avatar>
+        )}
+        {isUser && userAvatar && (
+          <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
+            <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" />
           </Avatar>
         )}
       </div>
