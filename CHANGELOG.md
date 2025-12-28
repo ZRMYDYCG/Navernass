@@ -1,5 +1,54 @@
 # Changelog
 
+## [0.6.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.5.0...v0.6.0) (2025-12-28)
+
+
+### Features
+
+* 产品新闻入口调整 ([fba6b0f](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/fba6b0fb98ae667a277d324592468861f997fa80))
+* 发起对话流程重构 ([55bd133](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/55bd13321858095c38d74bf2dbcbba366cfccc9e))
+* 消息列表优化 ([541bf58](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/541bf58e55651b7e5222d9bb373ef904c2d08008))
+* 支持创建章节的时候 导入到已有卷当中 ([878b301](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/878b30157860fa852aaf17b52dab6a352fc2d864))
+* **hero:** 新增创作入口 ([792f7e3](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/792f7e31de8dc617dcc8f0b66c20ff8f475d4522))
+
+
+### Bug Fixes
+
+* 默认不开启推理模式 ([1c9eb01](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/1c9eb0107753e1032c16a58b7ea3ef48ade8b823))
+* 前端跳转后 useEffect 又从 sessionStorage 读取消息重新发送，导致消息存了两次 ([a3cd888](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/a3cd888c98b8934d5d0d81c081a972b8ebcef5fd))
+* 新建消息 刷新 判断异常 ([5a1dfb6](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/5a1dfb64f1ea953da73c118aced3b3d4a46be6da))
+* 页面其他部分可以静态化 ([97aae52](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/97aae52d551eec703c1352cf375b5e1ec8c0668d))
+* 页面其他部分可以静态化 ([2d9a042](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/2d9a042eabcaae27415b7eab7535c5f2de65385c))
+* 重构对话流程，将 创建对话接口 和 对话接口分离 ([31f5f36](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/31f5f36f2dd8fc7906624a6dec649b7ed0d6507b))
+* **auth-dialog:** 新增邮箱自动补全功能 ([cff4bae](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/cff4bae1407bf95bc3331a9a4f15ed126656bcc8))
+* **chapter-quick-search:** 同步调用 setState 问题 --CR ([12cccb4](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/12cccb426abcbdf7c9d547ec822b3b2afafeb498))
+* **editor:** 点击返回新增确认弹窗 ([8446260](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/84462606c7ee87090e41b37de0946e6bd83c98e6))
+* **editor:** 删除解锁密码功能 ([e881ecf](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/e881ecf4632628eab6107bc431133cbb509ae562))
+* **editor:** 由 reducer 内部计算新状态 --CR ([66885bb](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/66885bb8d455ee82f13f0e017758e003ee8b2bf9))
+* **editor:** 章节 item 移除字数统计 ([7934d51](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/7934d51b288b8f9077f11c12099c2c77317548c1))
+* **editor:** 章节可拖动状态调整 ([837f71e](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/837f71e965107d5a67bdc88e0268add23668ddcd))
+* **editor:** ai对话用户头像缺失 ([6cf86c3](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/6cf86c326bf2343dca803ad617fdb799142c039f))
+* **empty-state:** 修复黑夜模式显示不明显问题 ([b085bcd](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/b085bcd4e72863cdc9b6607e1b6b8e3992475731))
+* **global-css:** 共享样式分模块管理 --CR ([f67c91d](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/f67c91d6b3071fdc0f0b700c49d671d92482fbdf))
+* **hero:** 缩进问题修复 ([5fbdefb](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/5fbdefbbf22c70e84197dfe7fc535b43e7599132))
+* **hero:** 修复文本选中问题 ([e396ef9](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/e396ef97cc0416441601453304f0132971dad143))
+* **hero:** 移动端溢出问题修复 ([c6469b6](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/c6469b6f88b172bda1d14914f2fc8ce25a7cfd7d))
+* **left-panel:** 修复工作区操作按钮遮挡问题 ([3fa0f9f](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/3fa0f9fd36e5e0149f654dbd1b2a19b78b4b1346))
+* **novel-dialog:** 创建小说弹窗重构 ([280071d](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/280071d5ca0baff493eab29f49b4b1147648a888))
+* **novels:** 空状态优化 ([c9f5d65](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/c9f5d65721dfe755c50c9fe5392e187edbc057d9))
+* **profile-dialog:** 修复资料上传陷入的死循环问题 ([1d93a3f](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/1d93a3f91068ac03e95bd989d28b8b9b5561b8d8))
+* **release-it:** 调整发版配置 ([a9a5d76](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/a9a5d7622de8ea4e9a1e1545d679132618a1919a))
+* **release-it:** 调整发版配置 ([93880dc](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/93880dc0e04b446bd4753d975ef9cdc558dffa42))
+* **sdk:** 回收站恢复只更新了 status，没有恢复关联数据 ([9d3fd9b](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/9d3fd9b324c01c85a187e3a517a3101c53516849))
+* siliconFlow API 返回 Bad Request ([8d7348c](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/8d7348cde99e83942d6fe52f5c323d44c4cc4d64))
+* **smart-tabs:** 灵动Tabs修复关闭按钮扩容不统一 ([dd34112](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/dd341128e0548e8a4b8a4bca367e8fefc101ff2e))
+* **sonner:** 全局 sonner 适配当前主题 token ([7278864](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/72788644a08b94748bbc25e8f0fad36f11d0359e))
+* **tiptap:** 编辑器内容区上下间距收缩 ([e7dd02c](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/e7dd02cd295804ba298e77849361b01f7835fd8b))
+* **tiptap:** 多段文本复制进入文章 位置计算问题修复 ([e35991b](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/e35991b64b56c4ef62af2e3049aadd3138fea92e))
+* **tiptap:** 根据光标位置动态计算 openStart 和 openEnd 参数，段落边界处拆分并插入多段内容 ([32a6b87](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/32a6b8769679f873d053219a5ebe970c49762005))
+* **tiptap:** 行间距 段间距 调整 ([732a008](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/732a008f7b16fde2db1f134b8ac84ec995572cab))
+* **tiptap:** 选中文字 文字不出现下划线 ([180976c](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/180976cb76a509205d7563e7a631343bda794bfb))
+
 ## [0.5.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.4.0...v0.5.0) (2025-12-22)
 
 ### ✨ Features
