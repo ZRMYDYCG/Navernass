@@ -41,9 +41,8 @@ export function NovelTable({
 
   if (novels.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-        <p className="text-lg mb-2">还没有小说</p>
-        <p className="text-sm text-muted-foreground">点击右上角创建你的第一部小说</p>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground">
+        <p className="text-lg italic">暂无创作</p>
       </div>
     )
   }

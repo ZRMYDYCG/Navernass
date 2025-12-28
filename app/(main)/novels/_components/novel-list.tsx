@@ -17,9 +17,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Plus } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { NovelCard } from './novel-card'
 
@@ -76,7 +74,6 @@ export function NovelList({
   loading,
   onOpenNovel,
   onContextMenu,
-  onCreateNovel,
   onReorder,
 }: NovelListProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -111,24 +108,20 @@ export function NovelList({
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3">
+      <div className="flex flex-col items-center justify-start pt-[30vh] min-h-[60vh] gap-3">
         <Spinner className="w-6 h-6 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground font-serif">加载中...</span>
+        <span className="text-sm text-muted-foreground font-serif not-italic">加载中...</span>
       </div>
     )
   }
 
   if (novels.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground font-serif">
-        <p className="text-lg mb-4 italic">暂无创作，点击下方按钮开始创作。</p>
-        <Button
-          onClick={() => onCreateNovel?.()}
-          className="bg-primary text-primary-foreground hover:opacity-90 font-sans"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          开始创作
-        </Button>
+      <div className="flex flex-col items-center justify-start pt-[25vh] min-h-[60vh] text-muted-foreground font-serif">
+        <p className="text-lg">暂无创作</p>
+        <p className="text-sm text-muted-foreground/70 text-center mt-2">
+          开始你的第一部小说创作吧
+        </p>
       </div>
     )
   }

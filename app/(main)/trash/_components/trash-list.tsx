@@ -20,9 +20,9 @@ export function TrashList({
 }: TrashListProps) {
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3">
+      <div className="flex flex-col items-center justify-start pt-[45vh] min-h-[60vh] gap-3">
         <Spinner className="w-6 h-6 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground font-serif">加载中...</span>
+        <span className="text-sm text-muted-foreground font-serif not-italic">加载中...</span>
       </div>
     )
   }

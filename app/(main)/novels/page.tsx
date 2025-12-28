@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
-import { supabase } from '@/lib/supabase'
 import { novelsApi } from '@/lib/supabase/sdk'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import { NovelContextMenu } from './_components/novel-context-menu'
@@ -236,9 +235,9 @@ function NovelsContent() {
   return (
     <div className="flex flex-col bg-background transition-colors h-full font-serif">
 
-      <div className="flex-1 py-2 px-8 overflow-y-auto">
+      <div className="flex-1 py-2 px-8 overflow-y-auto flex flex-col">
         {/* 筛选器和新建按钮 */}
-        <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="mb-6 flex items-center justify-between gap-4 shrink-0">
           <SegmentedControl
             value={filter}
             onValueChange={value => setFilter(value as NovelFilterType)}
@@ -261,32 +260,34 @@ function NovelsContent() {
         </div>
 
         {/* 视图切换 */}
-        <div className="mb-6 flex justify-end">
+        <div className="mb-6 flex justify-end shrink-0">
           <ViewSwitcher value={viewMode} onChange={setViewMode} />
         </div>
 
-        {viewMode === 'grid'
-          ? (
-              <NovelList
-                novels={novels}
-                loading={loading}
-                onOpenNovel={handleOpenNovel}
-                onEditNovel={handleEditNovel}
-                onDeleteNovel={handleDeleteNovel}
-                onContextMenu={handleContextMenu}
-                onReorder={handleReorder}
-              />
-            )
-          : (
-              <NovelTable
-                novels={novels}
-                loading={loading}
-                onOpenNovel={handleOpenNovel}
-                onEditNovel={handleEditNovel}
-                onDeleteNovel={handleDeleteNovel}
-                onContextMenu={handleContextMenu}
-              />
-            )}
+        <div className="flex-1 flex flex-col">
+          {viewMode === 'grid'
+            ? (
+                <NovelList
+                  novels={novels}
+                  loading={loading}
+                  onOpenNovel={handleOpenNovel}
+                  onEditNovel={handleEditNovel}
+                  onDeleteNovel={handleDeleteNovel}
+                  onContextMenu={handleContextMenu}
+                  onReorder={handleReorder}
+                />
+              )
+            : (
+                <NovelTable
+                  novels={novels}
+                  loading={loading}
+                  onOpenNovel={handleOpenNovel}
+                  onEditNovel={handleEditNovel}
+                  onDeleteNovel={handleDeleteNovel}
+                  onContextMenu={handleContextMenu}
+                />
+              )}
+        </div>
 
         {contextMenuState.novel && contextMenuState.position && (
           <NovelContextMenu
