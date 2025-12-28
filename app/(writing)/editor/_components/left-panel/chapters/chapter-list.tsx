@@ -20,8 +20,8 @@ import {
 } from '@dnd-kit/sortable'
 import { useEffect, useState } from 'react'
 import { ChapterItem } from './chapter-item'
-import { VolumeItem } from './volume-item'
 import { EmptyChapters } from './empty-chapters'
+import { VolumeItem } from './volume-item'
 
 // 根目录放置区组件
 function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver: boolean, isDraggingFromVolume: boolean }) {
@@ -307,142 +307,142 @@ export function ChapterList({
         />
       ) : (
         <DndContext
-        sensors={sensors}
-        collisionDetection={pointerWithin}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
-      >
-        <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-          {/* 根目录放置区 - 用于移出卷 */}
-          <RootDropZone
-            id={ROOT_DROP_ZONE_ID}
-            isOver={overId === ROOT_DROP_ZONE_ID}
-            isDraggingFromVolume={!!(activeId && localChapters.find(c => c.id === activeId && c.volume_id))}
-          />
+          sensors={sensors}
+          collisionDetection={pointerWithin}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+            {/* 根目录放置区 - 用于移出卷 */}
+            <RootDropZone
+              id={ROOT_DROP_ZONE_ID}
+              isOver={overId === ROOT_DROP_ZONE_ID}
+              isDraggingFromVolume={!!(activeId && localChapters.find(c => c.id === activeId && c.volume_id))}
+            />
 
-          {/* 渲染卷和无卷的章节 */}
-          {localVolumes.map(volume => (
-            <div
-              key={volume.id}
-              className={overId === volume.id && activeId && localChapters.find(c => c.id === activeId)
-                ? 'border-2 border-dashed border-border rounded-lg'
-                : ''}
-            >
-              <VolumeItem
-                volume={volume}
-                isExpanded={expandedVolumes.has(volume.id)}
-                onToggle={() => toggleVolume(volume.id)}
-                onRename={onRenameVolume}
-                onDelete={onDeleteVolume}
-                onCreateChapter={onCreateChapterInVolume}
+            {/* 渲染卷和无卷的章节 */}
+            {localVolumes.map(volume => (
+              <div
+                key={volume.id}
+                className={overId === volume.id && activeId && localChapters.find(c => c.id === activeId)
+                  ? 'border-2 border-dashed border-border rounded-lg'
+                  : ''}
               >
-                {/* 卷下的章节 */}
-                {getVolumeChapters(volume.id).map((chapter, index) => {
-                  const isOver = overId === chapter.id && activeId !== chapter.id
-                  const activeChapter = localChapters.find(c => c.id === activeId)
-                  const sameContainer = activeChapter?.volume_id === chapter.volume_id
-
-                  return (
-                    <div key={chapter.id} className="relative">
-                      {/* 顶部插入指示线 */}
-                      {isOver && sameContainer && index === 0 && (
-                        <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
-                      )}
-
-                      <div
-                        className={isOver
-                          ? 'bg-accent transition-colors rounded-lg'
-                          : ''}
-                      >
-                        <ChapterItem
-                          chapter={chapter}
-                          isSelected={selectedChapter === chapter.id}
-                          onSelect={() => onSelectChapter(chapter.id)}
-                          onRename={onRenameChapter}
-                          onDelete={onDeleteChapter}
-                          onCopy={onCopyChapter}
-                          onMove={onMoveChapter}
-                        />
-                      </div>
-
-                      {/* 底部插入指示线 */}
-                      {isOver && sameContainer && (
-                        <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
-                      )}
-                    </div>
-                  )
-                })}
-              </VolumeItem>
-            </div>
-          ))}
-
-          {/* 没有卷的章节 */}
-          {chaptersWithoutVolume.map((chapter, index) => {
-            const isOver = overId === chapter.id && activeId !== chapter.id
-            const activeChapter = localChapters.find(c => c.id === activeId)
-            const sameContainer = !activeChapter?.volume_id && !chapter.volume_id
-
-            return (
-              <div key={chapter.id} className="relative">
-                {/* 顶部插入指示线 */}
-                {isOver && sameContainer && index === 0 && (
-                  <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
-                )}
-
-                <div
-                  className={isOver
-                    ? 'bg-accent transition-colors rounded-lg'
-                    : ''}
+                <VolumeItem
+                  volume={volume}
+                  isExpanded={expandedVolumes.has(volume.id)}
+                  onToggle={() => toggleVolume(volume.id)}
+                  onRename={onRenameVolume}
+                  onDelete={onDeleteVolume}
+                  onCreateChapter={onCreateChapterInVolume}
                 >
-                  <ChapterItem
-                    chapter={chapter}
-                    isSelected={selectedChapter === chapter.id}
-                    onSelect={() => onSelectChapter(chapter.id)}
-                    onRename={onRenameChapter}
-                    onDelete={onDeleteChapter}
-                    onCopy={onCopyChapter}
-                    onMove={onMoveChapter}
-                  />
-                </div>
+                  {/* 卷下的章节 */}
+                  {getVolumeChapters(volume.id).map((chapter, index) => {
+                    const isOver = overId === chapter.id && activeId !== chapter.id
+                    const activeChapter = localChapters.find(c => c.id === activeId)
+                    const sameContainer = activeChapter?.volume_id === chapter.volume_id
 
-                {/* 底部插入指示线 */}
-                {isOver && sameContainer && (
-                  <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
-                )}
+                    return (
+                      <div key={chapter.id} className="relative">
+                        {/* 顶部插入指示线 */}
+                        {isOver && sameContainer && index === 0 && (
+                          <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
+                        )}
+
+                        <div
+                          className={isOver
+                            ? 'bg-accent transition-colors rounded-lg'
+                            : ''}
+                        >
+                          <ChapterItem
+                            chapter={chapter}
+                            isSelected={selectedChapter === chapter.id}
+                            onSelect={() => onSelectChapter(chapter.id)}
+                            onRename={onRenameChapter}
+                            onDelete={onDeleteChapter}
+                            onCopy={onCopyChapter}
+                            onMove={onMoveChapter}
+                          />
+                        </div>
+
+                        {/* 底部插入指示线 */}
+                        {isOver && sameContainer && (
+                          <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
+                        )}
+                      </div>
+                    )
+                  })}
+                </VolumeItem>
               </div>
-            )
-          })}
-        </SortableContext>
+            ))}
 
-        {/* 拖拽预览 */}
-        <DragOverlay dropAnimation={null}>
-          {activeItem && 'title' in activeItem && 'wordCount' in activeItem
-            ? (
-                <div className="bg-card rounded-lg shadow-lg p-3 border-2 border-dashed border-border">
-                  <div className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    {activeItem.title}
+            {/* 没有卷的章节 */}
+            {chaptersWithoutVolume.map((chapter, index) => {
+              const isOver = overId === chapter.id && activeId !== chapter.id
+              const activeChapter = localChapters.find(c => c.id === activeId)
+              const sameContainer = !activeChapter?.volume_id && !chapter.volume_id
+
+              return (
+                <div key={chapter.id} className="relative">
+                  {/* 顶部插入指示线 */}
+                  {isOver && sameContainer && index === 0 && (
+                    <div className="absolute -top-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
+                  )}
+
+                  <div
+                    className={isOver
+                      ? 'bg-accent transition-colors rounded-lg'
+                      : ''}
+                  >
+                    <ChapterItem
+                      chapter={chapter}
+                      isSelected={selectedChapter === chapter.id}
+                      onSelect={() => onSelectChapter(chapter.id)}
+                      onRename={onRenameChapter}
+                      onDelete={onDeleteChapter}
+                      onCopy={onCopyChapter}
+                      onMove={onMoveChapter}
+                    />
                   </div>
+
+                  {/* 底部插入指示线 */}
+                  {isOver && sameContainer && (
+                    <div className="absolute -bottom-px left-4 right-4 border-t-2 border-dashed border-border z-10" />
+                  )}
                 </div>
               )
-            : activeItem && 'description' in activeItem
+            })}
+          </SortableContext>
+
+          {/* 拖拽预览 */}
+          <DragOverlay dropAnimation={null}>
+            {activeItem && 'title' in activeItem && 'wordCount' in activeItem
               ? (
                   <div className="bg-card rounded-lg shadow-lg p-3 border-2 border-dashed border-border">
                     <div className="text-sm font-medium text-foreground flex items-center gap-2">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                       {activeItem.title}
                     </div>
                   </div>
                 )
-              : null}
-        </DragOverlay>
-      </DndContext>
+              : activeItem && 'description' in activeItem
+                ? (
+                    <div className="bg-card rounded-lg shadow-lg p-3 border-2 border-dashed border-border">
+                      <div className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                        </svg>
+                        {activeItem.title}
+                      </div>
+                    </div>
+                  )
+                : null}
+          </DragOverlay>
+        </DndContext>
       )}
     </div>
   )

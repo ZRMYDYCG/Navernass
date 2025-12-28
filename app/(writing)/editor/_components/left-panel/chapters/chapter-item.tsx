@@ -99,25 +99,15 @@ export function ChapterItem({
               </Popover.Portal>
             </Popover.Root>
 
-            <div className="flex-1 min-w-0 flex items-baseline justify-between gap-1.5" onClick={onSelect}>
-              <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                <FileText className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                <h3
-                  className={`text-[12px] font-normal leading-snug truncate flex-1 transition-colors ${
-                    isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'
-                  }`}
-                >
-                  {chapter.title}
-                </h3>
-              </div>
-
-              <span
-                className={`text-[10px] flex-shrink-0 transition-opacity ${
-                  isSelected ? 'text-muted-foreground' : 'text-muted-foreground opacity-0 group-hover:opacity-100'
+            <div className="flex-1 min-w-0 flex items-center gap-1.5" onClick={onSelect}>
+              <FileText className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <h3
+                className={`text-[12px] font-normal truncate flex-1 transition-colors ${
+                  isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'
                 }`}
               >
-                {chapter.wordCount}
-              </span>
+                {chapter.title}
+              </h3>
             </div>
           </div>
         </div>
