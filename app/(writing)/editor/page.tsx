@@ -21,7 +21,6 @@ import EditorContent from './_components/editor-content'
 import EditorHeader from './_components/editor-header'
 import LeftPanel from './_components/left-panel'
 import { LockScreen } from './_components/lock-screen'
-import { SetPasswordDialog } from './_components/lock-screen/set-password-dialog'
 import { MoveChapterDialog } from './_components/move-chapter-dialog'
 import { RenameChapterDialog } from './_components/rename-chapter-dialog'
 import { RenameVolumeDialog } from './_components/rename-volume-dialog'
@@ -61,8 +60,6 @@ function NovelsEditContent() {
   const [editingVolumeTitle, setEditingVolumeTitle] = useState('')
   const [isUpdatingVolume, setIsUpdatingVolume] = useState(false)
   const [isLocked, setIsLocked] = useState(false)
-  const [setPasswordDialogOpen, setSetPasswordDialogOpen] = useState(false)
-  const [isSettingPassword, setIsSettingPassword] = useState(false)
   const [deleteChapterDialogOpen, setDeleteChapterDialogOpen] = useState(false)
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null)
   const [isDeletingChapter, setIsDeletingChapter] = useState(false)
@@ -773,49 +770,12 @@ function NovelsEditContent() {
 
   // 锁屏处理
   const handleLock = async () => {
-    // 动态导入工具函数，避免 SSR 问题
-    const { hasPassword, setLocked } = await import('./_components/lock-screen/utils')
+    const { setLocked } = await import('./_components/lock-screen/utils')
+    setLocked(true)
+    setIsLocked(true)
 
-    if (!hasPassword()) {
-      // 如果没有设置密码，先打开设置密码对话框
-      setSetPasswordDialogOpen(true)
-    } else {
-      // 如果已设置密码，直接锁定
-      setLocked(true)
-      setIsLocked(true)
-
-      // 触发自定义事件，通知 LockScreen 组件
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('lockScreenChange'))
-      }
-    }
-  }
-
-  // 处理密码设置
-  const handleSetPassword = async (password: string) => {
-    setIsSettingPassword(true)
-
-    // 动态导入工具函数
-    const { setPassword, setLocked } = await import('./_components/lock-screen/utils')
-
-    try {
-      setPassword(password)
-      toast.success('密码设置成功！')
-      setSetPasswordDialogOpen(false)
-
-      // 设置密码后立即锁定
-      setLocked(true)
-      setIsLocked(true)
-
-      // 触发自定义事件，通知 LockScreen 组件
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('lockScreenChange'))
-      }
-    } catch (error) {
-      console.error('设置密码失败:', error)
-      toast.error('设置密码失败')
-    } finally {
-      setIsSettingPassword(false)
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('lockScreenChange'))
     }
   }
 
@@ -1149,14 +1109,6 @@ function NovelsEditContent() {
             description={`确定要删除卷"${volumeToDelete?.title}"吗？此操作不可恢复，卷下的所有章节将被移出。`}
             onConfirm={handleConfirmDeleteVolume}
             isDeleting={isDeletingVolume}
-          />
-
-          {/* 设置密码对话框 */}
-          <SetPasswordDialog
-            open={setPasswordDialogOpen}
-            onOpenChange={setSetPasswordDialogOpen}
-            onConfirm={handleSetPassword}
-            isSetting={isSettingPassword}
           />
         </div>
       </LockScreen>
