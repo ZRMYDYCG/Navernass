@@ -14,7 +14,7 @@ import { NovelList } from './_components/novel-list'
 import { NovelTable } from './_components/novel-table'
 import { SmartPagination } from './_components/smart-pagination'
 import { ViewSwitcher } from './_components/view-switcher'
-import { DEFAULT_FILTER, DEFAULT_VIEW_MODE, ITEMS_PER_PAGE, TOAST_MESSAGES } from './config'
+import { DEFAULT_FILTER, DEFAULT_VIEW_MODE, ITEMS_PER_PAGE } from './constants'
 
 function NovelsContent() {
   const router = useRouter()
@@ -48,7 +48,7 @@ function NovelsContent() {
       setTotal(result.total)
     } catch (error) {
       console.error('加载小说失败:', error)
-      const message = error instanceof Error ? error.message : TOAST_MESSAGES.LOAD_ERROR
+      const message = error instanceof Error ? error.message : '加载小说列表失败'
       toast.error(message)
     } finally {
       setLoading(false)
@@ -73,7 +73,7 @@ function NovelsContent() {
     setDialogOpen(true)
   }
 
-  const uploadCover = useCallback(async (file: File) => {
+  async function uploadCover(file: File) {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('type', 'cover')
@@ -90,11 +90,11 @@ function NovelsContent() {
 
     const result = await response.json()
     return result.data.url
-  }, [])
+  }
 
   const handleSaveNovel = async (data: NovelFormData) => {
     if (!data.title.trim()) {
-      toast.error(TOAST_MESSAGES.TITLE_REQUIRED)
+      toast.error('请输入小说标题')
       return
     }
 
@@ -110,7 +110,7 @@ function NovelsContent() {
           description: data.description || undefined,
           cover: coverUrl || undefined,
         })
-        toast.success(TOAST_MESSAGES.UPDATE_SUCCESS)
+        toast.success('小说信息已更新！')
         setDialogOpen(false)
         loadNovels()
       } else {
@@ -123,18 +123,17 @@ function NovelsContent() {
           description: data.description || undefined,
           cover,
         })
-        toast.success(TOAST_MESSAGES.CREATE_SUCCESS)
+        toast.success('小说创建成功！')
         setDialogOpen(false)
         router.push(`/editor?id=${novel.id}`)
       }
     } catch (error) {
-      console.error(editingNovel ? '更新小说失败:' : '创建小说失败:', error)
       const message
         = error instanceof Error
           ? error.message
           : editingNovel
-            ? TOAST_MESSAGES.UPDATE_ERROR
-            : TOAST_MESSAGES.CREATE_ERROR
+            ? '更新小说失败'
+            : '创建小说失败'
       toast.error(message)
       throw error
     }
@@ -189,13 +188,13 @@ function NovelsContent() {
 
     try {
       await novelsApi.archive(novelToDelete.id)
-      toast.success(TOAST_MESSAGES.DELETE_SUCCESS)
+      toast.success('小说已移到回收站')
       setDeleteDialogOpen(false)
       setNovelToDelete(null)
       loadNovels()
     } catch (error) {
       console.error('删除小说失败:', error)
-      const message = error instanceof Error ? error.message : TOAST_MESSAGES.DELETE_ERROR
+      const message = error instanceof Error ? error.message : '删除小说失败'
       toast.error(message)
     }
   }
@@ -215,7 +214,7 @@ function NovelsContent() {
     } catch (error) {
       console.error('更新排序失败:', error)
       setNovels(previousNovels)
-      const message = error instanceof Error ? error.message : TOAST_MESSAGES.UPDATE_ERROR
+      const message = error instanceof Error ? error.message : '更新小说失败'
       toast.error(message)
     }
   }
