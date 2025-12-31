@@ -9,7 +9,7 @@ import { BulkActionsBar } from './_components/bulk-actions-bar'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import { TrashContextMenu } from './_components/trash-context-menu'
 import { TrashList } from './_components/trash-list'
-import { DIALOG_CONFIG, TOAST_MESSAGES } from './config'
+import { novelsApi } from '@/api'
 
 export default function Trash() {
   const [novels, setNovels] = useState<Novel[]>([])
@@ -35,7 +35,7 @@ export default function Trash() {
       setSelectedIds(new Set()) // 重新加载后清空选择
     } catch (error) {
       console.error('加载回收站数据失败:', error)
-      const message = error instanceof Error ? error.message : TOAST_MESSAGES.LOAD_ERROR
+      const message = error instanceof Error ? error.message : '加载回收站数据失败'
       toast.error(message)
     } finally {
       setLoading(false)
@@ -86,11 +86,11 @@ export default function Trash() {
   const handleRestoreNovel = async (novel: Novel) => {
     try {
       await novelsApi.restore(novel.id)
-      toast.success(TOAST_MESSAGES.RESTORE_SUCCESS(novel.title))
+      toast.success(`小说《${novel.title}》已恢复`)
       loadTrashData()
     } catch (error) {
       console.error('恢复小说失败:', error)
-      const message = error instanceof Error ? error.message : TOAST_MESSAGES.RESTORE_ERROR
+      const message = error instanceof Error ? error.message : '恢复小说失败'
       toast.error(message)
     }
   }
@@ -111,12 +111,12 @@ export default function Trash() {
       try {
         setDeleting(true)
         await novelsApi.delete(deleteDialog.novel.id)
-        toast.success(TOAST_MESSAGES.DELETE_SUCCESS)
+        toast.success('小说已永久删除')
         setDeleteDialog({ open: false, type: 'single', novel: null, count: 0 })
         loadTrashData()
       } catch (error) {
         console.error('永久删除小说失败:', error)
-        const message = error instanceof Error ? error.message : TOAST_MESSAGES.DELETE_ERROR
+        const message = error instanceof Error ? error.message : '永久删除小说失败'
         toast.error(message)
       } finally {
         setDeleting(false)
@@ -125,12 +125,12 @@ export default function Trash() {
       try {
         setDeleting(true)
         await Promise.all(Array.from(selectedIds).map(id => novelsApi.delete(id)))
-        toast.success(TOAST_MESSAGES.BULK_DELETE_SUCCESS(deleteDialog.count))
+        toast.success(`已永久删除 ${deleteDialog.count} 部小说`)
         setDeleteDialog({ open: false, type: 'bulk', novel: null, count: 0 })
         loadTrashData()
       } catch (error) {
         console.error('批量删除失败:', error)
-        const message = error instanceof Error ? error.message : TOAST_MESSAGES.BULK_DELETE_ERROR
+        const message = error instanceof Error ? error.message : '批量删除失败'
         toast.error(message)
       } finally {
         setDeleting(false)
@@ -145,11 +145,11 @@ export default function Trash() {
 
     try {
       await Promise.all(Array.from(selectedIds).map(id => novelsApi.restore(id)))
-      toast.success(TOAST_MESSAGES.BULK_RESTORE_SUCCESS(count))
+      toast.success(`已恢复 ${count} 部小说`)
       loadTrashData()
     } catch (error) {
       console.error('批量恢复失败:', error)
-      const message = error instanceof Error ? error.message : TOAST_MESSAGES.BULK_RESTORE_ERROR
+      const message = error instanceof Error ? error.message : '批量恢复失败'
       toast.error(message)
     }
   }
@@ -215,15 +215,11 @@ export default function Trash() {
       {/* 删除确认对话框 */}
       <DeleteConfirmDialog
         open={deleteDialog.open}
-        title={
-          deleteDialog.type === 'single'
-            ? DIALOG_CONFIG.SINGLE_DELETE_TITLE
-            : DIALOG_CONFIG.BULK_DELETE_TITLE
-        }
+        title={deleteDialog.type === 'single' ? '永久删除小说' : '批量永久删除'}
         description={
           deleteDialog.type === 'single'
-            ? DIALOG_CONFIG.SINGLE_DELETE_DESCRIPTION(deleteDialog.novel?.title || '')
-            : DIALOG_CONFIG.BULK_DELETE_DESCRIPTION(deleteDialog.count)
+            ? `确定要永久删除小说《${deleteDialog.novel?.title || ''}》吗？此操作无法撤销！`
+            : `确定要永久删除选中的 ${deleteDialog.count} 部小说吗？此操作无法撤销！`
         }
         onOpenChange={(open) => {
           if (!open) {

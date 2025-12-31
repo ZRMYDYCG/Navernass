@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { PROMPT_SUGGESTIONS } from '../config'
+import { CHAT_PROMPT_SUGGESTIONS } from '@/prompts'
 
 interface PromptButtonsProps {
   onPromptClick?: (prompt: string) => void
@@ -18,7 +18,7 @@ export function PromptButtons({ onPromptClick, disabled = false }: PromptButtons
   return (
     <section className="w-full max-w-4xl mx-auto px-4 sm:px-6">
       <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5">
-        {PROMPT_SUGGESTIONS.map(({ label }) => (
+        {CHAT_PROMPT_SUGGESTIONS.map(({ label }) => (
           <button
             key={label}
             type="button"

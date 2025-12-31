@@ -1,1 +1,0 @@
-export { CHAT_PROMPT_SUGGESTIONS as PROMPT_SUGGESTIONS } from '@/prompts'
