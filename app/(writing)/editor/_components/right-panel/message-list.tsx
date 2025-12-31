@@ -1,9 +1,9 @@
 'use client'
 
 import type { NovelMessage } from '@/lib/supabase/sdk/types'
-import { useAuth } from '@/hooks/use-auth'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useAuth } from '@/hooks/use-auth'
 import { MessageBubble } from './message-bubble'
 import { ScrollToBottomButton } from './scroll-to-bottom-button'
 import { TypingIndicator } from './typing-indicator'
@@ -154,7 +154,7 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
     <div className="relative h-full w-full">
       <ScrollArea
         ref={scrollAreaRef}
-        className="h-full w-full overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:overflow-x-hidden"
+        className="h-full w-full overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:pr-3"
       >
         <div className="space-y-1 pb-4">
           {messages.map(message => (
