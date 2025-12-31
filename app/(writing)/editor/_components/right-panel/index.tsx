@@ -156,6 +156,7 @@ export default function RightPanel() {
 
     let aiMessageId: string | null = null
     let accumulatedContent = ''
+    let accumulatedThinking = ''
     let newConversationId = currentConversationId
 
     try {
@@ -183,6 +184,30 @@ export default function RightPanel() {
               ),
             )
           },
+          onThinking: (chunk) => {
+            accumulatedThinking += chunk
+            if (!aiMessageId) {
+              const tempAiMessage: NovelMessage = {
+                id: `temp-ai-${Date.now()}`,
+                conversation_id: newConversationId || '',
+                novel_id: novelId,
+                user_id: 'default-user',
+                role: 'assistant',
+                content: accumulatedContent,
+                thinking: accumulatedThinking,
+                created_at: new Date().toISOString(),
+              }
+              aiMessageId = tempAiMessage.id
+              setStreamingMessageId(aiMessageId)
+              setMessages(prev => [...prev, tempAiMessage])
+            } else {
+              setMessages(prev =>
+                prev.map(msg =>
+                  msg.id === aiMessageId ? { ...msg, thinking: accumulatedThinking } : msg,
+                ),
+              )
+            }
+          },
           onContent: (chunk) => {
             accumulatedContent += chunk
             if (!aiMessageId) {
@@ -193,6 +218,7 @@ export default function RightPanel() {
                 user_id: 'default-user',
                 role: 'assistant',
                 content: accumulatedContent,
+                thinking: accumulatedThinking,
                 created_at: new Date().toISOString(),
               }
               aiMessageId = tempAiMessage.id
@@ -201,7 +227,7 @@ export default function RightPanel() {
             } else {
               setMessages(prev =>
                 prev.map(msg =>
-                  msg.id === aiMessageId ? { ...msg, content: accumulatedContent } : msg,
+                  msg.id === aiMessageId ? { ...msg, content: accumulatedContent, thinking: accumulatedThinking } : msg,
                 ),
               )
             }
@@ -213,6 +239,7 @@ export default function RightPanel() {
             abortControllerRef.current = null
             isStreamingRef.current = false
             if (newConversationId) {
+              setMessages(prev => prev.filter(msg => !msg.id.startsWith('temp-')))
               await loadMessagesSilently(newConversationId)
             }
             await loadConversations()

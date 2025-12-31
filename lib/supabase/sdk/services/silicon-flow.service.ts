@@ -113,7 +113,7 @@ export class SiliconFlowService {
    */
   async chatStream(
     messages: ChatMessage[],
-    onChunk: (chunk: { content: string, tokens?: number, model?: string }) => void,
+    onChunk: (chunk: { content: string, thinking?: string, tokens?: number, model?: string }) => void,
     systemPrompt?: string,
     customModel?: string,
   ): Promise<void> {
@@ -146,6 +146,8 @@ export class SiliconFlowService {
           temperature: 0.7,
           max_tokens: 2000,
           stream: true,
+          // 启用思考模型输出thinking
+          ...(customModel?.includes('DeepSeek-R1') ? { enable_thinking: true } : {}),
         }),
       })
 
@@ -179,9 +181,64 @@ export class SiliconFlowService {
               const jsonStr = trimmedLine.slice(6)
               const data = JSON.parse(jsonStr)
 
-              if (data.choices && data.choices[0]?.delta?.content) {
+              const delta = data.choices?.[0]?.delta
+
+              // 调试：打印完整响应结构（包含 delta 的所有字段）
+              const fullDataStr = JSON.stringify(data)
+              console.log('[SiliconFlow] full data length:', fullDataStr.length)
+              console.log('[SiliconFlow] full data sample:', fullDataStr.substring(0, 300))
+              const choice = data.choices?.[0]
+              console.log('[SiliconFlow] finish_reason:', choice?.finish_reason)
+              console.log('[SiliconFlow] delta keys:', Object.keys(delta || {}))
+              console.log('[SiliconFlow] delta.reasoning_content:', JSON.stringify(delta?.reasoning_content))
+              console.log('[SiliconFlow] delta.content:', JSON.stringify(delta?.content))
+
+              // 打印 message 对象的完整内容（最后的 delta）
+              if (choice?.message) {
+                console.log('[SiliconFlow] message keys:', Object.keys(choice.message))
+                console.log('[SiliconFlow] message.reasoning_content:', JSON.stringify(choice.message.reasoning_content))
+                console.log('[SiliconFlow] message.content:', JSON.stringify(choice.message.content))
+              }
+
+              // 处理 reasoning_content（OpenAI 兼容格式）
+              if (delta?.reasoning_content && delta.reasoning_content.length > 0) {
+                console.log('[SiliconFlow] reasoning_content found:', delta.reasoning_content.substring(0, 100))
                 onChunk({
-                  content: data.choices[0].delta.content,
+                  content: '',
+                  thinking: delta.reasoning_content,
+                  model: data.model,
+                  tokens: data.usage?.total_tokens,
+                })
+              }
+
+              // 处理 content（普通内容）
+              if (delta?.content) {
+                onChunk({
+                  content: delta.content,
+                  model: data.model,
+                  tokens: data.usage?.total_tokens,
+                })
+              }
+
+              // 处理 SiliconFlow 可能的情况：thinking 在 content 中以 <think> 标签包裹
+              if (delta?.content?.includes('<think>')) {
+                const thinkMatch = delta.content.match(/<think>([\s\S]*?)<\/think>/)
+                if (thinkMatch && thinkMatch[1]) {
+                  onChunk({
+                    content: delta.content.replace(/<think>[\s\S]*?<\/think>/g, ''),
+                    thinking: thinkMatch[1],
+                    model: data.model,
+                    tokens: data.usage?.total_tokens,
+                  })
+                }
+              }
+
+              // 检查是否在最后的 delta 中包含完整的 thinking（某些 API 可能在最后发送完整 thinking）
+              if (choice?.finish_reason === 'stop' && choice?.message?.reasoning_content) {
+                console.log('[SiliconFlow] final reasoning_content:', choice.message.reasoning_content.substring(0, 100))
+                onChunk({
+                  content: choice.message.content || '',
+                  thinking: choice.message.reasoning_content,
                   model: data.model,
                   tokens: data.usage?.total_tokens,
                 })

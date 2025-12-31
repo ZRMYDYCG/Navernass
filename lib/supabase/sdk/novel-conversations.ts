@@ -52,6 +52,7 @@ export const novelConversationsApi = {
     callbacks: {
       onConversationId?: (id: string) => void
       onUserMessageId?: (id: string) => void
+      onThinking?: (thinking: string) => void
       onContent?: (content: string) => void
       onDone?: (data: { messageId: string, tokens: number, model: string }) => void
       onError?: (error: string) => void
@@ -99,6 +100,9 @@ export const novelConversationsApi = {
               break
             case 'user_message_id':
               callbacks.onUserMessageId?.(event.data)
+              break
+            case 'thinking':
+              callbacks.onThinking?.(event.data)
               break
             case 'content':
               callbacks.onContent?.(event.data)

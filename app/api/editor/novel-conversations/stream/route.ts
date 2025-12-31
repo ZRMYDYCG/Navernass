@@ -113,6 +113,7 @@ export async function POST(req: NextRequest) {
 
         // 流式调用AI服务
         let fullContent = ''
+        let fullThinking = ''
         let tokens = 0
         let finalModel = model || 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
 
@@ -123,18 +124,27 @@ export async function POST(req: NextRequest) {
         ]
 
         await aiService.chatStream(fullMessages, (chunk) => {
-          fullContent += chunk.content
-          tokens = chunk.tokens || tokens
-          finalModel = chunk.model || finalModel
-
-          // 发送流式内容（检查 controller 是否仍然打开）
-          try {
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ type: 'content', data: chunk.content })}\n\n`),
-            )
-          } catch {
-            // Controller 已关闭，客户端可能已断开连接
-            console.warn('Controller closed during streaming')
+          if (chunk.thinking) {
+            fullThinking += chunk.thinking
+            try {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ type: 'thinking', data: chunk.thinking })}\n\n`),
+              )
+            } catch {
+              console.warn('Controller closed during thinking streaming')
+            }
+          }
+          if (chunk.content) {
+            fullContent += chunk.content
+            tokens = chunk.tokens || tokens
+            finalModel = chunk.model || finalModel
+            try {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ type: 'content', data: chunk.content })}\n\n`),
+              )
+            } catch {
+              console.warn('Controller closed during content streaming')
+            }
           }
         }, undefined, model)
 
@@ -144,6 +154,7 @@ export async function POST(req: NextRequest) {
           novel_id: novelId,
           role: 'assistant',
           content: fullContent,
+          thinking: fullThinking || undefined,
           model: finalModel,
           tokens,
         })

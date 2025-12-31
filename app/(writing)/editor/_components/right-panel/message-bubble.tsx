@@ -19,6 +19,7 @@ export function MessageBubble({ message, streamingMessageId, userAvatar }: Messa
   const { theme } = useTheme()
   const [copied, setCopied] = useState(false)
   const isStreaming = streamingMessageId === message.id
+  const hasThinking = isAssistant && message.thinking && message.thinking.length > 0
 
   const displayedContent = message.content
 
@@ -43,12 +44,14 @@ export function MessageBubble({ message, streamingMessageId, userAvatar }: Messa
         )
       } else if (parts[i]) {
         elements.push(
-          <MarkdownRenderer key={i} content={parts[i]} />,
+          <span key={i} className="text-foreground">
+            <MarkdownRenderer content={parts[i]} />
+          </span>,
         )
       }
     }
 
-    return elements.length > 0 ? elements : <MarkdownRenderer content={content} />
+    return elements.length > 0 ? elements : <span className="text-foreground"><MarkdownRenderer content={content} /></span>
   }
 
   const handleCopy = async () => {
@@ -65,18 +68,20 @@ export function MessageBubble({ message, streamingMessageId, userAvatar }: Messa
 
   return (
     <div className={`flex gap-1.5 py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-      <div className="shrink-0">
-        {isAssistant && (
-          <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
-            <img src={avatarSrc} alt="AI Avatar" className="w-full h-full object-cover" />
-          </Avatar>
-        )}
-        {isUser && userAvatar && (
-          <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
-            <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" />
-          </Avatar>
-        )}
-      </div>
+      {!hasThinking && (
+        <div className="shrink-0">
+          {isAssistant && (
+            <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
+              <img src={avatarSrc} alt="AI Avatar" className="w-full h-full object-cover" />
+            </Avatar>
+          )}
+          {isUser && userAvatar && (
+            <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
+              <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" />
+            </Avatar>
+          )}
+        </div>
+      )}
 
       <div className={`flex-1 max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'flex justify-end' : 'flex justify-start'}`}>
         <div className="rounded-lg px-2.5 py-1.5 text-[12px] bg-secondary text-foreground transition-all duration-200">

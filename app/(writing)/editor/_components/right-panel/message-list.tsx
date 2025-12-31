@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAuth } from '@/hooks/use-auth'
 import { MessageBubble } from './message-bubble'
 import { ScrollToBottomButton } from './scroll-to-bottom-button'
+import { ThinkingBubble } from './thinking-bubble'
 import { TypingIndicator } from './typing-indicator'
 
 const SCROLL_THRESHOLD = 100
@@ -157,15 +158,27 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
         className="h-full w-full overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:pr-3"
       >
         <div className="space-y-1 pb-4">
-          {messages.map(message => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              streamingMessageId={streamingMessageId}
-              userAvatar={profile?.avatar_url}
-            />
-          ))}
-          {isLoading && <TypingIndicator />}
+          {messages.map((message) => {
+            const isCurrentMessageStreaming = streamingMessageId === message.id
+            const showContent = !isCurrentMessageStreaming || (message.content && message.content.length > 0)
+
+            return (
+              <div key={message.id} className="flex flex-col">
+                <ThinkingBubble
+                  thinking={message.thinking}
+                  isStreaming={isCurrentMessageStreaming}
+                />
+                {showContent && (
+                  <MessageBubble
+                    message={message}
+                    streamingMessageId={streamingMessageId}
+                    userAvatar={profile?.avatar_url}
+                  />
+                )}
+              </div>
+            )
+          })}
+          {isLoading && !streamingMessageId && <TypingIndicator />}
           <div ref={messagesEndRef} className="h-1" />
         </div>
       </ScrollArea>
