@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { toast } from 'sonner'
-
 import type { Message } from '@/lib/supabase/sdk/types'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import { toast } from 'sonner'
 import { conversationsApi, messagesApi } from '@/lib/supabase/sdk'
 import { chatApi } from '@/lib/supabase/sdk/chat'
 import { copyTextToClipboard } from '@/lib/utils'
@@ -53,53 +53,6 @@ export function useConversationMessages({
       setMessages(historyMessages)
     } catch (error) {
       console.error('Failed to load conversation history silently:', error)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!conversationId || isNewConversation) return
-
-    const initialize = async () => {
-      setIsLoading(true)
-      try {
-        await loadConversationHistory(conversationId)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    initialize()
-  }, [conversationId, isNewConversation, loadConversationHistory])
-
-  useEffect(() => {
-    if (!conversationId || isNewConversation) return
-
-    const fetchTitle = async () => {
-      try {
-        const conversation = await conversationsApi.getById(conversationId)
-        if (conversation?.title) setConversationTitle(conversation.title)
-      } catch (error) {
-        console.error('Failed to load conversation title:', error)
-      }
-    }
-
-    fetchTitle()
-  }, [conversationId, isNewConversation])
-
-  useEffect(() => {
-    if (!conversationId || !initialMessage || isStreamingRef.current) return
-
-    const timer = setTimeout(() => {
-      isStreamingRef.current = true
-      void handleSendMessage(initialMessage)
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [conversationId, initialMessage])
-
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) abortControllerRef.current.abort()
     }
   }, [])
 
@@ -199,6 +152,53 @@ export function useConversationMessages({
       toast.error('发送失败，请重试')
     }
   }, [conversationId, isLoading, loadConversationHistorySilently])
+
+  useEffect(() => {
+    if (!conversationId || isNewConversation) return
+
+    const initialize = async () => {
+      setIsLoading(true)
+      try {
+        await loadConversationHistory(conversationId)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    initialize()
+  }, [conversationId, isNewConversation, loadConversationHistory])
+
+  useEffect(() => {
+    if (!conversationId || isNewConversation) return
+
+    const fetchTitle = async () => {
+      try {
+        const conversation = await conversationsApi.getById(conversationId)
+        if (conversation?.title) setConversationTitle(conversation.title)
+      } catch (error) {
+        console.error('Failed to load conversation title:', error)
+      }
+    }
+
+    fetchTitle()
+  }, [conversationId, isNewConversation])
+
+  useEffect(() => {
+    if (!conversationId || !initialMessage || isStreamingRef.current) return
+
+    const timer = setTimeout(() => {
+      isStreamingRef.current = true
+      void handleSendMessage(initialMessage)
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [conversationId, initialMessage, handleSendMessage])
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) abortControllerRef.current.abort()
+    }
+  }, [])
 
   const handleRetry = useCallback(
     async (content: string) => {
