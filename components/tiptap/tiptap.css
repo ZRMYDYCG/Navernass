@@ -47,6 +47,7 @@
 
 /* 编辑器内容区域 */
 .ProseMirror {
+  padding: 1rem 0;
   font-family:
     'Inter',
     'Optima',
