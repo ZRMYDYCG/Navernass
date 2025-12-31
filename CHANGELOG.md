@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.6.0...v0.7.0) (2025-12-31)
+
+
+### Features
+
+* 编辑器调整 ([92ef3d0](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/92ef3d0110ad5e744a9491ef99cdd90b33d29a2a))
+* 常量配置 --CR ([e5d26ed](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/e5d26edc12f41489019d0d0693d11234d279bd3d))
+* 配置问题修复 ([412c9c6](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/412c9c60dc75138eacf004f0436dddb5ac88c93e))
+* 支持深度思考模型 ([31e15fe](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/31e15fe3ae165915aa24cfb728898edacdce2853))
+
 ## [0.6.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.5.0...v0.6.0) (2025-12-28)
 
 
