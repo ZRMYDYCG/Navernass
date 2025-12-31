@@ -9,7 +9,6 @@ import { BulkActionsBar } from './_components/bulk-actions-bar'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import { TrashContextMenu } from './_components/trash-context-menu'
 import { TrashList } from './_components/trash-list'
-import { novelsApi } from '@/api'
 
 export default function Trash() {
   const [novels, setNovels] = useState<Novel[]>([])
