@@ -184,25 +184,25 @@ export class SiliconFlowService {
               const delta = data.choices?.[0]?.delta
 
               // 调试：打印完整响应结构（包含 delta 的所有字段）
-              const fullDataStr = JSON.stringify(data)
-              console.log('[SiliconFlow] full data length:', fullDataStr.length)
-              console.log('[SiliconFlow] full data sample:', fullDataStr.substring(0, 300))
+              // const fullDataStr = JSON.stringify(data)
+              // console.log('[SiliconFlow] full data length:', fullDataStr.length)
+              // console.log('[SiliconFlow] full data sample:', fullDataStr.substring(0, 300))
               const choice = data.choices?.[0]
-              console.log('[SiliconFlow] finish_reason:', choice?.finish_reason)
-              console.log('[SiliconFlow] delta keys:', Object.keys(delta || {}))
-              console.log('[SiliconFlow] delta.reasoning_content:', JSON.stringify(delta?.reasoning_content))
-              console.log('[SiliconFlow] delta.content:', JSON.stringify(delta?.content))
+              // console.log('[SiliconFlow] finish_reason:', choice?.finish_reason)
+              // console.log('[SiliconFlow] delta keys:', Object.keys(delta || {}))
+              // console.log('[SiliconFlow] delta.reasoning_content:', JSON.stringify(delta?.reasoning_content))
+              // console.log('[SiliconFlow] delta.content:', JSON.stringify(delta?.content))
 
               // 打印 message 对象的完整内容（最后的 delta）
               if (choice?.message) {
-                console.log('[SiliconFlow] message keys:', Object.keys(choice.message))
-                console.log('[SiliconFlow] message.reasoning_content:', JSON.stringify(choice.message.reasoning_content))
-                console.log('[SiliconFlow] message.content:', JSON.stringify(choice.message.content))
+                // console.log('[SiliconFlow] message keys:', Object.keys(choice.message))
+                // console.log('[SiliconFlow] message.reasoning_content:', JSON.stringify(choice.message.reasoning_content))
+                // console.log('[SiliconFlow] message.content:', JSON.stringify(choice.message.content))
               }
 
               // 处理 reasoning_content（OpenAI 兼容格式）
               if (delta?.reasoning_content && delta.reasoning_content.length > 0) {
-                console.log('[SiliconFlow] reasoning_content found:', delta.reasoning_content.substring(0, 100))
+                // console.log('[SiliconFlow] reasoning_content found:', delta.reasoning_content.substring(0, 100))
                 onChunk({
                   content: '',
                   thinking: delta.reasoning_content,
@@ -235,7 +235,7 @@ export class SiliconFlowService {
 
               // 检查是否在最后的 delta 中包含完整的 thinking（某些 API 可能在最后发送完整 thinking）
               if (choice?.finish_reason === 'stop' && choice?.message?.reasoning_content) {
-                console.log('[SiliconFlow] final reasoning_content:', choice.message.reasoning_content.substring(0, 100))
+                // console.log('[SiliconFlow] final reasoning_content:', choice.message.reasoning_content.substring(0, 100))
                 onChunk({
                   content: choice.message.content || '',
                   thinking: choice.message.reasoning_content,

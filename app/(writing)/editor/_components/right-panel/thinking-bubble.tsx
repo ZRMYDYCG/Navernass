@@ -1,7 +1,7 @@
 'use client'
 
+import { memo, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
-import { useState } from 'react'
 import { useTheme } from 'next-themes'
 import { Avatar } from '@/components/ui/avatar'
 
@@ -10,10 +10,13 @@ interface ThinkingBubbleProps {
   isStreaming?: boolean
 }
 
-export function ThinkingBubble({ thinking, isStreaming }: ThinkingBubbleProps) {
+function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
   const { theme } = useTheme()
   const [isExpanded, setIsExpanded] = useState(false)
-  const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
+
+  const avatarSrc = useMemo(() => {
+    return theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
+  }, [theme])
 
   if (!thinking || thinking.length === 0) {
     return null
@@ -55,3 +58,5 @@ export function ThinkingBubble({ thinking, isStreaming }: ThinkingBubbleProps) {
     </div>
   )
 }
+
+export const ThinkingBubble = memo(ThinkingBubbleInner)

@@ -3,7 +3,7 @@
 import type { NovelMessage } from '@/lib/supabase/sdk/types'
 import { Check } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { MarkdownRenderer } from '@/app/(main)/chat/[id]/_components/markdown-renderer'
 import { Avatar } from '@/components/ui/avatar'
 
@@ -13,7 +13,7 @@ interface MessageBubbleProps {
   userAvatar?: string | null
 }
 
-export function MessageBubble({ message, streamingMessageId, userAvatar }: MessageBubbleProps) {
+function MessageBubble({ message, streamingMessageId, userAvatar }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
@@ -23,7 +23,9 @@ export function MessageBubble({ message, streamingMessageId, userAvatar }: Messa
 
   const displayedContent = message.content
 
-  const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
+  const avatarSrc = useMemo(() => {
+    return theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
+  }, [theme])
 
   const renderContent = (content: string) => {
     const imageRegex = /\[图片\]\((https?:\/\/[^\s)]+)\)/g
@@ -113,3 +115,5 @@ export function MessageBubble({ message, streamingMessageId, userAvatar }: Messa
     </div>
   )
 }
+
+export { MessageBubble }

@@ -232,15 +232,20 @@ export default function RightPanel() {
               )
             }
           },
-          onDone: async () => {
+          onDone: async (data) => {
             setStreamingMessageId(null)
             setIsLoading(false)
             isProcessingRef.current = false
             abortControllerRef.current = null
             isStreamingRef.current = false
-            if (newConversationId) {
-              const serverMessages = await novelConversationsApi.getMessages(newConversationId)
-              setMessages(serverMessages)
+            if (aiMessageId && aiMessageId.startsWith('temp-')) {
+              setMessages(prev =>
+                prev.map(msg =>
+                  msg.id === aiMessageId
+                    ? { ...msg, id: data.messageId }
+                    : msg,
+                ),
+              )
             }
             await loadConversations()
           },
