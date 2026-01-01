@@ -220,7 +220,7 @@ export class SiliconFlowService {
                 })
               }
 
-              // 处理 SiliconFlow 可能的情况：thinking 在 content 中以 <think> 标签包裹
+              // 处理 SiliconFlow 可能的情况：thinking 在 content 中以 <think> 标签包裹 这个需要注意 很抽象
               if (delta?.content?.includes('<think>')) {
                 const thinkMatch = delta.content.match(/<think>([\s\S]*?)<\/think>/)
                 if (thinkMatch && thinkMatch[1]) {

@@ -20,8 +20,13 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between gap-2 px-2 py-1 text-xs bg-background hover:bg-accent rounded-md transition-all duration-200 border border-border shadow-sm hover:shadow-md"
       >
-        <span className="text-foreground truncate font-medium">
+        <span className="text-foreground truncate font-medium flex items-center gap-1.5">
           {currentModel?.label}
+          {currentModel?.isThinking && (
+            <span className="px-1 py-0.5 text-[9px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded">
+              Thinking
+            </span>
+          )}
         </span>
         <ChevronDown className="w-2.5 h-2.5 text-muted-foreground shrink-0 transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
@@ -38,13 +43,18 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
                   onChange(model.value)
                   setIsOpen(false)
                 }}
-                className={`w-full text-left px-2.5 py-1.5 text-xs hover:bg-accent transition-all duration-150 ${
+                className={`w-full text-left px-2.5 py-1.5 text-xs hover:bg-accent transition-all duration-150 flex items-center gap-1.5 ${
                   value === model.value
                     ? 'bg-accent text-foreground font-medium'
                     : 'text-muted-foreground'
                 }`}
               >
-                {model.label}
+                <span className="truncate">{model.label}</span>
+                {model.isThinking && (
+                  <span className="px-1 py-0.5 text-[9px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded shrink-0">
+                    Thinking
+                  </span>
+                )}
               </button>
             ))}
           </div>

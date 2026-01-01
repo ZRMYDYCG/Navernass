@@ -28,4 +28,5 @@ export interface ModeOption {
 export interface ModelOption {
   value: AiModel
   label: string
+  isThinking?: boolean
 }
