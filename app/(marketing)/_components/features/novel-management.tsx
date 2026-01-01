@@ -4,7 +4,7 @@ import { FolderOpen, Pencil, Plus } from 'lucide-react'
 
 export function NovelManagement() {
   return (
-    <div className="w-full h-full p-4 shadow-md bg-card border border-border rounded-lg">
+    <div className="w-full h-full p-4 bg-card border border-border rounded-lg">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground">小说管理</h3>
         <div className="flex gap-2">
@@ -23,7 +23,7 @@ export function NovelManagement() {
 
       <div className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="relative bg-secondary rounded-lg border border-border p-2.5 cursor-pointer hover:shadow-md transition-shadow group overflow-hidden">
+          <div className="relative bg-secondary rounded-lg border border-border p-2.5 cursor-pointer transition-all group overflow-hidden hover:border-primary/30">
             <div className="flex items-start justify-between mb-1.5 z-10 relative">
               <span className="text-[10px] px-1.5 py-0.5 rounded border border-emerald-200 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400 bg-background/80 backdrop-blur-sm">
                 已发布
@@ -47,7 +47,7 @@ export function NovelManagement() {
             </div>
           </div>
 
-          <div className="relative bg-secondary rounded-lg border border-border p-2.5 cursor-pointer hover:shadow-md transition-shadow group overflow-hidden">
+          <div className="relative bg-secondary rounded-lg border border-border p-2.5 cursor-pointer transition-all group overflow-hidden hover:border-primary/30">
             <div className="flex items-start justify-between mb-1.5 z-10 relative">
               <span className="text-[10px] px-1.5 py-0.5 rounded border border-border text-muted-foreground bg-background/80 backdrop-blur-sm">
                 草稿

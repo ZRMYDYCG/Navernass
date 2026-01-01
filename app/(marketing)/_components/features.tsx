@@ -35,7 +35,7 @@ export default function Features() {
               </div>
             </div>
 
-            <div className="w-full h-full p-4 bg-white dark:bg-black shadow-md rounded-md border">
+            <div className="w-full h-full p-4 bg-card border border-border rounded-lg">
               <h3 className="text-lg">多格式导出</h3>
               <span className="text-sm text-muted-foreground mb-4">一键生成排版精美的 MarkDown 或 Text,从草稿到成书，只差一个按钮。</span>
               <AnimatedBeamMultipleOutputDemo />
