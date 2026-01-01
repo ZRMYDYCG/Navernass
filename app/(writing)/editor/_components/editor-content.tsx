@@ -66,24 +66,31 @@ export default function EditorContent({
     return volumes.find(v => v.id === volumeId) || null
   }, [chapterId, chapters, chapter?.volume_id, volumes])
 
+  const loadingChapterIdRef = useRef<string | null>(null)
+
   // 加载章节内容
   useEffect(() => {
-    if (!chapterId) return
+    if (!chapterId || loadingChapterIdRef.current === chapterId) return
 
-    // 重置状态
+    loadingChapterIdRef.current = chapterId
     editorContentRef.current = ''
 
     const loadChapter = async () => {
       try {
         setLoading(true)
         const data = await chaptersApi.getById(chapterId)
-        setChapter(data)
-        editorContentRef.current = data.content // 初始化 ref
+        if (loadingChapterIdRef.current === chapterId) {
+          setChapter(data)
+          editorContentRef.current = data.content
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : '加载章节失败'
         toast.error(message)
       } finally {
         setLoading(false)
+        if (loadingChapterIdRef.current === chapterId) {
+          loadingChapterIdRef.current = null
+        }
       }
     }
 

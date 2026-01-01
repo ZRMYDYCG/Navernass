@@ -20,12 +20,12 @@ export function HeaderCenter({
   onTitleClick,
 }: HeaderCenterProps) {
   return (
-    <div className="flex items-center gap-2 h-full flex-1 justify-center max-w-2xl">
+    <div className="hidden sm:flex items-center gap-2 h-full flex-1 justify-center max-w-2xl">
       <button
         type="button"
         onClick={onGoBack}
         disabled={!canGoBack}
-        className={`hidden sm:flex p-1.5 h-8 w-8 items-center justify-center rounded-md transition-all duration-200 ${
+        className={`p-1.5 h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 ${
           canGoBack
             ? 'bg-transparent text-foreground hover:bg-accent cursor-pointer'
             : 'bg-transparent text-muted-foreground cursor-not-allowed opacity-60'
@@ -37,7 +37,7 @@ export function HeaderCenter({
 
       <div
         onClick={onTitleClick}
-        className="hidden sm:group sm:flex-1 sm:max-w-[240px] sm:h-7 sm:px-3 sm:items-center sm:justify-center sm:gap-2 sm:text-sm sm:text-muted-foreground sm:hover:text-foreground sm:cursor-pointer sm:transition-colors"
+        className="group flex-1 max-w-[240px] h-7 px-3 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
         title="点击搜索章节"
       >
         <span className="truncate font-medium font-serif tracking-wide opacity-90 group-hover:opacity-100 transition-opacity">
@@ -50,7 +50,7 @@ export function HeaderCenter({
         type="button"
         onClick={onGoForward}
         disabled={!canGoForward}
-        className={`hidden sm:flex p-1.5 h-8 w-8 items-center justify-center rounded-md transition-all duration-200 ${
+        className={`p-1.5 h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 ${
           canGoForward
             ? 'bg-transparent text-foreground hover:bg-accent cursor-pointer'
             : 'bg-transparent text-muted-foreground cursor-not-allowed opacity-60'
