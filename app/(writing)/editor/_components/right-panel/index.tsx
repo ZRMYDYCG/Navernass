@@ -239,8 +239,8 @@ export default function RightPanel() {
             abortControllerRef.current = null
             isStreamingRef.current = false
             if (newConversationId) {
-              setMessages(prev => prev.filter(msg => !msg.id.startsWith('temp-')))
-              await loadMessagesSilently(newConversationId)
+              const serverMessages = await novelConversationsApi.getMessages(newConversationId)
+              setMessages(serverMessages)
             }
             await loadConversations()
           },
