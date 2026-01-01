@@ -59,7 +59,6 @@ export default function EditorContent({
 
   // 找到当前章节所属的卷（优先使用传入的 chapters 数据，不等待加载）
   const currentVolume = useMemo(() => {
-    // 先从传入的 chapters 中查找当前章节
     const currentChapterData = chapters.find(c => c.id === chapterId)
     const volumeId = currentChapterData?.volume_id || chapter?.volume_id
 
@@ -121,7 +120,6 @@ export default function EditorContent({
         id: chapterId,
         content,
       })
-      // 更新本地 chapter state，确保切换章节后能加载最新内容
       setChapter(prev => (prev ? { ...prev, content } : null))
       setLastSavedMap(prev => ({ ...prev, [chapterId]: new Date() }))
       toast.success('保存成功', { duration: 1500 })
@@ -153,24 +151,35 @@ export default function EditorContent({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleManualSave])
 
-  // 页面刷新前提醒保存
+  // 页面刷新前自动保存
   useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // 如果正在保存或者最近刚保存过（5秒内），则不提示
+    const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
       const timeSinceLastSave = lastSaved ? Date.now() - lastSaved.getTime() : Infinity
-      if (isSaving || timeSinceLastSave < 5000) {
+
+      if (isSaving || timeSinceLastSave < 3000 || !chapterId) {
         return
       }
 
-      // 如果有未保存的内容，提示用户
-      e.preventDefault()
-      e.returnValue = '您有未保存的内容，确定要离开吗？'
-      return e.returnValue
+      const content = editorContentRef.current
+      if (content) {
+        e.preventDefault()
+        e.returnValue = ''
+
+        try {
+          await fetch(`/api/chapters/${chapterId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content }),
+          })
+        } catch (error) {
+          console.error('自动保存失败:', error)
+        }
+      }
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [isSaving, lastSaved])
+  }, [chapterId, isSaving, lastSaved])
 
   return (
     <div className="h-full flex flex-col bg-background">

@@ -30,10 +30,6 @@ export default function ChaptersTab({
         novelTitle={novelTitle}
         onCreateChapter={onCreateChapter}
         onCreateVolume={onCreateVolume}
-        onRefresh={() => {
-          // TODO: 实现刷新功能
-          window.location.reload()
-        }}
         onCollapseAll={() => {
           collapseAllRef.current?.()
         }}

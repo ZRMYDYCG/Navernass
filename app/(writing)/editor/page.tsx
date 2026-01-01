@@ -1042,6 +1042,17 @@ function NovelsEditContent() {
             </Drawer>
           )}
 
+          {/* 移动端：右侧 AI 助手 Drawer */}
+          {isMobile && (
+            <Drawer open={rightDrawerOpen} onOpenChange={setRightDrawerOpen} direction="right">
+              <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
+                <div className="h-full overflow-hidden">
+                  <RightPanel />
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
+
           <CreateChapterDialog
             open={createChapterDialogOpen}
             onOpenChange={setCreateChapterDialogOpen}

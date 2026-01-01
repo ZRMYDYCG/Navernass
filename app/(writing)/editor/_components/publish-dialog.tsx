@@ -162,8 +162,8 @@ export function PublishDialog({
           {isCheckingStatus
             ? (
                 <div className="flex flex-col items-center gap-3">
-                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-sky-500/10">
-                    <Globe className="w-8 h-8 text-sky-500 animate-pulse" />
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-accent">
+                    <Globe className="w-8 h-8 text-foreground animate-pulse" />
                   </div>
                   <div className="text-sm text-muted-foreground">
                     检查发布状态中...
@@ -173,8 +173,8 @@ export function PublishDialog({
             : hasPublishedChapters
               ? (
                   <>
-                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-sky-500/10">
-                      <Globe className="w-8 h-8 text-sky-500" />
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-accent">
+                      <Globe className="w-8 h-8 text-foreground" />
                     </div>
                     <div className="text-sm text-foreground">
                       已发布
@@ -218,15 +218,15 @@ export function PublishDialog({
                 )
               : (
                   <>
-                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-sky-500/10">
-                      <Globe className="w-8 h-8 text-sky-500" />
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-accent">
+                      <Globe className="w-8 h-8 text-foreground" />
                     </div>
                     <DialogHeader className="text-center space-y-2">
                       <DialogTitle className="text-xl text-foreground">
-                        发布此文档
+                        发布此小说
                       </DialogTitle>
                       <DialogDescription className="text-muted-foreground">
-                        与世界分享您的文档
+                        与世界分享您的内容
                       </DialogDescription>
                     </DialogHeader>
 

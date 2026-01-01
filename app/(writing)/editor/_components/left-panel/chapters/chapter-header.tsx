@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpen, FolderPlus, Minus, RefreshCw } from 'lucide-react'
+import { BookOpen, FolderPlus, Minus } from 'lucide-react'
 import {
   Tooltip,
   TooltipContent,
@@ -12,7 +12,6 @@ interface ChapterHeaderProps {
   novelTitle?: string
   onCreateChapter?: () => void
   onCreateVolume?: () => void
-  onRefresh?: () => void
   onCollapseAll?: () => void
 }
 
@@ -20,7 +19,6 @@ export function ChapterHeader({
   novelTitle,
   onCreateChapter,
   onCreateVolume,
-  onRefresh,
   onCollapseAll,
 }: ChapterHeaderProps) {
   return (
@@ -57,20 +55,6 @@ export function ChapterHeader({
             </TooltipTrigger>
             <TooltipContent side="top" className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95 z-[9999]">
               <p>新建章节</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={onRefresh}
-                className="p-1.5 h-6 w-6 flex items-center justify-center hover:bg-sidebar-accent rounded-md transition-colors text-muted-foreground hover:text-sidebar-foreground"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95 z-[9999]">
-              <p>刷新</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip>
