@@ -60,6 +60,7 @@ function NovelsEditContent() {
   const [editingVolume, setEditingVolume] = useState<Volume | null>(null)
   const [editingVolumeTitle, setEditingVolumeTitle] = useState('')
   const [isUpdatingVolume, setIsUpdatingVolume] = useState(false)
+  /* eslint-disable unused-imports/no-unused-vars */
   const [isLocked, setIsLocked] = useState(false)
   const [deleteChapterDialogOpen, setDeleteChapterDialogOpen] = useState(false)
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null)
@@ -80,6 +81,7 @@ function NovelsEditContent() {
     if (isMobile && !prev) {
       desktopLeftStateRef.current = showLeftPanel
       desktopRightStateRef.current = showRightPanel
+      /* eslint-disable react-hooks-extra/no-direct-set-state-in-use-effect */
       setShowLeftPanel(false)
       setShowRightPanel(false)
     } else if (!isMobile && prev) {
