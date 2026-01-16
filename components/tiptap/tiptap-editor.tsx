@@ -59,8 +59,10 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   } = props
 
   const editorRef = useRef<HTMLDivElement>(null)
-  const [hoveredCharacter, setHoveredCharacter] = useState<NovelCharacter | null>(null)
+  const [tooltipCharacter, setTooltipCharacter] = useState<NovelCharacter | null>(null)
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number, y: number } | null>(null)
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
+  const hideTooltipTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const initTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const { showInputDialog, showImageGenerationDialog } = useDialog()
@@ -483,11 +485,20 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       const character = characters.find(c => c.id === id)
       if (!character) return
 
-      setHoveredCharacter(character)
+      if (hideTooltipTimeoutRef.current) {
+        clearTimeout(hideTooltipTimeoutRef.current)
+        hideTooltipTimeoutRef.current = undefined
+      }
+
+      setTooltipCharacter(character)
       const rect = highlightElement.getBoundingClientRect()
       setTooltipPosition({
         x: rect.left + rect.width / 2,
         y: rect.bottom + 5,
+      })
+      setIsTooltipVisible(false)
+      window.requestAnimationFrame(() => {
+        setIsTooltipVisible(true)
       })
     }
 
@@ -501,8 +512,14 @@ function TiptapEditorInner(props: TiptapEditorProps) {
         return
       }
 
-      setHoveredCharacter(null)
-      setTooltipPosition(null)
+      setIsTooltipVisible(false)
+      if (hideTooltipTimeoutRef.current) {
+        clearTimeout(hideTooltipTimeoutRef.current)
+      }
+      hideTooltipTimeoutRef.current = setTimeout(() => {
+        setTooltipCharacter(null)
+        setTooltipPosition(null)
+      }, 160)
     }
 
     editorElement.addEventListener('mouseover', handleMouseOver)
@@ -511,6 +528,10 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     return () => {
       editorElement.removeEventListener('mouseover', handleMouseOver)
       editorElement.removeEventListener('mouseout', handleMouseOut)
+      if (hideTooltipTimeoutRef.current) {
+        clearTimeout(hideTooltipTimeoutRef.current)
+        hideTooltipTimeoutRef.current = undefined
+      }
     }
   }, [editor, characters])
 
@@ -520,10 +541,13 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
   return (
     <div className={`${className} relative`} ref={editorRef}>
-      {hoveredCharacter && tooltipPosition && typeof document !== 'undefined'
+      {tooltipCharacter && tooltipPosition && typeof document !== 'undefined'
         ? createPortal(
             <div
-              className="fixed z-50 transform -translate-x-1/2 w-72 pointer-events-none"
+              className={[
+                'fixed z-50 w-72 pointer-events-none -translate-x-1/2 transition-[opacity,transform] duration-150 ease-out',
+                isTooltipVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-1 scale-95',
+              ].join(' ')}
               style={{
                 left: tooltipPosition.x,
                 top: tooltipPosition.y,
@@ -531,11 +555,11 @@ function TiptapEditorInner(props: TiptapEditorProps) {
             >
               <CharacterCard
                 character={{
-                  ...hoveredCharacter,
-                  role: hoveredCharacter.role || '未知角色',
-                  description: hoveredCharacter.description || '',
-                  traits: hoveredCharacter.traits || [],
-                  keywords: hoveredCharacter.keywords || [],
+                  ...tooltipCharacter,
+                  role: tooltipCharacter.role || '未知角色',
+                  description: tooltipCharacter.description || '',
+                  traits: tooltipCharacter.traits || [],
+                  keywords: tooltipCharacter.keywords || [],
                   chapters: [],
                 }}
                 className="shadow-xl bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
