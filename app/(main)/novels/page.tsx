@@ -232,7 +232,7 @@ function NovelsContent() {
   }
 
   return (
-    <div className="flex flex-col bg-background transition-colors h-full font-serif">
+    <div className="flex flex-col bg-background transition-colors h-full font-serif py-3">
 
       <div className="flex-1 py-2 px-8 overflow-y-auto flex flex-col">
         {/* 筛选器和新建按钮 */}

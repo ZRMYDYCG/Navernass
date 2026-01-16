@@ -12,7 +12,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   // const isChatPage = pathname.includes('/chat')
 
   return (
-    <div className="flex h-screen bg-background transition-colors py-5">
+    <div className="flex h-screen bg-background transition-colors">
       <Sidebar onCollapsedChange={setSidebarCollapsed} />
 
       <div className={`flex flex-col flex-1 transition-all duration-300 ${
