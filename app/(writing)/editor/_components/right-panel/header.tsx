@@ -15,17 +15,17 @@ interface HeaderProps {
 
 export function Header({ onNewChat, onShowHistory }: HeaderProps) {
   return (
-    <div className="h-10 flex px-3 items-center justify-end bg-background">
+    <div className="h-9 flex px-2 items-center justify-end bg-background">
       <TooltipProvider>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
                 onClick={onNewChat}
-                className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all duration-200 text-muted-foreground hover:text-foreground cursor-pointer"
+                className="h-6 w-6 flex items-center justify-center hover:bg-accent rounded-sm transition-all duration-200 text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                <MessageSquarePlus className="w-4 h-4" />
+                <MessageSquarePlus className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>
@@ -37,9 +37,9 @@ export function Header({ onNewChat, onShowHistory }: HeaderProps) {
               <button
                 type="button"
                 onClick={onShowHistory}
-                className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all duration-200 text-muted-foreground hover:text-foreground cursor-pointer"
+                className="h-6 w-6 flex items-center justify-center hover:bg-accent rounded-sm transition-all duration-200 text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                <Clock className="w-4 h-4" />
+                <Clock className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>

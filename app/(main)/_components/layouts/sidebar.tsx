@@ -17,7 +17,6 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { path: '/chat', label: '创作助手', icon: Bot, exactMatch: true },
   { path: '/novels', label: '我的小说', icon: Book },
   { path: '/trash', label: '回收站', icon: Trash2 },
 ]

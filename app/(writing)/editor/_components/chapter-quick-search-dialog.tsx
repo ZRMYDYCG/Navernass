@@ -1,9 +1,9 @@
 'use client'
 
-import * as Dialog from '@radix-ui/react-dialog'
 import { Search, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 
 interface ChapterQuickSearchDialogProps {
   open: boolean
@@ -80,66 +80,67 @@ export function ChapterQuickSearchDialog({
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/3 z-50 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-xl bg-card shadow-xl ring-1 ring-black/5">
-          <div className="flex items-center gap-2 px-4 py-2 border-b border-border">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input
-              autoFocus
-              value={query}
-              onChange={event => setQuery(event.target.value)}
-              onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-              placeholder="搜索章节标题"
-            />
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="h-7 w-7 text-muted-foreground hover:text-foreground"
-              onClick={() => onOpenChange(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="max-h-[60vh] overflow-y-auto py-1">
-            {filtered.length === 0
-              ? (
-                  <div className="px-4 py-6 text-center text-sm text-muted-foreground">暂无匹配章节</div>
-                )
-              : (
-                  <ul className="py-1">
-                    {filtered.map((item, index) => {
-                      const isActive = index === activeIndex
-                      const isCurrent = item.id === currentChapterId
-                      return (
-                        <li key={item.id}>
-                          <button
-                            type="button"
-                            onClick={() => handleItemClick(item.id)}
-                            className={`flex w-full items-center justify-between px-4 py-2 text-left text-sm transition-colors ${
-                              isActive
-                                ? 'bg-primary/10 text-primary'
-                                : 'text-foreground hover:bg-accent'
-                            }`}
-                          >
-                            <span className="truncate">{item.title}</span>
-                            {isCurrent && (
-                              <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[11px] font-medium text-foreground">
-                                当前
-                              </span>
-                            )}
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                )}
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        showCloseButton={false}
+        className="top-[20%] translate-y-0 max-w-xl p-0 gap-0 overflow-hidden shadow-2xl"
+      >
+        <DialogTitle className="sr-only">搜索章节</DialogTitle>
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/20">
+          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+          <input
+            autoFocus
+            value={query}
+            onChange={event => setQuery(event.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none h-6"
+            placeholder="搜索章节标题..."
+          />
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="h-6 w-6 text-muted-foreground hover:text-foreground rounded-sm"
+            onClick={() => onOpenChange(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="max-h-[60vh] overflow-y-auto py-1">
+          {filtered.length === 0
+            ? (
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground">暂无匹配章节</div>
+              )
+            : (
+                <ul className="py-1 px-1">
+                  {filtered.map((item, index) => {
+                    const isActive = index === activeIndex
+                    const isCurrent = item.id === currentChapterId
+                    return (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          onClick={() => handleItemClick(item.id)}
+                          className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-all rounded-sm ${
+                            isActive
+                              ? 'bg-accent text-accent-foreground'
+                              : 'text-foreground hover:bg-muted/50'
+                          }`}
+                        >
+                          <span className="truncate">{item.title}</span>
+                          {isCurrent && (
+                            <span className="ml-2 rounded-sm bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                              当前
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { CharacterCard } from './character-card'
 
@@ -221,30 +222,35 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 pt-2">
-        <div className="space-y-4 pb-10">
-          {loading && characters.length === 0 && (
-            <div className="text-xs text-muted-foreground px-1">加载角色中...</div>
-          )}
+        {loading
+          ? (
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-2">
+                <Spinner className="w-6 h-6" />
+                <p className="text-xs">加载角色中...</p>
+              </div>
+            )
+          : (
+              <div className="space-y-4 pb-10">
+                {characters.length === 0 && (
+                  <div className="text-xs text-muted-foreground px-1">还没有角色，先写一个吧。</div>
+                )}
 
-          {!loading && characters.length === 0 && (
-            <div className="text-xs text-muted-foreground px-1">还没有角色，先写一个吧。</div>
-          )}
+                {filtered.map(char => (
+                  <CharacterCard key={char.id} character={char} onClick={() => handleOpenEdit(char)} />
+                ))}
 
-          {filtered.map(char => (
-            <CharacterCard key={char.id} character={char} onClick={() => handleOpenEdit(char)} />
-          ))}
-
-          <button
-            type="button"
-            onClick={handleOpenCreate}
-            className="w-full p-4 rounded-sm border-2 border-dashed border-border hover:border-border hover:bg-accent transition-all duration-300 group flex flex-col items-center justify-center gap-2 min-h-[120px]"
-          >
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Plus className="w-5 h-5 text-muted-foreground" />
-            </div>
-            <span className="text-xs text-muted-foreground font-medium">新建角色档案</span>
-          </button>
-        </div>
+                <button
+                  type="button"
+                  onClick={handleOpenCreate}
+                  className="w-full p-4 rounded-sm border-2 border-dashed border-border hover:border-border hover:bg-accent transition-all duration-300 group flex flex-col items-center justify-center gap-2 min-h-[120px]"
+                >
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Plus className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <span className="text-xs text-muted-foreground font-medium">新建角色档案</span>
+                </button>
+              </div>
+            )}
       </div>
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>

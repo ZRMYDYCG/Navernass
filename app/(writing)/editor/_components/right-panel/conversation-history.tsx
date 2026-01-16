@@ -3,7 +3,6 @@
 import type { NovelConversation } from '@/lib/supabase/sdk/types'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-import { MessageSquare, Pin, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,7 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Spinner } from '@/components/ui/spinner'
+import { cn } from '@/lib/utils'
 
 interface ConversationHistoryProps {
   conversations: NovelConversation[]
@@ -71,27 +70,19 @@ export function ConversationHistory({
   const unpinnedConversations = conversations.filter(c => !c.is_pinned)
 
   return (
-    <div className="absolute inset-0 z-50 bg-background border-l border-border flex flex-col shadow-none">
-      {/* 头部 */}
-      <div className="h-10 flex px-4 items-center justify-between border-b border-border bg-muted/30">
+    <div className="absolute inset-0 z-50 bg-background flex flex-col">
+      {/* 头部 - 极简/紧凑 */}
+      <div className="h-9 flex px-3 items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <MessageSquare className="w-4 h-4 text-muted-foreground" />
-          <h3 className="text-sm font-medium text-foreground">历史对话</h3>
-          {conversations.length > 0 && (
-            <span className="text-xs text-muted-foreground">
-              (
-              {conversations.length}
-              )
-            </span>
-          )}
+          <h3 className="text-xs font-medium text-muted-foreground">历史对话</h3>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="h-7 w-7 p-0 hover:bg-accent text-muted-foreground hover:text-foreground"
+          className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground"
         >
-          <X className="w-4 h-4" />
+          关闭
         </Button>
       </div>
 
@@ -99,20 +90,15 @@ export function ConversationHistory({
       <ScrollArea className="flex-1">
         {conversations.length === 0
           ? (
-              <div className="flex flex-col items-center justify-center h-full px-4 py-12">
-                <MessageSquare className="w-12 h-12 text-muted-foreground/30 mb-3" />
-                <p className="text-sm text-muted-foreground mb-1">暂无历史对话</p>
-                <p className="text-xs text-muted-foreground/70">开始新的对话吧</p>
+              <div className="flex flex-col items-center justify-center h-full px-4 py-12 text-muted-foreground">
+                <p className="text-xs">暂无历史对话</p>
               </div>
             )
           : (
-              <div className="py-2">
+              <div className="flex flex-col pb-4 px-2">
                 {/* 置顶会话 */}
                 {pinnedConversations.length > 0 && (
-                  <div className="px-2 mb-1">
-                    <div className="px-2 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      置顶
-                    </div>
+                  <div className="flex flex-col mb-2">
                     {pinnedConversations.map(conversation => (
                       <ConversationItem
                         key={conversation.id}
@@ -127,13 +113,11 @@ export function ConversationHistory({
                   </div>
                 )}
 
-                {/* 未置顶会话 */}
+                {/* 普通会话 */}
                 {unpinnedConversations.length > 0 && (
-                  <div className="px-2">
+                  <div className="flex flex-col">
                     {pinnedConversations.length > 0 && (
-                      <div className="px-2 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        最近
-                      </div>
+                      <div className="px-2 py-1 text-[10px] text-muted-foreground/50 font-medium">最近</div>
                     )}
                     {unpinnedConversations.map(conversation => (
                       <ConversationItem
@@ -154,15 +138,15 @@ export function ConversationHistory({
 
       {/* 删除确认 Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="bg-card border-border">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>删除对话</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            <DialogDescription>
               确定要删除这个对话吗？此操作无法撤销。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={handleDeleteCancel} className="border-border">
+            <Button variant="outline" onClick={handleDeleteCancel}>
               取消
             </Button>
             <Button variant="destructive" onClick={handleDeleteConfirm}>
@@ -205,64 +189,52 @@ function ConversationItem({
       setIsPinning(false)
     }
   }
+
   return (
-    <button
-      type="button"
+    <div
       onClick={onSelect}
-      className={`w-full px-2.5 py-1.5 hover:bg-accent rounded-lg border border-transparent hover:border-border transition-all text-left flex items-center gap-2.5 cursor-pointer group ${
-        isActive
-          ? 'bg-card border-border shadow-sm'
-          : ''
-      }`}
+      className={cn(
+        'group flex items-center justify-between px-2 py-1.5 cursor-pointer transition-colors rounded-sm',
+        isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+      )}
     >
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1 mb-0.5">
-          {conversation.is_pinned && (
-            <Pin className="w-3 h-3 text-amber-500 fill-current shrink-0" />
+      <div className="flex-1 min-w-0 pr-2 overflow-hidden">
+        <div className="flex items-baseline gap-2">
+          <span className={cn(
+            'text-xs truncate transition-colors',
+            isActive ? 'font-medium text-foreground' : 'font-normal',
           )}
-          <span className="text-xs font-medium truncate text-foreground group-hover:text-foreground">
+          >
             {conversation.title || '无标题对话'}
           </span>
-        </div>
-        <div className="text-[10px] text-muted-foreground group-hover:text-muted-foreground">
-          {formatTime(conversation.updated_at)}
+          {conversation.is_pinned && (
+            <span className="text-[10px] text-primary/70 shrink-0">
+              *
+            </span>
+          )}
         </div>
       </div>
-      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+
+      <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-[10px] text-muted-foreground/50">
+          {formatTime(conversation.updated_at)}
+        </span>
         {onPin && (
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={handlePin}
             disabled={isPinning}
-            className="h-6 w-6 p-0 hover:bg-accent disabled:opacity-50 text-muted-foreground hover:text-foreground"
-            title={conversation.is_pinned ? '取消置顶' : '置顶'}
+            className="text-[10px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
           >
-            {isPinning
-              ? (
-                  <Spinner className="w-3 h-3" />
-                )
-              : (
-                  <Pin
-                    className={`w-3 h-3 ${
-                      conversation.is_pinned
-                        ? 'text-amber-500 fill-current'
-                        : 'text-muted-foreground'
-                    }`}
-                  />
-                )}
-          </Button>
+            {isPinning ? '...' : (conversation.is_pinned ? '取' : '顶')}
+          </button>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
           onClick={onDelete}
-          className="h-6 w-6 p-0 text-red-400 hover:text-red-600 hover:bg-red-50"
-          title="删除"
+          className="text-[10px] text-muted-foreground hover:text-destructive hover:underline"
         >
-          <Trash2 className="w-3 h-3" />
-        </Button>
+          删
+        </button>
       </div>
-    </button>
+    </div>
   )
 }
