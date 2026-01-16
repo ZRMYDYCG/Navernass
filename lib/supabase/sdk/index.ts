@@ -7,5 +7,6 @@ export * from './news'
 export * from './novel-conversations'
 export * from './novels'
 export * from './types'
+export * from './characters'
 
 export * from './volumes'

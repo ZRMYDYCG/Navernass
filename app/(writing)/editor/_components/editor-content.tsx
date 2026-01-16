@@ -1,4 +1,4 @@
-import type { Chapter, Volume } from '@/lib/supabase/sdk'
+import type { Chapter, NovelCharacter, Volume } from '@/lib/supabase/sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { TiptapEditor } from '@/components/tiptap'
@@ -26,6 +26,7 @@ interface EditorContentProps {
   chapterId: string
   volumes?: Volume[]
   chapters?: Chapter[]
+  characters?: NovelCharacter[]
   onSelectChapter?: (chapterId: string) => void
 }
 
@@ -45,6 +46,7 @@ export default function EditorContent({
   chapterId,
   volumes = EMPTY_ARRAY,
   chapters = EMPTY_ARRAY,
+  characters = EMPTY_ARRAY,
   onSelectChapter,
 }: EditorContentProps) {
   const [isSaving, setIsSaving] = useState(false)
@@ -234,6 +236,7 @@ export default function EditorContent({
                   className="outline-none"
                   editable={true}
                   chapterId={chapterId}
+                  characters={characters}
                 />
               </div>
             )}

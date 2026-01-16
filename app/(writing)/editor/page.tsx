@@ -1,7 +1,7 @@
 'use client'
 
 import type { ImperativePanelHandle } from 'react-resizable-panels'
-import type { Chapter, Novel, Volume } from '@/lib/supabase/sdk'
+import type { Chapter, Novel, NovelCharacter, Volume } from '@/lib/supabase/sdk'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
@@ -10,7 +10,7 @@ import { Drawer, DrawerContent } from '@/components/ui/drawer'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
 import { useIsMobile } from '@/hooks/use-media-query'
-import { chaptersApi, novelsApi, volumesApi } from '@/lib/supabase/sdk'
+import { chaptersApi, charactersApi, novelsApi, volumesApi } from '@/lib/supabase/sdk'
 import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
 import { CreateVolumeDialog } from './_components/create-volume-dialog'
@@ -33,6 +33,7 @@ function NovelsEditContent() {
   const [novel, setNovel] = useState<Novel | null>(null)
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [volumes, setVolumes] = useState<Volume[]>([])
+  const [characters, setCharacters] = useState<NovelCharacter[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedChapter, setSelectedChapter] = useState<string | null>(null)
   const [openTabs, setOpenTabs] = useState<Array<{ id: string, title: string }>>([])
@@ -143,14 +144,16 @@ function NovelsEditContent() {
 
     try {
       setLoading(true)
-      const [novelData, chaptersData, volumesData] = await Promise.all([
+      const [novelData, chaptersData, volumesData, charactersData] = await Promise.all([
         novelsApi.getById(novelId),
         chaptersApi.getByNovelId(novelId),
         volumesApi.getByNovelId(novelId),
+        charactersApi.getByNovelId(novelId),
       ])
       setNovel(novelData)
       setChapters(chaptersData)
       setVolumes(volumesData)
+      setCharacters(charactersData)
     } catch (error) {
       console.error('加载数据失败:', error)
       const message = error instanceof Error ? error.message : '加载数据失败'
@@ -933,6 +936,7 @@ function NovelsEditContent() {
                         chapterId={activeTab}
                         volumes={volumes}
                         chapters={chapters}
+                        characters={characters}
                         onSelectChapter={handleSelectChapter}
                       />
                     )}

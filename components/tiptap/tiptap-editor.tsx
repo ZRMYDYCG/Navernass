@@ -1,3 +1,4 @@
+import type { NovelCharacter } from '@/lib/supabase/sdk'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
 import Image from '@tiptap/extension-image'
@@ -9,11 +10,13 @@ import { Slice } from '@tiptap/pm/model'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { CharacterCard } from '@/app/(writing)/editor/_components/character-card'
 import { Spinner } from '@/components/ui/spinner'
-import { supabase } from '@/lib/supabase'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
 import { DragHandle } from './drag-handle-react'
 import { AIAutocomplete } from './extensions/ai-autocomplete'
+import { CharacterHighlight, updateCharacterHighlight } from './extensions/character-highlight'
 import { EditorSearch } from './extensions/editor-search'
 import { parseMarkdownContent } from './extensions/markdown-parser'
 import { SearchHighlight, updateSearchHighlight } from './extensions/search-highlight'
@@ -38,6 +41,7 @@ export interface TiptapEditorProps {
   className?: string
   editable?: boolean
   chapterId?: string
+  characters?: NovelCharacter[]
 }
 
 function TiptapEditorInner(props: TiptapEditorProps) {
@@ -51,8 +55,12 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     className = '',
     editable = true,
     chapterId,
+    characters = [],
   } = props
 
+  const editorRef = useRef<HTMLDivElement>(null)
+  const [hoveredCharacter, setHoveredCharacter] = useState<NovelCharacter | null>(null)
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number, y: number } | null>(null)
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const initTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const { showInputDialog, showImageGenerationDialog } = useDialog()
@@ -129,6 +137,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       }),
       SearchHighlight,
       EditorSearch,
+      CharacterHighlight,
     ],
     [placeholder],
   )
@@ -442,12 +451,99 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     }
   }, [editor])
 
+  // 更新角色高亮
+  useEffect(() => {
+    if (editor && characters.length > 0) {
+      updateCharacterHighlight(editor.view, characters)
+    }
+  }, [editor, characters])
+
+  // 处理角色悬停提示
+  useEffect(() => {
+    if (!editorRef.current) return
+
+    const editorElement = editorRef.current.querySelector('.ProseMirror')
+    if (!editorElement) return
+
+    const getHighlightElementFromEventTarget = (target: EventTarget | null) => {
+      if (!target) return null
+      const element = target instanceof Element ? target : target instanceof Node ? target.parentElement : null
+      if (!element) return null
+      const highlightElement = element.closest('.character-highlight')
+      return highlightElement instanceof HTMLElement ? highlightElement : null
+    }
+
+    const handleMouseOver = (e: Event) => {
+      const highlightElement = getHighlightElementFromEventTarget(e.target)
+      if (!highlightElement) return
+
+      const id = highlightElement.getAttribute('data-character-id')
+      if (!id) return
+
+      const character = characters.find(c => c.id === id)
+      if (!character) return
+
+      setHoveredCharacter(character)
+      const rect = highlightElement.getBoundingClientRect()
+      setTooltipPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.bottom + 5,
+      })
+    }
+
+    const handleMouseOut = (e: Event) => {
+      const highlightElement = getHighlightElementFromEventTarget(e.target)
+      if (!highlightElement) return
+
+      const mouseEvent = e as MouseEvent
+      const relatedTarget = mouseEvent.relatedTarget
+      if (relatedTarget instanceof Node && highlightElement.contains(relatedTarget)) {
+        return
+      }
+
+      setHoveredCharacter(null)
+      setTooltipPosition(null)
+    }
+
+    editorElement.addEventListener('mouseover', handleMouseOver)
+    editorElement.addEventListener('mouseout', handleMouseOut)
+
+    return () => {
+      editorElement.removeEventListener('mouseover', handleMouseOver)
+      editorElement.removeEventListener('mouseout', handleMouseOut)
+    }
+  }, [editor, characters])
+
   if (!editor) {
     return null
   }
 
   return (
-    <div className={`${className} relative`}>
+    <div className={`${className} relative`} ref={editorRef}>
+      {hoveredCharacter && tooltipPosition && typeof document !== 'undefined'
+        ? createPortal(
+            <div
+              className="fixed z-50 transform -translate-x-1/2 w-72 pointer-events-none"
+              style={{
+                left: tooltipPosition.x,
+                top: tooltipPosition.y,
+              }}
+            >
+              <CharacterCard
+                character={{
+                  ...hoveredCharacter,
+                  role: hoveredCharacter.role || '未知角色',
+                  description: hoveredCharacter.description || '',
+                  traits: hoveredCharacter.traits || [],
+                  keywords: hoveredCharacter.keywords || [],
+                  chapters: [],
+                }}
+                className="shadow-xl bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+              />
+            </div>,
+            document.body,
+          )
+        : null}
       {editable && (
         <>
           <FloatingMenu editor={editor} />
