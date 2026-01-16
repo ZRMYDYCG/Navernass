@@ -3,12 +3,10 @@
 import type { ImperativePanelHandle } from 'react-resizable-panels'
 import type { Chapter, Novel, Volume } from '@/lib/supabase/sdk'
 import * as Tooltip from '@radix-ui/react-tooltip'
-import { PenTool } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Drawer, DrawerContent } from '@/components/ui/drawer'
-import { Kbd } from '@/components/ui/kbd'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
 import { useIsMobile } from '@/hooks/use-media-query'
@@ -19,6 +17,7 @@ import { CreateVolumeDialog } from './_components/create-volume-dialog'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import EditorContent from './_components/editor-content'
 import EditorHeader from './_components/editor-header'
+import { EditorWelcome } from './_components/editor-welcome'
 import LeftPanel from './_components/left-panel'
 import { LockScreen } from './_components/lock-screen'
 import { MoveChapterDialog } from './_components/move-chapter-dialog'
@@ -916,35 +915,7 @@ function NovelsEditContent() {
                 {selectedChapter === null || activeTab === null
                   ? (
                       // 未选择章节时显示欢迎界面
-                      <div className="h-full overflow-y-auto bg-background">
-                        <div className="min-h-full flex flex-col items-center justify-center p-4">
-                          <div className="flex flex-col items-center gap-6 text-muted-foreground">
-                            <PenTool
-                              size={120}
-                              className="opacity-40"
-                            />
-                            <p className="text-sm">选择一个章节开始编辑</p>
-                            <span className="flex items-center gap-1">
-                              <Kbd>Ctrl</Kbd>
-                              <Kbd>+</Kbd>
-                              <Kbd>S</Kbd>
-                              <span>保存内容</span>
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Kbd>Ctrl</Kbd>
-                              <Kbd>+</Kbd>
-                              <Kbd>E</Kbd>
-                              <span>切换左侧面板</span>
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Kbd>Ctrl</Kbd>
-                              <Kbd>+</Kbd>
-                              <Kbd>L</Kbd>
-                              <span>切换右侧面板</span>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                      <EditorWelcome />
                     )
                   : (
                       // 选择章节后显示编辑器
