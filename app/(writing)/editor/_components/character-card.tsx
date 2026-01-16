@@ -1,7 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Sparkles, User } from 'lucide-react'
+import { BookOpen, User } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
@@ -25,119 +24,86 @@ interface CharacterCardProps {
 
 export function CharacterCard({ character, onClick, className }: CharacterCardProps) {
   return (
-    <motion.div
-      whileHover={{
-        y: -4,
-        rotate: 0.5,
-        boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)',
-      }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
+    <div
       onClick={onClick}
       className={cn(
-        'group relative w-full cursor-pointer overflow-hidden',
-        'bg-card/90 backdrop-blur-sm',
-        'border border-border/50',
-        'shadow-[2px_2px_10px_-2px_rgba(0,0,0,0.05)]',
-        'rounded-sm',
+        'group relative flex flex-col gap-3 rounded-lg border border-border bg-card p-3 transition-all hover:border-primary/50 hover:shadow-sm cursor-pointer',
         className,
       )}
-      style={{
-        boxShadow: '1px 1px 2px rgba(0,0,0,0.02), 0 0 0 1px rgba(0,0,0,0.01) inset',
-      }}
     >
-      <div className="absolute inset-0 bg-paper-texture opacity-40 pointer-events-none z-0" />
-
-      {character.chapters.length > 0 && (
-        <div className="absolute -top-1 -right-1 z-20">
-          <div className="relative">
-            <div className="absolute inset-0 bg-muted/10 rotate-3 transform skew-x-12 rounded-sm blur-[0.5px]" />
-            <div className="relative px-2.5 py-0.5 bg-muted border border-border shadow-sm transform rotate-3 origin-top-right rounded-bl-md rounded-tr-md">
-              <span className="text-[10px] font-handwriting text-muted-foreground font-bold tracking-wide">
-                {character.chapters[0]}
-                {' '}
-                登场
-              </span>
-            </div>
-          </div>
+      <div className="flex items-start gap-3">
+        <div className="relative shrink-0 w-10 h-10 overflow-hidden rounded-md border border-border bg-muted">
+          {character.avatar
+            ? (
+                <Image
+                  src={character.avatar}
+                  alt={character.name}
+                  fill
+                  className="object-cover"
+                />
+              )
+            : (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  <User className="w-5 h-5" />
+                </div>
+              )}
         </div>
-      )}
 
-      <div className="relative z-10 p-5 flex flex-col gap-4">
-        <div className="flex items-start gap-4">
-          <div className="relative shrink-0 w-16 h-16 overflow-hidden rounded-full border-2 border-border bg-muted shadow-inner">
-            {character.avatar
-              ? (
-                  <Image
-                    src={character.avatar}
-                    alt={character.name}
-                    fill
-                    className="object-cover opacity-80 grayscale-[0.3] contrast-125 mix-blend-multiply"
-                  />
-                )
-              : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <User className="w-8 h-8 stroke-[1.5]" />
-                  </div>
-                )}
-            <div className="absolute inset-0 bg-noise opacity-10 mix-blend-overlay" />
-          </div>
-
-          <div className="flex-1 min-w-0 pt-1">
-            <h3 className="font-handwriting text-2xl font-bold text-foreground leading-none mb-1.5 tracking-wide">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-medium text-sm text-foreground truncate">
               {character.name}
             </h3>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono tracking-tight opacity-80">
-              <span className="uppercase">{character.role}</span>
-              {/* <span className="w-1 h-1 rounded-full bg-stone-300" />
-              <span>{character.chapters.length} 章节</span> */}
-            </div>
+            {character.chapters.length > 0 && (
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0 bg-muted/50 px-1.5 py-0.5 rounded-sm">
+                <BookOpen className="w-3 h-3" />
+                <span>{character.chapters[0]}</span>
+              </div>
+            )}
+          </div>
+          <div className="text-xs text-muted-foreground truncate mt-0.5">
+            {character.role || '暂无角色定位'}
           </div>
         </div>
+      </div>
 
-        <div className="relative">
-          <p className="text-sm text-muted-foreground leading-relaxed font-light line-clamp-3 italic opacity-90">
-            {character.description}
-          </p>
-          <div className="absolute -left-3 top-1 bottom-1 w-[2px] bg-muted rounded-full" />
-        </div>
+      {character.description && (
+        <p className="text-xs text-muted-foreground/80 line-clamp-2 leading-relaxed">
+          {character.description}
+        </p>
+      )}
 
-        <div className="flex flex-wrap gap-y-2 gap-x-4 py-1">
-          {character.traits.map((trait, i) => (
-            <div key={i} className="flex items-center gap-1.5 group/trait">
-              <span className="w-1.5 h-1.5 rounded-full bg-stone-400 group-hover/trait:bg-orange-300 transition-colors duration-500" />
-              <span className="text-xs text-muted-foreground font-medium">{trait}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {character.keywords.map((keyword, i) => (
+      {(character.traits.length > 0 || character.keywords.length > 0) && (
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {character.traits.slice(0, 3).map((trait, i) => (
             <span
-              key={i}
-              className="inline-flex px-2 py-1 text-[10px] font-mono text-muted-foreground bg-muted/50 border border-border rounded-[1px] uppercase tracking-wider shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+              key={`trait-${i}`}
+              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20"
+            >
+              {trait}
+            </span>
+          ))}
+          {character.keywords.slice(0, 3).map((keyword, i) => (
+            <span
+              key={`kw-${i}`}
+              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] text-muted-foreground bg-muted border border-border"
             >
               {keyword}
             </span>
           ))}
+          {(character.traits.length + character.keywords.length) > 6 && (
+            <span className="text-[10px] text-muted-foreground py-0.5">...</span>
+          )}
         </div>
+      )}
 
-        {character.note && (
-          <div className="relative mt-1 mx-1">
-            <div className="absolute inset-0 bg-black/20 translate-y-1 translate-x-1 rounded-sm rotate-1 blur-sm" />
-            <div className="relative bg-background p-3 rounded-sm shadow-sm border border-amber-100/50 rotate-1 transform transition-transform duration-300 group-hover:rotate-0">
-              <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-4 bg-background/40 backdrop-blur-sm rotate-[-2deg] shadow-sm" />
-
-              <div className="flex gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400/70 mt-0.5 shrink-0" />
-                <p className="text-xs font-handwriting text-muted-foreground leading-5">
-                  {character.note}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-muted/30 to-transparent" />
-    </motion.div>
+      {character.note && (
+        <div className="flex items-start gap-1.5 mt-1 pt-2 border-t border-border/50">
+          <p className="text-[10px] text-muted-foreground/70 line-clamp-1 italic">
+            {character.note}
+          </p>
+        </div>
+      )}
+    </div>
   )
 }

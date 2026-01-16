@@ -1,15 +1,71 @@
 'use client'
 
 import type { Character as CardCharacter } from './character-card'
-import { Plus, Search } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { Camera, Plus, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
+import { Textarea } from '@/components/ui/textarea'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { CharacterCard } from './character-card'
+
+interface TagInputProps {
+  value: string[]
+  onChange: (value: string[]) => void
+  placeholder?: string
+}
+
+function TagInput({ value, onChange, placeholder }: TagInputProps) {
+  const [input, setInput] = useState('')
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      const trimmed = input.trim().replace(/,$/, '')
+      if (trimmed && !value.includes(trimmed)) {
+        onChange([...value, trimmed])
+        setInput('')
+      }
+    } else if (e.key === 'Backspace' && !input && value.length > 0) {
+      onChange(value.slice(0, -1))
+    }
+  }
+
+  const removeTag = (index: number) => {
+    onChange(value.filter((_, i) => i !== index))
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1.5 min-h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring">
+      {value.map((tag, index) => (
+        <span
+          key={index}
+          className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs font-medium text-foreground"
+        >
+          {tag}
+          <button
+            type="button"
+            onClick={() => removeTag(index)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </span>
+      ))}
+      <input
+        className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground min-w-[80px] h-6 text-sm"
+        placeholder={value.length === 0 ? placeholder : ''}
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+      />
+    </div>
+  )
+}
 
 interface CharacterShowcaseProps {
   novelId: string
@@ -25,9 +81,12 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
   const [deleting, setDeleting] = useState(false)
   const [name, setName] = useState('')
   const [role, setRole] = useState('')
+  const [avatar, setAvatar] = useState('')
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [description, setDescription] = useState('')
-  const [traitsInput, setTraitsInput] = useState('')
-  const [keywordsInput, setKeywordsInput] = useState('')
+  const [traits, setTraits] = useState<string[]>([])
+  const [keywords, setKeywords] = useState<string[]>([])
   const [firstAppearance, setFirstAppearance] = useState('')
   const [note, setNote] = useState('')
 
@@ -87,9 +146,10 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
     setEditingId(null)
     setName('')
     setRole('')
+    setAvatar('')
     setDescription('')
-    setTraitsInput('')
-    setKeywordsInput('')
+    setTraits([])
+    setKeywords([])
     setFirstAppearance('')
     setNote('')
     setCreateOpen(true)
@@ -122,14 +182,13 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
     }
     try {
       setCreating(true)
-      const traits = traitsInput.split(',').map(s => s.trim()).filter(Boolean)
-      const keywords = keywordsInput.split(',').map(s => s.trim()).filter(Boolean)
 
       if (editingId) {
         const updated = await charactersApi.update(editingId, {
           novel_id: novelId,
           name: trimmedName,
           role: role.trim() || undefined,
+          avatar: avatar || undefined,
           description: description.trim() || undefined,
           traits,
           keywords,
@@ -153,6 +212,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
           novel_id: novelId,
           name: trimmedName,
           role: role.trim() || undefined,
+          avatar: avatar || undefined,
           description: description.trim() || undefined,
           traits,
           keywords,
@@ -189,12 +249,52 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
     setEditingId(character.id)
     setName(character.name)
     setRole(character.role)
+    setAvatar(character.avatar || '')
     setDescription(character.description)
-    setTraitsInput(character.traits.join(', '))
-    setKeywordsInput(character.keywords.join(', '))
+    setTraits(character.traits)
+    setKeywords(character.keywords)
     setFirstAppearance(character.chapters[0] || '')
     setNote(character.note || '')
     setCreateOpen(true)
+  }
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('图片大小不能超过 5MB')
+      return
+    }
+
+    try {
+      setUploadingAvatar(true)
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'avatar')
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error?.message || '上传失败')
+
+      setAvatar(data.data.url)
+      toast.success('头像上传成功')
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        toast.error('上传头像失败')
+      }
+    } finally {
+      setUploadingAvatar(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
   }
 
   return (
@@ -258,6 +358,30 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
             <DialogTitle>{editingId ? '编辑角色' : '新建角色'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
+            <div className="flex justify-center mb-2">
+              <div
+                className="relative group cursor-pointer"
+                onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+              >
+                <Avatar className="w-20 h-20 border-2 border-border group-hover:border-primary transition-colors">
+                  <AvatarImage src={avatar} className="object-cover" />
+                  <AvatarFallback className="bg-muted">
+                    {uploadingAvatar ? <Spinner className="w-6 h-6" /> : <span className="text-2xl text-muted-foreground">{name?.[0] || 'A'}</span>}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                disabled={uploadingAvatar}
+              />
+            </div>
             <Input
               placeholder="角色名称"
               value={name}
@@ -268,32 +392,32 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
               value={role}
               onChange={e => setRole(e.target.value)}
             />
-            <textarea
+            <Textarea
               placeholder="一句话描述这个角色"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="min-h-[72px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring focus:border-ring resize-none"
+              className="min-h-[72px] resize-none"
             />
-            <Input
-              placeholder="关键特质（用逗号分隔）"
-              value={traitsInput}
-              onChange={e => setTraitsInput(e.target.value)}
+            <TagInput
+              placeholder="关键特质（回车添加）"
+              value={traits}
+              onChange={setTraits}
             />
-            <Input
-              placeholder="关键词（用逗号分隔）"
-              value={keywordsInput}
-              onChange={e => setKeywordsInput(e.target.value)}
+            <TagInput
+              placeholder="关键词（回车添加）"
+              value={keywords}
+              onChange={setKeywords}
             />
             <Input
               placeholder="首次登场章节"
               value={firstAppearance}
               onChange={e => setFirstAppearance(e.target.value)}
             />
-            <textarea
+            <Textarea
               placeholder="灵感备注"
               value={note}
               onChange={e => setNote(e.target.value)}
-              className="min-h-[60px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring focus:border-ring resize-none"
+              className="min-h-[60px] resize-none"
             />
           </div>
           <DialogFooter>
