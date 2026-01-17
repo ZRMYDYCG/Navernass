@@ -455,7 +455,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
   // 更新角色高亮
   useEffect(() => {
-    if (editor && characters.length > 0) {
+    if (editor) {
       updateCharacterHighlight(editor.view, characters)
     }
   }, [editor, characters])

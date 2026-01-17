@@ -90,6 +90,10 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
   const [firstAppearance, setFirstAppearance] = useState('')
   const [note, setNote] = useState('')
 
+  const notifyCharactersChanged = () => {
+    window.dispatchEvent(new CustomEvent('novel-characters-changed', { detail: { novelId } }))
+  }
+
   useEffect(() => {
     let cancelled = false
 
@@ -161,6 +165,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
       setDeleting(true)
       await charactersApi.delete(editingId, novelId)
       setCharacters(prev => prev.filter(c => c.id !== editingId))
+      notifyCharactersChanged()
       setCreateOpen(false)
       toast.success('角色已删除')
     } catch (error) {
@@ -207,6 +212,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
           note: updated.note || undefined,
         }
         setCharacters(prev => prev.map(c => (c.id === mapped.id ? mapped : c)))
+        notifyCharactersChanged()
       } else {
         const created = await charactersApi.create({
           novel_id: novelId,
@@ -231,6 +237,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
           note: created.note || undefined,
         }
         setCharacters(prev => [...prev, createdMapped])
+        notifyCharactersChanged()
       }
       setCreateOpen(false)
       toast.success(editingId ? '角色已更新' : '角色已创建')

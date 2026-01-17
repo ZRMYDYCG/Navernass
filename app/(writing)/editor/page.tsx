@@ -167,6 +167,37 @@ function NovelsEditContent() {
     loadData()
   }, [loadData])
 
+  useEffect(() => {
+    if (!novelId) return
+
+    let cancelled = false
+
+    const handleCharactersChanged: EventListener = (event) => {
+      const customEvent = event as CustomEvent<{ novelId: string }>
+      if (customEvent.detail?.novelId !== novelId) return
+
+      void (async () => {
+        try {
+          const charactersData = await charactersApi.getByNovelId(novelId)
+          if (!cancelled) {
+            setCharacters(charactersData)
+          }
+        } catch (error) {
+          if (!cancelled) {
+            console.error(error)
+          }
+        }
+      })()
+    }
+
+    window.addEventListener('novel-characters-changed', handleCharactersChanged)
+
+    return () => {
+      cancelled = true
+      window.removeEventListener('novel-characters-changed', handleCharactersChanged)
+    }
+  }, [novelId])
+
   // 处理章节导入后的刷新
   const handleChaptersImported = useCallback(() => {
     loadData()
