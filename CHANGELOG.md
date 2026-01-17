@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.8.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.7.0...v0.8.0) (2026-01-17)
+
+
+### Features
+
+* 角色卡新增出场章节选择 ([4f4989b](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/4f4989b1d729ab686125ea093db24de4b81b1ebd))
+* 角色卡支持用户画像上传、角色与小说高亮联动 ([73325a2](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/73325a2804d195175c338220c7cecc0d54e72bf7))
+* 区分思考模型与非思考模型 ([b9e1450](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/b9e145024b69c25eb263a06acd8b70ed505c9138))
+* 新增角色名联想器 ([8f035df](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/8f035df0c31dead68faf1c279b36732ca766b80a))
+* 优化角色创建表单 ([9e84012](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/9e840126d5293658c2398e215187dd8787bff132))
+* 优化角色联动卡片交互 ([29ba543](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/29ba543b54bed2f0534e6c6ba482fbd49544997e))
+* **character-card:** 改进角色卡片的可读性 ([2747565](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/2747565ce89b10b6294e71ec1531cf8eed733f23))
+* **edior:** 优化空状态 ([3faa910](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/3faa910047759950b717512d4475946d9ecdfb45))
+* **editor:** 角色卡支持人物画像 ([05134d6](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/05134d6293cb843068e6de73960361706604683a))
+* **editor:** 历史会话重构、角色档案加载优化、搜素章节弹窗优化 ([bf7acb2](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/bf7acb27d95642af202e596c3c4ab58d6a907309))
+* **editor:** 移动端编辑器优化 ([522a272](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/522a272bc771f7904a1cc9bc61f5850e6c326404))
+* **editor:** 优化角色提示卡片的显示效果 ([63b94be](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/63b94beb39a7ac0ec8a129b1136dc450ea4bc116))
+* **layout:** 上边距问题修复 ([2811b39](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/2811b397b3c61ee50c4177ae933d1e9a1cb483ab))
+* update ([ad2a912](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/ad2a912e4f9a79b31dc7b5c64e3e9feba65fb99e))
+
+
+### Bug Fixes
+
+* 测试 引用 导致气泡回复闪烁 ([7eb99e9](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/7eb99e91ccf66ea274a46d8d64485c0dab3b5111))
+* 测试 直接用服务器数据替换本地状态 ([3ebc739](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/3ebc739a496d080a27cabdc33eb1d26c0fd289a2))
+* 新增角色卡后刷新编辑器 ([e109550](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/e109550c281e18b3015db3eb69007e164cafbf2b))
+* eslint 问题 ([880df81](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/880df817750ba19b2fa0845dc2d5b827b7d4467a))
+
 ## [0.7.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.6.0...v0.7.0) (2025-12-31)
 
 
