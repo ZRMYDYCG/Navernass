@@ -13,7 +13,17 @@ const TooltipTrigger = TooltipPrimitive.Trigger
 
 const TooltipArrow = TooltipPrimitive.Arrow
 
-function TooltipContent({ ref, className, sideOffset = 4, children, ...props }: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & { ref?: React.RefObject<React.ElementRef<typeof TooltipPrimitive.Content> | null> }) {
+function TooltipContent({
+  ref,
+  className,
+  sideOffset = 4,
+  showArrow = true,
+  children,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & {
+  ref?: React.RefObject<React.ElementRef<typeof TooltipPrimitive.Content> | null>
+  showArrow?: boolean
+}) {
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
@@ -26,7 +36,7 @@ function TooltipContent({ ref, className, sideOffset = 4, children, ...props }: 
         {...props}
       >
         {children}
-        <TooltipPrimitive.Arrow className="fill-popover" />
+        {showArrow && <TooltipPrimitive.Arrow className="fill-popover" />}
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>
   )

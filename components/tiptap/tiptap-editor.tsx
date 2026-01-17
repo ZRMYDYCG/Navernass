@@ -10,9 +10,14 @@ import { Slice } from '@tiptap/pm/model'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { CharacterCard } from '@/app/(writing)/editor/_components/character-card'
 import { Spinner } from '@/components/ui/spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
 import { DragHandle } from './drag-handle-react'
 import { AIAutocomplete } from './extensions/ai-autocomplete'
@@ -59,6 +64,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   } = props
 
   const editorRef = useRef<HTMLDivElement>(null)
+  const tooltipContentRef = useRef<HTMLDivElement>(null)
   const [tooltipCharacter, setTooltipCharacter] = useState<NovelCharacter | null>(null)
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number, y: number } | null>(null)
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
@@ -494,7 +500,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       const rect = highlightElement.getBoundingClientRect()
       setTooltipPosition({
         x: rect.left + rect.width / 2,
-        y: rect.bottom + 5,
+        y: rect.bottom,
       })
       setIsTooltipVisible(false)
       window.requestAnimationFrame(() => {
@@ -509,6 +515,9 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       const mouseEvent = e as MouseEvent
       const relatedTarget = mouseEvent.relatedTarget
       if (relatedTarget instanceof Node && highlightElement.contains(relatedTarget)) {
+        return
+      }
+      if (relatedTarget instanceof Node && tooltipContentRef.current?.contains(relatedTarget)) {
         return
       }
 
@@ -541,33 +550,62 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
   return (
     <div className={`${className} relative`} ref={editorRef}>
-      {tooltipCharacter && tooltipPosition && typeof document !== 'undefined'
-        ? createPortal(
+      <TooltipProvider>
+        <Tooltip open={!!tooltipCharacter && isTooltipVisible} disableHoverableContent={false}>
+          <TooltipTrigger asChild>
             <div
-              className={[
-                'fixed z-50 w-72 pointer-events-none -translate-x-1/2 transition-[opacity,transform] duration-150 ease-out',
-                isTooltipVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-1 scale-95',
-              ].join(' ')}
               style={{
-                left: tooltipPosition.x,
-                top: tooltipPosition.y,
+                position: 'fixed',
+                left: tooltipPosition?.x ?? -9999,
+                top: tooltipPosition?.y ?? -9999,
+                width: 1,
+                height: 1,
+                pointerEvents: 'none',
               }}
-            >
-              <CharacterCard
-                character={{
-                  ...tooltipCharacter,
-                  role: tooltipCharacter.role || '未知角色',
-                  description: tooltipCharacter.description || '',
-                  traits: tooltipCharacter.traits || [],
-                  keywords: tooltipCharacter.keywords || [],
-                  chapters: [],
-                }}
-                className="shadow-xl bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
-              />
-            </div>,
-            document.body,
-          )
-        : null}
+            />
+          </TooltipTrigger>
+          <TooltipContent
+            showArrow={false}
+            side="bottom"
+            align="center"
+            sideOffset={6}
+            className="p-0 bg-transparent shadow-none border-0 overflow-visible"
+            onMouseEnter={() => {
+              if (hideTooltipTimeoutRef.current) {
+                clearTimeout(hideTooltipTimeoutRef.current)
+                hideTooltipTimeoutRef.current = undefined
+              }
+              setIsTooltipVisible(true)
+            }}
+            onMouseLeave={() => {
+              setIsTooltipVisible(false)
+              if (hideTooltipTimeoutRef.current) {
+                clearTimeout(hideTooltipTimeoutRef.current)
+              }
+              hideTooltipTimeoutRef.current = setTimeout(() => {
+                setTooltipCharacter(null)
+                setTooltipPosition(null)
+              }, 160)
+            }}
+          >
+            {tooltipCharacter && (
+              <div ref={tooltipContentRef} className="w-72">
+                <CharacterCard
+                  character={{
+                    ...tooltipCharacter,
+                    role: tooltipCharacter.role || '未知角色',
+                    description: tooltipCharacter.description || '',
+                    traits: tooltipCharacter.traits || [],
+                    keywords: tooltipCharacter.keywords || [],
+                    chapters: [],
+                  }}
+                  className="shadow-xl bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+                />
+              </div>
+            )}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       {editable && (
         <>
           <FloatingMenu editor={editor} />

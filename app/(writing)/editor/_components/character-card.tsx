@@ -87,7 +87,7 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
                 {character.traits.slice(0, 4).map((trait, i) => (
                   <span
                     key={`trait-${i}`}
-                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20"
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border border-primary/20"
                   >
                     {trait}
                   </span>
@@ -106,7 +106,7 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
                 {character.keywords.slice(0, 4).map((keyword, i) => (
                   <span
                     key={`kw-${i}`}
-                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] text-muted-foreground bg-muted border border-border"
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px]  border border-border"
                   >
                     {keyword}
                   </span>
