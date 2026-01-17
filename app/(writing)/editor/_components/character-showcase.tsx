@@ -2,12 +2,13 @@
 
 import type { Character as CardCharacter } from './character-card'
 import { Camera, Plus, Search, X } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -25,9 +26,10 @@ interface TagInputProps {
   value: string[]
   onChange: (value: string[]) => void
   placeholder?: string
+  id?: string
 }
 
-function TagInput({ value, onChange, placeholder }: TagInputProps) {
+function TagInput({ value, onChange, placeholder, id }: TagInputProps) {
   const [input, setInput] = useState('')
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -65,6 +67,7 @@ function TagInput({ value, onChange, placeholder }: TagInputProps) {
         </span>
       ))}
       <input
+        id={id}
         className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground min-w-[80px] h-6 text-sm"
         placeholder={value.length === 0 ? placeholder : ''}
         value={input}
@@ -98,6 +101,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
   const [keywords, setKeywords] = useState<string[]>([])
   const [firstAppearance, setFirstAppearance] = useState('')
   const [note, setNote] = useState('')
+  const formId = useId()
 
   const notifyCharactersChanged = () => {
     window.dispatchEvent(new CustomEvent('novel-characters-changed', { detail: { novelId } }))
@@ -406,91 +410,130 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
             <DialogTitle>{editingId ? '编辑角色' : '新建角色'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="flex justify-center mb-2">
-              <div
-                className="relative group cursor-pointer"
-                onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
-              >
-                <Avatar className="w-20 h-20 border-2 border-border group-hover:border-primary transition-colors">
-                  <AvatarImage src={avatar} className="object-cover" />
-                  <AvatarFallback className="bg-muted">
-                    {uploadingAvatar ? <Spinner className="w-6 h-6" /> : <span className="text-2xl text-muted-foreground">{name?.[0] || 'A'}</span>}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Camera className="w-6 h-6 text-white" />
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">头像</Label>
+              <div className="flex justify-center mb-2">
+                <div
+                  className="relative group cursor-pointer"
+                  onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+                >
+                  <Avatar className="w-20 h-20 border-2 border-border group-hover:border-primary transition-colors">
+                    <AvatarImage src={avatar} className="object-cover" />
+                    <AvatarFallback className="bg-muted">
+                      {uploadingAvatar ? <Spinner className="w-6 h-6" /> : <span className="text-2xl text-muted-foreground">{name?.[0] || 'A'}</span>}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="w-6 h-6 text-white" />
+                  </div>
                 </div>
+                <input
+                  id={`${formId}-avatar`}
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  disabled={uploadingAvatar}
+                />
               </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                disabled={uploadingAvatar}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`${formId}-name`} className="text-xs text-muted-foreground">角色名称</Label>
+              <Input
+                id={`${formId}-name`}
+                placeholder="角色名称"
+                value={name}
+                onChange={e => setName(e.target.value)}
               />
             </div>
-            <Input
-              placeholder="角色名称"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-            <Input
-              placeholder="身份 / 职位"
-              value={role}
-              onChange={e => setRole(e.target.value)}
-            />
-            <Textarea
-              placeholder="一句话描述这个角色"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              className="min-h-[72px] resize-none"
-            />
-            <TagInput
-              placeholder="关键特质（回车添加）"
-              value={traits}
-              onChange={setTraits}
-            />
-            <TagInput
-              placeholder="关键词（回车添加）"
-              value={keywords}
-              onChange={setKeywords}
-            />
-            {chapterOptions.length > 0
-              ? (
-                  <Select
-                    value={firstAppearance || '__none__'}
-                    onValueChange={value => setFirstAppearance(value === '__none__' ? '' : value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="首次登场章节（可选）" />
-                    </SelectTrigger>
-                    <SelectContent className="z-[120]">
-                      <SelectItem value="__none__">不设置</SelectItem>
-                      {firstAppearance && !chapterTitleSet.has(firstAppearance) && (
-                        <SelectItem value={firstAppearance}>{firstAppearance}</SelectItem>
-                      )}
-                      {chapterOptions.map(chapter => (
-                        <SelectItem key={chapter.id} value={chapter.title}>
-                          {chapter.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )
-              : (
-                  <Input
-                    placeholder="首次登场章节"
-                    value={firstAppearance}
-                    onChange={e => setFirstAppearance(e.target.value)}
-                  />
-                )}
-            <Textarea
-              placeholder="灵感备注"
-              value={note}
-              onChange={e => setNote(e.target.value)}
-              className="min-h-[60px] resize-none"
-            />
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`${formId}-role`} className="text-xs text-muted-foreground">身份 / 职位</Label>
+              <Input
+                id={`${formId}-role`}
+                placeholder="身份 / 职位"
+                value={role}
+                onChange={e => setRole(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`${formId}-description`} className="text-xs text-muted-foreground">一句话描述</Label>
+              <Textarea
+                id={`${formId}-description`}
+                placeholder="一句话描述这个角色"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                className="min-h-[72px] resize-none"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`${formId}-traits`} className="text-xs text-muted-foreground">关键特质</Label>
+              <TagInput
+                id={`${formId}-traits`}
+                placeholder="关键特质（回车添加）"
+                value={traits}
+                onChange={setTraits}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`${formId}-keywords`} className="text-xs text-muted-foreground">关键词</Label>
+              <TagInput
+                id={`${formId}-keywords`}
+                placeholder="关键词（回车添加）"
+                value={keywords}
+                onChange={setKeywords}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`${formId}-first-appearance`} className="text-xs text-muted-foreground">首次登场章节</Label>
+              {chapterOptions.length > 0
+                ? (
+                    <Select
+                      value={firstAppearance || '__none__'}
+                      onValueChange={value => setFirstAppearance(value === '__none__' ? '' : value)}
+                    >
+                      <SelectTrigger id={`${formId}-first-appearance`} className="w-full">
+                        <SelectValue placeholder="首次登场章节（可选）" />
+                      </SelectTrigger>
+                      <SelectContent className="z-[120]">
+                        <SelectItem value="__none__">不设置</SelectItem>
+                        {firstAppearance && !chapterTitleSet.has(firstAppearance) && (
+                          <SelectItem value={firstAppearance}>{firstAppearance}</SelectItem>
+                        )}
+                        {chapterOptions.map(chapter => (
+                          <SelectItem key={chapter.id} value={chapter.title}>
+                            {chapter.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )
+                : (
+                    <Input
+                      id={`${formId}-first-appearance`}
+                      placeholder="首次登场章节"
+                      value={firstAppearance}
+                      onChange={e => setFirstAppearance(e.target.value)}
+                    />
+                  )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`${formId}-note`} className="text-xs text-muted-foreground">灵感备注</Label>
+              <Textarea
+                id={`${formId}-note`}
+                placeholder="灵感备注"
+                value={note}
+                onChange={e => setNote(e.target.value)}
+                className="min-h-[60px] resize-none"
+              />
+            </div>
           </div>
           <DialogFooter>
             {editingId && (
