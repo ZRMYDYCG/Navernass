@@ -68,40 +68,66 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
       </div>
 
       {character.description && (
-        <p className="text-xs text-muted-foreground/80 line-clamp-2 leading-relaxed">
-          {character.description}
-        </p>
+        <div>
+          <div className="text-[10px] text-muted-foreground/80 mb-1">人物描述</div>
+          <div className="max-h-24 overflow-y-auto pr-1">
+            <p className="text-xs text-muted-foreground/80 leading-relaxed whitespace-pre-wrap break-words">
+              {character.description}
+            </p>
+          </div>
+        </div>
       )}
 
       {(character.traits.length > 0 || character.keywords.length > 0) && (
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {character.traits.slice(0, 3).map((trait, i) => (
-            <span
-              key={`trait-${i}`}
-              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20"
-            >
-              {trait}
-            </span>
-          ))}
-          {character.keywords.slice(0, 3).map((keyword, i) => (
-            <span
-              key={`kw-${i}`}
-              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] text-muted-foreground bg-muted border border-border"
-            >
-              {keyword}
-            </span>
-          ))}
-          {(character.traits.length + character.keywords.length) > 6 && (
-            <span className="text-[10px] text-muted-foreground py-0.5">...</span>
+        <div className="flex flex-col gap-1.5 pt-1">
+          {character.traits.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <div className="text-[10px] text-muted-foreground/80">关键特质</div>
+              <div className="flex flex-wrap gap-1.5">
+                {character.traits.slice(0, 4).map((trait, i) => (
+                  <span
+                    key={`trait-${i}`}
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20"
+                  >
+                    {trait}
+                  </span>
+                ))}
+                {character.traits.length > 4 && (
+                  <span className="text-[10px] text-muted-foreground py-0.5">...</span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {character.keywords.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <div className="text-[10px] text-muted-foreground/80">关键词</div>
+              <div className="flex flex-wrap gap-1.5">
+                {character.keywords.slice(0, 4).map((keyword, i) => (
+                  <span
+                    key={`kw-${i}`}
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] text-muted-foreground bg-muted border border-border"
+                  >
+                    {keyword}
+                  </span>
+                ))}
+                {character.keywords.length > 4 && (
+                  <span className="text-[10px] text-muted-foreground py-0.5">...</span>
+                )}
+              </div>
+            </div>
           )}
         </div>
       )}
 
       {character.note && (
-        <div className="flex items-start gap-1.5 mt-1 pt-2 border-t border-border/50">
-          <p className="text-[10px] text-muted-foreground/70 line-clamp-1 italic">
-            {character.note}
-          </p>
+        <div className="mt-1 pt-2 border-t border-border/50">
+          <div className="text-[10px] text-muted-foreground/80 mb-1">灵感备注</div>
+          <div className="max-h-16 overflow-y-auto pr-1">
+            <p className="text-[10px] text-muted-foreground/70 italic whitespace-pre-wrap break-words">
+              {character.note}
+            </p>
+          </div>
         </div>
       )}
     </div>
