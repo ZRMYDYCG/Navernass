@@ -8,8 +8,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
+import { chaptersApi } from '@/lib/supabase/sdk/chapters'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { CharacterCard } from './character-card'
 
@@ -79,6 +87,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
   const [creating, setCreating] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [chapterOptions, setChapterOptions] = useState<Array<{ id: string, title: string }>>([])
   const [name, setName] = useState('')
   const [role, setRole] = useState('')
   const [avatar, setAvatar] = useState('')
@@ -93,6 +102,10 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
   const notifyCharactersChanged = () => {
     window.dispatchEvent(new CustomEvent('novel-characters-changed', { detail: { novelId } }))
   }
+
+  const chapterTitleSet = useMemo(() => {
+    return new Set(chapterOptions.map(c => c.title))
+  }, [chapterOptions])
 
   useEffect(() => {
     let cancelled = false
@@ -128,6 +141,34 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [novelId])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadChapters = async () => {
+      try {
+        const chapters = await chaptersApi.getByNovelId(novelId)
+        if (cancelled) return
+        const mapped = chapters
+          .slice()
+          .sort((a, b) => a.order_index - b.order_index)
+          .map(c => ({ id: c.id, title: c.title }))
+        setChapterOptions(mapped)
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message)
+        } else {
+          toast.error('加载章节失败')
+        }
+      }
+    }
+
+    loadChapters()
 
     return () => {
       cancelled = true
@@ -415,11 +456,35 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
               value={keywords}
               onChange={setKeywords}
             />
-            <Input
-              placeholder="首次登场章节"
-              value={firstAppearance}
-              onChange={e => setFirstAppearance(e.target.value)}
-            />
+            {chapterOptions.length > 0
+              ? (
+                  <Select
+                    value={firstAppearance || '__none__'}
+                    onValueChange={value => setFirstAppearance(value === '__none__' ? '' : value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="首次登场章节（可选）" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[120]">
+                      <SelectItem value="__none__">不设置</SelectItem>
+                      {firstAppearance && !chapterTitleSet.has(firstAppearance) && (
+                        <SelectItem value={firstAppearance}>{firstAppearance}</SelectItem>
+                      )}
+                      {chapterOptions.map(chapter => (
+                        <SelectItem key={chapter.id} value={chapter.title}>
+                          {chapter.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )
+              : (
+                  <Input
+                    placeholder="首次登场章节"
+                    value={firstAppearance}
+                    onChange={e => setFirstAppearance(e.target.value)}
+                  />
+                )}
             <Textarea
               placeholder="灵感备注"
               value={note}
