@@ -1,3 +1,4 @@
+import type { CharacterNameSuggestUIState } from './extensions/character-name-suggest'
 import type { NovelCharacter } from '@/lib/supabase/sdk'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
@@ -18,10 +19,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { CharacterNameSuggestList } from './character-name-suggest-list'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
 import { DragHandle } from './drag-handle-react'
 import { AIAutocomplete } from './extensions/ai-autocomplete'
 import { CharacterHighlight, updateCharacterHighlight } from './extensions/character-highlight'
+import {
+  CharacterNameSuggest,
+
+  getCharacterNameSuggestUIState,
+  updateCharacterNameSuggest,
+} from './extensions/character-name-suggest'
 import { EditorSearch } from './extensions/editor-search'
 import { parseMarkdownContent } from './extensions/markdown-parser'
 import { SearchHighlight, updateSearchHighlight } from './extensions/search-highlight'
@@ -78,6 +86,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   const [isInitialized, setIsInitialized] = useState(false)
   const [isContentUserEdited, setIsContentUserEdited] = useState(false)
   const lastContentRef = useRef('')
+  const [nameSuggest, setNameSuggest] = useState<CharacterNameSuggestUIState | null>(null)
 
   useEffect(() => {
     setGlobalDialog(showInputDialog, showImageGenerationDialog)
@@ -146,6 +155,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       SearchHighlight,
       EditorSearch,
       CharacterHighlight,
+      CharacterNameSuggest,
     ],
     [placeholder],
   )
@@ -466,6 +476,26 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     }
   }, [editor, characters])
 
+  useEffect(() => {
+    if (editor) {
+      updateCharacterNameSuggest(editor.view, characters)
+    }
+  }, [editor, characters])
+
+  useEffect(() => {
+    if (!editor) return
+
+    const handleTransaction = () => {
+      setNameSuggest(getCharacterNameSuggestUIState(editor.view.state))
+    }
+
+    handleTransaction()
+    editor.on('transaction', handleTransaction)
+    return () => {
+      editor.off('transaction', handleTransaction)
+    }
+  }, [editor])
+
   // 处理角色悬停提示
   useEffect(() => {
     if (!editorRef.current) return
@@ -551,6 +581,50 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   return (
     <div className={`${className} relative`} ref={editorRef}>
       <TooltipProvider>
+        <Tooltip open={!!nameSuggest && editable} disableHoverableContent={false}>
+          <TooltipTrigger asChild>
+            <div
+              style={{
+                position: 'fixed',
+                left: nameSuggest?.anchor.x ?? -9999,
+                top: nameSuggest?.anchor.y ?? -9999,
+                width: 1,
+                height: 1,
+                pointerEvents: 'none',
+              }}
+            />
+          </TooltipTrigger>
+          <TooltipContent
+            side="bottom"
+            align="start"
+            sideOffset={6}
+            className="p-0 border border-border shadow-lg"
+          >
+            {nameSuggest && (
+              <CharacterNameSuggestList
+                items={nameSuggest.items}
+                query={nameSuggest.query}
+                selectedIndex={nameSuggest.selectedIndex}
+                onHoverIndex={(index) => {
+                  editor.view.dispatch(editor.view.state.tr.setMeta('character-name-suggest-select', index))
+                }}
+                onSelectIndex={(index) => {
+                  const ui = getCharacterNameSuggestUIState(editor.view.state)
+                  if (!ui) return
+                  const item = ui.items[index]
+                  if (!item) return
+                  const currentText = editor.view.state.doc.textBetween(ui.range.from, ui.range.to, '\0', '\0')
+                  if (currentText !== ui.query) {
+                    editor.view.dispatch(editor.view.state.tr.setMeta('character-name-suggest-ui', null))
+                    return
+                  }
+                  editor.chain().focus().insertContentAt(ui.range, item.name).run()
+                  editor.view.dispatch(editor.view.state.tr.setMeta('character-name-suggest-ui', null))
+                }}
+              />
+            )}
+          </TooltipContent>
+        </Tooltip>
         <Tooltip open={!!tooltipCharacter && isTooltipVisible} disableHoverableContent={false}>
           <TooltipTrigger asChild>
             <div
