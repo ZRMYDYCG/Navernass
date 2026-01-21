@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import {
   ArrowDownToLine,
@@ -89,7 +89,7 @@ export function AIResultPanel({ ref, isLoading, content, isCompleted, onReplace,
               className="w-full px-2.5 py-1.5 text-left text-xs text-popover-foreground hover:bg-accent transition-colors flex items-center gap-1.5"
             >
               <Check className="w-3 h-3" />
-              <span>替换</span>
+              <span>Suggest</span>
             </button>
             <button
               type="button"
@@ -123,3 +123,8 @@ export function AIResultPanel({ ref, isLoading, content, isCompleted, onReplace,
 }
 
 AIResultPanel.displayName = 'AIResultPanel'
+
+
+
+
+

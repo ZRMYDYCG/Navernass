@@ -34,6 +34,7 @@ import { EditorSearch } from './extensions/editor-search'
 import { parseMarkdownContent } from './extensions/markdown-parser'
 import { SearchHighlight, updateSearchHighlight } from './extensions/search-highlight'
 import { SlashCommand } from './extensions/slash-command'
+import { SuggestionAdd, SuggestionDel } from './extensions/suggestion-track'
 import { FloatingMenu } from './floating-menu'
 import { SearchBox } from './search-box'
 import 'tippy.js/dist/tippy.css'
@@ -147,6 +148,8 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       }),
       TextStyle,
       Color,
+      SuggestionAdd,
+      SuggestionDel,
       SlashCommand,
       AIAutocomplete.configure({
         trigger: '++',

@@ -31,6 +31,9 @@ interface EditorContentProps {
 }
 
 const EMPTY_ARRAY: never[] = []
+const SUGGESTION_MARKER_REGEX = /data-suggestion=\"(add|del)\"|suggestion-(add|del)/i
+
+const hasSuggestionMarkup = (content: string) => SUGGESTION_MARKER_REGEX.test(content)
 
 export default function EditorContent({
   openTabs,
@@ -102,6 +105,7 @@ export default function EditorContent({
   const handleUpdate = async (content: string) => {
     editorContentRef.current = content
     if (!chapterId) return
+    if (hasSuggestionMarkup(content)) return
 
     try {
       setIsSaving(true)
@@ -125,6 +129,10 @@ export default function EditorContent({
       isSavingRef.current = true
       setIsSaving(true)
       const content = editorContentRef.current
+      if (hasSuggestionMarkup(content)) {
+        toast('请先接受或拒绝修订内容再保存')
+        return
+      }
       await chaptersApi.update({
         id: chapterId,
         content,
@@ -170,7 +178,7 @@ export default function EditorContent({
       }
 
       const content = editorContentRef.current
-      if (content) {
+      if (content && !hasSuggestionMarkup(content)) {
         e.preventDefault()
         e.returnValue = ''
 

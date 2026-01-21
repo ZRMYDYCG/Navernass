@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AIInputBox } from './ai-input-box'
 import { AIMenuLeft } from './ai-menu-left'
 import { AIMenuRight } from './ai-menu-right'
-import { AIResultPanel } from './ai-result-panel'
 import { useAIState } from './use-ai-state'
 
 interface AIFloatingMenuProps {
@@ -20,10 +19,9 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
   const [showEditMenu, setShowEditMenu] = useState(false)
   const [isShaking, setIsShaking] = useState(false)
   const lastSelectionRef = useRef<{ from: number, to: number } | null>(null)
-  const aiResultPanelRef = useRef<HTMLDivElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const shakeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  
+
   const handleActionComplete = () => {
     setShowInput(false)
     setShowEditMenu(false)
@@ -31,34 +29,27 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
       onCloseAI()
     }
   }
-  
+
   const {
     aiPrompt,
     setAiPrompt,
     isAILoading,
-    aiStreamContent,
-    aiCompleted,
     handleAI,
     resetAI,
-    retryAI,
-    applyReplace,
-    applyInsertBelow,
-    cancelAI,
-    lastPromptRef,
   } = useAIState(editor, handleActionComplete)
-  
-  const hasActiveConversation = isAILoading || aiCompleted
-  
+
+  const hasActiveConversation = isAILoading
+
   const triggerShake = useCallback(() => {
     if (shakeTimeoutRef.current) return
-    
+
     setIsShaking(true)
     shakeTimeoutRef.current = setTimeout(() => {
       setIsShaking(false)
       shakeTimeoutRef.current = null
     }, 600)
   }, [])
-  
+
   const handleCloseRequest = useCallback(() => {
     if (hasActiveConversation) {
       triggerShake()
@@ -71,7 +62,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
       }
     }
   }, [hasActiveConversation, resetAI, onCloseAI, triggerShake])
-  
+
   useEffect(() => {
     return () => {
       if (shakeTimeoutRef.current) {
@@ -159,7 +150,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
           triggerShake()
           return
         }
-        
+
         if (showInput) {
           setShowInput(false)
           setShowEditMenu(false)
@@ -197,6 +188,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
           try {
             editor.commands.setTextSelection({ from: savedFrom, to: savedTo })
           } catch (e) {
+            console.log(e)
           }
         }
       }
@@ -228,25 +220,25 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
       editorElement.removeEventListener('touchstart', handleEditorClick)
     }
   }, [editor, showInput])
-  
+
   useEffect(() => {
     if (!editor || !showInput || !hasActiveConversation) return
-    
+
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node
       const clickedInsideContainer = containerRef.current?.contains(target)
-      
+
       if (!clickedInsideContainer) {
         event.preventDefault()
         event.stopPropagation()
         triggerShake()
       }
     }
-    
+
     const timer = setTimeout(() => {
       document.addEventListener('mousedown', handleClickOutside, true)
     }, 100)
-    
+
     return () => {
       clearTimeout(timer)
       document.removeEventListener('mousedown', handleClickOutside, true)
@@ -292,67 +284,13 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
     setShowEditMenu(true)
   }
 
-  useEffect(() => {
-    if (!aiResultPanelRef.current || !editor) return
-
-    if (!isAILoading && !aiCompleted) return
-    if (!aiStreamContent) return
-
-    const timeoutId = setTimeout(() => {
-      const panel = aiResultPanelRef.current
-      if (!panel) return
-
-      const editorElement = editor.view.dom
-      const container = editorElement.closest('.relative') as HTMLElement | null
-      if (!container) return
-
-      const scrollContainer = editorElement.closest('[class*="overflow"]') as HTMLElement | null
-      if (!scrollContainer) return
-
-      const panelRect = panel.getBoundingClientRect()
-      const scrollRect = scrollContainer.getBoundingClientRect()
-
-      const margin = 50
-      const isVisible
-        = panelRect.top >= scrollRect.top - margin
-          && panelRect.bottom <= scrollRect.bottom + margin
-
-      if (!isVisible) {
-        const panelTop = panelRect.top - scrollRect.top + scrollContainer.scrollTop
-        const scrollTarget = panelTop - (scrollRect.height / 2) + (panelRect.height / 2)
-
-        scrollContainer.scrollTo({
-          top: Math.max(0, scrollTarget),
-          behavior: 'smooth',
-        })
-      }
-    }, 300)
-
-    return () => {
-      clearTimeout(timeoutId)
-    }
-  }, [aiStreamContent, isAILoading, aiCompleted, editor])
-
   if ((!show && !showInput) || !editor) return null
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={`flex flex-col items-center gap-1.5 ${isShaking ? 'ai-menu-shake' : ''}`}
     >
-      {hasActiveConversation && (
-        <AIResultPanel
-          ref={aiResultPanelRef}
-          isLoading={isAILoading}
-          content={aiStreamContent}
-          isCompleted={aiCompleted}
-          onReplace={applyReplace}
-          onInsertBelow={applyInsertBelow}
-          onCancel={cancelAI}
-          onRetry={retryAI}
-        />
-      )}
-
       <AIInputBox
         show={showInput}
         onToggle={() => {

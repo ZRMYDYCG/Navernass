@@ -1,5 +1,6 @@
 import type { Editor } from '@tiptap/react'
 import { useRef, useState } from 'react'
+import { applySuggestionDiff } from '../extensions/suggestion-track'
 
 function stripMarkdown(text: string): string {
   return text
@@ -15,7 +16,7 @@ function stripMarkdown(text: string): string {
     .replace(/^[-*+]\s+/gm, '')
     .replace(/^\d+\.\s+/gm, '')
     .replace(/^>\s+/gm, '')
-    .replace(/---+/g, '')
+    .replace(/-{3,}/g, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim()
 }
@@ -23,62 +24,19 @@ function stripMarkdown(text: string): string {
 export function useAIState(editor: Editor | null, onActionComplete?: () => void) {
   const [aiPrompt, setAiPrompt] = useState('')
   const [isAILoading, setIsAILoading] = useState(false)
-  const [aiStreamContent, setAiStreamContent] = useState('')
-  const [aiCompleted, setAiCompleted] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
   const lastPromptRef = useRef<string>('')
+  const selectionRef = useRef<{
+    originalFrom: number
+    originalTo: number
+    originalText: string
+    liveRange: { from: number, to: number }
+  } | null>(null)
 
   const resetAI = () => {
-    setAiStreamContent('')
-    setAiCompleted(false)
     setAiPrompt('')
-  }
-
-  const retryAI = async () => {
-    if (!lastPromptRef.current) return
-    setAiStreamContent('')
-    setAiCompleted(false)
-    await handleAI(lastPromptRef.current)
-  }
-
-  const applyReplace = () => {
-    if (!editor || !aiStreamContent) return
-    const { from } = editor.state.selection
-    const cleanContent = stripMarkdown(aiStreamContent)
-    editor.chain().focus().deleteSelection().insertContent(cleanContent).run()
-    
-    const newTo = from + cleanContent.length
-    requestAnimationFrame(() => {
-      editor.chain().focus().setTextSelection({ from, to: newTo }).run()
-    })
-    
-    resetAI()
-    onActionComplete?.()
-  }
-
-  const applyInsertBelow = () => {
-    if (!editor || !aiStreamContent) return
-    const { to } = editor.state.selection
-    const cleanContent = stripMarkdown(aiStreamContent)
-    const insertText = `\n${cleanContent}`
-    editor.chain().focus().setTextSelection(to).insertContent(insertText).run()
-    
-    const newFrom = to + 1
-    const newTo = to + insertText.length
-    requestAnimationFrame(() => {
-      editor.chain().focus().setTextSelection({ from: newFrom, to: newTo }).run()
-    })
-    
-    resetAI()
-    onActionComplete?.()
-  }
-
-  const cancelAI = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-    resetAI()
-    onActionComplete?.()
+    setIsAILoading(false)
+    selectionRef.current = null
   }
 
   const handleAI = async (customPrompt: string) => {
@@ -91,11 +49,15 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
     )
 
     if (!selectedText) return
+    selectionRef.current = {
+      originalFrom: editor.state.selection.from,
+      originalTo: editor.state.selection.to,
+      originalText: selectedText,
+      liveRange: { from: editor.state.selection.from, to: editor.state.selection.to },
+    }
 
     try {
       setIsAILoading(true)
-      setAiStreamContent('')
-      setAiCompleted(false)
       lastPromptRef.current = customPrompt
 
       abortControllerRef.current = new AbortController()
@@ -124,6 +86,35 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
 
       let buffer = ''
       let fullContent = ''
+      let didApply = false
+      let applyTimer: ReturnType<typeof setTimeout> | null = null
+
+      const applyLiveDiff = () => {
+        const snapshot = selectionRef.current
+        if (!snapshot) return
+
+        const cleanContent = stripMarkdown(fullContent)
+        if (!cleanContent) return
+
+        const updatedRange = applySuggestionDiff(
+          editor,
+          snapshot.liveRange,
+          snapshot.originalText,
+          cleanContent,
+        )
+        if (updatedRange) {
+          snapshot.liveRange = updatedRange
+          didApply = true
+        }
+      }
+
+      const scheduleApply = () => {
+        if (applyTimer) return
+        applyTimer = setTimeout(() => {
+          applyTimer = null
+          applyLiveDiff()
+        }, 120)
+      }
 
       while (true) {
         const { done, value } = await reader.read()
@@ -143,10 +134,12 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
 
             if (data.type === 'content') {
               fullContent += data.data
-              setAiStreamContent(fullContent)
+              scheduleApply()
             } else if (data.type === 'done') {
-              setAiCompleted(true)
               setIsAILoading(false)
+              applyLiveDiff()
+              resetAI()
+              onActionComplete?.()
             } else if (data.type === 'error') {
               throw new Error(data.data)
             }
@@ -154,28 +147,53 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
           }
         }
       }
+
+      if (!didApply) {
+        setIsAILoading(false)
+        applyLiveDiff()
+        resetAI()
+        onActionComplete?.()
+      }
     } catch (error: unknown) {
-      if (error instanceof Error && error.name === 'AbortError') {
-      } else {
+      if (error instanceof Error && error.name === 'AbortError') { /* empty */ } else {
         console.error('AI 处理失败:', error)
       }
       setIsAILoading(false)
+      resetAI()
     } finally {
       abortControllerRef.current = null
     }
+  }
+
+  const retryAI = async () => {
+    if (!lastPromptRef.current) return
+    await handleAI(lastPromptRef.current)
+  }
+
+  const cancelAI = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const snapshot = selectionRef.current
+    if (editor && snapshot) {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(snapshot.liveRange)
+        .insertContentAt(snapshot.liveRange.from, snapshot.originalText)
+        .run()
+    }
+    resetAI()
+    onActionComplete?.()
   }
 
   return {
     aiPrompt,
     setAiPrompt,
     isAILoading,
-    aiStreamContent,
-    aiCompleted,
     handleAI,
     resetAI,
     retryAI,
-    applyReplace,
-    applyInsertBelow,
     cancelAI,
     lastPromptRef,
   }

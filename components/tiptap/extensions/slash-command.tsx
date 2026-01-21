@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import tippy from 'tippy.js'
 import { CommandList } from '../command-list'
-import { showGlobalInputDialog, showGlobalImageGenerationDialog } from '../dialog-manager'
+import { showGlobalImageGenerationDialog, showGlobalInputDialog } from '../dialog-manager'
 
 export interface CommandItem {
   title: string
@@ -321,7 +321,7 @@ async function triggerAIBrainstorm(editor: any) {
   if (!userInput) return
 
   try {
-    editor.chain().focus().insertContent('💡 AI 正在生成创意...').run()
+    editor.chain().focus().insertContent('AI 正在生成创意...').run()
 
     const response = await fetch('/api/editor/ai', {
       method: 'POST',
@@ -335,7 +335,7 @@ async function triggerAIBrainstorm(editor: any) {
 
     if (!response.ok) throw new Error('AI 请求失败')
 
-    const loadingText = '💡 AI 正在生成创意...'
+    const loadingText = 'AI 正在生成创意...'
     const currentPos = editor.state.selection.from
     editor.chain().focus().deleteRange({ from: currentPos - loadingText.length, to: currentPos }).run()
 
@@ -446,7 +446,7 @@ async function triggerAIImageGeneration(editor: any) {
   showGlobalImageGenerationDialog({
     onConfirm: async (prompt: string, size: string) => {
       try {
-        editor.chain().focus().insertContent('🎨 AI 正在生成图片...').run()
+        editor.chain().focus().insertContent('AI 正在生成图片...').run()
 
         const response = await fetch('/api/images/generate', {
           method: 'POST',
@@ -471,7 +471,7 @@ async function triggerAIImageGeneration(editor: any) {
         if (data.images && data.images.length > 0) {
           const imageUrl = data.images[0].url
 
-          const loadingText = '🎨 AI 正在生成图片...'
+          const loadingText = 'AI 正在生成图片...'
           const currentPos = editor.state.selection.from
           editor
             .chain()
@@ -480,7 +480,7 @@ async function triggerAIImageGeneration(editor: any) {
             .run()
 
           const editorEvent = new CustomEvent('novel-insert-image-to-editor', {
-            detail: { imageUrl }
+            detail: { imageUrl },
           })
           window.dispatchEvent(editorEvent)
         } else {
@@ -488,7 +488,7 @@ async function triggerAIImageGeneration(editor: any) {
         }
       } catch (error: any) {
         console.error('图片生成失败:', error)
-        const loadingText = '🎨 AI 正在生成图片...'
+        const loadingText = 'AI 正在生成图片...'
         const currentPos = editor.state.selection.from
         editor
           .chain()

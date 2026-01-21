@@ -91,29 +91,47 @@ export function AIInputBox({
         />
         <div className="flex items-center gap-1.5">
           <div className="flex-shrink-0">
-            {mounted
+            {isLoading
               ? (
-                  <Image
-                    src={isDark ? '/assets/svg/logo-dark.svg' : '/assets/svg/logo-light.svg'}
-                    alt="AI"
-                    width={12}
-                    height={12}
-                    className="object-contain"
-                  />
+                  <div className="flex items-center gap-0.5" role="status" aria-label="AI 正在生成">
+                    <span
+                      className="w-1 h-1 rounded-full bg-muted-foreground/70 animate-bounce"
+                      style={{ animationDelay: '0ms' }}
+                    />
+                    <span
+                      className="w-1 h-1 rounded-full bg-muted-foreground/70 animate-bounce"
+                      style={{ animationDelay: '120ms' }}
+                    />
+                    <span
+                      className="w-1 h-1 rounded-full bg-muted-foreground/70 animate-bounce"
+                      style={{ animationDelay: '240ms' }}
+                    />
+                  </div>
                 )
-              : (
-                  <div className="w-3 h-3 bg-muted rounded animate-pulse" />
-                )}
+              : mounted
+                ? (
+                    <Image
+                      src={isDark ? '/assets/svg/logo-dark.svg' : '/assets/svg/logo-light.svg'}
+                      alt="AI"
+                      width={12}
+                      height={12}
+                      className="object-contain"
+                    />
+                  )
+                : (
+                    <div className="w-3 h-3 bg-muted rounded animate-pulse" />
+                  )}
           </div>
-          <button
-            type="button"
-            onClick={handleCloseClick}
-            disabled={isLoading}
-            className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed p-0.5 hover:bg-accent rounded"
-            title={hasActiveConversation ? '关闭对话（将提示确认）' : '关闭'}
-          >
-            <X className="w-3 h-3" />
-          </button>
+          {!isLoading && (
+            <button
+              type="button"
+              onClick={handleCloseClick}
+              className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors p-0.5 hover:bg-accent rounded"
+              title={hasActiveConversation ? '关闭对话（将提示确认）' : '关闭'}
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
         </div>
       </div>
     </div>

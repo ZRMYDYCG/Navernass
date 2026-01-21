@@ -1,10 +1,12 @@
 'use client'
 
 import type { Editor } from '@tiptap/react'
+import { Check, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AIFloatingMenu } from './ai-floating-menu'
 import { FormatToolbar } from './format-toolbar'
+import { acceptSuggestions, rejectSuggestions, selectionHasSuggestions } from './extensions/suggestion-track'
 
 interface FloatingMenuProps {
   editor: Editor | null
@@ -15,6 +17,7 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const [showAI, setShowAI] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [hasSuggestions, setHasSuggestions] = useState(false)
   const lastSelectionRef = useRef<{ from: number, to: number } | null>(null)
   const containerRef = useRef<HTMLElement | null>(null)
 
@@ -44,6 +47,9 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
           })
           lastSelectionRef.current = null
         }
+        if (hasSuggestions) {
+          setHasSuggestions(false)
+        }
         return
       }
 
@@ -59,6 +65,8 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
         })
         lastSelectionRef.current = { from, to }
       }
+
+      setHasSuggestions(selectionHasSuggestions(editor.state, from, to))
 
       // 更新位置
       try {
@@ -136,7 +144,7 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
       window.removeEventListener('scroll', handleScroll, true)
       window.removeEventListener('resize', handleScroll)
     }
-  }, [editor, show, showAI, isDragging])
+  }, [editor, show, showAI, isDragging, hasSuggestions])
 
   // 在拖拽时隐藏菜单
   if (!show || !editor || isDragging) return null
@@ -154,7 +162,28 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
       className="flex flex-col items-center gap-2"
     >
       {/* 格式化工具栏 - 当 AI 输入框显示时隐藏 */}
-      {!showAI && (
+      {!showAI && hasSuggestions && (
+        <div className="bg-popover border border-border rounded shadow-lg overflow-hidden">
+          <button
+            type="button"
+            onClick={() => acceptSuggestions(editor)}
+            className="w-full px-2.5 py-1.5 text-left text-xs text-popover-foreground hover:bg-accent transition-colors flex items-center gap-1.5"
+          >
+            <Check className="w-3 h-3" />
+            <span>接受</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => rejectSuggestions(editor)}
+            className="w-full px-2.5 py-1.5 text-left text-xs text-popover-foreground hover:bg-accent transition-colors flex items-center gap-1.5"
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span>拒绝</span>
+          </button>
+        </div>
+      )}
+
+      {!showAI && !hasSuggestions && (
         <FormatToolbar
           editor={editor}
           onAIClick={() => {
