@@ -88,7 +88,7 @@ export function ChapterList({
 }: ChapterListProps) {
   const [localChapters, setLocalChapters] = useState(() => chapters || [])
   const [localVolumes, setLocalVolumes] = useState(() => volumes || [])
-  const [expandedVolumes, setExpandedVolumes] = useState<Set<string>>(() => new Set())
+  const [expandedVolumes, setExpandedVolumes] = useState<Set<string>>(new Set())
   const [activeId, setActiveId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
 
@@ -122,6 +122,9 @@ export function ChapterList({
   // eslint-disable-next-line @typescript-eslint/no-base-to-string
   useEffect(() => {
     setLocalVolumes(volumes || [])
+    if (volumes && volumes.length > 0) {
+      setExpandedVolumes(new Set(volumes.map(v => v.id)))
+    }
     // eslint-disable-next-line react-compiler/react-compiler
   }, [volumes])
 
