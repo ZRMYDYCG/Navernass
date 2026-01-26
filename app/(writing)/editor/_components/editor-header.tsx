@@ -9,12 +9,14 @@ import { HeaderRight } from './header-right'
 interface EditorHeaderProps {
   title?: string
   currentChapterId?: string | null
+  isImmersiveMode?: boolean
   showLeftPanel: boolean
   onToggleLeftPanel: () => void
   onSelectChapter?: (chapterId: string) => void
   onToggleAI?: () => void
   onToggleTerminal?: () => void
   onLock?: () => void
+  onToggleImmersiveMode?: () => void
   onBack?: () => void
   novelId?: string
   chapterIds?: string[]
@@ -24,12 +26,14 @@ interface EditorHeaderProps {
 export default function EditorHeader({
   title = '未选择章节',
   currentChapterId,
+  isImmersiveMode,
   showLeftPanel,
   onToggleLeftPanel,
   onSelectChapter,
   onToggleAI,
   onToggleTerminal,
   onLock,
+  onToggleImmersiveMode,
   onBack,
   novelId,
   chapterIds,
@@ -202,6 +206,8 @@ export default function EditorHeader({
         onToggleTerminal={onToggleTerminal}
         onLock={handleLock}
         onClose={handleClose}
+        isImmersiveMode={isImmersiveMode}
+        onToggleImmersiveMode={onToggleImmersiveMode}
         novelId={novelId}
         chapterIds={chapterIds}
       />

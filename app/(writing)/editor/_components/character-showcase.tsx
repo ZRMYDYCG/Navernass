@@ -373,7 +373,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 pt-2">
+      <div className="flex-1 overflow-y-auto p-4 pt-2 scrollbar-none">
         {loading
           ? (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-2">

@@ -335,7 +335,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
       </div>
 
       {/* 搜索结果区域 */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto scrollbar-none">
         {loading ? (
           <div className="flex items-center justify-center h-32">
             <Spinner className="w-4 h-4" />

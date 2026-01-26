@@ -2,6 +2,8 @@
 
 import {
   Bot,
+  Eye,
+  EyeOff,
   Globe,
   LockKeyhole,
   Maximize2,
@@ -23,7 +25,9 @@ const DEFAULT_CHAPTER_IDS: string[] = []
 
 interface HeaderRightProps {
   isFullscreen?: boolean
+  isImmersiveMode?: boolean
   onToggleFullscreen?: () => void
+  onToggleImmersiveMode?: () => void
   onToggleAI?: () => void
   onToggleTerminal?: () => void
   onLock?: () => void
@@ -34,7 +38,9 @@ interface HeaderRightProps {
 
 export function HeaderRight({
   isFullscreen = false,
+  isImmersiveMode = false,
   onToggleFullscreen,
+  onToggleImmersiveMode,
   onToggleAI,
   onLock,
   onClose,
@@ -81,7 +87,25 @@ export function HeaderRight({
           </TooltipContent>
         </Tooltip>
 
-        {/* AI 按钮 */}
+        {/* 沉浸模式 */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={onToggleImmersiveMode}
+              className={`${buttonClass} ${isImmersiveMode ? 'relative z-50 backdrop-blur-none bg-primary/20 text-primary ring-2 ring-primary/50' : ''}`}
+              aria-pressed={isImmersiveMode}
+            >
+              {isImmersiveMode
+                ? <EyeOff {...iconProps} />
+                : <Eye {...iconProps} />}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{isImmersiveMode ? '退出沉浸模式' : '沉浸模式'}</p>
+          </TooltipContent>
+        </Tooltip>
+
         <Tooltip>
           <TooltipTrigger asChild>
             <button

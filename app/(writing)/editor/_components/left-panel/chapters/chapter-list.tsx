@@ -299,7 +299,7 @@ export function ChapterList({
   const hasContent = localChapters.length > 0 || localVolumes.length > 0
 
   return (
-    <div className="flex-1 overflow-y-auto p-2">
+    <div className="flex-1 overflow-y-auto p-2 scrollbar-none">
       {!hasContent ? (
         <EmptyChapters
           onCreateChapter={onCreateChapter}

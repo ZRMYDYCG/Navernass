@@ -17,6 +17,7 @@ import { CreateVolumeDialog } from './_components/create-volume-dialog'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import EditorContent from './_components/editor-content'
 import EditorHeader from './_components/editor-header'
+import { ImmersiveRegion } from './_components/immersive-region'
 import { EditorWelcome } from './_components/editor-welcome'
 import LeftPanel from './_components/left-panel'
 import { LockScreen } from './_components/lock-screen'
@@ -74,6 +75,8 @@ function NovelsEditContent() {
   const [isMovingChapter, setIsMovingChapter] = useState(false)
   const [showLeftPanel, setShowLeftPanel] = useState(true)
   const [showRightPanel, setShowRightPanel] = useState(false)
+  const [isImmersiveMode, setIsImmersiveMode] = useState(false)
+  const immersiveActive = isImmersiveMode && !isMobile
 
   useEffect(() => {
     const prev = prevIsMobileRef.current
@@ -112,6 +115,10 @@ function NovelsEditContent() {
       }
     }
   }, [isMobile])
+
+  const handleToggleImmersiveMode = useCallback(() => {
+    setIsImmersiveMode(prev => !prev)
+  }, [])
 
   const handleImageGenerated = (imageUrl: string) => {
     const editorEvent = new CustomEvent('novel-insert-image-to-editor', {
@@ -216,11 +223,15 @@ function NovelsEditContent() {
         e.preventDefault()
         handleToggleRightPanel()
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === '\\') {
+        e.preventDefault()
+        handleToggleImmersiveMode()
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handleToggleLeftPanel, handleToggleRightPanel])
+  }, [handleToggleLeftPanel, handleToggleRightPanel, handleToggleImmersiveMode])
 
   // 处理章节选择
   const handleSelectChapter = (chapterId: string) => {
@@ -876,9 +887,11 @@ function NovelsEditContent() {
     <Tooltip.Provider>
       <LockScreen onLockChange={handleLockChange}>
         <div className="h-screen flex flex-col overflow-hidden">
-          <EditorHeader
+          <ImmersiveRegion isImmersive={immersiveActive}>
+            <EditorHeader
             title={activeTab ? chapters.find(c => c.id === activeTab)?.title || '未选择章节' : '未选择章节'}
             currentChapterId={activeTab}
+            isImmersiveMode={isImmersiveMode}
             showLeftPanel={showLeftPanel}
             onToggleLeftPanel={handleToggleLeftPanel}
             onSelectChapter={handleSelectChapter}
@@ -886,11 +899,13 @@ function NovelsEditContent() {
               handleToggleRightPanel()
             }}
             onLock={handleLock}
+            onToggleImmersiveMode={handleToggleImmersiveMode}
             onBack={handleBack}
             novelId={novelId || undefined}
             chapterIds={chapters.map(c => c.id)}
             onOpenChapterSearch={() => setQuickSearchOpen(true)}
           />
+          </ImmersiveRegion>
 
           {/* 内容区域 */}
           <main className="flex-1 flex flex-col bg-muted transition-colors overflow-hidden">
@@ -913,28 +928,30 @@ function NovelsEditContent() {
                 onExpand={() => setShowLeftPanel(true)}
                 style={isMobile && !showLeftPanel ? { display: 'none' } : undefined}
               >
-                <LeftPanel
-                  novelTitle={novel.title}
-                  novelId={novelId!}
-                  chapters={formattedChapters}
-                  volumes={volumes}
-                  selectedChapter={selectedChapter}
-                  onSelectChapter={handleSelectChapter}
-                  onCreateChapter={handleOpenCreateChapterDialog}
-                  onCreateChapterInVolume={handleCreateChapterInVolume}
-                  onCreateVolume={handleOpenCreateVolumeDialog}
-                  onReorderChapters={handleReorderChapters}
-                  onReorderVolumes={handleReorderVolumes}
-                  onMoveChapterToVolume={handleMoveChapterToVolume}
-                  onRenameChapter={handleRenameChapter}
-                  onDeleteChapter={handleDeleteChapter}
-                  onCopyChapter={handleCopyChapter}
-                  onMoveChapter={handleMoveChapter}
-                  onRenameVolume={handleRenameVolume}
-                  onDeleteVolume={handleDeleteVolume}
-                  onChaptersImported={handleChaptersImported}
-                  onImageGenerated={handleImageGenerated}
-                />
+                <ImmersiveRegion isImmersive={immersiveActive} className="h-full">
+                  <LeftPanel
+                    novelTitle={novel.title}
+                    novelId={novelId!}
+                    chapters={formattedChapters}
+                    volumes={volumes}
+                    selectedChapter={selectedChapter}
+                    onSelectChapter={handleSelectChapter}
+                    onCreateChapter={handleOpenCreateChapterDialog}
+                    onCreateChapterInVolume={handleCreateChapterInVolume}
+                    onCreateVolume={handleOpenCreateVolumeDialog}
+                    onReorderChapters={handleReorderChapters}
+                    onReorderVolumes={handleReorderVolumes}
+                    onMoveChapterToVolume={handleMoveChapterToVolume}
+                    onRenameChapter={handleRenameChapter}
+                    onDeleteChapter={handleDeleteChapter}
+                    onCopyChapter={handleCopyChapter}
+                    onMoveChapter={handleMoveChapter}
+                    onRenameVolume={handleRenameVolume}
+                    onDeleteVolume={handleDeleteVolume}
+                    onChaptersImported={handleChaptersImported}
+                    onImageGenerated={handleImageGenerated}
+                  />
+                </ImmersiveRegion>
               </ResizablePanel>
 
               <ResizableHandle withHandle className={!showLeftPanel ? 'hidden' : ''} />
@@ -989,7 +1006,9 @@ function NovelsEditContent() {
                 onExpand={() => setShowRightPanel(true)}
                 style={isMobile && !showRightPanel ? { display: 'none' } : undefined}
               >
-                <RightPanel />
+                <ImmersiveRegion isImmersive={immersiveActive} className="h-full">
+                  <RightPanel />
+                </ImmersiveRegion>
               </ResizablePanel>
             </ResizablePanelGroup>
           </main>
