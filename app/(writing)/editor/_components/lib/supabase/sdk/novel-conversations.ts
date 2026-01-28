@@ -1,48 +1,64 @@
-import type { Conversation, SendMessageRequest, SendMessageResponse } from './types'
+import type { CreateNovelConversationDto, NovelConversation, NovelMessage, SendNovelMessageRequest, UpdateNovelConversationDto } from './types'
 import { apiClient } from './client'
 
-export const chatApi = {
+export const novelConversationsApi = {
   /**
-   * 创建新对话
+   * 获取小说的所有会话
    */
-  createConversation: async (message?: string): Promise<Conversation> => {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message }),
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to create conversation')
-    }
-
-    const data = await response.json()
-    return data.data.conversation
+  getByNovelId: async (novelId: string): Promise<NovelConversation[]> => {
+    return apiClient.get<NovelConversation[]>(`/api/editor/novel-conversations?novelId=${novelId}`)
   },
 
   /**
-   * 发送消息并获取AI回复
+   * 获取会话详情
    */
-  sendMessage: async (data: SendMessageRequest): Promise<SendMessageResponse> => {
-    return apiClient.post<SendMessageResponse>('/api/chat/send', data)
+  getById: async (id: string): Promise<NovelConversation> => {
+    return apiClient.get<NovelConversation>(`/api/editor/novel-conversations/${id}`)
+  },
+
+  /**
+   * 创建新会话
+   */
+  create: async (data: CreateNovelConversationDto): Promise<NovelConversation> => {
+    return apiClient.post<NovelConversation>('/api/editor/novel-conversations', data)
+  },
+
+  /**
+   * 更新会话
+   */
+  update: async (id: string, data: Partial<UpdateNovelConversationDto>): Promise<NovelConversation> => {
+    return apiClient.patch<NovelConversation>(`/api/editor/novel-conversations/${id}`, data)
+  },
+
+  /**
+   * 删除会话
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/api/editor/novel-conversations/${id}`)
+  },
+
+  /**
+   * 获取会话的所有消息
+   */
+  getMessages: async (conversationId: string): Promise<NovelMessage[]> => {
+    return apiClient.get<NovelMessage[]>(`/api/editor/novel-conversations/${conversationId}/messages`)
   },
 
   /**
    * 流式发送消息并获取AI回复
    */
   sendMessageStream: async (
-    data: SendMessageRequest,
+    data: SendNovelMessageRequest,
     callbacks: {
-      onConversationId?: (id: string, isNew: boolean) => void
+      onConversationId?: (id: string) => void
       onUserMessageId?: (id: string) => void
+      onThinking?: (thinking: string) => void
       onContent?: (content: string) => void
       onDone?: (data: { messageId: string, tokens: number, model: string }) => void
       onError?: (error: string) => void
     },
   ): Promise<void> => {
-    const response = await fetch('/api/chat/stream', {
+    const response = await fetch('/api/editor/novel-conversations/stream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -80,10 +96,13 @@ export const chatApi = {
 
           switch (event.type) {
             case 'conversation_id':
-              callbacks.onConversationId?.(event.data.id, event.data.created)
+              callbacks.onConversationId?.(event.data)
               break
             case 'user_message_id':
               callbacks.onUserMessageId?.(event.data)
+              break
+            case 'thinking':
+              callbacks.onThinking?.(event.data)
               break
             case 'content':
               callbacks.onContent?.(event.data)
