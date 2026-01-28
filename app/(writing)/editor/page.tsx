@@ -1,6 +1,7 @@
 'use client'
 
 import type { ImperativePanelHandle } from 'react-resizable-panels'
+import type { LeftTabType } from './_components/left-panel/types'
 import type { Chapter, Novel, NovelCharacter, Volume } from '@/lib/supabase/sdk'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -12,13 +13,14 @@ import { Spinner } from '@/components/ui/spinner'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { chaptersApi, charactersApi, novelsApi, volumesApi } from '@/lib/supabase/sdk'
 import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
+import { CharacterPanel } from './_components/character-panel'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
 import { CreateVolumeDialog } from './_components/create-volume-dialog'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import EditorContent from './_components/editor-content'
 import EditorHeader from './_components/editor-header'
-import { ImmersiveRegion } from './_components/immersive-region'
 import { EditorWelcome } from './_components/editor-welcome'
+import { ImmersiveRegion } from './_components/immersive-region'
 import LeftPanel from './_components/left-panel'
 import { LockScreen } from './_components/lock-screen'
 import { MoveChapterDialog } from './_components/move-chapter-dialog'
@@ -76,6 +78,7 @@ function NovelsEditContent() {
   const [showLeftPanel, setShowLeftPanel] = useState(true)
   const [showRightPanel, setShowRightPanel] = useState(false)
   const [isImmersiveMode, setIsImmersiveMode] = useState(false)
+  const [activeLeftTab, setActiveLeftTab] = useState<LeftTabType | 'characters'>('files')
   const immersiveActive = isImmersiveMode && !isMobile
 
   useEffect(() => {
@@ -889,22 +892,22 @@ function NovelsEditContent() {
         <div className="h-screen flex flex-col overflow-hidden">
           <ImmersiveRegion isImmersive={immersiveActive}>
             <EditorHeader
-            title={activeTab ? chapters.find(c => c.id === activeTab)?.title || '未选择章节' : '未选择章节'}
-            currentChapterId={activeTab}
-            isImmersiveMode={isImmersiveMode}
-            showLeftPanel={showLeftPanel}
-            onToggleLeftPanel={handleToggleLeftPanel}
-            onSelectChapter={handleSelectChapter}
-            onToggleAI={() => {
-              handleToggleRightPanel()
-            }}
-            onLock={handleLock}
-            onToggleImmersiveMode={handleToggleImmersiveMode}
-            onBack={handleBack}
-            novelId={novelId || undefined}
-            chapterIds={chapters.map(c => c.id)}
-            onOpenChapterSearch={() => setQuickSearchOpen(true)}
-          />
+              title={activeTab ? chapters.find(c => c.id === activeTab)?.title || '未选择章节' : '未选择章节'}
+              currentChapterId={activeTab}
+              isImmersiveMode={isImmersiveMode}
+              showLeftPanel={showLeftPanel}
+              onToggleLeftPanel={handleToggleLeftPanel}
+              onSelectChapter={handleSelectChapter}
+              onToggleAI={() => {
+                handleToggleRightPanel()
+              }}
+              onLock={handleLock}
+              onToggleImmersiveMode={handleToggleImmersiveMode}
+              onBack={handleBack}
+              novelId={novelId || undefined}
+              chapterIds={chapters.map(c => c.id)}
+              onOpenChapterSearch={() => setQuickSearchOpen(true)}
+            />
           </ImmersiveRegion>
 
           {/* 内容区域 */}
@@ -935,6 +938,8 @@ function NovelsEditContent() {
                     chapters={formattedChapters}
                     volumes={volumes}
                     selectedChapter={selectedChapter}
+                    activeTab={activeLeftTab as LeftTabType}
+                    onTabChange={setActiveLeftTab as (tab: LeftTabType) => void}
                     onSelectChapter={handleSelectChapter}
                     onCreateChapter={handleOpenCreateChapterDialog}
                     onCreateChapterInVolume={handleCreateChapterInVolume}
@@ -960,34 +965,36 @@ function NovelsEditContent() {
               <ResizablePanel
                 id="editor-panel"
                 order={2}
-                defaultSize={60}
-                minSize={40}
+                defaultSize={activeLeftTab === 'characters' ? 80 : 60}
+                minSize={activeLeftTab === 'characters' ? 80 : 40}
               >
-                {selectedChapter === null || activeTab === null
+                {activeLeftTab === 'characters'
                   ? (
-                      // 未选择章节时显示欢迎界面
-                      <EditorWelcome />
+                      <CharacterPanel novelId={novelId!} />
                     )
-                  : (
-                      // 选择章节后显示编辑器
-                      <EditorContent
-                        openTabs={openTabs}
-                        activeTab={activeTab}
-                        onTabChange={setActiveTab}
-                        onTabClose={closeTab}
-                        onTabCloseOthers={closeOtherTabs}
-                        onTabCloseAll={closeAllTabs}
-                        onTabCloseLeft={closeLeftTabs}
-                        onTabCloseRight={closeRightTabs}
-                        novelTitle={novel.title}
-                        chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
-                        chapterId={activeTab}
-                        volumes={volumes}
-                        chapters={chapters}
-                        characters={characters}
-                        onSelectChapter={handleSelectChapter}
-                      />
-                    )}
+                  : selectedChapter === null || activeTab === null
+                    ? (
+                        <EditorWelcome />
+                      )
+                    : (
+                        <EditorContent
+                          openTabs={openTabs}
+                          activeTab={activeTab}
+                          onTabChange={setActiveTab}
+                          onTabClose={closeTab}
+                          onTabCloseOthers={closeOtherTabs}
+                          onTabCloseAll={closeAllTabs}
+                          onTabCloseLeft={closeLeftTabs}
+                          onTabCloseRight={closeRightTabs}
+                          novelTitle={novel.title}
+                          chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
+                          chapterId={activeTab}
+                          volumes={volumes}
+                          chapters={chapters}
+                          characters={characters}
+                          onSelectChapter={handleSelectChapter}
+                        />
+                      )}
               </ResizablePanel>
 
               <ResizableHandle withHandle className={!showRightPanel ? 'hidden' : ''} />
@@ -1024,6 +1031,8 @@ function NovelsEditContent() {
                     chapters={formattedChapters}
                     volumes={volumes}
                     selectedChapter={selectedChapter}
+                    activeTab={activeLeftTab as LeftTabType}
+                    onTabChange={setActiveLeftTab as (tab: LeftTabType) => void}
                     onSelectChapter={handleSelectChapter}
                     onCreateChapter={handleOpenCreateChapterDialog}
                     onCreateVolume={handleOpenCreateVolumeDialog}

@@ -1,6 +1,4 @@
 import type { Chapter, LeftTabType, Volume } from './types'
-import { useState } from 'react'
-import { CharacterShowcase } from '../character-showcase'
 import ChaptersTab from './chapters'
 import { SearchTab } from './search-tab'
 import { TabSwitcher } from './tab-switcher'
@@ -12,6 +10,8 @@ interface LeftPanelProps {
   chapters: Chapter[]
   volumes?: Volume[]
   selectedChapter: string | null
+  activeTab: LeftTabType
+  onTabChange: (tab: LeftTabType) => void
   onSelectChapter: (id: string) => void
   onCreateChapter?: () => void
   onCreateChapterInVolume?: (volumeId: string) => void
@@ -35,6 +35,8 @@ export default function LeftPanel({
   chapters,
   volumes = [],
   selectedChapter,
+  activeTab,
+  onTabChange,
   onSelectChapter,
   onCreateChapter,
   onCreateChapterInVolume,
@@ -51,14 +53,13 @@ export default function LeftPanel({
   onChaptersImported,
   onImageGenerated,
 }: LeftPanelProps) {
-  const [activeTab, setActiveTab] = useState<LeftTabType>('files')
 
   return (
     <div
       className="h-full flex border-r-0 rounded-none shadow-none isolate"
     >
       <div className="flex-shrink-0 bg-background/90 border-r border-border">
-        <TabSwitcher activeTab={activeTab} onChange={setActiveTab} />
+        <TabSwitcher activeTab={activeTab} onChange={onTabChange} />
       </div>
 
       <div className="flex-1 overflow-hidden relative bg-background">
@@ -94,12 +95,6 @@ export default function LeftPanel({
               selectedChapter={selectedChapter}
               onSelectChapter={onSelectChapter}
             />
-          </div>
-        )}
-
-        {activeTab === 'characters' && (
-          <div className="h-full w-full absolute inset-0">
-            <CharacterShowcase novelId={novelId} />
           </div>
         )}
 
