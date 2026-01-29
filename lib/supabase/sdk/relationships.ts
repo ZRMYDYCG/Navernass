@@ -3,6 +3,7 @@ import { apiClient } from './client'
 
 export const relationshipsApi = {
   getByNovelId: async (novelId: string): Promise<Relationship[]> => {
+    if (!novelId || novelId === 'undefined' || novelId === 'null') return []
     return apiClient.get<Relationship[]>(`/api/novels/${novelId}/relationships`)
   },
   create: async (data: CreateRelationshipDto): Promise<Relationship> => {

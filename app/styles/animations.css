@@ -125,3 +125,29 @@
   z-index: 9999;
   animation: circle-expand 0.6s ease-in-out;
 }
+
+@keyframes panel-open {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes panel-close {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+.animate-panel-open {
+  animation: panel-open 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-panel-close {
+  animation: panel-close 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

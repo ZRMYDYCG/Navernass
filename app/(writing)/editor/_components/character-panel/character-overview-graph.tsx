@@ -1,11 +1,16 @@
 'use client'
 
+import type { Character, Relationship } from './types'
 import * as d3 from 'd3'
+import debounce from 'lodash-es/debounce'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { cn } from '@/lib/utils'
 import { formatRelationshipLabel, getCharacterColor } from '@/store/characterGraphStore'
+import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
 
 interface CharacterOverviewGraphProps {
+  novelId: string
   characters: Character[]
   relationships: Relationship[]
   linkingSourceId?: string | null
@@ -214,6 +219,7 @@ function hexToRgba(hex: string, alpha: number) {
 }
 
 export function CharacterOverviewGraph({
+  novelId,
   characters,
   relationships,
   linkingSourceId,
@@ -232,6 +238,18 @@ export function CharacterOverviewGraph({
   const simulationRef = useRef<d3.Simulation<GraphNode, undefined> | null>(null)
   const zoomLayerRef = useRef<SVGGElement | null>(null)
   const nodePositionsRef = useRef<Map<string, { x: number, y: number }>>(new Map())
+  // 防抖保存函数（300ms）
+  const debouncedSavePosition = useMemo(() => debounce(async (id: string, x: number, y: number) => {
+    try {
+      const updated = await charactersApi.update(id, { novel_id: novelId, overview_x: x, overview_y: y })
+      // 更新本地 store
+      try {
+        useCharacterMaterialStore.getState().upsertCharacter(updated as any)
+      } catch (_) {}
+    } catch (err) {
+      console.error('Failed to save position', err)
+    }
+  }, 300), [novelId])
   const linkingSourceIdRef = useRef<string | null>(null)
   const linksRef = useRef<GraphLink[]>([])
   const cardSelectionRef = useRef<d3.Selection<HTMLDivElement, GraphNode, HTMLDivElement, unknown> | null>(null)
@@ -240,7 +258,7 @@ export function CharacterOverviewGraph({
   const gradientSelectionRef = useRef<d3.Selection<SVGLinearGradientElement, GraphLink, SVGDefsElement, unknown> | null>(null)
   const onEditCharacterRef = useRef(onEditCharacter)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-  const sortedRelationships = useMemo(() => relationships.slice(), [relationships])
+  const sortedRelationships = useMemo(() => (relationships ?? []).slice(), [relationships])
   const [dragLine, setDragLine] = useState<{ sourceId: string, startX: number, startY: number, endX: number, endY: number } | null>(null)
   const [hoverTargetId, setHoverTargetId] = useState<string | null>(null)
   const hoverTargetIdRef = useRef<string | null>(null)
@@ -281,6 +299,7 @@ export function CharacterOverviewGraph({
       .classed('opacity-40', false)
       .classed('opacity-100', true)
       .classed('ring-2', false)
+      .classed('is-dragging', false)
   }, [])
 
   useEffect(() => {
@@ -312,7 +331,7 @@ export function CharacterOverviewGraph({
       : '<div class="absolute inset-0 flex items-center justify-center px-6 text-center text-[11px] text-white/85"><span>补充人物信息后，与你的角色见面</span></div>'
 
     return `
-      <div class="character-card-shell relative rounded-2xl border border-border/70 bg-card shadow-[0_12px_24px_rgba(15,23,42,0.08)] p-0.5 overflow-hidden group">
+      <div class="character-card-shell relative rounded-2xl border border-border/70 bg-card shadow-[0_12px_24px_rgba(15,23,42,0.08)] p-0.5 overflow-hidden">
         <div class="relative z-10 rounded-[18px] border border-border/60 bg-background overflow-hidden">
           <div class="px-2 pt-2">
             <div class="relative h-[150px] rounded-[16px] overflow-hidden" style="background: linear-gradient(180deg, ${gradientTop} 0%, ${gradientBottom} 100%);">
@@ -328,7 +347,7 @@ export function CharacterOverviewGraph({
               <div
                 data-action="connector"
                 style="--accent:${baseColor}; --accent-ring:${ringColor}; --accent-shadow:${shadowColor};"
-                class="absolute bottom-2 right-2 h-9 w-9 rounded-full bg-white/95 border border-white/80 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-crosshair hover:scale-110"
+                class="absolute bottom-2 right-2 h-9 w-9 rounded-full bg-white/95 border border-white/80 opacity-0 transition-all duration-200 cursor-crosshair hover:scale-110"
               >
                 <span class="absolute inset-0 rounded-full" style="box-shadow:0 0 0 2px var(--accent-ring), 0 6px 14px var(--accent-shadow);"></span>
                 <span class="relative z-10 grid h-full w-full place-items-center">
@@ -449,7 +468,7 @@ export function CharacterOverviewGraph({
     if (!svgRef.current || !cardLayerRef.current) return
     if (!dimensions.width || !dimensions.height) return
 
-    const container = d3.select(containerRef.current)
+    const container = d3.select(containerRef.current as HTMLDivElement)
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
 
@@ -493,7 +512,8 @@ export function CharacterOverviewGraph({
     })
 
     container.on('click', (event) => {
-      if (event.target === containerRef.current) {
+      const targetNode = event.target as EventTarget | null
+      if (targetNode === containerRef.current) {
         handleBackgroundClick()
       }
     })
@@ -509,20 +529,22 @@ export function CharacterOverviewGraph({
 
     const nodes: GraphNode[] = characters.map((character, index) => {
       const stored = nodePositionsRef.current.get(character.id)
+      const initialX = character.overview_x ?? undefined
+      const initialY = character.overview_y ?? undefined
       const baseX = count <= 1
         ? dimensions.width / 2
         : startX + index * (CARD_WIDTH + cardGap)
       const baseY = dimensions.height / 2 + (index % 2 === 0 ? -40 : 40)
       return {
         ...character,
-        x: stored?.x ?? baseX,
-        y: stored?.y ?? baseY,
+        x: stored?.x ?? initialX ?? baseX,
+        y: stored?.y ?? initialY ?? baseY,
       }
     })
 
     const nodeMap = new Map(nodes.map(node => [node.id, node]))
 
-    const links: GraphLink[] = sortedRelationships
+    const links = sortedRelationships
       .map(relationship => ({
         ...relationship,
         source: relationship.sourceId,
@@ -542,7 +564,7 @@ export function CharacterOverviewGraph({
           parallelTotal: 1,
         }
       })
-      .filter((link): link is GraphLink => Boolean(link))
+      .filter(link => link !== null) as GraphLink[]
 
     const parallelMap = new Map<string, GraphLink[]>()
     validLinks.forEach((link) => {
@@ -684,8 +706,8 @@ export function CharacterOverviewGraph({
 
     labelSelection.select<SVGTextElement>('.label-text').text(link => formatRelationshipLabel(link))
 
-    labelSelection.each(function (this: SVGGElement) {
-      const g = d3.select(this)
+    labelSelection.each((_, index, nodes) => {
+      const g = d3.select(nodes[index] as SVGGElement)
       const text = g.select<SVGTextElement>('.label-text').node()
       if (!text) return
       const bbox = text.getBBox()
@@ -703,7 +725,7 @@ export function CharacterOverviewGraph({
       .selectAll<HTMLDivElement, GraphNode>('div.character-card')
       .data(nodes, d => d.id)
       .join('div')
-      .attr('class', 'character-card absolute w-[240px] h-[300px] pointer-events-auto select-none isolate')
+      .attr('class', 'character-card absolute w-[240px] h-[300px] pointer-events-auto select-none isolate cursor-grab active:cursor-grabbing')
       .style('position', 'absolute')
       .style('width', `${CARD_WIDTH}px`)
       .style('height', `${CARD_HEIGHT}px`)
@@ -714,10 +736,10 @@ export function CharacterOverviewGraph({
         element.style.setProperty('--card-accent', getCharacterColor(node))
         element.innerHTML = buildCardHtml(node)
         element.onmouseenter = () => {
-          d3.select(element).raise().classed('z-50', true)
+          d3.select(element).raise().classed('z-50', true).classed('is-hovered', true)
         }
         element.onmouseleave = () => {
-          d3.select(element).classed('z-50', false)
+          d3.select(element).classed('z-50', false).classed('is-hovered', false)
         }
         element.onclick = (event) => {
           event.stopPropagation()
@@ -767,7 +789,7 @@ export function CharacterOverviewGraph({
               const hovered = document.elementFromPoint(clientX, clientY) as HTMLElement | null
               const hoveredCard = hovered?.closest?.('.character-card') as HTMLElement | null
               if (hoveredCard) {
-                const cardData = hoveredCard.getAttribute('data-node-id')
+                const cardData = hoveredCard.dataset?.nodeId
                 if (cardData && cardData !== node.id) return cardData
               }
 
@@ -776,7 +798,7 @@ export function CharacterOverviewGraph({
                 const cardRect = (card as HTMLElement).getBoundingClientRect()
                 if (clientX >= cardRect.left && clientX <= cardRect.right
                   && clientY >= cardRect.top && clientY <= cardRect.bottom) {
-                  const cardData = (card as HTMLElement).getAttribute('data-node-id')
+                  const cardData = (card as HTMLElement).dataset?.nodeId
                   if (cardData && cardData !== node.id) {
                     return cardData
                   }
@@ -824,29 +846,44 @@ export function CharacterOverviewGraph({
         }
       })
 
-    cardSelection.call(
-      d3.drag<HTMLDivElement, GraphNode>()
-        .on('start', function (this: HTMLDivElement, event, node) {
-          d3.select(this).classed('is-dragging', true)
-          if (!event.active) {
-            simulationRef.current?.alphaTarget(0.15).restart()
-          }
-          node.fx = event.x
-          node.fy = event.y
-        })
-        .on('drag', (event, node) => {
-          node.fx = event.x
-          node.fy = event.y
-        })
-        .on('end', function (this: HTMLDivElement, event, node) {
-          d3.select(this).classed('is-dragging', false)
-          if (!event.active) {
-            simulationRef.current?.alphaTarget(0)
-          }
-          node.fx = null
-          node.fy = null
-        }),
-    )
+    const dragBehavior = d3.drag<HTMLDivElement, GraphNode>()
+      .filter((event) => {
+        const target = event.target as HTMLElement | null
+        if (!target) return true
+        if (target.closest('[data-action], button, a, input, textarea, select, [contenteditable="true"]')) {
+          return false
+        }
+        return true
+      })
+      .on('start', function (this: HTMLDivElement, event, node) {
+        if (!event.active) {
+          simulationRef.current?.alphaTarget(0.15).restart()
+        }
+        node.fx = event.x
+        node.fy = event.y
+        d3.select(this).classed('is-dragging', false)
+      })
+      .on('drag', function (this: HTMLDivElement, event, node) {
+        node.fx = event.x
+        node.fy = event.y
+        d3.select(this).classed('is-dragging', true)
+      })
+      .on('end', function (this: HTMLDivElement, event, node) {
+        if (!event.active) {
+          simulationRef.current?.alphaTarget(0)
+        }
+        node.fx = null
+        node.fy = null
+        d3.select(this).classed('is-dragging', false)
+        // 持久化位置到数据库
+        const nx = node.x ?? null
+        const ny = node.y ?? null
+        if (nx != null && ny != null) {
+          debouncedSavePosition(node.id, nx, ny)
+        }
+      })
+
+    cardSelection.call(dragBehavior)
 
     const simulation = d3.forceSimulation(nodes)
       .velocityDecay(1)
@@ -975,7 +1012,7 @@ export function CharacterOverviewGraph({
       </svg>
       <div
         ref={cardLayerRef}
-        className="absolute inset-0 pointer-events-none cursor-grab active:cursor-grabbing"
+        className="absolute inset-0 pointer-events-none"
       />
 
       {characters.length === 0 && (
@@ -1019,6 +1056,9 @@ export function CharacterOverviewGraph({
           100% {
             transform: rotate(360deg);
           }
+        }
+        .character-card.is-hovered [data-action="connector"] {
+          opacity: 1;
         }
         .link-item:hover .link-path {
           stroke-opacity: 1;

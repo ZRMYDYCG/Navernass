@@ -1,9 +1,10 @@
-import type { Chapter, NovelCharacter, Volume } from '@/lib/supabase/sdk'
+import type { Chapter, Volume } from '@/lib/supabase/sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { TiptapEditor } from '@/components/tiptap'
 import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi } from '@/lib/supabase/sdk'
+import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
 import { Breadcrumb } from './breadcrumb'
 import { SmartTabs } from './smart-tabs'
 
@@ -26,7 +27,6 @@ interface EditorContentProps {
   chapterId: string
   volumes?: Volume[]
   chapters?: Chapter[]
-  characters?: NovelCharacter[]
   onSelectChapter?: (chapterId: string) => void
 }
 
@@ -49,7 +49,6 @@ export default function EditorContent({
   chapterId,
   volumes = EMPTY_ARRAY,
   chapters = EMPTY_ARRAY,
-  characters = EMPTY_ARRAY,
   onSelectChapter,
 }: EditorContentProps) {
   const [isSaving, setIsSaving] = useState(false)
@@ -61,6 +60,8 @@ export default function EditorContent({
   const [loading, setLoading] = useState(true)
   const editorContentRef = useRef<string>('')
   const isSavingRef = useRef(false)
+
+  const characters = useCharacterMaterialStore(state => state.characters)
 
   // 找到当前章节所属的卷（优先使用传入的 chapters 数据，不等待加载）
   const currentVolume = useMemo(() => {

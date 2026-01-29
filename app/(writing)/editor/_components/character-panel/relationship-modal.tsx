@@ -1,14 +1,14 @@
 'use client'
 
-import type { Character, Relationship } from '@/lib/mockData'
+import type { Character, Relationship } from './types'
 import { useEffect, useId, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
 
 interface RelationshipModalProps {
   open: boolean
@@ -97,13 +97,61 @@ export function RelationshipModal({
     }
   }
 
+  useEffect(() => {
+    if (!open) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onOpenChange(false)
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open, onOpenChange])
+
+  if (!open) return null
+
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex w-[400px] flex-col bg-background sm:max-w-[400px]">
-        <SheetHeader>
-          <SheetTitle>{relationship ? '编辑关系' : '新建关系'}</SheetTitle>
-        </SheetHeader>
-        <div className="flex-1 space-y-4 overflow-y-auto py-4">
+    <div className="fixed inset-0 z-[9999]">
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={() => onOpenChange(false)}
+      />
+
+      <div
+        className={cn(
+          'absolute right-0 top-0 h-full w-[400px] max-w-[90vw]',
+          'flex flex-col border-l bg-background shadow-2xl',
+        )}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`${formId}-title`}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3 border-b p-6">
+          <div className="space-y-1">
+            <div id={`${formId}-title`} className="text-lg font-semibold text-foreground">
+              {relationship ? '编辑关系' : '新建关系'}
+            </div>
+          </div>
+          <button
+            type="button"
+            className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            onClick={() => onOpenChange(false)}
+            aria-label="Close"
+          >
+            <span className="sr-only">Close</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 space-y-4 overflow-y-auto p-6">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor={`${formId}-source`}>关系 A</Label>
@@ -180,15 +228,16 @@ export function RelationshipModal({
             />
           </div>
         </div>
-        <SheetFooter>
+
+        <div className="flex items-center justify-end gap-2 border-t p-6">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             取消
           </Button>
           <Button onClick={handleSubmit}>
             保存
           </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -4,6 +4,7 @@ import type { ImperativePanelHandle } from 'react-resizable-panels'
 import type { LeftTabType } from './_components/left-panel/types'
 import type { Chapter, Novel, NovelCharacter, Volume } from '@/lib/supabase/sdk'
 import * as Tooltip from '@radix-ui/react-tooltip'
+import { ChevronUp } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -11,7 +12,9 @@ import { Drawer, DrawerContent } from '@/components/ui/drawer'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
 import { useIsMobile } from '@/hooks/use-media-query'
-import { chaptersApi, charactersApi, novelsApi, volumesApi } from '@/lib/supabase/sdk'
+import { chaptersApi, charactersApi, novelsApi, relationshipsApi, volumesApi } from '@/lib/supabase/sdk'
+import { useCharacterGraphStore } from '@/store/characterGraphStore'
+import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
 import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
 import { CharacterPanel } from './_components/character-panel'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
@@ -79,6 +82,8 @@ function NovelsEditContent() {
   const [showRightPanel, setShowRightPanel] = useState(false)
   const [isImmersiveMode, setIsImmersiveMode] = useState(false)
   const [activeLeftTab, setActiveLeftTab] = useState<LeftTabType | 'characters'>('files')
+  const [characterPanelOpen, setCharacterPanelOpen] = useState(false)
+  const [characterPanelClosing, setCharacterPanelClosing] = useState(false)
   const immersiveActive = isImmersiveMode && !isMobile
 
   useEffect(() => {
@@ -87,7 +92,6 @@ function NovelsEditContent() {
     if (isMobile && !prev) {
       desktopLeftStateRef.current = showLeftPanel
       desktopRightStateRef.current = showRightPanel
-      /* eslint-disable react-hooks-extra/no-direct-set-state-in-use-effect */
       setShowLeftPanel(false)
       setShowRightPanel(false)
     } else if (!isMobile && prev) {
@@ -154,16 +158,19 @@ function NovelsEditContent() {
 
     try {
       setLoading(true)
-      const [novelData, chaptersData, volumesData, charactersData] = await Promise.all([
+      const [novelData, chaptersData, volumesData, charactersData, relationshipsData] = await Promise.all([
         novelsApi.getById(novelId),
         chaptersApi.getByNovelId(novelId),
         volumesApi.getByNovelId(novelId),
         charactersApi.getByNovelId(novelId),
+        relationshipsApi.getByNovelId(novelId),
       ])
       setNovel(novelData)
       setChapters(chaptersData)
       setVolumes(volumesData)
       setCharacters(charactersData)
+
+      useCharacterMaterialStore.getState().setCharacters(charactersData)
     } catch (error) {
       console.error('加载数据失败:', error)
       const message = error instanceof Error ? error.message : '加载数据失败'
@@ -191,6 +198,7 @@ function NovelsEditContent() {
           const charactersData = await charactersApi.getByNovelId(novelId)
           if (!cancelled) {
             setCharacters(charactersData)
+            useCharacterMaterialStore.getState().setCharacters(charactersData)
           }
         } catch (error) {
           if (!cancelled) {
@@ -907,6 +915,7 @@ function NovelsEditContent() {
               novelId={novelId || undefined}
               chapterIds={chapters.map(c => c.id)}
               onOpenChapterSearch={() => setQuickSearchOpen(true)}
+              onToggleCharacters={() => setCharacterPanelOpen(true)}
             />
           </ImmersiveRegion>
 
@@ -970,7 +979,7 @@ function NovelsEditContent() {
               >
                 {activeLeftTab === 'characters'
                   ? (
-                      <CharacterPanel novelId={novelId!} />
+                      <CharacterPanel novelId={novelId!} novelTitle={novel?.title} />
                     )
                   : selectedChapter === null || activeTab === null
                     ? (
@@ -1142,6 +1151,34 @@ function NovelsEditContent() {
         currentChapterId={activeTab}
         onSelectChapter={handleSelectChapter}
       />
+
+      {characterPanelOpen && (
+        <div
+          className={`fixed inset-0 z-[100] bg-background group ${
+            characterPanelClosing
+              ? 'animate-panel-close'
+              : 'animate-panel-open'
+          }`}
+          onAnimationEnd={() => {
+            if (characterPanelClosing) {
+              setCharacterPanelOpen(false)
+              setCharacterPanelClosing(false)
+            }
+          }}
+        >
+          <CharacterPanel novelId={novelId!} novelTitle={novel?.title} />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button
+              type="button"
+              onClick={() => setCharacterPanelClosing(true)}
+              className="w-10 h-6 bg-accent/90 hover:bg-accent transition-colors cursor-pointer backdrop-blur-sm flex items-center justify-center rounded-t-md"
+              style={{ clipPath: 'polygon(10% 0, 90% 0, 100% 100%, 0 100%)' }}
+            >
+              <ChevronUp className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </Tooltip.Provider>
   )
 }

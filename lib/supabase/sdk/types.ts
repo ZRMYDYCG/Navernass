@@ -147,6 +147,8 @@ export interface CreateCharacterDto {
   first_appearance?: string
   note?: string
   order_index?: number
+  overview_x?: number | null
+  overview_y?: number | null
 }
 
 export interface Relationship {

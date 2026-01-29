@@ -13,6 +13,8 @@ export interface NovelCharacter {
   keywords?: string[]
   first_appearance?: string
   note?: string
+  overview_x?: number
+  overview_y?: number
   order_index?: number
 }
 

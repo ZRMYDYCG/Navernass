@@ -1,34 +1,3 @@
--- =====================================================
--- Narraverse 数据库初始化脚本（无认证版本）
--- =====================================================
--- 适用于自部署的 MVP 版本，不需要用户认证
--- 
--- 使用方法：
--- 方法 1 - Supabase Dashboard（推荐）：
---   1. 登录 Supabase Dashboard (https://app.supabase.com)
---   2. 进入 SQL Editor
---   3. 复制此文件内容并执行
--- 
--- 方法 2 - Supabase CLI：
---   1. 安装 Supabase CLI: npm install -g supabase
---   2. 登录: supabase login
---   3. 关联项目: supabase link --project-ref your-project-id
---   4. 推送: supabase db push
--- 
--- =====================================================
-
--- WARNING: This schema is for context only and is not meant to be run.
--- Table order and constraints may not be valid for execution.
-
--- WARNING: This schema is for context only and is not meant to be run.
--- Table order and constraints may not be valid for execution.
-
--- WARNING: This schema is for context only and is not meant to be run.
--- Table order and constraints may not be valid for execution.
-
--- WARNING: This schema is for context only and is not meant to be run.
--- Table order and constraints may not be valid for execution.
-
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
@@ -131,7 +100,19 @@ CREATE TABLE public.novels (
   published_at timestamp with time zone,
   characters jsonb DEFAULT '[]'::jsonb,
   order_index integer NOT NULL DEFAULT 0,
+  relationships jsonb NOT NULL DEFAULT '[]'::jsonb,
   CONSTRAINT novels_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.profiles (
+  id uuid NOT NULL,
+  username text UNIQUE,
+  full_name text,
+  avatar_url text,
+  website text,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.user_settings (
   id uuid NOT NULL DEFAULT gen_random_uuid(),

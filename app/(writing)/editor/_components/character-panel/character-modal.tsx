@@ -6,7 +6,6 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Drawer, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -169,7 +168,7 @@ export function CharacterModal({
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('ͼƬ��С���ܳ��� 5MB')
+      toast.error('图片大小不能超过 5MB')
       return
     }
 
@@ -185,15 +184,15 @@ export function CharacterModal({
       })
 
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error?.message || '�ϴ�ʧ��')
+      if (!res.ok) throw new Error(data.error?.message || '上传失败')
 
       setAvatar(data.data.url)
-      toast.success('ͷ���ϴ��ɹ�')
+      toast.success('头像上传成功')
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error('�ϴ�ͷ��ʧ��')
+        toast.error('上传头像失败')
       }
     } finally {
       setUploadingAvatar(false)
@@ -209,13 +208,13 @@ export function CharacterModal({
       setDeleting(true)
       await charactersApi.delete(character.id, novelId)
       removeCharacter(character.id)
-      toast.success('��ɫ��ɾ��')
+      toast.success('角色已删除')
       onOpenChange(false)
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error('ɾ����ɫʧ��')
+        toast.error('删除角色失败')
       }
     } finally {
       setDeleting(false)
@@ -224,13 +223,13 @@ export function CharacterModal({
 
   const handleSubmit = async () => {
     if (!novelId) {
-      toast.error('ȱ��С˵ID')
+      toast.error('缺少小说 ID')
       return
     }
 
     const trimmedName = form.name.trim()
     if (!trimmedName) {
-      toast.error('�������ɫ����')
+      toast.error('请输入角色名称')
       return
     }
 
@@ -252,7 +251,7 @@ export function CharacterModal({
         })
         upsertCharacter(updated)
         selectCharacter(updated.id)
-        toast.success('��ɫ�Ѹ���')
+        toast.success('角色已更新')
       } else {
         const created = await charactersApi.create({
           novel_id: novelId,
@@ -268,7 +267,7 @@ export function CharacterModal({
         })
         upsertCharacter(created)
         selectCharacter(created.id)
-        toast.success('��ɫ�Ѵ���')
+        toast.success('角色已创建')
       }
 
       onOpenChange(false)
@@ -276,17 +275,53 @@ export function CharacterModal({
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error(character ? '���½�ɫʧ��' : '������ɫʧ��')
+        toast.error(character ? '更新角色失败' : '创建角色失败')
       }
     } finally {
       setCreating(false)
     }
   }
 
+  useEffect(() => {
+    if (!open) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onOpenChange(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [open, onOpenChange])
+
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} direction="right">
-      <DrawerContent className="w-[480px] max-w-full">
-        <DrawerHeader className="relative">
+    <div
+      className={cn(
+        'fixed inset-0 z-[110] transition-opacity duration-200',
+        open ? 'opacity-100' : 'pointer-events-none opacity-0',
+      )}
+      aria-hidden={!open}
+    >
+      <div
+        className={cn(
+          'absolute inset-0 bg-black/50',
+          open ? 'opacity-100' : 'opacity-0',
+        )}
+        onClick={() => onOpenChange(false)}
+      />
+
+      <div
+        className={cn(
+          'absolute right-0 top-0 h-full w-[480px] max-w-full bg-background border-l border-border',
+          'transform transition-transform duration-200 ease-out',
+          open ? 'translate-x-0' : 'translate-x-full',
+        )}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="relative border-b border-border/60 p-4">
           <Button
             variant="ghost"
             size="icon"
@@ -295,10 +330,10 @@ export function CharacterModal({
           >
             <X className="h-4 w-4" />
           </Button>
-          <DrawerTitle className="text-base font-semibold">
-            {character ? '�༭��ɫ' : '�½���ɫ'}
-          </DrawerTitle>
-        </DrawerHeader>
+          <div className="text-base font-semibold">
+            {character ? '编辑角色' : '新建角色'}
+          </div>
+        </div>
 
         <div className="space-y-4 overflow-y-auto p-4 pt-0 max-h-[calc(100vh-140px)]">
           <div className="flex justify-center">
@@ -307,7 +342,7 @@ export function CharacterModal({
               onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
             >
               <Avatar className="w-20 h-20 border-2 border-border group-hover:border-primary transition-colors">
-                <AvatarImage src={avatar} className="object-cover" />
+                {avatar ? <AvatarImage src={avatar} className="object-cover" /> : null}
                 <AvatarFallback className="bg-muted">
                   {uploadingAvatar
                     ? <Spinner className="w-6 h-6" />
@@ -330,18 +365,18 @@ export function CharacterModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`${formId}-name`}>��������</Label>
+            <Label htmlFor={`${formId}-name`}>角色名称</Label>
             <Input
               id={`${formId}-name`}
               value={form.name}
               onChange={event => updateField('name', event.target.value)}
-              placeholder="������������"
+              placeholder="请输入角色名称"
             />
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>��ɫ��ɫ</Label>
-              <span className="text-[11px] text-muted-foreground">{selectedColor?.name ?? '�Զ���'}</span>
+              <Label>角色配色</Label>
+              <span className="text-[11px] text-muted-foreground">{selectedColor?.name ?? '自定义'}</span>
             </div>
             <div className="grid grid-cols-6 gap-2">
               {COLOR_PRESETS.map((preset) => {
@@ -365,21 +400,21 @@ export function CharacterModal({
                 )
               })}
             </div>
-            <p className="text-[11px] text-muted-foreground">ϵͳ������ɫ��ǽ�ɫ�͹�ϵ��</p>
+            <p className="text-[11px] text-muted-foreground">系统颜色将用于标记角色与关系</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor={`${formId}-role`}>ְҵ/����</Label>
+              <Label htmlFor={`${formId}-role`}>职业 / 定位</Label>
               <Input
                 id={`${formId}-role`}
                 value={form.role}
                 onChange={event => updateField('role', event.target.value)}
-                placeholder="���磺���� / �ھ�ѧͽ"
+                placeholder="例如：将军 / 卫队学徒"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`${formId}-first-appearance`}>�״εǳ��½�</Label>
+              <Label htmlFor={`${formId}-first-appearance`}>首次登场章节</Label>
               {chapterOptions.length > 0
                 ? (
                     <Select
@@ -387,10 +422,10 @@ export function CharacterModal({
                       onValueChange={value => updateField('first_appearance', value === '__none__' ? '' : value)}
                     >
                       <SelectTrigger id={`${formId}-first-appearance`}>
-                        <SelectValue placeholder="ѡ���½�" />
+                        <SelectValue placeholder="选择章节" />
                       </SelectTrigger>
                       <SelectContent className="z-[120]">
-                        <SelectItem value="__none__">������</SelectItem>
+                        <SelectItem value="__none__">不选择</SelectItem>
                         {form.first_appearance && !chapterTitleSet.has(form.first_appearance) && (
                           <SelectItem value={form.first_appearance}>{form.first_appearance}</SelectItem>
                         )}
@@ -414,50 +449,50 @@ export function CharacterModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`${formId}-description`}>����С��</Label>
+            <Label htmlFor={`${formId}-description`}>角色简介</Label>
             <Textarea
               id={`${formId}-description`}
               value={form.description}
               onChange={event => updateField('description', event.target.value)}
-              placeholder="��������ı������¡�������������..."
+              placeholder="描述角色的背景、动机与性格特征..."
               className="min-h-[80px] resize-none"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`${formId}-note`}>��б�ע</Label>
+            <Label htmlFor={`${formId}-note`}>备注</Label>
             <Textarea
               id={`${formId}-note`}
               value={form.note}
               onChange={event => updateField('note', event.target.value)}
-              placeholder="�����ɫ��л��趨"
+              placeholder="记录角色的背景设定、灵感或伏笔"
               className="min-h-[80px] resize-none"
             />
           </div>
         </div>
 
-        <DrawerFooter className="pt-2">
+        <div className="border-t border-border/60 p-4 pt-2">
           {character && (
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={creating || deleting}
             >
-              {deleting ? 'ɾ����...' : 'ɾ��'}
+              {deleting ? '删除中...' : '删除'}
             </Button>
           )}
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={creating || deleting}>
-              ȡ��
+              取消
             </Button>
             <Button onClick={handleSubmit} disabled={creating || deleting}>
               {creating
-                ? (character ? '������...' : '������...')
-                : (character ? '����' : '����')}
+                ? (character ? '保存中...' : '创建中...')
+                : (character ? '保存' : '创建')}
             </Button>
           </div>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </div>
+      </div>
+    </div>
   )
 }

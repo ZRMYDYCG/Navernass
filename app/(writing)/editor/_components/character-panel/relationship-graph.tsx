@@ -1,9 +1,11 @@
 'use client'
 
+import type { Character, Relationship } from './types'
 import * as d3 from 'd3'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { formatRelationshipLabel, getCharacterColor } from '@/store/characterGraphStore'
+
 import { GraphViewSwitcher } from './graph-view-switcher'
 
 interface RelationshipGraphProps {
@@ -16,6 +18,7 @@ interface RelationshipGraphProps {
   onViewModeChange?: (mode: 'force' | 'dialogue' | 'chord') => void
   onSelectCharacter: (id?: string) => void
   onSelectRelationship: (id?: string) => void
+  onEditCharacter: (id: string) => void
   onEditRelationship: (id: string) => void
   className?: string
 }
@@ -32,8 +35,8 @@ interface RibbonDatum {
 }
 
 export function RelationshipGraph({
-  characters,
-  relationships,
+  characters: charactersProp,
+  relationships: relationshipsProp,
   selectedCharacterId,
   selectedRelationshipId,
   viewMode,
@@ -41,9 +44,14 @@ export function RelationshipGraph({
   onViewModeChange,
   onSelectCharacter,
   onSelectRelationship,
+  onEditCharacter,
   onEditRelationship,
   className,
 }: RelationshipGraphProps) {
+  const characters = charactersProp ?? []
+  const nodeIdsKey = useMemo(() => (charactersProp ?? []).map(c => c.id).sort().join('|'), [charactersProp])
+  const linkIdsKey = useMemo(() => (relationshipsProp ?? []).map(r => r.id).sort().join('|'), [relationshipsProp])
+  const relationships = relationshipsProp ?? []
   const containerRef = useRef<HTMLDivElement | null>(null)
   const svgRef = useRef<SVGSVGElement | null>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
@@ -79,7 +87,7 @@ export function RelationshipGraph({
     if (!svgRef.current) return
     if (!dimensions.width || !dimensions.height) return
 
-    const container = d3.select(containerRef.current)
+    const container = d3.select(containerRef.current as HTMLDivElement)
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
     svg.on('.zoom', null)
@@ -98,7 +106,8 @@ export function RelationshipGraph({
 
     container.call(zoomBehavior as d3.ZoomBehavior<HTMLDivElement, unknown>)
     container.on('click', (event) => {
-      if (event.target === containerRef.current || event.target === svgRef.current) {
+      const targetNode = event.target as EventTarget | null
+      if (targetNode === containerRef.current || targetNode === svgRef.current) {
         onSelectCharacter(undefined)
         onSelectRelationship(undefined)
       }
@@ -136,6 +145,10 @@ export function RelationshipGraph({
       const b = Math.max(0, Math.round((num & 0xFF) * (1 - amount)))
       return `#${[r, g, b].map(value => value.toString(16).padStart(2, '0')).join('')}`
     }
+
+    const isDarkMode = typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
+    const textColor = isDarkMode ? '#f1f5f9' : '#0f172a'
+    const foregroundColor = isDarkMode ? '#f1f5f9' : '#0f172a'
 
     const updateFocus = (hoveredId?: string | null) => {
       const focusNodeId = hoveredId ?? selectedCharacterIdRef.current ?? null
@@ -227,11 +240,11 @@ export function RelationshipGraph({
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', 10)
-        .attr('fill', '#0f172a')
+        .attr('fill', textColor)
         .text((link: GraphLink) => formatRelationshipLabel(link))
 
-      labelGroup.each(function (this: SVGGElement) {
-        const g = d3.select(this)
+      labelGroup.each((_, index, nodes) => {
+        const g = d3.select(nodes[index] as SVGGElement)
         const text = g.select<SVGTextElement>('.label-text').node()
         if (text) {
           const bbox = text.getBBox()
@@ -253,6 +266,7 @@ export function RelationshipGraph({
         .on('click', (event: MouseEvent, node: GraphNode) => {
           event.stopPropagation()
           onSelectCharacter(node.id)
+          onEditCharacter(node.id)
         })
         .on('mouseenter', (event: MouseEvent, node: GraphNode) => {
           updateHighlightRef.current(node.id)
@@ -285,9 +299,9 @@ export function RelationshipGraph({
         .attr('height', 84)
         .attr('rx', 18)
         .attr('fill', node => `url(#${gradientIds.get(node.id)})`)
-        .attr('stroke', 'rgba(255,255,255,0.85)')
+        .attr('stroke', 'none')
         .attr('stroke-width', 1.2)
-        .style('filter', 'drop-shadow(0 6px 12px rgba(15, 23, 42, 0.15))')
+        .style('filter', null)
 
       nodeGroup
         .append('circle')
@@ -317,9 +331,9 @@ export function RelationshipGraph({
         .force('collide', d3.forceCollide<GraphNode>(48))
 
       simulation.on('tick', () => {
-        linkGroup.each(function (this: SVGGElement, d: unknown, _index: number) {
+        linkGroup.each((d, index, nodes) => {
           const link = d as GraphLink
-          const g = d3.select(this)
+          const g = d3.select(nodes[index] as SVGGElement)
           const x1 = (link.source as GraphNode).x ?? 0
           const y1 = (link.source as GraphNode).y ?? 0
           const x2 = (link.target as GraphNode).x ?? 0
@@ -331,9 +345,9 @@ export function RelationshipGraph({
         nodeGroup
           .attr('transform', (node: GraphNode) => `translate(${node.x ?? 0}, ${node.y ?? 0})`)
 
-        labelGroup.each(function (this: SVGGElement, d: unknown, _index: number) {
+        labelGroup.each((d, index, nodes) => {
           const link = d as GraphLink
-          const g = d3.select(this)
+          const g = d3.select(nodes[index] as SVGGElement)
           const sourceX = (link.source as GraphNode).x ?? 0
           const targetX = (link.target as GraphNode).x ?? 0
           const sourceY = (link.source as GraphNode).y ?? 0
@@ -363,17 +377,48 @@ export function RelationshipGraph({
 
       nodeGroup.call(dragBehavior)
 
-      updateHighlightRef.current = () => {
-        linkSelection
-          .attr('stroke', '#94a3b8')
-          .attr('stroke-width', 1.4)
-          .attr('stroke-opacity', 0.7)
+      updateHighlightRef.current = (hoveredId?: string | null) => {
+        const { hasFocus, relatedNodeIds, relatedLinkIds } = updateFocus(hoveredId)
 
-        labelGroup.attr('opacity', 0.9)
+        linkSelection
+          .attr('stroke', (link) => {
+            if (!hasFocus) return '#94a3b8'
+            return relatedLinkIds.has(link.id) ? '#38bdf8' : '#94a3b8'
+          })
+          .attr('stroke-width', (link) => {
+            if (!hasFocus) return 1.4
+            return relatedLinkIds.has(link.id) ? 2.2 : 1.1
+          })
+          .attr('stroke-opacity', (link) => {
+            if (!hasFocus) return 0.7
+            return relatedLinkIds.has(link.id) ? 0.95 : 0.2
+          })
+
+        labelGroup.attr('opacity', (link) => {
+          if (!hasFocus) return 0.9
+          return relatedLinkIds.has(link.id) ? 1 : 0.12
+        })
+
+        // 保持节点不透明度恒定为 1
         nodeGroup.attr('opacity', 1)
+
         nodeBody
-          .attr('stroke', 'rgba(255,255,255,0.85)')
-          .attr('stroke-width', 1.2)
+          .attr('stroke', (node) => {
+            const isSelected = node.id === selectedCharacterIdRef.current
+            const isHovered = hoveredId != null && node.id === hoveredId
+
+            if (isSelected) return '#3b82f6'
+            if (isHovered) return 'rgba(147,197,253,0.95)'
+            return 'rgba(255,255,255,0.85)'
+          })
+          .attr('stroke-width', (node) => {
+            const isSelected = node.id === selectedCharacterIdRef.current
+            const isHovered = hoveredId != null && node.id === hoveredId
+
+            if (isSelected) return 2.6
+            if (isHovered) return 2
+            return 1.2
+          })
       }
 
       updateHighlightRef.current(null)
@@ -437,7 +482,7 @@ export function RelationshipGraph({
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', 10)
-        .attr('fill', '#0f172a')
+        .attr('fill', textColor)
         .style('pointer-events', 'none')
         .style('paint-order', 'stroke')
         .style('stroke', '#ffffff')
@@ -459,6 +504,7 @@ export function RelationshipGraph({
         .on('click', (event: MouseEvent, node: GraphNode) => {
           event.stopPropagation()
           onSelectCharacter(node.id)
+          onEditCharacter(node.id)
         })
         .on('mouseenter', (event: MouseEvent, node: GraphNode) => updateHighlightRef.current(node.id))
         .on('mouseleave', () => updateHighlightRef.current(null))
@@ -472,6 +518,7 @@ export function RelationshipGraph({
         .on('click', (event: MouseEvent, node: GraphNode) => {
           event.stopPropagation()
           onSelectCharacter(node.id)
+          onEditCharacter(node.id)
         })
         .on('mouseenter', (event: MouseEvent, node: GraphNode) => updateHighlightRef.current(node.id))
         .on('mouseleave', () => updateHighlightRef.current(null))
@@ -492,7 +539,7 @@ export function RelationshipGraph({
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', 11)
-        .attr('fill', '#0f172a')
+        .attr('fill', textColor)
         .text((node: GraphNode) => node.name)
 
       const rightRects = rightNodes
@@ -511,7 +558,7 @@ export function RelationshipGraph({
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', 11)
-        .attr('fill', '#0f172a')
+        .attr('fill', textColor)
         .text((node: GraphNode) => node.name)
 
       updateHighlightRef.current = () => {
@@ -586,7 +633,10 @@ export function RelationshipGraph({
         .on('click', (event: MouseEvent, group: d3.ChordGroup) => {
           event.stopPropagation()
           const node = nodeOrder[group.index]
-          if (node) onSelectCharacter(node.id)
+          if (node) {
+            onSelectCharacter(node.id)
+            onEditCharacter(node.id)
+          }
         })
         .on('mouseenter', (event: MouseEvent, group: d3.ChordGroup) => {
           const node = nodeOrder[group.index]
@@ -605,7 +655,7 @@ export function RelationshipGraph({
         .append('text')
         .attr('dy', '0.35em')
         .attr('font-size', 10)
-        .attr('fill', '#0f172a')
+        .attr('fill', textColor)
         .attr('text-anchor', (group: d3.ChordGroup) => ((group.startAngle + group.endAngle) / 2 > Math.PI ? 'end' : 'start'))
         .attr('transform', (group: d3.ChordGroup) => {
           const angle = (group.startAngle + group.endAngle) / 2
@@ -669,7 +719,7 @@ export function RelationshipGraph({
     }
 
     return undefined
-  }, [characters, relationships, dimensions, onEditRelationship, onSelectCharacter, onSelectRelationship, viewMode])
+  }, [nodeIdsKey, linkIdsKey, dimensions, viewMode])
 
   return (
     <div
