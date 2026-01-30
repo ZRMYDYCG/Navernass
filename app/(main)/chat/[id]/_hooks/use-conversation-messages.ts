@@ -8,6 +8,8 @@ import { conversationsApi, messagesApi } from '@/lib/supabase/sdk'
 import { chatApi } from '@/lib/supabase/sdk/chat'
 import { copyTextToClipboard } from '@/lib/utils'
 
+const processedInitialMessages = new Set<string>()
+
 interface UseConversationMessagesProps {
   conversationId: string
   initialMessage?: string
@@ -184,10 +186,12 @@ export function useConversationMessages({
   }, [conversationId, isNewConversation])
 
   useEffect(() => {
-    if (!conversationId || !initialMessage || isStreamingRef.current) return
+    // 避免重复处理同一条初始消息（例如 StrictMode 下的双渲染）
+    if (!conversationId || !initialMessage || processedInitialMessages.has(initialMessage) || isStreamingRef.current) return
 
     const timer = setTimeout(() => {
       isStreamingRef.current = true
+      processedInitialMessages.add(initialMessage)
       void handleSendMessage(initialMessage)
     }, 100)
 
