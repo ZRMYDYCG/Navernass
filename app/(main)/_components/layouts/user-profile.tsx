@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, ChevronUp, LogOut, Settings, User } from 'lucide-react'
+import { ChevronsUpDown, LogOut, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -20,11 +20,11 @@ interface UserProfileProps {
   isCollapsed?: boolean
   isMobileOpen?: boolean
   onSettingsClick?: () => void
+  compact?: boolean
 }
 
-export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSettingsClick }: UserProfileProps) {
+export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSettingsClick, compact = false }: UserProfileProps) {
   const { user, profile, signOut } = useAuth()
-  const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
 
@@ -39,7 +39,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
 
   if (!user) {
     return (
-      <div className="mt-auto px-3 py-2 border-t border-border">
+      <div className={`${compact ? 'mt-0 px-2 py-1' : 'mt-auto px-3 py-2 border-t border-border'}`}>
         <Button
           variant="ghost"
           className="w-full h-auto p-2"
@@ -56,7 +56,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
 
   return (
     <>
-      <div className="mt-auto px-3 py-2 border-t border-border">
+      <div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -65,9 +65,9 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
                 isCollapsed && !isMobileOpen ? 'hover:bg-transparent' : 'hover:bg-accent'
               }`}
             >
-              <div className={`flex items-center w-full ${(!isCollapsed || isMobileOpen) ? 'gap-3' : 'justify-center'}`}>
+              <div className={`flex items-center w-full ${(!isCollapsed || isMobileOpen) ? (compact ? 'gap-2' : 'gap-3') : 'justify-center'}`}>
                 <div className="relative flex-shrink-0">
-                  <Avatar className="w-9 h-9 ring-2 ring-border">
+                  <Avatar className={`${compact ? 'w-7 h-7' : 'w-9 h-9'} ring-2 ring-border`}>
                     <AvatarImage src={avatarUrl} alt={displayName} />
                     <AvatarFallback>
                       {displayName.charAt(0).toUpperCase()}
@@ -87,7 +87,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
                           </p>
                         </div>
 
-                        <ChevronUp className="w-4 h-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                        <ChevronsUpDown className="w-4 h-4 text-muted-foreground" />
                       </>
                     )
                   : null}
@@ -110,22 +110,6 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
             <DropdownMenuItem className="cursor-pointer" onClick={() => setShowProfile(true)}>
               <User className="mr-2 h-4 w-4" />
               <span>个人资料</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={onSettingsClick}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              <span>设置</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => router.push('/chat/news')}
-            >
-              <Bell className="mr-2 h-4 w-4" />
-              <span>产品更新动态</span>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
