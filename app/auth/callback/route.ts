@@ -13,7 +13,6 @@ export async function GET(request: Request) {
       const errorMessage = encodeURIComponent(error.message)
       return NextResponse.redirect(new URL(`/auth/verify-success?error=${errorMessage}`, request.url))
     } else {
-      console.log('Auth callback success:', data)
       const redirectUrl = new URL('/auth/verify-success?status=success', request.url)
       redirectUrl.searchParams.set('timestamp', Date.now().toString())
       return NextResponse.redirect(redirectUrl)

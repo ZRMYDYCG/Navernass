@@ -3,6 +3,7 @@
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
 
 export default function VerifySuccessPage() {
@@ -24,35 +25,14 @@ export default function VerifySuccessPage() {
     if (!loading) {
       if (user && status !== 'success') {
         setStatus('success')
-        setTimeout(() => {
-          router.push('/chat')
-        }, 1500)
+        /* 用户手动确认后再跳转，不再自动跳转 */
       } else if (success) {
         setStatus('success')
-        setTimeout(() => {
-          router.push('/chat')
-        }, 1500)
       } else {
         setStatus('failed')
-        setTimeout(() => {
-          router.push('/')
-        }, 3000)
       }
     }
   }, [user, loading, router])
-
-  useEffect(() => {
-    const handleAuthStateChange = () => {
-      if (user && status !== 'success') {
-        setStatus('success')
-        setTimeout(() => {
-          router.push('/chat')
-        }, 1000)
-      }
-    }
-
-    handleAuthStateChange()
-  }, [user, router, status])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -68,7 +48,7 @@ export default function VerifySuccessPage() {
           <>
             <CheckCircle className="w-16 h-16 mx-auto text-green-500" />
             <h2 className="text-2xl font-semibold text-green-600">验证成功！</h2>
-            <p className="text-muted-foreground">正在跳转到聊天页面...</p>
+            <Button variant="default" size="lg" onClick={() => router.push('/')}>进入应用</Button>
           </>
         )}
         {status === 'failed' && (
@@ -86,7 +66,7 @@ export default function VerifySuccessPage() {
                 </p>
               )}
             </div>
-            <p className="text-muted-foreground">正在跳转到首页...</p>
+            <Button variant="default" size="lg" onClick={() => router.push('/')}>返回首页</Button>
           </>
         )}
       </div>
