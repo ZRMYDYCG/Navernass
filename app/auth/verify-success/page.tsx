@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/use-auth'
 import { CheckCircle, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useAuth } from '@/hooks/use-auth'
 
 export default function VerifySuccessPage() {
   const router = useRouter()
@@ -22,7 +22,7 @@ export default function VerifySuccessPage() {
     }
 
     if (!loading) {
-      if (user) {
+      if (user && status !== 'success') {
         setStatus('success')
         setTimeout(() => {
           router.push('/chat')
@@ -43,7 +43,7 @@ export default function VerifySuccessPage() {
 
   useEffect(() => {
     const handleAuthStateChange = () => {
-      if (user && status === 'verifying') {
+      if (user && status !== 'success') {
         setStatus('success')
         setTimeout(() => {
           router.push('/chat')
@@ -81,7 +81,8 @@ export default function VerifySuccessPage() {
               <p>验证链接无效或已过期</p>
               {errorMessage && (
                 <p className="text-xs text-red-500 bg-red-50 p-2 rounded">
-                  错误详情：{errorMessage}
+                  错误详情：
+                  {errorMessage}
                 </p>
               )}
             </div>
