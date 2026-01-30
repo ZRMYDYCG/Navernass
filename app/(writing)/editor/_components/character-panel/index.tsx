@@ -1,45 +1,17 @@
 'use client'
 
-import { Plus } from 'lucide-react'
-
-import { Button } from '@/components/ui/button'
-import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
+import { CharacterModal } from './character-modal'
+import { CharacterOverviewGraph } from './character-overview-graph'
+import { CharacterPanelHeader } from './character-panel-header'
+import { RelationshipGraph } from './relationship-graph'
+import { RelationshipModal } from './relationship-modal'
 import { cn } from '@/lib/utils'
 import { useCharacterGraphStore } from '@/store/characterGraphStore'
 import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
-import { CharacterModal } from './character-modal'
-import { CharacterOverviewGraph } from './character-overview-graph'
-import { RelationshipGraph } from './relationship-graph'
-import { RelationshipModal } from './relationship-modal'
-
-type CharacterViewMode = 'overview' | 'relationship'
-
-const viewModes: Array<{ value: CharacterViewMode, label: string }> = [
-  { value: 'overview', label: '人物总览' },
-  { value: 'relationship', label: '关系网' },
-]
 
 interface CharacterPanelProps {
   novelId: string
   novelTitle?: string
-}
-
-function ViewSwitcher({
-  value,
-  onChange,
-}: {
-  value: CharacterViewMode
-  onChange: (value: CharacterViewMode) => void
-}) {
-  return (
-    <SegmentedControl value={value} onValueChange={val => onChange(val as CharacterViewMode)} size="sm">
-      {viewModes.map(mode => (
-        <SegmentedControlItem key={mode.value} value={mode.value}>
-          {mode.label}
-        </SegmentedControlItem>
-      ))}
-    </SegmentedControl>
-  )
 }
 
 export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
@@ -105,22 +77,13 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
 
   return (
     <div className="flex h-full flex-col bg-background">
-      <div className="flex items-center gap-4 border-b border-border/60 px-6 py-4">
-        <div className="min-w-[180px]">
-          <div className="text-sm font-semibold text-foreground">
-            {novelTitle ?? novelId}
-            {' '}
-            · 角色编排
-          </div>
-        </div>
-        <div className="flex-1 flex justify-center">
-          <ViewSwitcher value={viewMode} onChange={setViewMode} />
-        </div>
-        <Button size="sm" variant="outline" onClick={openCreateCharacter}>
-          <Plus className="h-4 w-4" />
-          新建角色
-        </Button>
-      </div>
+      <CharacterPanelHeader
+        novelId={novelId}
+        novelTitle={novelTitle}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onCreateCharacter={openCreateCharacter}
+      />
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <section className="flex-1 min-w-0 flex flex-col">

@@ -148,14 +148,14 @@ export function RelationshipGraph({
 
     const isDarkMode = typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
     const textColor = isDarkMode ? '#f1f5f9' : '#0f172a'
-    const linkStrokeColor = isDarkMode ? '#64748b' : linkStrokeColor
+    const linkStrokeColor = isDarkMode ? '#64748b' : '#94a3b8'
     const labelBgColor = isDarkMode ? '#1e293b' : '#f1f5f9'
     const labelBorderColor = isDarkMode ? '#334155' : '#e2e8f0'
     const foregroundColor = isDarkMode ? '#f1f5f9' : '#0f172a'
 
     const updateFocus = (hoveredId?: string | null) => {
-      const focusNodeId = hoveredId ?? selectedCharacterIdRef.current ?? null
-      const focusRelationshipId = selectedRelationshipIdRef.current ?? null
+      const focusNodeId = hoveredId ?? null
+      const focusRelationshipId = null
 
       const relatedNodeIds = new Set<string>()
       const relatedLinkIds = new Set<string>()
@@ -272,12 +272,8 @@ export function RelationshipGraph({
           onSelectCharacter(node.id)
           onEditCharacter(node.id)
         })
-        .on('mouseenter', (event: MouseEvent, node: GraphNode) => {
-          updateHighlightRef.current(node.id)
-        })
-        .on('mouseleave', () => {
-          updateHighlightRef.current(null)
-        })
+        .on('mouseenter', () => {})
+        .on('mouseleave', () => {})
 
       const gradientIds = new Map<string, string>()
       nodes.forEach((node) => {
@@ -381,6 +377,37 @@ export function RelationshipGraph({
 
       nodeGroup.call(dragBehavior)
 
+      // Run simulation upfront to settle layout instantly, then manually update node/link positions, then stop to avoid animation
+      simulation.tick(1000)
+
+      // Manually apply the last computed positions because d3.tick() does not trigger the 'tick' listeners
+      linkGroup.each((d, index, nodesSel) => {
+        const link = d as GraphLink
+        const g = d3.select(nodesSel[index] as SVGGElement)
+        const x1 = (link.source as GraphNode).x ?? 0
+        const y1 = (link.source as GraphNode).y ?? 0
+        const x2 = (link.target as GraphNode).x ?? 0
+        const y2 = (link.target as GraphNode).y ?? 0
+        g.select('.link-hitarea').attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2)
+        g.select('.link-visible').attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2)
+      })
+
+      nodeGroup.attr('transform', (node: GraphNode) => `translate(${node.x ?? 0}, ${node.y ?? 0})`)
+
+      labelGroup.each((d, index, nodesSel) => {
+        const link = d as GraphLink
+        const g = d3.select(nodesSel[index] as SVGGElement)
+        const sourceX = (link.source as GraphNode).x ?? 0
+        const targetX = (link.target as GraphNode).x ?? 0
+        const sourceY = (link.source as GraphNode).y ?? 0
+        const targetY = (link.target as GraphNode).y ?? 0
+        const cx = (sourceX + targetX) / 2
+        const cy = (sourceY + targetY) / 2
+        g.attr('transform', `translate(${cx}, ${cy})`)
+      })
+
+      simulation.stop()
+
       updateHighlightRef.current = (hoveredId?: string | null) => {
         const { hasFocus, relatedNodeIds, relatedLinkIds } = updateFocus(hoveredId)
 
@@ -408,11 +435,9 @@ export function RelationshipGraph({
 
         nodeBody
           .attr('stroke', (node) => {
-            const isSelected = node.id === selectedCharacterIdRef.current
-            const isHovered = hoveredId != null && node.id === hoveredId
+            const isSelected = false
 
             if (isSelected) return '#3b82f6'
-            if (isHovered) return 'rgba(147,197,253,0.95)'
             return 'rgba(255,255,255,0.85)'
           })
           .attr('stroke-width', (node) => {
