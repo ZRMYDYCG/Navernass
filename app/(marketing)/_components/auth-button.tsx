@@ -83,7 +83,7 @@ export function AuthButton() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/chat" className="flex items-center">
+          <Link href="/novels" className="flex items-center">
             <User className="mr-2 h-4 w-4" />
             <span>进入应用</span>
           </Link>
