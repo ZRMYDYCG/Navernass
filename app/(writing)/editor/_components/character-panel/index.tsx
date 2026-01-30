@@ -1,13 +1,15 @@
 'use client'
 
+import { cn } from '@/lib/utils'
+import { useCharacterGraphStore } from '@/store/characterGraphStore'
+import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
+
+import { CastingPool } from './casting-pool'
 import { CharacterModal } from './character-modal'
 import { CharacterOverviewGraph } from './character-overview-graph'
 import { CharacterPanelHeader } from './character-panel-header'
 import { RelationshipGraph } from './relationship-graph'
 import { RelationshipModal } from './relationship-modal'
-import { cn } from '@/lib/utils'
-import { useCharacterGraphStore } from '@/store/characterGraphStore'
-import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
 
 interface CharacterPanelProps {
   novelId: string
@@ -142,6 +144,22 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
                 }}
                 onEditCharacter={openEditCharacter}
                 onEditRelationship={openEditRelationship}
+              />
+            )}
+
+            {viewMode === 'castingPool' && (
+              <CastingPool
+                novelId={novelId}
+                novelTitle={novelTitle}
+                characters={characters}
+                relationships={relationships.map(r => ({
+                  id: r.id,
+                  sourceId: r.sourceId,
+                  targetId: r.targetId,
+                  sourceToTargetLabel: r.sourceToTargetLabel,
+                  targetToSourceLabel: r.targetToSourceLabel,
+                  note: r.note,
+                }))}
               />
             )}
           </div>

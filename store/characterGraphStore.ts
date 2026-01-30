@@ -25,7 +25,7 @@ export interface CharacterGraphRelationship {
   note?: string | null
 }
 
-export type CharacterPanelViewMode = 'overview' | 'relationship'
+export type CharacterPanelViewMode = 'overview' | 'relationship' | 'castingPool'
 export type RelationshipGraphViewMode = 'force' | 'dialogue' | 'chord'
 
 export function getCharacterColor(character: { id: string, color?: string | null }) {

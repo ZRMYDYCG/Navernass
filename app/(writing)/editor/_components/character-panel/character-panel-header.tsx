@@ -11,8 +11,9 @@ import { useAuth } from '@/hooks/use-auth'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 
 const viewModes: Array<{ value: CharacterPanelViewMode, label: string }> = [
-  { value: 'overview', label: '人物总览' },
+  { value: 'overview', label: '关系总览' },
   { value: 'relationship', label: '关系网' },
+  { value: 'castingPool', label: '选角池' },
 ]
 
 const themeOptions = [
