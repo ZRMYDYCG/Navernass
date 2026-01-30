@@ -1,14 +1,12 @@
 'use client'
 
 import {
-  History,
   PencilLine,
   Share2,
 } from 'lucide-react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Tooltip,
@@ -17,7 +15,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { conversationsApi } from '@/lib/supabase/sdk'
-import { ChatHistoryPopover } from './chat-history-popover'
 import { EditChatTitleDialog } from './edit-chat-title-dialog'
 
 interface ChatWelcomeHeaderProps {
@@ -125,29 +122,6 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Popover>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="text-muted-foreground hover:text-foreground cursor-pointer hover:bg-accent"
-                    aria-label="历史对话"
-                  >
-                    <History className="w-5 h-5" />
-                  </Button>
-                </PopoverTrigger>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>历史对话</p>
-              </TooltipContent>
-            </Tooltip>
-            <PopoverContent align="end" className="w-80 p-0">
-              <ChatHistoryPopover />
-            </PopoverContent>
-          </Popover>
-
           {isConversationPage && (
             <>
               {isLoadingTitle

@@ -1,15 +1,6 @@
 'use client'
 
-import {
-  Check,
-  Edit3,
-  MessageCircle,
-  MoreHorizontal,
-  Pin,
-  PinOff,
-  Trash2,
-  X,
-} from 'lucide-react'
+import { Check, Edit3, MoreHorizontal, Pin, PinOff, Trash2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -150,24 +141,16 @@ export function ChatHistoryItem({
 
   const shouldShowButton = isHovered || isActive || isMenuOpen
 
-  const LeadingIcon = chat.isPinned ? Pin : MessageCircle
-
   return (
     <TooltipProvider>
       <div
-        className="group relative w-full overflow-hidden"
+        className="group relative w-full"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {isEditing
           ? (
               <div className="flex items-center gap-1 px-3 py-2 relative">
-                <LeadingIcon
-                  className={cn(
-                    'w-4 h-4 shrink-0 text-muted-foreground',
-                    chat.isPinned && 'rotate-45',
-                  )}
-                />
                 <Input
                   value={editTitle}
                   onChange={e => setEditTitle(e.target.value)}
@@ -201,26 +184,21 @@ export function ChatHistoryItem({
               <Button
                 variant="ghost"
                 className={cn(
-                  'w-full justify-start px-3 py-2 h-9 text-left hover:bg-accent relative transition-all duration-200 overflow-hidden cursor-pointer rounded-lg',
-                  isActive && 'bg-secondary shadow-sm border border-border hover:bg-secondary hover:shadow-md',
+                  'w-full justify-start px-3 py-1.5 h-9 text-left relative transition-colors overflow-hidden cursor-pointer rounded-none pr-10',
+                  isActive
+                    ? 'bg-sidebar-accent text-sidebar-foreground'
+                    : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
                 )}
                 onClick={handleClick}
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[calc(100%-2.5rem)]">
-                  <LeadingIcon
-                    className={cn(
-                      'w-4 h-4 shrink-0 transition-colors',
-                      chat.isPinned && 'rotate-45',
-                      isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground/80',
-                    )}
-                  />
                   <Tooltip delayDuration={500}>
                     <TooltipTrigger asChild>
                       <span
                         ref={titleRef}
                         className={cn(
                           'text-sm truncate block transition-colors',
-                          isActive ? 'text-foreground font-medium' : 'text-muted-foreground group-hover:text-foreground',
+                          isActive && 'font-medium',
                         )}
                       >
                         {chat.title}
@@ -233,6 +211,14 @@ export function ChatHistoryItem({
                     )}
                   </Tooltip>
                 </div>
+                {chat.isPinned && (
+                  <Pin
+                    className={cn(
+                      'h-3 w-3 absolute right-10 top-1/2 -translate-y-1/2 rotate-45 transition-colors',
+                      isActive ? 'text-sidebar-foreground' : 'text-muted-foreground group-hover:text-sidebar-foreground',
+                    )}
+                  />
+                )}
               </Button>
             )}
 
