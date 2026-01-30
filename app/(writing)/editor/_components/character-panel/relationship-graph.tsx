@@ -148,6 +148,9 @@ export function RelationshipGraph({
 
     const isDarkMode = typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
     const textColor = isDarkMode ? '#f1f5f9' : '#0f172a'
+    const linkStrokeColor = isDarkMode ? '#64748b' : linkStrokeColor
+    const labelBgColor = isDarkMode ? '#1e293b' : '#f1f5f9'
+    const labelBorderColor = isDarkMode ? '#334155' : '#e2e8f0'
     const foregroundColor = isDarkMode ? '#f1f5f9' : '#0f172a'
 
     const updateFocus = (hoveredId?: string | null) => {
@@ -207,8 +210,9 @@ export function RelationshipGraph({
       const linkSelection = linkGroup
         .append('line')
         .attr('class', 'link-visible')
-        .attr('stroke', '#94a3b8')
+        .attr('stroke', linkStrokeColor)
         .attr('stroke-width', 1.4)
+        .attr('stroke', linkStrokeColor)
         .attr('stroke-dasharray', '6 4')
         .attr('stroke-opacity', 0.7)
         .style('pointer-events', 'none')
@@ -230,8 +234,8 @@ export function RelationshipGraph({
         .append('rect')
         .attr('class', 'label-bg')
         .attr('rx', 4)
-        .attr('fill', '#f1f5f9')
-        .attr('stroke', '#e2e8f0')
+        .attr('fill', labelBgColor)
+        .attr('stroke', labelBorderColor)
         .attr('stroke-width', 1)
 
       labelGroup
@@ -382,8 +386,8 @@ export function RelationshipGraph({
 
         linkSelection
           .attr('stroke', (link) => {
-            if (!hasFocus) return '#94a3b8'
-            return relatedLinkIds.has(link.id) ? '#38bdf8' : '#94a3b8'
+            if (!hasFocus) return linkStrokeColor
+            return relatedLinkIds.has(link.id) ? '#38bdf8' : linkStrokeColor
           })
           .attr('stroke-width', (link) => {
             if (!hasFocus) return 1.4
@@ -455,7 +459,7 @@ export function RelationshipGraph({
         .data(links, (d: GraphLink) => d.id)
         .join('path')
         .attr('fill', 'none')
-        .attr('stroke', '#94a3b8')
+        .attr('stroke', linkStrokeColor)
         .attr('stroke-width', 1.4)
         .attr('stroke-opacity', 0.6)
         .style('cursor', 'pointer')
@@ -563,7 +567,7 @@ export function RelationshipGraph({
 
       updateHighlightRef.current = () => {
         pathSelection
-          .attr('stroke', '#94a3b8')
+          .attr('stroke', linkStrokeColor)
           .attr('stroke-width', 1.4)
           .attr('stroke-opacity', 0.6)
 

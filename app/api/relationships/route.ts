@@ -1,11 +1,11 @@
 'use server'
 
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
+import type { CreateRelationshipDto, Relationship } from '@/lib/supabase/sdk/types'
 import { v4 as uuidv4 } from 'uuid'
-import { createClient } from '@/lib/supabase/server'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
-import type { CreateRelationshipDto, Relationship } from '@/lib/supabase/sdk/types'
+import { createClient } from '@/lib/supabase/server'
 
 export const POST = withErrorHandler(async (req: NextRequest) => {
   const payload = (await req.json()) as CreateRelationshipDto
@@ -38,6 +38,15 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   if (fetchErr) throw fetchErr
 
   const current: Relationship[] = Array.isArray(novelData.relationships) ? novelData.relationships : []
+
+  // 检查是否已存在相同双方（忽略方向）的关系
+  const exists = current.some(rel =>
+    (rel.sourceId === sourceId && rel.targetId === targetId)
+    || (rel.sourceId === targetId && rel.targetId === sourceId),
+  )
+  if (exists) {
+    return ApiResponseBuilder.error('Relationship already exists', 'RELATION_EXISTS', 409)
+  }
 
   const newRelationship: Relationship = {
     id: uuidv4(),

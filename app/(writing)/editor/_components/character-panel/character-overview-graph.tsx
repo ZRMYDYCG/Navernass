@@ -4,6 +4,7 @@ import type { Character, Relationship } from './types'
 import * as d3 from 'd3'
 import debounce from 'lodash-es/debounce'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { cn } from '@/lib/utils'
 import { formatRelationshipLabel, getCharacterColor } from '@/store/characterGraphStore'
@@ -258,6 +259,11 @@ export function CharacterOverviewGraph({
   const gradientSelectionRef = useRef<d3.Selection<SVGLinearGradientElement, GraphLink, SVGDefsElement, unknown> | null>(null)
   const onEditCharacterRef = useRef(onEditCharacter)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+
+  const [promptModal, setPromptModal] = useState<{ characterId: string } | null>(null)
+  const [promptText, setPromptText] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generateError, setGenerateError] = useState<string | null>(null)
   const sortedRelationships = useMemo(() => (relationships ?? []).slice(), [relationships])
   const [dragLine, setDragLine] = useState<{ sourceId: string, startX: number, startY: number, endX: number, endY: number } | null>(null)
   const [hoverTargetId, setHoverTargetId] = useState<string | null>(null)
@@ -338,8 +344,10 @@ export function CharacterOverviewGraph({
               <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.35),transparent_55%)]"></div>
               <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/45"></div>
               ${placeholderHtml}
-              <div class="absolute top-3 right-3 h-10 w-10 rounded-full border border-white/80 bg-white/10 shadow-sm overflow-hidden">
-                <img src="${avatar}" alt="${name} 头像" class="h-full w-full object-cover" />
+              <div class="absolute top-3 right-3 h-10 w-10 rounded-full border border-white/80 bg-white/10 shadow-sm overflow-hidden grid place-items-center">
+                ${node.avatar
+                  ? `<img src="${avatar}" alt="${name} 头像" class="h-full w-full object-cover" />`
+                  : `<svg class=\"h-5 w-5 text-white/80\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M4 21v-2a4 4 0 0 1 3-3.87\"/><path d=\"M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z\"/></svg>`}
               </div>
               <div class="absolute bottom-3 left-3 text-white drop-shadow-sm">
                 <div class="text-sm font-semibold">${name}</div>
@@ -758,6 +766,7 @@ export function CharacterOverviewGraph({
         if (imageButton) {
           imageButton.onclick = (event) => {
             event.stopPropagation()
+            setPromptModal({ characterId: node.id })
           }
         }
 
@@ -944,6 +953,61 @@ export function CharacterOverviewGraph({
 
   const sourceColorLight = useMemo(() => lighten(sourceColor, 0.3), [sourceColor])
 
+  const handleGenerateAvatar = useCallback(async () => {
+    const modal = promptModal
+    if (!modal) return
+
+    if (!promptText.trim()) {
+      setGenerateError('请输入角色描述')
+      return
+    }
+
+    setIsGenerating(true)
+    setGenerateError(null)
+
+    try {
+      const presetPrefix = '为小说角色生成一张头像，二次元插画风格，高质量，人物半身或头像构图，光线柔和，细节丰富。'
+      const presetSuffix = '纯净背景，适合用作角色头像。'
+      const prompt = `${presetPrefix}\n角色描述：${promptText.trim()}\n${presetSuffix}`
+
+      const generateResponse = await fetch('/api/images/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'text-to-image',
+          prompt,
+          size: '1024x1024',
+          num_images: 1,
+        }),
+      })
+
+      if (!generateResponse.ok) {
+        const error = await generateResponse.json().catch(() => null)
+        throw new Error(error?.error || '图片生成失败')
+      }
+
+      const data = await generateResponse.json()
+      const url = data?.images?.[0]?.url as string | undefined
+      if (!url) throw new Error('未返回生成的图片')
+
+      const updated = await charactersApi.update(modal.characterId, { novel_id: novelId, avatar: url })
+      try {
+        useCharacterMaterialStore.getState().upsertCharacter(updated as any)
+      } catch (_) {}
+
+      toast.success('头像已更新')
+      setPromptModal(null)
+      setPromptText('')
+    } catch (err: any) {
+      console.error('Generate avatar failed:', err)
+      const message = err?.message || '生成失败'
+      setGenerateError(message)
+      toast.error(message)
+    } finally {
+      setIsGenerating(false)
+    }
+  }, [novelId, promptModal, promptText])
+
   return (
     <div
       ref={containerRef}
@@ -1020,6 +1084,80 @@ export function CharacterOverviewGraph({
           暂无角色，请先新建角色
         </div>
       )}
+
+      {promptModal && (
+        <div
+          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40"
+          onClick={() => {
+            if (!isGenerating) {
+              setPromptModal(null)
+              setGenerateError(null)
+            }
+          }}
+        >
+          <div
+            className="w-[520px] max-w-[92vw] rounded-xl border border-border bg-background shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <div className="text-sm font-medium">生成角色画像</div>
+              <button
+                type="button"
+                className="h-8 w-8 rounded-md hover:bg-muted disabled:opacity-50"
+                disabled={isGenerating}
+                onClick={() => {
+                  setPromptModal(null)
+                  setGenerateError(null)
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="px-4 py-3 space-y-2">
+              <div className="text-xs text-muted-foreground">请输入角色描述（越具体越好）</div>
+              <textarea
+                value={promptText}
+                onChange={(e) => {
+                  setPromptText(e.target.value)
+                  if (generateError) setGenerateError(null)
+                }}
+                rows={4}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="例如：18岁少女，银色短发，蓝色瞳孔，穿学院风制服，气质冷淡，微笑..."
+                disabled={isGenerating}
+              />
+
+              {generateError && (
+                <div className="text-xs text-rose-600">{generateError}</div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-border">
+              <button
+                type="button"
+                className="h-9 rounded-md border border-border px-3 text-sm hover:bg-muted disabled:opacity-50"
+                disabled={isGenerating}
+                onClick={() => {
+                  setPromptModal(null)
+                  setGenerateError(null)
+                }}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                className="h-9 rounded-md bg-primary px-4 text-sm text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                disabled={isGenerating || !promptText.trim()}
+                onClick={handleGenerateAvatar}
+              >
+                {isGenerating ? '生成中...' : '生成'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx global>
         {`
         .character-card:is(.is-dragging, .is-linking, .is-linking-target) {

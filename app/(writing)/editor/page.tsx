@@ -170,7 +170,10 @@ function NovelsEditContent() {
       setVolumes(volumesData)
       setCharacters(charactersData)
 
+      // 存入角色素材 store
       useCharacterMaterialStore.getState().setCharacters(charactersData)
+      // 存入关系图 store，保证刷新后连线存在
+      useCharacterGraphStore.getState().setRelationships(novelId, relationshipsData)
     } catch (error) {
       console.error('加载数据失败:', error)
       const message = error instanceof Error ? error.message : '加载数据失败'

@@ -37,6 +37,7 @@ export function RelationshipModal({
   const [targetToSourceLabel, setTargetToSourceLabel] = useState('')
   const [note, setNote] = useState('')
   const formId = useId()
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (!open) return
@@ -63,6 +64,8 @@ export function RelationshipModal({
   const targetName = targetId ? nameMap.get(targetId) : 'B'
 
   const handleSubmit = async () => {
+    if (saving) return
+    setSaving(true)
     if (!sourceId || !targetId) {
       toast.error('请选择关系双方')
       return
@@ -94,6 +97,8 @@ export function RelationshipModal({
     } catch (error) {
       console.error('关系保存失败:', error)
       toast.error('关系保存失败，请重试')
+    } finally {
+      setSaving(false)
     }
   }
 

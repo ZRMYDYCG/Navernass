@@ -147,7 +147,16 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
                 onStartLink={startLink}
                 onCancelLink={cancelLink}
                 onCompleteLink={(targetId, sourceId) => {
-                  openCreateRelationship({ sourceId: sourceId ?? linkingSourceId, targetId })
+                  const srcId = sourceId ?? linkingSourceId
+                  if (srcId) {
+                    const exists = relationships.some(r =>
+                      (r.sourceId === srcId && r.targetId === targetId)
+                      || (r.sourceId === targetId && r.targetId === srcId),
+                    )
+                    if (!exists) {
+                      openCreateRelationship({ sourceId: srcId, targetId })
+                    }
+                  }
                   cancelLink()
                 }}
               />
