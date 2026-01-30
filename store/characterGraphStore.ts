@@ -52,6 +52,8 @@ interface CharacterGraphStoreState {
   viewMode: CharacterPanelViewMode
   relationshipGraphViewMode: RelationshipGraphViewMode
 
+  selectedChapterId: string | null
+
   search: string
 
   selectedCharacterId: string | null
@@ -73,6 +75,7 @@ interface CharacterGraphStoreState {
 
   setViewMode: (mode: CharacterPanelViewMode) => void
   setRelationshipGraphViewMode: (mode: RelationshipGraphViewMode) => void
+  setSelectedChapterId: (id?: string | null) => void
   setSearch: (value: string) => void
 
   selectCharacter: (id?: string | null) => void
@@ -101,6 +104,7 @@ export const useCharacterGraphStore = create<CharacterGraphStoreState>()(
     (set, _get) => ({
       viewMode: 'overview',
       relationshipGraphViewMode: 'force',
+      selectedChapterId: null,
       search: '',
       selectedCharacterId: null,
       selectedRelationshipId: null,
@@ -121,6 +125,7 @@ export const useCharacterGraphStore = create<CharacterGraphStoreState>()(
 
       setViewMode: mode => set({ viewMode: mode }),
       setRelationshipGraphViewMode: mode => set({ relationshipGraphViewMode: mode }),
+      setSelectedChapterId: id => set({ selectedChapterId: id ?? null }),
       setSearch: value => set({ search: value }),
 
       selectCharacter: id => set({ selectedCharacterId: id ?? null, selectedRelationshipId: null }),

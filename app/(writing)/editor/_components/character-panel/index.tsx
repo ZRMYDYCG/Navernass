@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import { useCharacterGraphStore } from '@/store/characterGraphStore'
 import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
@@ -11,6 +12,8 @@ import { CharacterPanelHeader } from './character-panel-header'
 import { RelationshipGraph } from './relationship-graph'
 import { RelationshipModal } from './relationship-modal'
 
+export { AvatarPromptModal } from './avatar-prompt-modal'
+
 interface CharacterPanelProps {
   novelId: string
   novelTitle?: string
@@ -21,11 +24,13 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
     characters,
     selectedCharacterId: materialSelectedCharacterId,
     selectCharacter: selectMaterialCharacter,
+    characterChapterMap,
   } = useCharacterMaterialStore()
 
   const {
     viewMode,
     relationshipGraphViewMode,
+    selectedChapterId,
     selectedCharacterId,
     selectedRelationshipId,
     characterModalOpen,
@@ -66,11 +71,16 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
     updateRelationship,
   } = useCharacterGraphStore()
 
-  const relationships = relationshipsByNovel[novelId] ?? []
+  const relationships = useMemo(() => relationshipsByNovel[novelId] ?? [], [relationshipsByNovel, novelId])
 
   const editingRelationship = editingRelationshipId
     ? relationships.find(r => r.id === editingRelationshipId)
     : null
+
+  const { visibleCharacters, visibleRelationships } = useMemo(() => {
+    // 直接展示小说下所有角色/关系（不再按章节过滤）
+    return { visibleCharacters: characters, visibleRelationships: relationships }
+  }, [characters, relationships])
 
   const handleSelectCharacter = (id: string) => {
     selectCharacter(id)
@@ -93,8 +103,8 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
             {viewMode === 'overview' && (
               <CharacterOverviewGraph
                 novelId={novelId}
-                characters={characters}
-                relationships={relationships}
+                characters={visibleCharacters}
+                relationships={visibleRelationships}
                 linkingSourceId={linkingSourceId}
                 onSelectCharacter={(id) => {
                   if (id) {
@@ -129,8 +139,8 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
 
             {viewMode === 'relationship' && (
               <RelationshipGraph
-                characters={characters}
-                relationships={relationships}
+                characters={visibleCharacters}
+                relationships={visibleRelationships}
                 selectedCharacterId={effectiveSelectedCharacterId ?? undefined}
                 selectedRelationshipId={selectedRelationshipId ?? undefined}
                 viewMode={relationshipGraphViewMode}
@@ -151,8 +161,8 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
               <CastingPool
                 novelId={novelId}
                 novelTitle={novelTitle}
-                characters={characters}
-                relationships={relationships.map(r => ({
+                characters={visibleCharacters}
+                relationships={visibleRelationships.map(r => ({
                   id: r.id,
                   sourceId: r.sourceId,
                   targetId: r.targetId,

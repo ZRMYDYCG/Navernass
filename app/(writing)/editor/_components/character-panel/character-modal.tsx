@@ -100,7 +100,6 @@ export function CharacterModal({
   const [deleting, setDeleting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const formId = useId()
-  const selectedColor = useMemo(() => COLOR_PRESETS.find(preset => preset.value === form.color), [form.color])
   const { upsertCharacter, removeCharacter, selectCharacter } = useCharacterMaterialStore()
 
   const chapterTitleSet = useMemo(() => {
@@ -299,197 +298,207 @@ export function CharacterModal({
   return (
     <div
       className={cn(
-        'fixed inset-0 z-[110] transition-opacity duration-200',
+        'fixed inset-0 z-[110]',
         open ? 'opacity-100' : 'pointer-events-none opacity-0',
       )}
       aria-hidden={!open}
+      style={{ transition: open ? undefined : 'opacity 0s 200ms' }}
     >
       <div
-        className={cn(
-          'absolute inset-0 bg-black/50',
-          open ? 'opacity-100' : 'opacity-0',
-        )}
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200"
+        style={{ opacity: open ? 1 : 0 }}
         onClick={() => onOpenChange(false)}
       />
 
       <div
         className={cn(
-          'absolute right-0 top-0 h-full w-[480px] max-w-full bg-background border-l border-border',
-          'transform transition-transform duration-200 ease-out',
+          'absolute right-0 top-0 h-full w-[420px] max-w-full bg-background shadow-2xl',
+          'transition-transform duration-300 ease-out',
           open ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
         aria-modal="true"
       >
-        <div className="relative border-b border-border/60 p-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-2 h-8 w-8"
-            onClick={() => onOpenChange(false)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          <div className="text-base font-semibold">
-            {character ? '编辑角色' : '新建角色'}
-          </div>
-        </div>
-
-        <div className="space-y-4 overflow-y-auto p-4 pt-0 max-h-[calc(100vh-140px)]">
-          <div className="flex justify-center">
-            <div
-              className="relative group cursor-pointer"
-              onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
-            >
-              <Avatar className="w-20 h-20 border-2 border-border group-hover:border-primary transition-colors">
-                {avatar ? <AvatarImage src={avatar} className="object-cover" /> : null}
-                <AvatarFallback className="bg-muted">
-                  {uploadingAvatar
-                    ? <Spinner className="w-6 h-6" />
-                    : <span className="text-2xl text-muted-foreground">{form.name?.[0] || 'A'}</span>}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="w-6 h-6 text-white" />
-              </div>
-              <input
-                id={`${formId}-avatar`}
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                disabled={uploadingAvatar}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor={`${formId}-name`}>角色名称</Label>
-            <Input
-              id={`${formId}-name`}
-              value={form.name}
-              onChange={event => updateField('name', event.target.value)}
-              placeholder="请输入角色名称"
-            />
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>角色配色</Label>
-              <span className="text-[11px] text-muted-foreground">{selectedColor?.name ?? '自定义'}</span>
-            </div>
-            <div className="grid grid-cols-6 gap-2">
-              {COLOR_PRESETS.map((preset) => {
-                const isActive = form.color === preset.value
-                return (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    onClick={() => updateField('color', preset.value)}
-                    className={cn(
-                      'h-10 w-10 rounded-full border border-border/70 p-[2px] transition-all hover:scale-105',
-                      isActive ? 'ring-2 ring-offset-2 ring-foreground/80' : 'hover:ring-1 hover:ring-foreground/40',
-                    )}
-                    aria-label={preset.name}
-                  >
-                    <span
-                      className="block h-full w-full rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.25)]"
-                      style={{ backgroundImage: buildGradient(preset.value) }}
-                    />
-                  </button>
-                )
-              })}
-            </div>
-            <p className="text-[11px] text-muted-foreground">系统颜色将用于标记角色与关系</p>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor={`${formId}-role`}>职业 / 定位</Label>
-              <Input
-                id={`${formId}-role`}
-                value={form.role}
-                onChange={event => updateField('role', event.target.value)}
-                placeholder="例如：将军 / 卫队学徒"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={`${formId}-first-appearance`}>首次登场章节</Label>
-              {chapterOptions.length > 0
-                ? (
-                    <Select
-                      value={form.first_appearance || '__none__'}
-                      onValueChange={value => updateField('first_appearance', value === '__none__' ? '' : value)}
-                    >
-                      <SelectTrigger id={`${formId}-first-appearance`}>
-                        <SelectValue placeholder="选择章节" />
-                      </SelectTrigger>
-                      <SelectContent className="z-[120]">
-                        <SelectItem value="__none__">不选择</SelectItem>
-                        {form.first_appearance && !chapterTitleSet.has(form.first_appearance) && (
-                          <SelectItem value={form.first_appearance}>{form.first_appearance}</SelectItem>
-                        )}
-                        {chapterOptions.map(chapter => (
-                          <SelectItem key={chapter.id} value={chapter.title}>
-                            {chapter.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )
-                : (
-                    <Input
-                      id={`${formId}-first-appearance`}
-                      value={form.first_appearance}
-                      onChange={event => updateField('first_appearance', event.target.value)}
-                      placeholder="�״εǳ��½�"
-                    />
-                  )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor={`${formId}-description`}>角色简介</Label>
-            <Textarea
-              id={`${formId}-description`}
-              value={form.description}
-              onChange={event => updateField('description', event.target.value)}
-              placeholder="描述角色的背景、动机与性格特征..."
-              className="min-h-[80px] resize-none"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor={`${formId}-note`}>备注</Label>
-            <Textarea
-              id={`${formId}-note`}
-              value={form.note}
-              onChange={event => updateField('note', event.target.value)}
-              placeholder="记录角色的背景设定、灵感或伏笔"
-              className="min-h-[80px] resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="border-t border-border/60 p-4 pt-2">
-          {character && (
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
+            <h2 className="text-lg font-semibold">
+              {character ? '编辑角色' : '新建角色'}
+            </h2>
             <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={creating || deleting}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full hover:bg-accent"
+              onClick={() => onOpenChange(false)}
             >
-              {deleting ? '删除中...' : '删除'}
+              <X className="h-4 w-4" />
             </Button>
-          )}
-          <div className="flex gap-2">
-            <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={creating || deleting}>
-              取消
-            </Button>
-            <Button onClick={handleSubmit} disabled={creating || deleting}>
-              {creating
-                ? (character ? '保存中...' : '创建中...')
-                : (character ? '保存' : '创建')}
-            </Button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+            <div className="flex flex-col items-center">
+              <div
+                className="relative cursor-pointer group"
+                onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+              >
+                <div className="relative">
+                  <Avatar className="w-24 h-24 ring-2 ring-offset-2 ring-border">
+                    {avatar ? <AvatarImage src={avatar} className="object-cover" /> : null}
+                    <AvatarFallback className="bg-accent text-2xl">
+                      {uploadingAvatar
+                        ? <Spinner className="w-6 h-6" />
+                        : form.name?.[0]?.toUpperCase() || '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <input
+                  id={`${formId}-avatar`}
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  disabled={uploadingAvatar}
+                />
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">点击上传头像</p>
+            </div>
+
+            <div className="space-y-5">
+              <div className="space-y-1.5">
+                <Label htmlFor={`${formId}-name`} className="text-sm font-medium">角色名称</Label>
+                <Input
+                  id={`${formId}-name`}
+                  value={form.name}
+                  onChange={event => updateField('name', event.target.value)}
+                  placeholder="输入角色名称"
+                  className="h-10"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">角色配色</Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {COLOR_PRESETS.map((preset) => {
+                    const isActive = form.color === preset.value
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => updateField('color', preset.value)}
+                        className={cn(
+                          'w-6 h-6 rounded transition-all duration-200 border',
+                          isActive
+                            ? 'ring-1 ring-foreground ring-offset-1 scale-105'
+                            : 'hover:scale-105 border-transparent',
+                        )}
+                        style={{ background: buildGradient(preset.value) }}
+                        aria-label={preset.name}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor={`${formId}-role`} className="text-sm font-medium">职业 / 定位</Label>
+                  <Input
+                    id={`${formId}-role`}
+                    value={form.role}
+                    onChange={event => updateField('role', event.target.value)}
+                    placeholder="如：将军"
+                    className="h-10"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor={`${formId}-first-appearance`} className="text-sm font-medium">首次登场</Label>
+                  {chapterOptions.length > 0
+                    ? (
+                        <Select
+                          value={form.first_appearance || '__none__'}
+                          onValueChange={value => updateField('first_appearance', value === '__none__' ? '' : value)}
+                        >
+                          <SelectTrigger id={`${formId}-first-appearance`} className="h-10">
+                            <SelectValue placeholder="选择章节" />
+                          </SelectTrigger>
+                          <SelectContent className="z-[120]">
+                            <SelectItem value="__none__">不选择</SelectItem>
+                            {form.first_appearance && !chapterTitleSet.has(form.first_appearance) && (
+                              <SelectItem value={form.first_appearance}>{form.first_appearance}</SelectItem>
+                            )}
+                            {chapterOptions.map(chapter => (
+                              <SelectItem key={chapter.id} value={chapter.title}>
+                                {chapter.title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )
+                    : (
+                        <Input
+                          id={`${formId}-first-appearance`}
+                          value={form.first_appearance}
+                          onChange={event => updateField('first_appearance', event.target.value)}
+                          placeholder="首次出现章节"
+                          className="h-10"
+                        />
+                      )}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor={`${formId}-description`} className="text-sm font-medium">角色简介</Label>
+                <Textarea
+                  id={`${formId}-description`}
+                  value={form.description}
+                  onChange={event => updateField('description', event.target.value)}
+                  placeholder="描述角色的背景、动机与性格..."
+                  className="min-h-[100px] resize-none"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor={`${formId}-note`} className="text-sm font-medium">备注</Label>
+                <Textarea
+                  id={`${formId}-note`}
+                  value={form.note}
+                  onChange={event => updateField('note', event.target.value)}
+                  placeholder="记录背景设定、灵感或伏笔..."
+                  className="min-h-[80px] resize-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between px-6 py-4 border-t border-border/60 bg-background">
+            {character
+              ? (
+                  <Button
+                    variant="ghost"
+                    onClick={handleDelete}
+                    disabled={creating || deleting}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    {deleting ? '删除中...' : '删除角色'}
+                  </Button>
+                )
+              : (
+                  <div />
+                )}
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={creating || deleting}>
+                取消
+              </Button>
+              <Button onClick={handleSubmit} disabled={creating || deleting} className="min-w-[80px]">
+                {creating
+                  ? (character ? '保存中...' : '创建中...')
+                  : (character ? '保存' : '创建')}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

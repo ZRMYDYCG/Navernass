@@ -5,18 +5,23 @@ import { devtools } from 'zustand/middleware'
 interface CharacterMaterialStoreState {
   characters: NovelCharacter[]
   selectedCharacterId: string | null
+  characterChapterMap: Record<string, string[]> // characterId -> chapterIds
 
   setCharacters: (characters: NovelCharacter[]) => void
   upsertCharacter: (character: NovelCharacter) => void
   removeCharacter: (id: string) => void
   selectCharacter: (id?: string | null) => void
+
+  setCharacterChapterIds: (characterId: string, chapterIds: string[]) => void
+  getCharacterChapterIds: (characterId: string) => string[]
 }
 
 export const useCharacterMaterialStore = create<CharacterMaterialStoreState>()(
   devtools(
-    set => ({
+    (set, get) => ({
       characters: [],
       selectedCharacterId: null,
+      characterChapterMap: {},
 
       setCharacters: characters => set({ characters }),
 
@@ -36,6 +41,12 @@ export const useCharacterMaterialStore = create<CharacterMaterialStoreState>()(
       })),
 
       selectCharacter: id => set({ selectedCharacterId: id ? String(id) : null }),
+
+      setCharacterChapterIds: (characterId, chapterIds) => set(state => ({
+        characterChapterMap: { ...state.characterChapterMap, [characterId]: chapterIds },
+      })),
+
+      getCharacterChapterIds: characterId => get().characterChapterMap[characterId] ?? [],
     }),
     { name: 'characterMaterialStore' },
   ),

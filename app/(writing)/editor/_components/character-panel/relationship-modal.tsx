@@ -117,12 +117,18 @@ export function RelationshipModal({
     }
   }, [open, onOpenChange])
 
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-[9999]">
+    <div
+      className={cn(
+        'fixed inset-0 z-[9999] transition-opacity duration-200',
+        open ? 'opacity-100' : 'pointer-events-none opacity-0',
+      )}
+    >
       <div
-        className="absolute inset-0 bg-black/40"
+        className={cn(
+          'absolute inset-0 bg-black/60 backdrop-blur-sm',
+          open ? 'opacity-100' : 'opacity-0',
+        )}
         onClick={() => onOpenChange(false)}
       />
 
@@ -130,6 +136,8 @@ export function RelationshipModal({
         className={cn(
           'absolute right-0 top-0 h-full w-[400px] max-w-[90vw]',
           'flex flex-col border-l bg-background shadow-2xl',
+          'transform transition-transform duration-300 ease-out',
+          open ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
         aria-modal="true"

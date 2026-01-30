@@ -9,6 +9,7 @@ import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { cn } from '@/lib/utils'
 import { formatRelationshipLabel, getCharacterColor } from '@/store/characterGraphStore'
 import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
+import { AvatarPromptModal } from './avatar-prompt-modal'
 
 interface CharacterOverviewGraphProps {
   novelId: string
@@ -334,7 +335,7 @@ export function CharacterOverviewGraph({
     const avatar = escapeHtml(node.avatar ?? '/assets/mock-avatar.svg')
     const placeholderHtml = node.avatar
       ? ''
-      : '<div class="absolute inset-0 flex items-center justify-center px-6 text-center text-[11px] text-white/85"><span>补充人物信息后，与你的角色见面</span></div>'
+      : '<div class="absolute inset-0 flex items-center justify-center px-6 text-center text-[11px] text-white/85"><span>点击生成画像，与你的角色见面</span></div>'
 
     return `
       <div class="character-card-shell relative rounded-2xl border border-border/70 bg-card shadow-[0_12px_24px_rgba(15,23,42,0.08)] p-0.5 overflow-hidden">
@@ -1085,78 +1086,23 @@ export function CharacterOverviewGraph({
         </div>
       )}
 
-      {promptModal && (
-        <div
-          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40"
-          onClick={() => {
-            if (!isGenerating) {
-              setPromptModal(null)
-              setGenerateError(null)
-            }
-          }}
-        >
-          <div
-            className="w-[520px] max-w-[92vw] rounded-xl border border-border bg-background shadow-xl"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-              <div className="text-sm font-medium">生成角色画像</div>
-              <button
-                type="button"
-                className="h-8 w-8 rounded-md hover:bg-muted disabled:opacity-50"
-                disabled={isGenerating}
-                onClick={() => {
-                  setPromptModal(null)
-                  setGenerateError(null)
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="px-4 py-3 space-y-2">
-              <div className="text-xs text-muted-foreground">请输入角色描述（越具体越好）</div>
-              <textarea
-                value={promptText}
-                onChange={(e) => {
-                  setPromptText(e.target.value)
-                  if (generateError) setGenerateError(null)
-                }}
-                rows={4}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder="例如：18岁少女，银色短发，蓝色瞳孔，穿学院风制服，气质冷淡，微笑..."
-                disabled={isGenerating}
-              />
-
-              {generateError && (
-                <div className="text-xs text-rose-600">{generateError}</div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-border">
-              <button
-                type="button"
-                className="h-9 rounded-md border border-border px-3 text-sm hover:bg-muted disabled:opacity-50"
-                disabled={isGenerating}
-                onClick={() => {
-                  setPromptModal(null)
-                  setGenerateError(null)
-                }}
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                className="h-9 rounded-md bg-primary px-4 text-sm text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                disabled={isGenerating || !promptText.trim()}
-                onClick={handleGenerateAvatar}
-              >
-                {isGenerating ? '生成中...' : '生成'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AvatarPromptModal
+        open={Boolean(promptModal)}
+        promptText={promptText}
+        isGenerating={isGenerating}
+        generateError={generateError}
+        onPromptChange={(v) => {
+          setPromptText(v)
+          if (generateError) setGenerateError(null)
+        }}
+        onCancel={() => {
+          if (!isGenerating) {
+            setPromptModal(null)
+            setGenerateError(null)
+          }
+        }}
+        onConfirm={handleGenerateAvatar}
+      />
 
       <style jsx global>
         {`

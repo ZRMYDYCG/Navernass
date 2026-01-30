@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
 import { useAuth } from '@/hooks/use-auth'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
+import { useCharacterGraphStore } from '@/store/characterGraphStore'
 
 const viewModes: Array<{ value: CharacterPanelViewMode, label: string }> = [
   { value: 'overview', label: '关系总览' },
@@ -131,7 +132,7 @@ export function CharacterPanelHeader({
           height={28}
           className="hidden dark:block"
         />
-        <div className="text-sm font-semibold text-foreground truncate">
+        <div className="text-sm font-medium text-muted-foreground truncate flex items-center gap-1">
           {novelTitle ?? novelId}
         </div>
       </div>
