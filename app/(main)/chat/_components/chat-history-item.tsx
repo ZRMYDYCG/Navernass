@@ -139,7 +139,10 @@ export function ChatHistoryItem({
     }
   }
 
-  const shouldShowButton = isHovered || isActive || isMenuOpen
+  // 「更多」按钮显示条件：hover 或菜单展开
+  const shouldShowMore = isHovered || isMenuOpen
+  // 置顶图标显示条件：被置顶且没有显示「更多」按钮
+  const shouldShowPin = chat.isPinned && !shouldShowMore
 
   return (
     <TooltipProvider>
@@ -148,79 +151,79 @@ export function ChatHistoryItem({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {isEditing
-          ? (
-              <div className="flex items-center gap-1 px-3 py-2 relative">
-                <Input
-                  value={editTitle}
-                  onChange={e => setEditTitle(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onBlur={handleRenameSubmit}
-                  disabled={isRenaming}
-                  className="h-7 text-sm flex-1 min-w-0 bg-card border-border focus-visible:ring-ring"
-                  autoFocus
-                />
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={handleRenameSubmit}
-                  disabled={isRenaming}
-                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={handleRenameCancel}
-                  disabled={isRenaming}
-                  className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </Button>
-              </div>
-            )
-          : (
-              <Button
-                variant="ghost"
-                className={cn(
-                  'w-full justify-start px-3 py-1.5 h-9 text-left relative transition-colors overflow-hidden cursor-pointer rounded-none pr-10',
-                  isActive
-                    ? 'bg-sidebar-accent text-sidebar-foreground'
-                    : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
-                )}
-                onClick={handleClick}
-              >
-                <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[calc(100%-2.5rem)]">
-                  <Tooltip delayDuration={500}>
-                    <TooltipTrigger asChild>
-                      <span
-                        ref={titleRef}
-                        className={cn(
-                          'text-sm truncate block transition-colors',
-                          isActive && 'font-medium',
-                        )}
-                      >
-                        {chat.title}
-                      </span>
-                    </TooltipTrigger>
-                    {isTruncated && (
-                      <TooltipContent className="max-w-xs bg-popover text-popover-foreground">
-                        <p>{chat.title}</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </div>
-                {chat.isPinned && (
-                  <Pin
-                    className={cn(
-                      'h-3 w-3 absolute right-10 top-1/2 -translate-y-1/2 rotate-45 transition-colors',
-                      isActive ? 'text-sidebar-foreground' : 'text-muted-foreground group-hover:text-sidebar-foreground',
-                    )}
-                  />
-                )}
-              </Button>
+        {isEditing ? (
+          <div className="flex items-center gap-1 px-3 py-2 relative">
+            <Input
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onBlur={handleRenameSubmit}
+              disabled={isRenaming}
+              className="h-7 text-sm flex-1 min-w-0 bg-card border-border focus-visible:ring-ring"
+              autoFocus
+            />
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleRenameSubmit}
+              disabled={isRenaming}
+              className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
+            >
+              <Check className="w-3.5 h-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleRenameCancel}
+              disabled={isRenaming}
+              className="h-7 w-7 shrink-0 cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
+            >
+              <X className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            className={cn(
+              'w-full justify-start px-3 py-1.5 h-9 text-left relative transition-colors overflow-hidden cursor-pointer rounded-none pr-10',
+              isActive
+                ? 'bg-sidebar-accent text-sidebar-foreground'
+                : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
             )}
+            onClick={handleClick}
+          >
+            <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[calc(100%-2.5rem)]">
+              <Tooltip delayDuration={500}>
+                <TooltipTrigger asChild>
+                  <span
+                    ref={titleRef}
+                    className={cn(
+                      'text-sm truncate block transition-colors',
+                      isActive && 'font-medium'
+                    )}
+                  >
+                    {chat.title}
+                  </span>
+                </TooltipTrigger>
+                {isTruncated && (
+                  <TooltipContent className="max-w-xs bg-popover text-popover-foreground">
+                    <p>{chat.title}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </div>
+            {shouldShowPin && (
+              <Pin
+                className={cn(
+                  'h-3 w-3 absolute right-2 top-1/2 -translate-y-1/2 rotate-45 transition-colors',
+                  isActive
+                    ? 'text-sidebar-foreground'
+                    : 'text-muted-foreground group-hover:text-sidebar-foreground'
+                )}
+              />
+            )}
+          </Button>
+        )}
 
         {/* 更多按钮 - 编辑模式下隐藏 */}
         {!isEditing && (
@@ -230,29 +233,27 @@ export function ChatHistoryItem({
                 variant="ghost"
                 size="icon-sm"
                 className={cn(
-                  'absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:bg-accent transition-opacity duration-200 z-10 cursor-pointer h-7 w-7',
-                  shouldShowButton ? 'opacity-100' : 'opacity-0 pointer-events-none',
+                  'absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:bg-accent transition-opacity duration-200 z-20 cursor-pointer h-7 w-7',
+                  shouldShowMore ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 )}
-                onClick={e => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 bg-popover border border-border shadow-paper-md">
               <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-accent" onClick={handlePinClick}>
-                {chat.isPinned
-                  ? (
-                      <>
-                        <PinOff className="w-4 h-4" />
-                        <span>取消置顶</span>
-                      </>
-                    )
-                  : (
-                      <>
-                        <Pin className="w-4 h-4" />
-                        <span>置顶</span>
-                      </>
-                    )}
+                {chat.isPinned ? (
+                  <>
+                    <PinOff className="w-4 h-4" />
+                    <span>取消置顶</span>
+                  </>
+                ) : (
+                  <>
+                    <Pin className="w-4 h-4" />
+                    <span>置顶</span>
+                  </>
+                )}
               </DropdownMenuItem>
               <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-accent" onClick={handleRenameClick}>
                 <Edit3 className="w-4 h-4" />
@@ -276,9 +277,7 @@ export function ChatHistoryItem({
             <DialogHeader>
               <DialogTitle>删除对话</DialogTitle>
               <DialogDescription>
-                确定要删除「
-                {chat.title}
-                」吗？此操作无法撤销，所有消息记录都将被永久删除。
+                确定要删除「{chat.title}」吗？此操作无法撤销，所有消息记录都将被永久删除。
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
