@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.9.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.8.0...v0.9.0) (2026-01-31)
+
+
+### Features
+
+* 侧边栏最小宽度调整 ([37759d9](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/37759d9d7c3ef050943a056c5f3cfecd340d3fb1))
+* 测试分支代码提交 ([5aa211c](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/5aa211c84681d630c354b46194f0aff648f5887c))
+* 初次对话去重 防止二次提问 ([c46e5d3](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/c46e5d32a1bf4256433a8894772f9c8803edbd06))
+* 角色池相关代码提交 ([b03b800](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/b03b800b1b98098c2cf1b800df565c50562bc196))
+* 角色关系建立 人物画像生成功能代码提交 ([2bf69fd](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/2bf69fd749d06e814278ed77d3f22a489c4d56a6))
+* 角色管理功能代码提交 ([b0cfe2e](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/b0cfe2edba1e27d891c8f69dbc188572f5e1056f))
+* 角色管理功能迭代 ([3c3f1e0](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/3c3f1e0b67d6f14bde3a6aa9c79fd1db98a67e85))
+* 角色图谱功能迭代相关代码提交 ([cfa7346](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/cfa7346fad800d780a22f14c10b70f2f5c9fdd67))
+* 角色网 ([e25f2d1](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/e25f2d135036a903268993cfd4312c678e5b2c9f))
+* 新增内容沉浸模式，其他区块非访问状态玻璃态 ([40dc469](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/40dc469228c10c19def9346b04e34edce7c541d7))
+* 新增全局检索功能 ([30677e8](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/30677e84040e07452b83f631f2a6ddc6463fac65))
+* 修复颤动问题 ([978b0c0](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/978b0c028dd95b7bd0f2d9ed2540727371d25b09))
+* ai 助手页面重构 ([ce795a1](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/ce795a10d262c4fddd875bb50112c8467fc94e48))
+* **tiptap:** 实现编辑器内容修订跟踪功能 ([718a436](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/718a4361ef78c62fc99fb11bd8a1b15af18ba6b4))
+
+
+### Bug Fixes
+
+* 侧边栏重构 ([fabebba](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/fabebbacca0f213a6c8cb2bcde362372f56602fa))
+* 侧边栏重构 ([25bffb2](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/25bffb2f7abb2015523df653fff859e67af9a858))
+* 登录重定向 ([fcc112d](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/fcc112dcda58f9a5caf2f304376968fabadf359a))
+* 底部产品重定向问题 ([6a66012](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/6a66012b94510a31a99fa1c3c1cee21ade903d0a))
+* 对话框位置适配 ([c117361](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/c117361f6b47afe5eb888b6e0ff421ca3e2cca27))
+* 更多与置顶按钮交互调整 ([36238d7](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/36238d73e8cfe5b683bd67d1e2e7846122d89c9e))
+* 接受“跨环境”场景下的错误并保持兜底 ([47feee9](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/47feee907ff9a916347fcce1d76732880530d97b))
+* 进入小说编辑器时，如果有卷，每个卷都会默认展开 ([117e965](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/117e96597327d40fdf8f1f963f664e0021fc1eea))
+* 修复动画可能导致的换行符吞噬问题 ([8e1ff26](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/8e1ff26a73b6a5169660bdffbcd3c1b7a245fe8a))
+* 注册验证 ([ae05b29](https://gitee.com/versa-lab-private/narraverse-next-mvp/commit/ae05b2938ce65225e81e785c9da53df2c039590d))
+
 ## [0.8.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.7.0...v0.8.0) (2026-01-17)
 
 
