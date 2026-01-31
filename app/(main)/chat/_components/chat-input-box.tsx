@@ -10,12 +10,14 @@ interface ChatInputBoxProps {
   onSend?: (message: string) => void
   placeholder?: string
   disabled?: boolean
+  centered?: boolean
 }
 
 export function ChatInputBox({
   onSend,
   placeholder = '和 AI 一起创作你的小说世界...',
   disabled = false,
+  centered = false,
 }: ChatInputBoxProps) {
   const [isRecording, setIsRecording] = useState(false)
   const [isEmpty, setIsEmpty] = useState(true)
@@ -96,7 +98,11 @@ export function ChatInputBox({
 
   return (
     <div className="w-full">
-      <div className="bg-card rounded-xl shadow-lg border border-border transition-all flex flex-col min-h-[120px] max-w-4xl focus-within:shadow-xl focus-within:border-ring">
+      <div
+        className={`bg-card rounded-xl shadow-lg border border-border transition-all flex flex-col min-h-[120px] max-w-4xl focus-within:shadow-xl focus-within:border-ring ${
+          centered ? 'mx-auto' : ''
+        }`}
+      >
         <div
           ref={editorRef}
           contentEditable={!disabled}

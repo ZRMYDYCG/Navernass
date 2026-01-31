@@ -127,6 +127,7 @@ function ConversationContent() {
                   <ChatInputBox
                     onSend={handleSendMessage}
                     disabled={isLoading}
+                    centered
                   />
                 </div>
               )}
