@@ -10,7 +10,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const isMobile = useIsMobile()
 
   const DEFAULT_DESKTOP_WIDTH = 224 // px (w-56)
-  const MIN_DESKTOP_WIDTH = 120
+  const MIN_DESKTOP_WIDTH = DEFAULT_DESKTOP_WIDTH
   const MAX_DESKTOP_WIDTH = 420
 
   const [desktopSidebarWidth, setDesktopSidebarWidth] = useState(DEFAULT_DESKTOP_WIDTH)
