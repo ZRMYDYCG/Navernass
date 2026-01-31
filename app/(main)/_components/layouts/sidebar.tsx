@@ -44,13 +44,13 @@ export function Sidebar({
   const menuItems: MenuItem[] = [
     { label: '搜索', icon: Search, onClick: () => setShowSearch(true), exactMatch: true, shortcut: ['Ctrl', 'K'] },
     { label: '新对话', icon: PencilLine, onClick: () => router.push('/chat'), exactMatch: true, disabled: isNewChatPage },
-    { path: '/chat', label: '创作助手', icon: Bot },
+    { path: '/chat', label: '创作助手', icon: Bot, exactMatch: true },
     { path: '/novels', label: '我的小说', icon: Book },
     { path: '/trash', label: '回收站', icon: Trash2 },
     { label: '设置', icon: Settings, onClick: () => setShowSettings(true), exactMatch: true },
   ]
 
-  const bottomItem: MenuItem = { label: '产品动态', icon: Bell, onClick: () => location.assign('/chat/news') }
+  const bottomItem: MenuItem = { path: '/chat/news', label: '产品动态', icon: Bell, exactMatch: true }
 
   useEffect(() => {
     document.body.style.overflow = isMobileOpen ? 'hidden' : ''
@@ -183,20 +183,20 @@ export function Sidebar({
           <ChatHistoryPopover className="h-full" scrollAreaClassName="h-full min-h-0" />
         </div>
 
-        <div className="mt-auto pb-3">
+        <div className="mt-auto">
           {(() => {
             const Icon = bottomItem.icon
             return (
-              <button
+              <Link
+                href={bottomItem.path!}
                 onClick={() => {
-                  bottomItem.onClick?.()
                   if (isMobile) setIsMobileOpen(false)
                 }}
                 className={`group flex items-center rounded-none px-4 py-1.5 w-full text-left text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground ${isCollapsed ? 'justify-center' : ''}`}
               >
                 <Icon className="w-4 h-4" />
                 {!isCollapsed && <span className="ml-3 text-sm truncate">{bottomItem.label}</span>}
-              </button>
+              </Link>
             )
           })()}
         </div>
