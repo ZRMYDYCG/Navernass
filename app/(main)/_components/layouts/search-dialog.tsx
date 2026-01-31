@@ -1,24 +1,34 @@
 'use client'
 
-import { Book, MessageSquare, Route, Search, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { X } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-
-type SearchScope = 'all' | 'novels' | 'chats' | 'routes'
+import { cn } from '@/lib/utils'
+import { conversationsApi } from '@/lib/supabase/sdk'
+import type { Conversation } from '@/lib/supabase/sdk/types'
+import type { Novel } from '@/lib/supabase/sdk/types'
+import { novelsApi } from '@/lib/supabase/sdk'
 
 interface SearchItem {
   id: string
   title: string
+  type: 'novel' | 'chat' | 'route'
   description?: string
+  path?: string
 }
 
-interface SearchSection {
-  id: string
-  title: string
-  scope: SearchScope
-  icon: typeof Book
-  emptyText: string
-  items: SearchItem[]
+const ROUTES: SearchItem[] = [
+  { id: 'chat', title: '创作助手', type: 'route', path: '/chat' },
+  { id: 'novels', title: '我的小说', type: 'route', path: '/novels' },
+  { id: 'trash', title: '回收站', type: 'route', path: '/trash' },
+  { id: 'chat-news', title: '产品动态', type: 'route', path: '/chat/news' },
+]
+
+const TYPE_CONFIG = {
+  novel: { label: '小说', color: 'text-muted-foreground bg-muted' },
+  chat: { label: '对话', color: 'text-muted-foreground bg-muted' },
+  route: { label: '页面', color: 'text-muted-foreground bg-muted' },
 }
 
 interface SearchDialogProps {
@@ -27,61 +37,88 @@ interface SearchDialogProps {
 }
 
 export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
+  const router = useRouter()
+  const pathname = usePathname()
   const [query, setQuery] = useState('')
-  const [scope, setScope] = useState<SearchScope>('all')
+  const [novels, setNovels] = useState<Novel[]>([])
+  const [chats, setChats] = useState<Conversation[]>([])
+  const [loading, setLoading] = useState(false)
 
-  const sections = useMemo<SearchSection[]>(() => {
-    return [
-      {
-        id: 'recent-novels',
-        title: '最近编辑的小说',
-        scope: 'novels',
-        icon: Book,
-        emptyText: '暂无最近编辑的小说',
-        items: [],
-      },
-      {
-        id: 'recent-chats',
-        title: '最近对话',
-        scope: 'chats',
-        icon: MessageSquare,
-        emptyText: '暂无最近对话',
-        items: [],
-      },
-      {
-        id: 'routes',
-        title: '页面路由',
-        scope: 'routes',
-        icon: Route,
-        emptyText: '暂无可搜索页面',
-        items: [],
-      },
-    ]
-  }, [])
+  useEffect(() => {
+    if (!open) return
 
-  const visibleSections = useMemo(() => {
+    const loadData = async () => {
+      setLoading(true)
+      try {
+        const [novelsResult, conversationsResult] = await Promise.all([
+          novelsApi.getList({ page: 1, pageSize: 50 }),
+          conversationsApi.getRecent(50),
+        ])
+        setNovels(novelsResult.data)
+        setChats(conversationsResult)
+      } catch (error) {
+        console.error('Failed to load search data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [open])
+
+  useEffect(() => {
+    if (!open) {
+      setQuery('')
+    }
+  }, [open])
+
+  const allItems = useMemo<SearchItem[]>(() => {
+    const novelItems: SearchItem[] = novels.map(n => ({
+      id: n.id,
+      title: n.title,
+      type: 'novel' as const,
+      description: n.description,
+      path: `/novels/${n.id}`,
+    }))
+
+    const chatItems: SearchItem[] = chats.map(c => ({
+      id: c.id,
+      title: c.title,
+      type: 'chat' as const,
+      description: new Date(c.created_at).toLocaleDateString(),
+      path: `/chat/${c.id}`,
+    }))
+
+    return [...novelItems, ...chatItems, ...ROUTES]
+  }, [novels, chats])
+
+  const filteredItems = useMemo<SearchItem[]>(() => {
     const normalizedQuery = query.trim().toLowerCase()
-    return sections
-      .filter(section => scope === 'all' || section.scope === scope)
-      .map(section => {
-        if (!normalizedQuery) {
-          return section
-        }
-        const filteredItems = section.items.filter(item => {
-          const inTitle = item.title.toLowerCase().includes(normalizedQuery)
-          const inDescription = item.description?.toLowerCase().includes(normalizedQuery)
-          return inTitle || Boolean(inDescription)
-        })
-        return { ...section, items: filteredItems }
-      })
-  }, [query, scope, sections])
+    if (!normalizedQuery) {
+      return allItems.slice(0, 10)
+    }
+    return allItems.filter(item => {
+      const inTitle = item.title.toLowerCase().includes(normalizedQuery)
+      const inDescription = item.description?.toLowerCase().includes(normalizedQuery)
+      return inTitle || Boolean(inDescription)
+    })
+  }, [query, allItems])
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       setQuery('')
-      setScope('all')
     }
     onOpenChange(nextOpen)
+  }
+
+  const handleItemClick = (item: SearchItem) => {
+    if (item.path) {
+      if (item.path.startsWith('/chat/') && pathname.startsWith('/chat/')) {
+        router.refresh()
+      }
+      router.push(item.path)
+    }
+    handleOpenChange(false)
   }
 
   return (
@@ -92,13 +129,12 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
       >
         <DialogTitle className="sr-only">搜索</DialogTitle>
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/20">
-          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
           <input
             autoFocus
             value={query}
             onChange={event => setQuery(event.target.value)}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none h-6"
-            placeholder="搜索小说、对话、页面..."
+            placeholder="搜索..."
           />
           <button
             type="button"
@@ -109,66 +145,46 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-border bg-background">
-          {[
-            { id: 'all', label: '全部' },
-            { id: 'novels', label: '小说' },
-            { id: 'chats', label: '对话' },
-            { id: 'routes', label: '页面' },
-          ].map(item => {
-            const isActive = scope === item.id
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setScope(item.id as SearchScope)}
-                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                  isActive
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-background text-muted-foreground border-border hover:bg-accent hover:text-foreground'
-                }`}
-              >
-                {item.label}
-              </button>
-            )
-          })}
-        </div>
-
         <div className="max-h-[62vh] overflow-y-auto">
-          {visibleSections.map(section => {
-            const Icon = section.icon
-            return (
-              <div key={section.id} className="py-3">
-                <div className="flex items-center gap-2 px-4 text-xs font-medium text-muted-foreground">
-                  <Icon className="h-3.5 w-3.5" />
-                  <span>{section.title}</span>
-                </div>
-                {section.items.length === 0
-                  ? (
-                      <div className="px-4 pt-2 text-sm text-muted-foreground">{section.emptyText}</div>
-                    )
-                  : (
-                      <ul className="mt-2 space-y-1 px-2">
-                        {section.items.map(item => (
-                          <li key={item.id}>
-                            <button
-                              type="button"
-                              className="flex w-full flex-col gap-0.5 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-accent"
-                            >
-                              <span className="truncate">{item.title}</span>
-                              {item.description && (
-                                <span className="text-xs text-muted-foreground truncate">
-                                  {item.description}
-                                </span>
+          {loading && (
+            <div className="px-4 py-8 text-sm text-muted-foreground text-center">
+              加载中...
+            </div>
+          )}
+          {!loading && (
+            filteredItems.length === 0
+              ? (
+                  <div className="px-4 py-8 text-sm text-muted-foreground text-center">
+                    {query ? '未找到相关内容' : '输入关键词搜索...'}
+                  </div>
+                )
+              : (
+                  <ul className="py-2 space-y-1 px-2">
+                    {filteredItems.map(item => {
+                      const config = TYPE_CONFIG[item.type]
+                      return (
+                        <li key={`${item.type}-${item.id}`}>
+                          <button
+                            type="button"
+                            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-accent"
+                            onClick={() => handleItemClick(item)}
+                          >
+                            <span className="truncate flex-1">{item.title}</span>
+                            <span
+                              className={cn(
+                                'px-2 py-0.5 rounded-full text-xs font-medium',
+                                config.color
                               )}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-              </div>
-            )
-          })}
+                            >
+                              {config.label}
+                            </span>
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )
+          )}
         </div>
       </DialogContent>
     </Dialog>
