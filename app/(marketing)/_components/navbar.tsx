@@ -49,8 +49,7 @@ export default function Navbar() {
 
             <Button
               variant="outline"
-              size="sm"
-              className="rounded-full text-xs md:text-sm"
+              className="text-xs md:text-sm"
               onClick={() => setContactOpen(true)}
             >
               联系我们
