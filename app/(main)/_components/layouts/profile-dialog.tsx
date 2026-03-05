@@ -26,17 +26,20 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const initializedRef = useRef(false)
 
-  if (open && profile && !initializedRef.current) {
-    initializedRef.current = true
-    setUsername(profile.username || '')
-    setWebsite(profile.website || '')
-    setAvatarUrl(profile.avatar_url || '')
-    setAvatarFile(null)
-  }
+  useEffect(() => {
+    if (!open) {
+      initializedRef.current = false
+      return
+    }
 
-  if (!open && initializedRef.current) {
-    initializedRef.current = false
-  }
+    if (initializedRef.current) return
+
+    initializedRef.current = true
+    setUsername(profile?.username || '')
+    setWebsite(profile?.website || '')
+    setAvatarUrl(profile?.avatar_url || '')
+    setAvatarFile(null)
+  }, [open, profile])
 
   useEffect(() => {
     return () => {
@@ -70,9 +73,18 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
       return
     }
 
+    if (avatarUrl && avatarUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(avatarUrl)
+    }
+
     setAvatarFile(file)
     const url = URL.createObjectURL(file)
     setAvatarUrl(url)
+  }
+
+  const normalizeNullableText = (value: string) => {
+    const normalized = value.trim()
+    return normalized.length > 0 ? normalized : null
   }
 
   const handleSave = async () => {
@@ -108,25 +120,26 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username,
-          website,
-          avatar_url: finalAvatarUrl,
+          username: normalizeNullableText(username),
+          website: normalizeNullableText(website),
+          avatar_url: normalizeNullableText(finalAvatarUrl),
         }),
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        toast.error(error.error?.message || '更新失败')
+        let errorMessage = '更新失败'
+        try {
+          const error = await response.json()
+          errorMessage = error?.error?.message || error?.error || error?.message || errorMessage
+        } catch {
+          // Ignore non-JSON response body
+        }
+        toast.error(errorMessage)
         return
       }
 
-      const updateData: Record<string, string> = {}
-      if (username) updateData.username = username
-      if (website) updateData.website = website
-      if (finalAvatarUrl) updateData.avatar_url = finalAvatarUrl
-      if (profile) {
-        setProfile({ ...profile, ...updateData })
-      }
+      const updatedProfile = await response.json()
+      setProfile(updatedProfile)
 
       toast.success('个人资料更新成功')
       onOpenChange(false)
@@ -224,3 +237,4 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
     </Dialog>
   )
 }
+
