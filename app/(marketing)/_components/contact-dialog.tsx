@@ -38,7 +38,6 @@ export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
           {isGroup
             ? (
                 <section className="space-y-3">
-                  <h3 className="text-sm font-medium text-foreground">群聊二维码</h3>
                   <div className="rounded-xl border bg-muted/40 p-3 flex flex-col items-center gap-3">
                     <div className="relative w-[260px] h-[360px] max-w-full">
                       <Image
@@ -67,7 +66,6 @@ export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
               )
             : (
                 <section className="space-y-3">
-                  <h3 className="text-sm font-medium text-foreground">管理员微信</h3>
                   <div className="rounded-xl border bg-muted/40 p-3 flex flex-col items-center gap-3">
                     <p className="text-xs text-muted-foreground text-center">
                       如果群聊人数已满或二维码过期，可以先加管理员微信备注「Narraverse」，会尽快拉你进群。
