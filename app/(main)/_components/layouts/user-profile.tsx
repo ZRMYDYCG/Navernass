@@ -3,6 +3,7 @@
 import { ChevronsUpDown, LogOut, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,13 +26,25 @@ interface UserProfileProps {
 
 export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSettingsClick, compact = false }: UserProfileProps) {
   const { user, profile, signOut } = useAuth()
+  const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
 
   const handleSignOut = async () => {
     try {
       setIsSigningOut(true)
-      await signOut()
+      const { error } = await signOut()
+      if (error) {
+        toast.error(error.message || '退出登录失败')
+        return
+      }
+
+      toast.success('已退出登录')
+      router.push('/')
+      router.refresh()
+    } catch (error) {
+      console.error('Sign out failed:', error)
+      toast.error('退出登录失败，请重试')
     } finally {
       setIsSigningOut(false)
     }

@@ -21,22 +21,34 @@ import { AuthDialog } from './auth-dialog'
 export function AuthButton() {
   const { user, profile, signOut, loading } = useAuth()
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const router = useRouter()
 
   const handleSignOut = async () => {
     try {
-      await signOut()
-      toast.success('已退出登录')
+      setIsSigningOut(true)
+
+      const { error } = await signOut()
+      if (error) {
+        toast.error(error.message || 'Sign out failed')
+        return
+      }
+
+      toast.success('Signed out')
       router.push('/')
-    } catch {
-      toast.error('退出失败')
+      router.refresh()
+    } catch (error) {
+      console.error('Sign out failed:', error)
+      toast.error('Sign out failed')
+    } finally {
+      setIsSigningOut(false)
     }
   }
 
   if (loading) {
     return (
       <Button variant="outline" disabled>
-        <div className="animate-pulse">加载中...</div>
+        <div className="animate-pulse">Loading...</div>
       </Button>
     )
   }
@@ -44,16 +56,10 @@ export function AuthButton() {
   if (!user) {
     return (
       <>
-        <Button
-          variant="outline"
-          onClick={() => setAuthDialogOpen(true)}
-        >
+        <Button variant="outline" onClick={() => setAuthDialogOpen(true)}>
           登录 / 注册
         </Button>
-        <AuthDialog
-          open={authDialogOpen}
-          onOpenChange={setAuthDialogOpen}
-        />
+        <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
       </>
     )
   }
@@ -74,7 +80,7 @@ export function AuthButton() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {profile?.full_name || '用户'}
+              {profile?.full_name || 'User'}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
@@ -85,13 +91,13 @@ export function AuthButton() {
         <DropdownMenuItem asChild>
           <Link href="/chat" className="flex items-center">
             <User className="mr-2 h-4 w-4" />
-            <span>进入应用</span>
+            <span>Open app</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut}>
+        <DropdownMenuItem onClick={handleSignOut} disabled={isSigningOut}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>退出登录</span>
+          <span>{isSigningOut ? 'Signing out...' : 'Sign out'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
