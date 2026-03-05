@@ -104,6 +104,8 @@ export function useConversationMessages({
             )
           },
           onContent: (chunk) => {
+            if (!chunk) return
+
             accumulatedContent += chunk
             if (!aiMessageId) {
               const tempAiMessage: Message = {

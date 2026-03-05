@@ -86,7 +86,9 @@ export const chatApi = {
               callbacks.onUserMessageId?.(event.data)
               break
             case 'content':
-              callbacks.onContent?.(event.data)
+              if (typeof event.data === 'string' && event.data.length > 0) {
+                callbacks.onContent?.(event.data)
+              }
               break
             case 'done':
               callbacks.onDone?.(event.data)

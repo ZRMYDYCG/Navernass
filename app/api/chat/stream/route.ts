@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       try {
         // 获取或创建对话
         let conversation
+        let isConversationCreated = false
 
         // 验证conversationId是否为有效的UUID
         const isValidUUID = conversationId
@@ -45,25 +46,40 @@ export async function POST(req: NextRequest) {
             conversation = await conversationsService.getById(conversationId)
           } catch {
             // 如果对话不存在，创建新对话
-            const title = await aiService.generateTitle(message)
             conversation = await conversationsService.create({
-              title,
+              title: 'New Conversation',
             })
+            isConversationCreated = true
           }
         } else {
           // 创建新对话
-          const title = await aiService.generateTitle(message)
           conversation = await conversationsService.create({
-            title,
+            title: 'New Conversation',
           })
+          isConversationCreated = true
         }
 
         // 发送对话ID和是否新建标志
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: 'conversation_id', data: { id: conversation.id, created: !isValidUUID } })}\n\n`),
+          encoder.encode(`data: ${JSON.stringify({ type: 'conversation_id', data: { id: conversation.id, created: isConversationCreated } })}\n\n`),
         )
 
         // 获取对话历史消息（最多20条）
+        if (isConversationCreated) {
+          void aiService.generateTitle(message)
+            .then(async (title) => {
+              const normalizedTitle = title?.trim()
+              if (!normalizedTitle) return
+
+              await conversationsService.update(conversation.id, {
+                title: normalizedTitle,
+              })
+            })
+            .catch((error) => {
+              console.warn('Failed to update conversation title:', error)
+            })
+        }
+
         const historyMessages = await messagesService.getByConversationId(conversation.id)
         const recentHistory = historyMessages.slice(-20)
 
@@ -99,9 +115,12 @@ export async function POST(req: NextRequest) {
         let model = 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
 
         await aiService.chatStream(chatMessages, (chunk) => {
-          fullContent += chunk.content
           tokens = chunk.tokens || tokens
           model = chunk.model || model
+
+          if (!chunk.content) return
+
+          fullContent += chunk.content
 
           // 发送流式内容（检查 controller 是否仍然打开）
           try {
