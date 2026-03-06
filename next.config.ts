@@ -21,10 +21,6 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
-  swcMinify: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -35,9 +31,6 @@ const nextConfig: NextConfig = {
         hostname: 'vdkyjmlalrspsebjhkya.supabase.co',
       },
     ],
-  },
-  experimental: {
-    reactCompiler: true,
   },
   turbopack: {
     rules: codeInspectorPlugin({
