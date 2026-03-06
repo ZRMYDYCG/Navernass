@@ -45,7 +45,7 @@ export function AuthButton() {
     }
   }
 
-  if (loading) {
+  if (loading && !user) {
     return (
       <Button variant="outline" disabled>
         <div className="animate-pulse">加载中...</div>

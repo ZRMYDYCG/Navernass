@@ -1,6 +1,7 @@
 'use client'
 
 import { AiChatDemo } from './features/ai-chat-demo'
+import { LightOrDay } from './features/light-or-day'
 import { AnimatedBeamMultipleOutputDemo } from './features/multi-format-importer'
 import { NovelManagement } from './features/novel-management'
 
@@ -25,11 +26,10 @@ export default function Features() {
 
         <div className="container mx-auto p-4">
           <div className="w-full flex flex-col gap-4">
-            <div className="w-full h-full p-4 bg-card border border-border rounded-lg">
-              <h3 className="text-lg font-semibold text-foreground mb-3">多格式导出</h3>
-              <span className="text-sm text-muted-foreground mb-4">一键生成排版精美的 MarkDown 或 Text,从草稿到成书，只差一个按钮。</span>
-              <AnimatedBeamMultipleOutputDemo />
+            <div className="w-full">
+              <LightOrDay />
             </div>
+
             <div className="w-full flex flex-col md:flex-row gap-4">
               <div className="w-full md:w-5/12">
                 <AiChatDemo />
@@ -39,6 +39,15 @@ export default function Features() {
                 <NovelManagement />
               </div>
             </div>
+
+            <div className="w-full">
+              <div className="w-full h-full p-4 bg-card border border-border rounded-lg">
+                <h3 className="text-lg font-semibold text-foreground mb-3">多格式导出</h3>
+                <span className="text-sm text-muted-foreground mb-4">一键生成排版精美的 MarkDown 或 Text,从草稿到成书，只差一个按钮。</span>
+                <AnimatedBeamMultipleOutputDemo />
+              </div>
+            </div>
+
           </div>
         </div>
       </section>

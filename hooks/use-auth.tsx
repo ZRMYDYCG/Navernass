@@ -32,6 +32,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const fetchProfileByUserId = async (userId: string) => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+    try {
+      const profilePromise = supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error('Fetch profile timeout'))
+        }, 10000)
+      })
+
+      const result = await Promise.race([profilePromise, timeoutPromise])
+
+      if ('error' in result && result.error) {
+        throw result.error
+      }
+
+      return result.data as Profile | null
+    } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+    }
+  }
+
   useEffect(() => {
     let isMounted = true
 
@@ -51,32 +81,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return
         }
 
-        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
-          if (isMounted) setLoading(true)
+        const shouldBlockLoading = event === 'SIGNED_IN' || event === 'INITIAL_SESSION'
+        if (shouldBlockLoading && isMounted) {
+          setLoading(true)
+        }
 
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
           try {
-            const [profileResult] = await Promise.all([
-              supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single(),
-              minLoadingTime(500),
-            ])
+            const profileData = shouldBlockLoading
+              ? await Promise.all([
+                  fetchProfileByUserId(session.user.id),
+                  minLoadingTime(400),
+                ]).then(([data]) => data)
+              : await fetchProfileByUserId(session.user.id)
 
             if (isMounted) {
-              if (profileResult.error) {
-                console.error('Error fetching profile:', profileResult.error)
-                setProfile(null)
-              } else {
-                setProfile(profileResult.data)
-              }
+              setProfile(profileData)
             }
           } catch (error) {
-            console.error('Unexpected error fetching profile:', error)
-            if (isMounted) setProfile(null)
+            console.error('Error fetching profile:', error)
+            if (isMounted && shouldBlockLoading) {
+              setProfile(null)
+            }
           } finally {
-            if (isMounted) {
+            if (isMounted && shouldBlockLoading) {
               setLoading(false)
             }
           }

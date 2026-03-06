@@ -51,7 +51,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
     }
   }
 
-  if (loading) {
+  if (loading && !user) {
     return (
       <div className={`flex items-center gap-2 ${compact ? 'mt-0 px-2 py-2' : 'mt-auto px-3 py-2'}`}>
         <Skeleton className={`${compact ? 'w-7 h-7' : 'w-9 h-9'} rounded-full bg-primary/10`} />
