@@ -1,7 +1,7 @@
 'use client'
 
-import type { User } from '@supabase/supabase-js'
-import { createContext, useContext, useEffect, useState } from 'react'
+import type { RealtimeChannel, User } from '@supabase/supabase-js'
+import { createContext, use, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/index'
 
 export interface Profile {
@@ -34,81 +34,87 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let isMounted = true
-    const loadingTimeout = setTimeout(() => {
-      if (isMounted && loading) {
-        console.warn('Auth loading timeout, forcing loading to false')
-        setLoading(false)
-      }
-    }, 3000)
 
-    const getInitialSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!isMounted) return
-
-        setUser(session?.user ?? null)
-
-        if (session?.user) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-
-          if (isMounted) {
-            setProfile(data)
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching session:', error)
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-          clearTimeout(loadingTimeout)
-        }
-      }
-    }
-
-    getInitialSession()
+    const minLoadingTime = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email)
         if (!isMounted) return
 
         setUser(session?.user ?? null)
-        setLoading(false)
-        clearTimeout(loadingTimeout)
 
-        if (session?.user) {
+        if (!session?.user) {
+          if (isMounted) {
+            setProfile(null)
+            setLoading(false)
+          }
+          return
+        }
+
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+          if (isMounted) setLoading(true)
+
           try {
-            const { data } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
+            const [profileResult] = await Promise.all([
+              supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single(),
+              minLoadingTime(500),
+            ])
 
             if (isMounted) {
-              setProfile(data)
+              if (profileResult.error) {
+                console.error('Error fetching profile:', profileResult.error)
+                setProfile(null)
+              } else {
+                setProfile(profileResult.data)
+              }
             }
           } catch (error) {
-            console.error('Error fetching profile:', error)
+            console.error('Unexpected error fetching profile:', error)
+            if (isMounted) setProfile(null)
+          } finally {
             if (isMounted) {
-              setProfile(null)
+              setLoading(false)
             }
           }
-        } else {
-          setProfile(null)
         }
       },
     )
 
     return () => {
       isMounted = false
-      clearTimeout(loadingTimeout)
       subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    let channel: RealtimeChannel | null = null
+
+    if (user) {
+      channel = supabase
+        .channel(`profile:${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${user.id}`,
+          },
+          (payload) => {
+            setProfile(payload.new as Profile)
+          },
+        )
+        .subscribe()
+    }
+
+    return () => {
+      if (channel) supabase.removeChannel(channel)
+    }
+  }, [user])
 
   const signUp = async (email: string, password: string) => {
     const result = await supabase.auth.signUp({
@@ -165,7 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useAuth() {
-  const context = useContext(authContext)
+  const context = use(authContext)
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider')
   }

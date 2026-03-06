@@ -41,6 +41,19 @@ export function Sidebar({
   const [showSettings, setShowSettings] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
 
+  const [prevPathname, setPrevPathname] = useState(pathname)
+
+  if (!isMobile && isMobileOpen) {
+    setIsMobileOpen(false)
+  }
+
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname)
+    if (isMobile && isMobileOpen) {
+      setIsMobileOpen(false)
+    }
+  }
+
   const menuItems: MenuItem[] = [
     { label: '搜索', icon: Search, onClick: () => setShowSearch(true), exactMatch: true, shortcut: ['Ctrl', 'K'] },
     { label: '新对话', icon: PencilLine, onClick: () => router.push('/chat'), exactMatch: true, disabled: isNewChatPage },
@@ -58,17 +71,6 @@ export function Sidebar({
       document.body.style.overflow = ''
     }
   }, [isMobileOpen])
-
-  useEffect(() => {
-    if (!isMobile && isMobileOpen) {
-      setIsMobileOpen(false)
-    }
-  }, [isMobile, isMobileOpen])
-
-  useEffect(() => {
-    if (!isMobile) return
-    setIsMobileOpen(false)
-  }, [pathname, isMobile])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

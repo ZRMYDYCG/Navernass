@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/hooks/use-auth'
 import { ProfileDialog } from './profile-dialog'
 
@@ -25,7 +26,7 @@ interface UserProfileProps {
 }
 
 export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSettingsClick, compact = false }: UserProfileProps) {
-  const { user, profile, signOut } = useAuth()
+  const { user, profile, signOut, loading } = useAuth()
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
@@ -48,6 +49,20 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
     } finally {
       setIsSigningOut(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className={`flex items-center gap-2 ${compact ? 'mt-0 px-2 py-2' : 'mt-auto px-3 py-2'}`}>
+        <Skeleton className={`${compact ? 'w-7 h-7' : 'w-9 h-9'} rounded-full bg-primary/10`} />
+        {(!isCollapsed || isMobileOpen) && (
+          <div className="flex-1 space-y-1">
+            <Skeleton className="h-4 w-[90%] bg-primary/10" />
+            <Skeleton className="h-3 w-[70%] bg-primary/10" />
+          </div>
+        )}
+      </div>
+    )
   }
 
   if (!user) {

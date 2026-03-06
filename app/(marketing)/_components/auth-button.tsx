@@ -30,16 +30,16 @@ export function AuthButton() {
 
       const { error } = await signOut()
       if (error) {
-        toast.error(error.message || 'Sign out failed')
+        toast.error(error.message || '退出登录失败')
         return
       }
 
-      toast.success('Signed out')
+      toast.success('已退出登录')
       router.push('/')
       router.refresh()
     } catch (error) {
       console.error('Sign out failed:', error)
-      toast.error('Sign out failed')
+      toast.error('退出登录失败')
     } finally {
       setIsSigningOut(false)
     }
@@ -48,7 +48,7 @@ export function AuthButton() {
   if (loading) {
     return (
       <Button variant="outline" disabled>
-        <div className="animate-pulse">Loading...</div>
+        <div className="animate-pulse">加载中...</div>
       </Button>
     )
   }
@@ -80,7 +80,7 @@ export function AuthButton() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {profile?.full_name || 'User'}
+              {profile?.full_name || '用户'}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
@@ -91,13 +91,13 @@ export function AuthButton() {
         <DropdownMenuItem asChild>
           <Link href="/chat" className="flex items-center">
             <User className="mr-2 h-4 w-4" />
-            <span>Open app</span>
+            <span>进入应用</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} disabled={isSigningOut}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>{isSigningOut ? 'Signing out...' : 'Sign out'}</span>
+          <span>{isSigningOut ? '正在退出...' : '退出登录'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
