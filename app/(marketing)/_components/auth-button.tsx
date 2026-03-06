@@ -70,8 +70,8 @@ export function AuthButton() {
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage src={profile?.avatar_url} alt={profile?.full_name || user.email || ''} />
-            <AvatarFallback>
-              {profile?.full_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+            <AvatarFallback className={profile?.avatar_url ? 'animate-pulse bg-muted' : ''}>
+              {profile?.avatar_url ? null : (profile?.full_name?.[0] || user.email?.[0]?.toUpperCase() || 'U')}
             </AvatarFallback>
           </Avatar>
         </Button>
