@@ -2,7 +2,7 @@
 
 import { Mic, Send } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 
@@ -25,34 +25,16 @@ export function ChatInputBox({
   const editorRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    const checkEmpty = () => {
-      if (editorRef.current) {
-        const text = editorRef.current.textContent || ''
-        const isContentEmpty = text.trim().length === 0
-        setIsEmpty(isContentEmpty)
-
-        if (isContentEmpty && editorRef.current.innerHTML !== '') {
-          editorRef.current.innerHTML = ''
-        }
-      }
-    }
-    checkEmpty()
-
-    if (editorRef.current) {
-      const observer = new MutationObserver(checkEmpty)
-      observer.observe(editorRef.current, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      })
-      return () => observer.disconnect()
-    }
-  }, [])
-
   const handleInput = () => {
-    // 输入时自动滚动到底部
     if (editorRef.current) {
+      const text = editorRef.current.textContent || ''
+      const isContentEmpty = text.trim().length === 0
+      setIsEmpty(isContentEmpty)
+
+      if (isContentEmpty && editorRef.current.innerHTML !== '') {
+        editorRef.current.innerHTML = ''
+      }
+
       editorRef.current.scrollTop = editorRef.current.scrollHeight
     }
   }
@@ -78,7 +60,6 @@ export function ChatInputBox({
       }
     } finally {
       if (editorRef.current) {
-        // 重新聚焦到输入框
         editorRef.current.focus()
       }
       setIsSending(false)
@@ -99,7 +80,7 @@ export function ChatInputBox({
   return (
     <div className="w-full">
       <div
-        className={`bg-card rounded-xl shadow-lg border border-border transition-all flex flex-col min-h-[120px] max-w-4xl focus-within:shadow-xl focus-within:border-ring ${
+        className={`bg-card rounded-xl border border-border transition-all flex flex-col min-h-[120px] max-w-4xl focus-within:border-ring ${
           centered ? 'mx-auto' : ''
         }`}
       >
