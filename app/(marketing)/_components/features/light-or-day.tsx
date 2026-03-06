@@ -16,6 +16,9 @@ export function LightOrDay() {
   const [sliderPosition, setSliderPosition] = useState(50)
   const [isDragging, setIsDragging] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const darkScrollRef = useRef<HTMLDivElement>(null)
+  const lightScrollRef = useRef<HTMLDivElement>(null)
+  const isSyncingScrollRef = useRef(false)
 
   const handleMove = useCallback(
     (clientX: number) => {
@@ -68,6 +71,20 @@ export function LightOrDay() {
     }
   }, [isDragging, handleMove])
 
+  const handleContentScroll = useCallback((source: 'light' | 'dark', scrollTop: number) => {
+    if (isSyncingScrollRef.current) return
+
+    const targetRef = source === 'light' ? darkScrollRef : lightScrollRef
+    const target = targetRef.current
+    if (!target) return
+
+    isSyncingScrollRef.current = true
+    target.scrollTop = scrollTop
+    requestAnimationFrame(() => {
+      isSyncingScrollRef.current = false
+    })
+  }, [])
+
   return (
     <div className="w-full h-full p-4 bg-card border border-border rounded-lg flex flex-col">
       <div className="flex items-center justify-between mb-4">
@@ -83,8 +100,12 @@ export function LightOrDay() {
         ref={containerRef}
         className="relative w-full h-[400px] rounded-lg overflow-hidden border border-border select-none cursor-ew-resize touch-none"
       >
-        <div className="absolute inset-0 dark">
-          <DemoContent theme="dark" />
+        <div className="absolute inset-0">
+          <DemoContent
+            theme="dark"
+            contentRef={darkScrollRef}
+            onContentScroll={scrollTop => handleContentScroll('dark', scrollTop)}
+          />
         </div>
 
         <div
@@ -93,16 +114,20 @@ export function LightOrDay() {
             clipPath: `inset(0 ${100 - sliderPosition}% 0 0)`,
           }}
         >
-          <DemoContent theme="light" />
+          <DemoContent
+            theme="light"
+            contentRef={lightScrollRef}
+            onContentScroll={scrollTop => handleContentScroll('light', scrollTop)}
+          />
         </div>
 
         <div
-          className="absolute inset-y-0 w-1 bg-primary z-20 hover:bg-primary/80 transition-colors"
+          className="absolute inset-y-0 w-1 bg-zinc-900/70 z-20 hover:bg-zinc-900 transition-colors"
           style={{ left: `${sliderPosition}%` }}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-background border border-border rounded-full shadow-lg flex items-center justify-center text-foreground">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white border border-zinc-300 rounded-full shadow-lg flex items-center justify-center text-zinc-700">
             <GripVertical className="w-4 h-4" />
           </div>
         </div>
@@ -111,34 +136,48 @@ export function LightOrDay() {
   )
 }
 
-function DemoContent({ theme }: { theme: 'light' | 'dark' }) {
+function DemoContent({
+  theme,
+  contentRef,
+  onContentScroll,
+}: {
+  theme: 'light' | 'dark'
+  contentRef: React.RefObject<HTMLDivElement | null>
+  onContentScroll: (scrollTop: number) => void
+}) {
+  const isLight = theme === 'light'
+
   return (
     <div className={cn(
-      'w-full h-full bg-background text-foreground flex overflow-hidden transition-colors duration-300',
-      theme === 'light' ? 'bg-white text-zinc-950' : 'bg-zinc-950 text-zinc-50',
+      'w-full h-full flex overflow-hidden transition-colors duration-300',
+      isLight ? 'bg-white text-zinc-950' : 'bg-zinc-950 text-zinc-50',
     )}
     >
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="h-14 border-b border-border flex items-center justify-between px-6">
-          <div className="flex items-center gap-4 text-muted-foreground">
-            <span className="text-sm font-medium text-foreground">第三章：迷雾重重</span>
-            <div className="h-4 w-px bg-border" />
+        <div className={cn(
+          'h-14 border-b flex items-center justify-between px-6',
+          isLight ? 'border-zinc-200' : 'border-zinc-800',
+        )}
+        >
+          <div className={cn('flex items-center gap-4', isLight ? 'text-zinc-500' : 'text-zinc-400')}>
+            <span className={cn('text-sm font-medium', isLight ? 'text-zinc-900' : 'text-zinc-100')}>第三章：迷雾重重</span>
+            <div className={cn('h-4 w-px', isLight ? 'bg-zinc-200' : 'bg-zinc-700')} />
             <div className="flex gap-1">
-              <button className="p-1.5 hover:bg-accent rounded"><Bold className="w-4 h-4" /></button>
-              <button className="p-1.5 hover:bg-accent rounded"><Italic className="w-4 h-4" /></button>
-              <button className="p-1.5 hover:bg-accent rounded"><AlignLeft className="w-4 h-4" /></button>
+              <button className={cn('p-1.5 rounded', isLight ? 'hover:bg-zinc-100' : 'hover:bg-zinc-800')}><Bold className="w-4 h-4" /></button>
+              <button className={cn('p-1.5 rounded', isLight ? 'hover:bg-zinc-100' : 'hover:bg-zinc-800')}><Italic className="w-4 h-4" /></button>
+              <button className={cn('p-1.5 rounded', isLight ? 'hover:bg-zinc-100' : 'hover:bg-zinc-800')}><AlignLeft className="w-4 h-4" /></button>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="p-2 hover:bg-accent rounded-full text-muted-foreground">
+            <button className={cn('p-2 rounded-full', isLight ? 'hover:bg-zinc-100 text-zinc-500' : 'hover:bg-zinc-800 text-zinc-400')}>
               <Search className="w-4 h-4" />
             </button>
-            <button className="p-2 hover:bg-accent rounded-full text-muted-foreground">
+            <button className={cn('p-2 rounded-full', isLight ? 'hover:bg-zinc-100 text-zinc-500' : 'hover:bg-zinc-800 text-zinc-400')}>
               <MoreHorizontal className="w-4 h-4" />
             </button>
             <button className={cn(
               'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
-              theme === 'light' ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-zinc-50 text-zinc-900 hover:bg-zinc-200',
+              isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-zinc-50 text-zinc-900 hover:bg-zinc-200',
             )}
             >
               发布
@@ -146,11 +185,19 @@ function DemoContent({ theme }: { theme: 'light' | 'dark' }) {
           </div>
         </div>
 
-        <div className="flex-1 p-8 overflow-y-auto relative">
+        <div
+          ref={contentRef}
+          className="flex-1 p-8 overflow-y-auto relative"
+          onScroll={event => onContentScroll(event.currentTarget.scrollTop)}
+        >
           <div className="max-w-2xl mx-auto space-y-6">
             <h1 className="text-3xl font-bold leading-tight">第三章：迷雾重重</h1>
 
-            <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
+            <div className={cn(
+              'space-y-4 text-lg leading-relaxed',
+              isLight ? 'text-zinc-600' : 'text-zinc-300',
+            )}
+            >
               <p>
                 雨水敲打着窗户，发出沉闷的声响。侦探李明坐在昏暗的办公室里，手中的香烟已经燃尽，只剩下一长串摇摇欲坠的烟灰。他盯着桌上的那张照片，眉头紧锁。
               </p>
@@ -170,12 +217,6 @@ function DemoContent({ theme }: { theme: 'light' | 'dark' }) {
                 电话那头是一阵令人不安的沉默，紧接着传来了一个熟悉而又陌生的声音："你离真相太近了，李侦探。"
               </p>
             </div>
-          </div>
-
-          <div className="absolute bottom-8 right-8">
-            <button className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform">
-              <PenLine className="w-6 h-6" />
-            </button>
           </div>
         </div>
       </div>
