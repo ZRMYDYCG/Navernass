@@ -3,6 +3,7 @@
 import { Eye, EyeOff, Monitor, Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useColorTheme } from '@/hooks/use-color-theme'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { clearApiKey, getApiKey, saveApiKey } from '@/lib/api-key'
 
@@ -15,6 +16,7 @@ interface SettingsDialogProps {
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { theme, setTheme } = useThemeTransition()
+  const { colorTheme, setColorTheme } = useColorTheme()
   const [apiKey, setApiKey] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -72,6 +74,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     { value: 'light', label: '浅色', icon: Sun },
     { value: 'dark', label: '深色', icon: Moon },
     { value: 'system', label: '跟随系统', icon: Monitor },
+  ]
+
+  const colorThemes = [
+    { name: 'default', label: '默认', color: 'bg-zinc-950' },
+    { name: 'blue', label: '蓝色', color: 'bg-blue-600' },
+    { name: 'green', label: '绿色', color: 'bg-green-600' },
+    { name: 'orange', label: '橙色', color: 'bg-orange-500' },
+    { name: 'red', label: '红色', color: 'bg-red-600' },
+    { name: 'rose', label: '玫瑰', color: 'bg-rose-600' },
+    { name: 'violet', label: '紫罗兰', color: 'bg-violet-600' },
+    { name: 'yellow', label: '黄色', color: 'bg-yellow-500' },
   ]
 
   return (
@@ -145,7 +158,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-foreground">主题</h3>
+            <h3 className="text-sm font-medium text-foreground">外观</h3>
             <div className="grid grid-cols-3 gap-2">
               {themeOptions.map((option) => {
                 const Icon = option.icon
@@ -163,6 +176,29 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   >
                     <Icon className="w-5 h-5" />
                     <span className="text-xs font-medium">{option.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-foreground">配色</h3>
+            <div className="grid grid-cols-4 gap-3">
+              {colorThemes.map((theme) => {
+                const isActive = colorTheme === theme.name
+                return (
+                  <button
+                    key={theme.name}
+                    onClick={() => setColorTheme(theme.name)}
+                    className={`group relative flex flex-col items-center gap-2 p-2 rounded-xl transition-all hover:bg-secondary ${
+                      isActive ? 'bg-secondary' : 'bg-transparent'
+                    }`}
+                  >
+                    <div className={`h-8 w-8 rounded-full shadow-sm ${theme.color} ring-2 ring-transparent transition-all ${isActive ? 'scale-110 ring-offset-2 ring-offset-background' : 'group-hover:scale-105'}`} />
+                    <span className={`text-xs font-medium ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {theme.label}
+                    </span>
                   </button>
                 )
               })}
