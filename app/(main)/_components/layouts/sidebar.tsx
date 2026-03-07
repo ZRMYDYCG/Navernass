@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { ChatHistoryPopover } from '@/app/(main)/chat/_components/chat-history-popover'
 import { Kbd, KbdGroup } from '@/components/ui/kbd'
 import { useIsMobile } from '@/hooks/use-media-query'
+import { cn } from '@/lib/utils'
 import { SearchDialog } from './search-dialog'
 import { SettingsDialog } from './settings-dialog'
 import { UserProfile } from './user-profile'
@@ -106,7 +107,9 @@ export function Sidebar({
           aria-expanded={isMobileOpen}
           data-sidebar-toggle
           onClick={() => setIsMobileOpen(prev => !prev)}
-          className="fixed right-3 top-3 z-[70] h-10 w-10 rounded-full border border-border bg-background/90 shadow-lg backdrop-blur flex items-center justify-center text-foreground transition hover:bg-accent"
+          className={cn(
+            'fixed right-3 top-3 z-[70] h-10 w-10 rounded-full border border-sidebar-border bg-sidebar/90 shadow-lg backdrop-blur flex items-center justify-center text-sidebar-foreground transition hover:bg-sidebar-accent',
+          )}
           title={isMobileOpen ? 'Close sidebar' : 'Open sidebar'}
         >
           {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -115,13 +118,18 @@ export function Sidebar({
 
       {isMobile && isMobileOpen && (
         <div
-          className="fixed inset-0 z-[50] bg-black/40 backdrop-blur-[1px]"
+          className={cn('fixed inset-0 z-[50] bg-black/40 backdrop-blur-[1px]')}
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar z-[60] ${isResizing ? '' : 'transition-all duration-300'} flex flex-col ${translateClass} ${isMobile ? 'w-[80vw] max-w-[320px] shadow-2xl' : ''}`}
+        className={cn(
+          'fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar z-[60] flex flex-col',
+          !isResizing && 'transition-all duration-300',
+          translateClass,
+          isMobile && 'w-[80vw] max-w-[320px] shadow-2xl',
+        )}
         style={sidebarStyle}
       >
         <UserProfile compact isCollapsed={isCollapsed} isMobileOpen={isMobileOpen} onSettingsClick={() => setShowSettings(true)} />
@@ -129,9 +137,14 @@ export function Sidebar({
           {menuItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item)
-            const disabledClass = item.disabled ? 'cursor-not-allowed opacity-50 pointer-events-none' : ''
-            const hoverClass = item.disabled ? '' : 'hover:bg-sidebar-accent hover:text-sidebar-foreground'
-            const classes = `group flex items-center rounded-none -mx-2 px-2 py-1.5 transition-colors ${active ? 'bg-sidebar-accent text-sidebar-foreground' : `text-muted-foreground ${hoverClass}`} ${disabledClass}`
+
+            const classes = cn(
+              'group flex items-center rounded-none -mx-2 px-2 py-1.5 transition-colors',
+              active
+                ? 'bg-sidebar-accent text-sidebar-foreground'
+                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground',
+              item.disabled && 'cursor-not-allowed opacity-50 pointer-events-none',
+            )
 
             return item.path
               ? (
@@ -195,7 +208,10 @@ export function Sidebar({
                 onClick={() => {
                   if (isMobile) setIsMobileOpen(false)
                 }}
-                className={`group flex items-center rounded-none px-4 py-1.5 w-full text-left text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground ${isCollapsed ? 'justify-center' : ''}`}
+                className={cn(
+                  'group flex items-center rounded-none px-4 py-1.5 w-full text-left text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground',
+                  isCollapsed && 'justify-center',
+                )}
               >
                 <Icon className="w-4 h-4" />
                 {!isCollapsed && <span className="ml-3 text-sm truncate">{bottomItem.label}</span>}
@@ -206,7 +222,10 @@ export function Sidebar({
 
         {!isMobile && (
           <div
-            className={`absolute right-0 top-0 h-full w-1 ${isCollapsed ? 'hidden' : 'cursor-col-resize'}`}
+            className={cn(
+              'absolute right-0 top-0 h-full w-1',
+              isCollapsed ? 'hidden' : 'cursor-col-resize',
+            )}
             onMouseDown={(e) => {
               if (isCollapsed) return
               onResizeStart(e.clientX)

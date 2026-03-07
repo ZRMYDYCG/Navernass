@@ -9,7 +9,7 @@ export function FaviconProvider() {
   useEffect(() => {
     const updateFavicon = () => {
       const currentTheme = theme === 'system' ? systemTheme : theme
-      const favicon = document.querySelector("link[rel~='icon']") as HTMLLinkElement
+      const favicon = document.querySelector('link[rel~=\'icon\']') as HTMLLinkElement
 
       if (favicon) {
         favicon.href = currentTheme === 'dark'
