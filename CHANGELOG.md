@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.10.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.9.0...v0.10.0) (2026-03-07)
+
+
+### Features
+
+* 调整白天主题 token 值 ([4ebbed5](https://github.com/ZRMYDYCG/Navernass/commit/4ebbed595f531df7826bc958a0613e133968cf0b))
+* 调整发版配置 ([dd5dcd0](https://github.com/ZRMYDYCG/Navernass/commit/dd5dcd0bcbf61b02daa387c92556b19e6fb26ea9))
+* 调整联系方式弹窗 ([af21e56](https://github.com/ZRMYDYCG/Navernass/commit/af21e564808975c3412fe564d4e376d69bea3f4e))
+* 调整入口位置 ([f74e95b](https://github.com/ZRMYDYCG/Navernass/commit/f74e95b7a639a92df7a3860d9f3b59e9dfd81ba0))
+* 改成先用占位标题创建会话并立刻开流，同时处理空包递归问题 ([5b3439d](https://github.com/ZRMYDYCG/Navernass/commit/5b3439d83d0de99097dac8a8ae6da1a724c91136))
+* 更新群聊图片 ([d1e2072](https://github.com/ZRMYDYCG/Navernass/commit/d1e20720baa9eb6c69acbed57811baffb27aba37))
+* 黑夜主题 token 变更 ([908590e](https://github.com/ZRMYDYCG/Navernass/commit/908590e2a5448a13af84d1f75c730f55f448cf36))
+* 完善项目 design token 的配色体系 支持多配色切换 ([b1e9ee7](https://github.com/ZRMYDYCG/Navernass/commit/b1e9ee7e43f81860684182039d6be1f83fb1e151))
+* 新增联系方式 ([3348697](https://github.com/ZRMYDYCG/Navernass/commit/33486970f64d6680a555407eabaa834d8a85c17b))
+* **workspace:** 工作台相关代码提交 ([8e28381](https://github.com/ZRMYDYCG/Navernass/commit/8e283810688386ad283021393926cd944d5a02b9))
+
+
+### Bug Fixes
+
+* 侧边栏优化语义化token问题 ([193f90a](https://github.com/ZRMYDYCG/Navernass/commit/193f90aceea5daf7d3f8e8e29080070d7021f8f8))
+* 调整配置 ([9d23f51](https://github.com/ZRMYDYCG/Navernass/commit/9d23f511b60a393297d89657e8ff49b7d1afcf22))
+* 修复加载写法 --CR ([7011190](https://github.com/ZRMYDYCG/Navernass/commit/70111907d5cd53ab2c26b17cfacac6272f281254))
+* 修复双加载问题 ([da8da00](https://github.com/ZRMYDYCG/Navernass/commit/da8da005cd61f1ba8505cda3387d7c4d6b799cda))
+* 修复修改用户资料时 profiles.username 又是唯一字段，'' 会冲突 ([ff853f1](https://github.com/ZRMYDYCG/Navernass/commit/ff853f15b78782f49095372974eeb1b94f8c8841))
+* 修复资料按钮刷新加载问题 ([59e39cd](https://github.com/ZRMYDYCG/Navernass/commit/59e39cd89670ccb85b5db086f83a9c9d3641cf0f))
+* 元素样式隔离 ([1ae1b77](https://github.com/ZRMYDYCG/Navernass/commit/1ae1b77331cbd76bf450d91605f95d0867fbe75a))
+* **auth:** 修复认证状态同步和加载问题 ([728aab8](https://github.com/ZRMYDYCG/Navernass/commit/728aab8579298d88679a9afb2bff49b0fba1df6c))
+* build config ([d005e46](https://github.com/ZRMYDYCG/Navernass/commit/d005e469a7dafbc03b5f8fc2027b546097c73424))
+* **chat-input-box:** 循环依赖问题 --CR ([28aca72](https://github.com/ZRMYDYCG/Navernass/commit/28aca72b5d41f13e8aec2cc5585f48d3550d2e55))
+* **component:** update some eslint problem ([11ada81](https://github.com/ZRMYDYCG/Navernass/commit/11ada810e64b5c1fdfbc6e2e1692a9cf7325053e))
+* marking 页面 features 调整 ([e98a436](https://github.com/ZRMYDYCG/Navernass/commit/e98a436378c49329cbc88cb70d50fd7bc04d29aa))
+* useAuth().signOut 链路异常 ([5a4e1e9](https://github.com/ZRMYDYCG/Navernass/commit/5a4e1e9ce220776db4ed5cbe7c8a10fd451ceeef))
+
 ## [0.9.0](https://gitee.com/versa-lab-private/narraverse-next-mvp/compare/v0.8.0...v0.9.0) (2026-01-31)
 
 
