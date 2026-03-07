@@ -1,8 +1,7 @@
 'use client'
 
 import type { Message } from '@/lib/supabase/sdk/types'
-import { useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { TiptapEditor } from '@/components/tiptap/index'
@@ -13,6 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
 import { ImportToNovelDialog } from './import-to-novel-dialog'
 
 interface DocumentEditorDialogProps {
@@ -31,10 +36,6 @@ export function DocumentEditorDialog({
   const activeMessage = latestAssistantMessage || message
   const editorContent = activeMessage?.content || ''
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
-
-  const handleClose = () => {
-    onOpenChange(false)
-  }
 
   const handleSave = () => {
     setIsImportDialogOpen(true)
@@ -63,81 +64,51 @@ export function DocumentEditorDialog({
     }
   }
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && open) {
-        onOpenChange(false)
-      }
-    }
+  return (
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="right" className="w-full sm:w-[600px] sm:max-w-none flex flex-col p-0 gap-0">
+          <SheetHeader className="flex flex-row items-center justify-between px-4 sm:px-6 py-4 border-b border-border space-y-0 text-left">
+            <div className="flex items-center gap-2">
+              <SheetTitle className="text-base font-medium">文档编辑</SheetTitle>
+            </div>
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                  >
+                    ⋮
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem onClick={handleSave}>
+                    导入到小说
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportMarkdown}>
+                    导出为 Markdown
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCopyContent}>
+                    复制内容
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </SheetHeader>
 
-    if (open) {
-      document.addEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = 'hidden'
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = 'unset'
-    }
-  }, [open, onOpenChange])
-
-  return createPortal(
-    <div className="fixed inset-0 pointer-events-none z-40">
-      <div
-        className={`fixed inset-0 bg-black/20 transition-opacity duration-300 ${
-          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={handleClose}
-      />
-
-      <div
-        className={`fixed right-0 top-0 h-full w-full sm:w-[600px] bg-card shadow-2xl z-50 flex flex-col transition-transform duration-300 ${
-          open ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
-        }`}
-      >
-        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
-                ⋮
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-40">
-              <DropdownMenuItem onClick={handleSave}>
-                导入到小说
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportMarkdown}>
-                导出为 Markdown
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleCopyContent}>
-                复制内容
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClose}
-            className="h-8 w-8 p-0"
-          >
-            ✕
-          </Button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 min-h-0">
-          <TiptapEditor
-            key={activeMessage?.id || 'empty'}
-            content={editorContent}
-            placeholder="开始编辑文档..."
-            className="h-full"
-            editable={true}
-          />
-        </div>
-      </div>
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 min-h-0 bg-card text-card-foreground">
+            <TiptapEditor
+              key={activeMessage?.id || 'empty'}
+              content={editorContent}
+              placeholder="开始编辑文档..."
+              className="h-full"
+              editable={true}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <ImportToNovelDialog
         open={isImportDialogOpen}
@@ -145,10 +116,9 @@ export function DocumentEditorDialog({
         content={editorContent}
         onSuccess={() => {
           setIsImportDialogOpen(false)
-          handleClose()
+          onOpenChange(false)
         }}
       />
-    </div>,
-    document.body,
+    </>
   )
 }
