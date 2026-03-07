@@ -240,16 +240,31 @@ function NovelsContent() {
           <SegmentedControl
             value={filter}
             onValueChange={value => setFilter(value as NovelFilterType)}
-            className="bg-transparent p-1 border border-border rounded-lg"
+            className="bg-muted/50 p-1 border border-border rounded-lg"
           >
-            <SegmentedControlItem value="all" className="data-[state=active]:bg-secondary data-[state=active]:shadow-sm rounded-md text-muted-foreground">全部</SegmentedControlItem>
-            <SegmentedControlItem value="draft" className="data-[state=active]:bg-secondary data-[state=active]:shadow-sm rounded-md text-muted-foreground">草稿</SegmentedControlItem>
-            <SegmentedControlItem value="published" className="data-[state=active]:bg-secondary data-[state=active]:shadow-sm rounded-md text-muted-foreground">已发布</SegmentedControlItem>
+            <SegmentedControlItem
+              value="all"
+              className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+            >
+              全部
+            </SegmentedControlItem>
+            <SegmentedControlItem
+              value="draft"
+              className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+            >
+              草稿
+            </SegmentedControlItem>
+            <SegmentedControlItem
+              value="published"
+              className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+            >
+              已发布
+            </SegmentedControlItem>
           </SegmentedControl>
           <button
             type="button"
             onClick={handleOpenCreateDialog}
-            className="px-4 py-2 bg-primary text-primary-foreground hover:opacity-90 rounded-lg transition-colors font-sans text-sm flex items-center gap-2"
+            className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors font-sans text-sm font-medium flex items-center gap-2 shadow-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
