@@ -1,7 +1,7 @@
 'use client'
 
 import type { LucideIcon } from 'lucide-react'
-import { Bell, Book, Bot, Menu, PencilLine, Search, Settings, Trash2, X } from 'lucide-react'
+import { Bell, Book, Bot, LayoutDashboard, Menu, PencilLine, Search, Settings, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -56,6 +56,7 @@ export function Sidebar({
 
   const menuItems: MenuItem[] = [
     { label: '搜索', icon: Search, onClick: () => setShowSearch(true), exactMatch: true, shortcut: ['Ctrl', 'K'] },
+    { path: '/workspace', label: '工作台', icon: LayoutDashboard, exactMatch: true },
     { label: '新对话', icon: PencilLine, onClick: () => router.push('/chat'), exactMatch: true, disabled: isNewChatPage },
     { path: '/chat', label: '创作助手', icon: Bot, exactMatch: true },
     { path: '/novels', label: '我的小说', icon: Book },

@@ -6,7 +6,6 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* High-end Light Theme: Clean Zinc */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.14 0.005 260);

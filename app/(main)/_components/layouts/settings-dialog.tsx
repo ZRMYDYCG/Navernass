@@ -15,17 +15,11 @@ interface SettingsDialogProps {
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { theme, setTheme } = useThemeTransition()
-  const [mounted, setMounted] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    setMounted(true)
-    loadApiKey()
-  }, [])
 
   const loadApiKey = async () => {
     try {
@@ -41,6 +35,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     }
   }
 
+  useEffect(() => {
+    if (open) {
+      loadApiKey()
+    }
+  }, [open])
+
   const handleSaveApiKey = async () => {
     if (!apiKey.trim()) return
 
@@ -51,7 +51,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       setTimeout(() => setIsSaved(false), 2000)
     } catch (error) {
       console.error('保存失败:', error)
-      alert('保存失败，请重试')
     } finally {
       setIsSaving(false)
     }
@@ -64,14 +63,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       setApiKey('')
     } catch (error) {
       console.error('清除失败:', error)
-      alert('清除失败，请重试')
     } finally {
       setIsSaving(false)
     }
-  }
-
-  if (!mounted) {
-    return null
   }
 
   const themeOptions = [
