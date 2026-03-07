@@ -9,13 +9,13 @@
     "commit": true,
     "tag": true,
     "push": true,
-    "pushRepo": "origin"
+    "pushRepo": "waiwang"
   },
   "github": {
-    "release": false
+    "release": true
   },
   "gitee": {
-    "release": true,
+    "release": false,
     "releaseName": "Release v${version}"
   },
   "npm": {
