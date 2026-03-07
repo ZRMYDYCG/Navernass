@@ -18,7 +18,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 w-full  bg-background/80 backdrop-blur-sm transition-all duration-300">
+    <nav className="fixed top-10 left-0 right-0 z-50 w-full bg-background/80 backdrop-blur-sm transition-all duration-300 border-b border-border/10">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div>

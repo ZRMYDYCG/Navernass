@@ -371,3 +371,30 @@ export interface UserSettings {
   created_at: string
   updated_at: string
 }
+
+// =============================================
+// 调研类型
+// =============================================
+
+export interface Survey {
+  id: string
+  user_id?: string
+  experience: string
+  genres: string[]
+  pain_points: string[]
+  tools: string[]
+  ai_expectations: string[]
+  ai_concerns?: string
+  contact?: string
+  created_at: string
+}
+
+export interface CreateSurveyDto {
+  experience: string
+  genres: string[]
+  pain_points: string[]
+  tools: string[]
+  ai_expectations: string[]
+  ai_concerns?: string
+  contact?: string
+}
