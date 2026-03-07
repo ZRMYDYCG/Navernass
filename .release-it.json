@@ -9,7 +9,7 @@
     "commit": true,
     "tag": true,
     "push": true,
-    "pushRepo": "waiwang"
+    "pushRepo": "origin"
   },
   "github": {
     "release": true
