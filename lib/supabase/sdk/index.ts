@@ -11,3 +11,5 @@ export * from './relationships'
 export * from './types'
 
 export * from './volumes'
+export * from './workspace'
+export * from './todos'

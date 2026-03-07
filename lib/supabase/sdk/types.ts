@@ -14,6 +14,28 @@ export interface PaginationResult<T> {
   pageSize: number
 }
 
+export interface Todo {
+  id: string
+  user_id: string
+  content: string
+  completed: boolean
+  priority: 'low' | 'medium' | 'high'
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateTodoDto {
+  content: string
+  priority?: 'low' | 'medium' | 'high'
+}
+
+export interface UpdateTodoDto {
+  id: string
+  content?: string
+  completed?: boolean
+  priority?: 'low' | 'medium' | 'high'
+}
+
 // =============================================
 // 小说类型
 // =============================================

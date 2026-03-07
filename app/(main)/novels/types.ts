@@ -17,6 +17,7 @@ export interface DialogState {
 export interface NovelFormData {
   title: string
   description: string
+  cover?: string
   coverFile?: File | null
 }
 
