@@ -24,6 +24,15 @@
   animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+@keyframes tiptap-image-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
 /* 编辑器内的 AI 加载提示 */
 .ProseMirror .ai-loading {
   color: #6b7280;
@@ -162,6 +171,34 @@
   transition:
     opacity 0.4s ease,
     filter 0.4s ease;
+}
+
+.ProseMirror img {
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease,
+    transform 0.35s ease;
+}
+
+.ProseMirror img[data-image-loading='true'] {
+  opacity: 0.55;
+  filter: blur(10px);
+  min-height: 8rem;
+  background-image: linear-gradient(
+    105deg,
+    color-mix(in oklab, var(--muted) 72%, transparent) 25%,
+    color-mix(in oklab, var(--muted) 50%, transparent) 42%,
+    color-mix(in oklab, var(--muted) 72%, transparent) 62%
+  );
+  background-size: 220% 100%;
+  animation: tiptap-image-shimmer 1.2s linear infinite;
+}
+
+.ProseMirror img[data-image-loaded='true'] {
+  opacity: 1;
+  filter: none;
+  transform: translateY(0);
+  animation: none;
 }
 
 /* 摇晃动画 */

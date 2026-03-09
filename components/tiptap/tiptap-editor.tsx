@@ -136,6 +136,8 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       Image.configure({
         HTMLAttributes: {
           class: 'my-4 rounded-md max-w-full h-auto',
+          loading: 'lazy',
+          decoding: 'async',
         },
       }),
       Placeholder.configure({
@@ -469,6 +471,78 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
     return () => {
       window.removeEventListener('novel-insert-image-to-editor', handleInsertImage)
+    }
+  }, [editor])
+
+  useEffect(() => {
+    if (!editor) return
+
+    const editorElement = editor.view.dom
+    const unbindMap = new WeakMap<HTMLImageElement, () => void>()
+
+    const bindImage = (img: HTMLImageElement) => {
+      const imageSrc = img.currentSrc || img.src
+      if (img.dataset.boundImageSrc === imageSrc) return
+
+      const previousUnbind = unbindMap.get(img)
+      if (previousUnbind) {
+        previousUnbind()
+      }
+
+      img.dataset.boundImageSrc = imageSrc
+      img.dataset.imageLoading = 'true'
+      img.dataset.imageLoaded = 'false'
+
+      const onLoad = () => {
+        img.dataset.imageLoading = 'false'
+        img.dataset.imageLoaded = 'true'
+      }
+
+      const onError = () => {
+        img.dataset.imageLoading = 'false'
+        img.dataset.imageLoaded = 'false'
+      }
+
+      if (img.complete && img.naturalWidth > 0) {
+        onLoad()
+      } else {
+        img.addEventListener('load', onLoad)
+        img.addEventListener('error', onError)
+      }
+
+      const unbind = () => {
+        img.removeEventListener('load', onLoad)
+        img.removeEventListener('error', onError)
+        unbindMap.delete(img)
+      }
+
+      unbindMap.set(img, unbind)
+    }
+
+    const bindAllImages = () => {
+      editorElement.querySelectorAll('img').forEach((img) => {
+        bindImage(img as HTMLImageElement)
+      })
+    }
+
+    bindAllImages()
+
+    const observer = new MutationObserver(() => {
+      bindAllImages()
+    })
+
+    observer.observe(editorElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['src'],
+    })
+
+    return () => {
+      observer.disconnect()
+      editorElement.querySelectorAll('img').forEach((img) => {
+        unbindMap.get(img as HTMLImageElement)?.()
+      })
     }
   }, [editor])
 
