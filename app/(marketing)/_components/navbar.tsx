@@ -52,7 +52,7 @@ export default function Navbar() {
               className="text-xs md:text-sm"
               onClick={() => setContactOpen(true)}
             >
-              联系我们
+              交流群
             </Button>
 
             <AuthButton />
