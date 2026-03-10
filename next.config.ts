@@ -31,7 +31,7 @@ const withPWA = withPWAInit({
           cacheName: 'static-font-assets',
           expiration: {
             maxEntries: 4,
-            maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+            maxAgeSeconds: 7 * 24 * 60 * 60,
           },
         },
       },
@@ -42,7 +42,7 @@ const withPWA = withPWAInit({
           cacheName: 'static-image-assets',
           expiration: {
             maxEntries: 64,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+            maxAgeSeconds: 24 * 60 * 60,
           },
         },
       },
@@ -53,7 +53,7 @@ const withPWA = withPWAInit({
           cacheName: 'next-image',
           expiration: {
             maxEntries: 64,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+            maxAgeSeconds: 24 * 60 * 60,
           },
         },
       },
@@ -65,7 +65,7 @@ const withPWA = withPWAInit({
           cacheName: 'static-audio-assets',
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+            maxAgeSeconds: 24 * 60 * 60,
           },
         },
       },
@@ -77,7 +77,7 @@ const withPWA = withPWAInit({
           cacheName: 'static-video-assets',
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+            maxAgeSeconds: 24 * 60 * 60,
           },
         },
       },
@@ -88,7 +88,7 @@ const withPWA = withPWAInit({
           cacheName: 'static-js-assets',
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+            maxAgeSeconds: 24 * 60 * 60,
           },
         },
       },
@@ -99,7 +99,7 @@ const withPWA = withPWAInit({
           cacheName: 'static-style-assets',
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+            maxAgeSeconds: 24 * 60 * 60,
           },
         },
       },
@@ -110,7 +110,7 @@ const withPWA = withPWAInit({
           cacheName: 'next-data',
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+            maxAgeSeconds: 24 * 60 * 60,
           },
         },
       },
@@ -121,7 +121,7 @@ const withPWA = withPWAInit({
           cacheName: 'static-data-assets',
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+            maxAgeSeconds: 24 * 60 * 60,
           },
         },
       },
@@ -130,7 +130,6 @@ const withPWA = withPWAInit({
           const isSameOrigin = globalThis.origin === url.origin
           if (!isSameOrigin) return false
           const pathname = url.pathname
-          // Exclude /api/auth/callback/* to fix OAuth workflow in Safari without having an authentication token later
           if (pathname.startsWith('/api/auth/')) return false
           return true
         },
@@ -139,7 +138,7 @@ const withPWA = withPWAInit({
           cacheName: 'others',
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+            maxAgeSeconds: 24 * 60 * 60,
           },
           networkTimeoutSeconds: 10,
         },
