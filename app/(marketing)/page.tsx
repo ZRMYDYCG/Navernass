@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-
+import { Suspense } from 'react'
 import MarketingPageContent from './_components/marketing-page-content'
+import { MarketingSkeleton } from './_components/marketing-skeleton'
 
 export const metadata: Metadata = {
   title: 'Narraverse - AI 小说创作平台',
@@ -31,5 +32,9 @@ export const metadata: Metadata = {
 }
 
 export default function MarketingPage() {
-  return <MarketingPageContent />
+  return (
+    <Suspense fallback={<MarketingSkeleton />}>
+      <MarketingPageContent />
+    </Suspense>
+  )
 }
