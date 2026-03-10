@@ -3,6 +3,7 @@ import { Caveat, Inter, Noto_Serif_SC } from 'next/font/google'
 import { ColorThemeProvider } from '@/components/providers/color-theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { Toaster as RadixToaster } from '@/components/ui/toaster'
+import { getSiteUrl, seoConfig } from '@/lib/seo'
 import { AuthProvider } from '@/providers/auth-provider'
 import { FaviconProvider } from '@/providers/favicon-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
@@ -27,38 +28,72 @@ const caveat = Caveat({
   display: 'swap',
 })
 
+const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+
 export const metadata: Metadata = {
-  title: 'Narraverse - AI 小说创作平台',
-  description: '基于 AI 的智能小说创作助手',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  title: {
+    default: seoConfig.defaultTitle,
+    template: '%s | Narraverse',
+  },
+  description: seoConfig.defaultDescription,
+  keywords: [
+    'AI 小说创作',
+    '网文写作工具',
+    'AI 写作助手',
+    '小说创作平台',
+    'Narraverse',
+  ],
+  metadataBase: getSiteUrl(),
+  alternates: {
+    canonical: '/',
+  },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Narraverse',
+    title: seoConfig.siteName,
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
-    title: 'Narraverse - AI 小说创作平台',
-    description: '基于 AI 的智能小说创作助手',
+    title: seoConfig.defaultTitle,
+    description: seoConfig.defaultDescription,
+    siteName: seoConfig.siteName,
+    locale: 'zh_CN',
     type: 'website',
+    url: '/',
     images: [
       {
-        url: '/landing-page-1.png',
+        url: seoConfig.defaultOgImage,
         width: 1200,
         height: 630,
-        alt: 'Narraverse',
+        alt: `${seoConfig.siteName} 品牌预览图`,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Narraverse - AI 小说创作平台',
-    description: '基于 AI 的智能小说创作助手',
-    images: ['/landing-page-1.png'],
+    title: seoConfig.defaultTitle,
+    description: seoConfig.defaultDescription,
+    images: [seoConfig.defaultOgImage],
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      'index': true,
+      'follow': true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  verification: googleSiteVerification
+    ? {
+        google: googleSiteVerification,
+      }
+    : undefined,
 }
 
 export default function RootLayout({

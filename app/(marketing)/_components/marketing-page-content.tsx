@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { supabase } from '@/lib/supabase'
@@ -9,21 +9,20 @@ import Hero from './hero'
 import Navbar from './navbar'
 
 export default function MarketingPageContent() {
-  const searchParams = useSearchParams()
   const router = useRouter()
   const { user, loading } = useAuth()
   const hasRedirectedRef = useRef(false)
 
-  const redirectTo = searchParams.get('redirectTo')
-
   useEffect(() => {
+    const redirectTo = new URLSearchParams(window.location.search).get('redirectTo')
     if (!loading && user && redirectTo && !hasRedirectedRef.current) {
       hasRedirectedRef.current = true
       router.push(redirectTo)
     }
-  }, [user, loading, redirectTo, router])
+  }, [user, loading, router])
 
   useEffect(() => {
+    const redirectTo = new URLSearchParams(window.location.search).get('redirectTo')
     if (redirectTo && !loading && user) {
       const timer = setTimeout(() => {
         if (hasRedirectedRef.current) {
@@ -32,7 +31,7 @@ export default function MarketingPageContent() {
       }, 200)
       return () => clearTimeout(timer)
     }
-  }, [user, loading, redirectTo, router])
+  }, [user, loading, router])
 
   useEffect(() => {
     const handleVisibilityChange = async () => {
