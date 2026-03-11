@@ -1,14 +1,16 @@
 'use client'
 
 import { AiChatDemo } from './features/ai-chat-demo'
+import { AlbumCollage } from './features/album-collage'
 import { LightOrDay } from './features/light-or-day'
 import { AnimatedBeamMultipleOutputDemo } from './features/multi-format-importer'
 import { NovelManagement } from './features/novel-management'
+import { ThemeColorShowcase } from './features/theme-color-showcase'
 
 export default function Features() {
   return (
     <>
-      <section className="pb-20 flex flex-col  items-center l relative overflow-hidden min-h-screenbg-background">
+      <section className="pb-20 flex min-h-screen flex-col items-center relative overflow-hidden bg-background">
         <div className="container mx-auto px-4">
 
           <div className="text-center">
@@ -27,7 +29,15 @@ export default function Features() {
         <div className="container mx-auto p-4">
           <div className="w-full flex flex-col gap-4">
             <div className="w-full">
+              <AlbumCollage />
+            </div>
+
+            <div className="w-full">
               <LightOrDay />
+            </div>
+
+            <div className="w-full">
+              <ThemeColorShowcase />
             </div>
 
             <div className="w-full flex flex-col md:flex-row gap-4">
@@ -41,8 +51,8 @@ export default function Features() {
             </div>
 
             <div className="w-full">
-              <div className="w-full h-full p-4 bg-card border border-border rounded-lg">
-                <h3 className="text-lg font-semibold text-foreground mb-3">多格式导出</h3>
+              <div className="w-full h-full p-4 bg-background border border-border rounded-lg flex flex-col items-center text-center">
+                <h3 className="text-lg text-foreground mb-3">多格式导出</h3>
                 <span className="text-sm text-muted-foreground mb-4">一键生成排版精美的 MarkDown 或 Text,从草稿到成书，只差一个按钮。</span>
                 <AnimatedBeamMultipleOutputDemo />
               </div>

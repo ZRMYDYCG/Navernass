@@ -1,17 +1,17 @@
 'use client'
 
 import type { NovelFormData } from '@/app/(main)/novels/types'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { NovelDialog } from '@/app/(main)/novels/_components/novel-dialog'
-import { TiptapEditor } from '@/components/tiptap/index'
 import { Button } from '@/components/ui/button'
 import { Highlighter } from '@/components/ui/highlighter'
 import { useAuth } from '@/hooks/use-auth'
 import { novelsApi } from '@/lib/supabase/sdk'
 
-const HERO_SAMPLE_CONTENT = ` ## 雨季不再来
+const HERO_SAMPLE_CONTENT = `## 雨季不再来
 这已不知是第几日了，我总在落着雨的早晨醒来。窗外照例是一片灰镑镑的天空，没有黎明时的曙光，没有风，没有鸟叫。后院的小树都很寥寂的静立在雨中，无论从那一个窗口望出去，总有雨水在冲流着。除了雨水之外，听不见其他的声音，在这时分里，一切全是静止的。
 
 ![](./landing-page-3.png)我胡乱的穿着衣服，想到今日的考试，想到心中挂念着的培，心情就又无端的沉落下去。而对这样的季候也无心再去咒诅它了。昨晚房中的台灯坏了，就以此为藉口，故意早早睡去，连笔记都不想碰一下，更不要说那一本本原文书了。当时客厅的电视正在上演着西部片，黑暗中，我躺在床上，偶尔会有音乐、对白和枪声传来，觉得有一丝朦胧的快乐。在那时，考试就变得极不重要，觉得那是不会有的事，明天也是不会来的。我将永远躺在这黑暗里，而培明日会不会去找我也不是问题了。不过是这个季节在烦恼着我们，明白就会好了，我们岂是真的就此分开了？这不过是雨在冲乱着我们的心绪罢了。
@@ -28,14 +28,64 @@ const HERO_SAMPLE_CONTENT = ` ## 雨季不再来
 
 我会一遍遍地告诉自己，雨季过了，雨季将不再来。我会觉得，在那一日早晨，当我出门的时候，我会穿着那双清洁干燥的黄球鞋，踏上一条充满日光的大道。
 
-那时候，我会说，看这阳光，雨季将不再来。
-`
+那时候，我会说，看这阳光，雨季将不再来。`
+
+const LazyTiptapEditor = dynamic(
+  () => import('@/components/tiptap').then(mod => mod.TiptapEditor),
+  {
+    ssr: false,
+    loading: () => <HeroEditorSkeleton />,
+  },
+)
+
+function HeroEditorSkeleton() {
+  return (
+    <div className="h-full w-full rounded-md p-4">
+      <div className="mx-auto flex h-full max-w-[65ch] flex-col gap-3">
+        <div className="h-4 w-1/2 rounded-sm bg-muted-foreground/20" />
+        <div className="h-4 w-full rounded-sm bg-muted-foreground/10" />
+        <div className="h-4 w-5/6 rounded-sm bg-muted-foreground/10" />
+        <div className="mt-2 h-4 w-2/3 rounded-sm bg-muted-foreground/5" />
+        <div className="h-4 w-full rounded-sm bg-muted-foreground/5" />
+        <div className="h-4 w-4/5 rounded-sm bg-muted-foreground/5" />
+      </div>
+    </div>
+  )
+}
+
+function HeroEditor({ shouldRenderEditor }: { shouldRenderEditor: boolean }) {
+  return (
+    <div className="mx-auto relative w-full max-w-4xl">
+      <div className="h-[400px] w-full rounded-lg border border-border bg-background p-2 sm:h-[500px]">
+        {shouldRenderEditor
+          ? (
+              <LazyTiptapEditor
+                placeholder="在这里开始你的创作之旅..."
+                content={HERO_SAMPLE_CONTENT}
+                className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[380px] sm:[&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto [&_.ProseMirror]:scrollbar-none [&_.ProseMirror::-webkit-scrollbar]:hidden [&_.ProseMirror::selection]:bg-primary/20 [&_.ProseMirror::selection]:text-foreground"
+              />
+            )
+          : <HeroEditorSkeleton />}
+      </div>
+    </div>
+  )
+}
 
 export default function Hero() {
   const { user } = useAuth()
   const router = useRouter()
-
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [shouldRenderEditor, setShouldRenderEditor] = useState(false)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setShouldRenderEditor(true)
+    }, 800)
+
+    return () => {
+      window.clearTimeout(timer)
+    }
+  }, [])
 
   const handleSave = useCallback(async (data: NovelFormData) => {
     try {
@@ -52,94 +102,53 @@ export default function Hero() {
     }
   }, [router])
 
-  if (!user) {
-    return (
-      <section className="min-h-screen flex justify-center flex-col overflow-hidden bg-background selection:bg-primary/10 selection:text-primary px-4 md:px-6 relative">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-10 hidden dark:block">
-          <div className="absolute top-[8%] left-[5%] w-[90%] h-[0.5px] bg-gradient-to-r from-transparent via-violet-500/60 to-transparent rotate-[-12deg] animate-pulse [animation-duration:3s]" />
-          <div className="absolute top-[18%] right-[0%] w-[85%] h-[0.5px] bg-gradient-to-r from-transparent via-sky-400/60 to-transparent rotate-[8deg] animate-pulse [animation-duration:4s] [animation-delay:1s]" />
-          <div className="absolute top-[45%] left-[0%] w-[75%] h-[0.5px] bg-gradient-to-r from-transparent via-pink-400/50 to-transparent rotate-[-5deg] animate-pulse [animation-duration:3.5s] [animation-delay:0.5s]" />
-          <div className="absolute top-[65%] right-[5%] w-[80%] h-[0.5px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent rotate-[6deg] animate-pulse [animation-duration:4.5s] [animation-delay:1.5s]" />
-          <div className="absolute top-[85%] left-[10%] w-[70%] h-[0.5px] bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent rotate-[-3deg] animate-pulse [animation-duration:5s] [animation-delay:2s]" />
-        </div>
-
-        <div className="max-w-4xl mx-auto text-center z-20 relative pt-16 sm:pt-20">
-          <div>
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground tracking-tight leading-[1.1]">
-              让写作回归
-              <Highlighter action="underline" color="#87CEFA">纯粹</Highlighter>
-              <span>与</span>
-              <Highlighter action="underline" color="#87CEFA">自由</Highlighter>
-            </h1>
-          </div>
-
-          <p className="text-base sm:text-xl text-foreground/60 max-w-2xl mx-auto font-light leading-relaxed mt-4 px-2 sm:px-0">
-            我们专注为才华横溢的创作者打造舒适的创作环境，降低优质内容被看见、被分享、被发掘的门槛。同时也为新手提供AI辅助，降低直面感受创作、学习创作、走进创作的门槛。
-          </p>
-
-          <div className="mt-8 w-14 h-[1.5px] bg-foreground/10 mx-auto rounded-full" />
-        </div>
-
-        <div className="mx-auto z-20 relative pt-8 sm:pt-10 w-full max-w-4xl">
-          <div className="bg-background p-2 w-full border border-border rounded-lg h-[400px] sm:h-[500px]">
-            <TiptapEditor
-              placeholder="在这里开始你的创作之旅..."
-              content={HERO_SAMPLE_CONTENT}
-              className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[380px] sm:[&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto [&_.ProseMirror]:scrollbar-none [&_.ProseMirror::-webkit-scrollbar]:hidden [&_.ProseMirror::selection]:bg-stone-200/60 [&_.ProseMirror::selection]:text-stone-900 dark:[&_.ProseMirror::selection]:bg-stone-600/50 dark:[&_.ProseMirror::selection]:text-stone-100"
-            />
-          </div>
-        </div>
-      </section>
-    )
-  }
-
   return (
-    <section className="min-h-screen flex justify-center flex-col overflow-hidden bg-background selection:bg-primary/10 selection:text-primary px-4 md:px-6 relative">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10 hidden dark:block">
-        <div className="absolute top-[8%] left-[5%] w-[90%] h-[0.5px] bg-gradient-to-r from-transparent via-violet-500/60 to-transparent rotate-[-12deg] animate-pulse [animation-duration:3s]" />
-        <div className="absolute top-[18%] right-[0%] w-[85%] h-[0.5px] bg-gradient-to-r from-transparent via-sky-400/60 to-transparent rotate-[8deg] animate-pulse [animation-duration:4s] [animation-delay:1s]" />
-        <div className="absolute top-[45%] left-[0%] w-[75%] h-[0.5px] bg-gradient-to-r from-transparent via-pink-400/50 to-transparent rotate-[-5deg] animate-pulse [animation-duration:3.5s] [animation-delay:0.5s]" />
-        <div className="absolute top-[65%] right-[5%] w-[80%] h-[0.5px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent rotate-[6deg] animate-pulse [animation-duration:4.5s] [animation-delay:1.5s]" />
-        <div className="absolute top-[85%] left-[10%] w-[70%] h-[0.5px] bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent rotate-[-3deg] animate-pulse [animation-duration:5s] [animation-delay:2s]" />
+    <section className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-background px-4 pt-20 selection:bg-primary/10 selection:text-primary md:px-6">
+      <div className="pointer-events-none absolute inset-0 hidden dark:block">
+        <div className="absolute top-[8%] left-[5%] h-px w-[90%] rotate-[-12deg] animate-pulse bg-gradient-to-r from-transparent via-primary/50 to-transparent [animation-duration:3s]" />
+        <div className="absolute top-[18%] right-[0%] h-px w-[85%] rotate-[8deg] animate-pulse bg-gradient-to-r from-transparent via-primary/40 to-transparent [animation-delay:1s] [animation-duration:4s]" />
+        <div className="absolute top-[45%] left-[0%] h-px w-[75%] rotate-[-5deg] animate-pulse bg-gradient-to-r from-transparent via-primary/45 to-transparent [animation-delay:.5s] [animation-duration:3.5s]" />
+        <div className="absolute top-[65%] right-[5%] h-px w-[80%] rotate-[6deg] animate-pulse bg-gradient-to-r from-transparent via-primary/35 to-transparent [animation-delay:1.5s] [animation-duration:4.5s]" />
+        <div className="absolute top-[85%] left-[10%] h-px w-[70%] rotate-[-3deg] animate-pulse bg-gradient-to-r from-transparent via-primary/30 to-transparent [animation-delay:2s] [animation-duration:5s]" />
       </div>
 
-      <div className="max-w-4xl mx-auto text-center z-20 relative pt-16 sm:pt-20">
-        <div>
-          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground tracking-tight leading-[1.1]">
-            让写作回归
-            <Highlighter action="underline" color="#87CEFA">纯粹</Highlighter>
-            <span>与</span>
-            <Highlighter action="underline" color="#87CEFA">自由</Highlighter>
-          </h1>
-        </div>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-primary/10 via-transparent to-transparent" />
 
-        <p className="text-base sm:text-xl text-foreground/60 max-w-2xl mx-auto font-light leading-relaxed mt-4 px-2 sm:px-0">
+      <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
+        <h1 className="font-serif text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+          让写作回归
+          <Highlighter action="underline" color="#87CEFA">纯粹</Highlighter>
+          <span>与</span>
+          <Highlighter action="underline" color="#87CEFA">自由</Highlighter>
+        </h1>
+
+        <p className="mt-4 mx-auto max-w-2xl px-2 text-base font-light leading-relaxed text-foreground/60 sm:px-0 sm:text-xl">
           我们专注为才华横溢的创作者打造舒适的创作环境，降低优质内容被看见、被分享、被发掘的门槛。同时也为新手提供AI辅助，降低直面感受创作、学习创作、走进创作的门槛。
         </p>
 
-        <div className="my-8">
-          <Button onClick={() => setDialogOpen(true)} className="cursor-pointer px-4 sm:px-6">
-            开启创作之旅
-          </Button>
-        </div>
+        {user
+          ? (
+              <div className="my-8">
+                <Button onClick={() => setDialogOpen(true)} className="cursor-pointer px-4 sm:px-6">
+                  开启创作之旅
+                </Button>
+              </div>
+            )
+          : <div className="mx-auto mt-8 h-[1.5px] w-14 rounded-full bg-foreground/10" />}
       </div>
 
-      <div className="mx-auto z-20 relative w-full max-w-4xl">
-        <div className="bg-background p-2 w-full border border-border rounded-lg h-[400px] sm:h-[500px]">
-          <TiptapEditor
-            placeholder="在这里开始你的创作之旅..."
-            content={HERO_SAMPLE_CONTENT}
-            className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[380px] sm:[&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto [&_.ProseMirror]:scrollbar-none [&_.ProseMirror::-webkit-scrollbar]:hidden [&_.ProseMirror::selection]:bg-stone-200/60 [&_.ProseMirror::selection]:text-stone-900 dark:[&_.ProseMirror::selection]:bg-stone-600/50 dark:[&_.ProseMirror::selection]:text-stone-100"
-          />
-        </div>
+      <div className="relative z-10 pt-8 sm:pt-10">
+        <HeroEditor shouldRenderEditor={shouldRenderEditor} />
       </div>
 
-      <NovelDialog
-        open={dialogOpen}
-        novel={null}
-        onOpenChange={setDialogOpen}
-        onSave={handleSave}
-      />
+      {user && (
+        <NovelDialog
+          open={dialogOpen}
+          novel={null}
+          onOpenChange={setDialogOpen}
+          onSave={handleSave}
+        />
+      )}
     </section>
   )
 }

@@ -2,12 +2,13 @@
 
 import {
   AlignLeft,
-  Bold,
   GripVertical,
-  Italic,
-  MoreHorizontal,
-  PenLine,
+  Moon,
   Search,
+  Settings,
+  Share2,
+  Sun,
+  Type,
 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -86,20 +87,21 @@ export function LightOrDay() {
   }, [])
 
   return (
-    <div className="w-full h-full p-4 bg-card border border-border rounded-lg flex flex-col">
-      <div className="flex items-center justify-between mb-4">
+    <div className="w-full h-full p-4 bg-background border border-border rounded-lg flex flex-col shadow-none">
+      <div className="flex flex-col items-center justify-center mb-4 text-center">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">日夜模式随心切换</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            无论白天还是黑夜，都能提供最舒适的创作体验
+          <h3 className="text-xl font-semibold text-foreground tracking-tight">日夜模式随心切换</h3>
+          <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+            无论是在阳光明媚的午后，还是深夜静谧的书房，都能提供最舒适的沉浸式创作体验。
           </p>
         </div>
       </div>
 
       <div
         ref={containerRef}
-        className="relative w-full h-[400px] rounded-lg overflow-hidden border border-border select-none cursor-ew-resize touch-none"
+        className="relative w-full h-[500px] rounded-xl overflow-hidden border border-border/50 shadow-2xl select-none cursor-ew-resize touch-none ring-1 ring-black/5 dark:ring-white/10 group"
       >
+        {/* Dark Mode (Bottom Layer) */}
         <div className="absolute inset-0">
           <DemoContent
             theme="dark"
@@ -108,6 +110,7 @@ export function LightOrDay() {
           />
         </div>
 
+        {/* Light Mode (Top Layer) */}
         <div
           className="absolute inset-0"
           style={{
@@ -121,15 +124,27 @@ export function LightOrDay() {
           />
         </div>
 
+        {/* Slider Handle */}
         <div
-          className="absolute inset-y-0 w-1 bg-zinc-900/70 z-20 hover:bg-zinc-900 transition-colors"
+          className="absolute inset-y-0 w-0.5 bg-white/50 z-20"
           style={{ left: `${sliderPosition}%` }}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white border border-zinc-300 rounded-full shadow-lg flex items-center justify-center text-zinc-700">
+          <div className="absolute inset-y-0 -left-px w-0.5 bg-primary/50 shadow-[0_0_10px_rgba(0,0,0,0.2)]" />
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-background border-2 border-primary rounded-full shadow-lg flex items-center justify-center text-primary transition-transform duration-150 group-hover:scale-110 active:scale-95 z-30 cursor-grab active:cursor-grabbing"
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+          >
             <GripVertical className="w-4 h-4" />
           </div>
+        </div>
+
+        {/* Labels */}
+        <div className="absolute bottom-4 left-4 z-10 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-medium text-white/90 border border-white/10 shadow-lg pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+          Dark Mode
+        </div>
+        <div className="absolute bottom-4 right-4 z-10 px-3 py-1 rounded-full bg-white/80 backdrop-blur-md text-xs font-medium text-black/90 border border-black/5 shadow-lg pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+          Light Mode
         </div>
       </div>
     </div>
@@ -147,77 +162,143 @@ function DemoContent({
 }) {
   const isLight = theme === 'light'
 
+  const styles = {
+    bg: isLight ? 'bg-[#ffffff]' : 'bg-[#09090b]',
+    text: isLight ? 'text-zinc-800' : 'text-zinc-300',
+    selection: isLight ? 'selection:bg-blue-100 selection:text-blue-900' : 'selection:bg-blue-900/50 selection:text-blue-100',
+    border: isLight ? 'border-zinc-200' : 'border-zinc-800',
+    mutedText: isLight ? 'text-zinc-500' : 'text-zinc-400',
+  }
+
   return (
     <div className={cn(
-      'w-full h-full flex overflow-hidden transition-colors duration-300',
-      isLight ? 'bg-white text-zinc-950' : 'bg-zinc-950 text-zinc-50',
+      'w-full h-full flex flex-col overflow-hidden transition-colors duration-300 font-sans antialiased',
+      styles.bg,
+      styles.text,
+      styles.selection,
     )}
     >
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className={cn(
-          'h-14 border-b flex items-center justify-between px-6',
-          isLight ? 'border-zinc-200' : 'border-zinc-800',
-        )}
-        >
-          <div className={cn('flex items-center gap-4', isLight ? 'text-zinc-500' : 'text-zinc-400')}>
-            <span className={cn('text-sm font-medium', isLight ? 'text-zinc-900' : 'text-zinc-100')}>第三章：迷雾重重</span>
-            <div className={cn('h-4 w-px', isLight ? 'bg-zinc-200' : 'bg-zinc-700')} />
-            <div className="flex gap-1">
-              <button className={cn('p-1.5 rounded', isLight ? 'hover:bg-zinc-100' : 'hover:bg-zinc-800')}><Bold className="w-4 h-4" /></button>
-              <button className={cn('p-1.5 rounded', isLight ? 'hover:bg-zinc-100' : 'hover:bg-zinc-800')}><Italic className="w-4 h-4" /></button>
-              <button className={cn('p-1.5 rounded', isLight ? 'hover:bg-zinc-100' : 'hover:bg-zinc-800')}><AlignLeft className="w-4 h-4" /></button>
-            </div>
+      {/* Window Header / Toolbar */}
+      <div className={cn(
+        'h-12 border-b flex items-center justify-between px-4 shrink-0 backdrop-blur-sm z-10',
+        isLight ? 'border-zinc-200 bg-white/80' : 'border-zinc-800 bg-zinc-950/80',
+      )}
+      >
+        {/* Left: Window Controls & Breadcrumbs */}
+        <div className="flex items-center gap-4">
+          <div className="flex gap-1.5 group">
+            <div className={cn('w-3 h-3 rounded-full', isLight ? 'bg-red-400/80' : 'bg-red-500/20 group-hover:bg-red-500/60 transition-colors')} />
+            <div className={cn('w-3 h-3 rounded-full', isLight ? 'bg-amber-400/80' : 'bg-amber-500/20 group-hover:bg-amber-500/60 transition-colors')} />
+            <div className={cn('w-3 h-3 rounded-full', isLight ? 'bg-green-400/80' : 'bg-green-500/20 group-hover:bg-green-500/60 transition-colors')} />
           </div>
-          <div className="flex items-center gap-3">
-            <button className={cn('p-2 rounded-full', isLight ? 'hover:bg-zinc-100 text-zinc-500' : 'hover:bg-zinc-800 text-zinc-400')}>
-              <Search className="w-4 h-4" />
-            </button>
-            <button className={cn('p-2 rounded-full', isLight ? 'hover:bg-zinc-100 text-zinc-500' : 'hover:bg-zinc-800 text-zinc-400')}>
-              <MoreHorizontal className="w-4 h-4" />
-            </button>
-            <button className={cn(
-              'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
-              isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-zinc-50 text-zinc-900 hover:bg-zinc-200',
-            )}
-            >
-              发布
-            </button>
+          <div className={cn('h-4 w-px mx-2', isLight ? 'bg-zinc-200' : 'bg-zinc-800')} />
+          <div className="flex items-center gap-2 text-xs font-medium opacity-80">
+            <span className={isLight ? 'text-zinc-500' : 'text-zinc-500'}>我的小说</span>
+            <span className={isLight ? 'text-zinc-500' : 'text-zinc-500'}>/</span>
+            <span>迷雾重重</span>
           </div>
         </div>
 
-        <div
-          ref={contentRef}
-          className="flex-1 p-8 overflow-y-auto relative"
-          onScroll={event => onContentScroll(event.currentTarget.scrollTop)}
-        >
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h1 className="text-3xl font-bold leading-tight">第三章：迷雾重重</h1>
+        {/* Center: Tabs - Removed */}
+        <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2" />
 
-            <div className={cn(
-              'space-y-4 text-lg leading-relaxed',
-              isLight ? 'text-zinc-600' : 'text-zinc-300',
-            )}
-            >
-              <p>
-                雨水敲打着窗户，发出沉闷的声响。侦探李明坐在昏暗的办公室里，手中的香烟已经燃尽，只剩下一长串摇摇欲坠的烟灰。他盯着桌上的那张照片，眉头紧锁。
-              </p>
-              <p>
-                "这不可能，" 他喃喃自语，"如果他在三点钟离开了现场，那么监控录像里为什么没有他的身影？"
-              </p>
-              <p>
-                窗外的霓虹灯光透过百叶窗的缝隙投射进来，在桌面上切出一道道光影。这座城市就像一个巨大的谜题，每个人都戴着面具，每个人都有秘密。
-              </p>
-              <p>
-                突然，电话铃声刺破了寂静。李明的手颤抖了一下，烟灰终于跌落在陈旧的文件堆上。他深吸一口气，拿起了听筒。
-              </p>
-              <p>
-                "喂？" 他的声音沙哑而疲惫。
-              </p>
-              <p>
-                电话那头是一阵令人不安的沉默，紧接着传来了一个熟悉而又陌生的声音："你离真相太近了，李侦探。"
-              </p>
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2">
+          <button className={cn('p-1.5 rounded-md transition-colors', isLight ? 'hover:bg-zinc-100 text-zinc-600' : 'hover:bg-zinc-800 text-zinc-400')}>
+            {isLight ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+          <button className={cn('p-1.5 rounded-md transition-colors', isLight ? 'hover:bg-zinc-100 text-zinc-600' : 'hover:bg-zinc-800 text-zinc-400')}>
+            <Settings className="w-4 h-4" />
+          </button>
+          <div className={cn('h-4 w-px mx-1', isLight ? 'bg-zinc-200' : 'bg-zinc-800')} />
+          <button className={cn('px-3 py-1.5 rounded-md text-xs font-semibold transition-colors shadow-sm', isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200')}>
+            发布
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Sidebar (Visual only) */}
+        <div className={cn(
+          'w-12 border-r flex flex-col items-center py-4 gap-4 shrink-0',
+          isLight ? 'border-zinc-200 bg-zinc-50' : 'border-zinc-800 bg-zinc-900/50',
+        )}
+        >
+          <div className={cn('p-2 rounded-md mb-2', isLight ? 'bg-zinc-200/50' : 'bg-zinc-800/50')}>
+            <AlignLeft className="w-4 h-4 opacity-70" />
+          </div>
+          <Search className="w-4 h-4 opacity-40 hover:opacity-80 transition-opacity cursor-pointer" />
+          <Share2 className="w-4 h-4 opacity-40 hover:opacity-80 transition-opacity cursor-pointer" />
+          <div className="flex-1" />
+          <Type className="w-4 h-4 opacity-40 hover:opacity-80 transition-opacity cursor-pointer" />
+        </div>
+
+        {/* Editor Canvas */}
+        <div
+          className="flex-1 relative overflow-hidden"
+        >
+          {/* Toolbar Overlay - Removed */}
+
+          <div
+            ref={contentRef}
+            className="h-full overflow-y-auto px-8 py-16 scrollbar-hide"
+            onScroll={event => onContentScroll(event.currentTarget.scrollTop)}
+          >
+            <div className="max-w-2xl mx-auto">
+              <h1 className="text-4xl font-bold leading-tight mb-8 tracking-tight">第三章：意外发现</h1>
+
+              <div className={cn(
+                'space-y-6 text-lg leading-loose font-serif',
+                isLight ? 'text-zinc-700' : 'text-zinc-300',
+              )}
+              >
+                <p>
+                  雨水敲打着窗户，发出沉闷的声响。侦探李明坐在昏暗的办公室里，手中的香烟已经燃尽，只剩下一长串摇摇欲坠的烟灰。他盯着桌上的那张照片，眉头紧锁。
+                </p>
+                <p>
+                  <span className={cn('bg-yellow-200/30 dark:bg-yellow-500/20 px-1 rounded', isLight ? 'text-yellow-900' : 'text-yellow-200')}>"这不可能，"</span>
+                  {' '}
+                  他喃喃自语，"如果他在三点钟离开了现场，那么监控录像里为什么没有他的身影？"
+                </p>
+                <p>
+                  窗外的霓虹灯光透过百叶窗的缝隙投射进来，在桌面上切出一道道光影。这座城市就像一个巨大的谜题，每个人都戴着面具，每个人都有秘密。空气中弥漫着陈旧纸张和湿润尘土混合的味道，这是他熟悉的味道，也是令他感到安心的味道。
+                </p>
+                <p>
+                  突然，电话铃声刺破了寂静。李明的手颤抖了一下，烟灰终于跌落在陈旧的文件堆上。他深吸一口气，拿起了听筒。那个老式的黑色电话机像一只蛰伏的野兽，随时准备发出致命的一击。
+                </p>
+                <p>
+                  "喂？" 他的声音沙哑而疲惫，仿佛刚刚从一场漫长的梦魇中醒来。
+                </p>
+                <p>
+                  电话那头是一阵令人不安的沉默，紧接着传来了一个熟悉而又陌生的声音："你离真相太近了，李侦探。" 那个声音低沉、冷静，却透着一股彻骨的寒意，让他不由自主地打了个寒颤。
+                </p>
+                <p>
+                  他猛地站起身，椅子在木地板上发出刺耳的摩擦声。"你是谁？" 他对着话筒大喊，但回应他的只有一阵忙音。嘟——嘟——嘟——这声音在空荡荡的房间里回荡，像是在嘲笑他的无力。
+                  <span className={cn('inline-block w-0.5 h-5 ml-1 align-middle animate-pulse', isLight ? 'border-zinc-900' : 'border-zinc-100')} />
+                </p>
+                <p className="opacity-50 blur-[1px]">
+                  李明放下电话，走到窗前。雨下得更大了，街道上的行人匆匆忙忙，像是一群被命运驱赶的蚂蚁。他知道，从这一刻起，游戏规则改变了。他不再是猎人，而成了猎物。
+                </p>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Status Bar */}
+      <div className={cn(
+        'h-8 border-t flex items-center justify-between px-4 text-[10px] font-medium tracking-wide select-none',
+        isLight ? 'border-zinc-200 bg-[#ffffff] text-zinc-500' : 'border-zinc-800 bg-[#09090b] text-zinc-400',
+      )}
+      >
+        <div className="flex gap-4">
+          <span>Markdown</span>
+          <span>UTF-8</span>
+        </div>
+        <div className="flex gap-4">
+          <span>Ln 42, Col 18</span>
+          <span>1,204 词</span>
         </div>
       </div>
     </div>

@@ -12,7 +12,7 @@ function Circle({ ref, className, children }: { className?: string, children?: R
     <div
       ref={ref}
       className={cn(
-        'z-10 select-none dark:text-black flex size-12 items-center justify-center rounded-full border-2 bg-white p-3',
+        'z-10 flex size-12 select-none items-center justify-center rounded-full border-2 border-border bg-background p-3 text-foreground',
         className,
       )}
     >

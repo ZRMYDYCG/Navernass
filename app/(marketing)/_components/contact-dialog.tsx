@@ -46,7 +46,6 @@ export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
                         fill
                         sizes="260px"
                         className="rounded-lg object-contain"
-                        priority
                       />
                     </div>
                     <p className="text-xs text-muted-foreground text-center">
