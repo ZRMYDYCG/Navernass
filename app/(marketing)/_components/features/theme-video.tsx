@@ -11,7 +11,7 @@ interface ThemeVideoProps {
   className?: string
 }
 
-export function ThemeVideo({ lightSrc, darkSrc, posterSrc, className }: ThemeVideoProps) {
+export function ThemeVideo({ lightSrc, darkSrc, className }: ThemeVideoProps) {
   const { resolvedTheme } = useThemeTransition()
   const videoRef = useRef<HTMLVideoElement>(null)
   const [shouldLoad, setShouldLoad] = useState(false)
@@ -60,7 +60,6 @@ export function ThemeVideo({ lightSrc, darkSrc, posterSrc, className }: ThemeVid
       <video
         ref={videoRef}
         src={shouldLoad ? src : undefined}
-        poster={posterSrc}
         className={cn(
           'pointer-events-none h-full w-full select-none object-cover transition-opacity duration-300',
           isLoaded ? 'opacity-100' : 'opacity-0',
