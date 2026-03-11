@@ -11,6 +11,7 @@ import {
   Type,
 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Highlighter } from '@/components/ui/highlighter'
 import { cn } from '@/lib/utils'
 
 export function LightOrDay() {
@@ -87,10 +88,12 @@ export function LightOrDay() {
   }, [])
 
   return (
-    <div className="w-full h-full p-4 bg-background border border-border rounded-lg flex flex-col shadow-none">
+    <div className="w-full h-full p-4 bg-background rounded-lg flex flex-col shadow-none">
       <div className="flex flex-col items-center justify-center mb-4 text-center">
         <div>
-          <h3 className="text-xl font-semibold text-foreground tracking-tight">日夜模式随心切换</h3>
+          <h3 className="text-lg mb-3 text-foreground">
+            <Highlighter action="underline" color="var(--primary)">日夜模式随心切换</Highlighter>
+          </h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
             无论是在阳光明媚的午后，还是深夜静谧的书房，都能提供最舒适的沉浸式创作体验。
           </p>

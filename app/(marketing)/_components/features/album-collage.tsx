@@ -2,7 +2,62 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
+import { Highlighter } from '@/components/ui/highlighter'
 import { cn } from '@/lib/utils'
+
+interface CollageImageProps {
+  src: string
+  alt: string
+  sizes: string
+  quality: number
+  className?: string
+  wrapperClassName?: string
+  loading?: 'eager' | 'lazy'
+}
+
+function CollageImage({
+  src,
+  alt,
+  sizes,
+  quality,
+  className,
+  wrapperClassName,
+  loading = 'lazy',
+}: CollageImageProps) {
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  return (
+    <div
+      className={cn(
+        'relative aspect-[2/1] overflow-hidden rounded-[calc(var(--radius)-6px)] border border-border/60 bg-muted/50',
+        wrapperClassName,
+      )}
+    >
+      {!isLoaded && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-10 animate-pulse bg-muted"
+        />
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={sizes}
+        quality={quality}
+        className={cn(
+          'object-cover transition-[transform,opacity] duration-500 ease-out',
+          isLoaded ? 'opacity-100' : 'opacity-0',
+          className,
+        )}
+        loading={loading}
+        onLoadingComplete={() => setIsLoaded(true)}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setIsLoaded(true)}
+      />
+    </div>
+  )
+}
 
 function PhotoPin({ className }: { className?: string }) {
   return (
@@ -63,10 +118,15 @@ export function AlbumCollage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   return (
-    <section className="w-full rounded-[calc(var(--radius)+4px)] border border-border bg-background p-4 shadow-paper-md md:p-5">
+    <section className="w-full rounded-[calc(var(--radius)+4px)] bg-background p-4 shadow-paper-md md:p-5">
       <div className="mb-4 flex flex-col items-center justify-center gap-3 text-center">
         <div>
-          <h3 className="text-lg text-foreground">版本号：v0.10.0 ❤️</h3>
+          <h3 className="text-lg text-foreground">
+            版本号：
+            <Highlighter action="underline" color="var(--primary)">v0.10.0</Highlighter>
+            {' '}
+            ❤️
+          </h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Narraverse 正在变得越来越好，我们也在不断地收集大家的反馈和建议来改进产品。
           </p>
@@ -106,20 +166,15 @@ export function AlbumCollage() {
                   style={{ rotate: `${isActive ? 0 : layout.rotate}deg` }}
                 >
                   <PhotoPin />
-                  <div className="relative aspect-[2/1] overflow-hidden rounded-[calc(var(--radius)-6px)] border border-border/60 bg-muted/50">
-                    <Image
-                      src={src}
-                      alt={`Landing album photo ${index + 1}`}
-                      fill
-                      sizes="(min-width: 1536px) 320px, (min-width: 1280px) 290px, (min-width: 1024px) 250px, 220px"
-                      quality={95}
-                      className={cn(
-                        'object-cover transition-transform duration-500 ease-out',
-                        isActive ? 'scale-[1.03]' : 'group-hover:scale-[1.06]',
-                      )}
-                      loading="lazy"
-                    />
-                  </div>
+                  <CollageImage
+                    src={src}
+                    alt={`Landing album photo ${index + 1}`}
+                    sizes="(min-width: 1536px) 320px, (min-width: 1280px) 290px, (min-width: 1024px) 250px, 220px"
+                    quality={95}
+                    className={cn(
+                      isActive ? 'scale-[1.03]' : 'group-hover:scale-[1.06]',
+                    )}
+                  />
                 </div>
               </button>
             )
@@ -147,17 +202,12 @@ export function AlbumCollage() {
                   style={{ rotate }}
                 >
                   <PhotoPin className="top-2" />
-                  <div className="relative aspect-[2/1] overflow-hidden rounded-[calc(var(--radius)-6px)] border border-border/60 bg-muted/50">
-                    <Image
-                      src={src}
-                      alt={`Landing album photo ${index + 1}`}
-                      fill
-                      sizes="360px"
-                      quality={95}
-                      className="object-cover"
-                      loading="lazy"
-                    />
-                  </div>
+                  <CollageImage
+                    src={src}
+                    alt={`Landing album photo ${index + 1}`}
+                    sizes="360px"
+                    quality={95}
+                  />
                 </div>
               </button>
             )

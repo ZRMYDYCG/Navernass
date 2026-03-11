@@ -1,5 +1,6 @@
 'use client'
 
+import { Highlighter } from '@/components/ui/highlighter'
 import { AiChatDemo } from './features/ai-chat-demo'
 import { AlbumCollage } from './features/album-collage'
 import { LightOrDay } from './features/light-or-day'
@@ -51,8 +52,10 @@ export default function Features() {
             </div>
 
             <div className="w-full">
-              <div className="w-full h-full p-4 bg-background border border-border rounded-lg flex flex-col items-center text-center">
-                <h3 className="text-lg text-foreground mb-3">多格式导出</h3>
+              <div className="w-full h-full p-4 bg-background rounded-lg flex flex-col items-center text-center">
+                <h3 className="text-lg text-foreground mb-3">
+                  <Highlighter action="underline" color="var(--primary)">多格式导出</Highlighter>
+                </h3>
                 <span className="text-sm text-muted-foreground mb-4">一键生成排版精美的 MarkDown 或 Text,从草稿到成书，只差一个按钮。</span>
                 <AnimatedBeamMultipleOutputDemo />
               </div>

@@ -51,21 +51,35 @@ export function ThemeVideo({ lightSrc, darkSrc, posterSrc, className }: ThemeVid
 
   return (
     <div className="relative h-full w-full">
-      {!isLoaded && <div className="absolute inset-0 animate-pulse bg-muted" aria-hidden />}
+      {!isLoaded && (
+        <div
+          className="absolute inset-0 z-10 animate-pulse bg-muted"
+          aria-hidden
+        />
+      )}
       <video
         ref={videoRef}
         src={shouldLoad ? src : undefined}
         poster={posterSrc}
         className={cn(
-          'h-full w-full object-cover transition-opacity duration-300',
+          'pointer-events-none h-full w-full select-none object-cover transition-opacity duration-300',
           isLoaded ? 'opacity-100' : 'opacity-0',
           className,
         )}
+        tabIndex={-1}
+        aria-hidden
         autoPlay={shouldLoad}
         loop
         muted
         playsInline
         preload="none"
+        controls={false}
+        controlsList="nodownload noplaybackrate noremoteplayback"
+        disablePictureInPicture
+        disableRemotePlayback
+        onContextMenu={(event) => {
+          event.preventDefault()
+        }}
         onLoadedData={(event) => {
           const currentSrc = event.currentTarget.currentSrc
           if (!currentSrc) return
@@ -75,6 +89,8 @@ export function ThemeVideo({ lightSrc, darkSrc, posterSrc, className }: ThemeVid
             setLoadedSrc(src)
           }
         }}
+        onCanPlay={() => setLoadedSrc(src)}
+        onError={() => setLoadedSrc(src)}
       />
     </div>
   )

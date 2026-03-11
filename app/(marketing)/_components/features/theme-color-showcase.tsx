@@ -4,6 +4,7 @@ import { Moon, Sun } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Highlighter } from '@/components/ui/highlighter'
 import { Input } from '@/components/ui/input'
 import { PaperCard } from '@/components/ui/paper-card'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
@@ -29,9 +30,11 @@ export function ThemeColorShowcase() {
   const mode: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light'
 
   return (
-    <div className="w-full h-full p-4 bg-background border border-border rounded-lg flex flex-col items-center text-center">
+    <div className="w-full h-full p-4 bg-background rounded-lg flex flex-col items-center text-center">
       <div className="flex flex-col items-center justify-center mb-6">
-        <h3 className="text-lg text-foreground mb-2">主题定制</h3>
+        <h3 className="text-lg text-foreground mb-2">
+          <Highlighter action="underline" color="var(--primary)">主题定制</Highlighter>
+        </h3>
         <p className="text-sm text-muted-foreground">
           内置多套精心设计的主题色，支持一键切换，让你的创作空间更具个性。
         </p>
