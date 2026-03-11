@@ -13,10 +13,10 @@ export default function CTA() {
 
   return (
     <>
-      <section className="flex flex-col justify-center max-w-[88%] items-center py-16 gap-12 mx-auto">
-        <div className="text-5xl font-bold">加入我们，一群高能量的人</div>
+      <section className="mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-12 overflow-x-hidden px-4 py-16 md:px-6">
+        <div className="text-center text-3xl font-bold md:text-5xl">加入我们，一群高能量的人</div>
         <motion.div
-          className="flex flex-col text-center gap-4"
+          className="flex w-full flex-col gap-4 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -44,14 +44,7 @@ export default function CTA() {
               希望大家能够及时在
               {' '}
               <RoughAnnotation>
-                <a
-                  href="https://github.com/narraverse/narraverse-next-mvp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-foreground hover:underline"
-                >
-                  交流群
-                </a>
+                交流群
               </RoughAnnotation>
               {' '}
               向我们反馈，这样也好加以改正，不断改善，成为最佳！
@@ -83,7 +76,7 @@ export default function CTA() {
         >
           <Button size="lg" type="button" onClick={() => setDialogOpen(true)}>
             加入我们
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </motion.div>
       </section>
