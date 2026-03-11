@@ -14,7 +14,7 @@ function PhotoPin({ className }: { className?: string }) {
       )}
     >
       <div className="flex flex-col items-center">
-        <div className="relative h-4 w-4 rounded-full border border-primary/60 bg-background shadow-paper-sm">
+        <div className="relative h-4 w-4 rounded-full border border-primary/60 bg-destructive/80 shadow-paper-sm">
           <div className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/70" />
           <div className="absolute inset-0 rounded-full ring-1 ring-primary/20" />
         </div>

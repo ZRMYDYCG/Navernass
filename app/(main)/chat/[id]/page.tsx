@@ -1,8 +1,9 @@
 'use client'
 
-import { useParams, useSearchParams, useRouter } from 'next/navigation'
-import { Suspense, useCallback, useEffect, useMemo } from 'react'
+import type { Message } from '@/lib/supabase/sdk/types'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 
+import { Suspense, useCallback, useEffect, useMemo } from 'react'
 import { ChatInputBox } from '../_components/chat-input-box'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
 import { DocumentEditorDialog } from './_components/document-editor-dialog'
@@ -79,7 +80,7 @@ function ConversationContent() {
     handleSaveDocument,
   } = useDocumentEditor(handleMessageUpdate)
 
-  const handleEditMessage = useCallback((message) => {
+  const handleEditMessage = useCallback((message: Message) => {
     originalHandleEditMessage(message)
   }, [originalHandleEditMessage])
 

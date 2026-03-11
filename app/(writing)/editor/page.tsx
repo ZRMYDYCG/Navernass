@@ -1003,7 +1003,6 @@ function NovelsEditContent() {
                           chapterId={activeTab}
                           volumes={volumes}
                           chapters={chapters}
-                          characters={characters}
                           onSelectChapter={handleSelectChapter}
                         />
                       )}

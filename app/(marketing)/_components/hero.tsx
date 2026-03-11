@@ -117,9 +117,9 @@ export default function Hero() {
       <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
         <h1 className="font-serif text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
           让写作回归
-          <Highlighter action="underline" color="#87CEFA">纯粹</Highlighter>
+          <Highlighter action="underline" color="var(--primary)">纯粹</Highlighter>
           <span>与</span>
-          <Highlighter action="underline" color="#87CEFA">自由</Highlighter>
+          <Highlighter action="underline" color="var(--primary)">自由</Highlighter>
         </h1>
 
         <p className="mt-4 mx-auto max-w-2xl px-2 text-base font-light leading-relaxed text-foreground/60 sm:px-0 sm:text-xl">

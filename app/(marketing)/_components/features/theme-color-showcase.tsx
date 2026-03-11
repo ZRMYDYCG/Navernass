@@ -1,7 +1,6 @@
 'use client'
 
 import { Moon, Sun } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -27,14 +26,7 @@ const colorThemes = [
 export function ThemeColorShowcase() {
   const { colorTheme, setColorTheme } = useColorTheme()
   const { resolvedTheme, setTheme } = useThemeTransition()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const isDark = mounted && resolvedTheme === 'dark'
-  const mode: 'light' | 'dark' = isDark ? 'dark' : 'light'
+  const mode: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light'
 
   return (
     <div className="w-full h-full p-4 bg-background border border-border rounded-lg flex flex-col items-center text-center">

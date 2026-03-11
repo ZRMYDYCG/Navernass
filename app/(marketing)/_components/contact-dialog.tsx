@@ -28,7 +28,7 @@ export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>联系我们</DialogTitle>
+          <DialogTitle>加入我们</DialogTitle>
           <DialogDescription>
             优先扫码加入群聊，和其他创作者一起交流；如果群聊二维码失效或无法进入，可以切换到微信二维码加管理员拉你进群。
           </DialogDescription>

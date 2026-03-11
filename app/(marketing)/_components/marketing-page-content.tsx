@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { supabase } from '@/lib/supabase'
 import Hero from './hero'
+import JoinUs from './join-us'
 import Navbar from './navbar'
 
 const LazyFeatures = dynamic(() => import('./features'), {
@@ -69,6 +70,7 @@ export default function MarketingPageContent() {
       <Navbar />
       <Hero />
       <LazyFeatures />
+      <JoinUs />
     </main>
   )
 }

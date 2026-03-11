@@ -25,6 +25,7 @@ interface DocumentEditorDialogProps {
   latestAssistantMessage?: Message | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSave?: (content: string) => void | Promise<void>
 }
 
 export function DocumentEditorDialog({

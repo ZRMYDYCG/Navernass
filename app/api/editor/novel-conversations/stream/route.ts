@@ -87,7 +87,11 @@ export async function POST(req: NextRequest) {
         }
 
         // 根据模式构建系统提示词
-        const systemPrompt = getNovelPrompt(mode || 'default')
+        const systemPrompt = getNovelPrompt(
+          mode === 'agent' || mode === 'plan' || mode === 'default'
+            ? mode
+            : 'default',
+        )
 
         // 添加当前用户消息（包含上下文）
         const userMessageContent = contextMessage ? `${contextMessage}用户问题：${message}` : message

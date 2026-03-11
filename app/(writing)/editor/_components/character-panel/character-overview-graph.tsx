@@ -2,7 +2,6 @@
 
 import type { Character, Relationship } from './types'
 import * as d3 from 'd3'
-import debounce from 'lodash-es/debounce'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
@@ -10,6 +9,22 @@ import { cn } from '@/lib/utils'
 import { formatRelationshipLabel, getCharacterColor } from '@/store/characterGraphStore'
 import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
 import { AvatarPromptModal } from './avatar-prompt-modal'
+
+function debounce<Args extends unknown[]>(
+  fn: (...args: Args) => void | Promise<void>,
+  wait: number,
+) {
+  let timer: ReturnType<typeof setTimeout> | null = null
+
+  return (...args: Args) => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      void fn(...args)
+    }, wait)
+  }
+}
 
 interface CharacterOverviewGraphProps {
   novelId: string
