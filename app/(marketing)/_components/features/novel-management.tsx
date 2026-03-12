@@ -20,7 +20,6 @@ export function NovelManagement() {
         <ThemeVideo
           lightSrc="/wirte-day.mp4"
           darkSrc="/wirte-night.mp4"
-          posterSrc="/landing-page-2.png"
         />
       </div>
     </div>

@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Spinner } from '@/components/ui/spinner'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { cn } from '@/lib/utils'
 
 interface ThemeVideoProps {
   lightSrc: string
   darkSrc: string
-  posterSrc?: string
   className?: string
 }
 
@@ -42,7 +42,7 @@ export function ThemeVideo({ lightSrc, darkSrc, className }: ThemeVideoProps) {
           observer.disconnect()
         }
       },
-      { rootMargin: '280px' },
+      { rootMargin: '900px' },
     )
 
     observer.observe(node)
@@ -53,9 +53,11 @@ export function ThemeVideo({ lightSrc, darkSrc, className }: ThemeVideoProps) {
     <div className="relative h-full w-full">
       {!isLoaded && (
         <div
-          className="absolute inset-0 z-10 animate-pulse bg-muted"
+          className="absolute inset-0 z-10 flex items-center justify-center bg-muted/60"
           aria-hidden
-        />
+        >
+          <Spinner className="size-6 text-muted-foreground" />
+        </div>
       )}
       <video
         ref={videoRef}
@@ -71,7 +73,7 @@ export function ThemeVideo({ lightSrc, darkSrc, className }: ThemeVideoProps) {
         loop
         muted
         playsInline
-        preload="none"
+        preload={shouldLoad ? 'auto' : 'none'}
         controls={false}
         controlsList="nodownload noplaybackrate noremoteplayback"
         disablePictureInPicture

@@ -17,7 +17,6 @@ export function AiChatDemo() {
         <ThemeVideo
           lightSrc="/ai-day.mp4"
           darkSrc="/ai-night.mp4"
-          posterSrc="/landing-page-1.png"
         />
       </div>
     </div>

@@ -3,26 +3,29 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import { Highlighter } from '@/components/ui/highlighter'
+import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 
 interface CollageImageProps {
   src: string
   alt: string
   sizes: string
-  quality: number
+  quality?: number
   className?: string
   wrapperClassName?: string
   loading?: 'eager' | 'lazy'
+  unoptimized?: boolean
 }
 
 function CollageImage({
   src,
   alt,
   sizes,
-  quality,
+  quality = 80,
   className,
   wrapperClassName,
   loading = 'lazy',
+  unoptimized = true,
 }: CollageImageProps) {
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -36,8 +39,10 @@ function CollageImage({
       {!isLoaded && (
         <div
           aria-hidden="true"
-          className="absolute inset-0 z-10 animate-pulse bg-muted"
-        />
+          className="absolute inset-0 z-10 flex items-center justify-center bg-muted/60"
+        >
+          <Spinner className="size-6 text-muted-foreground" />
+        </div>
       )}
       <Image
         src={src}
@@ -52,8 +57,8 @@ function CollageImage({
         )}
         loading={loading}
         onLoadingComplete={() => setIsLoaded(true)}
-        onLoad={() => setIsLoaded(true)}
         onError={() => setIsLoaded(true)}
+        unoptimized={unoptimized}
       />
     </div>
   )
@@ -170,7 +175,7 @@ export function AlbumCollage() {
                     src={src}
                     alt={`Landing album photo ${index + 1}`}
                     sizes="(min-width: 1536px) 320px, (min-width: 1280px) 290px, (min-width: 1024px) 250px, 220px"
-                    quality={95}
+                    quality={80}
                     className={cn(
                       isActive ? 'scale-[1.03]' : 'group-hover:scale-[1.06]',
                     )}
@@ -206,7 +211,7 @@ export function AlbumCollage() {
                     src={src}
                     alt={`Landing album photo ${index + 1}`}
                     sizes="360px"
-                    quality={95}
+                    quality={80}
                   />
                 </div>
               </button>
