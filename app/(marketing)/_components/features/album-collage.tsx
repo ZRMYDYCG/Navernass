@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Highlighter } from '@/components/ui/highlighter'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
@@ -50,6 +50,10 @@ function CollageImage({
         fill
         sizes={sizes}
         quality={quality}
+        draggable={false}
+        onDragStart={(event) => {
+          event.preventDefault()
+        }}
         className={cn(
           'object-cover transition-[transform,opacity] duration-500 ease-out',
           isLoaded ? 'opacity-100' : 'opacity-0',
@@ -81,6 +85,27 @@ function PhotoPin({ className }: { className?: string }) {
         <div className="-mt-0.5 h-3 w-[2px] rounded-full bg-primary/35 shadow-paper-sm" />
       </div>
     </div>
+  )
+}
+
+function DraggablePhotoPin({
+  className,
+  hidden,
+  isReattaching,
+}: {
+  className?: string
+  hidden?: boolean
+  isReattaching?: boolean
+}) {
+  return (
+    <PhotoPin
+      className={cn(
+        'transition-[opacity,transform] duration-200 ease-out',
+        hidden ? 'opacity-0 scale-95' : 'opacity-100 scale-100',
+        isReattaching && 'animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-200',
+        className,
+      )}
+    />
   )
 }
 
@@ -118,9 +143,73 @@ const DESKTOP_LAYOUT = [
   { top: '58%', left: '70%', width: 'clamp(190px, 16vw, 290px)', rotate: 3, depth: 9 },
 ] as const
 
+interface PhotoOffset { x: number, y: number }
+
 export function AlbumCollage() {
   const [activeIndex, setActiveIndex] = useState(8)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
+  const [pinAnimation, setPinAnimation] = useState<{ index: number, nonce: number } | null>(null)
+  const [offsets, setOffsets] = useState<PhotoOffset[]>(() =>
+    LANDING_IMAGES.map(() => ({ x: 0, y: 0 })),
+  )
+
+  const offsetsRef = useRef(offsets)
+  useEffect(() => {
+    offsetsRef.current = offsets
+  }, [offsets])
+
+  const suppressClickRef = useRef(false)
+  const pinNonceRef = useRef(0)
+  const rafRef = useRef<number | null>(null)
+  const pendingRef = useRef<{ index: number, x: number, y: number } | null>(null)
+  const dragRef = useRef<{
+    index: number
+    pointerId: number
+    startX: number
+    startY: number
+    originX: number
+    originY: number
+    moved: boolean
+  } | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [])
+
+  const scheduleOffsetUpdate = (index: number, x: number, y: number) => {
+    pendingRef.current = { index, x, y }
+    if (rafRef.current) return
+
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null
+      const pending = pendingRef.current
+      pendingRef.current = null
+      if (!pending) return
+
+      setOffsets((prev) => {
+        if (!prev[pending.index]) return prev
+        const next = prev.slice()
+        next[pending.index] = { x: pending.x, y: pending.y }
+        return next
+      })
+    })
+  }
+
+  const startPinAnimation = (index: number) => {
+    pinNonceRef.current += 1
+    const nonce = pinNonceRef.current
+    setPinAnimation({ index, nonce })
+    window.setTimeout(() => {
+      setPinAnimation((current) => {
+        if (!current) return current
+        if (current.index !== index || current.nonce !== nonce) return current
+        return null
+      })
+    }, 240)
+  }
 
   return (
     <section className="w-full rounded-[calc(var(--radius)+4px)] bg-background p-4 shadow-paper-md md:p-5">
@@ -144,19 +233,100 @@ export function AlbumCollage() {
           {LANDING_IMAGES.map((src, index) => {
             const layout = DESKTOP_LAYOUT[index]
             const isActive = activeIndex === index
+            const isDragging = draggingIndex === index
+            const isReattaching = pinAnimation?.index === index
+            const offset = offsets[index] ?? { x: 0, y: 0 }
 
             return (
               <button
                 key={src}
                 type="button"
-                className="group absolute text-left focus-visible:outline-none"
+                className={cn(
+                  'group absolute select-none touch-none text-left focus-visible:outline-none',
+                  isDragging ? 'cursor-grabbing' : 'cursor-grab',
+                )}
                 style={{
                   top: layout.top,
                   left: layout.left,
                   width: layout.width,
-                  zIndex: hoveredIndex === index ? 80 : isActive ? 60 : layout.depth,
+                  zIndex: isDragging ? 90 : hoveredIndex === index ? 80 : isActive ? 60 : layout.depth,
+                  transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
                 }}
-                onClick={() => setActiveIndex(index)}
+                onPointerDown={(event) => {
+                  if (event.button !== 0) return
+
+                  const currentOffset = offsetsRef.current[index] ?? { x: 0, y: 0 }
+                  dragRef.current = {
+                    index,
+                    pointerId: event.pointerId,
+                    startX: event.clientX,
+                    startY: event.clientY,
+                    originX: currentOffset.x,
+                    originY: currentOffset.y,
+                    moved: false,
+                  }
+
+                  suppressClickRef.current = false
+                  setHoveredIndex(index)
+                  setActiveIndex(index)
+                  setDraggingIndex(index)
+                  try {
+                    event.currentTarget.setPointerCapture(event.pointerId)
+                  } catch {}
+                }}
+                onPointerMove={(event) => {
+                  const drag = dragRef.current
+                  if (!drag) return
+                  if (drag.pointerId !== event.pointerId) return
+                  if (drag.index !== index) return
+
+                  const dx = event.clientX - drag.startX
+                  const dy = event.clientY - drag.startY
+                  if (!drag.moved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+                    drag.moved = true
+                  }
+                  scheduleOffsetUpdate(index, drag.originX + dx, drag.originY + dy)
+                }}
+                onPointerUp={(event) => {
+                  const drag = dragRef.current
+                  if (!drag) return
+                  if (drag.pointerId !== event.pointerId) return
+                  if (drag.index !== index) return
+
+                  suppressClickRef.current = drag.moved
+                  dragRef.current = null
+                  setDraggingIndex(null)
+                  setHoveredIndex(null)
+                  startPinAnimation(index)
+                  try {
+                    event.currentTarget.releasePointerCapture(event.pointerId)
+                  } catch {}
+                  window.setTimeout(() => {
+                    suppressClickRef.current = false
+                  }, 0)
+                }}
+                onPointerCancel={(event) => {
+                  const drag = dragRef.current
+                  if (!drag) return
+                  if (drag.pointerId !== event.pointerId) return
+                  if (drag.index !== index) return
+
+                  suppressClickRef.current = true
+                  dragRef.current = null
+                  setDraggingIndex(null)
+                  setHoveredIndex(null)
+                  startPinAnimation(index)
+                  try {
+                    event.currentTarget.releasePointerCapture(event.pointerId)
+                  } catch {}
+                  window.setTimeout(() => {
+                    suppressClickRef.current = false
+                  }, 0)
+                }}
+                onClick={() => {
+                  if (suppressClickRef.current) return
+                  setActiveIndex(index)
+                }}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 aria-label={`Focus photo ${index + 1}`}
@@ -170,7 +340,7 @@ export function AlbumCollage() {
                   )}
                   style={{ rotate: `${isActive ? 0 : layout.rotate}deg` }}
                 >
-                  <PhotoPin />
+                  <DraggablePhotoPin hidden={isDragging} isReattaching={!isDragging && isReattaching} />
                   <CollageImage
                     src={src}
                     alt={`Landing album photo ${index + 1}`}
