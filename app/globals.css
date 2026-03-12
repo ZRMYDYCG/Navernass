@@ -11,4 +11,14 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--primary) 20%, transparent);
+    color: var(--foreground);
+  }
+
+  ::-moz-selection {
+    background-color: color-mix(in oklab, var(--primary) 20%, transparent);
+    color: var(--foreground);
+  }
 }

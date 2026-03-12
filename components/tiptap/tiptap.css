@@ -114,13 +114,10 @@
   border-left-color: rgba(120, 113, 108, 0.4);
   color: #a8a29e;
 }
-.ProseMirror ::selection {
-  background-color: rgba(231, 229, 228, 0.6);
-  color: inherit;
-}
-
-.dark .ProseMirror ::selection {
-  background-color: rgba(68, 64, 60, 0.5);
+.ProseMirror::selection,
+.ProseMirror *::selection {
+  background-color: color-mix(in oklab, var(--primary) 20%, transparent);
+  color: var(--foreground);
 }
 .ProseMirror mark {
   background-color: #fef3c7;
