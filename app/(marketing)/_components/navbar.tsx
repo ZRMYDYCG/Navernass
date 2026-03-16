@@ -46,15 +46,6 @@ export default function Navbar() {
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">切换主题</span>
             </Button>
-
-            <Button
-              variant="outline"
-              className="text-xs md:text-sm"
-              onClick={() => setContactOpen(true)}
-            >
-              交流群
-            </Button>
-
             <AuthButton />
           </div>
         </div>
