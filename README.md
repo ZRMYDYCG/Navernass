@@ -6,15 +6,36 @@
 
 </div>
 
+## ✨ 特性亮点
+
+- **AI 辅助创作**：集成 Silicon Flow AI，为创作者提供智能续写、润色、摘要等功能
+- **多项目管理**：支持小说、章节、角色、关系图谱的完整管理
+- **沉浸式编辑器**：基于 Tiptap 的富文本编辑器，支持 Markdown 语法
+- **多主题支持**：支持 Default、Blue、Green、Orange、Red 等多种主题
+- **响应式设计**：适配桌面端和移动端设备
+
 ## 核心目标
 
 我们专注为才华横溢的创作者打造舒适的创作环境，降低优质内容被看见、被分享、被发掘的门槛。
 
 同时也为新手提供AI辅助，降低直面感受创作、学习创作、走进创作的门槛。
 
-## 开发模式
+## 🚀 快速开始
 
-环境变量配置
+### 环境要求
+
+- Node.js 18+
+- pnpm 8+ (推荐) 或 npm 8+
+- Supabase 账户 (用于数据库)
+- Silicon Flow 账户 (用于 AI 功能)
+
+### 安装依赖
+
+```bash
+pnpm install
+```
+
+### 环境变量配置
 
 创建 `.env.local` 文件：
 
@@ -94,7 +115,49 @@ SILICON_FLOW_MODEL=
 }
 ```
 
-## 开发规范工具链
+## 📦 技术栈
+
+| 类别      | 技术                    |
+| --------- | ----------------------- |
+| 框架      | Next.js 16 (App Router) |
+| 语言      | TypeScript              |
+| 数据库    | Supabase                |
+| AI 服务   | Silicon Flow API        |
+| 样式      | Tailwind CSS v4         |
+| 编辑器    | Tiptap                  |
+| UI 组件   | Radix UI + 自定义组件   |
+| 状态管理  | React Context / Hooks   |
+| Git Hooks | Lefthook                |
+| 代码规范  | ESLint + Commitlint     |
+
+## 📁 项目结构
+
+```bash
+├── app/                          # Next.js App Router
+│   ├── (main)/                   # 主要应用页面
+│   │   ├── chat/                # AI 对话功能
+│   │   ├── novels/              # 小说管理
+│   │   ├── trash/               # 回收站
+│   │   └── workspace/            # 工作台
+│   ├── (marketing)/              # 营销页面
+│   ├── (writing)/               # 写作编辑器
+│   │   └── editor/              # 沉浸式编辑器
+│   ├── api/                     # API 路由
+│   └── publish/                  # 发布页面
+├── components/                   # 可复用组件
+│   ├── tiptap/                  # Tiptap 编辑器相关
+│   └── ui/                      # UI 基础组件
+├── lib/                         # 工具函数和 SDK
+│   └── supabase/                # Supabase 客户端
+├── hooks/                       # 自定义 Hooks
+├── providers/                   # React Providers
+├── store/                       # 状态管理
+└── prompts/                     # AI 提示词模板
+```
+
+## ⚙️ 开发模式
+
+### 开发规范工具链
 
 Git Hooks 管理
 
@@ -225,3 +288,40 @@ export const newFeatureApi = {
   }
 }
 ```
+
+## 📜 可用脚本
+
+| 命令             | 描述                                |
+| ---------------- | ----------------------------------- |
+| `pnpm dev`       | 启动开发服务器 (Turbopack)          |
+| `pnpm build`     | 构建生产版本                        |
+| `pnpm start`     | 启动生产服务器                      |
+| `pnpm lint`      | 运行 ESLint 检查                    |
+| `pnpm lint:fix`  | 自动修复 ESLint 问题                |
+| `pnpm typecheck` | 运行 TypeScript 类型检查            |
+| `pnpm commit`    | 打开交互式 Commit 对话框            |
+| `pnpm release`   | 发布新版本 (支持 minor/major/patch) |
+| `pnpm db:push`   | 推送数据库变更到 Supabase           |
+| `pnpm db:pull`   | 从 Supabase 拉取数据库变更          |
+
+## 🤝贡献指南
+
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 本仓库
+2. 创建分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建 Pull Request
+
+## 📄 许可证
+
+本项目基于 MIT 许可证开源。
+
+## 🙏 致谢
+
+- [Next.js](https://nextjs.org/) - React 框架
+- [Supabase](https://supabase.com/) - 开源 Firebase 替代品
+- [Tailwind CSS](https://tailwindcss.com/) - CSS 框架
+- [Tiptap](https://tiptap.dev/) - 富文本编辑器
+- [Silicon Flow](https://siliconflow.cn/) - AI 服务提供商
