@@ -44,7 +44,7 @@ export default function CTA() {
               希望大家能够及时在
               {' '}
               <RoughAnnotation>
-                交流群
+                <span className="font-semibold text-foreground">交流群</span>
               </RoughAnnotation>
               {' '}
               向我们反馈，这样也好加以改正，不断改善，成为最佳！

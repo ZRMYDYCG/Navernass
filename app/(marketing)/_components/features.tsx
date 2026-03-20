@@ -11,7 +11,7 @@ import { ThemeColorShowcase } from './features/theme-color-showcase'
 export default function Features() {
   return (
     <>
-      <section className="pb-20 flex min-h-screen flex-col items-center relative overflow-hidden bg-background">
+      <section className="flex min-h-screen flex-col items-center relative overflow-hidden bg-background">
         <div className="container mx-auto px-4">
 
           <div className="text-center">

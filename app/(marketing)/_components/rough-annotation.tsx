@@ -112,7 +112,7 @@ export function RoughAnnotation({ children, className = '' }: RoughAnnotationPro
           <path
             d={path}
             fill="none"
-            stroke="#b71c1c"
+            stroke="var(--color-primary)"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
