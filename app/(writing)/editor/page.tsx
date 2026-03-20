@@ -333,6 +333,73 @@ function NovelsEditContent() {
     setCreateChapterDialogOpen(true)
   }
 
+  const handleQuickCreateChapter = async () => {
+    if (!novelId) return
+
+    const existingTitles = new Set(chapters.map(c => c.title.trim()))
+    let quickTitle = '新章节'
+    let titleIndex = 2
+    while (existingTitles.has(quickTitle)) {
+      quickTitle = `新章节 ${titleIndex}`
+      titleIndex += 1
+    }
+
+    try {
+      setIsCreatingChapter(true)
+
+      const rootChapters = chapters
+        .filter(c => !c.volume_id)
+        .sort((a, b) => a.order_index - b.order_index)
+      const newOrderIndex = rootChapters.length > 0
+        ? rootChapters[rootChapters.length - 1].order_index + 1
+        : chapters.length
+
+      const newChapter = await chaptersApi.create({
+        novel_id: novelId,
+        title: quickTitle,
+        order_index: newOrderIndex,
+        content: '',
+      })
+
+      toast.success('章节创建成功！')
+      const updatedChapters = await chaptersApi.getByNovelId(novelId)
+      setChapters(updatedChapters)
+      handleSelectChapter(newChapter.id)
+    } catch (error) {
+      console.error('创建章节失败:', error)
+      const message = error instanceof Error ? error.message : '创建章节失败'
+      toast.error(message)
+    } finally {
+      setIsCreatingChapter(false)
+    }
+  }
+
+  const handleRenameChapterInline = async (chapterId: string, title: string) => {
+    if (!novelId) return
+    const nextTitle = title.trim()
+    if (!nextTitle) return
+
+    try {
+      setIsUpdatingChapter(true)
+      await chaptersApi.update({
+        id: chapterId,
+        title: nextTitle,
+      })
+
+      const updatedChapters = await chaptersApi.getByNovelId(novelId)
+      setChapters(updatedChapters)
+      setOpenTabs(prev => prev.map(tab => (tab.id === chapterId ? { ...tab, title: nextTitle } : tab)))
+      toast.success('章节重命名成功！')
+    } catch (error) {
+      console.error('重命名章节失败:', error)
+      const message = error instanceof Error ? error.message : '重命名章节失败'
+      toast.error(message)
+      throw error
+    } finally {
+      setIsUpdatingChapter(false)
+    }
+  }
+
   // 在卷中创建章节
   const handleCreateChapterInVolume = async (volumeId: string) => {
     if (!novelId) return
@@ -552,6 +619,37 @@ function NovelsEditContent() {
     setNewVolumeTitle('')
     setNewVolumeDescription('')
     setCreateVolumeDialogOpen(true)
+  }
+
+  const handleQuickCreateVolume = async () => {
+    if (!novelId) return
+
+    const existingTitles = new Set(volumes.map(v => v.title.trim()))
+    let quickTitle = '新建卷'
+    let titleIndex = 2
+    while (existingTitles.has(quickTitle)) {
+      quickTitle = `新建卷 ${titleIndex}`
+      titleIndex += 1
+    }
+
+    try {
+      setIsCreatingVolume(true)
+      await volumesApi.create({
+        novel_id: novelId,
+        title: quickTitle,
+        order_index: volumes.length,
+      })
+
+      toast.success('卷创建成功！')
+      const updatedVolumes = await volumesApi.getByNovelId(novelId)
+      setVolumes(updatedVolumes)
+    } catch (error) {
+      console.error('创建卷失败:', error)
+      const message = error instanceof Error ? error.message : '创建卷失败'
+      toast.error(message)
+    } finally {
+      setIsCreatingVolume(false)
+    }
   }
 
   // 创建新卷
@@ -918,7 +1016,6 @@ function NovelsEditContent() {
               novelId={novelId || undefined}
               chapterIds={chapters.map(c => c.id)}
               onOpenChapterSearch={() => setQuickSearchOpen(true)}
-              onToggleCharacters={() => setCharacterPanelOpen(true)}
             />
           </ImmersiveRegion>
 
@@ -954,12 +1051,15 @@ function NovelsEditContent() {
                     onTabChange={setActiveLeftTab as (tab: LeftTabType) => void}
                     onSelectChapter={handleSelectChapter}
                     onCreateChapter={handleOpenCreateChapterDialog}
+                    onCreateChapterQuick={handleQuickCreateChapter}
                     onCreateChapterInVolume={handleCreateChapterInVolume}
                     onCreateVolume={handleOpenCreateVolumeDialog}
+                    onCreateVolumeQuick={handleQuickCreateVolume}
                     onReorderChapters={handleReorderChapters}
                     onReorderVolumes={handleReorderVolumes}
                     onMoveChapterToVolume={handleMoveChapterToVolume}
                     onRenameChapter={handleRenameChapter}
+                    onRenameChapterInline={handleRenameChapterInline}
                     onDeleteChapter={handleDeleteChapter}
                     onCopyChapter={handleCopyChapter}
                     onMoveChapter={handleMoveChapter}
@@ -967,6 +1067,7 @@ function NovelsEditContent() {
                     onDeleteVolume={handleDeleteVolume}
                     onChaptersImported={handleChaptersImported}
                     onImageGenerated={handleImageGenerated}
+                    onToggleCharacters={() => setCharacterPanelOpen(true)}
                   />
                 </ImmersiveRegion>
               </ResizablePanel>
@@ -1046,11 +1147,14 @@ function NovelsEditContent() {
                     onTabChange={setActiveLeftTab as (tab: LeftTabType) => void}
                     onSelectChapter={handleSelectChapter}
                     onCreateChapter={handleOpenCreateChapterDialog}
+                    onCreateChapterQuick={handleQuickCreateChapter}
                     onCreateVolume={handleOpenCreateVolumeDialog}
+                    onCreateVolumeQuick={handleQuickCreateVolume}
                     onReorderChapters={handleReorderChapters}
                     onReorderVolumes={handleReorderVolumes}
                     onMoveChapterToVolume={handleMoveChapterToVolume}
                     onRenameChapter={handleRenameChapter}
+                    onRenameChapterInline={handleRenameChapterInline}
                     onDeleteChapter={handleDeleteChapter}
                     onCopyChapter={handleCopyChapter}
                     onMoveChapter={handleMoveChapter}

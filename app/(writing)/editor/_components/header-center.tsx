@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, ArrowRight, Search } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 interface HeaderCenterProps {
   title: string
@@ -37,13 +37,12 @@ export function HeaderCenter({
 
       <div
         onClick={onTitleClick}
-        className="group flex-1 max-w-[240px] h-7 px-3 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+        className="group flex-1 max-w-[240px] h-7 px-3 flex items-center justify-center gap-2 rounded-md border border-border/60 bg-muted/50 text-sm text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer transition-colors"
         title="点击搜索章节"
       >
         <span className="truncate font-medium font-serif tracking-wide opacity-90 group-hover:opacity-100 transition-opacity">
           {title || '未选择章节'}
         </span>
-        <Search className="w-3.5 h-3.5 mt-1 opacity-0 group-hover:opacity-60 transition-opacity duration-300" strokeWidth={1.6} />
       </div>
 
       <button

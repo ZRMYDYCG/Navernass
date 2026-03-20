@@ -2,7 +2,6 @@ import type { Volume } from '../types'
 import { ActionButtons } from './action-buttons'
 import { QuickActions } from './quick-actions'
 import { RecentChapters } from './recent-chapters'
-import { StatisticsCard } from './statistics-card'
 
 interface Chapter {
   id: string
@@ -32,11 +31,6 @@ export default function WorkspaceTab({
   onSelectChapter,
   onImageGenerated,
 }: WorkspaceTabProps) {
-  // 计算统计数据
-  const totalWords = chapters.reduce((sum, ch) => sum + (ch.word_count || 0), 0)
-  const totalChapters = chapters.length
-  const totalVolumes = volumes.length
-
   return (
     <div className="flex-1 overflow-y-auto p-3 space-y-4 scrollbar-none">
       {/* 文件操作 */}
@@ -61,13 +55,6 @@ export default function WorkspaceTab({
       <RecentChapters
         chapters={chapters}
         onSelectChapter={onSelectChapter}
-      />
-
-      {/* 统计信息 */}
-      <StatisticsCard
-        totalWords={totalWords}
-        totalChapters={totalChapters}
-        totalVolumes={totalVolumes}
       />
     </div>
   )

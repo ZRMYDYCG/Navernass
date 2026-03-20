@@ -10,8 +10,10 @@ export default function ChaptersTab({
   selectedChapter,
   onSelectChapter,
   onCreateChapter,
+  onCreateChapterQuick,
   onCreateChapterInVolume,
   onCreateVolume,
+  onCreateVolumeQuick,
   onReorderChapters,
   onReorderVolumes,
   onMoveChapterToVolume,
@@ -21,6 +23,7 @@ export default function ChaptersTab({
   onMoveChapter,
   onRenameVolume,
   onDeleteVolume,
+  onRenameChapterInline,
 }: ChaptersTabProps) {
   const collapseAllRef = useRef<(() => void) | null>(null)
 
@@ -28,8 +31,8 @@ export default function ChaptersTab({
     <div className="h-full flex flex-col isolate">
       <ChapterHeader
         novelTitle={novelTitle}
-        onCreateChapter={onCreateChapter}
-        onCreateVolume={onCreateVolume}
+        onCreateChapter={onCreateChapterQuick ?? onCreateChapter}
+        onCreateVolume={onCreateVolumeQuick ?? onCreateVolume}
         onCollapseAll={() => {
           collapseAllRef.current?.()
         }}
@@ -43,6 +46,7 @@ export default function ChaptersTab({
         onReorderVolumes={onReorderVolumes}
         onMoveChapterToVolume={onMoveChapterToVolume}
         onRenameChapter={onRenameChapter}
+        onRenameChapterInline={onRenameChapterInline}
         onDeleteChapter={onDeleteChapter}
         onCopyChapter={onCopyChapter}
         onMoveChapter={onMoveChapter}

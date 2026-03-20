@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutPanelLeft, Users } from 'lucide-react'
+import { LayoutPanelLeft } from 'lucide-react'
 import {
   Tooltip,
   TooltipContent,
@@ -11,13 +11,11 @@ import {
 interface HeaderLeftProps {
   showLeftPanel: boolean
   onToggleLeftPanel: () => void
-  onToggleCharacters?: () => void
 }
 
 export function HeaderLeft({
   showLeftPanel,
   onToggleLeftPanel,
-  onToggleCharacters,
 }: HeaderLeftProps) {
   return (
     <div className="flex items-center gap-1.5 h-full">
@@ -38,20 +36,6 @@ export function HeaderLeft({
           </TooltipTrigger>
           <TooltipContent>
             <p>{showLeftPanel ? '隐藏左侧面板' : '显示左侧面板'}</p>
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              onClick={onToggleCharacters}
-              className="p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer text-muted-foreground hover:text-foreground hover:bg-accent"
-            >
-              <Users className="w-3.5 h-3.5" strokeWidth={1.5} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>角色图谱</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

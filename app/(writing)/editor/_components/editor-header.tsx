@@ -21,7 +21,6 @@ interface EditorHeaderProps {
   novelId?: string
   chapterIds?: string[]
   onOpenChapterSearch?: () => void
-  onToggleCharacters?: () => void
 }
 
 export default function EditorHeader({
@@ -39,7 +38,6 @@ export default function EditorHeader({
   novelId,
   chapterIds,
   onOpenChapterSearch,
-  onToggleCharacters,
 }: EditorHeaderProps) {
   const router = useRouter()
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -188,7 +186,6 @@ export default function EditorHeader({
       <HeaderLeft
         showLeftPanel={showLeftPanel}
         onToggleLeftPanel={onToggleLeftPanel}
-        onToggleCharacters={onToggleCharacters}
       />
 
       {/* 中间：历史导航 + 标题搜索框 */}

@@ -1,4 +1,5 @@
 import type { LeftTabType } from './types'
+import { User } from 'lucide-react'
 import {
   Tooltip,
   TooltipContent,
@@ -10,9 +11,10 @@ import { TAB_CONFIGS } from './constants'
 interface TabSwitcherProps {
   activeTab: LeftTabType
   onChange: (tab: LeftTabType) => void
+  onToggleCharacters?: () => void
 }
 
-export function TabSwitcher({ activeTab, onChange }: TabSwitcherProps) {
+export function TabSwitcher({ activeTab, onChange, onToggleCharacters }: TabSwitcherProps) {
   return (
     <TooltipProvider>
       <div className="h-full flex flex-col items-center gap-2 py-4 px-1">
@@ -43,6 +45,20 @@ export function TabSwitcher({ activeTab, onChange }: TabSwitcherProps) {
             </Tooltip>
           )
         })}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={onToggleCharacters}
+              className="w-9 h-9 flex items-center justify-center rounded-md cursor-pointer text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <User className="w-4 h-4" strokeWidth={1.5} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="text-xs">
+            <p>角色图谱</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </TooltipProvider>
   )

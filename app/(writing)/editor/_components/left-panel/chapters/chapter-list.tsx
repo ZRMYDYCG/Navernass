@@ -56,6 +56,7 @@ interface ChapterListProps {
   onReorderVolumes?: (volumes: Array<{ id: string, order_index: number }>) => void
   onMoveChapterToVolume?: (chapterId: string, volumeId: string | null) => void
   onRenameChapter?: (chapter: Chapter) => void
+  onRenameChapterInline?: (chapterId: string, title: string) => Promise<void> | void
   onDeleteChapter?: (chapter: Chapter) => void
   onCopyChapter?: (chapter: Chapter) => Promise<void>
   onMoveChapter?: (chapter: Chapter) => void
@@ -76,6 +77,7 @@ export function ChapterList({
   onReorderVolumes,
   onMoveChapterToVolume,
   onRenameChapter,
+  onRenameChapterInline,
   onDeleteChapter,
   onCopyChapter,
   onMoveChapter,
@@ -113,19 +115,15 @@ export function ChapterList({
   )
 
   // 同步外部数据变化（需要在 props 变化时更新本地状态）
-  // eslint-disable-next-line @typescript-eslint/no-base-to-string
   useEffect(() => {
     setLocalChapters(chapters || [])
-    // eslint-disable-next-line react-compiler/react-compiler
   }, [chapters])
 
-  // eslint-disable-next-line @typescript-eslint/no-base-to-string
   useEffect(() => {
     setLocalVolumes(volumes || [])
     if (volumes && volumes.length > 0) {
       setExpandedVolumes(new Set(volumes.map(v => v.id)))
     }
-    // eslint-disable-next-line react-compiler/react-compiler
   }, [volumes])
 
   const toggleVolume = (volumeId: string) => {
@@ -364,6 +362,7 @@ export function ChapterList({
                             isSelected={selectedChapter === chapter.id}
                             onSelect={() => onSelectChapter(chapter.id)}
                             onRename={onRenameChapter}
+                            onRenameInline={onRenameChapterInline}
                             onDelete={onDeleteChapter}
                             onCopy={onCopyChapter}
                             onMove={onMoveChapter}
@@ -404,6 +403,7 @@ export function ChapterList({
                       isSelected={selectedChapter === chapter.id}
                       onSelect={() => onSelectChapter(chapter.id)}
                       onRename={onRenameChapter}
+                      onRenameInline={onRenameChapterInline}
                       onDelete={onDeleteChapter}
                       onCopy={onCopyChapter}
                       onMove={onMoveChapter}

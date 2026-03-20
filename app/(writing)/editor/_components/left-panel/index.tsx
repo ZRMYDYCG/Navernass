@@ -14,12 +14,15 @@ interface LeftPanelProps {
   onTabChange: (tab: LeftTabType) => void
   onSelectChapter: (id: string) => void
   onCreateChapter?: () => void
+  onCreateChapterQuick?: () => void
   onCreateChapterInVolume?: (volumeId: string) => void
   onCreateVolume?: () => void
+  onCreateVolumeQuick?: () => void
   onReorderChapters?: (chapters: Array<{ id: string, order_index: number }>) => void
   onReorderVolumes?: (volumes: Array<{ id: string, order_index: number }>) => void
   onMoveChapterToVolume?: (chapterId: string, volumeId: string | null) => void
   onRenameChapter?: (chapter: Chapter) => void
+  onRenameChapterInline?: (chapterId: string, title: string) => Promise<void> | void
   onDeleteChapter?: (chapter: Chapter) => void
   onCopyChapter?: (chapter: Chapter) => Promise<void>
   onMoveChapter?: (chapter: Chapter) => void
@@ -27,6 +30,7 @@ interface LeftPanelProps {
   onDeleteVolume?: (volume: Volume) => void
   onChaptersImported?: () => void
   onImageGenerated?: (imageUrl: string) => void
+  onToggleCharacters?: () => void
 }
 
 export default function LeftPanel({
@@ -39,12 +43,15 @@ export default function LeftPanel({
   onTabChange,
   onSelectChapter,
   onCreateChapter,
+  onCreateChapterQuick,
   onCreateChapterInVolume,
   onCreateVolume,
+  onCreateVolumeQuick,
   onReorderChapters,
   onReorderVolumes,
   onMoveChapterToVolume,
   onRenameChapter,
+  onRenameChapterInline,
   onDeleteChapter,
   onCopyChapter,
   onMoveChapter,
@@ -52,14 +59,14 @@ export default function LeftPanel({
   onDeleteVolume,
   onChaptersImported,
   onImageGenerated,
+  onToggleCharacters,
 }: LeftPanelProps) {
-
   return (
     <div
       className="h-full flex border-r-0 rounded-none shadow-none isolate"
     >
       <div className="flex-shrink-0 bg-background/90 border-r border-border">
-        <TabSwitcher activeTab={activeTab} onChange={onTabChange} />
+        <TabSwitcher activeTab={activeTab} onChange={onTabChange} onToggleCharacters={onToggleCharacters} />
       </div>
 
       <div className="flex-1 overflow-hidden relative bg-background">
@@ -72,12 +79,15 @@ export default function LeftPanel({
               selectedChapter={selectedChapter}
               onSelectChapter={onSelectChapter}
               onCreateChapter={onCreateChapter}
+              onCreateChapterQuick={onCreateChapterQuick}
               onCreateChapterInVolume={onCreateChapterInVolume}
               onCreateVolume={onCreateVolume}
+              onCreateVolumeQuick={onCreateVolumeQuick}
               onReorderChapters={onReorderChapters}
               onReorderVolumes={onReorderVolumes}
               onMoveChapterToVolume={onMoveChapterToVolume}
               onRenameChapter={onRenameChapter}
+              onRenameChapterInline={onRenameChapterInline}
               onDeleteChapter={onDeleteChapter}
               onCopyChapter={onCopyChapter}
               onMoveChapter={onMoveChapter}

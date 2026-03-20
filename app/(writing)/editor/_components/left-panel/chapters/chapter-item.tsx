@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import * as Popover from '@radix-ui/react-popover'
 import { ArrowRightLeft, Copy, Edit2, FileText, GripVertical, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -17,12 +17,65 @@ export function ChapterItem({
   isSelected,
   onSelect,
   onRename,
+  onRenameInline,
   onDelete,
   onCopy,
   onMove,
 }: ChapterItemProps) {
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [isCopying, setIsCopying] = useState(false)
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [editingTitle, setEditingTitle] = useState(chapter.title)
+  const [isRenaming, setIsRenaming] = useState(false)
+  const titleInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!isEditingTitle) {
+      setEditingTitle(chapter.title)
+    }
+  }, [chapter.title, isEditingTitle])
+
+  useEffect(() => {
+    if (isEditingTitle) {
+      titleInputRef.current?.focus()
+      titleInputRef.current?.select()
+    }
+  }, [isEditingTitle])
+
+  const openInlineTitleEditor = () => {
+    setEditingTitle(chapter.title)
+    setIsEditingTitle(true)
+  }
+
+  const cancelInlineTitleEditor = () => {
+    setEditingTitle(chapter.title)
+    setIsEditingTitle(false)
+  }
+
+  const saveInlineTitle = async () => {
+    const nextTitle = editingTitle.trim()
+    if (!nextTitle) {
+      cancelInlineTitleEditor()
+      return
+    }
+    if (nextTitle === chapter.title) {
+      setIsEditingTitle(false)
+      return
+    }
+    if (!onRenameInline) {
+      onRename?.(chapter)
+      setIsEditingTitle(false)
+      return
+    }
+
+    try {
+      setIsRenaming(true)
+      await onRenameInline(chapter.id, nextTitle)
+      setIsEditingTitle(false)
+    } finally {
+      setIsRenaming(false)
+    }
+  }
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: chapter.id,
@@ -72,7 +125,7 @@ export function ChapterItem({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation()
-                        onRename(chapter)
+                        openInlineTitleEditor()
                         setPopoverOpen(false)
                       }}
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
@@ -99,15 +152,46 @@ export function ChapterItem({
               </Popover.Portal>
             </Popover.Root>
 
-            <div className="flex-1 min-w-0 flex items-center gap-1.5" onClick={onSelect}>
+            <div
+              className="flex-1 min-w-0 flex items-center gap-1.5"
+              onClick={isEditingTitle ? undefined : onSelect}
+            >
               <FileText className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-              <h3
-                className={`text-[12px] font-normal truncate flex-1 transition-colors ${
-                  isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'
-                }`}
-              >
-                {chapter.title}
-              </h3>
+              {isEditingTitle
+                ? (
+                    <input
+                      ref={titleInputRef}
+                      value={editingTitle}
+                      onChange={e => setEditingTitle(e.target.value)}
+                      onBlur={() => {
+                        if (!isRenaming) {
+                          void saveInlineTitle()
+                        }
+                      }}
+                      onClick={e => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        e.stopPropagation()
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          void saveInlineTitle()
+                        } else if (e.key === 'Escape') {
+                          e.preventDefault()
+                          cancelInlineTitleEditor()
+                        }
+                      }}
+                      disabled={isRenaming}
+                      className="h-6 flex-1 min-w-0 rounded border border-border bg-background px-1.5 text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  )
+                : (
+                    <h3
+                      className={`text-[12px] font-normal truncate flex-1 transition-colors ${
+                        isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {chapter.title}
+                    </h3>
+                  )}
             </div>
           </div>
         </div>
@@ -117,7 +201,7 @@ export function ChapterItem({
           <ContextMenuItem
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation()
-              onRename(chapter)
+              openInlineTitleEditor()
             }}
             className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
