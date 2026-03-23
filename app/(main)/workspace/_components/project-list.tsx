@@ -53,13 +53,6 @@ export function ProjectList() {
 
   return (
     <div className="mb-10">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-serif font-medium flex items-center gap-2">
-          <Book className="h-5 w-5 text-muted-foreground" />
-          案头作品
-        </h3>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <button
           onClick={() => setOpen(true)}

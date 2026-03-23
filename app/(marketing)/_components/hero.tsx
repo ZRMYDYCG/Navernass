@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { NovelDialog } from '@/app/(main)/novels/_components/novel-dialog'
-import LightRays from '@/components/LightRays'
+// import LightRays from '@/components/LightRays'
 import { Button } from '@/components/ui/button'
 import { Highlighter } from '@/components/ui/highlighter'
 import { useAuth } from '@/hooks/use-auth'
@@ -113,7 +113,7 @@ export default function Hero() {
         <div className="absolute top-[85%] left-[10%] h-px w-[70%] rotate-[-3deg] animate-pulse bg-gradient-to-r from-transparent via-primary/30 to-transparent [animation-delay:2s] [animation-duration:5s]" />
       </div>
 
-      <div className="absolute inset-0 hidden dark:block">
+      {/* <div className="absolute inset-0 hidden dark:block">
         <LightRays
           raysOrigin="top-center"
           raysColor="var(--color-primary)"
@@ -129,7 +129,7 @@ export default function Hero() {
           fadeDistance={1}
           saturation={1}
         />
-      </div>
+      </div> */}
 
       <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-primary/10 via-transparent to-transparent" />
 

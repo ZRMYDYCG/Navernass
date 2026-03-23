@@ -31,12 +31,7 @@ export function WorkspaceHeader() {
 
   return (
     <div className="flex items-center justify-between mb-8">
-      <div>
-        <h1 className="text-3xl font-serif font-medium tracking-tight text-foreground">创作空间</h1>
-        <p className="text-muted-foreground mt-1 font-light">捕捉灵感，编织故事。</p>
-      </div>
-
-      <div className="flex items-center gap-3">
+      <div className="flex justify-end gap-3">
 
         <Button className="gap-2" onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4" />

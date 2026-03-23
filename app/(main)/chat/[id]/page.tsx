@@ -76,7 +76,6 @@ function ConversationContent() {
     showDocumentEditor,
     setShowDocumentEditor,
     handleEditMessage: originalHandleEditMessage,
-    handleCloseDocumentEditor,
     handleSaveDocument,
   } = useDocumentEditor(handleMessageUpdate)
 

@@ -3,17 +3,12 @@
 import { ContributionGraph } from './_components/contribution-graph'
 import { ProjectList } from './_components/project-list'
 import { StatsCard } from './_components/stats-card'
-import { WelcomeCard } from './_components/welcome-card'
-import { WorkspaceHeader } from './_components/workspace-header'
 
 export default function WorkspacePage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
-      <WorkspaceHeader />
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-8 space-y-8">
-          <WelcomeCard />
           <ProjectList />
         </div>
 
