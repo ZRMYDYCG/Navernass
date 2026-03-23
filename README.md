@@ -4,6 +4,23 @@
 
 # Narraverse - 小说创作平台
 
+业务架构
+
+```bash
+前端（Next/React）
+  └─ Vercel AI SDK hooks（useChat）
+        └─ Chat UI / 流式渲染 / 消息状态管理 / 自定义 message parts
+
+BFF（推荐有一层）
+  └─ Next API Route /api/chat
+        └─ 鉴权、会话拼装、协议转换、持久化、埋点
+
+后端核心服务
+  └─ NestJS
+        └─ LangChain / 自研 Agent Orchestrator
+              └─ tools / workflow / memory / knowledge / model routing
+```
+
 </div>
 
 ## ✨ 特性亮点
