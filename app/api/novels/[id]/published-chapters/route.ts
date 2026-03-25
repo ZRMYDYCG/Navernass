@@ -24,9 +24,12 @@ export const GET = withErrorHandler(
       .select('id, title, description, cover, published_at')
       .eq('id', id)
       .eq('status', 'published')
-      .single()
+      .maybeSingle()
 
     if (novelError) throw novelError
+    if (!novel) {
+      return ApiResponseBuilder.error('小说不存在或未发布', 'NOVEL_NOT_FOUND', 404)
+    }
 
     const { data: chapters, error: chaptersError } = await supabase
       .from('chapters')
