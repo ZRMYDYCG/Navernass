@@ -19,18 +19,6 @@ export const GET = withErrorHandler(
 
     const { id } = await params
 
-    const { data: novel, error: novelError } = await supabase
-      .from('novels')
-      .select('id, title, description, cover, published_at')
-      .eq('id', id)
-      .eq('status', 'published')
-      .maybeSingle()
-
-    if (novelError) throw novelError
-    if (!novel) {
-      return ApiResponseBuilder.error('小说不存在或未发布', 'NOVEL_NOT_FOUND', 404)
-    }
-
     const { data: chapters, error: chaptersError } = await supabase
       .from('chapters')
       .select('*')
@@ -40,6 +28,20 @@ export const GET = withErrorHandler(
       .order('order_index', { ascending: true })
 
     if (chaptersError) throw chaptersError
+    if (!chapters || chapters.length === 0) {
+      return ApiResponseBuilder.error('小说不存在或未发布章节', 'NOVEL_NOT_PUBLISHED', 404)
+    }
+
+    const { data: novel, error: novelError } = await supabase
+      .from('novels')
+      .select('id, title, description, cover, published_at')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (novelError) throw novelError
+    if (!novel) {
+      return ApiResponseBuilder.error('小说不存在', 'NOVEL_NOT_FOUND', 404)
+    }
 
     const { data: volumes, error: volumesError } = await supabase
       .from('volumes')
