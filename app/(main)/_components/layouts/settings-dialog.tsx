@@ -3,6 +3,12 @@
 import { Eye, EyeOff, Monitor, Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from '@/components/ui/select'
 import { useColorTheme } from '@/hooks/use-color-theme'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { clearApiKey, getApiKey, saveApiKey } from '@/lib/api-key'
@@ -77,15 +83,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   ]
 
   const colorThemes = [
-    { name: 'default', label: '默认', color: 'bg-zinc-950' },
-    { name: 'blue', label: '蓝色', color: 'bg-blue-600' },
-    { name: 'green', label: '绿色', color: 'bg-green-600' },
-    { name: 'orange', label: '橙色', color: 'bg-orange-500' },
-    { name: 'red', label: '红色', color: 'bg-red-600' },
-    { name: 'rose', label: '玫瑰', color: 'bg-rose-600' },
-    { name: 'violet', label: '紫罗兰', color: 'bg-violet-600' },
-    { name: 'yellow', label: '黄色', color: 'bg-yellow-500' },
+    { name: 'default', note: '基础', swatches: ['#18181B', '#52525B', '#E4E4E7'] },
+    { name: 'blue', note: '冷静', swatches: ['#2563EB', '#60A5FA', '#DBEAFE'] },
+    { name: 'green', note: '自然', swatches: ['#16A34A', '#4ADE80', '#DCFCE7'] },
+    { name: 'orange', note: '温暖', swatches: ['#F97316', '#FB923C', '#FFEDD5'] },
+    { name: 'red', note: '醒目', swatches: ['#DC2626', '#F87171', '#FEE2E2'] },
+    { name: 'rose', note: '柔和', swatches: ['#E11D48', '#FB7185', '#FFE4E6'] },
+    { name: 'violet', note: '偏冷', swatches: ['#7C3AED', '#A78BFA', '#EDE9FE'] },
+    { name: 'yellow', note: '明快', swatches: ['#EAB308', '#FACC15', '#FEF9C3'] },
   ]
+
+  const selectedColorTheme = colorThemes.find(item => item.name === colorTheme) || colorThemes[0]
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -184,25 +192,42 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-foreground">配色</h3>
-            <div className="grid grid-cols-4 gap-3">
-              {colorThemes.map((theme) => {
-                const isActive = colorTheme === theme.name
-                return (
-                  <button
-                    key={theme.name}
-                    onClick={() => setColorTheme(theme.name)}
-                    className={`group relative flex flex-col items-center gap-2 p-2 rounded-xl transition-all hover:bg-secondary ${
-                      isActive ? 'bg-secondary' : 'bg-transparent'
-                    }`}
-                  >
-                    <div className={`h-8 w-8 rounded-full shadow-sm ${theme.color} ring-2 ring-transparent transition-all ${isActive ? 'scale-110 ring-offset-2 ring-offset-background' : 'group-hover:scale-105'}`} />
-                    <span className={`text-xs font-medium ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      {theme.label}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
+            <Select value={colorTheme} onValueChange={setColorTheme}>
+              <SelectTrigger className="h-12 rounded-xl bg-card">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex shrink-0 gap-1.5">
+                    {selectedColorTheme.swatches.map((swatch, index) => (
+                      <span
+                        key={`${selectedColorTheme.name}-${index}`}
+                        className="h-3.5 w-3.5 rounded-full border border-border/60"
+                        style={{ backgroundColor: swatch }}
+                      />
+                    ))}
+                  </div>
+                  <div className="min-w-0 text-left">
+                    <div className="text-sm font-medium text-foreground">{selectedColorTheme.note}</div>
+                  </div>
+                </div>
+              </SelectTrigger>
+              <SelectContent className="z-[200] rounded-xl">
+                {colorThemes.map(theme => (
+                  <SelectItem key={theme.name} value={theme.name} className="py-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex shrink-0 gap-1.5">
+                        {theme.swatches.map((swatch, index) => (
+                          <span
+                            key={`${theme.name}-${index}`}
+                            className="h-3.5 w-3.5 rounded-full border border-border/60"
+                            style={{ backgroundColor: swatch }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm text-foreground">{theme.note}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-3">
