@@ -14,10 +14,24 @@ export class NovelsService {
     this.supabase = supabase
   }
 
+  private async getAuthenticatedUserId() {
+    const { data: { user }, error } = await this.supabase.auth.getUser()
+
+    if (error || !user) {
+      const unauthorizedError = new Error('Unauthorized') as Error & { statusCode: number, code: string }
+      unauthorizedError.statusCode = 401
+      unauthorizedError.code = 'UNAUTHORIZED'
+      throw unauthorizedError
+    }
+
+    return user.id
+  }
+
   /**
    * 获取小说列表
    */
   async getList(params?: PaginationParams & { status?: string }) {
+    const userId = await this.getAuthenticatedUserId()
     const page = params?.page || 1
     const pageSize = params?.pageSize || 10
     const from = (page - 1) * pageSize
@@ -26,6 +40,7 @@ export class NovelsService {
     let query = this.supabase
       .from('novels')
       .select('*', { count: 'exact' })
+      .eq('user_id', userId)
       .order('order_index', { ascending: true })
       .order('created_at', { ascending: false })
       .range(from, to)
@@ -52,10 +67,12 @@ export class NovelsService {
    * 获取小说详情
    */
   async getById(id: string) {
+    const userId = await this.getAuthenticatedUserId()
     const { data, error } = await this.supabase
       .from('novels')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId)
       .single()
 
     if (error) {
@@ -117,8 +134,6 @@ export class NovelsService {
   }
 
   async delete(id: string) {
-    const novel = await this.getById(id)
-
     const chaptersService = new ChaptersService(this.supabase)
     const volumesService = new VolumesService(this.supabase)
 
@@ -185,9 +200,11 @@ export class NovelsService {
   }
 
   async getArchived() {
+    const userId = await this.getAuthenticatedUserId()
     const { data, error } = await this.supabase
       .from('novels')
       .select('*')
+      .eq('user_id', userId)
       .eq('status', 'archived')
       .order('updated_at', { ascending: false })
 

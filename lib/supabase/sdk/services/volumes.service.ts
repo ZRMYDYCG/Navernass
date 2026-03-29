@@ -8,14 +8,29 @@ export class VolumesService {
     this.supabase = supabase
   }
 
+  private async getAuthenticatedUserId() {
+    const { data: { user }, error } = await this.supabase.auth.getUser()
+
+    if (error || !user) {
+      const unauthorizedError = new Error('Unauthorized') as Error & { statusCode: number, code: string }
+      unauthorizedError.statusCode = 401
+      unauthorizedError.code = 'UNAUTHORIZED'
+      throw unauthorizedError
+    }
+
+    return user.id
+  }
+
   /**
    * 获取小说的所有卷（不包含已删除的）
    */
   async getByNovelId(novelId: string) {
+    const userId = await this.getAuthenticatedUserId()
     const { data, error } = await this.supabase
       .from('volumes')
       .select('*')
       .eq('novel_id', novelId)
+      .eq('user_id', userId)
       .is('deleted_at', null)
       .order('order_index', { ascending: true })
 
@@ -27,10 +42,12 @@ export class VolumesService {
    * 获取小说的所有卷（包括已删除的，用于恢复）
    */
   async getAllByNovelId(novelId: string) {
+    const userId = await this.getAuthenticatedUserId()
     const { data, error } = await this.supabase
       .from('volumes')
       .select('*')
       .eq('novel_id', novelId)
+      .eq('user_id', userId)
       .order('order_index', { ascending: true })
 
     if (error) throw error
@@ -41,10 +58,12 @@ export class VolumesService {
    * 获取单个卷
    */
   async getById(id: string) {
+    const userId = await this.getAuthenticatedUserId()
     const { data, error } = await this.supabase
       .from('volumes')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId)
       .single()
 
     if (error) {
