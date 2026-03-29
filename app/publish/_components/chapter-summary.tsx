@@ -1,7 +1,7 @@
 'use client'
 
 import { Loader2, RotateCw, Sparkles } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 
@@ -12,12 +12,25 @@ interface ChapterSummaryProps {
 export function ChapterSummary({ chapterId }: ChapterSummaryProps) {
   const [summary, setSummary] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
+
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort()
+    }
+  }, [])
 
   const handleGenerateSummary = async () => {
     setIsGenerating(true)
+
+    abortControllerRef.current?.abort()
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       const response = await fetch(`/api/chapters/${chapterId}/summary`, {
         method: 'POST',
+        signal: controller.signal,
       })
 
       if (!response.ok) {
@@ -27,9 +40,16 @@ export function ChapterSummary({ chapterId }: ChapterSummaryProps) {
       const result = await response.json()
       setSummary(result.data.summary)
     } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return
+      }
+
       toast.error(error instanceof Error ? error.message : '生成摘要失败')
     } finally {
-      setIsGenerating(false)
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null
+        setIsGenerating(false)
+      }
     }
   }
 
