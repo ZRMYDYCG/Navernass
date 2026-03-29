@@ -30,7 +30,7 @@ export function ChapterHeader({
       </span>
 
       <TooltipProvider>
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-0.5" data-chapter-header-actions>
           <Tooltip>
             <TooltipTrigger asChild>
               <button
