@@ -11,6 +11,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
+import { cn } from '@/lib/utils'
 
 export function ChapterItem({
   chapter,
@@ -93,11 +94,12 @@ export function ChapterItem({
         <div
           ref={setNodeRef}
           style={style}
-          className={`group px-2 py-0.5 my-0.5 min-h-[28px] flex items-center rounded-lg transition-all duration-300 ease-out ${
+          className={cn(
+            'group relative my-0.5 flex min-h-[28px] items-center rounded-lg border px-2 py-0.5 transition-all duration-200 ease-out',
             isSelected
-              ? 'bg-background shadow-[0_1px_3px_rgba(0,0,0,0.05)]'
-              : 'hover:bg-background/60'
-          }`}
+              ? 'border-border bg-background/95 shadow-paper-sm'
+              : 'border-transparent hover:border-border/50 hover:bg-background/60',
+          )}
         >
           <div className="flex items-center gap-1.5 w-full">
             <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -106,12 +108,15 @@ export function ChapterItem({
                   type="button"
                   {...attributes}
                   {...listeners}
-                  className={`flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded transition-opacity ${
-                    isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-30'
-                  }`}
+                  className={cn(
+                    'flex-shrink-0 cursor-grab rounded p-0.5 transition-all active:cursor-grabbing hover:bg-accent',
+                    isSelected
+                      ? 'opacity-100 text-primary/80'
+                      : 'opacity-0 group-hover:opacity-30',
+                  )}
                   onClick={e => e.stopPropagation()}
                 >
-                  <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
+                  <GripVertical className={cn('h-3.5 w-3.5', isSelected ? 'text-primary/80' : 'text-muted-foreground')} />
                 </button>
               </Popover.Trigger>
               <Popover.Portal>
@@ -156,7 +161,7 @@ export function ChapterItem({
               className="flex-1 min-w-0 flex items-center gap-1.5"
               onClick={isEditingTitle ? undefined : onSelect}
             >
-              <FileText className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <FileText className={cn('h-3.5 w-3.5 flex-shrink-0 transition-colors', isSelected ? 'text-primary/85' : 'text-muted-foreground')} />
               {isEditingTitle
                 ? (
                     <input
@@ -185,9 +190,10 @@ export function ChapterItem({
                   )
                 : (
                     <h3
-                      className={`text-[12px] font-normal truncate flex-1 transition-colors ${
-                        isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'
-                      }`}
+                      className={cn(
+                        'flex-1 truncate text-[12px] font-normal transition-colors',
+                        isSelected ? 'font-medium text-foreground' : 'text-muted-foreground',
+                      )}
                     >
                       {chapter.title}
                     </h3>
