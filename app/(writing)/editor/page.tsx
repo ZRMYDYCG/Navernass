@@ -1099,6 +1099,7 @@ function NovelsEditContent() {
                           onTabCloseAll={closeAllTabs}
                           onTabCloseLeft={closeLeftTabs}
                           onTabCloseRight={closeRightTabs}
+                          novelId={novelId!}
                           novelTitle={novel.title}
                           chapterTitle={chapters.find(c => c.id === activeTab)?.title || ''}
                           chapterId={activeTab}

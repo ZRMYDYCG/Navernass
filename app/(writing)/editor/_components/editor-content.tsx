@@ -2,8 +2,15 @@ import type { Chapter, Volume } from '@/lib/supabase/sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { TiptapEditor } from '@/components/tiptap'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi } from '@/lib/supabase/sdk'
+import { cn } from '@/lib/utils'
 import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
 import { Breadcrumb } from './breadcrumb'
 import { SmartTabs } from './smart-tabs'
@@ -22,6 +29,7 @@ interface EditorContentProps {
   onTabCloseAll?: () => void
   onTabCloseLeft?: (id: string) => void
   onTabCloseRight?: (id: string) => void
+  novelId: string
   novelTitle: string
   chapterTitle: string
   chapterId: string
@@ -31,7 +39,20 @@ interface EditorContentProps {
 }
 
 const EMPTY_ARRAY: never[] = []
-const SUGGESTION_MARKER_REGEX = /data-suggestion=\"(add|del)\"|suggestion-(add|del)/i
+const SUGGESTION_MARKER_REGEX = /data-suggestion="(?:add|del)"|suggestion-(?:add|del)/i
+const DEFAULT_EDITOR_SURFACE = 'paper'
+const EDITOR_SURFACE_OPTIONS = [
+  { value: 'paper', note: '纸感', surfaceClassName: 'bg-card bg-paper-texture', swatchClassName: 'bg-card' },
+  { value: 'plain', note: '素净', surfaceClassName: 'bg-background', swatchClassName: 'bg-background' },
+  { value: 'mist', note: '雾灰', surfaceClassName: 'bg-muted/35', swatchClassName: 'bg-muted/70' },
+  { value: 'soft', note: '柔光', surfaceClassName: 'bg-accent/40', swatchClassName: 'bg-accent/70' },
+  { value: 'rice', note: '轻米白', surfaceClassName: 'bg-[#f7f2e8] bg-paper-texture', swatchClassName: 'bg-[#f7f2e8]' },
+  { value: 'aged', note: '旧纸', surfaceClassName: 'bg-[#eadfc8] bg-paper-texture', swatchClassName: 'bg-[#eadfc8]' },
+  { value: 'cool', note: '冷白', surfaceClassName: 'bg-[#f3f7fb]', swatchClassName: 'bg-[#f3f7fb]' },
+  { value: 'night', note: '夜纸', surfaceClassName: 'bg-[#17151d] text-zinc-100', swatchClassName: 'bg-[#17151d]' },
+] as const
+
+const getEditorSurfaceStorageKey = (novelId: string) => `editor-surface:${novelId}`
 
 const hasSuggestionMarkup = (content: string) => SUGGESTION_MARKER_REGEX.test(content)
 
@@ -44,6 +65,7 @@ export default function EditorContent({
   onTabCloseAll,
   onTabCloseLeft,
   onTabCloseRight,
+  novelId,
   novelTitle,
   chapterTitle,
   chapterId,
@@ -58,6 +80,7 @@ export default function EditorContent({
   const [charCount, setCharCount] = useState(0)
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [loading, setLoading] = useState(true)
+  const [editorSurface, setEditorSurface] = useState<(typeof EDITOR_SURFACE_OPTIONS)[number]['value']>(DEFAULT_EDITOR_SURFACE)
   const editorContentRef = useRef<string>('')
   const isSavingRef = useRef(false)
 
@@ -73,6 +96,21 @@ export default function EditorContent({
   }, [chapterId, chapters, chapter?.volume_id, volumes])
 
   const loadingChapterIdRef = useRef<string | null>(null)
+  const currentEditorSurface = EDITOR_SURFACE_OPTIONS.find(option => option.value === editorSurface) || EDITOR_SURFACE_OPTIONS[0]
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(getEditorSurfaceStorageKey(novelId))
+    const matched = EDITOR_SURFACE_OPTIONS.find(option => option.value === stored)
+    setEditorSurface(matched?.value || DEFAULT_EDITOR_SURFACE)
+  }, [novelId])
+
+  const handleEditorSurfaceChange = (value: string) => {
+    const matched = EDITOR_SURFACE_OPTIONS.find(option => option.value === value)
+    if (!matched) return
+
+    setEditorSurface(matched.value)
+    window.localStorage.setItem(getEditorSurfaceStorageKey(novelId), matched.value)
+  }
 
   // 加载章节内容
   useEffect(() => {
@@ -224,7 +262,11 @@ export default function EditorContent({
       />
 
       {/* 编辑器内容区域 */}
-      <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className={cn(
+        'flex-1 min-h-0 overflow-y-auto transition-colors [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+        currentEditorSurface.surfaceClassName,
+      )}
+      >
         {loading
           ? (
               <div className="h-full flex flex-col items-center justify-center gap-3">
@@ -252,7 +294,28 @@ export default function EditorContent({
       </div>
 
       {/* 底部状态栏 */}
-      <div className="h-10 px-6 flex items-center justify-end bg-transparent border-t border-border backdrop-blur-sm">
+      <div className="h-10 px-6 flex items-center justify-between bg-transparent border-t border-border backdrop-blur-sm">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="whitespace-nowrap">卷面</span>
+          <Select value={editorSurface} onValueChange={handleEditorSurfaceChange}>
+            <SelectTrigger className="h-7 min-w-24 border-none bg-transparent px-2 text-xs shadow-none focus:ring-0">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className={cn('h-2.5 w-2.5 rounded-full border border-border/60', currentEditorSurface.swatchClassName)} />
+                <span>{currentEditorSurface.note}</span>
+              </div>
+            </SelectTrigger>
+            <SelectContent align="start" className="z-[120] min-w-28">
+              {EDITOR_SURFACE_OPTIONS.map(option => (
+                <SelectItem key={option.value} value={option.value} className="text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className={cn('h-2.5 w-2.5 rounded-full border border-border/60', option.swatchClassName)} />
+                    <span>{option.note}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground font-light tracking-wide">
           <span>
             字数
