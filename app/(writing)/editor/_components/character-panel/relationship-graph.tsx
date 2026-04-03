@@ -4,7 +4,7 @@ import type { Character, Relationship } from './types'
 import * as d3 from 'd3'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
-import { formatRelationshipLabel, getCharacterColor } from '@/store/characterGraphStore'
+import { formatRelationshipLabel, getCharacterColor } from '@/store'
 
 import { GraphViewSwitcher } from './graph-view-switcher'
 

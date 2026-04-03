@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { chaptersApi } from '@/lib/supabase/sdk/chapters'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { cn } from '@/lib/utils'
-import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
+import { useCharacterMaterialStore } from '@/store'
 
 interface CharacterFormValues {
   name: string

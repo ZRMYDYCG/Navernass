@@ -2,8 +2,7 @@
 
 import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
-import { useCharacterGraphStore } from '@/store/characterGraphStore'
-import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
+import { useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
 
 import { CastingPool } from './casting-pool'
 import { CharacterModal } from './character-modal'

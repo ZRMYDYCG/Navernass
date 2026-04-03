@@ -6,8 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { cn } from '@/lib/utils'
-import { formatRelationshipLabel, getCharacterColor } from '@/store/characterGraphStore'
-import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
+import { formatRelationshipLabel, getCharacterColor, useCharacterMaterialStore } from '@/store'
 import { AvatarPromptModal } from './avatar-prompt-modal'
 
 function debounce<Args extends unknown[]>(

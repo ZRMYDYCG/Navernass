@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { getCharacterColor } from '@/store/characterGraphStore'
+import { getCharacterColor } from '@/store'
 
 function downloadJson(filename: string, data: unknown) {
   const json = JSON.stringify(data, null, 2)

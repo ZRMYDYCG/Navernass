@@ -1,4 +1,4 @@
-import type { RelationshipGraphViewMode } from '@/store/characterGraphStore'
+import type { RelationshipGraphViewMode } from '@/store'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
 import { cn } from '@/lib/utils'
 

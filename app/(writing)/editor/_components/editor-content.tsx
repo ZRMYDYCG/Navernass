@@ -11,7 +11,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
-import { useCharacterMaterialStore } from '@/store/characterMaterialStore'
+import { useCharacterMaterialStore } from '@/store'
 import { Breadcrumb } from './breadcrumb'
 import { SmartTabs } from './smart-tabs'
 
