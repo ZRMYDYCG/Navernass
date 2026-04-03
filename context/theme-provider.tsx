@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { ThemeProvider as NextThemesProvider } from 'next-themes'
+import { ThemeProvider as ThemeContext } from 'next-themes'
 
 interface ThemeProviderProps {
   children: ReactNode
@@ -9,8 +9,8 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
+    <ThemeContext attribute="class" defaultTheme="dark" enableSystem>
       {children}
-    </NextThemesProvider>
+    </ThemeContext>
   )
 }

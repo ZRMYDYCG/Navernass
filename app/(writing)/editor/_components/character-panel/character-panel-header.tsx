@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
 import { useAuth } from '@/hooks/use-auth'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
-import { useCharacterGraphStore } from '@/store'
 
 const viewModes: Array<{ value: CharacterPanelViewMode, label: string }> = [
   { value: 'overview', label: '关系总览' },

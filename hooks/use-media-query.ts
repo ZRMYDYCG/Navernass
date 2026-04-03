@@ -1,27 +1,22 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 /**
  * 检测媒体查询是否匹配
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false)
-
-  useEffect(() => {
+  const subscribe = (callback: (matches: boolean) => void) => {
     const media = window.matchMedia(query)
-
-    if (media.matches !== matches) {
-      setMatches(media.matches)
-    }
-
-    const listener = () => setMatches(media.matches)
+    const listener = () => callback(media.matches)
     media.addEventListener('change', listener)
-
     return () => media.removeEventListener('change', listener)
-  }, [query])
+  }
 
-  return matches
+  const getSnapshot = () => window.matchMedia(query).matches
+  const getServerSnapshot = () => false
+
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 }
 
 /**

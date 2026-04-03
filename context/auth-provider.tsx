@@ -1,6 +1,7 @@
 'use client'
 
 import type { RealtimeChannel, User } from '@supabase/supabase-js'
+import type { ReactNode } from 'react'
 import { createContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/index'
 
@@ -25,9 +26,14 @@ interface AuthContextType {
   setProfile: (profile: Profile | null) => void
 }
 
+interface AuthProviderProps {
+  children: ReactNode
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)

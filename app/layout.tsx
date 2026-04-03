@@ -3,10 +3,9 @@ import { Caveat, Inter, Noto_Serif_SC } from 'next/font/google'
 import { ColorThemeProvider } from '@/components/providers/color-theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { Toaster as RadixToaster } from '@/components/ui/toaster'
+import { AuthProvider } from '@/context/auth-provider'
+import { ThemeProvider } from '@/context/theme-provider'
 import { getSiteUrl, seoConfig } from '@/lib/seo'
-import { AuthProvider } from '@/providers/auth-provider'
-import { FaviconProvider } from '@/providers/favicon-provider'
-import { ThemeProvider } from '@/providers/theme-provider'
 import './globals.css'
 
 const inter = Inter({
@@ -116,7 +115,6 @@ export default function RootLayout({
         <ThemeProvider>
           <ColorThemeProvider>
             <AuthProvider>
-              <FaviconProvider />
               {children}
               <Toaster position="top-right" richColors />
               <RadixToaster />

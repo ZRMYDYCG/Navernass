@@ -1,9 +1,7 @@
 'use client'
 
 import { use } from 'react'
-import { AuthContext } from '@/providers/auth-provider'
-
-export type { Profile } from '@/providers/auth-provider'
+import { AuthContext } from '../context/auth-provider'
 
 export function useAuth() {
   const context = use(AuthContext)
