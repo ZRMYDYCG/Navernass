@@ -1,5 +1,62 @@
 # Changelog
 
+## [0.11.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.10.0...v0.11.0) (2026-04-03)
+
+
+### Features
+
+*  移动端问题 ([e1a1635](https://github.com/ZRMYDYCG/Navernass/commit/e1a16353a848f4b157402e6205f83529d9b14a72))
+* **#5:** 支持卷面背景色切换 ([5656077](https://github.com/ZRMYDYCG/Navernass/commit/56560776387254b35cc09ee89c6ea0dda2603d84)), closes [#5](https://github.com/ZRMYDYCG/Navernass/issues/5)
+* 更新联系方式 ([563fbfe](https://github.com/ZRMYDYCG/Navernass/commit/563fbfe6ced3893956be126ecaf1b80ae098552f))
+* 更新群聊二维码时间 ([80f17e1](https://github.com/ZRMYDYCG/Navernass/commit/80f17e15342a45e5e9d70aaf2ceef47e5b4d5402))
+* 全局应用选中语义化token ([e1cf18a](https://github.com/ZRMYDYCG/Navernass/commit/e1cf18a0b1d3f45729a75199aca09c3bb11e0496))
+* 为下一版本做调研准备 ([8e22d78](https://github.com/ZRMYDYCG/Navernass/commit/8e22d78b394e6321b978d0270ebcf2434c624e1c))
+* 为下一版本做调研准备 ([f1fe55c](https://github.com/ZRMYDYCG/Navernass/commit/f1fe55c25c72ada06575d2011b67d0dda59391f5))
+* 文案调整 ([c654625](https://github.com/ZRMYDYCG/Navernass/commit/c654625840e15c33367f229f8f85ea8e7080ba20))
+* **bits:** 新增 bits ([1313957](https://github.com/ZRMYDYCG/Navernass/commit/1313957eff8b564eee715c276a679e14b8310ba2))
+* issus [#1](https://github.com/ZRMYDYCG/Navernass/issues/1) 优化标题修改 卷新增交互 变为直接修改和新增 ([33cd865](https://github.com/ZRMYDYCG/Navernass/commit/33cd8655d52df5f58d06eae712118df5adc0bc28))
+* **PWA:** 添加离线页面和缓存策略 ([0fb0f89](https://github.com/ZRMYDYCG/Navernass/commit/0fb0f89705ac98335d3f56705a6c468bcd724407))
+* **seo:** 对接 google search console ([5f10599](https://github.com/ZRMYDYCG/Navernass/commit/5f105996aae919d11408457dbed007b76f389be0))
+* **seo:** 完善 cta 组件 ([d2f1467](https://github.com/ZRMYDYCG/Navernass/commit/d2f1467dc89486101ea849b9f7d15839091289e9))
+* **seo:** 完善 seo 为调研做准备 ([fcde8de](https://github.com/ZRMYDYCG/Navernass/commit/fcde8de5117362ee3f293631416a4942b60c3e71))
+* **seo:** 完善 sitmap robots 配置 移除首屏的loading 暴露真实html ([dfa28e0](https://github.com/ZRMYDYCG/Navernass/commit/dfa28e08f4293caee32dd89724a3a0f92e58bff8))
+* **seo:** LCP、CLS 和 INP 指标优化 ([880431b](https://github.com/ZRMYDYCG/Navernass/commit/880431b2bdbbf672fc1763a5f84b9e177b3afc24))
+* **seo:** mobile update ([cfb727d](https://github.com/ZRMYDYCG/Navernass/commit/cfb727de017d7cb8706dc38ea663fda33a8b73d1))
+* update sql ([0629fba](https://github.com/ZRMYDYCG/Navernass/commit/0629fbac9b156cd4b02d6a00b9473e04ee1db8e2))
+* update sql ([37f7d98](https://github.com/ZRMYDYCG/Navernass/commit/37f7d98eb462709b41f6a7bb81b0a6feaa3cb760))
+
+
+### Bug Fixes
+
+* **#4:** 修复摘要置空问题 ([c93912d](https://github.com/ZRMYDYCG/Navernass/commit/c93912d483d7de810b5fa57dfabe1aef4e0d7f99)), closes [#4](https://github.com/ZRMYDYCG/Navernass/issues/4)
+* **#6:** 小说章节选中后不明显 ([416844a](https://github.com/ZRMYDYCG/Navernass/commit/416844ad2055b231e37c27535c5c92d6dd48998d)), closes [#6](https://github.com/ZRMYDYCG/Navernass/issues/6)
+* 清理冗余文件 ([34f24d6](https://github.com/ZRMYDYCG/Navernass/commit/34f24d6647e632dcdae679c237ee5506a071acd3))
+* 修复用户头像刷新异常及退出登录异常问题 ([07c93ef](https://github.com/ZRMYDYCG/Navernass/commit/07c93ef6c43a86a703357637880f49c6505197fc))
+* 修改后端查询/接口权限：已发布文章对已登录其他用户和未登录用户可读 ([7f4f446](https://github.com/ZRMYDYCG/Navernass/commit/7f4f44693b388ab534451d87e8098ffd0f719dbd))
+* 修改后端查询/接口权限：已发布文章对已登录其他用户和未登录用户可读 ([9742826](https://github.com/ZRMYDYCG/Navernass/commit/97428266f9da902f78c312c7cb0f1ce7c68e880d))
+* 修改后端查询/接口权限：已发布文章对已登录其他用户和未登录用户可读 ([1c7f506](https://github.com/ZRMYDYCG/Navernass/commit/1c7f506876f5f9051758ac5042ffbe184765cff3))
+* 已发布内容没有配置公共读取权限 ([f6cce21](https://github.com/ZRMYDYCG/Navernass/commit/f6cce21bbcf99f790e3877de699f8e839c0abcd3))
+* 优化 color context ([273ae12](https://github.com/ZRMYDYCG/Navernass/commit/273ae125ef305f1b61b2274c2ee5eda24ab567b8))
+* bugfix ([245b83e](https://github.com/ZRMYDYCG/Navernass/commit/245b83ed59b7d0afc5a43a8afc7e5637bc7def4c))
+* build for production ([d43239d](https://github.com/ZRMYDYCG/Navernass/commit/d43239db262c5762697cd481ee84f6dd500c7867))
+* cannot coerce the result to a single JSON object ([668ef55](https://github.com/ZRMYDYCG/Navernass/commit/668ef558f33b079388e68811297e7d59b76a6f1d))
+* **join-us:** design token 问题 ([645dd56](https://github.com/ZRMYDYCG/Navernass/commit/645dd5650f82d7d1e76a73195e6a829bd151fa98))
+* media url adjust ([259943a](https://github.com/ZRMYDYCG/Navernass/commit/259943ad21eca28c6463e35f2ba1612295fad6c4))
+* rls 导致的发布数据泄漏 ([364f484](https://github.com/ZRMYDYCG/Navernass/commit/364f484d23c7ed74c75e99c2f270b561912f290c))
+* **seo:** landingpage image handle the loading state ([67b861f](https://github.com/ZRMYDYCG/Navernass/commit/67b861fc3f2dfacc27f696805e86671e49416745))
+* **setting-dialog:** 修复颜色选择问题 ([1b78c54](https://github.com/ZRMYDYCG/Navernass/commit/1b78c549968a067545323928cab484364a7dde6b))
+* uodate ([563d584](https://github.com/ZRMYDYCG/Navernass/commit/563d5845baabd6a811857acf6bc7477f7b705cd3))
+* update ([99882ce](https://github.com/ZRMYDYCG/Navernass/commit/99882ceec33ea6bd33b856aefd7bbab70083f0fd))
+* video poert remover ([7691438](https://github.com/ZRMYDYCG/Navernass/commit/7691438a8f145dd6f4defc8a64c192b6a2dd5812))
+
+
+### Performance Improvements
+
+* 编辑器内上传及插入的图片进行懒加载优化 ([ff7d4df](https://github.com/ZRMYDYCG/Navernass/commit/ff7d4df9c2d75ee571ed36369b01a6611201625d))
+* 相册相片支持可拖放 ([7640584](https://github.com/ZRMYDYCG/Navernass/commit/76405847240b85e622c23473b2a3e59f4b8d7d56))
+* 优化loading体验 ([7739b37](https://github.com/ZRMYDYCG/Navernass/commit/7739b3748cc172d863e6ae9d0e22b8479e52676e))
+* **empty-chapters:** 优化空状态 精确定位 header action 位置 并指向 ([205eed3](https://github.com/ZRMYDYCG/Navernass/commit/205eed33eb2976e285cdde93b8a341a223776621))
+
 ## [0.10.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.9.0...v0.10.0) (2026-03-07)
 
 
