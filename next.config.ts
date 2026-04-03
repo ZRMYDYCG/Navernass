@@ -164,7 +164,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     rules: codeInspectorPlugin({
       bundler: 'turbopack',
-      editor: 'trae',
+      editor: 'code',
     }),
   },
 }
