@@ -148,6 +148,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     const result = await supabase.auth.signOut()
+    try {
+      await fetch('/api/auth/signout', { method: 'POST' })
+    } catch (err) {
+      console.warn('server signout cleanup failed:', err)
+    }
     return result
   }
 

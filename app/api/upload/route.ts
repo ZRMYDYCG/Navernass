@@ -53,10 +53,22 @@ export const POST = async (req: NextRequest) => {
       )
     }
 
-    const { data: publicData } = supabase.storage.from('narraverse').getPublicUrl(data.path)
+    // 返回一个签名 URL（在私有 bucket 场景下可以访问）
+    const expiresIn = 60 * 60 * 24 * 365 // 1 year
+    const { data: signedData, error: signedError } = await supabase
+      .storage
+      .from('narraverse')
+      .createSignedUrl(data.path, expiresIn)
+
+    if (signedError || !signedData) {
+      return new Response(
+        JSON.stringify({ error: { message: signedError?.message || 'Failed to create signed url' } }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
 
     return new Response(
-      JSON.stringify({ data: { url: publicData.publicUrl } }),
+      JSON.stringify({ data: { url: signedData.signedUrl } }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     )
   } catch (error) {
