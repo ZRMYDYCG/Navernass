@@ -29,6 +29,13 @@ CREATE TABLE public.conversations (
   pinned_at timestamp with time zone,
   CONSTRAINT conversations_pkey PRIMARY KEY (id)
 );
+CREATE TABLE public.message_wall_entries (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  nickname text,
+  message text NOT NULL CHECK (char_length(TRIM(BOTH FROM message)) > 0 AND char_length(message) <= 180),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT message_wall_entries_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.messages (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   conversation_id uuid NOT NULL,
@@ -104,15 +111,29 @@ CREATE TABLE public.novels (
   CONSTRAINT novels_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.profiles (
-  id uuid NOT NULL,
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
   username text UNIQUE,
   full_name text,
   avatar_url text,
   website text,
   created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
-  CONSTRAINT profiles_pkey PRIMARY KEY (id),
-  CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+  password_hash text,
+  CONSTRAINT profiles_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.surveys (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid,
+  experience text NOT NULL,
+  genres ARRAY NOT NULL DEFAULT '{}'::text[],
+  pain_points ARRAY NOT NULL DEFAULT '{}'::text[],
+  tools ARRAY NOT NULL DEFAULT '{}'::text[],
+  ai_expectations ARRAY NOT NULL DEFAULT '{}'::text[],
+  ai_concerns text,
+  contact text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT surveys_pkey PRIMARY KEY (id),
+  CONSTRAINT surveys_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.user_settings (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -134,4 +155,15 @@ CREATE TABLE public.volumes (
   deleted_at timestamp with time zone,
   CONSTRAINT volumes_pkey PRIMARY KEY (id),
   CONSTRAINT volumes_novel_id_fkey FOREIGN KEY (novel_id) REFERENCES public.novels(id)
+);
+CREATE TABLE public.writer_todos (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  content text NOT NULL,
+  completed boolean DEFAULT false,
+  priority text DEFAULT 'medium'::text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT writer_todos_pkey PRIMARY KEY (id),
+  CONSTRAINT writer_todos_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
