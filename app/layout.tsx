@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { Caveat, Inter, Noto_Serif_SC } from 'next/font/google'
-import { ColorThemeProvider } from '@/components/providers/color-theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { Toaster as RadixToaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/context/auth-provider'
+import { ColorProvider } from '@/context/color-provider'
 import { ThemeProvider } from '@/context/theme-provider'
 import { getSiteUrl, seoConfig } from '@/lib/seo'
 import './globals.css'
@@ -113,13 +113,13 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${notoSerifSC.variable} ${caveat.variable} antialiased h-full font-sans`} suppressHydrationWarning>
         <ThemeProvider>
-          <ColorThemeProvider>
+          <ColorProvider>
             <AuthProvider>
               {children}
               <Toaster position="top-right" richColors />
               <RadixToaster />
             </AuthProvider>
-          </ColorThemeProvider>
+          </ColorProvider>
         </ThemeProvider>
       </body>
     </html>

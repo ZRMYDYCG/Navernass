@@ -1,9 +1,17 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { ThemeContext } from './color-theme-context'
+import { createContext, useEffect, useMemo, useState } from 'react'
 
-export function ColorThemeProvider({
+// eslint-disable-next-line react-refresh/only-export-components
+export const ColorContext = createContext<{
+  colorTheme: string
+  setColorTheme: (theme: string) => void
+}>({
+  colorTheme: 'default',
+  setColorTheme: () => null,
+})
+
+export function ColorProvider({
   children,
   defaultTheme = 'default',
   storageKey = 'color-theme',
@@ -34,8 +42,8 @@ export function ColorThemeProvider({
   )
 
   return (
-    <ThemeContext value={value}>
+    <ColorContext value={value}>
       {children}
-    </ThemeContext>
+    </ColorContext>
   )
 }
