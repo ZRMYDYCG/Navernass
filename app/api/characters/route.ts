@@ -8,7 +8,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   const supabase = await createClient()
 
   const body: CreateCharacterDto = await req.json()
-  const { novel_id, name, role, avatar, description, traits, keywords, first_appearance, note, order_index, overview_x, overview_y } = body
+  const { novel_id, name, role, avatar, color, description, traits, keywords, first_appearance, note, order_index, overview_x, overview_y } = body
 
   const { data: novel, error } = await supabase
     .from('novels')
@@ -28,6 +28,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     name,
     role: role || '',
     avatar: avatar || '',
+    color: color || null,
     description: description || '',
     traits: traits ?? [],
     keywords: keywords ?? [],

@@ -26,7 +26,6 @@ interface CharacterFormValues {
   name: string
   role: string
   avatar: string
-  color: string
   description: string
   traits: string[]
   keywords: string[]
@@ -78,7 +77,6 @@ const defaultForm: CharacterFormValues = {
   name: '',
   role: '',
   avatar: '',
-  color: COLOR_PRESETS[0].value,
   description: '',
   traits: [],
   keywords: [],
@@ -95,6 +93,7 @@ export function CharacterModal({
   const [form, setForm] = useState<CharacterFormValues>(defaultForm)
   const [chapterOptions, setChapterOptions] = useState<Array<{ id: string, title: string }>>([])
   const [avatar, setAvatar] = useState('')
+  const [color, setColor] = useState(COLOR_PRESETS[0].value)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [creating, setCreating] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -142,7 +141,6 @@ export function CharacterModal({
           name: character.name,
           role: character.role ?? '',
           avatar: character.avatar ?? '',
-          color: character.color ?? COLOR_PRESETS[0].value,
           description: character.description ?? '',
           traits: character.traits ?? [],
           keywords: character.keywords ?? [],
@@ -150,9 +148,11 @@ export function CharacterModal({
           note: character.note ?? '',
         })
         setAvatar(character.avatar ?? '')
+        setColor(character.color ?? COLOR_PRESETS[0].value)
       } else {
         setForm(defaultForm)
         setAvatar('')
+        setColor(COLOR_PRESETS[0].value)
       }
     }, 0)
     return () => clearTimeout(timer)
@@ -241,7 +241,7 @@ export function CharacterModal({
           name: trimmedName,
           role: form.role.trim() || undefined,
           avatar: avatar || undefined,
-          color: form.color || undefined,
+          color: color || undefined,
           description: form.description.trim() || undefined,
           traits: form.traits,
           keywords: form.keywords,
@@ -257,7 +257,7 @@ export function CharacterModal({
           name: trimmedName,
           role: form.role.trim() || undefined,
           avatar: avatar || undefined,
-          color: form.color || undefined,
+          color: color || undefined,
           description: form.description.trim() || undefined,
           traits: form.traits,
           keywords: form.keywords,
@@ -343,7 +343,7 @@ export function CharacterModal({
                 <div className="relative">
                   <Avatar className="w-24 h-24 ring-2 ring-offset-2 ring-border">
                     {avatar ? <AvatarImage src={avatar} className="object-cover" /> : null}
-                    <AvatarFallback className="bg-accent text-2xl">
+                    <AvatarFallback className="text-2xl text-white" style={{ backgroundColor: color }}>
                       {uploadingAvatar
                         ? <Spinner className="w-6 h-6" />
                         : form.name?.[0]?.toUpperCase() || '?'}
@@ -382,12 +382,12 @@ export function CharacterModal({
                 <Label className="text-sm font-medium">角色配色</Label>
                 <div className="flex flex-wrap gap-1.5">
                   {COLOR_PRESETS.map((preset) => {
-                    const isActive = form.color === preset.value
+                    const isActive = color === preset.value
                     return (
                       <button
                         key={preset.id}
                         type="button"
-                        onClick={() => updateField('color', preset.value)}
+                        onClick={() => setColor(preset.value)}
                         className={cn(
                           'w-6 h-6 rounded transition-all duration-200 border',
                           isActive

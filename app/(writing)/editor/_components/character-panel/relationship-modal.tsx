@@ -77,8 +77,8 @@ export function RelationshipModal({
     const payload = {
       sourceId,
       targetId,
-      sourceToTargetLabel: sourceToTargetLabel.trim(),
-      targetToSourceLabel: targetToSourceLabel.trim(),
+      sourceToTargetLabel: targetToSourceLabel.trim(),
+      targetToSourceLabel: sourceToTargetLabel.trim(),
       note: note.trim() || undefined,
     }
     if (!payload.sourceToTargetLabel || !payload.targetToSourceLabel) {
