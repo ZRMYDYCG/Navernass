@@ -1,12 +1,24 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { Caveat, Inter, Lora, Noto_Serif_SC } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { Toaster as RadixToaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/context/auth-provider'
 import { ColorProvider } from '@/context/color-provider'
+import { I18nProvider } from '@/context/i18n-provider'
 import { ThemeProvider } from '@/context/theme-provider'
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  LOCALE_COOKIE_KEY,
+  type Locale,
+} from '@/i18n/config'
 import { getSiteUrl, seoConfig } from '@/lib/seo'
 import './globals.css'
+
+function isValidLocale(value: string): value is Locale {
+  return LOCALES.includes(value as Locale)
+}
 
 const inter = Inter({
   subsets: ['latin'],
@@ -103,13 +115,20 @@ export const metadata: Metadata = {
     : undefined,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = await cookies()
+  const localeFromCookie = cookieStore.get(LOCALE_COOKIE_KEY)?.value
+  const initialLocale =
+    localeFromCookie && isValidLocale(localeFromCookie)
+      ? localeFromCookie
+      : DEFAULT_LOCALE
+
   return (
-    <html lang="zh-CN" suppressHydrationWarning className="h-full">
+    <html lang={initialLocale} suppressHydrationWarning className="h-full">
       <head>
         <link
           rel="icon"
@@ -122,11 +141,13 @@ export default function RootLayout({
       <body className={`${inter.variable} ${lora.variable} ${notoSerifSC.variable} ${caveat.variable} antialiased h-full font-sans`} suppressHydrationWarning>
         <ThemeProvider>
           <ColorProvider>
-            <AuthProvider>
-              {children}
-              <Toaster position="top-right" richColors />
-              <RadixToaster />
-            </AuthProvider>
+            <I18nProvider initialLocale={initialLocale}>
+              <AuthProvider>
+                {children}
+                <Toaster position="top-right" richColors />
+                <RadixToaster />
+              </AuthProvider>
+            </I18nProvider>
           </ColorProvider>
         </ThemeProvider>
       </body>
