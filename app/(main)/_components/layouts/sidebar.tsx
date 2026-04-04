@@ -139,11 +139,11 @@ export function Sidebar({
             const active = isActive(item)
 
             const classes = cn(
-              'group flex items-center rounded-none -mx-2 px-2 py-1.5 transition-colors',
+              'group flex items-center rounded-sm -mx-2 px-3 py-1.5 transition-colors relative',
               active
-                ? 'bg-sidebar-accent text-sidebar-foreground'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground',
-              item.disabled && 'cursor-not-allowed opacity-50 pointer-events-none',
+                ? 'text-sidebar-foreground bg-sidebar-accent/70 before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[2px] before:rounded-full before:bg-sidebar-primary'
+                : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
+              item.disabled && 'cursor-not-allowed opacity-40 pointer-events-none',
             )
 
             return item.path
@@ -156,8 +156,8 @@ export function Sidebar({
                       if (isMobile) setIsMobileOpen(false)
                     }}
                   >
-                    <Icon className="w-4 h-4" />
-                    {!isCollapsed && <span className="ml-3 text-sm truncate">{item.label}</span>}
+                    <Icon className="w-[15px] h-[15px]" />
+                    {!isCollapsed && <span className="ml-3 text-[13px] truncate">{item.label}</span>}
                     {!isCollapsed && item.shortcut?.length && (
                       <span className="ml-auto pl-3">
                         <KbdGroup>
@@ -179,8 +179,8 @@ export function Sidebar({
                     disabled={item.disabled}
                     className={classes}
                   >
-                    <Icon className="w-4 h-4" />
-                    {!isCollapsed && <span className="ml-3 text-sm truncate">{item.label}</span>}
+                    <Icon className="w-[15px] h-[15px]" />
+                    {!isCollapsed && <span className="ml-3 text-[13px] truncate">{item.label}</span>}
                     {!isCollapsed && item.shortcut?.length && (
                       <span className="ml-auto pl-3">
                         <KbdGroup>
@@ -209,12 +209,12 @@ export function Sidebar({
                   if (isMobile) setIsMobileOpen(false)
                 }}
                 className={cn(
-                  'group flex items-center rounded-none px-4 py-1.5 w-full text-left text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground',
+                  'group flex items-center rounded-sm px-3 py-1.5 w-full text-left text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
                   isCollapsed && 'justify-center',
                 )}
               >
-                <Icon className="w-4 h-4" />
-                {!isCollapsed && <span className="ml-3 text-sm truncate">{bottomItem.label}</span>}
+                <Icon className="w-[15px] h-[15px]" />
+                {!isCollapsed && <span className="ml-3 text-[13px] truncate">{bottomItem.label}</span>}
               </Link>
             )
           })()}

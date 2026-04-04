@@ -117,11 +117,10 @@ export function NovelList({
 
   if (novels.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-start pt-[25vh] min-h-[60vh] text-muted-foreground font-serif">
-        <p className="text-lg">暂无创作</p>
-        <p className="text-sm text-muted-foreground/70 text-center mt-2">
-          开始你的第一部小说创作吧
-        </p>
+      <div className="flex flex-col items-center justify-start pt-[22vh] min-h-[60vh] select-none">
+        <p className="font-handwriting text-5xl text-muted-foreground/30 mb-6 leading-none">笔者未有办仔</p>
+        <p className="text-sm text-muted-foreground/70">开始你的第一部小说创作吧</p>
+        <div className="mt-3 w-8 h-[1px] bg-border/60" />
       </div>
     )
   }
@@ -139,7 +138,7 @@ export function NovelList({
         items={novels.map(n => n.id)}
         strategy={rectSortingStrategy}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 pb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 pb-8">
           {novels.map(novel => (
             <SortableNovelCard
               key={novel.id}

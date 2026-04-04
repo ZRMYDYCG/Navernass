@@ -56,63 +56,70 @@
 
 /* 编辑器内容区域 */
 .ProseMirror {
-  padding: 1rem 0;
-  font-family:
-    'Inter',
-    'Optima',
-    'Candara',
-    'Noto Sans SC',
-    system-ui,
-    -apple-system,
-    sans-serif;
-  caret-color: #57534e;
+  padding: 2rem 0;
+  max-width: 42rem;
+  margin: 0 auto;
+  font-family: var(--font-editor, 'Georgia', serif);
+  font-size: 1.0625rem;
+  line-height: 1.9;
+  letter-spacing: 0.025em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  caret-color: var(--primary);
 }
 
 .dark .ProseMirror {
-  caret-color: #a8a29e;
+  caret-color: var(--primary);
 }
+
 .ProseMirror p {
-  line-height: 1.6;
-  margin-bottom: 0.8em;
-  color: #44403c;
+  line-height: 1.9;
+  margin-bottom: 0;
+  color: var(--foreground);
   position: relative;
   font-weight: 400;
 }
 
 .dark .ProseMirror p {
-  color: #d6d3d1;
+  color: var(--foreground);
 }
+
 .ProseMirror h1,
 .ProseMirror h2,
 .ProseMirror h3,
 .ProseMirror h4 {
-  font-family: 'Songti SC', 'Noto Serif SC', 'Georgia', 'Times New Roman', serif;
-  font-weight: 500;
+  font-family: var(--font-display, 'Noto Serif SC', 'Georgia', serif);
+  font-weight: 600;
   letter-spacing: 0.02em;
-  color: #292524;
-  line-height: 1.6;
+  color: var(--foreground);
+  line-height: 1.5;
+  text-indent: 0;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
 }
 
 .dark .ProseMirror h1,
 .dark .ProseMirror h2,
 .dark .ProseMirror h3,
 .dark .ProseMirror h4 {
-  color: #e7e5e4;
+  color: var(--foreground);
 }
 .ProseMirror blockquote {
-  border-left: 3px solid rgba(168, 162, 158, 0.4);
+  border-left: 2px solid var(--border);
   padding-left: 1.5rem;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
+  margin-left: 0;
+  margin-right: 0;
   font-style: italic;
-  font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', serif;
-  color: #57534e;
+  font-family: var(--font-editor, 'Georgia', serif);
+  color: var(--muted-foreground);
   background: transparent;
+  text-indent: 0;
 }
 
 .dark .ProseMirror blockquote {
-  border-left-color: rgba(120, 113, 108, 0.4);
-  color: #a8a29e;
+  border-left-color: var(--border);
+  color: var(--muted-foreground);
 }
 .ProseMirror::selection,
 .ProseMirror *::selection {

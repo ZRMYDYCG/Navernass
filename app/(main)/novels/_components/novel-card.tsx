@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { BookOpen, EllipsisVertical, GripHorizontal } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { PaperCard } from '@/components/ui/paper-card'
 import { cn } from '@/lib/utils'
 
 function noop() {}
@@ -48,17 +49,12 @@ export function NovelCard({
     }
   }, [isMenuActive])
   return (
-    <div
-      className={cn(
-        'group aspect-[3/4] sm:aspect-3/4',
-        'relative bg-card rounded-xl border border-border',
-        'shadow-sm transition-all duration-300 overflow-hidden cursor-pointer',
-        {
-          'hover:shadow-md hover:-translate-y-1': !isMenuActive,
-          'shadow-md -translate-y-1': isMenuActive,
-        },
-      )}
+    <PaperCard
+      variant="book"
+      isMenuActive={isMenuActive}
+      className="group aspect-[3/4] sm:aspect-3/4 cursor-pointer"
       onClick={() => onOpen(novel)}
+      onContextMenu={(e) => handleContextMenu(e, novel)}
     >
       <div className="relative z-10 h-full">
         <div className="h-[45%] w-full bg-secondary relative p-5 flex flex-col justify-between border-b border-border">
@@ -137,20 +133,20 @@ export function NovelCard({
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[16px_16px]" />
       </div>
 
-      <div className="p-5 flex flex-col h-[55%] justify-between bg-background backdrop-blur-sm">
+      <div className="p-4 flex flex-col h-[55%] justify-between bg-card/80">
         <div className="space-y-3">
           <h3
             className={cn(
-              'font-serif text-lg sm:text-xl font-medium text-foreground leading-tight transition-colors',
+              'font-display text-base sm:text-lg font-medium text-foreground leading-snug tracking-tight transition-colors',
               {
                 'opacity-70': isMenuActive,
-                'group-hover:opacity-70': !isMenuActive,
+                'group-hover:opacity-80': !isMenuActive,
               },
             )}
           >
             {novel.title}
           </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed font-light">
+          <p className="text-xs text-muted-foreground leading-relaxed mt-1.5 line-clamp-2">
             {novel.description || '暂无简介...'}
           </p>
         </div>
@@ -161,7 +157,7 @@ export function NovelCard({
               {novel.tags.slice(0, 4).map(tag => (
                 <span
                   key={tag}
-                  className="px-1.5 py-0.5 text-[10px] text-muted-foreground border border-border rounded bg-secondary"
+                  className="px-1.5 py-0.5 text-[10px] text-muted-foreground/70 border border-border/60 rounded-sm bg-muted/40 font-mono"
                 >
                   {tag}
                 </span>
@@ -169,7 +165,7 @@ export function NovelCard({
             </div>
           )}
 
-          <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium tracking-wide border-t border-border pt-3">
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground/70 font-mono tracking-wide border-t border-border/50 pt-2.5">
             <div className="flex gap-2">
               <span>
                 {(novel.word_count / 1000).toFixed(1)}
@@ -182,7 +178,7 @@ export function NovelCard({
           </div>
         </div>
       </div>
-      </div>
     </div>
+    </PaperCard>
   )
 }
