@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { ChatHistoryPopover } from '@/app/(main)/chat/_components/chat-history-popover'
 import { Kbd, KbdGroup } from '@/components/ui/kbd'
 import { useIsMobile } from '@/hooks/use-media-query'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { SearchDialog } from './search-dialog'
 import { SettingsDialog } from './settings-dialog'
@@ -55,17 +56,19 @@ export function Sidebar({
     }
   }
 
+  const { t } = useI18n()
+
   const menuItems: MenuItem[] = [
-    { label: '搜索', icon: Search, onClick: () => setShowSearch(true), exactMatch: true, shortcut: ['Ctrl', 'K'] },
-    { path: '/workspace', label: '工作台', icon: LayoutDashboard, exactMatch: true },
-    { label: '新对话', icon: PencilLine, onClick: () => router.push('/chat'), exactMatch: true, disabled: isNewChatPage },
-    { path: '/chat', label: '创作助手', icon: Bot, exactMatch: true },
-    { path: '/novels', label: '我的小说', icon: Book },
-    { path: '/trash', label: '回收站', icon: Trash2 },
-    { label: '设置', icon: Settings, onClick: () => setShowSettings(true), exactMatch: true },
+    { label: t('common.search'), icon: Search, onClick: () => setShowSearch(true), exactMatch: true, shortcut: ['Ctrl', 'K'] },
+    { path: '/workspace', label: t('nav.workspace'), icon: LayoutDashboard, exactMatch: true },
+    { label: t('nav.newChat'), icon: PencilLine, onClick: () => router.push('/chat'), exactMatch: true, disabled: isNewChatPage },
+    { path: '/chat', label: t('nav.chat'), icon: Bot, exactMatch: true },
+    { path: '/novels', label: t('nav.novels'), icon: Book },
+    { path: '/trash', label: t('nav.trash'), icon: Trash2 },
+    { label: t('nav.settings'), icon: Settings, onClick: () => setShowSettings(true), exactMatch: true },
   ]
 
-  const bottomItem: MenuItem = { path: '/chat/news', label: '产品动态', icon: Bell, exactMatch: true }
+  const bottomItem: MenuItem = { path: '/chat/news', label: t('nav.news'), icon: Bell, exactMatch: true }
 
   useEffect(() => {
     document.body.style.overflow = isMobileOpen ? 'hidden' : ''

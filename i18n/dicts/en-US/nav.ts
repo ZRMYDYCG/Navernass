@@ -3,6 +3,8 @@ const nav = {
   workspace: 'Workspace',
   novels: 'My Novels',
   chat: 'Chat',
+  newChat: 'New Chat',
+  news: 'Product News',
   trash: 'Trash',
   settings: 'Settings',
 } as const

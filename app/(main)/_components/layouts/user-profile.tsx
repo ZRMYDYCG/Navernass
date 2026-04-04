@@ -4,6 +4,7 @@ import { ChevronsUpDown, LogOut, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { useI18n } from '@/hooks/use-i18n'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -30,22 +31,23 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const { t } = useI18n()
 
   const handleSignOut = async () => {
     try {
       setIsSigningOut(true)
       const { error } = await signOut()
       if (error) {
-        toast.error(error.message || '退出登录失败')
+        toast.error(error.message || t('auth.signOutFailed'))
         return
       }
 
-      toast.success('已退出登录')
+      toast.success(t('auth.signedOut'))
       router.push('/')
       router.refresh()
     } catch (error) {
       console.error('Sign out failed:', error)
-      toast.error('退出登录失败，请重试')
+      toast.error(t('auth.signOutFailedRetry'))
     } finally {
       setIsSigningOut(false)
     }
@@ -79,7 +81,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
     )
   }
 
-  const displayName = profile?.full_name || profile?.username || user.email?.split('@')[0] || '用户'
+  const displayName = profile?.full_name || profile?.username || user.email?.split('@')[0] || t('common.user')
   const avatarUrl = profile?.avatar_url
 
   return (
@@ -137,7 +139,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
 
             <DropdownMenuItem className="cursor-pointer" onClick={() => setShowProfile(true)}>
               <User className="mr-2 h-4 w-4" />
-              <span>个人资料</span>
+              <span>{t('settings.profile')}</span>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -148,7 +150,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
               disabled={isSigningOut}
             >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>{isSigningOut ? '退出中...' : '退出登录'}</span>
+              <span>{isSigningOut ? t('auth.signingOut') : t('auth.signOut')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

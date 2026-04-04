@@ -9,6 +9,13 @@ const common = {
   search: '搜索',
   loading: '加载中...',
   noData: '暂无数据',
+  saving: '保存中...',
+  saved: '已保存',
+  languages: {
+    'zh-CN': '简体中文',
+    'en-US': '英语',
+  },
+  user: '用户',
   confirm: '确认',
   back: '返回',
   next: '下一步',

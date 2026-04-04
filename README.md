@@ -23,7 +23,7 @@ BFF
 
 </div>
 
-## ✨ 特性亮点
+## 特性亮点
 
 - **AI 辅助创作**：集成 Silicon Flow AI，为创作者提供智能续写、润色、摘要等功能
 - **多项目管理**：支持小说、章节、角色、关系图谱的完整管理
@@ -37,7 +37,7 @@ BFF
 
 同时也为新手提供AI辅助，降低直面感受创作、学习创作、走进创作的门槛。
 
-## 🚀 快速开始
+## 快速开始
 
 ### 环境要求
 
@@ -132,7 +132,7 @@ SILICON_FLOW_MODEL=
 }
 ```
 
-## 📦 技术栈
+## 技术栈
 
 | 类别      | 技术                    |
 | --------- | ----------------------- |
@@ -147,7 +147,7 @@ SILICON_FLOW_MODEL=
 | Git Hooks | Lefthook                |
 | 代码规范  | ESLint + Commitlint     |
 
-## 📁 项目结构
+## 项目结构
 
 ```bash
 ├── app/                          # Next.js App Router
@@ -172,7 +172,7 @@ SILICON_FLOW_MODEL=
 └── prompts/                     # AI 提示词模板
 ```
 
-## ⚙️ 开发模式
+## 开发模式
 
 ### 开发规范工具链
 
@@ -306,7 +306,7 @@ export const newFeatureApi = {
 }
 ```
 
-## 📜 可用脚本
+## 可用脚本
 
 | 命令             | 描述                                |
 | ---------------- | ----------------------------------- |
@@ -321,7 +321,7 @@ export const newFeatureApi = {
 | `pnpm db:push`   | 推送数据库变更到 Supabase           |
 | `pnpm db:pull`   | 从 Supabase 拉取数据库变更          |
 
-## 🤝贡献指南
+## 贡献指南
 
 欢迎提交 Issue 和 Pull Request！
 
@@ -331,11 +331,11 @@ export const newFeatureApi = {
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 创建 Pull Request
 
-## 📄 许可证
+## 许可证
 
 本项目基于 MIT 许可证开源。
 
-## 🙏 致谢
+## 致谢
 
 - [Next.js](https://nextjs.org/) - React 框架
 - [Supabase](https://supabase.com/) - 开源 Firebase 替代品

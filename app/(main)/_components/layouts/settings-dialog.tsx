@@ -10,6 +10,7 @@ import {
   SelectTrigger,
 } from '@/components/ui/select'
 import { useColorTheme } from '@/hooks/use-color-theme'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { clearApiKey, getApiKey, saveApiKey } from '@/lib/api-key'
 
@@ -77,9 +78,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   }
 
   const themeOptions = [
-    { value: 'light', label: '浅色', icon: Sun },
-    { value: 'dark', label: '深色', icon: Moon },
-    { value: 'system', label: '跟随系统', icon: Monitor },
+    { value: 'light', icon: Sun },
+    { value: 'dark', icon: Moon },
+    { value: 'system', icon: Monitor },
   ]
 
   const colorThemes = [
@@ -95,6 +96,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   const selectedColorTheme = colorThemes.find(item => item.name === colorTheme) || colorThemes[0]
 
+  const { t } = useI18n()
+  const { locale, setLocale } = useLocale()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -102,12 +106,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         onOpenAutoFocus={e => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>设置</DialogTitle>
+          <DialogTitle>{t('settings.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-foreground">API Key</h3>
+            <h3 className="text-sm font-medium text-foreground">{t('settings.apiKey')}</h3>
             <div className="space-y-2">
               <div className="relative">
                 <input
@@ -134,7 +138,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   disabled={!apiKey.trim() || isSaving || isLoading}
                   className="flex-1 px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  {isSaving ? '保存中...' : isSaved ? '已保存' : '保存'}
+                  {isSaving ? t('common.saving') : isSaved ? t('common.saved') : t('common.save')}
                 </button>
                 <button
                   type="button"
@@ -142,31 +146,31 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   disabled={!apiKey || isSaving || isLoading}
                   className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border text-muted-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  清除
+                  {t('settings.clear')}
                 </button>
               </div>
               {isLoading
                 ? (
                     <p className="text-xs text-muted-foreground">
-                      加载中...
+                      {t('common.loading')}
                     </p>
                   )
                 : apiKey
                   ? (
                       <p className="text-xs text-green-600 dark:text-green-400">
-                        ✓ API Key 已保存到云端
+                        {t('settings.apiSaved')}
                       </p>
                     )
                   : (
                       <p className="text-xs text-muted-foreground">
-                        请输入您的 API Key，将安全保存到云端
+                        {t('settings.apiPlaceholder')}
                       </p>
                     )}
             </div>
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-foreground">外观</h3>
+            <h3 className="text-sm font-medium text-foreground">{t('settings.appearance')}</h3>
             <div className="grid grid-cols-3 gap-2">
               {themeOptions.map((option) => {
                 const Icon = option.icon
@@ -183,7 +187,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     }`}
                   >
                     <Icon className="w-5 h-5" />
-                    <span className="text-xs font-medium">{option.label}</span>
+                    <span className="text-xs font-medium">{t(`settings.theme${option.value.charAt(0).toUpperCase() + option.value.slice(1)}`)}</span>
                   </button>
                 )
               })}
@@ -191,7 +195,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-foreground">配色</h3>
+            <h3 className="text-sm font-medium text-foreground">{t('settings.color')}</h3>
             <Select value={colorTheme} onValueChange={setColorTheme}>
               <SelectTrigger className="h-12 rounded-xl bg-card">
                 <div className="flex min-w-0 items-center gap-3">
@@ -231,11 +235,20 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-foreground">语言</h3>
-            <div className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-border bg-secondary">
-              <span className="text-sm text-foreground">简体中文</span>
-              <span className="text-xs text-muted-foreground">默认</span>
-            </div>
+            <h3 className="text-sm font-medium text-foreground">{t('settings.language')}</h3>
+            <Select value={locale} onValueChange={(v: string) => setLocale(v as any)}>
+              <SelectTrigger className="h-12 rounded-xl bg-card">
+                <div className="flex min-w-0 items-center justify-between">
+                  <div className="min-w-0 text-left">
+                    <div className="text-sm font-medium text-foreground">{t(`common.languages.${locale}`)}</div>
+                  </div>
+                </div>
+              </SelectTrigger>
+              <SelectContent className="z-[200] rounded-xl">
+                <SelectItem value="zh-CN" className="py-2.5">{t('common.languages.zh-CN')}</SelectItem>
+                <SelectItem value="en-US" className="py-2.5">{t('common.languages.en-US')}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </DialogContent>

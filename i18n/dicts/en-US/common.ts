@@ -9,6 +9,13 @@ const common = {
   search: 'Search',
   loading: 'Loading...',
   noData: 'No data',
+  saving: 'Saving...',
+  saved: 'Saved',
+  languages: {
+    'zh-CN': 'Simplified Chinese',
+    'en-US': 'English',
+  },
+  user: 'User',
   confirm: 'Confirm',
   back: 'Back',
   next: 'Next',
