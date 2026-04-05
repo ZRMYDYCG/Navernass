@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.12.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.11.0...v0.12.0) (2026-04-05)
+
+
+### Features
+
+* 补充国际化语料 ([13af623](https://github.com/ZRMYDYCG/Navernass/commit/13af623b852f1bc594b24c05cf4d472ad722675e))
+* 提供国际化上下文 ([7b36a7d](https://github.com/ZRMYDYCG/Navernass/commit/7b36a7dae2b576d1b604d7e3e379ceaa0641e257))
+* 完善国际化切换 ([c49b18e](https://github.com/ZRMYDYCG/Navernass/commit/c49b18eeb4897270ed3269b06b8db087d1153d89))
+* 新增反馈和定价说明 ([ca156e1](https://github.com/ZRMYDYCG/Navernass/commit/ca156e18984e7400c4fcea9be37486604025e9e7))
+* design 升级 ([8167105](https://github.com/ZRMYDYCG/Navernass/commit/8167105b624ea4705505837c019aefc7f7665780))
+* **i18n:** 完善组件国际化问题 ([1e67f7c](https://github.com/ZRMYDYCG/Navernass/commit/1e67f7cbea3e3eab7a66fcf69be3ffd36a7bb0d0))
+* **marking:** 完成 marking 模块的国际化 ([903c23d](https://github.com/ZRMYDYCG/Navernass/commit/903c23dad631bac90f2710cbce6f8d81638d0838))
+* **navbar:** 优化 navbar 移动端 ([f537ca7](https://github.com/ZRMYDYCG/Navernass/commit/f537ca7debeacd27b51ea5de7e26b685927635a1))
+
+
+### Bug Fixes
+
+* 关系卡片生成后 配色不匹配 ([52d3990](https://github.com/ZRMYDYCG/Navernass/commit/52d399035663f691bcb15884d776e0863cce1f66))
+* **character-panel-header:** 清理顶部冗余功能 ([cbf03bd](https://github.com/ZRMYDYCG/Navernass/commit/cbf03bd12b45b8e5fa91cb5ed363f512f42582f9))
+
 ## [0.11.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.10.0...v0.11.0) (2026-04-03)
 
 
