@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface InputAreaProps {
   value: string
@@ -8,6 +9,7 @@ interface InputAreaProps {
 }
 
 export function InputArea({ value, onChange, onSend, disabled }: InputAreaProps) {
+  const { t } = useI18n()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const adjustHeight = () => {
@@ -48,7 +50,7 @@ export function InputArea({ value, onChange, onSend, disabled }: InputAreaProps)
       value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
-      placeholder="询问 AI 助手..."
+      placeholder={t('editor.rightPanel.askAssistantPlaceholder')}
       rows={1}
       disabled={disabled}
       className="input-area-scrollbar flex-1 px-3 py-2.5 text-[13px] border border-border rounded-lg bg-background/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-transparent focus:bg-background focus:shadow-md transition-all duration-200 resize-none max-h-24 overflow-y-auto disabled:cursor-not-allowed hover:bg-background/80 shadow-sm"

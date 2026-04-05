@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useI18n } from '@/hooks/use-i18n'
 import { getCharacterColor } from '@/store'
 
 function downloadJson(filename: string, data: unknown) {
@@ -45,6 +46,8 @@ export function CastingPool({
   characters: Character[]
   relationships: Relationship[]
 }) {
+  const { t } = useI18n()
+
   const handleExport = () => {
     downloadJson(`${safeFilename(novelTitle ?? novelId)}-characters.json`, {
       novelId,
@@ -59,17 +62,17 @@ export function CastingPool({
     <div className="h-full flex flex-col min-h-0">
       <div className="flex items-center justify-between px-2 pb-3">
         <div className="flex items-baseline gap-3">
-          <div className="text-sm font-semibold text-foreground">角色选角表</div>
+          <div className="text-sm font-semibold text-foreground">{t('editor.charactersPanel.castingPool.title')}</div>
           <div className="text-xs text-muted-foreground">
-            共
+            {t('editor.charactersPanel.castingPool.totalPrefix')}
             {characters.length}
             {' '}
-            个角色
+            {t('editor.charactersPanel.castingPool.totalSuffix')}
           </div>
         </div>
         <Button size="sm" variant="outline" onClick={handleExport}>
           <Download className="h-4 w-4" />
-          导出
+          {t('editor.charactersPanel.castingPool.export')}
         </Button>
       </div>
 
@@ -77,10 +80,10 @@ export function CastingPool({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[84px]">头像</TableHead>
-              <TableHead>角色名称</TableHead>
-              <TableHead className="w-[80px]">颜色</TableHead>
-              <TableHead className="w-[160px]">职业/身份</TableHead>
+              <TableHead className="w-[84px]">{t('editor.charactersPanel.castingPool.table.avatar')}</TableHead>
+              <TableHead>{t('editor.charactersPanel.castingPool.table.name')}</TableHead>
+              <TableHead className="w-[80px]">{t('editor.charactersPanel.castingPool.table.color')}</TableHead>
+              <TableHead className="w-[160px]">{t('editor.charactersPanel.castingPool.table.role')}</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -108,7 +111,7 @@ export function CastingPool({
             {characters.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
-                  暂无角色
+                  {t('editor.charactersPanel.castingPool.empty')}
                 </TableCell>
               </TableRow>
             )}

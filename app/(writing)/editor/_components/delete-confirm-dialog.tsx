@@ -1,6 +1,9 @@
+'use client'
+
 import * as Dialog from '@radix-ui/react-dialog'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface DeleteConfirmDialogProps {
   open: boolean
@@ -19,6 +22,8 @@ export function DeleteConfirmDialog({
   onConfirm,
   isDeleting = false,
 }: DeleteConfirmDialogProps) {
+  const { t } = useI18n()
+
   const handleConfirm = async () => {
     await onConfirm()
   }
@@ -44,7 +49,7 @@ export function DeleteConfirmDialog({
                   className="flex-1 bg-secondary text-foreground hover:bg-accent"
                   disabled={isDeleting}
                 >
-                  取消
+                  {t('common.cancel')}
                 </Button>
               </Dialog.Close>
               <Button
@@ -53,7 +58,7 @@ export function DeleteConfirmDialog({
                 disabled={isDeleting}
               >
                 <Trash2 className="w-4 h-4 mr-1" />
-                {isDeleting ? '删除中...' : '删除'}
+                {isDeleting ? t('editor.deleteConfirmDialog.deleting') : t('common.delete')}
               </Button>
             </div>
           </div>

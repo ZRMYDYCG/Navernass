@@ -2,7 +2,8 @@
 
 import type { NovelConversation } from '@/lib/supabase/sdk'
 import { formatDistanceToNow } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { enUS, zhCN } from 'date-fns/locale'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { CircularProgress } from './circular-progress'
 
 interface RecentConversationsProps {
@@ -11,6 +12,8 @@ interface RecentConversationsProps {
 }
 
 export function RecentConversations({ conversations, onSelect }: RecentConversationsProps) {
+  const { t } = useI18n()
+  const { locale } = useLocale()
   const recentConversations = conversations
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
     .slice(0, 3)
@@ -21,7 +24,7 @@ export function RecentConversations({ conversations, onSelect }: RecentConversat
 
   return (
     <div className="space-y-1">
-      {recentConversations.map((conversation) => (
+      {recentConversations.map(conversation => (
         <button
           key={conversation.id}
           onClick={() => onSelect(conversation)}
@@ -29,12 +32,12 @@ export function RecentConversations({ conversations, onSelect }: RecentConversat
         >
           <CircularProgress messageCount={conversation.message_count || 0} />
           <div className="flex-1 min-w-0 text-xs text-foreground truncate group-hover:text-foreground font-medium">
-            {conversation.title || '无标题对话'}
+            {conversation.title || t('editor.rightPanel.untitledConversation')}
           </div>
           <div className="text-[10px] text-muted-foreground flex-shrink-0 group-hover:text-foreground">
             {formatDistanceToNow(new Date(conversation.updated_at), {
               addSuffix: true,
-              locale: zhCN,
+              locale: locale === 'zh-CN' ? zhCN : enUS,
             })}
           </div>
         </button>

@@ -24,7 +24,7 @@ interface EditorHeaderProps {
 }
 
 export default function EditorHeader({
-  title = '未选择章节',
+  title = '',
   currentChapterId,
   isImmersiveMode,
   showLeftPanel,

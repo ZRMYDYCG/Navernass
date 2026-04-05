@@ -5,11 +5,12 @@ import { Plus } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
+import { useI18n } from '@/hooks/use-i18n'
 
-const viewModes: Array<{ value: CharacterPanelViewMode, label: string }> = [
-  { value: 'overview', label: '关系总览' },
-  { value: 'relationship', label: '关系网' },
-  { value: 'castingPool', label: '选角池' },
+const viewModes: Array<{ value: CharacterPanelViewMode }> = [
+  { value: 'overview' },
+  { value: 'relationship' },
+  { value: 'castingPool' },
 ]
 
 interface CharacterPanelHeaderProps {
@@ -27,11 +28,13 @@ function ViewSwitcher({
   value: CharacterPanelViewMode
   onChange: (value: CharacterPanelViewMode) => void
 }) {
+  const { t } = useI18n()
+
   return (
     <SegmentedControl value={value} onValueChange={val => onChange(val as CharacterPanelViewMode)} size="sm">
       {viewModes.map(mode => (
         <SegmentedControlItem key={mode.value} value={mode.value}>
-          {mode.label}
+          {t(`editor.charactersPanel.tabs.${mode.value}`)}
         </SegmentedControlItem>
       ))}
     </SegmentedControl>
@@ -45,19 +48,21 @@ export function CharacterPanelHeader({
   onViewModeChange,
   onCreateCharacter,
 }: CharacterPanelHeaderProps) {
+  const { t } = useI18n()
+
   return (
     <div className="flex items-center gap-4 border-b border-border/60 px-6 py-4 h-[73px] relative">
       <div className="flex items-center gap-3 min-w-[160px]">
         <Image
           src="/assets/svg/logo-dark.svg"
-          alt="Narraverse"
+          alt={t('editor.logoAlt')}
           width={28}
           height={28}
           className="dark:hidden"
         />
         <Image
           src="/assets/svg/logo-light.svg"
-          alt="Narraverse"
+          alt={t('editor.logoAlt')}
           width={28}
           height={28}
           className="hidden dark:block"
@@ -74,7 +79,7 @@ export function CharacterPanelHeader({
       <div className="flex items-center gap-3 min-w-[160px] justify-end">
         <Button size="sm" variant="outline" onClick={onCreateCharacter}>
           <Plus className="h-4 w-4" />
-          新建角色
+          {t('editor.charactersPanel.actions.newCharacter')}
         </Button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import type { Editor } from '@tiptap/react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface AIMenuRightProps {
   onPresetAction: (prompt: string) => void
@@ -9,19 +10,20 @@ interface AIMenuRightProps {
 }
 
 interface MenuItem {
-  label: string
-  prompt: string
+  id: 'enrich' | 'shorten' | 'punctuation' | 'continue'
   icon: string
 }
 
 const menuItems: MenuItem[] = [
-  { label: '丰富内容', prompt: '丰富内容', icon: '☰' },
-  { label: '精简内容', prompt: '精简内容', icon: '÷' },
-  { label: '修改标点符号', prompt: '修改标点符号', icon: '"' },
-  { label: '继续写', prompt: '继续写', icon: '→' },
+  { id: 'enrich', icon: '☰' },
+  { id: 'shorten', icon: '÷' },
+  { id: 'punctuation', icon: '"' },
+  { id: 'continue', icon: '→' },
 ]
 
 export function AIMenuRight({ onPresetAction, isLoading, editor }: AIMenuRightProps) {
+  const { t } = useI18n()
+
   const handleClick = (item: MenuItem) => {
     if (editor) {
       const { from, to } = editor.state.selection
@@ -33,7 +35,7 @@ export function AIMenuRight({ onPresetAction, isLoading, editor }: AIMenuRightPr
     }
 
     if (!isLoading) {
-      onPresetAction(item.prompt)
+      onPresetAction(t(`tiptap.aiMenu.right.items.${item.id}.prompt`))
     }
   }
 
@@ -42,14 +44,14 @@ export function AIMenuRight({ onPresetAction, isLoading, editor }: AIMenuRightPr
       <div className="py-0.5">
         {menuItems.map(item => (
           <button
-            key={item.label}
+            key={item.id}
             type="button"
             onClick={() => handleClick(item)}
             disabled={isLoading}
             className="w-full px-2.5 py-1.5 text-left text-xs text-popover-foreground hover:bg-accent transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="text-sm w-4 text-center">{item.icon}</span>
-            <span>{item.label}</span>
+            <span>{t(`tiptap.aiMenu.right.items.${item.id}.label`)}</span>
           </button>
         ))}
       </div>

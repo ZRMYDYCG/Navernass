@@ -1,3 +1,5 @@
+'use client'
+
 import * as Dialog from '@radix-ui/react-dialog'
 import { Button } from '@/components/ui/button'
 import {
@@ -7,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface CreateChapterDialogProps {
   open: boolean
@@ -31,6 +34,8 @@ export function CreateChapterDialog({
   selectedVolumeId,
   onSelectedVolumeIdChange,
 }: CreateChapterDialogProps) {
+  const { t } = useI18n()
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -45,13 +50,13 @@ export function CreateChapterDialog({
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
           <div className="bg-card rounded-lg shadow-lg border border-border p-6">
             <Dialog.Title className="text-xl font-semibold text-foreground mb-4">
-              创建新章节
+              {t('editor.createChapterDialog.title')}
             </Dialog.Title>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  章节标题
+                  {t('editor.createChapterDialog.chapterTitle')}
                   {' '}
                   <span className="text-red-500">*</span>
                 </label>
@@ -59,7 +64,7 @@ export function CreateChapterDialog({
                   type="text"
                   value={title}
                   onChange={e => onTitleChange(e.target.value)}
-                  placeholder="例如：第一章 新的开始"
+                  placeholder={t('editor.createChapterDialog.chapterTitlePlaceholder')}
                   className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   autoFocus
                   onKeyDown={handleKeyDown}
@@ -69,17 +74,17 @@ export function CreateChapterDialog({
               {volumes.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    导入到卷（可选）
+                    {t('editor.importChapterDialog.importToVolumeLabel')}
                   </label>
                   <Select
                     value={selectedVolumeId || '__none__'}
                     onValueChange={value => onSelectedVolumeIdChange?.(value === '__none__' ? '' : value)}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="不导入到卷（根目录）" />
+                      <SelectValue placeholder={t('editor.importChapterDialog.rootPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__none__">不导入到卷（根目录）</SelectItem>
+                      <SelectItem value="__none__">{t('editor.importChapterDialog.rootPlaceholder')}</SelectItem>
                       {volumes.map(volume => (
                         <SelectItem key={volume.id} value={volume.id}>
                           {volume.title}
@@ -98,7 +103,7 @@ export function CreateChapterDialog({
                   className="flex-1 bg-secondary text-foreground hover:bg-accent"
                   disabled={isCreating}
                 >
-                  取消
+                  {t('common.cancel')}
                 </Button>
               </Dialog.Close>
               <Button
@@ -106,7 +111,7 @@ export function CreateChapterDialog({
                 className="flex-1 bg-primary text-primary-foreground hover:opacity-90"
                 disabled={isCreating || !title.trim()}
               >
-                {isCreating ? '创建中...' : '创建'}
+                {isCreating ? t('editor.createChapterDialog.creating') : t('editor.createChapterDialog.create')}
               </Button>
             </div>
           </div>

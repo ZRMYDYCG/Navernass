@@ -3,6 +3,7 @@
 import type { Editor } from '@tiptap/react'
 import { Bold, Italic, MessageCircle, Sparkles, Underline as UnderlineIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface FormatToolbarProps {
   editor: Editor
@@ -12,6 +13,7 @@ interface FormatToolbarProps {
 }
 
 export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: FormatToolbarProps) {
+  const { t } = useI18n()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
         className={`p-1 rounded hover:bg-accent transition-colors ${
           editor.isActive('bold') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
         }`}
-        title="加粗"
+        title={t('tiptap.formatToolbar.bold')}
       >
         <Bold className="w-3 h-3" />
       </button>
@@ -38,7 +40,7 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
         className={`p-1 rounded hover:bg-accent transition-colors ${
           editor.isActive('italic') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
         }`}
-        title="斜体"
+        title={t('tiptap.formatToolbar.italic')}
       >
         <Italic className="w-3 h-3" />
       </button>
@@ -48,7 +50,7 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
         className={`p-1 rounded hover:bg-accent transition-colors ${
           editor.isActive('underline') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
         }`}
-        title="下划线"
+        title={t('tiptap.formatToolbar.underline')}
       >
         <UnderlineIcon className="w-3 h-3" />
       </button>
@@ -76,7 +78,7 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
               }
             }}
             className="p-1 rounded hover:bg-accent transition-colors text-muted-foreground"
-            title="将选中文本发送到右侧 AI 面板"
+            title={t('tiptap.formatToolbar.sendToSideAI')}
           >
             <MessageCircle className="w-3 h-3" />
           </button>
@@ -105,7 +107,7 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
             className={`p-1 rounded hover:bg-accent transition-colors ${
               isAIActive || isAILoading ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
             } disabled:opacity-50`}
-            title="Ask AI"
+            title={t('tiptap.formatToolbar.askAI')}
           >
             {mounted ? <Sparkles className="w-3 h-3" /> : <div className="w-3 h-3 bg-muted rounded animate-pulse" />}
           </button>

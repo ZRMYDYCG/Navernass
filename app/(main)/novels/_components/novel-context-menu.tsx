@@ -1,5 +1,8 @@
+'use client'
+
 import type { Novel } from '@/lib/supabase/sdk'
 import { Edit, ExternalLink, Trash2 } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface NovelContextMenuProps {
   novel: Novel | null
@@ -19,6 +22,7 @@ export function NovelContextMenu({
   onClose,
 }: NovelContextMenuProps) {
   if (!novel) return null
+  const { t } = useI18n()
 
   return (
     <div
@@ -40,7 +44,7 @@ export function NovelContextMenu({
         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
       >
         <ExternalLink className="w-4 h-4" />
-        打开
+        {t('novels.actions.open')}
       </button>
       <button
         type="button"
@@ -52,7 +56,7 @@ export function NovelContextMenu({
         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
       >
         <Edit className="w-4 h-4" />
-        编辑
+        {t('novels.actions.edit')}
       </button>
       <button
         type="button"
@@ -64,7 +68,7 @@ export function NovelContextMenu({
         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
       >
         <Trash2 className="w-4 h-4" />
-        删除
+        {t('novels.actions.delete')}
       </button>
     </div>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import type { NewsItem } from '../types'
+import { useI18n } from '@/hooks/use-i18n'
 import { NewsCard } from './news-card'
 
 interface NewsContentProps {
@@ -8,10 +9,12 @@ interface NewsContentProps {
 }
 
 export function NewsContent({ items }: NewsContentProps) {
+  const { t } = useI18n()
+
   if (items.length === 0) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-muted-foreground text-sm">暂无动态</p>
+        <p className="text-muted-foreground text-sm">{t('chat.news.empty')}</p>
       </div>
     )
   }

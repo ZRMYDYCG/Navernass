@@ -6,9 +6,11 @@ import { useCallback, useState } from 'react'
 
 import { toast } from 'sonner'
 
+import { useI18n } from '@/hooks/use-i18n'
 import { messagesApi } from '@/lib/supabase/sdk'
 
 export function useDocumentEditor(onMessageUpdate: (id: string, content: string) => void) {
+  const { t } = useI18n()
   const [editingMessage, setEditingMessage] = useState<Message | null>(null)
   const [showDocumentEditor, setShowDocumentEditor] = useState(false)
 
@@ -31,13 +33,13 @@ export function useDocumentEditor(onMessageUpdate: (id: string, content: string)
         content,
       })
       onMessageUpdate(editingMessage.id, content)
-      toast.success('文档已保存')
+      toast.success(t('chat.messages.documentSaved'))
       handleCloseDocumentEditor()
     } catch (error) {
       console.error('Failed to save document:', error)
-      toast.error('保存失败，请重试')
+      toast.error(t('chat.messages.saveFailedRetry'))
     }
-  }, [editingMessage, handleCloseDocumentEditor, onMessageUpdate])
+  }, [editingMessage, handleCloseDocumentEditor, onMessageUpdate, t])
 
   return {
     editingMessage,

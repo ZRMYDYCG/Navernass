@@ -1,3 +1,5 @@
+'use client'
+
 import type { ChapterItemProps } from './types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -11,6 +13,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 export function ChapterItem({
@@ -23,6 +26,7 @@ export function ChapterItem({
   onCopy,
   onMove,
 }: ChapterItemProps) {
+  const { t } = useI18n()
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [isCopying, setIsCopying] = useState(false)
   const [isEditingTitle, setIsEditingTitle] = useState(false)
@@ -136,7 +140,7 @@ export function ChapterItem({
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
-                      重命名
+                      {t('editor.leftPanel.chapters.chapterItem.rename')}
                     </button>
                   )}
                   {onDelete && (
@@ -150,7 +154,7 @@ export function ChapterItem({
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                      删除
+                      {t('editor.leftPanel.chapters.chapterItem.delete')}
                     </button>
                   )}
                 </Popover.Content>
@@ -212,7 +216,7 @@ export function ChapterItem({
             className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
             <Edit2 className="w-2.5 h-2.5" />
-            编辑标题
+            {t('editor.leftPanel.chapters.chapterItem.editTitle')}
           </ContextMenuItem>
         )}
         {onCopy && (
@@ -230,7 +234,7 @@ export function ChapterItem({
             className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
             <Copy className="w-2.5 h-2.5" />
-            {isCopying ? '创建副本中...' : '创建副本'}
+            {isCopying ? t('editor.leftPanel.chapters.chapterItem.creatingCopy') : t('editor.leftPanel.chapters.chapterItem.createCopy')}
           </ContextMenuItem>
         )}
         {onMove && (
@@ -242,7 +246,7 @@ export function ChapterItem({
             className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
             <ArrowRightLeft className="w-2.5 h-2.5" />
-            将章节移入
+            {t('editor.leftPanel.chapters.chapterItem.moveToVolume')}
           </ContextMenuItem>
         )}
         {onDelete && (
@@ -256,7 +260,7 @@ export function ChapterItem({
               className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] text-red-600 focus:text-red-600 focus:bg-red-50"
             >
               <Trash2 className="w-2.5 h-2.5" />
-              删除
+              {t('editor.leftPanel.chapters.chapterItem.delete')}
             </ContextMenuItem>
           </>
         )}

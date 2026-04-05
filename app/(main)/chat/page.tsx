@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
+import { useI18n } from '@/hooks/use-i18n'
 import { chatApi } from '@/lib/supabase/sdk'
 import { ChatInputBox } from './_components/chat-input-box'
 import { ChatWelcomeHeader } from './_components/chat-welcome-header'
@@ -10,6 +11,7 @@ import { RecentNovels } from './_components/recent-novels'
 
 function ChatContent() {
   const { profile, user } = useAuth()
+  const { t } = useI18n()
   const penName = profile?.username || user?.email?.split('@')[0]
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -60,10 +62,10 @@ function ChatContent() {
         <div className="relative mx-auto w-full max-w-5xl px-6 pt-14 pb-10">
           <div className="space-y-2">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
-              你好，
+              {t('chat.page.hello')}
               {penName ? ` ${penName}` : ''}
             </h1>
-            <p className="text-muted-foreground">在这里写下你的第一句故事吧！</p>
+            <p className="text-muted-foreground">{t('chat.page.firstLine')}</p>
           </div>
           <div className="mt-8">
             <ChatInputBox onSend={handleSendMessage} disabled={isSending} />

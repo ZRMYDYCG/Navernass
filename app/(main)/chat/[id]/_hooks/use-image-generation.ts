@@ -6,8 +6,10 @@ import { toPng } from 'html-to-image'
 import { useCallback, useRef, useState } from 'react'
 
 import { toast } from 'sonner'
+import { useI18n } from '@/hooks/use-i18n'
 
 export function useImageGeneration(selectedMessages: Message[]) {
+  const { t } = useI18n()
   const [isGeneratingImage, setIsGeneratingImage] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [isPreviewVisible, setIsPreviewVisible] = useState(false)
@@ -57,7 +59,7 @@ export function useImageGeneration(selectedMessages: Message[]) {
   const handleGenerateImage = useCallback(async () => {
     if (isGeneratingImage) return
     if (selectedMessages.length === 0) {
-      toast.error('请先选择要生成图片的消息')
+      toast.error(t('chat.messages.selectMessageForImage'))
       return
     }
 
@@ -66,18 +68,18 @@ export function useImageGeneration(selectedMessages: Message[]) {
       setPreviewImage(null)
       const dataUrl = await generateShareImage()
       if (!dataUrl) {
-        toast.error('生成图片失败，请重试')
+        toast.error(t('chat.messages.imageFailedRetry'))
         return
       }
       setPreviewImage(dataUrl)
       setIsPreviewVisible(true)
     } catch (error) {
       console.error('Failed to generate image:', error)
-      toast.error('生成图片失败，请重试')
+      toast.error(t('chat.messages.imageFailedRetry'))
     } finally {
       setIsGeneratingImage(false)
     }
-  }, [generateShareImage, isGeneratingImage, selectedMessages])
+  }, [generateShareImage, isGeneratingImage, selectedMessages, t])
 
   const handleDownloadPreview = useCallback(() => {
     if (!previewImage) return

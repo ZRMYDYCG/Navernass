@@ -1,5 +1,8 @@
+'use client'
+
 import type { ViewMode } from '../types'
 import { LayoutGrid, Table } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ViewSwitcherProps {
   value: ViewMode
@@ -7,6 +10,8 @@ interface ViewSwitcherProps {
 }
 
 export function ViewSwitcher({ value, onChange }: ViewSwitcherProps) {
+  const { t } = useI18n()
+
   return (
     <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-transparent border border-border">
       <button
@@ -17,11 +22,11 @@ export function ViewSwitcher({ value, onChange }: ViewSwitcherProps) {
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-label="卡片视图"
-        title="卡片视图"
+        aria-label={t('novels.view.gridAria')}
+        title={t('novels.view.gridAria')}
       >
         <LayoutGrid className="w-4 h-4" />
-        <span className="hidden sm:inline">卡片</span>
+        <span className="hidden sm:inline">{t('novels.view.grid')}</span>
       </button>
       <button
         type="button"
@@ -31,11 +36,11 @@ export function ViewSwitcher({ value, onChange }: ViewSwitcherProps) {
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-label="表格视图"
-        title="表格视图"
+        aria-label={t('novels.view.tableAria')}
+        title={t('novels.view.tableAria')}
       >
         <Table className="w-4 h-4" />
-        <span className="hidden sm:inline">表格</span>
+        <span className="hidden sm:inline">{t('novels.view.table')}</span>
       </button>
     </div>
   )

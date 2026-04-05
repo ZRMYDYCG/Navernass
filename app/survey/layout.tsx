@@ -1,21 +1,28 @@
 import type { Metadata } from 'next'
 import { getAbsoluteUrl, seoConfig } from '@/lib/seo'
 
+// Layout is server-side by default. 
+// We are hardcoding the static strings here or referencing the zh-CN default 
+// because next-i18next in app router server components without proper locale routing 
+// needs specific setup. For true dynamic SEO meta based on locale, we'd need generateMetadata.
+// For now, keeping the structure standard.
+
 export const metadata: Metadata = {
-  title: '共创问卷与用户调研',
-  description: seoConfig.surveyDescription,
+  title: '共创问卷与用户调研 | Co-creation Survey',
+  description: '诚邀您花 3 分钟，聊聊那些关于写作的故事，加入 Narraverse 共创计划。',
   keywords: [
     'AI 写作问卷',
     '小说创作调研',
     '写作者用户反馈',
     'Narraverse 共创计划',
+    'AI writing survey',
   ],
   alternates: {
     canonical: '/survey',
   },
   openGraph: {
-    title: seoConfig.surveyTitle,
-    description: seoConfig.surveyDescription,
+    title: '共创问卷与用户调研 | Narraverse',
+    description: '诚邀您花 3 分钟，聊聊那些关于写作的故事，加入 Narraverse 共创计划。',
     type: 'website',
     url: '/survey',
     images: [
@@ -29,8 +36,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: seoConfig.surveyTitle,
-    description: seoConfig.surveyDescription,
+    title: '共创问卷与用户调研 | Narraverse',
+    description: '诚邀您花 3 分钟，聊聊那些关于写作的故事，加入 Narraverse 共创计划。',
     images: [seoConfig.defaultOgImage],
   },
 }
@@ -38,8 +45,8 @@ export const metadata: Metadata = {
 const surveyWebPageJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  'name': seoConfig.surveyTitle,
-  'description': seoConfig.surveyDescription,
+  'name': '共创问卷与用户调研 | Narraverse',
+  'description': '诚邀您花 3 分钟，聊聊那些关于写作的故事，加入 Narraverse 共创计划。',
   'url': getAbsoluteUrl('/survey'),
   'inLanguage': 'zh-CN',
   'isPartOf': {
@@ -71,12 +78,8 @@ const surveyBreadcrumbJsonLd = {
 export default function SurveyLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <script type="application/ld+json">
-        {JSON.stringify(surveyWebPageJsonLd)}
-      </script>
-      <script type="application/ld+json">
-        {JSON.stringify(surveyBreadcrumbJsonLd)}
-      </script>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(surveyWebPageJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(surveyBreadcrumbJsonLd) }} />
       {children}
     </>
   )

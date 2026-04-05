@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface HeaderLeftProps {
   showLeftPanel: boolean
@@ -17,6 +18,8 @@ export function HeaderLeft({
   showLeftPanel,
   onToggleLeftPanel,
 }: HeaderLeftProps) {
+  const { t } = useI18n()
+
   return (
     <div className="flex items-center gap-1.5 h-full">
       <TooltipProvider>
@@ -35,7 +38,7 @@ export function HeaderLeft({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{showLeftPanel ? '隐藏左侧面板' : '显示左侧面板'}</p>
+            <p>{showLeftPanel ? t('editor.header.hideLeftPanel') : t('editor.header.showLeftPanel')}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

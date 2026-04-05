@@ -4,6 +4,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '../config'
+import { useI18n } from '@/hooks/use-i18n'
 import { ChatListToolbar } from './chat-list-toolbar'
 
 interface ChatListHeaderProps {
@@ -22,7 +23,7 @@ interface ChatListHeaderProps {
 }
 
 export function ChatListHeader({
-  title = '全部对话',
+  title,
   searchQuery,
   setSearchQuery,
   isSelectionMode,
@@ -36,6 +37,7 @@ export function ChatListHeader({
   chatCount = 0,
 }: ChatListHeaderProps) {
   const router = useRouter()
+  const { t } = useI18n()
 
   return (
     <header className="flex items-center justify-between p-4 bg-background">
@@ -46,10 +48,10 @@ export function ChatListHeader({
           onClick={() => router.push(ROUTES.chat)}
           className="text-muted-foreground hover:text-foreground"
         >
-          返回
+          {t('chat.all.back')}
         </Button>
         <h1 className="text-lg font-semibold text-foreground">
-          {title}
+          {title || t('chat.all.title')}
           {!isLoading && (
             <span className="text-sm font-normal text-muted-foreground ml-2">
               ({chatCount})

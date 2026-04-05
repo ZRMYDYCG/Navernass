@@ -19,12 +19,14 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { useEffect, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import { ChapterItem } from './chapter-item'
 import { EmptyChapters } from './empty-chapters'
 import { VolumeItem } from './volume-item'
 
 // 根目录放置区组件
 function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver: boolean, isDraggingFromVolume: boolean }) {
+  const { t } = useI18n()
   const { setNodeRef } = useDroppable({ id })
 
   if (!isDraggingFromVolume) {
@@ -41,7 +43,7 @@ function RootDropZone({ id, isOver, isDraggingFromVolume }: { id: string, isOver
       }`}
     >
       <span className="text-sm text-muted-foreground">
-        {isOver ? '松开以移出到根目录' : '拖到这里移出到根目录'}
+        {isOver ? t('editor.leftPanel.chapters.rootDrop.over') : t('editor.leftPanel.chapters.rootDrop.idle')}
       </span>
     </div>
   )

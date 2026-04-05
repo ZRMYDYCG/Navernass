@@ -2,7 +2,7 @@
 
 import type { NovelConversation } from '@/lib/supabase/sdk/types'
 import { formatDistanceToNow } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { enUS, zhCN } from 'date-fns/locale'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 interface ConversationHistoryProps {
@@ -33,6 +34,8 @@ export function ConversationHistory({
   onPin,
   onClose,
 }: ConversationHistoryProps) {
+  const { t } = useI18n()
+  const { locale } = useLocale()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [conversationToDelete, setConversationToDelete] = useState<string | null>(null)
 
@@ -59,7 +62,7 @@ export function ConversationHistory({
     try {
       return formatDistanceToNow(new Date(dateString), {
         addSuffix: true,
-        locale: zhCN,
+        locale: locale === 'zh-CN' ? zhCN : enUS,
       })
     } catch {
       return ''
@@ -74,7 +77,7 @@ export function ConversationHistory({
       {/* 头部 - 极简/紧凑 */}
       <div className="h-9 flex px-3 items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <h3 className="text-xs font-medium text-muted-foreground">历史对话</h3>
+          <h3 className="text-xs font-medium text-muted-foreground">{t('editor.rightPanel.history.title')}</h3>
         </div>
         <Button
           variant="ghost"
@@ -82,7 +85,7 @@ export function ConversationHistory({
           onClick={onClose}
           className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground"
         >
-          关闭
+          {t('editor.rightPanel.history.close')}
         </Button>
       </div>
 
@@ -91,7 +94,7 @@ export function ConversationHistory({
         {conversations.length === 0
           ? (
               <div className="flex flex-col items-center justify-center h-full px-4 py-12 text-muted-foreground">
-                <p className="text-xs">暂无历史对话</p>
+                <p className="text-xs">{t('editor.rightPanel.history.empty')}</p>
               </div>
             )
           : (
@@ -117,7 +120,7 @@ export function ConversationHistory({
                 {unpinnedConversations.length > 0 && (
                   <div className="flex flex-col">
                     {pinnedConversations.length > 0 && (
-                      <div className="px-2 py-1 text-[10px] text-muted-foreground/50 font-medium">最近</div>
+                      <div className="px-2 py-1 text-[10px] text-muted-foreground/50 font-medium">{t('editor.rightPanel.history.recent')}</div>
                     )}
                     {unpinnedConversations.map(conversation => (
                       <ConversationItem
@@ -140,17 +143,17 @@ export function ConversationHistory({
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>删除对话</DialogTitle>
+            <DialogTitle>{t('editor.rightPanel.history.deleteDialog.title')}</DialogTitle>
             <DialogDescription>
-              确定要删除这个对话吗？此操作无法撤销。
+              {t('editor.rightPanel.history.deleteDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={handleDeleteCancel}>
-              取消
+              {t('editor.rightPanel.history.deleteDialog.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDeleteConfirm}>
-              删除
+              {t('editor.rightPanel.history.deleteDialog.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -176,6 +179,7 @@ function ConversationItem({
   onPin,
   formatTime,
 }: ConversationItemProps) {
+  const { t } = useI18n()
   const [isPinning, setIsPinning] = useState(false)
 
   const handlePin = async (e: React.MouseEvent) => {
@@ -205,7 +209,7 @@ function ConversationItem({
             isActive ? 'font-medium text-foreground' : 'font-normal',
           )}
           >
-            {conversation.title || '无标题对话'}
+            {conversation.title || t('editor.rightPanel.untitledConversation')}
           </span>
           {conversation.is_pinned && (
             <span className="text-[10px] text-primary/70 shrink-0">
@@ -225,14 +229,14 @@ function ConversationItem({
             disabled={isPinning}
             className="text-[10px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
           >
-            {isPinning ? '...' : (conversation.is_pinned ? '取' : '顶')}
+            {isPinning ? '...' : (conversation.is_pinned ? t('editor.rightPanel.history.unpinShort') : t('editor.rightPanel.history.pinShort'))}
           </button>
         )}
         <button
           onClick={onDelete}
           className="text-[10px] text-muted-foreground hover:text-destructive hover:underline"
         >
-          删
+          {t('editor.rightPanel.history.deleteShort')}
         </button>
       </div>
     </div>

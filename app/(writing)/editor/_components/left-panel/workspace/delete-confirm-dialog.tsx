@@ -1,7 +1,10 @@
+'use client'
+
 import * as Dialog from '@radix-ui/react-dialog'
 import { AlertTriangle, X } from 'lucide-react'
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface DeleteConfirmDialogProps {
   open: boolean
@@ -14,10 +17,14 @@ interface DeleteConfirmDialogProps {
 export function DeleteConfirmDialog({
   open,
   onOpenChange,
-  title = '确认删除',
-  description = '确定要删除吗？此操作无法撤销。',
+  title,
+  description,
   onConfirm,
 }: DeleteConfirmDialogProps) {
+  const { t } = useI18n()
+  const dialogTitle = title ?? t('editor.leftPanel.workspace.deleteConfirm.title')
+  const dialogDescription = description ?? t('editor.leftPanel.workspace.deleteConfirm.description')
+
   const handleConfirm = () => {
     onConfirm()
     onOpenChange(false)
@@ -36,10 +43,10 @@ export function DeleteConfirmDialog({
                 </div>
                 <div className="flex-1">
                   <Dialog.Title className="text-lg font-semibold text-foreground mb-1">
-                    {title}
+                    {dialogTitle}
                   </Dialog.Title>
                   <Dialog.Description className="text-sm text-muted-foreground">
-                    {description}
+                    {dialogDescription}
                   </Dialog.Description>
                 </div>
                 <Dialog.Close asChild>
@@ -59,7 +66,7 @@ export function DeleteConfirmDialog({
                   type="button"
                   className="flex-1 bg-secondary text-foreground hover:bg-accent"
                 >
-                  取消
+                  {t('common.cancel')}
                 </Button>
               </Dialog.Close>
               <Button
@@ -67,7 +74,7 @@ export function DeleteConfirmDialog({
                 onClick={handleConfirm}
                 className="flex-1 bg-red-600 text-white hover:bg-red-700"
               >
-                确认删除
+                {t('editor.leftPanel.workspace.deleteConfirm.confirm')}
               </Button>
             </div>
           </div>

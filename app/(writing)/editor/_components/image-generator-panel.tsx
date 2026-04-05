@@ -4,6 +4,7 @@ import { Image as ImageIcon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ImageGeneratorPanelProps {
   open: boolean
@@ -16,6 +17,7 @@ export function ImageGeneratorPanel({
   onOpenChange,
   onImageGenerated,
 }: ImageGeneratorPanelProps) {
+  const { t } = useI18n()
   const [prompt, setPrompt] = useState('')
   const [negativePrompt, setNegativePrompt] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -39,12 +41,12 @@ export function ImageGeneratorPanel({
 
   const handleImageGenerate = async () => {
     if (!prompt.trim()) {
-      toast.error('请输入图片描述')
+      toast.error(t('editor.imageGenerator.messages.promptRequired'))
       return
     }
 
     if (generationType === 'image-to-image' && !imageFile) {
-      toast.error('请上传参考图片')
+      toast.error(t('editor.imageGenerator.messages.referenceImageRequired'))
       return
     }
 
@@ -63,7 +65,7 @@ export function ImageGeneratorPanel({
         })
 
         if (!uploadResponse.ok) {
-          throw new Error('图片上传失败')
+          throw new Error(t('editor.imageGenerator.messages.uploadFailed'))
         }
 
         const uploadData = await uploadResponse.json()
@@ -87,7 +89,7 @@ export function ImageGeneratorPanel({
 
       if (!generateResponse.ok) {
         const error = await generateResponse.json()
-        throw new Error(error.error || '图片生成失败')
+        throw new Error(error.error || t('editor.imageGenerator.messages.generateFailed'))
       }
 
       const data = await generateResponse.json()
@@ -95,7 +97,7 @@ export function ImageGeneratorPanel({
       if (data.images && data.images.length > 0) {
         const generatedImageUrl = data.images[0].url
         onImageGenerated?.(generatedImageUrl)
-        toast.success('图片生成成功！')
+        toast.success(t('editor.imageGenerator.messages.generateSuccess'))
         onOpenChange(false)
         // reset local states
         setPrompt('')
@@ -103,11 +105,11 @@ export function ImageGeneratorPanel({
         setImageFile(null)
         setImagePreview(null)
       } else {
-        throw new Error('未返回生成的图片')
+        throw new Error(t('editor.imageGenerator.messages.noImageReturned'))
       }
     } catch (error: any) {
       console.error('Image generation error:', error)
-      toast.error(error.message || '图片生成失败')
+      toast.error(error.message || t('editor.imageGenerator.messages.generateFailed'))
     } finally {
       setIsGenerating(false)
     }
@@ -116,13 +118,14 @@ export function ImageGeneratorPanel({
   return (
     <div className="border border-border rounded-lg p-3 space-y-3 bg-muted/30">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">AI 图片生成</h3>
+        <h3 className="text-sm font-medium">{t('editor.imageGenerator.title')}</h3>
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => onOpenChange(false)}
           className="text-muted-foreground hover:text-foreground h-6 w-6 p-0"
+          aria-label={t('editor.imageGenerator.close')}
         >
           ×
         </Button>
@@ -137,7 +140,7 @@ export function ImageGeneratorPanel({
             onClick={() => setGenerationType('text-to-image')}
             className="flex-1 text-xs"
           >
-            文生图
+            {t('editor.imageGenerator.tabs.textToImage')}
           </Button>
           <Button
             type="button"
@@ -146,14 +149,14 @@ export function ImageGeneratorPanel({
             onClick={() => setGenerationType('image-to-image')}
             className="flex-1 text-xs"
           >
-            图生图
+            {t('editor.imageGenerator.tabs.imageToImage')}
           </Button>
         </div>
 
         <textarea
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
-          placeholder="描述你想要生成的图片..."
+          placeholder={t('editor.imageGenerator.promptPlaceholder')}
           className="w-full px-3 py-2 text-xs bg-background rounded-md border border-border resize-none focus:ring-1 focus:ring-primary"
           rows={2}
         />
@@ -171,13 +174,13 @@ export function ImageGeneratorPanel({
               htmlFor="image-upload"
               className="flex items-center justify-center gap-2 px-3 py-2 text-xs bg-background rounded-md border border-border cursor-pointer hover:bg-accent transition-colors"
             >
-              {imageFile ? '更换图片' : '上传参考图片'}
+              {imageFile ? t('editor.imageGenerator.replaceImage') : t('editor.imageGenerator.uploadReferenceImage')}
             </label>
             {imagePreview && (
               <div className="relative">
                 <img
                   src={imagePreview}
-                  alt="参考图片"
+                  alt={t('editor.imageGenerator.referenceImageAlt')}
                   className="w-full h-24 object-cover rounded-md border border-border"
                 />
               </div>
@@ -189,7 +192,7 @@ export function ImageGeneratorPanel({
           type="text"
           value={negativePrompt}
           onChange={e => setNegativePrompt(e.target.value)}
-          placeholder="负面提示词（可选）"
+          placeholder={t('editor.imageGenerator.negativePromptPlaceholder')}
           className="w-full px-3 py-2 text-xs bg-background rounded-md border border-border focus:ring-1 focus:ring-primary"
         />
 
@@ -200,7 +203,7 @@ export function ImageGeneratorPanel({
           className="w-full"
           size="sm"
         >
-          {isGenerating ? '生成中...' : '生成图片'}
+          {isGenerating ? t('editor.imageGenerator.generating') : t('editor.imageGenerator.generate')}
         </Button>
       </div>
     </div>

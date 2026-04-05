@@ -4,6 +4,7 @@ import { Star, X } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface AIInputBoxProps {
   show: boolean
@@ -27,6 +28,7 @@ export function AIInputBox({
   hasActiveConversation,
 }: AIInputBoxProps) {
   const { resolvedTheme } = useTheme()
+  const { t } = useI18n()
   const [mounted, setMounted] = useState(false)
   const isDark = resolvedTheme === 'dark'
 
@@ -50,13 +52,13 @@ export function AIInputBox({
         className="flex items-center gap-1.5 px-2.5 py-1.5 bg-card border border-border rounded shadow-lg hover:bg-accent transition-colors disabled:opacity-50"
       >
         <Star className="w-3 h-3 text-muted-foreground" />
-        <span className="text-xs text-foreground">向智能助手提问...</span>
+        <span className="text-xs text-foreground">{t('tiptap.aiMenu.input.collapsedLabel')}</span>
         <div className="ml-auto">
           {mounted
             ? (
                 <Image
                   src={isDark ? '/assets/svg/logo-dark.svg' : '/assets/svg/logo-light.svg'}
-                  alt="AI"
+                  alt={t('tiptap.aiMenu.input.logoAlt')}
                   width={12}
                   height={12}
                   className="object-contain"
@@ -84,7 +86,7 @@ export function AIInputBox({
               onSubmit()
             }
           }}
-          placeholder="向智能助手提问..."
+          placeholder={t('tiptap.aiMenu.input.placeholder')}
           disabled={isLoading}
           className="flex-1 bg-transparent text-xs text-popover-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
           autoFocus
@@ -93,7 +95,7 @@ export function AIInputBox({
           <div className="flex-shrink-0">
             {isLoading
               ? (
-                  <div className="flex items-center gap-0.5" role="status" aria-label="AI 正在生成">
+                  <div className="flex items-center gap-0.5" role="status" aria-label={t('tiptap.aiMenu.input.generatingAria')}>
                     <span
                       className="w-1 h-1 rounded-full bg-muted-foreground/70 animate-bounce"
                       style={{ animationDelay: '0ms' }}
@@ -112,7 +114,7 @@ export function AIInputBox({
                 ? (
                     <Image
                       src={isDark ? '/assets/svg/logo-dark.svg' : '/assets/svg/logo-light.svg'}
-                      alt="AI"
+                      alt={t('tiptap.aiMenu.input.logoAlt')}
                       width={12}
                       height={12}
                       className="object-contain"
@@ -127,7 +129,7 @@ export function AIInputBox({
               type="button"
               onClick={handleCloseClick}
               className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors p-0.5 hover:bg-accent rounded"
-              title={hasActiveConversation ? '关闭对话（将提示确认）' : '关闭'}
+              title={hasActiveConversation ? t('tiptap.aiMenu.input.closeConfirmPrompt') : t('tiptap.aiMenu.input.close')}
             >
               <X className="w-3 h-3" />
             </button>

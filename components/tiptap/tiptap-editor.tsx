@@ -19,6 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useI18n } from '@/hooks/use-i18n'
 import { CharacterNameSuggestList } from './character-name-suggest-list'
 import { DialogProvider, setGlobalDialog, useDialog } from './dialog-manager'
 import { DragHandle } from './drag-handle-react'
@@ -61,7 +62,7 @@ export interface TiptapEditorProps {
 function TiptapEditorInner(props: TiptapEditorProps) {
   const {
     content = '',
-    placeholder = '开始写作...',
+    placeholder,
     onUpdate,
     onStatsChange,
     autoSave = true,
@@ -71,6 +72,8 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     chapterId,
     characters = [],
   } = props
+  const { t } = useI18n()
+  const placeholderText = placeholder ?? t('tiptap.editor.placeholder')
 
   const editorRef = useRef<HTMLDivElement>(null)
   const tooltipContentRef = useRef<HTMLDivElement>(null)
@@ -116,7 +119,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error?.message || '插图上传失败')
+        throw new Error(error.error?.message || t('tiptap.editor.uploadIllustrationFailed'))
       }
 
       const result = await response.json()
@@ -141,7 +144,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
         },
       }),
       Placeholder.configure({
-        placeholder,
+        placeholder: placeholderText,
       }),
       CharacterCount,
       Underline,
@@ -152,17 +155,18 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       Color,
       SuggestionAdd,
       SuggestionDel,
-      SlashCommand,
+      SlashCommand.configure({ t }),
       AIAutocomplete.configure({
         trigger: '++',
         debounceDelay: 500,
+        t,
       }),
       SearchHighlight,
       EditorSearch,
       CharacterHighlight,
       CharacterNameSuggest,
     ],
-    [placeholder],
+    [placeholderText, t],
   )
 
   const editor = useEditor({
@@ -462,7 +466,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
         type: 'image',
         attrs: {
           src: imageUrl,
-          alt: 'AI Generated Image',
+          alt: t('tiptap.editor.aiGeneratedImageAlt'),
         },
       }).run()
     }
@@ -472,7 +476,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     return () => {
       window.removeEventListener('novel-insert-image-to-editor', handleInsertImage)
     }
-  }, [editor])
+  }, [editor, t])
 
   useEffect(() => {
     if (!editor) return
@@ -744,7 +748,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
                 <CharacterCard
                   character={{
                     ...tooltipCharacter,
-                    role: tooltipCharacter.role || '未知角色',
+                    role: tooltipCharacter.role || t('tiptap.editor.unknownRole'),
                     description: tooltipCharacter.description || '',
                     traits: tooltipCharacter.traits || [],
                     keywords: tooltipCharacter.keywords || [],
@@ -767,7 +771,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
       {isUploadingImage && (
         <div className="absolute top-2 right-2 z-50 flex items-center gap-2 rounded-md bg-black/80 text-xs text-white px-3 py-2 shadow-md">
           <Spinner className="w-3.5 h-3.5" />
-          <span>插画上传中...</span>
+          <span>{t('tiptap.editor.uploadingIllustration')}</span>
         </div>
       )}
       {showSearchBox && (

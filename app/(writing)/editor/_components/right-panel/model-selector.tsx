@@ -1,6 +1,7 @@
 import type { AiModel } from './types'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import { MODEL_OPTIONS } from './constants'
 
 interface ModelSelectorProps {
@@ -9,6 +10,7 @@ interface ModelSelectorProps {
 }
 
 export function ModelSelector({ value, onChange }: ModelSelectorProps) {
+  const { t } = useI18n()
   const [isOpen, setIsOpen] = useState(false)
 
   const currentModel = MODEL_OPTIONS.find(m => m.value === value)
@@ -24,7 +26,7 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
           {currentModel?.label}
           {currentModel?.isThinking && (
             <span className="px-1 py-0.5 text-[9px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded">
-              Thinking
+              {t('editor.rightPanel.thinkingBadge')}
             </span>
           )}
         </span>
@@ -52,7 +54,7 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
                 <span className="truncate">{model.label}</span>
                 {model.isThinking && (
                   <span className="px-1 py-0.5 text-[9px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded shrink-0">
-                    Thinking
+                    {t('editor.rightPanel.thinkingBadge')}
                   </span>
                 )}
               </button>

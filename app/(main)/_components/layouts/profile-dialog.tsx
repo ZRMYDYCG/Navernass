@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/use-auth'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ProfileDialogProps {
   open: boolean
@@ -17,6 +18,7 @@ interface ProfileDialogProps {
 
 export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
   const { user, profile, setProfile } = useAuth()
+  const { t } = useI18n()
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -64,12 +66,12 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('头像大小不能超过 5MB')
+      toast.error(t('main.profile.messages.avatarTooLarge'))
       return
     }
 
     if (!file.type.startsWith('image/')) {
-      toast.error('请选择图片文件')
+      toast.error(t('main.profile.messages.avatarNotImage'))
       return
     }
 
@@ -107,7 +109,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
 
         if (!uploadResponse.ok) {
           const error = await uploadResponse.json()
-          throw new Error(error.error?.message || '头像上传失败')
+          throw new Error(error.error?.message || t('main.profile.messages.avatarUploadFailed'))
         }
 
         const uploadResult = await uploadResponse.json()
@@ -127,7 +129,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
       })
 
       if (!response.ok) {
-        let errorMessage = '更新失败'
+        let errorMessage = t('main.profile.messages.updateFailed')
         try {
           const error = await response.json()
           errorMessage = error?.error?.message || error?.error || error?.message || errorMessage
@@ -141,24 +143,24 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
       const updatedProfile = await response.json()
       setProfile(updatedProfile)
 
-      toast.success('个人资料更新成功')
+      toast.success(t('main.profile.messages.updated'))
       onOpenChange(false)
     } catch (error) {
       console.error('更新失败:', error)
-      toast.error(error instanceof Error ? error.message : '更新失败，请重试')
+      toast.error(error instanceof Error ? error.message : t('main.profile.messages.updateFailedRetry'))
     } finally {
       setIsSaving(false)
       setIsUploading(false)
     }
   }
 
-  const displayName = username || user?.email?.split('@')[0] || '用户'
+  const displayName = username || user?.email?.split('@')[0] || t('common.user')
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-popover border border-border">
         <DialogHeader>
-          <DialogTitle>编辑个人资料</DialogTitle>
+          <DialogTitle>{t('main.profile.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -189,23 +191,23 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              点击相机图标上传头像
+              {t('main.profile.uploadHint')}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="username">笔名</Label>
+            <Label htmlFor="username">{t('main.profile.fields.penName')}</Label>
             <Input
               id="username"
               value={username}
               onChange={e => setUsername(e.target.value)}
-              placeholder="输入你的笔名"
+              placeholder={t('main.profile.placeholders.penName')}
               className="bg-card"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="website">网站</Label>
+            <Label htmlFor="website">{t('main.profile.fields.website')}</Label>
             <Input
               id="website"
               value={website}
@@ -223,14 +225,14 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
             disabled={isSaving || isUploading}
             className="flex-1"
           >
-            取消
+            {t('main.profile.actions.cancel')}
           </Button>
           <Button
             onClick={handleSave}
             disabled={isSaving || isUploading}
             className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {isUploading ? '上传中...' : isSaving ? '保存中...' : '保存'}
+            {isUploading ? t('main.profile.actions.uploading') : isSaving ? t('main.profile.actions.saving') : t('main.profile.actions.save')}
           </Button>
         </div>
       </DialogContent>

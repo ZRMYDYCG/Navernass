@@ -1,5 +1,8 @@
+'use client'
+
 import { Clock, FileText } from 'lucide-react'
 import { useMemo } from 'react'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 
 interface Chapter {
   id: string
@@ -18,6 +21,8 @@ export function RecentChapters({
   onSelectChapter,
   maxItems = 5,
 }: RecentChaptersProps) {
+  const { t } = useI18n()
+  const { locale } = useLocale()
   const recentChapters = useMemo(() => {
     return [...chapters]
       .sort((a, b) => {
@@ -29,7 +34,7 @@ export function RecentChapters({
   }, [chapters, maxItems])
 
   const formatTime = (dateString?: string) => {
-    if (!dateString) return '未知'
+    if (!dateString) return t('editor.leftPanel.workspace.recentChapters.time.unknown')
     const date = new Date(dateString)
     const now = new Date()
     const diff = now.getTime() - date.getTime()
@@ -37,21 +42,21 @@ export function RecentChapters({
     const hours = Math.floor(diff / 3600000)
     const days = Math.floor(diff / 86400000)
 
-    if (minutes < 1) return '刚刚'
-    if (minutes < 60) return `${minutes}分钟前`
-    if (hours < 24) return `${hours}小时前`
-    if (days < 7) return `${days}天前`
-    return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+    if (minutes < 1) return t('editor.leftPanel.workspace.recentChapters.time.justNow')
+    if (minutes < 60) return t('editor.leftPanel.workspace.recentChapters.time.minutesAgo', { count: minutes })
+    if (hours < 24) return t('editor.leftPanel.workspace.recentChapters.time.hoursAgo', { count: hours })
+    if (days < 7) return t('editor.leftPanel.workspace.recentChapters.time.daysAgo', { count: days })
+    return date.toLocaleDateString(locale === 'zh-CN' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric' })
   }
 
   if (recentChapters.length === 0) {
     return (
       <div className="space-y-1.5">
         <h3 className="text-xs font-medium text-foreground px-1 font-serif">
-          最近编辑
+          {t('editor.leftPanel.workspace.recentChapters.title')}
         </h3>
         <div className="px-1.5 py-4 text-center text-[10px] text-muted-foreground italic">
-          暂无最近编辑的章节
+          {t('editor.leftPanel.workspace.recentChapters.empty')}
         </div>
       </div>
     )
@@ -60,7 +65,7 @@ export function RecentChapters({
   return (
     <div className="space-y-1.5">
       <h3 className="text-xs font-medium text-foreground px-1 font-serif">
-        最近编辑
+        {t('editor.leftPanel.workspace.recentChapters.title')}
       </h3>
       <div className="space-y-0.5">
         {recentChapters.map(chapter => (
@@ -86,4 +91,3 @@ export function RecentChapters({
     </div>
   )
 }
-

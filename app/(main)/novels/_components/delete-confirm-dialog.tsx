@@ -1,7 +1,10 @@
+'use client'
+
 import type { Novel } from '@/lib/supabase/sdk'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface DeleteConfirmDialogProps {
   open: boolean
@@ -16,6 +19,8 @@ export function DeleteConfirmDialog({
   onOpenChange,
   onConfirm,
 }: DeleteConfirmDialogProps) {
+  const { t } = useI18n()
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -23,32 +28,32 @@ export function DeleteConfirmDialog({
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
           <div className="bg-card rounded-lg shadow-lg border border-border p-6">
             <Dialog.Title className="text-xl font-semibold text-foreground mb-2">
-              确认删除
+              {t('novels.dialog.delete.title')}
             </Dialog.Title>
 
             <Dialog.Description className="text-muted-foreground mb-6">
-              确定要将小说《
+              {t('novels.dialog.delete.descriptionPrefix')}
               <span className="font-medium text-foreground">
                 {novel?.title}
               </span>
-              》移到回收站吗？
+              {t('novels.dialog.delete.descriptionSuffix')}
             </Dialog.Description>
 
             <div className="flex gap-3">
               <Dialog.Close asChild>
                 <Button
                   type="button"
-                  className="flex-1 bg-secondary text-foreground hover:bg-accent"
+                  className="flex-1 bg-secondary text-secondary-foreground hover:bg-accent"
                 >
-                  取消
+                  {t('novels.dialog.delete.cancel')}
                 </Button>
               </Dialog.Close>
               <Button
                 onClick={onConfirm}
-                className="flex-1 bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-800"
+                className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 <Trash2 className="w-4 h-4 mr-1" />
-                删除
+                {t('novels.dialog.delete.confirm')}
               </Button>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { useTheme } from 'next-themes'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 interface ShareImagePreviewDialogProps {
@@ -23,6 +24,7 @@ export function ShareImagePreviewDialog({
 }: ShareImagePreviewDialogProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const { t } = useI18n()
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -33,7 +35,7 @@ export function ShareImagePreviewDialog({
           : "bg-white text-gray-900 border-gray-200 shadow-[0_40px_120px_rgba(0,0,0,0.1)]"
       )}>
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold tracking-wide">预览</DialogTitle>
+          <DialogTitle className="text-lg font-semibold tracking-wide">{t('chat.share.preview')}</DialogTitle>
         </DialogHeader>
 
         <div className={cn(
@@ -44,7 +46,7 @@ export function ShareImagePreviewDialog({
             ? (
                 <img
                   src={imageUrl}
-                  alt="对话分享图片预览"
+                  alt={t('chat.share.previewAlt')}
                   className={cn(
                     "w-full rounded-[28px] border",
                     isDark 
@@ -60,7 +62,7 @@ export function ShareImagePreviewDialog({
                     ? "text-gray-400 border-zinc-700" 
                     : "text-gray-400 border-gray-300"
                 )}>
-                  {isLoading ? '图片生成中...' : '暂无可预览的内容'}
+                  {isLoading ? t('chat.share.imageGenerating') : t('chat.share.nothingToPreview')}
                 </div>
               )}
         </div>
@@ -75,7 +77,7 @@ export function ShareImagePreviewDialog({
             )}
             onClick={() => onOpenChange(false)}
           >
-            关闭
+            {t('chat.share.close')}
           </Button>
           <Button
             onClick={onDownload}
@@ -86,7 +88,7 @@ export function ShareImagePreviewDialog({
                 : "bg-gray-900 text-white hover:bg-gray-800"
             )}
           >
-            下载图片
+            {t('chat.share.download')}
           </Button>
         </DialogFooter>
       </DialogContent>

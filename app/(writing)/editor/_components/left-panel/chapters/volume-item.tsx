@@ -13,6 +13,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface VolumeItemProps {
   volume: Volume
@@ -33,6 +34,7 @@ export function VolumeItem({
   onCreateChapter,
   children,
 }: VolumeItemProps) {
+  const { t } = useI18n()
   const [popoverOpen, setPopoverOpen] = useState(false)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -86,7 +88,7 @@ export function VolumeItem({
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
-                        重命名
+                        {t('editor.leftPanel.chapters.volumeItem.rename')}
                       </button>
                     )}
                     {onDelete && (
@@ -100,7 +102,7 @@ export function VolumeItem({
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        删除
+                        {t('editor.leftPanel.chapters.volumeItem.delete')}
                       </button>
                     )}
                   </Popover.Content>
@@ -149,7 +151,7 @@ export function VolumeItem({
             className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
             <BookOpen className="w-2.5 h-2.5" />
-            新增章节
+            {t('editor.leftPanel.chapters.volumeItem.addChapter')}
           </ContextMenuItem>
         )}
         {onRename && (
@@ -161,7 +163,7 @@ export function VolumeItem({
             className="flex items-center gap-1 px-1.5 py-0.5 text-[11px]"
           >
             <Edit2 className="w-2.5 h-2.5" />
-            编辑卷名
+            {t('editor.leftPanel.chapters.volumeItem.editVolumeName')}
           </ContextMenuItem>
         )}
         {onDelete && (
@@ -175,7 +177,7 @@ export function VolumeItem({
               className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] text-red-600 focus:text-red-600 focus:bg-red-50"
             >
               <Trash2 className="w-2.5 h-2.5" />
-              删除卷
+              {t('editor.leftPanel.chapters.volumeItem.deleteVolume')}
             </ContextMenuItem>
           </>
         )}

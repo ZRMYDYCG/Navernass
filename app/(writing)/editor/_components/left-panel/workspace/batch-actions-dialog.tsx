@@ -1,8 +1,11 @@
+'use client'
+
 import * as Dialog from '@radix-ui/react-dialog'
 import { Check, Copy, Trash2, X } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Chapter {
   id: string
@@ -24,6 +27,7 @@ export function BatchActionsDialog({
   mode,
   onConfirm,
 }: BatchActionsDialogProps) {
+  const { t } = useI18n()
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(() => new Set())
   const [isProcessing, setIsProcessing] = React.useState(false)
 
@@ -58,29 +62,35 @@ export function BatchActionsDialog({
 
   // 处理确认
   const handleConfirm = async () => {
+    const action = mode === 'copy'
+      ? t('editor.leftPanel.workspace.batchActions.mode.copy')
+      : t('editor.leftPanel.workspace.batchActions.mode.delete')
+
     if (selectedIds.size === 0) {
-      toast.error(`请至少选择一个章节${mode === 'copy' ? '进行复制' : '进行删除'}`)
+      toast.error(t('editor.leftPanel.workspace.batchActions.pleaseSelectOne', { action }))
       return
     }
 
     try {
       setIsProcessing(true)
       await onConfirm(Array.from(selectedIds))
-      toast.success(
-        mode === 'copy'
-          ? `成功复制 ${selectedIds.size} 个章节`
-          : `成功删除 ${selectedIds.size} 个章节`,
-      )
+      toast.success(mode === 'copy'
+        ? t('editor.leftPanel.workspace.batchActions.successCopy', { count: selectedIds.size })
+        : t('editor.leftPanel.workspace.batchActions.successDelete', { count: selectedIds.size }))
       onOpenChange(false)
     } catch (error) {
-      console.error(`${mode === 'copy' ? '复制' : '删除'}失败:`, error)
-      toast.error(`${mode === 'copy' ? '复制' : '删除'}失败`)
+      console.error('Batch action failed:', error)
+      toast.error(mode === 'copy'
+        ? t('editor.leftPanel.workspace.batchActions.failedCopy')
+        : t('editor.leftPanel.workspace.batchActions.failedDelete'))
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const modeText = mode === 'copy' ? '复制' : '删除'
+  const modeText = mode === 'copy'
+    ? t('editor.leftPanel.workspace.batchActions.mode.copy')
+    : t('editor.leftPanel.workspace.batchActions.mode.delete')
   const selectedCount = selectedIds.size
 
   return (
@@ -100,7 +110,7 @@ export function BatchActionsDialog({
                       <Trash2 className="w-5 h-5 text-red-600" />
                     )}
                 <Dialog.Title className="text-lg font-semibold text-foreground">
-                  批量
+                  {t('editor.leftPanel.workspace.batchActions.titlePrefix')}
                   {modeText}
                 </Dialog.Title>
                 <span className="text-sm text-muted-foreground">
@@ -129,14 +139,14 @@ export function BatchActionsDialog({
                   onClick={toggleSelectAll}
                   className="text-sm text-muted-foreground hover:text-foreground"
                 >
-                  {selectedIds.size === chapters.length ? '取消全选' : '全选'}
+                  {selectedIds.size === chapters.length ? t('editor.leftPanel.workspace.batchActions.deselectAll') : t('editor.leftPanel.workspace.batchActions.selectAll')}
                 </button>
                 <span className="text-sm text-muted-foreground">
-                  已选择
+                  {t('editor.leftPanel.workspace.batchActions.selectedPrefix')}
                   {' '}
                   {selectedCount}
                   {' '}
-                  个章节
+                  {t('editor.leftPanel.workspace.batchActions.selectedSuffix')}
                 </span>
               </div>
 
@@ -144,7 +154,7 @@ export function BatchActionsDialog({
                 {chapters.length === 0
                   ? (
                       <div className="text-center py-8 text-muted-foreground">
-                        <p className="text-sm">暂无章节</p>
+                        <p className="text-sm">{t('editor.leftPanel.workspace.batchActions.empty')}</p>
                       </div>
                     )
                   : (
@@ -190,7 +200,7 @@ export function BatchActionsDialog({
                   className="flex-1 bg-secondary text-foreground hover:bg-accent"
                   disabled={isProcessing}
                 >
-                  取消
+                  {t('common.cancel')}
                 </Button>
               </Dialog.Close>
               <Button
@@ -203,7 +213,7 @@ export function BatchActionsDialog({
                     : 'bg-primary text-primary-foreground hover:opacity-90'
                 }`}
               >
-                {isProcessing ? `${modeText}中...` : `确认${modeText}`}
+                {isProcessing ? t('editor.leftPanel.workspace.batchActions.processing', { action: modeText }) : t('editor.leftPanel.workspace.batchActions.confirm', { action: modeText })}
               </Button>
             </div>
           </div>

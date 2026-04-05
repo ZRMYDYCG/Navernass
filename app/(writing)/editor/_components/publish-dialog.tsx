@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useI18n } from '@/hooks/use-i18n'
 import { useToast } from '@/hooks/use-toast'
 import { novelsApi } from '@/lib/supabase/sdk'
 
@@ -28,6 +29,7 @@ export function PublishDialog({
   novelId,
   chapterIds = DEFAULT_CHAPTER_IDS,
 }: PublishDialogProps) {
+  const { t } = useI18n()
   const [publishedCount, setPublishedCount] = useState(0)
   const [isCopied, setIsCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -64,8 +66,8 @@ export function PublishDialog({
   const handlePublish = async () => {
     if (!chapterIds.length) {
       toast({
-        title: '发布失败',
-        description: '请先选择要发布的章节',
+        title: t('editor.publish.toasts.publishFailedTitle'),
+        description: t('editor.publish.toasts.selectChaptersFirst'),
         variant: 'destructive',
       })
       return
@@ -92,16 +94,16 @@ export function PublishDialog({
         }
         setPublishedCount(successCount)
         toast({
-          title: '发布成功',
-          description: `已发布 ${successCount} 个章节`,
+          title: t('editor.publish.toasts.publishSuccessTitle'),
+          description: t('editor.publish.toasts.publishSuccessDesc', { count: successCount }),
         })
       } else {
-        throw new Error('发布失败')
+        throw new Error(t('editor.publish.errors.publishFailed'))
       }
     } catch (error) {
       toast({
-        title: '发布失败',
-        description: `请稍后重试, ${(error as Error).message}`,
+        title: t('editor.publish.toasts.publishFailedTitle'),
+        description: t('editor.publish.toasts.tryAgainWithMessage', { message: (error as Error).message }),
         variant: 'destructive',
       })
     } finally {
@@ -131,13 +133,13 @@ export function PublishDialog({
 
       setPublishedCount(0)
       toast({
-        title: '已取消发布',
-        description: '章节已从公开页面移除',
+        title: t('editor.publish.toasts.unpublishSuccessTitle'),
+        description: t('editor.publish.toasts.unpublishSuccessDesc'),
       })
     } catch (error) {
       toast({
-        title: '操作失败',
-        description: `请稍后重试, ${(error as Error).message}`,
+        title: t('editor.publish.toasts.actionFailedTitle'),
+        description: t('editor.publish.toasts.tryAgainWithMessage', { message: (error as Error).message }),
         variant: 'destructive',
       })
     } finally {
@@ -166,7 +168,7 @@ export function PublishDialog({
                     <Globe className="w-8 h-8 text-foreground animate-pulse" />
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    检查发布状态中...
+                    {t('editor.publish.checkingStatus')}
                   </div>
                 </div>
               )
@@ -177,11 +179,7 @@ export function PublishDialog({
                       <Globe className="w-8 h-8 text-foreground" />
                     </div>
                     <div className="text-sm text-foreground">
-                      已发布
-                      {' '}
-                      {publishedCount}
-                      {' '}
-                      个章节
+                      {t('editor.publish.publishedCount', { count: publishedCount })}
                     </div>
 
                     <div className="w-full flex items-center gap-2 bg-background/80 rounded-lg p-3 border border-border">
@@ -212,7 +210,7 @@ export function PublishDialog({
                       disabled={isLoading}
                       className="w-full h-11 rounded-lg font-medium bg-primary text-primary-foreground hover:opacity-90"
                     >
-                      {isLoading ? '取消中...' : '取消发布'}
+                      {isLoading ? t('editor.publish.unpublishing') : t('editor.publish.unpublish')}
                     </Button>
                   </>
                 )
@@ -223,10 +221,10 @@ export function PublishDialog({
                     </div>
                     <DialogHeader className="text-center space-y-2">
                       <DialogTitle className="text-xl text-foreground">
-                        发布此小说
+                        {t('editor.publish.dialogTitle')}
                       </DialogTitle>
                       <DialogDescription className="text-muted-foreground">
-                        与世界分享您的内容
+                        {t('editor.publish.dialogDescription')}
                       </DialogDescription>
                     </DialogHeader>
 
@@ -235,7 +233,7 @@ export function PublishDialog({
                       disabled={isLoading || !chapterIds.length}
                       className="w-full h-11 rounded-lg font-medium bg-primary text-primary-foreground hover:opacity-90"
                     >
-                      {isLoading ? '发布中...' : '发布'}
+                      {isLoading ? t('editor.publish.publishing') : t('editor.publish.publish')}
                     </Button>
                   </>
                 )}

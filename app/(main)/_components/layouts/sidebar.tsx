@@ -7,8 +7,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ChatHistoryPopover } from '@/app/(main)/chat/_components/chat-history-popover'
 import { Kbd, KbdGroup } from '@/components/ui/kbd'
-import { useIsMobile } from '@/hooks/use-media-query'
 import { useI18n } from '@/hooks/use-i18n'
+import { useIsMobile } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
 import { SearchDialog } from './search-dialog'
 import { SettingsDialog } from './settings-dialog'
@@ -106,14 +106,14 @@ export function Sidebar({
       {isMobile && (
         <button
           type="button"
-          aria-label="Toggle menu"
+          aria-label={isMobileOpen ? t('main.sidebar.closeSidebar') : t('main.sidebar.openSidebar')}
           aria-expanded={isMobileOpen}
           data-sidebar-toggle
           onClick={() => setIsMobileOpen(prev => !prev)}
           className={cn(
             'fixed right-3 top-3 z-[70] h-10 w-10 rounded-full border border-sidebar-border bg-sidebar/90 shadow-lg backdrop-blur flex items-center justify-center text-sidebar-foreground transition hover:bg-sidebar-accent',
           )}
-          title={isMobileOpen ? 'Close sidebar' : 'Open sidebar'}
+          title={isMobileOpen ? t('main.sidebar.closeSidebar') : t('main.sidebar.openSidebar')}
         >
           {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>

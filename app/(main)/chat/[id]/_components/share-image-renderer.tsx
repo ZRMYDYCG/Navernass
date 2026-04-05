@@ -5,6 +5,7 @@ import type { Message } from '@/lib/supabase/sdk/types'
 import { useTheme } from 'next-themes'
 import { useMemo } from 'react'
 
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 interface ShareImageRendererProps {
@@ -16,10 +17,12 @@ interface ShareImageRendererProps {
 export function ShareImageRenderer({ messages, title, containerRef }: ShareImageRendererProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const { t } = useI18n()
+  const { locale } = useLocale()
 
   const timestamp = useMemo(() => {
     try {
-      return new Intl.DateTimeFormat('zh-CN', {
+      return new Intl.DateTimeFormat(locale === 'zh-CN' ? 'zh-CN' : 'en-US', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -29,7 +32,7 @@ export function ShareImageRenderer({ messages, title, containerRef }: ShareImage
     } catch {
       return new Date().toLocaleString()
     }
-  }, [])
+  }, [locale])
 
   const logoSrc = isDark ? '/assets/svg/logo-dark.svg' : '/assets/svg/logo-dark.svg'
   const footerLogoSrc = isDark ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
@@ -66,7 +69,7 @@ export function ShareImageRenderer({ messages, title, containerRef }: ShareImage
                   : 'border-indigo-200 bg-white/60 text-indigo-900',
               )}
               >
-                <span>精选对话</span>
+                <span>{t('chat.share.featured')}</span>
               </div>
               <div className="space-y-3">
                 <div className={cn(
@@ -76,14 +79,14 @@ export function ShareImageRenderer({ messages, title, containerRef }: ShareImage
                     : 'text-gray-900',
                 )}
                 >
-                  {title || '与 Narraverse 的灵感对话'}
+                  {title || t('chat.share.image.titleFallback')}
                 </div>
                 <p className={cn(
                   'text-lg max-w-[560px] leading-relaxed',
                   isDark ? 'text-gray-400' : 'text-gray-600',
                 )}
                 >
-                  Narraverse 为你整理本轮对话的精彩瞬间，快分享给伙伴一起灵感爆发。
+                  {t('chat.share.image.description')}
                 </p>
               </div>
             </div>
@@ -121,14 +124,14 @@ export function ShareImageRenderer({ messages, title, containerRef }: ShareImage
           )}
           >
             <span>
-              记录时间 ·
+              {t('chat.share.image.recordedAtPrefix')}
               {timestamp}
             </span>
             <span>
-              共
+              {t('chat.share.image.totalPrefix')}
               {messages.length}
               {' '}
-              条对话
+              {t('chat.share.image.totalSuffix')}
             </span>
           </div>
 
@@ -145,7 +148,7 @@ export function ShareImageRenderer({ messages, title, containerRef }: ShareImage
                         : isUser ? 'bg-indigo-600 text-white shadow-[0_18px_38px_rgba(79,70,229,0.25)]' : 'bg-white text-gray-900 border border-gray-200 shadow-[0_18px_38px_rgba(0,0,0,0.08)]',
                     )}
                   >
-                    {isUser ? '我' : 'AI'}
+                    {isUser ? t('chat.messages.roleUser') : t('chat.messages.roleAI')}
                   </div>
                   <div
                     className={cn(
@@ -160,13 +163,8 @@ export function ShareImageRenderer({ messages, title, containerRef }: ShareImage
                       isDark ? 'text-gray-400' : 'text-gray-600',
                     )}
                     >
-                      <span>{isUser ? 'Narraverse 用户' : 'Narraverse AI 助手'}</span>
-                      <span>
-                        第
-                        {index + 1}
-                        {' '}
-                        条
-                      </span>
+                      <span>{isUser ? t('chat.share.image.userLabel') : t('chat.share.image.aiLabel')}</span>
+                      <span>{t('chat.share.image.messageIndex', { index: index + 1 })}</span>
                     </div>
                     <div className="text-lg leading-8 whitespace-pre-wrap">{message.content}</div>
                   </div>
@@ -185,9 +183,9 @@ export function ShareImageRenderer({ messages, title, containerRef }: ShareImage
         >
           <div className="flex items-center gap-3">
             <img src={footerLogoSrc} alt="Narraverse logo" className="w-8 h-8" crossOrigin="anonymous" />
-            <span>Narraverse · AI 创作工作室</span>
+            <span>{t('chat.share.image.footerLeft')}</span>
           </div>
-          <span>灵感就在当下 · Keep Creating</span>
+          <span>{t('chat.share.image.footerRight')}</span>
         </div>
       </div>
     </div>

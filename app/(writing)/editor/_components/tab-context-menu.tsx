@@ -1,8 +1,9 @@
 'use client'
 
-import { Copy, X, ChevronLeft, ChevronRight, Circle, CircleDot } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Circle, CircleDot, Copy, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { toast } from 'sonner'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Tab {
   id: string
@@ -33,6 +34,7 @@ export function TabContextMenu({
   onCloseMenu,
 }: TabContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null)
+  const { t } = useI18n()
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -89,10 +91,10 @@ export function TabContextMenu({
   const handleCopyTitle = async () => {
     try {
       await navigator.clipboard.writeText(tab.title)
-      toast.success('标题已复制到剪贴板')
+      toast.success(t('editor.tabs.menu.copyTitleSuccess'))
       onCloseMenu()
     } catch {
-      toast.error('复制失败')
+      toast.error(t('editor.tabs.menu.copyFailed'))
       onCloseMenu()
     }
   }
@@ -122,7 +124,7 @@ export function TabContextMenu({
         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
       >
         <X className="w-4 h-4" />
-        关闭
+        {t('editor.tabs.menu.close')}
       </button>
 
       {hasOtherTabs && (
@@ -137,7 +139,7 @@ export function TabContextMenu({
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
           >
             <CircleDot className="w-4 h-4" />
-            关闭其他
+            {t('editor.tabs.menu.closeOthers')}
           </button>
 
           <button
@@ -150,7 +152,7 @@ export function TabContextMenu({
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
           >
             <Circle className="w-4 h-4" />
-            关闭所有
+            {t('editor.tabs.menu.closeAll')}
           </button>
         </>
       )}
@@ -166,7 +168,7 @@ export function TabContextMenu({
           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          关闭左侧
+          {t('editor.tabs.menu.closeLeft')}
         </button>
       )}
 
@@ -181,7 +183,7 @@ export function TabContextMenu({
           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
         >
           <ChevronRight className="w-4 h-4" />
-          关闭右侧
+          {t('editor.tabs.menu.closeRight')}
         </button>
       )}
 
@@ -196,7 +198,7 @@ export function TabContextMenu({
         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
       >
         <Copy className="w-4 h-4" />
-        复制标题
+        {t('editor.tabs.menu.copyTitle')}
       </button>
     </div>
   )

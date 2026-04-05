@@ -1,6 +1,7 @@
 import type { AiMode } from './types'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import { MODE_OPTIONS } from './constants'
 
 interface ModeSelectorProps {
@@ -9,6 +10,7 @@ interface ModeSelectorProps {
 }
 
 export function ModeSelector({ value, onChange }: ModeSelectorProps) {
+  const { t } = useI18n()
   const [isOpen, setIsOpen] = useState(false)
 
   const currentMode = MODE_OPTIONS.find(m => m.value === value)
@@ -33,7 +35,7 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
                       <IconComponent className="w-3 h-3 text-muted-foreground" />
                     )
                   : null}
-              <span className="text-foreground">{currentMode?.label}</span>
+              <span className="text-foreground">{t(`editor.rightPanel.mode.${value}`)}</span>
               <ChevronDown className="w-2.5 h-2.5 text-muted-foreground transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </>
           )
@@ -69,7 +71,7 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
                           <IconComp className="w-3 h-3 opacity-70" />
                         )
                       : null}
-                  <span>{mode.label}</span>
+                  <span>{t(`editor.rightPanel.mode.${mode.value}`)}</span>
                 </button>
               )
             })}

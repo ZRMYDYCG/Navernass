@@ -1,6 +1,7 @@
 'use client'
 
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface HeaderCenterProps {
   title: string
@@ -19,6 +20,8 @@ export function HeaderCenter({
   onGoForward,
   onTitleClick,
 }: HeaderCenterProps) {
+  const { t } = useI18n()
+
   return (
     <div className="hidden sm:flex items-center gap-2 h-full flex-1 justify-center max-w-2xl">
       <button
@@ -30,7 +33,7 @@ export function HeaderCenter({
             ? 'bg-transparent text-foreground hover:bg-accent cursor-pointer'
             : 'bg-transparent text-muted-foreground cursor-not-allowed opacity-60'
         }`}
-        title="上一章节"
+        title={t('editor.headerCenter.prevChapter')}
       >
         <ArrowLeft className="w-4 h-4" strokeWidth={1.8} />
       </button>
@@ -38,10 +41,10 @@ export function HeaderCenter({
       <div
         onClick={onTitleClick}
         className="group flex-1 max-w-[240px] h-7 px-3 flex items-center justify-center gap-2 rounded-md border border-border/60 bg-muted/50 text-sm text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer transition-colors"
-        title="点击搜索章节"
+        title={t('editor.headerCenter.clickToSearch')}
       >
         <span className="truncate font-medium font-serif tracking-wide opacity-90 group-hover:opacity-100 transition-opacity">
-          {title || '未选择章节'}
+          {title || t('editor.headerCenter.noChapterSelected')}
         </span>
       </div>
 
@@ -54,7 +57,7 @@ export function HeaderCenter({
             ? 'bg-transparent text-foreground hover:bg-accent cursor-pointer'
             : 'bg-transparent text-muted-foreground cursor-not-allowed opacity-60'
         }`}
-        title="下一章节"
+        title={t('editor.headerCenter.nextChapter')}
       >
         <ArrowRight className="w-4 h-4" strokeWidth={1.8} />
       </button>

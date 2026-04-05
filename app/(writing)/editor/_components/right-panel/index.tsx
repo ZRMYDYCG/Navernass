@@ -5,6 +5,7 @@ import type { Chapter, NovelConversation, NovelMessage } from '@/lib/supabase/sd
 import { useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Spinner } from '@/components/ui/spinner'
+import { useI18n } from '@/hooks/use-i18n'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
 import { AtButton } from './at-button'
 import { ChapterSelector } from './chapter-selector'
@@ -20,6 +21,7 @@ import { SelectedChapters } from './selected-chapters'
 import { SendButton } from './send-button'
 
 export default function RightPanel() {
+  const { t } = useI18n()
   const searchParams = useSearchParams()
   const novelId = searchParams.get('id') || ''
 
@@ -336,7 +338,7 @@ export default function RightPanel() {
             ? (
                 <div className="h-full flex flex-col items-center justify-center gap-2">
                   <Spinner className="w-6 h-6 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">正在载入对话...</span>
+                  <span className="text-xs text-muted-foreground">{t('editor.rightPanel.loadingConversation')}</span>
                 </div>
               )
             : messages.length === 0

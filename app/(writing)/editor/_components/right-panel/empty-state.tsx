@@ -1,6 +1,9 @@
 import Image from 'next/image'
+import { useI18n } from '@/hooks/use-i18n'
 
 export function EmptyState() {
+  const { t } = useI18n()
+
   return (
     <div className="h-full flex flex-col items-center justify-center text-center px-6 relative">
       <div className="absolute inset-0 overflow-hidden pointer-events-none hidden dark:block">
@@ -16,14 +19,14 @@ export function EmptyState() {
             src="/assets/svg/logo-dark.svg"
             width={50}
             height={50}
-            alt="Logo"
+            alt={t('editor.logoAlt')}
             className="dark:hidden"
           />
           <Image
             src="/assets/svg/logo-light.svg"
             width={50}
             height={50}
-            alt="Logo"
+            alt={t('editor.logoAlt')}
             className="hidden dark:block"
           />
         </div>
@@ -31,10 +34,10 @@ export function EmptyState() {
 
       <div className="relative z-10">
         <h3 className="text-lg font-medium text-foreground mb-2 tracking-tight">
-          AI 写作助手
+          {t('editor.rightPanel.empty.title')}
         </h3>
         <p className="text-sm text-muted-foreground mb-8 max-w-xs leading-relaxed">
-          我可以帮你续写剧情、优化文字、润色对话，让创作更轻松
+          {t('editor.rightPanel.empty.description')}
         </p>
       </div>
     </div>

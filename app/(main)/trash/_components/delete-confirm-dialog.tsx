@@ -1,6 +1,9 @@
+'use client'
+
 import * as Dialog from '@radix-ui/react-dialog'
 import { AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface DeleteConfirmDialogProps {
   open: boolean
@@ -19,6 +22,8 @@ export function DeleteConfirmDialog({
   onConfirm,
   loading = false,
 }: DeleteConfirmDialogProps) {
+  const { t } = useI18n()
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -26,8 +31,8 @@ export function DeleteConfirmDialog({
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
           <div className="bg-card rounded-lg shadow-lg border border-border p-6">
             <div className="flex items-start gap-4 mb-6">
-              <div className="shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <div className="shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-destructive" />
               </div>
               <div className="flex-1">
                 <Dialog.Title className="text-lg font-semibold text-foreground mb-2">
@@ -43,19 +48,19 @@ export function DeleteConfirmDialog({
               <Dialog.Close asChild>
                 <Button
                   type="button"
-                  className="flex-1 bg-secondary text-foreground hover:bg-accent"
+                  className="flex-1 bg-secondary text-secondary-foreground hover:bg-accent"
                   disabled={loading}
                 >
-                  取消
+                  {t('trash.dialog.cancel')}
                 </Button>
               </Dialog.Close>
               <Button
                 type="button"
                 onClick={onConfirm}
-                className="flex-1 bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-800"
+                className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 disabled={loading}
               >
-                {loading ? '删除中...' : '确认删除'}
+                {loading ? t('trash.dialog.deleting') : t('trash.dialog.confirmDelete')}
               </Button>
             </div>
           </div>

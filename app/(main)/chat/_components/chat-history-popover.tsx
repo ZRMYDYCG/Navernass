@@ -1,13 +1,14 @@
 'use client'
 
 import type { ChatHistoryData } from './chat-history-item'
-import { List } from 'lucide-react'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { History } from 'lucide-react'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useI18n } from '@/hooks/use-i18n'
 import { conversationsApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 import { ChatHistoryItem } from './chat-history-item'
@@ -23,6 +24,7 @@ export function ChatHistoryPopover({ className, scrollAreaClassName }: ChatHisto
   const router = useRouter()
   const params = useParams()
   const currentId = params?.id as string | undefined
+  const { t } = useI18n()
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
   const [chatHistory, setChatHistory] = useState<ChatHistoryData[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -101,16 +103,28 @@ export function ChatHistoryPopover({ className, scrollAreaClassName }: ChatHisto
   return (
     <TooltipProvider>
       <div className={cn('flex flex-col', className)}>
-        <div className="px-4 text-xs font-medium text-muted-foreground flex items-center gap-2 group font-serif uppercase tracking-wider">
-          <span>历史对话</span>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="ml-auto text-muted-foreground/70 hover:text-foreground hover:bg-accent opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer h-6 w-6"
-            onClick={() => router.push('/chat/all')}
-          >
-            <List className="w-3.5 h-3.5" />
-          </Button>
+        <div className="px-4 py-2 flex items-center gap-2 border-b border-border/40 bg-sidebar/20 backdrop-blur-sm">
+          <span className="text-xs font-medium text-muted-foreground tracking-wide">
+            {t('chat.historyPopover.title')}
+          </span>
+          <div className="ml-auto flex items-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-accent"
+                  onClick={() => router.push('/chat/all')}
+                  aria-label={t('chat.historyPopover.viewAllAria')}
+                >
+                  <History className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                {t('chat.historyPopover.viewAll')}
+              </TooltipContent>
+            </Tooltip>
+          </div>
         </div>
 
         <ScrollArea className={cn('h-[400px]', scrollAreaClassName)}>
@@ -128,7 +142,7 @@ export function ChatHistoryPopover({ className, scrollAreaClassName }: ChatHisto
               : chatHistory.length === 0
                 ? (
                     <div className="min-h-[200px] flex items-center justify-center text-muted-foreground text-xs font-serif italic">
-                      还没有对话历史
+                      {t('chat.historyPopover.empty')}
                     </div>
                   )
                 : (

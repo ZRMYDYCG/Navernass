@@ -2,6 +2,7 @@
 
 import { Lock, Unlock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 import { setLocked } from './utils'
 
@@ -10,6 +11,8 @@ interface LockScreenOverlayProps {
 }
 
 export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
+  const { t } = useI18n()
+
   const handleUnlock = () => {
     setLocked(false)
     if (typeof window !== 'undefined') {
@@ -31,10 +34,10 @@ export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
           </div>
 
           <h2 className="text-xl font-medium text-foreground text-center mb-2">
-            屏幕已锁定
+            {t('editor.lockScreen.overlay.title')}
           </h2>
           <p className="text-sm text-muted-foreground text-center mb-8">
-            点击下方按钮解锁继续创作
+            {t('editor.lockScreen.overlay.subtitle')}
           </p>
 
           <Button
@@ -42,7 +45,7 @@ export function LockScreenOverlay({ onUnlock }: LockScreenOverlayProps) {
             className="w-full h-11 bg-primary hover:opacity-90 text-primary-foreground rounded-xl transition-all shadow-sm hover:shadow-md"
           >
             <Unlock className="w-4 h-4 mr-2" />
-            解锁
+            {t('editor.lockScreen.overlay.unlock')}
           </Button>
         </div>
       </div>

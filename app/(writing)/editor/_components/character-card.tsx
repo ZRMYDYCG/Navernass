@@ -2,6 +2,7 @@
 
 import { BookOpen, User } from 'lucide-react'
 import Image from 'next/image'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 export interface Character {
@@ -23,6 +24,8 @@ interface CharacterCardProps {
 }
 
 export function CharacterCard({ character, onClick, className }: CharacterCardProps) {
+  const { t } = useI18n()
+
   return (
     <div
       onClick={onClick}
@@ -62,14 +65,14 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
             )}
           </div>
           <div className="text-xs text-muted-foreground truncate mt-0.5">
-            {character.role || '暂无角色定位'}
+            {character.role || t('editor.characterCard.noRole')}
           </div>
         </div>
       </div>
 
       {character.description && (
         <div>
-          <div className="text-[10px] text-muted-foreground/80 mb-1">人物描述</div>
+          <div className="text-[10px] text-muted-foreground/80 mb-1">{t('editor.characterCard.description')}</div>
           <div className="max-h-24 overflow-y-auto pr-1">
             <p className="text-xs text-muted-foreground/80 leading-relaxed whitespace-pre-wrap break-words">
               {character.description}
@@ -82,7 +85,7 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
         <div className="flex flex-col gap-1.5 pt-1">
           {character.traits.length > 0 && (
             <div className="flex flex-col gap-1">
-              <div className="text-[10px] text-muted-foreground/80">关键特质</div>
+              <div className="text-[10px] text-muted-foreground/80">{t('editor.characterCard.traits')}</div>
               <div className="flex flex-wrap gap-1.5">
                 {character.traits.slice(0, 4).map((trait, i) => (
                   <span
@@ -101,7 +104,7 @@ export function CharacterCard({ character, onClick, className }: CharacterCardPr
 
           {character.keywords.length > 0 && (
             <div className="flex flex-col gap-1">
-              <div className="text-[10px] text-muted-foreground/80">关键词</div>
+              <div className="text-[10px] text-muted-foreground/80">{t('editor.characterCard.keywords')}</div>
               <div className="flex flex-wrap gap-1.5">
                 {character.keywords.slice(0, 4).map((keyword, i) => (
                   <span

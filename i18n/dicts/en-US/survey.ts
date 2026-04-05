@@ -1,0 +1,105 @@
+const survey = {
+  meta: {
+    title: 'Co-creation Survey',
+    description: 'Take 3 minutes to share your writing stories and join the Narraverse co-creation plan.',
+    keywords: [
+      'AI writing survey',
+      'novel writing research',
+      'writer feedback',
+      'Narraverse co-creation',
+    ],
+    breadcrumbHome: 'Home',
+    breadcrumbSurvey: 'Survey',
+  },
+  header: {
+    title: 'Co-creation Plan:\nFind Your Writing Partner',
+    subtitle: 'We are not just building a tool, we are finding a way to dance with inspiration.\nWe invite you to take 3 minutes to talk about your writing stories.',
+  },
+  sections: {
+    profile: {
+      step: '01',
+      title: 'About Your Writing Journey',
+      experience: 'Current writing status?',
+      experienceOptions: [
+        { label: 'Beginner (Just started writing)', value: 'newbie' },
+        { label: 'Intermediate (< 500k words written)', value: 'intermediate' },
+        { label: 'Advanced (> 500k words written)', value: 'advanced' },
+        { label: 'Professional (Writing for a living)', value: 'pro' },
+      ],
+      genres: 'Preferred genres? (Multiple choice)',
+      genresOptions: [
+        { label: 'Fantasy / Xianxia', value: 'fantasy' },
+        { label: 'Urban / Romance', value: 'urban' },
+        { label: 'Sci-Fi / Apocalyptic', value: 'scifi' },
+        { label: 'Suspense / Thriller', value: 'suspense' },
+        { label: 'History / Military', value: 'history' },
+        { label: 'Fanfiction / Light Novel', value: 'fanfic' },
+        { label: 'Other', value: 'other' },
+      ],
+    },
+    painPoints: {
+      step: '02',
+      title: 'Moments That Make You Stop',
+      struggles: 'Which part drains your passion the most? (Multiple choice)',
+      strugglesOptions: [
+        { label: 'Writer\'s Block (Want to write but don\'t know what)', value: 'idea' },
+        { label: 'Outline Stuck (Plot holes, broken logic)', value: 'outline' },
+        { label: 'Worldbuilding Maze (Too complex to self-justify)', value: 'world' },
+        { label: 'Flat Characters (Lacking soul and arc)', value: 'character' },
+        { label: 'Slow Drafting (Hard to push the main story forward)', value: 'drafting' },
+        { label: 'Tedious Editing (Checking errors, finding the right words)', value: 'editing' },
+      ],
+      tools: 'Current main tools? (Multiple choice)',
+      toolsOptions: [
+        { label: 'Word / WPS / Pages', value: 'word' },
+        { label: 'Notion / Obsidian / Logseq', value: 'note' },
+        { label: 'Scrivener / Ulysses', value: 'scrivener' },
+        { label: 'Webnovel specific tools', value: 'webnovel_tools' },
+        { label: 'Phone Memos / Plain Text', value: 'memo' },
+      ],
+    },
+    expectations: {
+      step: '03',
+      title: 'The Ideal Assistant',
+      aiFeatures: 'If AI were your assistant, you want it to excel at...',
+      max3: 'Select up to 3',
+      aiFeaturesOptions: [
+        { label: 'Brainstorming: Providing ideas and plot twists', value: 'brainstorm' },
+        { label: 'Wiki Manager: Organizing and visualizing characters/world', value: 'wiki' },
+        { label: 'Autocomplete: Assisting paragraphs based on context', value: 'autocomplete' },
+        { label: 'Logic Checker: Finding plot holes and timeline bugs', value: 'logic_check' },
+        { label: 'Art Generator: Creating character portraits and scenes', value: 'image_gen' },
+        { label: 'Market Analyst: Analyzing trends and reader preferences', value: 'analytics' },
+        { label: 'Roleplay: Acting as a character to find their voice', value: 'roleplay' },
+      ],
+      concerns: 'Your biggest concern or suggestion about AI writing?',
+      concernsPlaceholder: 'E.g., Worried about copyright, inconsistent style, don\'t want AI to interfere with core ideas...',
+    },
+    contact: {
+      step: '04',
+      title: 'Keep in Touch',
+      info: 'Leave your contact for priority beta access (Optional)',
+      infoPlaceholder: 'Email or WeChat',
+      promise: 'Promise: Your info is only used for beta invites. No spam.',
+    },
+  },
+  submit: {
+    button: 'Send Feedback',
+    submitting: 'Submitting...',
+    success: 'Thank you for your insights! We received them.',
+    error: 'Failed to submit. Please try again later.',
+  },
+  successScreen: {
+    title: 'Thank you for sharing',
+    message: 'Every creator\'s voice nourishes Narraverse\'s growth.\nWe will listen carefully and live up to expectations.',
+    backHome: 'Back to Home',
+  },
+  community: {
+    findMore: 'Looking for companions?',
+    joinGroup: 'Join the Community',
+    scanQr: 'Scan to join Narraverse Friends',
+  },
+  footer: 'Narraverse · Create Worlds with Intelligence',
+} as const
+
+export default survey

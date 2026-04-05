@@ -1,3 +1,5 @@
+'use client'
+
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import type { Novel } from '@/lib/supabase/sdk'
 import {
@@ -19,6 +21,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useState } from 'react'
 import { Spinner } from '@/components/ui/spinner'
+import { useI18n } from '@/hooks/use-i18n'
 import { NovelCard } from './novel-card'
 
 interface NovelListProps {
@@ -76,6 +79,7 @@ export function NovelList({
   onContextMenu,
   onReorder,
 }: NovelListProps) {
+  const { t } = useI18n()
   const [activeId, setActiveId] = useState<string | null>(null)
 
   const sensors = useSensors(
@@ -110,7 +114,7 @@ export function NovelList({
     return (
       <div className="flex flex-col items-center justify-start pt-[30vh] min-h-[60vh] gap-3">
         <Spinner className="w-6 h-6 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground font-serif not-italic">加载中...</span>
+        <span className="text-sm text-muted-foreground font-serif not-italic">{t('novels.loading')}</span>
       </div>
     )
   }
@@ -118,8 +122,8 @@ export function NovelList({
   if (novels.length === 0) {
     return (
       <div className="flex flex-col items-center justify-start pt-[22vh] min-h-[60vh] select-none">
-        <p className="font-handwriting text-5xl text-muted-foreground/30 mb-6 leading-none">笔者未有办仔</p>
-        <p className="text-sm text-muted-foreground/70">开始你的第一部小说创作吧</p>
+        <p className="font-handwriting text-5xl text-muted-foreground/30 mb-6 leading-none">{t('novels.empty.title')}</p>
+        <p className="text-sm text-muted-foreground/70">{t('novels.empty.description')}</p>
         <div className="mt-3 w-8 h-[1px] bg-border/60" />
       </div>
     )

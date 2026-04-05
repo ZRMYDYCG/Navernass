@@ -1,5 +1,8 @@
+'use client'
+
 import * as Dialog from '@radix-ui/react-dialog'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface RenameChapterDialogProps {
   open: boolean
@@ -18,6 +21,8 @@ export function RenameChapterDialog({
   onConfirm,
   isUpdating,
 }: RenameChapterDialogProps) {
+  const { t } = useI18n()
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -32,14 +37,14 @@ export function RenameChapterDialog({
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
           <div className="bg-card rounded-lg shadow-lg border border-border p-6">
             <Dialog.Title className="text-xl font-semibold text-foreground mb-4">
-              重命名章节
+              {t('editor.chapters.renameTitle')}
             </Dialog.Title>
 
             <div className="space-y-4">
               {/* 标题输入 */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  章节标题
+                  {t('editor.chapters.titleLabel')}
                   {' '}
                   <span className="text-red-500">*</span>
                 </label>
@@ -47,7 +52,7 @@ export function RenameChapterDialog({
                   type="text"
                   value={title}
                   onChange={e => onTitleChange(e.target.value)}
-                  placeholder="例如：第一章 新的开始"
+                  placeholder={t('editor.chapters.titlePlaceholder')}
                   className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   autoFocus
                   onKeyDown={handleKeyDown}
@@ -63,7 +68,7 @@ export function RenameChapterDialog({
                   className="flex-1 bg-secondary text-foreground hover:bg-accent"
                   disabled={isUpdating}
                 >
-                  取消
+                  {t('common.cancel')}
                 </Button>
               </Dialog.Close>
               <Button
@@ -71,7 +76,7 @@ export function RenameChapterDialog({
                 className="flex-1 bg-primary text-primary-foreground hover:opacity-90"
                 disabled={isUpdating || !title.trim()}
               >
-                {isUpdating ? '更新中...' : '确定'}
+                {isUpdating ? t('editor.messages.updating') : t('common.ok')}
               </Button>
             </div>
           </div>

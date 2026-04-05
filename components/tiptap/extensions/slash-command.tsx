@@ -21,6 +21,12 @@ import tippy from 'tippy.js'
 import { CommandList } from '../command-list'
 import { showGlobalImageGenerationDialog, showGlobalInputDialog } from '../dialog-manager'
 
+type TFunctionLike = (key: string, options?: Record<string, any>) => string
+
+export interface SlashCommandOptions {
+  t?: TFunctionLike
+}
+
 export interface CommandItem {
   title: string
   description: string
@@ -29,11 +35,12 @@ export interface CommandItem {
   category?: 'basic' | 'ai' | 'format'
 }
 
-export const SlashCommand = Extension.create({
+export const SlashCommand = Extension.create<SlashCommandOptions>({
   name: 'slash-command',
 
   addOptions() {
     return {
+      t: undefined,
       suggestion: {
         char: '/',
         command: ({ editor, range, props }: any) => {
@@ -52,55 +59,56 @@ export const SlashCommand = Extension.create({
           props.command({ editor, range })
         },
         items: ({ query }: { query: string }) => {
+          const t = this.options.t ?? ((key: string) => key)
           const commands: CommandItem[] = [
             {
-              title: 'AI 续写',
-              description: '让 AI 帮你继续写作',
+              title: t('tiptap.slashCommand.items.aiContinue.title'),
+              description: t('tiptap.slashCommand.items.aiContinue.description'),
               icon: Sparkles,
               category: 'ai',
               command: ({ editor, range }) => {
                 editor.chain().focus().deleteRange(range).run()
                 // 触发 AI 续写
-                triggerAIContinue(editor)
+                triggerAIContinue(editor, t)
               },
             },
             {
-              title: 'AI 头脑风暴',
-              description: '生成创意想法和思路',
+              title: t('tiptap.slashCommand.items.aiBrainstorm.title'),
+              description: t('tiptap.slashCommand.items.aiBrainstorm.description'),
               icon: Lightbulb,
               category: 'ai',
               command: ({ editor, range }) => {
                 editor.chain().focus().deleteRange(range).run()
                 // 触发 AI 头脑风暴
-                triggerAIBrainstorm(editor)
+                triggerAIBrainstorm(editor, t)
               },
             },
             {
-              title: 'AI 大纲',
-              description: '生成文章大纲',
+              title: t('tiptap.slashCommand.items.aiOutline.title'),
+              description: t('tiptap.slashCommand.items.aiOutline.description'),
               icon: FileText,
               category: 'ai',
               command: ({ editor, range }) => {
                 editor.chain().focus().deleteRange(range).run()
                 // 触发 AI 大纲生成
-                triggerAIOutline(editor)
+                triggerAIOutline(editor, t)
               },
             },
             {
-              title: 'AI 生成插画',
-              description: '使用 AI 生成图片',
+              title: t('tiptap.slashCommand.items.aiImage.title'),
+              description: t('tiptap.slashCommand.items.aiImage.description'),
               icon: ImageIcon,
               category: 'ai',
               command: ({ editor, range }) => {
                 editor.chain().focus().deleteRange(range).run()
                 // 触发 AI 图片生成
-                triggerAIImageGeneration(editor)
+                triggerAIImageGeneration(editor, t)
               },
             },
             // 基础命令
             {
-              title: '标题 1',
-              description: '大标题',
+              title: t('tiptap.slashCommand.items.heading1.title'),
+              description: t('tiptap.slashCommand.items.heading1.description'),
               icon: Heading1,
               category: 'format',
               command: ({ editor, range }) => {
@@ -113,8 +121,8 @@ export const SlashCommand = Extension.create({
               },
             },
             {
-              title: '标题 2',
-              description: '中标题',
+              title: t('tiptap.slashCommand.items.heading2.title'),
+              description: t('tiptap.slashCommand.items.heading2.description'),
               icon: Heading2,
               category: 'format',
               command: ({ editor, range }) => {
@@ -127,8 +135,8 @@ export const SlashCommand = Extension.create({
               },
             },
             {
-              title: '标题 3',
-              description: '小标题',
+              title: t('tiptap.slashCommand.items.heading3.title'),
+              description: t('tiptap.slashCommand.items.heading3.description'),
               icon: Heading3,
               category: 'format',
               command: ({ editor, range }) => {
@@ -141,8 +149,8 @@ export const SlashCommand = Extension.create({
               },
             },
             {
-              title: '无序列表',
-              description: '创建列表',
+              title: t('tiptap.slashCommand.items.bulletList.title'),
+              description: t('tiptap.slashCommand.items.bulletList.description'),
               icon: List,
               category: 'format',
               command: ({ editor, range }) => {
@@ -150,8 +158,8 @@ export const SlashCommand = Extension.create({
               },
             },
             {
-              title: '有序列表',
-              description: '带编号的列表',
+              title: t('tiptap.slashCommand.items.orderedList.title'),
+              description: t('tiptap.slashCommand.items.orderedList.description'),
               icon: ListOrdered,
               category: 'format',
               command: ({ editor, range }) => {
@@ -159,8 +167,8 @@ export const SlashCommand = Extension.create({
               },
             },
             {
-              title: '引用',
-              description: '引用文本',
+              title: t('tiptap.slashCommand.items.blockquote.title'),
+              description: t('tiptap.slashCommand.items.blockquote.description'),
               icon: Quote,
               category: 'format',
               command: ({ editor, range }) => {
@@ -168,8 +176,8 @@ export const SlashCommand = Extension.create({
               },
             },
             {
-              title: '代码块',
-              description: '插入代码',
+              title: t('tiptap.slashCommand.items.codeBlock.title'),
+              description: t('tiptap.slashCommand.items.codeBlock.description'),
               icon: Code,
               category: 'format',
               command: ({ editor, range }) => {
@@ -177,8 +185,8 @@ export const SlashCommand = Extension.create({
               },
             },
             {
-              title: '分隔线',
-              description: '水平分隔线',
+              title: t('tiptap.slashCommand.items.divider.title'),
+              description: t('tiptap.slashCommand.items.divider.description'),
               icon: Minus,
               category: 'basic',
               command: ({ editor, range }) => {
@@ -248,14 +256,14 @@ export const SlashCommand = Extension.create({
 })
 
 // AI 续写功能
-async function triggerAIContinue(editor: any) {
+async function triggerAIContinue(editor: any, t: TFunctionLike) {
   try {
     // 获取光标前的文本作为上下文
     const { from } = editor.state.selection
     const textBefore = editor.state.doc.textBetween(Math.max(0, from - 500), from, ' ')
 
     // 插入加载提示
-    editor.chain().focus().insertContent('AI 正在续写...').run()
+    editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.continue.loading')).run()
 
     const response = await fetch('/api/editor/ai', {
       method: 'POST',
@@ -266,10 +274,10 @@ async function triggerAIContinue(editor: any) {
       }),
     })
 
-    if (!response.ok) throw new Error('AI 请求失败')
+    if (!response.ok) throw new Error(t('tiptap.slashCommand.ai.continue.requestFailed'))
 
     // 删除加载提示
-    const loadingText = 'AI 正在续写...'
+    const loadingText = t('tiptap.slashCommand.ai.continue.loading')
     const currentPos = editor.state.selection.from
     editor.chain().focus().deleteRange({ from: currentPos - loadingText.length, to: currentPos }).run()
 
@@ -300,28 +308,28 @@ async function triggerAIContinue(editor: any) {
               editor.chain().focus().insertContent(data.data).run()
             }
           } catch {
-            console.warn('解析 SSE 失败:', trimmedLine)
+            console.warn('Failed to parse SSE:', trimmedLine)
           }
         }
       }
     }
   } catch (error) {
-    console.error('AI 续写失败:', error)
-    editor.chain().focus().insertContent('\nAI 续写失败，请稍后重试\n').run()
+    console.error('AI continue failed:', error)
+    editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.continue.failedInline')).run()
   }
 }
 
 // AI 头脑风暴
-async function triggerAIBrainstorm(editor: any) {
+async function triggerAIBrainstorm(editor: any, t: TFunctionLike) {
   const userInput = await showGlobalInputDialog({
-    title: 'AI 头脑风暴',
-    placeholder: '请输入你想要头脑风暴的主题...',
+    title: t('tiptap.slashCommand.ai.brainstorm.dialog.title'),
+    placeholder: t('tiptap.slashCommand.ai.brainstorm.dialog.placeholder'),
   })
 
   if (!userInput) return
 
   try {
-    editor.chain().focus().insertContent('AI 正在生成创意...').run()
+    editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.brainstorm.loading')).run()
 
     const response = await fetch('/api/editor/ai', {
       method: 'POST',
@@ -329,13 +337,13 @@ async function triggerAIBrainstorm(editor: any) {
       body: JSON.stringify({
         action: 'custom',
         text: userInput,
-        prompt: '请围绕这个主题进行头脑风暴，列出5-8个创意想法或思路。用简洁的要点形式呈现。',
+        prompt: t('tiptap.slashCommand.ai.brainstorm.systemPrompt'),
       }),
     })
 
-    if (!response.ok) throw new Error('AI 请求失败')
+    if (!response.ok) throw new Error(t('tiptap.slashCommand.ai.brainstorm.requestFailed'))
 
-    const loadingText = 'AI 正在生成创意...'
+    const loadingText = t('tiptap.slashCommand.ai.brainstorm.loading')
     const currentPos = editor.state.selection.from
     editor.chain().focus().deleteRange({ from: currentPos - loadingText.length, to: currentPos }).run()
 
@@ -364,7 +372,7 @@ async function triggerAIBrainstorm(editor: any) {
               editor.chain().focus().insertContent(data.data).run()
             }
           } catch {
-            console.warn('解析 SSE 失败:', trimmedLine)
+            console.warn('Failed to parse SSE:', trimmedLine)
           }
         }
       }
@@ -372,21 +380,21 @@ async function triggerAIBrainstorm(editor: any) {
 
     editor.chain().focus().insertContent('\n\n').run()
   } catch (error) {
-    console.error('AI 头脑风暴失败:', error)
+    console.error('AI brainstorm failed:', error)
   }
 }
 
 // AI 大纲生成
-async function triggerAIOutline(editor: any) {
+async function triggerAIOutline(editor: any, t: TFunctionLike) {
   const userInput = await showGlobalInputDialog({
-    title: 'AI 大纲生成',
-    placeholder: '请输入文章主题或简要描述...',
+    title: t('tiptap.slashCommand.ai.outline.dialog.title'),
+    placeholder: t('tiptap.slashCommand.ai.outline.dialog.placeholder'),
   })
 
   if (!userInput) return
 
   try {
-    editor.chain().focus().insertContent('AI 正在生成大纲...').run()
+    editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.outline.loading')).run()
 
     const response = await fetch('/api/editor/ai', {
       method: 'POST',
@@ -394,13 +402,13 @@ async function triggerAIOutline(editor: any) {
       body: JSON.stringify({
         action: 'custom',
         text: userInput,
-        prompt: '请为这个主题生成一个详细的文章大纲，包括主要章节和子要点。使用层级结构展示。',
+        prompt: t('tiptap.slashCommand.ai.outline.systemPrompt'),
       }),
     })
 
-    if (!response.ok) throw new Error('AI 请求失败')
+    if (!response.ok) throw new Error(t('tiptap.slashCommand.ai.outline.requestFailed'))
 
-    const loadingText = 'AI 正在生成大纲...'
+    const loadingText = t('tiptap.slashCommand.ai.outline.loading')
     const currentPos = editor.state.selection.from
     editor.chain().focus().deleteRange({ from: currentPos - loadingText.length, to: currentPos }).run()
 
@@ -429,7 +437,7 @@ async function triggerAIOutline(editor: any) {
               editor.chain().focus().insertContent(data.data).run()
             }
           } catch {
-            console.warn('解析 SSE 失败:', trimmedLine)
+            console.warn('Failed to parse SSE:', trimmedLine)
           }
         }
       }
@@ -437,16 +445,16 @@ async function triggerAIOutline(editor: any) {
 
     editor.chain().focus().insertContent('\n\n').run()
   } catch (error) {
-    console.error('AI 大纲生成失败:', error)
+    console.error('AI outline failed:', error)
   }
 }
 
 // AI 图片生成
-async function triggerAIImageGeneration(editor: any) {
+async function triggerAIImageGeneration(editor: any, t: TFunctionLike) {
   showGlobalImageGenerationDialog({
     onConfirm: async (prompt: string, size: string) => {
       try {
-        editor.chain().focus().insertContent('AI 正在生成图片...').run()
+        editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.image.loading')).run()
 
         const response = await fetch('/api/images/generate', {
           method: 'POST',
@@ -463,7 +471,7 @@ async function triggerAIImageGeneration(editor: any) {
 
         if (!response.ok) {
           const error = await response.json()
-          throw new Error(error.error || '图片生成失败')
+          throw new Error(error.error || t('tiptap.slashCommand.ai.image.generateFailed'))
         }
 
         const data = await response.json()
@@ -471,7 +479,7 @@ async function triggerAIImageGeneration(editor: any) {
         if (data.images && data.images.length > 0) {
           const imageUrl = data.images[0].url
 
-          const loadingText = 'AI 正在生成图片...'
+          const loadingText = t('tiptap.slashCommand.ai.image.loading')
           const currentPos = editor.state.selection.from
           editor
             .chain()
@@ -484,18 +492,18 @@ async function triggerAIImageGeneration(editor: any) {
           })
           window.dispatchEvent(editorEvent)
         } else {
-          throw new Error('未返回生成的图片')
+          throw new Error(t('tiptap.slashCommand.ai.image.noImageReturned'))
         }
       } catch (error: any) {
-        console.error('图片生成失败:', error)
-        const loadingText = 'AI 正在生成图片...'
+        console.error('Image generation failed:', error)
+        const loadingText = t('tiptap.slashCommand.ai.image.loading')
         const currentPos = editor.state.selection.from
         editor
           .chain()
           .focus()
           .deleteRange({ from: currentPos - loadingText.length, to: currentPos })
           .run()
-        editor.chain().focus().insertContent('\n图片生成失败，请稍后重试\n').run()
+        editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.image.failedInline')).run()
       }
     },
   })

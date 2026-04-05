@@ -2,7 +2,7 @@
 
 import type { DateGroup } from '../types'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { UI_CONFIG } from '../config'
+import { useI18n } from '@/hooks/use-i18n'
 import { ChatGroup } from './chat-group'
 
 interface ChatListContentProps {
@@ -20,10 +20,12 @@ export function ChatListContent({
   toggleChatSelection,
   onChatClick,
 }: ChatListContentProps) {
+  const { t } = useI18n()
+
   if (groupedChats.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-        <p>{UI_CONFIG.empty.message}</p>
+        <p>{t('chat.all.toolbar.notFound')}</p>
       </div>
     )
   }

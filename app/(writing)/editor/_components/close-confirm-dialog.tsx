@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface CloseConfirmDialogProps {
   open: boolean
@@ -21,18 +22,19 @@ export function CloseConfirmDialog({
   onOpenChange,
   onConfirm,
 }: CloseConfirmDialogProps) {
+  const { t } = useI18n()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>确认退出</DialogTitle>
+          <DialogTitle>{t('editor.closeConfirm.title')}</DialogTitle>
           <DialogDescription>
-            确定要返回上一页吗？未保存的内容可能会丢失。
+            {t('editor.closeConfirm.description')}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            取消
+            {t('common.cancel')}
           </Button>
           <Button
             onClick={() => {
@@ -40,7 +42,7 @@ export function CloseConfirmDialog({
               onConfirm()
             }}
           >
-            确定
+            {t('common.ok')}
           </Button>
         </DialogFooter>
       </DialogContent>

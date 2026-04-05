@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ChatInputBoxProps {
   onSend?: (message: string) => void
@@ -15,10 +16,11 @@ interface ChatInputBoxProps {
 
 export function ChatInputBox({
   onSend,
-  placeholder = '和 AI 一起创作你的小说世界...',
+  placeholder,
   disabled = false,
   centered = false,
 }: ChatInputBoxProps) {
+  const { t } = useI18n()
   const [isRecording, setIsRecording] = useState(false)
   const [isEmpty, setIsEmpty] = useState(true)
   const [isSending, setIsSending] = useState(false)
@@ -92,7 +94,7 @@ export function ChatInputBox({
           className={`relative w-full px-4 py-4 bg-transparent border-none outline-none text-foreground flex-1 overflow-y-auto break-words max-h-[180px] font-serif leading-relaxed ${
             disabled ? 'opacity-50 cursor-not-allowed' : ''
           }`}
-          data-placeholder={disabled ? '等待对话创建...' : placeholder}
+          data-placeholder={disabled ? t('chat.input.waiting') : (placeholder || t('chat.input.placeholder'))}
           suppressContentEditableWarning
         />
 

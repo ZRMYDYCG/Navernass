@@ -2,13 +2,16 @@
 
 import type { ActivityItem } from '@/lib/supabase/sdk/workspace'
 import { addDays, eachDayOfInterval, endOfWeek, format, startOfWeek, subWeeks } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { enUS, zhCN } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { workspaceApi } from '@/lib/supabase/sdk/workspace'
 import { cn } from '@/lib/utils'
 
 export function ContributionGraph() {
+  const { t } = useI18n()
+  const { locale } = useLocale()
   const [activities, setActivities] = useState<ActivityItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -88,9 +91,9 @@ export function ContributionGraph() {
                       />
                     </TooltipTrigger>
                     <TooltipContent side="top" className="text-xs">
-                      {format(day, 'yyyy年MM月dd日', { locale: zhCN })}
+                      {format(day, locale === 'zh-CN' ? 'yyyy年MM月dd日' : 'MMM d, yyyy', { locale: locale === 'zh-CN' ? zhCN : enUS })}
                       :
-                      {count > 0 ? ` ${count} 次更新` : ' 无活动'}
+                      {count > 0 ? ` ${count} ${t('workspace.contributionGraph.updates')}` : ` ${t('workspace.contributionGraph.noActivity')}`}
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -103,42 +106,52 @@ export function ContributionGraph() {
   }
 
   return (
-    <div className="rounded-xl border bg-card p-6 shadow-sm">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h3 className="font-serif font-medium text-foreground">
-            创作节律
-            <span className="ml-2 text-sm font-normal text-muted-foreground">{yearDisplay}</span>
-          </h3>
-          <p className="text-xs text-muted-foreground mt-1">记录每一次灵感的迸发</p>
-        </div>
-        <div className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full">
-          本周 +
-          {currentWeekActivityDays}
+    <div className="rounded-2xl border border-border bg-card p-8 shadow-paper-sm hover:shadow-paper-md transition-shadow duration-500">
+      <div className="flex items-center justify-between mb-8 border-b border-border/50 pb-4">
+        <h3 className="text-xl font-serif font-medium text-foreground/90 tracking-wide">
+          {t('workspace.contributionGraph.title')}
+        </h3>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground/70 bg-secondary/30 px-3 py-1.5 rounded-full border border-border/50">
+          <span className="h-2 w-2 rounded-full bg-primary/80 animate-pulse" />
+          {t('workspace.contributionGraph.activeDays')}
           {' '}
-          天
+          <span className="font-bold text-foreground mx-1">{currentWeekActivityDays}</span>
+          {' '}
+          {t('workspace.contributionGraph.days')}
         </div>
       </div>
 
       {loading
         ? (
-            <div className="h-[100px] flex items-center justify-center text-muted-foreground text-xs">
-              加载中...
+            <div className="flex gap-2">
+              {[...Array.from({ length: 20 })].map((_, i) => (
+                <div key={i} className="flex flex-col gap-2">
+                  {[...Array.from({ length: 7 })].map((_, j) => (
+                    <div key={j} className="w-3 h-3 rounded-sm bg-muted animate-pulse" />
+                  ))}
+                </div>
+              ))}
             </div>
           )
         : (
-            renderGrid()
+            <div className="flex flex-col">
+              {renderGrid()}
+              <div className="flex items-center justify-between mt-6 text-xs text-muted-foreground/60 font-mono uppercase tracking-widest">
+                <span>{yearDisplay}</span>
+                <div className="flex items-center gap-2">
+                  <span>{t('workspace.contributionGraph.less')}</span>
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-sm bg-secondary dark:bg-muted/20" />
+                    <div className="w-2.5 h-2.5 rounded-sm bg-primary/20" />
+                    <div className="w-2.5 h-2.5 rounded-sm bg-primary/40" />
+                    <div className="w-2.5 h-2.5 rounded-sm bg-primary/60" />
+                    <div className="w-2.5 h-2.5 rounded-sm bg-primary/80" />
+                  </div>
+                  <span>{t('workspace.contributionGraph.more')}</span>
+                </div>
+              </div>
+            </div>
           )}
-
-      <div className="flex items-center justify-end mt-4 gap-2 text-[10px] text-muted-foreground">
-        <span>沉淀</span>
-        <div className="flex gap-1">
-          <div className="w-2 h-2 rounded-sm bg-secondary dark:bg-muted/20" />
-          <div className="w-2 h-2 rounded-sm bg-primary/40" />
-          <div className="w-2 h-2 rounded-sm bg-primary/80" />
-        </div>
-        <span>心流</span>
-      </div>
     </div>
   )
 }

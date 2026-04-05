@@ -1,6 +1,7 @@
 'use client'
 
 import type { ChatItem } from '../types'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { formatTime } from '../_utils'
 
@@ -19,6 +20,9 @@ export function ChatItemComponent({
   onToggleSelect,
   onNavigate,
 }: ChatItemProps) {
+  const { t } = useI18n()
+  const { locale } = useLocale()
+
   return (
     <div
       className={cn(
@@ -44,12 +48,12 @@ export function ChatItemComponent({
             </h3>
             {chat.isPinned && (
               <span className="text-xs text-muted-foreground border border-border px-1.5 py-0.5 rounded">
-                置顶
+                {t('chat.historyItem.pin')}
               </span>
             )}
           </div>
           <div className="mt-1 text-xs text-muted-foreground">
-            {formatTime(chat.createdAt)}
+            {formatTime(chat.createdAt, locale === 'zh-CN' ? 'zh-CN' : 'en-US')}
           </div>
         </div>
       </div>

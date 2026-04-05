@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Dock, DockIcon } from '@/components/ui/dock'
+import { useI18n } from '@/hooks/use-i18n'
 
 type LayoutMode = 'horizontal' | 'vertical'
 
@@ -31,12 +32,6 @@ const dockConfig: DockConfig = {
   iconDistance: 120,
   animationDelay: 50,
 }
-
-const menuItems: MenuItem[] = [
-  { path: '/chat', label: 'Narraverse AI', icon: Bot, exactMatch: true },
-  { path: '/novels', label: '我的小说', icon: Book },
-  { path: '/trash', label: '回收站', icon: Trash2, specialStyle: 'trash' },
-]
 
 const styles = {
   container: {
@@ -68,6 +63,7 @@ function ToggleButton({
   onClick: () => void
   layoutMode: LayoutMode
 }) {
+  const { t } = useI18n()
   const isVertical = layoutMode === 'vertical'
   const Icon = isVertical
     ? (isVisible ? ChevronRight : ChevronLeft)
@@ -90,7 +86,7 @@ function ToggleButton({
       type="button"
       onClick={onClick}
       className={buttonClass}
-      aria-label={isVisible ? '隐藏导航栏' : '显示导航栏'}
+      aria-label={isVisible ? t('main.dock.toggle.hide') : t('main.dock.toggle.show')}
     >
       <div className={gradientClass} />
       <div className="relative flex items-center justify-center">
@@ -217,6 +213,13 @@ export function Sidebar() {
   const [isVisible, setIsVisible] = useState(true)
   const [isMounted, setIsMounted] = useState(false)
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('horizontal')
+  const { t } = useI18n()
+
+  const menuItems: MenuItem[] = [
+    { path: '/chat', label: t('main.dock.menu.ai'), icon: Bot, exactMatch: true },
+    { path: '/novels', label: t('main.dock.menu.novels'), icon: Book },
+    { path: '/trash', label: t('main.dock.menu.trash'), icon: Trash2, specialStyle: 'trash' },
+  ]
 
   useEffect(() => {
     const checkPagination = () => {

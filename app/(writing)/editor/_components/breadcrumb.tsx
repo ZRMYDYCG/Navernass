@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Volume {
   id: string
@@ -39,6 +40,7 @@ export function Breadcrumb({
   currentChapterId,
   onSelectChapter,
 }: BreadcrumbProps) {
+  const { t } = useI18n()
   const [isVolumeHovered, setIsVolumeHovered] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -112,7 +114,7 @@ export function Breadcrumb({
                       )
                     : (
                         <div className="px-2 py-1 text-sm text-muted-foreground">
-                          该卷下暂无章节
+                          {t('editor.breadcrumb.noChaptersInVolume')}
                         </div>
                       )}
                 </DropdownMenuContent>

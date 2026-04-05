@@ -2,16 +2,18 @@
 
 import type { NewsItem } from '../types'
 import { Button } from '@/components/ui/button'
-import { UI_CONFIG } from '../config'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface NewsCardProps {
   item: NewsItem
 }
 
 export function NewsCard({ item }: NewsCardProps) {
+  const { t } = useI18n()
+
   const getStatusLabel = () => {
     if (!item.status) return null
-    return UI_CONFIG.statusLabels[item.status]
+    return t(`chat.news.tags.${item.status}`)
   }
 
   const statusLabel = getStatusLabel()

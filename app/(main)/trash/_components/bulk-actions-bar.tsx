@@ -1,5 +1,8 @@
+'use client'
+
 import { RotateCcw, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface BulkActionsBarProps {
   selectedCount: number
@@ -20,6 +23,7 @@ export function BulkActionsBar({
 }: BulkActionsBarProps) {
   if (selectedCount === 0) return null
 
+  const { t } = useI18n()
   const allSelected = selectedCount === totalCount
 
   return (
@@ -28,9 +32,15 @@ export function BulkActionsBar({
         {/* 选择信息 */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 px-1 sm:px-2">
           <span className="text-xs sm:text-sm font-medium text-foreground whitespace-nowrap">
-            <span className="hidden sm:inline">已选择 </span>
+            <span className="hidden sm:inline">
+              {t('trash.actions.selected')}
+              {' '}
+            </span>
             {selectedCount}
-            <span className="hidden sm:inline"> 项</span>
+            <span className="hidden sm:inline">
+              {' '}
+              {t('trash.actions.items')}
+            </span>
           </span>
           {!allSelected && (
             <>
@@ -40,7 +50,7 @@ export function BulkActionsBar({
                 onClick={onSelectAll}
                 className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
               >
-                全选
+                {t('trash.actions.selectAll')}
               </button>
             </>
           )}
@@ -57,7 +67,7 @@ export function BulkActionsBar({
             className="h-7 sm:h-8 px-2 sm:px-3 text-foreground hover:bg-accent"
           >
             <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-1.5" />
-            <span className="hidden sm:inline">恢复</span>
+            <span className="hidden sm:inline">{t('trash.actions.restore')}</span>
           </Button>
           <Button
             onClick={onBulkDelete}
@@ -66,7 +76,7 @@ export function BulkActionsBar({
             className="h-7 sm:h-8 px-2 sm:px-3 text-muted-foreground hover:bg-accent"
           >
             <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-1.5" />
-            <span className="hidden sm:inline">删除</span>
+            <span className="hidden sm:inline">{t('trash.actions.permanentDelete')}</span>
           </Button>
         </div>
 
@@ -77,7 +87,7 @@ export function BulkActionsBar({
           type="button"
           onClick={onDeselectAll}
           className="p-1 sm:p-1.5 hover:bg-accent rounded-lg transition-colors shrink-0"
-          aria-label="取消选择"
+          aria-label={t('trash.actions.deselectAll')}
         >
           <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
         </button>

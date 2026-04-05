@@ -4,6 +4,7 @@ import type { ContextMenuState, DeleteDialogState } from './types'
 import type { Novel } from '@/lib/supabase/sdk'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { useI18n } from '@/hooks/use-i18n'
 import { novelsApi } from '@/lib/supabase/sdk'
 import { BulkActionsBar } from './_components/bulk-actions-bar'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
@@ -11,6 +12,7 @@ import { TrashContextMenu } from './_components/trash-context-menu'
 import { TrashList } from './_components/trash-list'
 
 export default function Trash() {
+  const { t } = useI18n()
   const [novels, setNovels] = useState<Novel[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
@@ -34,7 +36,7 @@ export default function Trash() {
       setSelectedIds(new Set()) // 重新加载后清空选择
     } catch (error) {
       console.error('加载回收站数据失败:', error)
-      const message = error instanceof Error ? error.message : '加载回收站数据失败'
+      const message = error instanceof Error ? error.message : t('trash.messages.loadFailed')
       toast.error(message)
     } finally {
       setLoading(false)
@@ -85,11 +87,11 @@ export default function Trash() {
   const handleRestoreNovel = async (novel: Novel) => {
     try {
       await novelsApi.restore(novel.id)
-      toast.success(`小说《${novel.title}》已恢复`)
+      toast.success(t('trash.messages.restoreSuccess', { title: novel.title }))
       loadTrashData()
     } catch (error) {
       console.error('恢复小说失败:', error)
-      const message = error instanceof Error ? error.message : '恢复小说失败'
+      const message = error instanceof Error ? error.message : t('trash.messages.restoreFailed')
       toast.error(message)
     }
   }
@@ -110,12 +112,12 @@ export default function Trash() {
       try {
         setDeleting(true)
         await novelsApi.delete(deleteDialog.novel.id)
-        toast.success('小说已永久删除')
+        toast.success(t('trash.messages.deleteSuccess'))
         setDeleteDialog({ open: false, type: 'single', novel: null, count: 0 })
         loadTrashData()
       } catch (error) {
         console.error('永久删除小说失败:', error)
-        const message = error instanceof Error ? error.message : '永久删除小说失败'
+        const message = error instanceof Error ? error.message : t('trash.messages.deleteFailed')
         toast.error(message)
       } finally {
         setDeleting(false)
@@ -124,12 +126,12 @@ export default function Trash() {
       try {
         setDeleting(true)
         await Promise.all(Array.from(selectedIds).map(id => novelsApi.delete(id)))
-        toast.success(`已永久删除 ${deleteDialog.count} 部小说`)
+        toast.success(t('trash.messages.bulkDeleteSuccess', { count: deleteDialog.count }))
         setDeleteDialog({ open: false, type: 'bulk', novel: null, count: 0 })
         loadTrashData()
       } catch (error) {
         console.error('批量删除失败:', error)
-        const message = error instanceof Error ? error.message : '批量删除失败'
+        const message = error instanceof Error ? error.message : t('trash.messages.bulkDeleteFailed')
         toast.error(message)
       } finally {
         setDeleting(false)
@@ -144,11 +146,11 @@ export default function Trash() {
 
     try {
       await Promise.all(Array.from(selectedIds).map(id => novelsApi.restore(id)))
-      toast.success(`已恢复 ${count} 部小说`)
+      toast.success(t('trash.messages.bulkRestoreSuccess', { count }))
       loadTrashData()
     } catch (error) {
       console.error('批量恢复失败:', error)
-      const message = error instanceof Error ? error.message : '批量恢复失败'
+      const message = error instanceof Error ? error.message : t('trash.messages.bulkRestoreFailed')
       toast.error(message)
     }
   }
@@ -214,16 +216,14 @@ export default function Trash() {
       {/* 删除确认对话框 */}
       <DeleteConfirmDialog
         open={deleteDialog.open}
-        title={deleteDialog.type === 'single' ? '永久删除小说' : '批量永久删除'}
+        title={deleteDialog.type === 'single' ? t('trash.dialog.singleTitle') : t('trash.dialog.bulkTitle')}
         description={
           deleteDialog.type === 'single'
-            ? `确定要永久删除小说《${deleteDialog.novel?.title || ''}》吗？此操作无法撤销！`
-            : `确定要永久删除选中的 ${deleteDialog.count} 部小说吗？此操作无法撤销！`
+            ? t('trash.dialog.singleDescription', { title: deleteDialog.novel?.title })
+            : t('trash.dialog.bulkDescription', { count: deleteDialog.count })
         }
         onOpenChange={(open) => {
-          if (!open) {
-            setDeleteDialog({ open: false, type: 'single', novel: null, count: 0 })
-          }
+          if (!open) setDeleteDialog({ open: false, type: 'single', novel: null, count: 0 })
         }}
         onConfirm={handleConfirmDelete}
         loading={deleting}

@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useI18n } from '@/hooks/use-i18n'
 import { conversationsApi } from '@/lib/supabase/sdk'
 import { EditChatTitleDialog } from './edit-chat-title-dialog'
 
@@ -27,13 +28,14 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
   const pathname = usePathname()
   const params = useParams()
   const router = useRouter()
+  const { t } = useI18n()
 
   const conversationId = params?.id as string | undefined
   const isNewChatPage = pathname === '/chat'
   const isConversationPage = !!conversationId
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [chatTitle, setChatTitle] = useState('新建对话')
+  const [chatTitle, setChatTitle] = useState(t('chat.welcomeHeader.newChat'))
   const [isLoadingTitle, setIsLoadingTitle] = useState(false)
 
   useEffect(() => {
@@ -48,14 +50,14 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
         }
       } catch (error) {
         console.error('Failed to load conversation title:', error)
-        setChatTitle('对话')
+        setChatTitle(t('chat.welcomeHeader.fallbackTitle'))
       } finally {
         setIsLoadingTitle(false)
       }
     }
 
     loadConversationTitle()
-  }, [conversationId])
+  }, [conversationId, t])
 
   const handleSaveTitle = useCallback(async (id: string, newTitle: string) => {
     try {
@@ -89,14 +91,14 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                   onClick={() => router.push('/chat')}
                   disabled={isNewChatPage}
                   className="text-muted-foreground hover:text-foreground cursor-pointer disabled:cursor-not-allowed hover:bg-accent"
-                  aria-label="新建对话"
+                  aria-label={t('chat.welcomeHeader.newChat')}
                 >
                   <PencilLine className="hidden sm:block w-5 h-5" />
                   <PencilLine className="sm:hidden w-4 h-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>新建对话</p>
+                <p>{t('chat.welcomeHeader.newChat')}</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -136,14 +138,14 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
                           size="icon-sm"
                           className="text-muted-foreground hover:text-foreground cursor-pointer aria-pressed:text-primary hover:bg-accent"
                           onClick={handleShareClick}
-                          aria-label="分享对话"
+                          aria-label={t('chat.welcomeHeader.share')}
                           aria-pressed={isShareMode}
                         >
                           <Share2 className="w-5 h-5" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{isShareMode ? '退出分享模式' : '分享对话'}</p>
+                        <p>{isShareMode ? t('chat.welcomeHeader.exitShare') : t('chat.welcomeHeader.share')}</p>
                       </TooltipContent>
                     </Tooltip>
                   )}

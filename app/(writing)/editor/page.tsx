@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { Drawer, DrawerContent } from '@/components/ui/drawer'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
+import { useI18n } from '@/hooks/use-i18n'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { chaptersApi, charactersApi, novelsApi, relationshipsApi, volumesApi } from '@/lib/supabase/sdk'
 import { useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
@@ -31,6 +32,7 @@ import { RenameVolumeDialog } from './_components/rename-volume-dialog'
 import RightPanel from './_components/right-panel'
 
 function NovelsEditContent() {
+  const { t } = useI18n()
   const searchParams = useSearchParams()
   const router = useRouter()
   const novelId = searchParams.get('id')
@@ -38,6 +40,7 @@ function NovelsEditContent() {
   const [novel, setNovel] = useState<Novel | null>(null)
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [volumes, setVolumes] = useState<Volume[]>([])
+  // eslint-disable-next-line unused-imports/no-unused-vars
   const [characters, setCharacters] = useState<NovelCharacter[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedChapter, setSelectedChapter] = useState<string | null>(null)
@@ -1000,7 +1003,7 @@ function NovelsEditContent() {
         <div className="h-screen flex flex-col overflow-hidden">
           <ImmersiveRegion isImmersive={immersiveActive}>
             <EditorHeader
-              title={activeTab ? chapters.find(c => c.id === activeTab)?.title || '未选择章节' : '未选择章节'}
+              title={activeTab ? chapters.find(c => c.id === activeTab)?.title || t('editor.headerCenter.noChapterSelected') : t('editor.headerCenter.noChapterSelected')}
               currentChapterId={activeTab}
               isImmersiveMode={isImmersiveMode}
               showLeftPanel={showLeftPanel}

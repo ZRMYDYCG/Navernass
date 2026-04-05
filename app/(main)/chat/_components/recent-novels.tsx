@@ -3,6 +3,7 @@
 import type { Novel } from '@/lib/supabase/sdk'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import { novelsApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 
@@ -13,6 +14,7 @@ interface RecentNovelsProps {
 
 export function RecentNovels({ maxItems = 3, className }: RecentNovelsProps) {
   const router = useRouter()
+  const { t } = useI18n()
   const [novels, setNovels] = useState<Novel[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -42,7 +44,7 @@ export function RecentNovels({ maxItems = 3, className }: RecentNovelsProps) {
     <section className={cn('mt-10', className)}>
       <div className="flex items-center gap-2 text-sm font-medium text-foreground/80">
         <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-border text-[10px]">⏱</span>
-        <span>最近打开</span>
+        <span>{t('chat.recentNovels.title')}</span>
       </div>
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -55,8 +57,8 @@ export function RecentNovels({ maxItems = 3, className }: RecentNovelsProps) {
         >
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
             <div className="h-10 w-10 rounded-full border border-border flex items-center justify-center text-xl text-muted-foreground">+</div>
-            <div className="text-sm font-medium text-foreground">新建小说</div>
-            <div className="text-xs text-muted-foreground">开始你的第一章</div>
+            <div className="text-sm font-medium text-foreground">{t('chat.recentNovels.createTitle')}</div>
+            <div className="text-xs text-muted-foreground">{t('chat.recentNovels.createDescription')}</div>
           </div>
         </button>
 
@@ -89,7 +91,7 @@ export function RecentNovels({ maxItems = 3, className }: RecentNovelsProps) {
                 <div className="p-4 flex flex-col gap-2">
                   <div className="text-base font-medium text-foreground font-serif line-clamp-2">{novel.title}</div>
                   <div className="text-xs text-muted-foreground line-clamp-2">
-                    {novel.description || '暂无简介...'}
+                    {novel.description || t('chat.recentNovels.noDescription')}
                   </div>
                 </div>
               </button>

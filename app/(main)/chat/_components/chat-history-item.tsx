@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 export interface ChatHistoryData {
@@ -50,6 +51,7 @@ export function ChatHistoryItem({
   onTogglePin,
   onRename,
 }: ChatHistoryItemProps) {
+  const { t } = useI18n()
   const [isHovered, setIsHovered] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -249,19 +251,19 @@ export function ChatHistoryItem({
                   ? (
                       <>
                         <PinOff className="w-4 h-4" />
-                        <span>取消置顶</span>
+                        <span>{t('chat.historyItem.unpin')}</span>
                       </>
                     )
                   : (
                       <>
                         <Pin className="w-4 h-4" />
-                        <span>置顶</span>
+                        <span>{t('chat.historyItem.pin')}</span>
                       </>
                     )}
               </DropdownMenuItem>
               <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-accent" onClick={handleRenameClick}>
                 <Edit3 className="w-4 h-4" />
-                <span>重命名</span>
+                <span>{t('chat.historyItem.rename')}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border" />
               <DropdownMenuItem
@@ -269,7 +271,7 @@ export function ChatHistoryItem({
                 onClick={handleDeleteClick}
               >
                 <Trash2 className="w-4 h-4" />
-                <span>删除</span>
+                <span>{t('chat.historyItem.delete')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -279,11 +281,11 @@ export function ChatHistoryItem({
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <DialogContent className="bg-popover border-border">
             <DialogHeader>
-              <DialogTitle>删除对话</DialogTitle>
+              <DialogTitle>{t('chat.historyItem.deleteDialog.title')}</DialogTitle>
               <DialogDescription>
-                确定要删除「
+                {t('chat.historyItem.deleteDialog.descriptionPrefix')}
                 {chat.title}
-                」吗？此操作无法撤销，所有消息记录都将被永久删除。
+                {t('chat.historyItem.deleteDialog.descriptionSuffix')}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -293,7 +295,7 @@ export function ChatHistoryItem({
                 disabled={isDeleting}
                 className="cursor-pointer disabled:cursor-not-allowed"
               >
-                取消
+                {t('chat.historyItem.deleteDialog.cancel')}
               </Button>
               <Button
                 variant="destructive"
@@ -301,7 +303,7 @@ export function ChatHistoryItem({
                 disabled={isDeleting}
                 className="cursor-pointer disabled:cursor-not-allowed"
               >
-                {isDeleting ? '删除中...' : '确认删除'}
+                {isDeleting ? t('chat.historyItem.deleteDialog.deleting') : t('chat.historyItem.deleteDialog.confirm')}
               </Button>
             </DialogFooter>
           </DialogContent>

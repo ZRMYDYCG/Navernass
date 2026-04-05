@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
+import { useI18n } from '@/hooks/use-i18n'
 import { chaptersApi } from '@/lib/supabase/sdk/chapters'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { cn } from '@/lib/utils'
@@ -90,6 +91,7 @@ export function CharacterModal({
   character,
   novelId,
 }: CharacterModalProps) {
+  const { t } = useI18n()
   const [form, setForm] = useState<CharacterFormValues>(defaultForm)
   const [chapterOptions, setChapterOptions] = useState<Array<{ id: string, title: string }>>([])
   const [avatar, setAvatar] = useState('')
@@ -167,7 +169,7 @@ export function CharacterModal({
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('图片大小不能超过 5MB')
+      toast.error(t('editor.charactersPanel.characterModal.messages.avatarTooLarge'))
       return
     }
 
@@ -183,15 +185,15 @@ export function CharacterModal({
       })
 
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error?.message || '上传失败')
+      if (!res.ok) throw new Error(data.error?.message || t('editor.charactersPanel.characterModal.messages.uploadFailed'))
 
       setAvatar(data.data.url)
-      toast.success('头像上传成功')
+      toast.success(t('editor.charactersPanel.characterModal.messages.uploadSuccess'))
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error('上传头像失败')
+        toast.error(t('editor.charactersPanel.characterModal.messages.uploadFailed'))
       }
     } finally {
       setUploadingAvatar(false)
@@ -207,13 +209,13 @@ export function CharacterModal({
       setDeleting(true)
       await charactersApi.delete(character.id, novelId)
       removeCharacter(character.id)
-      toast.success('角色已删除')
+      toast.success(t('editor.charactersPanel.characterModal.messages.deleted'))
       onOpenChange(false)
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error('删除角色失败')
+        toast.error(t('editor.charactersPanel.characterModal.messages.deleteFailed'))
       }
     } finally {
       setDeleting(false)
@@ -222,13 +224,13 @@ export function CharacterModal({
 
   const handleSubmit = async () => {
     if (!novelId) {
-      toast.error('缺少小说 ID')
+      toast.error(t('editor.charactersPanel.characterModal.messages.missingNovelId'))
       return
     }
 
     const trimmedName = form.name.trim()
     if (!trimmedName) {
-      toast.error('请输入角色名称')
+      toast.error(t('editor.charactersPanel.characterModal.messages.nameRequired'))
       return
     }
 
@@ -250,7 +252,7 @@ export function CharacterModal({
         })
         upsertCharacter(updated)
         selectCharacter(updated.id)
-        toast.success('角色已更新')
+        toast.success(t('editor.charactersPanel.characterModal.messages.updated'))
       } else {
         const created = await charactersApi.create({
           novel_id: novelId,
@@ -266,7 +268,7 @@ export function CharacterModal({
         })
         upsertCharacter(created)
         selectCharacter(created.id)
-        toast.success('角色已创建')
+        toast.success(t('editor.charactersPanel.characterModal.messages.created'))
       }
 
       onOpenChange(false)
@@ -274,7 +276,7 @@ export function CharacterModal({
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error(character ? '更新角色失败' : '创建角色失败')
+        toast.error(character ? t('editor.charactersPanel.characterModal.messages.updateFailed') : t('editor.charactersPanel.characterModal.messages.createFailed'))
       }
     } finally {
       setCreating(false)
@@ -322,7 +324,7 @@ export function CharacterModal({
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
             <h2 className="text-lg font-semibold">
-              {character ? '编辑角色' : '新建角色'}
+              {character ? t('editor.charactersPanel.characterModal.editTitle') : t('editor.charactersPanel.characterModal.createTitle')}
             </h2>
             <Button
               variant="ghost"
@@ -363,23 +365,23 @@ export function CharacterModal({
                   disabled={uploadingAvatar}
                 />
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">点击上传头像</p>
+              <p className="mt-2 text-xs text-muted-foreground">{t('editor.charactersPanel.characterModal.uploadHint')}</p>
             </div>
 
             <div className="space-y-5">
               <div className="space-y-1.5">
-                <Label htmlFor={`${formId}-name`} className="text-sm font-medium">角色名称</Label>
+                <Label htmlFor={`${formId}-name`} className="text-sm font-medium">{t('editor.charactersPanel.characterModal.fields.name')}</Label>
                 <Input
                   id={`${formId}-name`}
                   value={form.name}
                   onChange={event => updateField('name', event.target.value)}
-                  placeholder="输入角色名称"
+                  placeholder={t('editor.charactersPanel.characterModal.placeholders.name')}
                   className="h-10"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium">角色配色</Label>
+                <Label className="text-sm font-medium">{t('editor.charactersPanel.characterModal.fields.color')}</Label>
                 <div className="flex flex-wrap gap-1.5">
                   {COLOR_PRESETS.map((preset) => {
                     const isActive = color === preset.value
@@ -404,18 +406,18 @@ export function CharacterModal({
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor={`${formId}-role`} className="text-sm font-medium">职业 / 定位</Label>
+                  <Label htmlFor={`${formId}-role`} className="text-sm font-medium">{t('editor.charactersPanel.characterModal.fields.role')}</Label>
                   <Input
                     id={`${formId}-role`}
                     value={form.role}
                     onChange={event => updateField('role', event.target.value)}
-                    placeholder="如：将军"
+                    placeholder={t('editor.charactersPanel.characterModal.placeholders.role')}
                     className="h-10"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor={`${formId}-first-appearance`} className="text-sm font-medium">首次登场</Label>
+                  <Label htmlFor={`${formId}-first-appearance`} className="text-sm font-medium">{t('editor.charactersPanel.characterModal.fields.firstAppearance')}</Label>
                   {chapterOptions.length > 0
                     ? (
                         <Select
@@ -423,10 +425,10 @@ export function CharacterModal({
                           onValueChange={value => updateField('first_appearance', value === '__none__' ? '' : value)}
                         >
                           <SelectTrigger id={`${formId}-first-appearance`} className="h-10">
-                            <SelectValue placeholder="选择章节" />
+                            <SelectValue placeholder={t('editor.charactersPanel.characterModal.placeholders.selectChapter')} />
                           </SelectTrigger>
                           <SelectContent className="z-[120]">
-                            <SelectItem value="__none__">不选择</SelectItem>
+                            <SelectItem value="__none__">{t('editor.charactersPanel.characterModal.placeholders.none')}</SelectItem>
                             {form.first_appearance && !chapterTitleSet.has(form.first_appearance) && (
                               <SelectItem value={form.first_appearance}>{form.first_appearance}</SelectItem>
                             )}
@@ -443,7 +445,7 @@ export function CharacterModal({
                           id={`${formId}-first-appearance`}
                           value={form.first_appearance}
                           onChange={event => updateField('first_appearance', event.target.value)}
-                          placeholder="首次出现章节"
+                          placeholder={t('editor.charactersPanel.characterModal.placeholders.firstAppearance')}
                           className="h-10"
                         />
                       )}
@@ -451,23 +453,23 @@ export function CharacterModal({
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor={`${formId}-description`} className="text-sm font-medium">角色简介</Label>
+                <Label htmlFor={`${formId}-description`} className="text-sm font-medium">{t('editor.charactersPanel.characterModal.fields.description')}</Label>
                 <Textarea
                   id={`${formId}-description`}
                   value={form.description}
                   onChange={event => updateField('description', event.target.value)}
-                  placeholder="描述角色的背景、动机与性格..."
+                  placeholder={t('editor.charactersPanel.characterModal.placeholders.description')}
                   className="min-h-[100px] resize-none"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor={`${formId}-note`} className="text-sm font-medium">备注</Label>
+                <Label htmlFor={`${formId}-note`} className="text-sm font-medium">{t('editor.charactersPanel.characterModal.fields.note')}</Label>
                 <Textarea
                   id={`${formId}-note`}
                   value={form.note}
                   onChange={event => updateField('note', event.target.value)}
-                  placeholder="记录背景设定、灵感或伏笔..."
+                  placeholder={t('editor.charactersPanel.characterModal.placeholders.note')}
                   className="min-h-[80px] resize-none"
                 />
               </div>
@@ -483,7 +485,7 @@ export function CharacterModal({
                     disabled={creating || deleting}
                     className="text-muted-foreground hover:text-destructive"
                   >
-                    {deleting ? '删除中...' : '删除角色'}
+                    {deleting ? t('editor.charactersPanel.characterModal.actions.deleting') : t('editor.charactersPanel.characterModal.actions.deleteCharacter')}
                   </Button>
                 )
               : (
@@ -491,12 +493,12 @@ export function CharacterModal({
                 )}
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => onOpenChange(false)} disabled={creating || deleting}>
-                取消
+                {t('editor.charactersPanel.characterModal.actions.cancel')}
               </Button>
               <Button onClick={handleSubmit} disabled={creating || deleting} className="min-w-[80px]">
                 {creating
-                  ? (character ? '保存中...' : '创建中...')
-                  : (character ? '保存' : '创建')}
+                  ? (character ? t('editor.charactersPanel.characterModal.actions.saving') : t('editor.charactersPanel.characterModal.actions.creating'))
+                  : (character ? t('editor.charactersPanel.characterModal.actions.save') : t('editor.charactersPanel.characterModal.actions.create'))}
               </Button>
             </div>
           </div>

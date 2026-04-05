@@ -3,10 +3,12 @@
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 export function AppLogo() {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const { t } = useI18n()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -27,7 +29,7 @@ export function AppLogo() {
     <div className="relative w-10 h-10 shrink-0">
       <Image
         src={isDark ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'}
-        alt="Narraverse Logo"
+        alt={t('main.appLogo.alt')}
         width={40}
         height={40}
         priority

@@ -6,6 +6,7 @@ import { DecorationSet } from 'prosemirror-view'
 export interface AIAutocompleteOptions {
   trigger: string
   debounceDelay: number
+  t?: (key: string, options?: Record<string, any>) => string
 }
 
 export const AIAutocomplete = Extension.create<AIAutocompleteOptions>({
@@ -15,10 +16,12 @@ export const AIAutocomplete = Extension.create<AIAutocompleteOptions>({
     return {
       trigger: '++',
       debounceDelay: 500,
+      t: undefined,
     }
   },
 
   addProseMirrorPlugins() {
+    const t = this.options.t ?? ((key: string) => key)
     return [
       new Plugin({
         key: new PluginKey('ai-autocomplete'),
@@ -62,7 +65,7 @@ export const AIAutocomplete = Extension.create<AIAutocompleteOptions>({
                 view.dispatch(tr)
 
                 // 触发 AI 续写
-                triggerAIAutocomplete(view)
+                triggerAIAutocomplete(view, t)
 
                 return true
               }
@@ -81,7 +84,7 @@ export const AIAutocomplete = Extension.create<AIAutocompleteOptions>({
   },
 })
 
-async function triggerAIAutocomplete(view: EditorView) {
+async function triggerAIAutocomplete(view: EditorView, t: (key: string, options?: Record<string, any>) => string) {
   let loadingAnimationInterval: NodeJS.Timeout | null = null
   let scrollDebounceTimer: NodeJS.Timeout | null = null
 
@@ -100,7 +103,11 @@ async function triggerAIAutocomplete(view: EditorView) {
 
     const textBefore = state.doc.textBetween(Math.max(0, from - 500), from, ' ')
 
-    const loadingFrames = [' AI 续写中.   ', ' AI 续写中..  ', ' AI 续写中... ']
+    const loadingFrames = [
+      t('tiptap.aiAutocomplete.loadingFrames.one'),
+      t('tiptap.aiAutocomplete.loadingFrames.two'),
+      t('tiptap.aiAutocomplete.loadingFrames.three'),
+    ]
     let frameIndex = 0
     const tr = state.tr.insertText(loadingFrames[0], from)
     dispatch(tr)
@@ -197,7 +204,7 @@ async function triggerAIAutocomplete(view: EditorView) {
     })
 
     if (!response.ok) {
-      throw new Error('AI 请求失败')
+      throw new Error(t('tiptap.aiAutocomplete.requestFailed'))
     }
 
     if (loadingAnimationInterval) {
@@ -256,7 +263,7 @@ async function triggerAIAutocomplete(view: EditorView) {
               }
             }
           } catch {
-            console.warn('解析 SSE 失败:', trimmedLine)
+            console.warn('Failed to parse SSE:', trimmedLine)
           }
         }
       }
@@ -265,7 +272,7 @@ async function triggerAIAutocomplete(view: EditorView) {
     const finalState = view.state
     view.dispatch(finalState.tr.setMeta('ai-generating', false))
   } catch (error) {
-    console.error('AI 自动补全失败:', error)
+    console.error('AI autocomplete failed:', error)
 
     if (loadingAnimationInterval) {
       clearInterval(loadingAnimationInterval)
@@ -275,7 +282,7 @@ async function triggerAIAutocomplete(view: EditorView) {
     const currentState = view.state
     view.dispatch(currentState.tr.setMeta('ai-generating', false))
 
-    const errorText = '\nAI 续写失败，请稍后重试\n'
+    const errorText = t('tiptap.aiAutocomplete.failedInline')
     const errorTr = currentState.tr.insertText(errorText, currentState.selection.from)
     view.dispatch(errorTr)
   }

@@ -1,3 +1,5 @@
+'use client'
+
 import type { Crop } from 'react-image-crop'
 import type { NovelFormData } from '../types'
 import type { Novel } from '@/lib/supabase/sdk'
@@ -6,6 +8,7 @@ import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { useI18n } from '@/hooks/use-i18n'
 import 'react-image-crop/dist/ReactCrop.css'
 
 function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: number): Crop {
@@ -70,6 +73,7 @@ interface NovelDialogProps {
 }
 
 export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogProps) {
+  const { t } = useI18n()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [coverFile, setCoverFile] = useState<File | null>(null)
@@ -111,31 +115,31 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-card border border-border">
         <DialogHeader>
-          <DialogTitle>{novel ? '编辑小说信息' : '创建新小说'}</DialogTitle>
+          <DialogTitle>{novel ? t('novels.dialog.editTitle') : t('novels.dialog.createTitle')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              小说标题
+              {t('novels.dialog.titleLabel')}
               {' '}
               <span className="text-red-500">*</span>
             </label>
             <Input
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="请输入小说标题"
+              placeholder={t('novels.dialog.titlePlaceholder')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              简介（可选）
+              {t('novels.dialog.descriptionLabel')}
             </label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder="请输入小说简介"
+              placeholder={t('novels.dialog.descriptionPlaceholder')}
               rows={3}
               className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground focus:ring-0 focus-visible:ring-1 focus-visible:ring-ring resize-none"
             />
@@ -143,7 +147,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              封面图片（可选）
+              {t('novels.dialog.coverLabel')}
             </label>
             <input
               type="file"
@@ -170,7 +174,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                 className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-muted-foreground hover:bg-accent/50 transition-colors"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <p className="text-sm text-muted-foreground">点击上传封面图片</p>
+                  <p className="text-sm text-muted-foreground">{t('novels.dialog.coverUploadHint')}</p>
                 </div>
               </label>
             ) : (
@@ -179,16 +183,16 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                   htmlFor="cover-upload"
                   className="flex items-center justify-center w-full px-4 py-2 text-sm border border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors"
                 >
-                  更换封面
+                  {t('novels.dialog.coverReplace')}
                 </label>
                 <div>
-                  <div className="mb-1 text-xs text-muted-foreground">封面预览（点击可裁剪）</div>
+                  <div className="mb-1 text-xs text-muted-foreground">{t('novels.dialog.coverPreview')}</div>
                   <button
                     type="button"
                     onClick={() => setShowCropper(true)}
                     className="inline-block max-w-[200px] rounded-md overflow-hidden border border-border bg-secondary hover:border-muted-foreground transition-colors"
                   >
-                    <img src={previewUrl} alt="封面预览" className="w-full h-auto object-contain" />
+                    <img src={previewUrl} alt={t('novels.dialog.coverPreview')} className="w-full h-auto object-contain" />
                   </button>
                 </div>
               </div>
@@ -204,7 +208,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
             disabled={isSaving}
             className="flex-1"
           >
-            取消
+            {t('novels.dialog.cancel')}
           </Button>
           <Button
             onClick={handleSave}
@@ -213,11 +217,11 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
           >
             {isSaving
               ? novel
-                ? '保存中...'
-                : '创建中...'
+                ? t('novels.dialog.saving')
+                : t('novels.dialog.creating')
               : novel
-                ? '保存'
-                : '创建'}
+                ? t('novels.dialog.save')
+                : t('novels.dialog.create')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -225,7 +229,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
         <Dialog open={showCropper} onOpenChange={setShowCropper}>
           <DialogContent className="sm:max-w-md bg-card border border-border">
             <DialogHeader>
-              <DialogTitle>裁剪封面</DialogTitle>
+              <DialogTitle>{t('novels.dialog.cropTitle')}</DialogTitle>
             </DialogHeader>
             <div className="mt-2">
               <div className="w-full rounded-lg overflow-hidden border border-border bg-secondary">
@@ -238,7 +242,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                   <img
                     ref={imageRef}
                     src={previewUrl}
-                    alt="封面裁剪"
+                    alt={t('novels.dialog.cropAlt')}
                     className="w-full max-h-96 object-contain"
                     onLoad={(e) => {
                       const img = e.currentTarget
@@ -254,7 +258,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                 variant="ghost"
                 onClick={() => setShowCropper(false)}
               >
-                取消
+                {t('novels.dialog.cancel')}
               </Button>
               <Button
                 type="button"
@@ -275,7 +279,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
                   setShowCropper(false)
                 }}
               >
-                应用裁剪
+                {t('novels.dialog.cropApply')}
               </Button>
             </DialogFooter>
           </DialogContent>

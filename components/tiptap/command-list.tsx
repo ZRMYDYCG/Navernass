@@ -1,5 +1,6 @@
 import type { CommandItem } from './extensions/slash-command'
 import { useEffect, useImperativeHandle, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 export interface CommandListProps {
   items: CommandItem[]
@@ -11,6 +12,7 @@ export interface CommandListRef {
 }
 
 export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.RefObject<CommandListRef | null> }) {
+  const { t } = useI18n()
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const selectItem = (index: number) => {
@@ -65,7 +67,7 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
   if (props.items.length === 0) {
     return (
       <div className="bg-popover border border-border rounded-lg shadow-lg p-3">
-        <div className="text-sm text-muted-foreground">没有找到匹配的命令</div>
+        <div className="text-sm text-muted-foreground">{t('tiptap.commandList.empty')}</div>
       </div>
     )
   }
@@ -80,9 +82,9 @@ export function CommandList({ ref, ...props }: CommandListProps & { ref?: React.
   }, {})
 
   const categoryLabels: Record<string, string> = {
-    ai: '指令',
-    format: '格式',
-    basic: '基础',
+    ai: t('tiptap.commandList.groups.ai'),
+    format: t('tiptap.commandList.groups.format'),
+    basic: t('tiptap.commandList.groups.basic'),
   }
 
   return (

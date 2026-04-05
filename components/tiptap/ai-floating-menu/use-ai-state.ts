@@ -1,5 +1,6 @@
 import type { Editor } from '@tiptap/react'
 import { useRef, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import { applySuggestionDiff } from '../extensions/suggestion-track'
 
 function stripMarkdown(text: string): string {
@@ -22,6 +23,7 @@ function stripMarkdown(text: string): string {
 }
 
 export function useAIState(editor: Editor | null, onActionComplete?: () => void) {
+  const { t } = useI18n()
   const [aiPrompt, setAiPrompt] = useState('')
   const [isAILoading, setIsAILoading] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -74,14 +76,14 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
       })
 
       if (!response.ok) {
-        throw new Error('AI 请求失败')
+        throw new Error(t('tiptap.aiMenu.state.requestFailed'))
       }
 
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
 
       if (!reader) {
-        throw new Error('无法读取响应')
+        throw new Error(t('tiptap.aiMenu.state.unreadableResponse'))
       }
 
       let buffer = ''
@@ -156,7 +158,7 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
       }
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'AbortError') { /* empty */ } else {
-        console.error('AI 处理失败:', error)
+        console.error(t('tiptap.aiMenu.state.processFailedLog'), error)
       }
       setIsAILoading(false)
       resetAI()

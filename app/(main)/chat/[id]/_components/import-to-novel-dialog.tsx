@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useI18n } from '@/hooks/use-i18n'
 import { chaptersApi, novelsApi, volumesApi } from '@/lib/supabase/sdk'
 
 interface ImportToNovelDialogProps {
@@ -37,6 +38,7 @@ export function ImportToNovelDialog({
   content,
   onSuccess,
 }: ImportToNovelDialogProps) {
+  const { t } = useI18n()
   const [novels, setNovels] = useState<Novel[]>([])
   const [volumes, setVolumes] = useState<Volume[]>([])
   const [selectedNovelId, setSelectedNovelId] = useState<string>('')
@@ -48,12 +50,12 @@ export function ImportToNovelDialog({
 
   const handleImport = async () => {
     if (!selectedNovelId) {
-      toast.error('请选择小说')
+      toast.error(t('chat.importToNovel.messages.selectNovelRequired'))
       return
     }
 
     if (!chapterTitle.trim()) {
-      toast.error('请输入章节标题')
+      toast.error(t('chat.importToNovel.messages.chapterTitleRequired'))
       return
     }
 
@@ -69,7 +71,7 @@ export function ImportToNovelDialog({
       }
 
       await chaptersApi.create(chapterData)
-      toast.success('章节创建成功')
+      toast.success(t('chat.importToNovel.messages.chapterCreated'))
 
       onOpenChange(false)
       if (onSuccess) {
@@ -81,7 +83,7 @@ export function ImportToNovelDialog({
       setChapterTitle('')
     } catch (error) {
       console.error('Failed to import:', error)
-      let errorMessage = '未知错误'
+      let errorMessage = t('chat.importToNovel.messages.unknownError')
 
       if (error instanceof Error) {
         errorMessage = error.message
@@ -97,7 +99,7 @@ export function ImportToNovelDialog({
         }
       }
 
-      toast.error(`创建章节失败: ${errorMessage}`)
+      toast.error(t('chat.importToNovel.messages.createFailed', { error: errorMessage }))
     } finally {
       setIsLoading(false)
     }
@@ -114,7 +116,7 @@ export function ImportToNovelDialog({
         setNovels(result.data || [])
       } catch (error) {
         console.error('Failed to load novels:', error)
-        toast.error('加载小说列表失败')
+        toast.error(t('chat.importToNovel.messages.loadNovelsFailed'))
       } finally {
         setIsLoadingNovels(false)
       }
@@ -137,7 +139,7 @@ export function ImportToNovelDialog({
         setVolumes(volumesList)
       } catch (error) {
         console.error('Failed to load volumes:', error)
-        toast.error('加载卷列表失败')
+        toast.error(t('chat.importToNovel.messages.loadVolumesFailed'))
       } finally {
         setIsLoadingVolumes(false)
       }
@@ -152,24 +154,24 @@ export function ImportToNovelDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
-            创建新章节
+            {t('chat.importToNovel.title')}
           </DialogTitle>
           <DialogDescription>
-            将当前编辑的内容保存为新章节
+            {t('chat.importToNovel.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-foreground">选择小说 *</label>
+            <label className="block text-sm font-medium text-foreground">{t('chat.importToNovel.fields.novel')}</label>
             <Select
               value={selectedNovelId}
               onValueChange={setSelectedNovelId}
               disabled={isLoadingNovels}
             >
               <SelectTrigger>
-                <SelectValue placeholder={isLoadingNovels ? '加载中...' : '请选择小说'} />
+                <SelectValue placeholder={isLoadingNovels ? t('chat.importToNovel.placeholders.loading') : t('chat.importToNovel.placeholders.selectNovel')} />
               </SelectTrigger>
               <SelectContent>
                 {novels.map(novel => (
@@ -183,17 +185,17 @@ export function ImportToNovelDialog({
 
           {selectedNovelId && (
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">选择卷（可选）</label>
+              <label className="block text-sm font-medium text-foreground">{t('chat.importToNovel.fields.volume')}</label>
               <Select
                 value={selectedVolumeId || '__none__'}
                 onValueChange={value => setSelectedVolumeId(value === '__none__' ? '' : value)}
                 disabled={isLoadingVolumes}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={isLoadingVolumes ? '加载中...' : '不选择卷（直接属于小说）'} />
+                  <SelectValue placeholder={isLoadingVolumes ? t('chat.importToNovel.placeholders.loading') : t('chat.importToNovel.placeholders.selectVolumeNone')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none__">不选择卷（直接属于小说）</SelectItem>
+                  <SelectItem value="__none__">{t('chat.importToNovel.placeholders.selectVolumeNone')}</SelectItem>
                   {volumes.map(volume => (
                     <SelectItem key={volume.id} value={volume.id}>
                       {volume.title}
@@ -205,11 +207,11 @@ export function ImportToNovelDialog({
           )}
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-foreground">章节标题 *</label>
+            <label className="block text-sm font-medium text-foreground">{t('chat.importToNovel.fields.chapterTitle')}</label>
             <Input
               value={chapterTitle}
               onChange={e => setChapterTitle(e.target.value)}
-              placeholder="请输入章节标题"
+              placeholder={t('chat.importToNovel.placeholders.chapterTitle')}
             />
           </div>
         </div>
@@ -221,7 +223,7 @@ export function ImportToNovelDialog({
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
           >
-            取消
+            {t('chat.importToNovel.actions.cancel')}
           </Button>
           <Button
             type="button"
@@ -229,7 +231,7 @@ export function ImportToNovelDialog({
             disabled={isLoading || !selectedNovelId || !chapterTitle.trim()}
           >
             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            创建章节
+            {t('chat.importToNovel.actions.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

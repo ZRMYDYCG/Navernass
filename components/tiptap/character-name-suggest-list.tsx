@@ -1,4 +1,7 @@
+'use client'
+
 import type { NovelCharacter } from '@/lib/supabase/sdk'
+import { useI18n } from '@/hooks/use-i18n'
 
 export interface CharacterNameSuggestListProps {
   items: NovelCharacter[]
@@ -9,6 +12,7 @@ export interface CharacterNameSuggestListProps {
 }
 
 export function CharacterNameSuggestList(props: CharacterNameSuggestListProps) {
+  const { t } = useI18n()
   const selectedIndex = Math.min(Math.max(props.selectedIndex, 0), Math.max(props.items.length - 1, 0))
 
   if (props.items.length === 0) {
@@ -18,7 +22,7 @@ export function CharacterNameSuggestList(props: CharacterNameSuggestListProps) {
   return (
     <div className="overflow-hidden min-w-44 max-w-72">
       <div className="px-2.5 py-1.5 text-[11px] text-muted-foreground bg-accent/50">
-        角色名联想：
+        {t('tiptap.characterNameSuggest.prefix')}
         {' '}
         <span className="font-medium text-foreground">{props.query}</span>
       </div>

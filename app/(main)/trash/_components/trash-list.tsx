@@ -1,5 +1,8 @@
+'use client'
+
 import type { Novel } from '@/lib/supabase/sdk'
 import { Spinner } from '@/components/ui/spinner'
+import { useI18n } from '@/hooks/use-i18n'
 import { EmptyState } from './empty-state'
 import { TrashCard } from './trash-card'
 
@@ -18,11 +21,13 @@ export function TrashList({
   onToggleSelect,
   onContextMenu,
 }: TrashListProps) {
+  const { t } = useI18n()
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-start pt-[45vh] min-h-[60vh] gap-3">
         <Spinner className="w-6 h-6 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground font-serif not-italic">加载中...</span>
+        <span className="text-sm text-muted-foreground font-serif not-italic">{t('trash.loading')}</span>
       </div>
     )
   }

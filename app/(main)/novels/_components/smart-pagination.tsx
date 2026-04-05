@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Pagination,
   PaginationContent,
@@ -7,6 +9,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface SmartPaginationProps {
   currentPage: number
@@ -22,6 +25,8 @@ export function SmartPagination({
   className,
 }: SmartPaginationProps) {
   if (totalPages <= 1) return null
+
+  const { t } = useI18n()
 
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -49,7 +54,7 @@ export function SmartPagination({
                 currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
               }
             >
-              上一页
+              {t('novels.pagination.previous')}
             </PaginationPrevious>
           </PaginationItem>
 
@@ -87,7 +92,7 @@ export function SmartPagination({
                 currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
               }
             >
-              下一页
+              {t('novels.pagination.next')}
             </PaginationNext>
           </PaginationItem>
         </PaginationContent>

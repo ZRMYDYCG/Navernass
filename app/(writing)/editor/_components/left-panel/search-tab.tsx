@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface SearchResult {
   chapter: {
@@ -28,6 +29,7 @@ interface SearchTabProps {
 }
 
 export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }: SearchTabProps) {
+  const { t } = useI18n()
   const [keyword, setKeyword] = useState('')
   const [targetVolumeId, setTargetVolumeId] = useState<string | null | undefined>(undefined)
   const [excludeVolumeId, setExcludeVolumeId] = useState<string | null | undefined>(undefined)
@@ -64,22 +66,22 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
       })
 
       if (!response.ok) {
-        throw new Error('搜索失败')
+        throw new Error(t('editor.leftPanel.searchTab.searchFailed'))
       }
 
       const data = await response.json()
       if (data.success) {
         setResults(data.data || [])
       } else {
-        throw new Error(data.error?.message || '搜索失败')
+        throw new Error(data.error?.message || t('editor.leftPanel.searchTab.searchFailed'))
       }
     } catch (error) {
-      console.error('搜索错误:', error)
+      console.error('Search error:', error)
       setResults([])
     } finally {
       setLoading(false)
     }
-  }, [novelId, keyword, targetVolumeId, excludeVolumeId])
+  }, [excludeVolumeId, keyword, novelId, t, targetVolumeId])
 
   // 防抖搜索
   useEffect(() => {
@@ -252,9 +254,9 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
 
   // 获取章节所属的卷标题
   const getVolumeTitle = (volumeId: string | null | undefined) => {
-    if (!volumeId) return '未分类'
+    if (!volumeId) return t('editor.leftPanel.searchTab.volumeUncategorized')
     const volume = volumes.find(v => v.id === volumeId)
-    return volume?.title || '未知卷'
+    return volume?.title || t('editor.leftPanel.searchTab.volumeUnknown')
   }
 
   return (
@@ -264,11 +266,11 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
         {/* 关键字输入 */}
         <div className="space-y-0.5">
           <label className="text-[10px] text-muted-foreground px-1">
-            搜索关键字
+            {t('editor.leftPanel.searchTab.keywordLabel')}
           </label>
           <Input
             type="text"
-            placeholder="搜索关键字..."
+            placeholder={t('editor.leftPanel.searchTab.keywordPlaceholder')}
             value={keyword}
             onChange={e => setKeyword(e.target.value)}
             className="h-7 text-xs focus-visible:ring-0 focus:outline-none hover:outline-none"
@@ -278,7 +280,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
         {/* 检索的卷 */}
         <div className="space-y-0.5">
           <label className="text-[10px] text-muted-foreground px-1">
-            检索范围
+            {t('editor.leftPanel.searchTab.rangeLabel')}
           </label>
           <Select
             value={targetVolumeId === undefined || targetVolumeId === null ? '__all__' : targetVolumeId}
@@ -291,10 +293,10 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
             }}
           >
             <SelectTrigger className="h-7 text-xs focus:ring-0 focus-visible:ring-0 hover:ring-0 focus:outline-none hover:outline-none">
-              <SelectValue placeholder="检索的卷" />
+              <SelectValue placeholder={t('editor.leftPanel.searchTab.rangePlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__all__">全部</SelectItem>
+              <SelectItem value="__all__">{t('editor.leftPanel.searchTab.all')}</SelectItem>
               {volumeOptions.map(option => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -307,7 +309,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
         {/* 跳过检索的卷 */}
         <div className="space-y-0.5">
           <label className="text-[10px] text-muted-foreground px-1">
-            排除范围
+            {t('editor.leftPanel.searchTab.excludeLabel')}
           </label>
           <Select
             value={excludeVolumeId === undefined || excludeVolumeId === null ? '__none__' : excludeVolumeId}
@@ -320,10 +322,10 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
             }}
           >
             <SelectTrigger className="h-7 text-xs focus:ring-0 focus-visible:ring-0 hover:ring-0 focus:outline-none hover:outline-none">
-              <SelectValue placeholder="跳过检索的卷" />
+              <SelectValue placeholder={t('editor.leftPanel.searchTab.excludePlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__none__">不跳过</SelectItem>
+              <SelectItem value="__none__">{t('editor.leftPanel.searchTab.excludeNone')}</SelectItem>
               {volumeOptions.map(option => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -343,15 +345,13 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
         ) : results.length === 0 ? (
           <div className="flex items-center justify-center h-32">
             <p className="text-xs text-muted-foreground">
-              {keyword ? '未找到匹配的章节' : '输入关键字开始搜索'}
+              {keyword ? t('editor.leftPanel.searchTab.emptyNoResults') : t('editor.leftPanel.searchTab.emptyPrompt')}
             </p>
           </div>
         ) : (
           <div className="p-1 space-y-0.5">
             <div className="px-1.5 py-1 text-xs text-muted-foreground">
-              {results.length}
-              {' '}
-              个结果
+              {t('editor.leftPanel.searchTab.resultsCount', { count: results.length })}
             </div>
             {results.map((result) => {
               const isExpanded = expandedChapters.has(result.chapter.id)
@@ -389,9 +389,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                         {getVolumeTitle(chapter.volume_id)}
                         {' '}
                         ·
-                        {result.matchCount}
-                        {' '}
-                        处匹配
+                        {t('editor.leftPanel.searchTab.matchCount', { count: result.matchCount })}
                       </div>
                     </div>
                     {onSelectChapter && (
@@ -405,7 +403,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                         }}
                         className="h-5 px-1.5 text-[10px] text-muted-foreground hover:text-foreground"
                       >
-                        打开
+                        {t('editor.leftPanel.searchTab.open')}
                       </Button>
                     )}
                   </div>
@@ -417,7 +415,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                       {result.titleMatches.length > 0 && (
                         <div>
                           <div className="text-[10px] font-medium text-muted-foreground mb-0.5">
-                            标题匹配:
+                            {t('editor.leftPanel.searchTab.titleMatches')}
                           </div>
                           <div className="text-xs text-foreground bg-muted p-1 rounded">
                             {highlightText(chapter.title, keyword, result.titleMatches)}
@@ -429,10 +427,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
                       {result.contentMatches.length > 0 && (
                         <div>
                           <div className="text-[10px] font-medium text-muted-foreground mb-0.5">
-                            内容匹配 (
-                            {result.contentMatches.length}
-                            {' '}
-                            处):
+                            {t('editor.leftPanel.searchTab.contentMatches', { count: result.contentMatches.length })}
                           </div>
                           <div className="space-y-0.5">
                             {result.contentMatches.map((match) => {

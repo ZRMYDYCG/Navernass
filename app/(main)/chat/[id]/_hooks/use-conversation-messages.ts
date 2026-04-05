@@ -4,6 +4,7 @@ import type { Message } from '@/lib/supabase/sdk/types'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { toast } from 'sonner'
+import { useI18n } from '@/hooks/use-i18n'
 import { conversationsApi, messagesApi } from '@/lib/supabase/sdk'
 import { chatApi } from '@/lib/supabase/sdk/chat'
 import { copyTextToClipboard } from '@/lib/utils'
@@ -21,10 +22,11 @@ export function useConversationMessages({
   initialMessage,
   isNewConversation = false,
 }: UseConversationMessagesProps) {
+  const { t } = useI18n()
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
-  const [conversationTitle, setConversationTitle] = useState('Narraverse 对话')
+  const [conversationTitle, setConversationTitle] = useState(t('chat.welcomeHeader.fallbackTitle'))
 
   const isProcessingRef = useRef(false)
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -93,7 +95,7 @@ export function useConversationMessages({
           onConversationId: (id, created) => {
             newConversationId = id
             if (created && conversationId !== id) {
-              setConversationTitle('Narraverse 对话')
+              setConversationTitle(t('chat.welcomeHeader.fallbackTitle'))
             }
           },
           onUserMessageId: (id) => {
@@ -153,9 +155,9 @@ export function useConversationMessages({
       abortControllerRef.current = null
       isStreamingRef.current = false
 
-      toast.error('发送失败，请重试')
+      toast.error(t('chat.messages.sendFailedRetry'))
     }
-  }, [conversationId, isLoading, loadConversationHistorySilently])
+  }, [conversationId, isLoading, loadConversationHistorySilently, t])
 
   useEffect(() => {
     if (!conversationId || isNewConversation) return
@@ -226,25 +228,25 @@ export function useConversationMessages({
       if (!message?.content) return
       try {
         await copyTextToClipboard(message.content)
-        toast.success('消息内容已复制')
+        toast.success(t('chat.messages.copied'))
       } catch (error) {
         console.error('Failed to copy message:', error)
-        toast.error('复制失败，请重试')
+        toast.error(t('chat.messages.copyFailedRetry'))
       }
     },
     handleShareMessage: async (message: Message) => {
       if (!message?.content) return
-      const sharePayload = { title: '来自 Narraverse 的聊天消息', text: message.content }
+      const sharePayload = { title: t('chat.messages.shareTitle'), text: message.content }
       try {
         if ('share' in navigator && typeof navigator.share === 'function') {
           await navigator.share(sharePayload)
         } else {
           await copyTextToClipboard(message.content)
-          toast.success('已复制消息内容，粘贴即可分享')
+          toast.success(t('chat.messages.copiedForShare'))
         }
       } catch (error) {
         console.error('Failed to share message:', error)
-        toast.error('分享失败，请稍后再试')
+        toast.error(t('chat.messages.shareFailedLater'))
       }
     },
   }

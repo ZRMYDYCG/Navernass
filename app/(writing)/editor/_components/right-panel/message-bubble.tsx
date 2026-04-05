@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes'
 import { useMemo, useState } from 'react'
 import { MarkdownRenderer } from '@/app/(main)/chat/[id]/_components/markdown-renderer'
 import { Avatar } from '@/components/ui/avatar'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface MessageBubbleProps {
   message: NovelMessage
@@ -17,6 +18,7 @@ function MessageBubble({ message, streamingMessageId, userAvatar }: MessageBubbl
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
+  const { t } = useI18n()
   const [copied, setCopied] = useState(false)
   const isStreaming = streamingMessageId === message.id
   const hasThinking = isAssistant && message.thinking && message.thinking.length > 0
@@ -38,7 +40,7 @@ function MessageBubble({ message, streamingMessageId, userAvatar }: MessageBubbl
           <div key={i} className="my-2">
             <img
               src={parts[i]}
-              alt="Generated image"
+              alt={t('editor.rightPanel.generatedImageAlt')}
               className="max-w-full h-auto rounded-lg border border-border"
               style={{ maxHeight: '300px' }}
             />
@@ -74,12 +76,12 @@ function MessageBubble({ message, streamingMessageId, userAvatar }: MessageBubbl
         <div className="shrink-0">
           {isAssistant && (
             <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
-              <img src={avatarSrc} alt="AI Avatar" className="w-full h-full object-cover" />
+              <img src={avatarSrc} alt={t('editor.aiAvatarAlt')} className="w-full h-full object-cover" />
             </Avatar>
           )}
           {isUser && userAvatar && (
             <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
-              <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" />
+              <img src={userAvatar} alt={t('editor.rightPanel.userAvatarAlt')} className="w-full h-full object-cover" />
             </Avatar>
           )}
         </div>
@@ -103,7 +105,7 @@ function MessageBubble({ message, streamingMessageId, userAvatar }: MessageBubbl
                         onClick={handleCopy}
                         className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer transition-colors"
                       >
-                        复制
+                        {t('editor.rightPanel.copy')}
                         {copied && <Check className="w-3 h-3 text-emerald-500" />}
                       </button>
                     </div>

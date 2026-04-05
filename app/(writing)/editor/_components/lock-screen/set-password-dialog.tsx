@@ -5,6 +5,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface SetPasswordDialogProps {
   open: boolean
@@ -19,6 +20,7 @@ export function SetPasswordDialog({
   onConfirm,
   isSetting,
 }: SetPasswordDialogProps) {
+  const { t } = useI18n()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -29,17 +31,17 @@ export function SetPasswordDialog({
     setError('')
 
     if (!password.trim()) {
-      setError('请输入密码')
+      setError(t('editor.lockScreen.setPassword.errors.required'))
       return
     }
 
     if (password.length < 4) {
-      setError('密码长度至少为4位')
+      setError(t('editor.lockScreen.setPassword.errors.minLength'))
       return
     }
 
     if (password !== confirmPassword) {
-      setError('两次输入的密码不一致')
+      setError(t('editor.lockScreen.setPassword.errors.mismatch'))
       return
     }
 
@@ -72,14 +74,14 @@ export function SetPasswordDialog({
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
           <div className="bg-background rounded-xl shadow-xl border border-border p-6">
             <Dialog.Title className="text-lg font-medium text-foreground mb-6">
-              设置锁屏密码
+              {t('editor.lockScreen.setPassword.title')}
             </Dialog.Title>
 
             <div className="space-y-5">
               {/* 密码输入 */}
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5 ml-1">
-                  密码
+                  {t('editor.lockScreen.setPassword.password')}
                   {' '}
                   <span className="text-red-500">*</span>
                 </label>
@@ -91,7 +93,7 @@ export function SetPasswordDialog({
                       setPassword(e.target.value)
                       setError('')
                     }}
-                    placeholder="输入密码（至少4位）"
+                    placeholder={t('editor.lockScreen.setPassword.passwordPlaceholder')}
                     className="w-full h-10 pr-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-ring focus:ring-0 rounded-lg transition-all"
                     autoFocus
                     onKeyDown={handleKeyDown}
@@ -111,7 +113,7 @@ export function SetPasswordDialog({
               {/* 确认密码输入 */}
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5 ml-1">
-                  确认密码
+                  {t('editor.lockScreen.setPassword.confirmPassword')}
                   {' '}
                   <span className="text-red-500">*</span>
                 </label>
@@ -123,7 +125,7 @@ export function SetPasswordDialog({
                       setConfirmPassword(e.target.value)
                       setError('')
                     }}
-                    placeholder="再次输入密码"
+                    placeholder={t('editor.lockScreen.setPassword.confirmPasswordPlaceholder')}
                     className="w-full h-10 pr-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-ring focus:ring-0 rounded-lg transition-all"
                     onKeyDown={handleKeyDown}
                   />
@@ -155,7 +157,7 @@ export function SetPasswordDialog({
                   className="flex-1 h-10 bg-secondary text-foreground hover:bg-accent border border-border rounded-lg"
                   disabled={isSetting}
                 >
-                  取消
+                  {t('common.cancel')}
                 </Button>
               </Dialog.Close>
               <Button
@@ -163,7 +165,7 @@ export function SetPasswordDialog({
                 className="flex-1 h-10 bg-primary text-primary-foreground hover:opacity-90 rounded-lg shadow-sm"
                 disabled={isSetting || !password.trim() || !confirmPassword.trim()}
               >
-                {isSetting ? '设置中...' : '确定'}
+                {isSetting ? t('editor.lockScreen.setPassword.setting') : t('common.ok')}
               </Button>
             </div>
           </div>

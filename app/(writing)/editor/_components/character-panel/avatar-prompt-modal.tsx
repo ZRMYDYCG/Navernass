@@ -1,6 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 interface AvatarPromptModalProps {
@@ -24,6 +25,8 @@ export function AvatarPromptModal({
   onCancel,
   onConfirm,
 }: AvatarPromptModalProps) {
+  const { t } = useI18n()
+
   return (
     <AnimatePresence>
       {open && (
@@ -50,7 +53,7 @@ export function AvatarPromptModal({
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-              <div className="text-sm font-medium">生成角色画像</div>
+              <div className="text-sm font-medium">{t('editor.charactersPanel.avatarPromptModal.title')}</div>
               <button
                 type="button"
                 className="h-8 w-8 rounded-md hover:bg-muted disabled:opacity-50"
@@ -62,13 +65,13 @@ export function AvatarPromptModal({
             </div>
 
             <div className="px-4 py-3 space-y-2">
-              <div className="text-xs text-muted-foreground">请输入角色描述（越具体越好）</div>
+              <div className="text-xs text-muted-foreground">{t('editor.charactersPanel.avatarPromptModal.description')}</div>
               <textarea
                 value={promptText}
                 onChange={e => onPromptChange(e.target.value)}
                 rows={4}
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder="例如：18岁少女，银色短发，蓝色瞳孔，穿学院风制服，气质冷淡，微笑..."
+                placeholder={t('editor.charactersPanel.avatarPromptModal.placeholder')}
                 disabled={isGenerating}
               />
 
@@ -82,7 +85,7 @@ export function AvatarPromptModal({
                 disabled={isGenerating}
                 onClick={onCancel}
               >
-                取消
+                {t('editor.charactersPanel.avatarPromptModal.cancel')}
               </button>
               <button
                 type="button"
@@ -90,7 +93,7 @@ export function AvatarPromptModal({
                 disabled={isGenerating || !promptText.trim()}
                 onClick={onConfirm}
               >
-                {isGenerating ? '生成中...' : '生成'}
+                {isGenerating ? t('editor.charactersPanel.avatarPromptModal.generating') : t('editor.charactersPanel.avatarPromptModal.generate')}
               </button>
             </div>
           </motion.div>

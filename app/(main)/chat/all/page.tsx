@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { conversationsApi } from '@/lib/supabase/sdk'
 import { ChatListContent } from './_components/chat-list-content'
 import { ChatListHeader } from './_components/chat-list-header'
@@ -18,6 +19,8 @@ export default function AllChatsPage() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const { t } = useI18n()
+  const { locale } = useLocale()
 
   // 加载对话列表
   useEffect(() => {
@@ -46,7 +49,11 @@ export default function AllChatsPage() {
   }))
 
   const filteredChats = filterChats(chatItems, searchQuery)
-  const groupedChats = groupChatsByDate(filteredChats)
+  const groupedChats = groupChatsByDate(filteredChats, {
+    locale: locale === 'zh-CN' ? 'zh-CN' : 'en-US',
+    todayLabel: t('chat.all.dateGroup.today'),
+    yesterdayLabel: t('chat.all.dateGroup.yesterday'),
+  })
 
   const toggleChatSelection = useCallback((chatId: string) => {
     setSelectedChats((prev) => {

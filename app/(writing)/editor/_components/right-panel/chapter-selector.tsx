@@ -2,6 +2,7 @@ import type { Chapter } from '@/lib/supabase/sdk'
 import { useEffect, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ChapterSelectorProps {
   novelId: string
@@ -16,6 +17,7 @@ export function ChapterSelector({
   onSelectionChange,
   onClose,
 }: ChapterSelectorProps) {
+  const { t } = useI18n()
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -25,11 +27,11 @@ export function ChapterSelector({
       try {
         setLoading(true)
         const response = await fetch(`/api/novels/${novelId}/chapters`)
-        if (!response.ok) throw new Error('获取章节列表失败')
+        if (!response.ok) throw new Error(t('editor.rightPanel.chapterSelector.fetchFailed'))
         const result = await response.json()
         setChapters(result.data || [])
       } catch (error) {
-        console.error('获取章节列表失败:', error)
+        console.error(t('editor.rightPanel.chapterSelector.fetchFailed'), error)
       } finally {
         setLoading(false)
       }
@@ -38,7 +40,7 @@ export function ChapterSelector({
     if (novelId) {
       fetchChapters()
     }
-  }, [novelId])
+  }, [novelId, t])
 
   const filteredChapters = chapters.filter(chapter =>
     chapter.title.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -61,7 +63,7 @@ export function ChapterSelector({
     <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent showCloseButton={false} className="w-full max-w-md bg-background border border-border rounded-xl shadow-xl p-0">
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <h3 className="text-sm font-medium text-foreground">选择章节</h3>
+          <h3 className="text-sm font-medium text-foreground">{t('editor.rightPanel.chapterSelector.title')}</h3>
         </div>
 
         <div className="p-3 border-b border-border bg-background">
@@ -69,7 +71,7 @@ export function ChapterSelector({
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="搜索章节..."
+            placeholder={t('editor.rightPanel.chapterSelector.searchPlaceholder')}
             className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring shadow-sm"
           />
         </div>
@@ -84,7 +86,7 @@ export function ChapterSelector({
             : filteredChapters.length === 0
               ? (
                   <div className="p-8 text-center text-sm text-muted-foreground">
-                    {searchQuery ? '未找到匹配的章节' : '暂无章节'}
+                    {searchQuery ? t('editor.rightPanel.chapterSelector.noResults') : t('editor.rightPanel.chapterSelector.empty')}
                   </div>
                 )
               : (
@@ -125,18 +127,18 @@ export function ChapterSelector({
 
         <div className="p-3 border-t border-border flex items-center justify-between bg-muted/50 rounded-b-xl">
           <span className="text-xs text-muted-foreground">
-            已选择
+            {t('editor.rightPanel.chapterSelector.selectedPrefix')}
             {' '}
             {selectedChapters.length}
             {' '}
-            个章节
+            {t('editor.rightPanel.chapterSelector.selectedSuffix')}
           </span>
           <button
             type="button"
             onClick={onClose}
             className="px-4 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-colors shadow-sm"
           >
-            确定
+            {t('editor.rightPanel.chapterSelector.confirm')}
           </button>
         </div>
       </DialogContent>

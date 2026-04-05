@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface SearchBoxProps {
   editor: Editor
@@ -13,6 +14,7 @@ interface SearchBoxProps {
 }
 
 export function SearchBox({ editor, onClose, initialSearchTerm = '' }: SearchBoxProps) {
+  const { t } = useI18n()
   const [searchTerm, setSearchTerm] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [totalMatches, setTotalMatches] = useState(0)
@@ -211,7 +213,7 @@ export function SearchBox({ editor, onClose, initialSearchTerm = '' }: SearchBox
       <Input
         ref={inputRef}
         type="text"
-        placeholder="搜索..."
+        placeholder={t('tiptap.search.placeholder')}
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
         className="h-8 text-sm flex-1"
@@ -248,7 +250,7 @@ export function SearchBox({ editor, onClose, initialSearchTerm = '' }: SearchBox
           onClick={goToPrevious}
           disabled={totalMatches === 0}
           className="h-7 w-7 p-0"
-          title="上一个 (Shift+Enter)"
+          title={t('tiptap.search.previous')}
         >
           <ArrowUp className="w-4 h-4" />
         </Button>
@@ -259,7 +261,7 @@ export function SearchBox({ editor, onClose, initialSearchTerm = '' }: SearchBox
           onClick={goToNext}
           disabled={totalMatches === 0}
           className="h-7 w-7 p-0"
-          title="下一个 (Enter)"
+          title={t('tiptap.search.next')}
         >
           <ArrowDown className="w-4 h-4" />
         </Button>
@@ -269,7 +271,7 @@ export function SearchBox({ editor, onClose, initialSearchTerm = '' }: SearchBox
           variant="ghost"
           onClick={onClose}
           className="h-7 w-7 p-0"
-          title="关闭 (Esc)"
+          title={t('tiptap.search.close')}
         >
           <X className="w-4 h-4" />
         </Button>

@@ -4,6 +4,7 @@ import { Search, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ChapterQuickSearchDialogProps {
   open: boolean
@@ -23,6 +24,7 @@ export function ChapterQuickSearchDialog({
   currentChapterId,
   onSelectChapter,
 }: ChapterQuickSearchDialogProps) {
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -85,7 +87,7 @@ export function ChapterQuickSearchDialog({
         showCloseButton={false}
         className="top-[20%] translate-y-0 max-w-xl p-0 gap-0 overflow-hidden shadow-2xl"
       >
-        <DialogTitle className="sr-only">搜索章节</DialogTitle>
+        <DialogTitle className="sr-only">{t('editor.chapterQuickSearch.title')}</DialogTitle>
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/20">
           <Search className="h-4 w-4 text-muted-foreground shrink-0" />
           <input
@@ -94,7 +96,7 @@ export function ChapterQuickSearchDialog({
             onChange={event => setQuery(event.target.value)}
             onKeyDown={handleKeyDown}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none h-6"
-            placeholder="搜索章节标题..."
+            placeholder={t('editor.chapterQuickSearch.placeholder')}
           />
           <Button
             type="button"
@@ -109,7 +111,7 @@ export function ChapterQuickSearchDialog({
         <div className="max-h-[60vh] overflow-y-auto py-1">
           {filtered.length === 0
             ? (
-                <div className="px-4 py-8 text-center text-sm text-muted-foreground">暂无匹配章节</div>
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground">{t('editor.chapterQuickSearch.empty')}</div>
               )
             : (
                 <ul className="py-1 px-1">
@@ -130,7 +132,7 @@ export function ChapterQuickSearchDialog({
                           <span className="truncate">{item.title}</span>
                           {isCurrent && (
                             <span className="ml-2 rounded-sm bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                              当前
+                              {t('editor.chapterQuickSearch.current')}
                             </span>
                           )}
                         </button>

@@ -1,9 +1,12 @@
+'use client'
+
 import type { Novel } from '@/lib/supabase/sdk'
 import { formatDistanceToNow } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { enUS, zhCN } from 'date-fns/locale'
 import { BookOpen, EllipsisVertical, GripHorizontal } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { PaperCard } from '@/components/ui/paper-card'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 function noop() {}
@@ -21,6 +24,8 @@ export function NovelCard({
   onContextMenu = noop,
   dragListeners,
 }: NovelCardProps) {
+  const { t } = useI18n()
+  const { locale } = useLocale()
   const [isMenuActive, setIsMenuActive] = useState(false)
   const handleContextMenu = (e: React.MouseEvent, novel: Novel) => {
     setIsMenuActive(true)
@@ -74,7 +79,7 @@ export function NovelCard({
                 : 'border-border text-muted-foreground',
             )}
           >
-            {novel.status === 'published' ? '已发布' : '草稿'}
+            {novel.status === 'published' ? t('novels.filters.published') : t('novels.filters.draft')}
           </span>
           {novel.category && (
             <span className="text-[10px] text-muted-foreground font-serif italic">
@@ -147,7 +152,7 @@ export function NovelCard({
             {novel.title}
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed mt-1.5 line-clamp-2">
-            {novel.description || '暂无简介...'}
+            {novel.description || t('novels.card.noDescription')}
           </p>
         </div>
 
@@ -168,12 +173,11 @@ export function NovelCard({
           <div className="flex items-center justify-between text-[10px] text-muted-foreground/70 font-mono tracking-wide border-t border-border/50 pt-2.5">
             <div className="flex gap-2">
               <span>
-                {(novel.word_count / 1000).toFixed(1)}
-                k 字
+                {t('novels.card.wordCount', { count: (novel.word_count / 1000).toFixed(1) })}
               </span>
             </div>
             <span>
-              {formatDistanceToNow(new Date(novel.updated_at), { locale: zhCN, addSuffix: true })}
+              {formatDistanceToNow(new Date(novel.updated_at), { locale: locale === 'zh-CN' ? zhCN : enUS, addSuffix: true })}
             </span>
           </div>
         </div>

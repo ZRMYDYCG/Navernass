@@ -1,0 +1,105 @@
+const survey = {
+  meta: {
+    title: '共创问卷与用户调研',
+    description: '诚邀您花 3 分钟，聊聊那些关于写作的故事，加入 Narraverse 共创计划。',
+    keywords: [
+      'AI 写作问卷',
+      '小说创作调研',
+      '写作者用户反馈',
+      'Narraverse 共创计划',
+    ],
+    breadcrumbHome: '首页',
+    breadcrumbSurvey: '共创问卷',
+  },
+  header: {
+    title: '共创计划：\n寻找你的创作伙伴',
+    subtitle: '我们不只是在制造工具，更是在寻找一种能与灵感共舞的方式。\n诚邀您花 3 分钟，聊聊那些关于写作的故事。',
+  },
+  sections: {
+    profile: {
+      step: '01',
+      title: '关于你的创作旅程',
+      experience: '目前的创作状态是？',
+      experienceOptions: [
+        { label: '初探门径 (刚开始尝试写作)', value: 'newbie' },
+        { label: '渐入佳境 (累计创作 < 50万字)', value: 'intermediate' },
+        { label: '笔耕不辍 (累计创作 > 50万字)', value: 'advanced' },
+        { label: '职业作家 (以此为生/全职写作)', value: 'pro' },
+      ],
+      genres: '偏爱的创作领域？(可多选)',
+      genresOptions: [
+        { label: '玄幻 / 仙侠 / 奇幻', value: 'fantasy' },
+        { label: '都市 / 现实 / 言情', value: 'urban' },
+        { label: '科幻 / 末世 / 无限', value: 'scifi' },
+        { label: '悬疑 / 推理 / 惊悚', value: 'suspense' },
+        { label: '历史 / 军事 / 权谋', value: 'history' },
+        { label: '同人 / 衍生 / 轻小说', value: 'fanfic' },
+        { label: '其他类型', value: 'other' },
+      ],
+    },
+    painPoints: {
+      step: '02',
+      title: '那些让你停笔的瞬间',
+      struggles: '哪个环节最容易消磨你的热情？(可多选)',
+      strugglesOptions: [
+        { label: '灵感枯竭 (想写却不知道写什么)', value: 'idea' },
+        { label: '结构困局 (大纲卡壳，逻辑不通)', value: 'outline' },
+        { label: '设定迷宫 (世界观庞杂，难以自洽)', value: 'world' },
+        { label: '角色扁平 (人物缺乏灵魂与弧光)', value: 'character' },
+        { label: '行文卡顿 (正文推进困难，手速慢)', value: 'drafting' },
+        { label: '润色繁琐 (查错改稿，词不达意)', value: 'editing' },
+      ],
+      tools: '目前主要使用的工具？(可多选)',
+      toolsOptions: [
+        { label: 'Word / WPS / Pages', value: 'word' },
+        { label: 'Notion / Obsidian / Logseq', value: 'note' },
+        { label: 'Scrivener / Ulysses', value: 'scrivener' },
+        { label: '墨者 / 大神 / 橙瓜', value: 'webnovel_tools' },
+        { label: '手机备忘录 / 纯文本', value: 'memo' },
+      ],
+    },
+    expectations: {
+      step: '03',
+      title: '想象中的理想助手',
+      aiFeatures: '如果 AI 是一位助手，你希望它擅长...',
+      max3: '至多选 3 项',
+      aiFeaturesOptions: [
+        { label: '灵感风暴：提供创意点子、反转剧情建议', value: 'brainstorm' },
+        { label: '设定管家：自动整理、检索、可视化人物和世界观', value: 'wiki' },
+        { label: '自动续写：根据上下文风格辅助生成段落', value: 'autocomplete' },
+        { label: '逻辑纠错：检查前后文矛盾、时间线 BUG', value: 'logic_check' },
+        { label: '角色绘图：一键生成角色立绘、场景插图', value: 'image_gen' },
+        { label: '市场参谋：分析题材热度、读者喜好趋势', value: 'analytics' },
+        { label: '角色扮演：模拟书中角色与我对戏，寻找语感', value: 'roleplay' },
+      ],
+      concerns: '对于 AI 辅助写作，你最大的顾虑或建议？',
+      concernsPlaceholder: '例如：担心版权问题、担心风格不统一、希望 AI 不要干涉核心创意...',
+    },
+    contact: {
+      step: '04',
+      title: '保持联系',
+      info: '留下联系方式，优先获取内测资格 (选填)',
+      infoPlaceholder: 'Email 或 微信号',
+      promise: '承诺：您的信息仅用于产品内测邀请，绝无垃圾邮件。',
+    },
+  },
+  submit: {
+    button: '发送反馈',
+    submitting: '正在提交...',
+    success: '感谢您的真知灼见，我们已收到！',
+    error: '提交失败，请稍后重试',
+  },
+  successScreen: {
+    title: '感谢您的分享',
+    message: '每一位创作者的声音，都是 Narraverse 成长的养分。\n我们会认真聆听，不负期待。',
+    backHome: '返回首页',
+  },
+  community: {
+    findMore: '想寻找更多同路人？',
+    joinGroup: '加入共创交流群',
+    scanQr: '扫码加入 Narraverse 朋友们',
+  },
+  footer: 'Narraverse · Create Worlds with Intelligence',
+} as const
+
+export default survey

@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useI18n } from '@/hooks/use-i18n'
 import { TAB_CONFIGS } from './constants'
 
 interface TabSwitcherProps {
@@ -15,12 +16,15 @@ interface TabSwitcherProps {
 }
 
 export function TabSwitcher({ activeTab, onChange, onToggleCharacters }: TabSwitcherProps) {
+  const { t } = useI18n()
+
   return (
     <TooltipProvider>
       <div className="h-full flex flex-col items-center gap-2 py-4 px-1">
         {TAB_CONFIGS.map((tab) => {
           const Icon = tab.icon
           const isActive = activeTab === tab.value
+          const label = t(`editor.leftPanel.tabs.${tab.value}`)
 
           return (
             <Tooltip key={tab.value}>
@@ -36,11 +40,11 @@ export function TabSwitcher({ activeTab, onChange, onToggleCharacters }: TabSwit
                 >
                   {Icon
                     ? <Icon className="w-4 h-4" />
-                    : <span>{tab.label}</span>}
+                    : <span>{label}</span>}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" className="text-xs">
-                <p>{tab.label}</p>
+                <p>{label}</p>
               </TooltipContent>
             </Tooltip>
           )
@@ -56,7 +60,7 @@ export function TabSwitcher({ activeTab, onChange, onToggleCharacters }: TabSwit
             </button>
           </TooltipTrigger>
           <TooltipContent side="right" className="text-xs">
-            <p>角色图谱</p>
+            <p>{t('editor.characters.graph')}</p>
           </TooltipContent>
         </Tooltip>
       </div>

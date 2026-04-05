@@ -18,6 +18,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { useI18n } from '@/hooks/use-i18n'
 import { ImportToNovelDialog } from './import-to-novel-dialog'
 
 interface DocumentEditorDialogProps {
@@ -34,6 +35,7 @@ export function DocumentEditorDialog({
   open,
   onOpenChange,
 }: DocumentEditorDialogProps) {
+  const { t } = useI18n()
   const activeMessage = latestAssistantMessage || message
   const editorContent = activeMessage?.content || ''
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
@@ -52,16 +54,16 @@ export function DocumentEditorDialog({
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    toast.success('文档已导出为 Markdown')
+    toast.success(t('chat.documentEditorDialog.exported'))
   }
 
   const handleCopyContent = async () => {
     try {
       await navigator.clipboard.writeText(editorContent)
-      toast.success('内容已复制到剪贴板')
+      toast.success(t('chat.documentEditorDialog.copied'))
     } catch (err) {
       console.error('复制失败:', err)
-      toast.error('复制失败，请手动复制')
+      toast.error(t('chat.documentEditorDialog.copyFailedManual'))
     }
   }
 
@@ -71,7 +73,7 @@ export function DocumentEditorDialog({
         <SheetContent side="right" className="w-full sm:w-[600px] sm:max-w-none flex flex-col p-0 gap-0">
           <SheetHeader className="flex flex-row items-center justify-between px-4 sm:px-6 py-4 border-b border-border space-y-0 text-left">
             <div className="flex items-center gap-2">
-              <SheetTitle className="text-base font-medium">文档编辑</SheetTitle>
+              <SheetTitle className="text-base font-medium">{t('chat.documentEditorDialog.title')}</SheetTitle>
             </div>
             <div className="flex items-center gap-2">
               <DropdownMenu>
@@ -86,13 +88,13 @@ export function DocumentEditorDialog({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
                   <DropdownMenuItem onClick={handleSave}>
-                    导入到小说
+                    {t('chat.documentEditorDialog.importToNovel')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportMarkdown}>
-                    导出为 Markdown
+                    {t('chat.documentEditorDialog.exportMarkdown')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleCopyContent}>
-                    复制内容
+                    {t('chat.documentEditorDialog.copyContent')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -103,7 +105,7 @@ export function DocumentEditorDialog({
             <TiptapEditor
               key={activeMessage?.id || 'empty'}
               content={editorContent}
-              placeholder="开始编辑文档..."
+              placeholder={t('chat.documentEditor.placeholder')}
               className="h-full"
               editable={true}
             />

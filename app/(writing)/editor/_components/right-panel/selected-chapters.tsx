@@ -1,6 +1,7 @@
 import type { Chapter } from '@/lib/supabase/sdk'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface SelectedChaptersProps {
   chapters: Chapter[]
@@ -8,6 +9,7 @@ interface SelectedChaptersProps {
 }
 
 export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) {
+  const { t } = useI18n()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
@@ -62,7 +64,7 @@ export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) 
           type="button"
           onClick={() => scroll('left')}
           className="absolute left-0 z-10 p-1 bg-card border border-border rounded shadow-sm hover:bg-accent transition-colors shrink-0"
-          title="向左滚动"
+          title={t('editor.rightPanel.scrollLeft')}
         >
           <ChevronLeft className="w-3 h-3 text-muted-foreground" />
         </button>
@@ -91,7 +93,7 @@ export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) 
               type="button"
               onClick={() => onRemove(chapter.id)}
               className="p-0.5 hover:bg-accent rounded transition-all duration-150 shrink-0 hover:scale-110 active:scale-95"
-              title="移除"
+              title={t('editor.rightPanel.remove')}
             >
               <X className="w-2.5 h-2.5 text-muted-foreground" />
             </button>
@@ -105,7 +107,7 @@ export function SelectedChapters({ chapters, onRemove }: SelectedChaptersProps) 
           type="button"
           onClick={() => scroll('right')}
           className="absolute right-0 z-10 p-1 bg-card border border-border rounded shadow-sm hover:bg-accent transition-colors shrink-0"
-          title="向右滚动"
+          title={t('editor.rightPanel.scrollRight')}
         >
           <ChevronRight className="w-3 h-3 text-muted-foreground" />
         </button>

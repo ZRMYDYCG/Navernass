@@ -3,6 +3,7 @@
 import type { Character, Relationship } from './types'
 import * as d3 from 'd3'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { formatRelationshipLabel, getCharacterColor } from '@/store'
 
@@ -48,6 +49,7 @@ export function RelationshipGraph({
   onEditRelationship,
   className,
 }: RelationshipGraphProps) {
+  const { t } = useI18n()
   const characters = charactersProp ?? []
   const nodeIdsKey = useMemo(() => (charactersProp ?? []).map(c => c.id).sort().join('|'), [charactersProp])
   const linkIdsKey = useMemo(() => (relationshipsProp ?? []).map(r => r.id).sort().join('|'), [relationshipsProp])
@@ -151,7 +153,6 @@ export function RelationshipGraph({
     const linkStrokeColor = isDarkMode ? '#64748b' : '#94a3b8'
     const labelBgColor = isDarkMode ? '#1e293b' : '#f1f5f9'
     const labelBorderColor = isDarkMode ? '#334155' : '#e2e8f0'
-    const foregroundColor = isDarkMode ? '#f1f5f9' : '#0f172a'
 
     const updateFocus = (hoveredId?: string | null) => {
       const focusNodeId = hoveredId ?? null
@@ -409,7 +410,7 @@ export function RelationshipGraph({
       simulation.stop()
 
       updateHighlightRef.current = (hoveredId?: string | null) => {
-        const { hasFocus, relatedNodeIds, relatedLinkIds } = updateFocus(hoveredId)
+        const { hasFocus, relatedLinkIds } = updateFocus(hoveredId)
 
         linkSelection
           .attr('stroke', (link) => {
@@ -434,7 +435,7 @@ export function RelationshipGraph({
         nodeGroup.attr('opacity', 1)
 
         nodeBody
-          .attr('stroke', (node) => {
+          .attr('stroke', () => {
             const isSelected = false
 
             if (isSelected) return '#3b82f6'
@@ -762,7 +763,7 @@ export function RelationshipGraph({
       <svg ref={svgRef} width={dimensions.width} height={dimensions.height} className="h-full w-full" />
       {characters.length === 0 && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-          暂无角色，请先新建角色
+          {t('editor.charactersPanel.empty.noCharacters')}
         </div>
       )}
       {showViewSwitcher && onViewModeChange && (

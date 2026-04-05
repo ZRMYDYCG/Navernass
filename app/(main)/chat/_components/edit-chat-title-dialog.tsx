@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface EditChatTitleDialogProps {
   open: boolean
@@ -30,6 +31,7 @@ export function EditChatTitleDialog({
   conversationId,
   onSave,
 }: EditChatTitleDialogProps) {
+  const { t } = useI18n()
   const [title, setTitle] = useState(currentTitle)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -58,15 +60,15 @@ export function EditChatTitleDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>编辑对话标题</DialogTitle>
-          <DialogDescription>修改对话标题以便更好地识别和查找</DialogDescription>
+          <DialogTitle>{t('chat.editTitleDialog.title')}</DialogTitle>
+          <DialogDescription>{t('chat.editTitleDialog.description')}</DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
           <Input
             value={title}
             onChange={e => setTitle(e.target.value)}
-            placeholder="输入对话标题"
+            placeholder={t('chat.editTitleDialog.placeholder')}
             maxLength={100}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -80,10 +82,10 @@ export function EditChatTitleDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
-            取消
+            {t('chat.editTitleDialog.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={!title.trim() || isLoading}>
-            {isLoading ? '保存中...' : '保存'}
+            {isLoading ? t('chat.editTitleDialog.saving') : t('chat.editTitleDialog.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

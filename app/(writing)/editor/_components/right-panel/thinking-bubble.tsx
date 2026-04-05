@@ -4,6 +4,7 @@ import { memo, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Avatar } from '@/components/ui/avatar'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ThinkingBubbleProps {
   thinking: string | null | undefined
@@ -13,6 +14,7 @@ interface ThinkingBubbleProps {
 function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
   const { theme } = useTheme()
   const [isExpanded, setIsExpanded] = useState(false)
+  const { t } = useI18n()
 
   const avatarSrc = useMemo(() => {
     return theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
@@ -26,7 +28,7 @@ function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
     <div className="flex gap-1.5 py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200">
       <div className="shrink-0">
         <Avatar className="w-5 h-5">
-          <img src={avatarSrc} alt="AI Avatar" className="w-full h-full object-cover" />
+          <img src={avatarSrc} alt={t('editor.aiAvatarAlt')} className="w-full h-full object-cover" />
         </Avatar>
       </div>
       <div className="flex-1 max-w-[85%] sm:max-w-md lg:max-w-lg">
@@ -36,7 +38,7 @@ function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
             className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
           >
             <Sparkles className="w-3 h-3" />
-            <span>深度思考</span>
+            <span>{t('editor.rightPanel.deepThinking')}</span>
             {isExpanded
               ? <ChevronUp className="w-3 h-3" />
               : <ChevronDown className="w-3 h-3" />

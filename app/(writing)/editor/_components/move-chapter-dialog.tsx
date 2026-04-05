@@ -1,6 +1,9 @@
+'use client'
+
 import type { Volume } from '@/lib/supabase/sdk'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface MoveChapterDialogProps {
   open: boolean
@@ -19,6 +22,7 @@ export function MoveChapterDialog({
   onConfirm,
   isMoving,
 }: MoveChapterDialogProps) {
+  const { t } = useI18n()
   const handleConfirm = (volumeId: string | null) => {
     onConfirm(volumeId)
   }
@@ -30,14 +34,12 @@ export function MoveChapterDialog({
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] animate-in fade-in-0 zoom-in-95">
           <div className="bg-card rounded-lg shadow-lg border border-border p-6">
             <Dialog.Title className="text-xl font-semibold text-foreground mb-4">
-              将章节移入
+              {t('editor.moveChapterDialog.title')}
             </Dialog.Title>
 
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                选择章节 "
-                {chapterTitle}
-                " 的目标位置：
+                {t('editor.moveChapterDialog.description', { title: chapterTitle })}
               </p>
 
               <div className="space-y-2">
@@ -47,8 +49,8 @@ export function MoveChapterDialog({
                   disabled={isMoving}
                   className="w-full text-left px-4 py-3 rounded-lg border border-border hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <div className="font-medium text-foreground">根目录</div>
-                  <div className="text-sm text-muted-foreground">将章节放置在根目录下</div>
+                  <div className="font-medium text-foreground">{t('editor.moveChapterDialog.root.title')}</div>
+                  <div className="text-sm text-muted-foreground">{t('editor.moveChapterDialog.root.description')}</div>
                 </button>
 
                 {volumes.map(volume => (
@@ -75,7 +77,7 @@ export function MoveChapterDialog({
                   className="flex-1 bg-secondary text-foreground hover:bg-accent"
                   disabled={isMoving}
                 >
-                  取消
+                  {t('common.cancel')}
                 </Button>
               </Dialog.Close>
             </div>

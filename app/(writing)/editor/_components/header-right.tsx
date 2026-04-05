@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useI18n } from '@/hooks/use-i18n'
 import { CloseConfirmDialog } from './close-confirm-dialog'
 import { PublishDialog } from './publish-dialog'
 
@@ -47,6 +48,7 @@ export function HeaderRight({
   novelId,
   chapterIds = DEFAULT_CHAPTER_IDS,
 }: HeaderRightProps) {
+  const { t } = useI18n()
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
   const [closeDialogOpen, setCloseDialogOpen] = useState(false)
 
@@ -67,7 +69,7 @@ export function HeaderRight({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>发布</p>
+            <p>{t('editor.header.publish')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -83,7 +85,7 @@ export function HeaderRight({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>锁屏</p>
+            <p>{t('editor.header.lockScreen')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -102,7 +104,7 @@ export function HeaderRight({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{isImmersiveMode ? '退出沉浸模式' : '沉浸模式'}</p>
+            <p>{isImmersiveMode ? t('editor.header.exitImmersive') : t('editor.header.immersive')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -117,7 +119,7 @@ export function HeaderRight({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>AI 助手</p>
+            <p>{t('editor.header.aiAssistant')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -140,7 +142,7 @@ export function HeaderRight({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{isFullscreen ? '退出全屏' : '全屏'}</p>
+            <p>{isFullscreen ? t('editor.header.exitFullscreen') : t('editor.header.fullscreen')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -159,7 +161,7 @@ export function HeaderRight({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>返回</p>
+            <p>{t('common.back')}</p>
           </TooltipContent>
         </Tooltip>
       </div>

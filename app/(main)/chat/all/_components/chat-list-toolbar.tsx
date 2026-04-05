@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { UI_CONFIG } from '../config'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ChatListToolbarProps {
   searchQuery: string
@@ -39,13 +39,15 @@ export function ChatListToolbar({
   handleBatchPin,
   handleBatchShare,
 }: ChatListToolbarProps) {
+  const { t } = useI18n()
+
   if (!isSelectionMode) {
     return (
       <div className="flex items-center gap-2">
         <div className="relative hidden md:block">
           <Input
             type="text"
-            placeholder={UI_CONFIG.search.placeholder}
+            placeholder={t('chat.all.toolbar.searchPlaceholder')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className={`w-64`}
@@ -67,14 +69,14 @@ export function ChatListToolbar({
               className="cursor-pointer"
               onClick={() => setIsSelectionMode(true)}
             >
-              <span>选择对话</span>
+              <span>{t('chat.all.toolbar.selectChats')}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <span>查看已置顶</span>
+              <span>{t('chat.all.toolbar.viewPinned')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <span>按日期排序</span>
+              <span>{t('chat.all.toolbar.sortByDate')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -90,15 +92,15 @@ export function ChatListToolbar({
         onClick={toggleSelectAll}
         className="text-muted-foreground"
       >
-        {selectedChats.size === 0 ? '全选' : '取消全选'}
+      {selectedChats.size === 0 ? t('chat.all.toolbar.selectAll') : t('chat.all.toolbar.deselectAll')}
       </Button>
 
       <span className="text-sm text-muted-foreground">
-        已选择
-        {' '}
-        {selectedChats.size}
-        {' '}
-        项
+      {t('chat.all.toolbar.selected')}
+      {' '}
+      {selectedChats.size}
+      {' '}
+      {t('chat.all.toolbar.items')}
       </span>
 
       <DropdownMenu>
@@ -116,21 +118,21 @@ export function ChatListToolbar({
             onClick={handleBatchPin}
             disabled={selectedChats.size === 0}
           >
-            <span>批量置顶</span>
+          <span>{t('chat.all.toolbar.bulkPin')}</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={handleBatchShare}
             disabled={selectedChats.size === 0}
           >
-            <span>批量分享</span>
+          <span>{t('chat.all.toolbar.bulkShare')}</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="text-red-600 dark:text-red-400"
+          className="text-destructive"
             onClick={handleBatchDelete}
             disabled={selectedChats.size === 0}
           >
-            <span>批量删除</span>
+          <span>{t('chat.all.toolbar.bulkDelete')}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -143,7 +145,7 @@ export function ChatListToolbar({
         }}
         className="text-muted-foreground"
       >
-        取消
+      {t('chat.all.toolbar.cancel')}
       </Button>
     </div>
   )

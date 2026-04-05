@@ -1,38 +1,41 @@
 'use client'
 
 import { useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ChatWelcomeProps {
   isLoading?: boolean
 }
 
-function getGreeting() {
+function getGreetingKey() {
   const hour = new Date().getHours()
 
   if (hour >= 5 && hour < 12) {
-    return '早上好'
+    return 'morning'
   } else if (hour >= 12 && hour < 18) {
-    return '下午好'
+    return 'afternoon'
   } else if (hour >= 18 && hour < 22) {
-    return '晚上好'
+    return 'evening'
   } else {
-    return '夜深了'
+    return 'night'
   }
 }
 
 export function ChatWelcome({ isLoading = false }: ChatWelcomeProps) {
-  const [greeting] = useState(() => getGreeting())
+  const { t } = useI18n()
+  const [greetingKey] = useState(() => getGreetingKey())
+  const greeting = t(`chat.welcome.greetings.${greetingKey}`)
 
   return (
     <div className="text-center mb-3 space-y-6">
       <div className="space-y-3">
         <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
           {greeting}
-          ，准备好开始创作了吗？
+          {t('chat.welcome.questionSuffix')}
         </h1>
 
         <p className="text-lg text-muted-foreground">
-          {isLoading ? '正在创建对话...' : '让 AI 助手陪你一起编织精彩的故事'}
+          {isLoading ? t('chat.welcome.creating') : t('chat.welcome.tip')}
         </p>
       </div>
     </div>

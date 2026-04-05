@@ -9,6 +9,7 @@ import {
   SelectTrigger,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 import { useCharacterMaterialStore } from '@/store'
@@ -42,14 +43,14 @@ const EMPTY_ARRAY: never[] = []
 const SUGGESTION_MARKER_REGEX = /data-suggestion="(?:add|del)"|suggestion-(?:add|del)/i
 const DEFAULT_EDITOR_SURFACE = 'paper'
 const EDITOR_SURFACE_OPTIONS = [
-  { value: 'paper', note: '纸感', surfaceClassName: 'bg-card bg-paper-texture', swatchClassName: 'bg-card' },
-  { value: 'plain', note: '素净', surfaceClassName: 'bg-background', swatchClassName: 'bg-background' },
-  { value: 'mist', note: '雾灰', surfaceClassName: 'bg-muted/35', swatchClassName: 'bg-muted/70' },
-  { value: 'soft', note: '柔光', surfaceClassName: 'bg-accent/40', swatchClassName: 'bg-accent/70' },
-  { value: 'rice', note: '轻米白', surfaceClassName: 'bg-[#f7f2e8] bg-paper-texture', swatchClassName: 'bg-[#f7f2e8]' },
-  { value: 'aged', note: '旧纸', surfaceClassName: 'bg-[#eadfc8] bg-paper-texture', swatchClassName: 'bg-[#eadfc8]' },
-  { value: 'cool', note: '冷白', surfaceClassName: 'bg-[#f3f7fb]', swatchClassName: 'bg-[#f3f7fb]' },
-  { value: 'night', note: '夜纸', surfaceClassName: 'bg-[#17151d] text-zinc-100', swatchClassName: 'bg-[#17151d]' },
+  { value: 'paper', surfaceClassName: 'bg-card bg-paper-texture', swatchClassName: 'bg-card' },
+  { value: 'plain', surfaceClassName: 'bg-background', swatchClassName: 'bg-background' },
+  { value: 'mist', surfaceClassName: 'bg-muted/35', swatchClassName: 'bg-muted/70' },
+  { value: 'soft', surfaceClassName: 'bg-accent/40', swatchClassName: 'bg-accent/70' },
+  { value: 'rice', surfaceClassName: 'bg-[#f7f2e8] bg-paper-texture', swatchClassName: 'bg-[#f7f2e8]' },
+  { value: 'aged', surfaceClassName: 'bg-[#eadfc8] bg-paper-texture', swatchClassName: 'bg-[#eadfc8]' },
+  { value: 'cool', surfaceClassName: 'bg-[#f3f7fb]', swatchClassName: 'bg-[#f3f7fb]' },
+  { value: 'night', surfaceClassName: 'bg-[#17151d] text-zinc-100', swatchClassName: 'bg-[#17151d]' },
 ] as const
 
 const getEditorSurfaceStorageKey = (novelId: string) => `editor-surface:${novelId}`
@@ -73,6 +74,8 @@ export default function EditorContent({
   chapters = EMPTY_ARRAY,
   onSelectChapter,
 }: EditorContentProps) {
+  const { t } = useI18n()
+  const { locale } = useLocale()
   const [isSaving, setIsSaving] = useState(false)
   const [lastSavedMap, setLastSavedMap] = useState<Record<string, Date | null>>({})
   const lastSaved = lastSavedMap[chapterId] ?? null
@@ -128,7 +131,7 @@ export default function EditorContent({
           editorContentRef.current = data.content
         }
       } catch (error) {
-        const message = error instanceof Error ? error.message : '加载章节失败'
+        const message = error instanceof Error ? error.message : t('editor.messages.loadChapterFailed')
         toast.error(message)
       } finally {
         setLoading(false)
@@ -139,7 +142,7 @@ export default function EditorContent({
     }
 
     loadChapter()
-  }, [chapterId])
+  }, [chapterId, t])
 
   const handleUpdate = async (content: string) => {
     editorContentRef.current = content
@@ -153,7 +156,7 @@ export default function EditorContent({
       setChapter(prev => (prev ? { ...prev, content } : null))
       setLastSavedMap(prev => ({ ...prev, [chapterId]: new Date() }))
     } catch (error) {
-      const message = error instanceof Error ? error.message : '保存失败'
+      const message = error instanceof Error ? error.message : t('editor.messages.saveFailed')
       toast.error(message)
     } finally {
       setIsSaving(false)
@@ -169,7 +172,7 @@ export default function EditorContent({
       setIsSaving(true)
       const content = editorContentRef.current
       if (hasSuggestionMarkup(content)) {
-        toast('请先接受或拒绝修订内容再保存')
+        toast(t('editor.messages.resolveSuggestionsBeforeSave'))
         return
       }
       await chaptersApi.update({
@@ -178,15 +181,15 @@ export default function EditorContent({
       })
       setChapter(prev => (prev ? { ...prev, content } : null))
       setLastSavedMap(prev => ({ ...prev, [chapterId]: new Date() }))
-      toast.success('保存成功', { duration: 1500 })
+      toast.success(t('editor.messages.saveSuccess'), { duration: 1500 })
     } catch (error) {
-      const message = error instanceof Error ? error.message : '保存失败'
+      const message = error instanceof Error ? error.message : t('editor.messages.saveFailed')
       toast.error(message)
     } finally {
       setIsSaving(false)
       isSavingRef.current = false
     }
-  }, [chapterId])
+  }, [chapterId, t])
 
   const handleStatsChange = (stats: { words: number, characters: number }) => {
     setWordCount(stats.words)
@@ -228,7 +231,7 @@ export default function EditorContent({
             body: JSON.stringify({ content }),
           })
         } catch (error) {
-          console.error('自动保存失败:', error)
+          console.error('Auto-save failed:', error)
         }
       }
     }
@@ -271,7 +274,7 @@ export default function EditorContent({
           ? (
               <div className="h-full flex flex-col items-center justify-center gap-3">
                 <Spinner className="w-8 h-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground font-light tracking-wider">正在铺开纸张...</span>
+                <span className="text-sm text-muted-foreground font-light tracking-wider">{t('editor.editor.loading')}</span>
               </div>
             )
           : (
@@ -279,7 +282,7 @@ export default function EditorContent({
                 <TiptapEditor
                   key={chapterId}
                   content={chapter?.content || `<h1>${chapterTitle}</h1>`}
-                  placeholder="在此写下故事的开始..."
+                  placeholder={t('editor.editor.placeholder')}
                   onUpdate={handleUpdate}
                   onStatsChange={handleStatsChange}
                   autoSave={true}
@@ -296,12 +299,12 @@ export default function EditorContent({
       {/* 底部状态栏 */}
       <div className="h-10 px-6 flex items-center justify-between bg-transparent border-t border-border backdrop-blur-sm">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="whitespace-nowrap">卷面</span>
+          <span className="whitespace-nowrap">{t('editor.surface.label')}</span>
           <Select value={editorSurface} onValueChange={handleEditorSurfaceChange}>
             <SelectTrigger className="h-7 min-w-24 border-none bg-transparent px-2 text-xs shadow-none focus:ring-0">
               <div className="flex min-w-0 items-center gap-2">
                 <span className={cn('h-2.5 w-2.5 rounded-full border border-border/60', currentEditorSurface.swatchClassName)} />
-                <span>{currentEditorSurface.note}</span>
+                <span>{t(`editor.surface.options.${currentEditorSurface.value}`)}</span>
               </div>
             </SelectTrigger>
             <SelectContent align="start" className="z-[120] min-w-28">
@@ -309,7 +312,7 @@ export default function EditorContent({
                 <SelectItem key={option.value} value={option.value} className="text-xs">
                   <div className="flex items-center gap-2">
                     <span className={cn('h-2.5 w-2.5 rounded-full border border-border/60', option.swatchClassName)} />
-                    <span>{option.note}</span>
+                    <span>{t(`editor.surface.options.${option.value}`)}</span>
                   </div>
                 </SelectItem>
               ))}
@@ -318,27 +321,27 @@ export default function EditorContent({
         </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground font-light tracking-wide">
           <span>
-            字数
+            {t('editor.wordCount')}
             {' '}
-            {wordCount.toLocaleString()}
+            {wordCount.toLocaleString(locale === 'zh-CN' ? 'zh-CN' : 'en-US')}
           </span>
           <span className="opacity-30">|</span>
           <span>
-            字符
+            {t('editor.characterCount')}
             {' '}
-            {charCount.toLocaleString()}
+            {charCount.toLocaleString(locale === 'zh-CN' ? 'zh-CN' : 'en-US')}
           </span>
           <span className="opacity-30">|</span>
           {isSaving
             ? (
-                <span className="text-foreground animate-pulse">保存中...</span>
+                <span className="text-foreground animate-pulse">{t('editor.status.saving')}</span>
               )
             : lastSaved
               ? (
-                  <span className="opacity-70">已保存</span>
+                  <span className="opacity-70">{t('editor.status.saved')}</span>
                 )
               : (
-                  <span className="opacity-70">未保存</span>
+                  <span className="opacity-70">{t('editor.status.unsaved')}</span>
                 )}
         </div>
       </div>

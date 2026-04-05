@@ -6,9 +6,11 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { toast } from 'sonner'
 
+import { useI18n } from '@/hooks/use-i18n'
 import { copyTextToClipboard } from '@/lib/utils'
 
 export function useShareMode(messages: Message[], conversationId: string) {
+  const { t } = useI18n()
   const [isShareMode, setIsShareMode] = useState(false)
   const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([])
 
@@ -52,22 +54,22 @@ export function useShareMode(messages: Message[], conversationId: string) {
 
   const handleCopySelectedText = useCallback(async () => {
     if (selectedMessages.length === 0) {
-      toast.error('请先选择要复制的消息')
+      toast.error(t('chat.messages.selectMessageToCopy'))
       return
     }
 
     const formatted = selectedMessages
-      .map(msg => `${msg.role === 'user' ? '我' : 'AI'}：${msg.content}`)
+      .map(msg => `${msg.role === 'user' ? t('chat.messages.roleUser') : t('chat.messages.roleAI')}${t('chat.messages.roleSeparator')}${msg.content}`)
       .join('\n\n')
 
     try {
       await copyTextToClipboard(formatted)
-      toast.success('对话文本已复制')
+      toast.success(t('chat.messages.conversationTextCopied'))
     } catch (error) {
       console.error('Failed to copy conversation:', error)
-      toast.error('复制失败，请重试')
+      toast.error(t('chat.messages.copyFailedRetry'))
     }
-  }, [selectedMessages])
+  }, [selectedMessages, t])
 
   const handleCopyConversationLink = useCallback(async () => {
     if (typeof window === 'undefined') return
@@ -76,12 +78,12 @@ export function useShareMode(messages: Message[], conversationId: string) {
 
     try {
       await copyTextToClipboard(shareUrl)
-      toast.success('链接已复制')
+      toast.success(t('chat.messages.linkCopied'))
     } catch (error) {
       console.error('Failed to copy link:', error)
-      toast.error('复制链接失败，请重试')
+      toast.error(t('chat.messages.linkCopyFailedRetry'))
     }
-  }, [conversationId])
+  }, [conversationId, t])
 
   return {
     isShareMode,

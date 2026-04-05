@@ -1,7 +1,9 @@
+'use client'
+
 import type { Novel } from '@/lib/supabase/sdk'
 import * as Popover from '@radix-ui/react-popover'
 import { formatDistanceToNow } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { enUS, zhCN } from 'date-fns/locale'
 import { Edit2, MoreHorizontal, Play, Trash2 } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 import {
@@ -12,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 
 interface NovelTableProps {
   novels: Novel[]
@@ -30,11 +33,14 @@ export function NovelTable({
   onDeleteNovel,
   onContextMenu,
 }: NovelTableProps) {
+  const { t } = useI18n()
+  const { locale } = useLocale()
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <Spinner className="w-8 h-8" />
-        <span className="text-sm text-muted-foreground">加载中...</span>
+        <span className="text-sm text-muted-foreground">{t('novels.loading')}</span>
       </div>
     )
   }
@@ -42,7 +48,7 @@ export function NovelTable({
   if (novels.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground">
-        <p className="text-lg italic">暂无创作</p>
+        <p className="text-lg italic">{t('novels.table.empty')}</p>
       </div>
     )
   }
@@ -52,13 +58,13 @@ export function NovelTable({
       <Table className="w-full">
       <TableHeader>
         <TableRow className="bg-secondary hover:bg-secondary">
-          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">标题</TableHead>
-          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">描述</TableHead>
-          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">状态</TableHead>
-          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">章节</TableHead>
-          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">字数</TableHead>
-          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">更新时间</TableHead>
-          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">操作</TableHead>
+          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">{t('novels.table.title')}</TableHead>
+          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">{t('novels.table.description')}</TableHead>
+          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">{t('novels.table.status')}</TableHead>
+          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">{t('novels.table.chapters')}</TableHead>
+          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">{t('novels.table.words')}</TableHead>
+          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">{t('novels.table.updatedAt')}</TableHead>
+          <TableHead className="py-3 px-2 sm:px-4 font-semibold text-center">{t('novels.table.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -95,7 +101,7 @@ export function NovelTable({
                     : 'bg-secondary text-foreground'
                 }`}
               >
-                {novel.status === 'published' ? '已发布' : '草稿'}
+                {novel.status === 'published' ? t('novels.filters.published') : t('novels.filters.draft')}
               </span>
             </TableCell>
 
@@ -107,7 +113,7 @@ export function NovelTable({
 
             <TableCell className="py-4 px-2 sm:px-4 text-center hidden sm:table-cell">
               <span className="text-sm">
-                {(novel.word_count || 0).toLocaleString()}
+                {(novel.word_count || 0).toLocaleString(locale === 'zh-CN' ? 'zh-CN' : 'en-US')}
               </span>
             </TableCell>
 
@@ -115,7 +121,7 @@ export function NovelTable({
               <span className="text-sm text-muted-foreground">
                 {formatDistanceToNow(new Date(novel.updated_at), {
                   addSuffix: true,
-                  locale: zhCN,
+                  locale: locale === 'zh-CN' ? zhCN : enUS,
                 })}
               </span>
             </TableCell>
@@ -147,7 +153,7 @@ export function NovelTable({
                         className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
                       >
                         <Play className="w-4 h-4" />
-                        开始创作
+                        {t('novels.actions.startWriting')}
                       </button>
                       <button
                         type="button"
@@ -158,7 +164,7 @@ export function NovelTable({
                         className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
-                        编辑信息
+                        {t('novels.actions.editInfo')}
                       </button>
                       <button
                         type="button"
@@ -166,10 +172,10 @@ export function NovelTable({
                           e.stopPropagation()
                           onDeleteNovel(novel)
                         }}
-                        className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                        className="w-full flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
-                        删除
+                        {t('novels.actions.delete')}
                       </button>
                     </Popover.Content>
                   </Popover.Portal>

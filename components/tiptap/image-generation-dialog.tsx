@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ImageGenerationDialogProps {
   isOpen: boolean
@@ -16,6 +17,7 @@ export function ImageGenerationDialog({
   onCancel,
   isGenerating = false,
 }: ImageGenerationDialogProps) {
+  const { t } = useI18n()
   const [prompt, setPrompt] = useState('')
   const [size, setSize] = useState('1024x1024')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -62,21 +64,21 @@ export function ImageGenerationDialog({
         <form onSubmit={handleSubmit}>
           <div className="px-6 py-4 border-b border-border">
             <h3 className="text-lg font-medium text-foreground">
-              AI 生成插画
+              {t('tiptap.imageGenerationDialog.title')}
             </h3>
           </div>
 
           <div className="px-6 py-4 space-y-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                图片描述
+                {t('tiptap.imageGenerationDialog.promptLabel')}
               </label>
               <textarea
                 ref={textareaRef}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="描述你想要生成的图片..."
+                placeholder={t('tiptap.imageGenerationDialog.promptPlaceholder')}
                 className="w-full px-4 py-2.5 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-0 focus-visible:ring-1 focus-visible:ring-ring/50 resize-none"
                 rows={3}
               />
@@ -84,7 +86,7 @@ export function ImageGenerationDialog({
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                图片比例
+                {t('tiptap.imageGenerationDialog.ratioLabel')}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {[
@@ -119,14 +121,14 @@ export function ImageGenerationDialog({
               disabled={isGenerating}
               className="px-4 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors disabled:opacity-50"
             >
-              取消
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={!prompt.trim() || isGenerating}
               className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
             >
-              {isGenerating ? '生成中...' : '生成图片'}
+              {isGenerating ? t('tiptap.imageGenerationDialog.generating') : t('tiptap.imageGenerationDialog.generate')}
             </button>
           </div>
         </form>

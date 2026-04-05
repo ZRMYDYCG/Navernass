@@ -1,8 +1,11 @@
+'use client'
+
 import type { Novel } from '@/lib/supabase/sdk'
 import { formatDistanceToNow } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { enUS, zhCN } from 'date-fns/locale'
 import { BookOpen, Check } from 'lucide-react'
 import { PaperCard } from '@/components/ui/paper-card'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 interface TrashCardProps {
@@ -13,12 +16,15 @@ interface TrashCardProps {
 }
 
 export function TrashCard({ novel, selected, onToggleSelect, onContextMenu }: TrashCardProps) {
+  const { t } = useI18n()
+  const { locale } = useLocale()
+
   return (
     <PaperCard
       variant="default"
       className={cn(
-        "group aspect-3/4 cursor-pointer transition-all duration-200",
-        selected && "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+        'group aspect-3/4 cursor-pointer transition-all duration-200',
+        selected && 'ring-2 ring-foreground ring-offset-2 ring-offset-background',
       )}
       onClick={() => onToggleSelect(novel)}
       onContextMenu={e => onContextMenu(e, novel)}
@@ -26,23 +32,23 @@ export function TrashCard({ novel, selected, onToggleSelect, onContextMenu }: Tr
       {/* 选择指示器 */}
       <div
         className={cn(
-          "absolute top-3 right-3 z-20 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all shadow-sm",
+          'absolute top-3 right-3 z-20 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all shadow-sm',
           selected
-            ? "bg-foreground border-foreground"
-            : "bg-background/80 dark:bg-card/80 border-border opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+            ? 'bg-foreground border-foreground'
+            : 'bg-background/80 dark:bg-card/80 border-border opacity-0 group-hover:opacity-100 backdrop-blur-sm',
         )}
       >
-        <Check className={cn("w-3.5 h-3.5", selected ? "text-primary-foreground" : "text-muted-foreground")} />
+        <Check className={cn('w-3.5 h-3.5', selected ? 'text-primary-foreground' : 'text-muted-foreground')} />
       </div>
 
       {/* 上半部分：封面/图标 */}
       <div className="h-[45%] w-full bg-secondary/50 dark:bg-secondary/50 relative p-5 flex flex-col justify-between border-b border-border">
         <div className="flex items-start justify-between opacity-60 group-hover:opacity-100 transition-opacity">
           <span className="text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded border border-border text-muted-foreground">
-            已删除
+            {t('trash.list.deleted')}
           </span>
           {novel.category && (
-             <span className="text-[10px] text-muted-foreground font-serif italic">
+            <span className="text-[10px] text-muted-foreground font-serif italic">
               {novel.category}
             </span>
           )}
@@ -70,19 +76,19 @@ export function TrashCard({ novel, selected, onToggleSelect, onContextMenu }: Tr
             {novel.title}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 font-light">
-            {novel.description || '暂无简介...'}
+            {novel.description || t('trash.list.noDescription')}
           </p>
         </div>
 
         <div className="flex flex-col gap-3 pt-2">
           <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium tracking-wide border-t border-border pt-3">
             <div className="flex gap-2">
-               <span>{(novel.word_count / 1000).toFixed(1)}k 字</span>
-               <span>•</span>
-               <span>{novel.chapter_count} 章节</span>
+              <span>{t('trash.list.wordCount', { count: (novel.word_count / 1000).toFixed(1) })}</span>
+              <span>•</span>
+              <span>{t('trash.list.chapterCount', { count: novel.chapter_count })}</span>
             </div>
             <span>
-              归档于 {formatDistanceToNow(new Date(novel.updated_at), { locale: zhCN, addSuffix: true })}
+              {t('trash.list.archivedAt', { time: formatDistanceToNow(new Date(novel.updated_at), { locale: locale === 'zh-CN' ? zhCN : enUS, addSuffix: true }) })}
             </span>
           </div>
         </div>

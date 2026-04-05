@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
+import { useI18n } from '@/hooks/use-i18n'
 import { novelsApi } from '@/lib/supabase/sdk'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import { NovelContextMenu } from './_components/novel-context-menu'
@@ -19,6 +20,7 @@ import { DEFAULT_FILTER, DEFAULT_VIEW_MODE, ITEMS_PER_PAGE } from './constants'
 function NovelsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useI18n()
 
   const [novels, setNovels] = useState<Novel[]>([])
   const [total, setTotal] = useState(0)
@@ -48,12 +50,12 @@ function NovelsContent() {
       setTotal(result.total)
     } catch (error) {
       console.error('加载小说失败:', error)
-      const message = error instanceof Error ? error.message : '加载小说列表失败'
+      const message = error instanceof Error ? error.message : t('novels.messages.loadFailed')
       toast.error(message)
     } finally {
       setLoading(false)
     }
-  }, [currentPage, filter])
+  }, [currentPage, filter, t])
 
   useEffect(() => {
     loadNovels()
@@ -85,7 +87,7 @@ function NovelsContent() {
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.error?.message || '封面上传失败')
+      throw new Error(error.error?.message || t('novels.messages.coverUploadFailed'))
     }
 
     const result = await response.json()
@@ -94,7 +96,7 @@ function NovelsContent() {
 
   const handleSaveNovel = async (data: NovelFormData) => {
     if (!data.title.trim()) {
-      toast.error('请输入小说标题')
+      toast.error(t('novels.messages.titleRequired'))
       return
     }
 
@@ -110,7 +112,7 @@ function NovelsContent() {
           description: data.description || undefined,
           cover: coverUrl || undefined,
         })
-        toast.success('小说信息已更新！')
+        toast.success(t('novels.messages.updated'))
         setDialogOpen(false)
         loadNovels()
       } else {
@@ -123,7 +125,7 @@ function NovelsContent() {
           description: data.description || undefined,
           cover,
         })
-        toast.success('小说创建成功！')
+        toast.success(t('novels.messages.created'))
         setDialogOpen(false)
         router.push(`/editor?id=${novel.id}`)
       }
@@ -132,8 +134,8 @@ function NovelsContent() {
         = error instanceof Error
           ? error.message
           : editingNovel
-            ? '更新小说失败'
-            : '创建小说失败'
+            ? t('novels.messages.updateFailed')
+            : t('novels.messages.createFailed')
       toast.error(message)
       throw error
     }
@@ -188,13 +190,13 @@ function NovelsContent() {
 
     try {
       await novelsApi.archive(novelToDelete.id)
-      toast.success('小说已移到回收站')
+      toast.success(t('novels.messages.movedToTrash'))
       setDeleteDialogOpen(false)
       setNovelToDelete(null)
       loadNovels()
     } catch (error) {
       console.error('删除小说失败:', error)
-      const message = error instanceof Error ? error.message : '删除小说失败'
+      const message = error instanceof Error ? error.message : t('novels.messages.deleteFailed')
       toast.error(message)
     }
   }
@@ -210,11 +212,11 @@ function NovelsContent() {
 
     try {
       await novelsApi.updateOrder(payload)
-      toast.success('顺序已更新')
+      toast.success(t('novels.messages.orderUpdated'))
     } catch (error) {
       console.error('更新排序失败:', error)
       setNovels(previousNovels)
-      const message = error instanceof Error ? error.message : '更新小说失败'
+      const message = error instanceof Error ? error.message : t('novels.messages.reorderFailed')
       toast.error(message)
     }
   }
@@ -246,19 +248,19 @@ function NovelsContent() {
               value="all"
               className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
             >
-              全部
+              {t('novels.filters.all')}
             </SegmentedControlItem>
             <SegmentedControlItem
               value="draft"
               className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
             >
-              草稿
+              {t('novels.filters.draft')}
             </SegmentedControlItem>
             <SegmentedControlItem
               value="published"
               className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
             >
-              已发布
+              {t('novels.filters.published')}
             </SegmentedControlItem>
           </SegmentedControl>
           <button
@@ -269,7 +271,7 @@ function NovelsContent() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            新建小说
+            {t('novels.actions.create')}
           </button>
         </div>
 
@@ -344,8 +346,10 @@ function NovelsContent() {
 }
 
 export default function Novels() {
+  const { t } = useI18n()
+
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-full">加载中...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center h-full">{t('novels.loading')}</div>}>
       <NovelsContent />
     </Suspense>
   )

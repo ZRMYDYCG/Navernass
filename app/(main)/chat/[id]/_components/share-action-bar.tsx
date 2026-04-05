@@ -3,6 +3,7 @@
 import { Copy, Image as ImageIcon, Link2, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ShareActionBarProps {
   selectedCount: number
@@ -21,15 +22,18 @@ export function ShareActionBar({
   onGenerateImage,
   isGeneratingImage,
 }: ShareActionBarProps) {
+  const { t } = useI18n()
+
   return (
     <div className="border-t border-border bg-card px-4 py-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>
-            已选中
+            {t('chat.share.selectedPrefix')}
+            {' '}
             {selectedCount}
             {' '}
-            条对话
+            {t('chat.share.selectedSuffix')}
           </span>
         </div>
 
@@ -41,7 +45,7 @@ export function ShareActionBar({
             onClick={onCancel}
           >
             <X className="w-4 h-4" />
-            <span>取消</span>
+            <span>{t('chat.share.cancel')}</span>
           </Button>
 
           <Button
@@ -51,7 +55,7 @@ export function ShareActionBar({
             onClick={onCopyText}
           >
             <Copy className="w-4 h-4" />
-            <span>复制文本</span>
+            <span>{t('chat.share.copyText')}</span>
           </Button>
 
           <Button
@@ -61,7 +65,7 @@ export function ShareActionBar({
             onClick={onCopyLink}
           >
             <Link2 className="w-4 h-4" />
-            <span>复制链接</span>
+            <span>{t('chat.share.copyLink')}</span>
           </Button>
 
           <Button
@@ -72,7 +76,7 @@ export function ShareActionBar({
             disabled={isGeneratingImage || selectedCount === 0}
           >
             <ImageIcon className="w-4 h-4" />
-            <span>{isGeneratingImage ? '生成中...' : '生成图片'}</span>
+            <span>{isGeneratingImage ? t('chat.share.generating') : t('chat.share.generateImage')}</span>
           </Button>
         </div>
       </div>

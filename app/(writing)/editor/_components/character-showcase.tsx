@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
+import { useI18n } from '@/hooks/use-i18n'
 import { chaptersApi } from '@/lib/supabase/sdk/chapters'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { CharacterCard } from './character-card'
@@ -83,6 +84,7 @@ interface CharacterShowcaseProps {
 }
 
 export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
+  const { t } = useI18n()
   const [characters, setCharacters] = useState<CardCharacter[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
@@ -135,7 +137,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
         if (error instanceof Error) {
           toast.error(error.message)
         } else {
-          toast.error('加载角色失败')
+          toast.error(t('editor.characterShowcase.messages.loadCharactersFailed'))
         }
       } finally {
         if (!cancelled) {
@@ -167,7 +169,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
         if (error instanceof Error) {
           toast.error(error.message)
         } else {
-          toast.error('加载章节失败')
+          toast.error(t('editor.characterShowcase.messages.loadChaptersFailed'))
         }
       }
     }
@@ -212,12 +214,12 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
       setCharacters(prev => prev.filter(c => c.id !== editingId))
       notifyCharactersChanged()
       setCreateOpen(false)
-      toast.success('角色已删除')
+      toast.success(t('editor.characterShowcase.messages.deleted'))
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error('删除角色失败')
+        toast.error(t('editor.characterShowcase.messages.deleteFailed'))
       }
     } finally {
       setDeleting(false)
@@ -227,7 +229,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
   const handleCreate = async () => {
     const trimmedName = name.trim()
     if (!trimmedName) {
-      toast.error('请输入角色名称')
+      toast.error(t('editor.characterShowcase.messages.nameRequired'))
       return
     }
     try {
@@ -285,12 +287,12 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
         notifyCharactersChanged()
       }
       setCreateOpen(false)
-      toast.success(editingId ? '角色已更新' : '角色已创建')
+      toast.success(editingId ? t('editor.characterShowcase.messages.updated') : t('editor.characterShowcase.messages.created'))
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error('创建角色失败')
+        toast.error(t('editor.characterShowcase.messages.createFailed'))
       }
     } finally {
       setCreating(false)
@@ -315,7 +317,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('图片大小不能超过 5MB')
+      toast.error(t('editor.characterShowcase.messages.avatarTooLarge'))
       return
     }
 
@@ -331,15 +333,15 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
       })
 
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error?.message || '上传失败')
+      if (!res.ok) throw new Error(data.error?.message || t('editor.characterShowcase.messages.uploadFailed'))
 
       setAvatar(data.data.url)
-      toast.success('头像上传成功')
+      toast.success(t('editor.characterShowcase.messages.uploadSuccess'))
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error('上传头像失败')
+        toast.error(t('editor.characterShowcase.messages.uploadFailed'))
       }
     } finally {
       setUploadingAvatar(false)
@@ -353,7 +355,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
     <div className="h-full flex flex-col">
       <div className="p-4 pb-2 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-foreground">角色档案</h2>
+          <h2 className="text-sm font-medium text-foreground">{t('editor.characterShowcase.title')}</h2>
           <button
             type="button"
             onClick={handleOpenCreate}
@@ -365,7 +367,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <Input
-            placeholder="搜索角色..."
+            placeholder={t('editor.characterShowcase.searchPlaceholder')}
             className="h-8 pl-8 bg-background border-border text-xs"
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -378,13 +380,13 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
           ? (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-2">
                 <Spinner className="w-6 h-6" />
-                <p className="text-xs">加载角色中...</p>
+                <p className="text-xs">{t('editor.characterShowcase.loading')}</p>
               </div>
             )
           : (
               <div className="space-y-4 pb-10">
                 {characters.length === 0 && (
-                  <div className="text-xs text-muted-foreground px-1">还没有角色，先写一个吧。</div>
+                  <div className="text-xs text-muted-foreground px-1">{t('editor.characterShowcase.empty')}</div>
                 )}
 
                 {filtered.map(char => (
@@ -399,7 +401,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
                   <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Plus className="w-5 h-5 text-muted-foreground" />
                   </div>
-                  <span className="text-xs text-muted-foreground font-medium">新建角色档案</span>
+                  <span className="text-xs text-muted-foreground font-medium">{t('editor.characterShowcase.new')}</span>
                 </button>
               </div>
             )}
@@ -407,11 +409,11 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? '编辑角色' : '新建角色'}</DialogTitle>
+            <DialogTitle>{editingId ? t('editor.characterShowcase.dialog.editTitle') : t('editor.characterShowcase.dialog.createTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">头像</Label>
+              <Label className="text-xs text-muted-foreground">{t('editor.characterShowcase.fields.avatar')}</Label>
               <div className="flex justify-center mb-2">
                 <div
                   className="relative group cursor-pointer"
@@ -440,30 +442,30 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${formId}-name`} className="text-xs text-muted-foreground">角色名称</Label>
+              <Label htmlFor={`${formId}-name`} className="text-xs text-muted-foreground">{t('editor.characterShowcase.fields.name')}</Label>
               <Input
                 id={`${formId}-name`}
-                placeholder="角色名称"
+                placeholder={t('editor.characterShowcase.placeholders.name')}
                 value={name}
                 onChange={e => setName(e.target.value)}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${formId}-role`} className="text-xs text-muted-foreground">身份 / 职位</Label>
+              <Label htmlFor={`${formId}-role`} className="text-xs text-muted-foreground">{t('editor.characterShowcase.fields.role')}</Label>
               <Input
                 id={`${formId}-role`}
-                placeholder="身份 / 职位"
+                placeholder={t('editor.characterShowcase.placeholders.role')}
                 value={role}
                 onChange={e => setRole(e.target.value)}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${formId}-description`} className="text-xs text-muted-foreground">一句话描述</Label>
+              <Label htmlFor={`${formId}-description`} className="text-xs text-muted-foreground">{t('editor.characterShowcase.fields.description')}</Label>
               <Textarea
                 id={`${formId}-description`}
-                placeholder="一句话描述这个角色"
+                placeholder={t('editor.characterShowcase.placeholders.description')}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 className="min-h-[72px] resize-none"
@@ -471,27 +473,27 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${formId}-traits`} className="text-xs text-muted-foreground">关键特质</Label>
+              <Label htmlFor={`${formId}-traits`} className="text-xs text-muted-foreground">{t('editor.characterShowcase.fields.traits')}</Label>
               <TagInput
                 id={`${formId}-traits`}
-                placeholder="关键特质（回车添加）"
+                placeholder={t('editor.characterShowcase.placeholders.traits')}
                 value={traits}
                 onChange={setTraits}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${formId}-keywords`} className="text-xs text-muted-foreground">关键词</Label>
+              <Label htmlFor={`${formId}-keywords`} className="text-xs text-muted-foreground">{t('editor.characterShowcase.fields.keywords')}</Label>
               <TagInput
                 id={`${formId}-keywords`}
-                placeholder="关键词（回车添加）"
+                placeholder={t('editor.characterShowcase.placeholders.keywords')}
                 value={keywords}
                 onChange={setKeywords}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${formId}-first-appearance`} className="text-xs text-muted-foreground">首次登场章节</Label>
+              <Label htmlFor={`${formId}-first-appearance`} className="text-xs text-muted-foreground">{t('editor.characterShowcase.fields.firstAppearance')}</Label>
               {chapterOptions.length > 0
                 ? (
                     <Select
@@ -499,10 +501,10 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
                       onValueChange={value => setFirstAppearance(value === '__none__' ? '' : value)}
                     >
                       <SelectTrigger id={`${formId}-first-appearance`} className="w-full">
-                        <SelectValue placeholder="首次登场章节（可选）" />
+                        <SelectValue placeholder={t('editor.characterShowcase.placeholders.firstAppearanceSelect')} />
                       </SelectTrigger>
                       <SelectContent className="z-[120]">
-                        <SelectItem value="__none__">不设置</SelectItem>
+                        <SelectItem value="__none__">{t('editor.characterShowcase.placeholders.none')}</SelectItem>
                         {firstAppearance && !chapterTitleSet.has(firstAppearance) && (
                           <SelectItem value={firstAppearance}>{firstAppearance}</SelectItem>
                         )}
@@ -517,7 +519,7 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
                 : (
                     <Input
                       id={`${formId}-first-appearance`}
-                      placeholder="首次登场章节"
+                      placeholder={t('editor.characterShowcase.placeholders.firstAppearance')}
                       value={firstAppearance}
                       onChange={e => setFirstAppearance(e.target.value)}
                     />
@@ -525,10 +527,10 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${formId}-note`} className="text-xs text-muted-foreground">灵感备注</Label>
+              <Label htmlFor={`${formId}-note`} className="text-xs text-muted-foreground">{t('editor.characterShowcase.fields.note')}</Label>
               <Textarea
                 id={`${formId}-note`}
-                placeholder="灵感备注"
+                placeholder={t('editor.characterShowcase.placeholders.note')}
                 value={note}
                 onChange={e => setNote(e.target.value)}
                 className="min-h-[60px] resize-none"
@@ -538,14 +540,16 @@ export function CharacterShowcase({ novelId }: CharacterShowcaseProps) {
           <DialogFooter>
             {editingId && (
               <Button variant="destructive" onClick={handleDelete} disabled={creating || deleting}>
-                {deleting ? '删除中...' : '删除'}
+                {deleting ? t('editor.characterShowcase.actions.deleting') : t('common.delete')}
               </Button>
             )}
             <Button variant="ghost" onClick={() => setCreateOpen(false)} disabled={creating || deleting}>
-              取消
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleCreate} disabled={creating || deleting}>
-              {creating ? (editingId ? '保存中...' : '创建中...') : (editingId ? '保存' : '创建')}
+              {creating
+                ? (editingId ? t('editor.characterShowcase.actions.saving') : t('editor.characterShowcase.actions.creating'))
+                : (editingId ? t('common.save') : t('editor.characterShowcase.actions.create'))}
             </Button>
           </DialogFooter>
         </DialogContent>

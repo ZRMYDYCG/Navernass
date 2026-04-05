@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes'
 
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { MarkdownRenderer } from './markdown-renderer'
 
@@ -31,6 +32,7 @@ export function MessageBubble({
   alwaysShowActions = false,
   isStreaming = false,
 }: MessageBubbleProps) {
+  const { t } = useI18n()
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
@@ -48,7 +50,7 @@ export function MessageBubble({
       <div className="shrink-0">
         {isAssistant && (
           <Avatar className="w-8 h-8">
-            <img src={avatarSrc} alt="AI Avatar" className="w-full h-full object-cover" />
+            <img src={avatarSrc} alt={t('chat.messageBubble.aiAvatarAlt')} className="w-full h-full object-cover" />
           </Avatar>
         )}
       </div>
@@ -115,7 +117,7 @@ export function MessageBubble({
                   aria-pressed={isSelected}
                 >
                   {isSelected ? <CheckCircle2 className="w-4 h-4 text-primary" /> : <Circle className="w-4 h-4" />}
-                  <span>{isSelected ? '已选中' : '选择'}</span>
+                  <span>{isSelected ? t('chat.messageBubble.selected') : t('chat.messageBubble.select')}</span>
                 </Button>
               )}
 
@@ -126,7 +128,7 @@ export function MessageBubble({
                 onClick={() => onCopy?.(message)}
               >
                 <Copy className="w-4 h-4" />
-                <span>复制</span>
+                <span>{t('chat.messageBubble.copy')}</span>
               </Button>
 
               {isAssistant && (
@@ -137,7 +139,7 @@ export function MessageBubble({
                   onClick={() => onEdit?.(message)}
                 >
                   <Edit className="w-4 h-4" />
-                  <span>编辑</span>
+                  <span>{t('chat.messageBubble.edit')}</span>
                 </Button>
               )}
             </div>

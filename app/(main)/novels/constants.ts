@@ -17,7 +17,7 @@ export const DEFAULT_FILTER = 'all' as const
  * 筛选选项配置
  */
 export const FILTER_OPTIONS = [
-  { value: 'all', label: '全部' },
-  { value: 'draft', label: '草稿' },
-  { value: 'published', label: '已发布' },
+  { value: 'all' },
+  { value: 'draft' },
+  { value: 'published' },
 ] as const

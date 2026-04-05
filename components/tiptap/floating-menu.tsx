@@ -4,6 +4,7 @@ import type { Editor } from '@tiptap/react'
 import { Check, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useI18n } from '@/hooks/use-i18n'
 import { AIFloatingMenu } from './ai-floating-menu'
 import { FormatToolbar } from './format-toolbar'
 import { acceptSuggestions, rejectSuggestions, selectionHasSuggestions } from './extensions/suggestion-track'
@@ -13,6 +14,7 @@ interface FloatingMenuProps {
 }
 
 export function FloatingMenu({ editor }: FloatingMenuProps) {
+  const { t } = useI18n()
   const [show, setShow] = useState(false)
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const [showAI, setShowAI] = useState(false)
@@ -170,7 +172,7 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
             className="w-full px-2.5 py-1.5 text-left text-xs text-popover-foreground hover:bg-accent transition-colors flex items-center gap-1.5"
           >
             <Check className="w-3 h-3" />
-            <span>接受</span>
+            <span>{t('tiptap.floatingMenu.accept')}</span>
           </button>
           <button
             type="button"
@@ -178,7 +180,7 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
             className="w-full px-2.5 py-1.5 text-left text-xs text-popover-foreground hover:bg-accent transition-colors flex items-center gap-1.5"
           >
             <RotateCcw className="w-3 h-3" />
-            <span>拒绝</span>
+            <span>{t('tiptap.floatingMenu.reject')}</span>
           </button>
         </div>
       )}

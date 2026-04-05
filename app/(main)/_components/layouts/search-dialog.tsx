@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { conversationsApi } from '@/lib/supabase/sdk'
 import type { Conversation } from '@/lib/supabase/sdk/types'
@@ -18,19 +19,6 @@ interface SearchItem {
   path?: string
 }
 
-const ROUTES: SearchItem[] = [
-  { id: 'chat', title: '创作助手', type: 'route', path: '/chat' },
-  { id: 'novels', title: '我的小说', type: 'route', path: '/novels' },
-  { id: 'trash', title: '回收站', type: 'route', path: '/trash' },
-  { id: 'chat-news', title: '产品动态', type: 'route', path: '/chat/news' },
-]
-
-const TYPE_CONFIG = {
-  novel: { label: '小说', color: 'text-muted-foreground bg-muted' },
-  chat: { label: '对话', color: 'text-muted-foreground bg-muted' },
-  route: { label: '页面', color: 'text-muted-foreground bg-muted' },
-}
-
 interface SearchDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -39,10 +27,24 @@ interface SearchDialogProps {
 export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [novels, setNovels] = useState<Novel[]>([])
   const [chats, setChats] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(false)
+
+  const routes = useMemo<SearchItem[]>(() => ([
+    { id: 'chat', title: t('main.search.routes.chat'), type: 'route', path: '/chat' },
+    { id: 'novels', title: t('main.search.routes.novels'), type: 'route', path: '/novels' },
+    { id: 'trash', title: t('main.search.routes.trash'), type: 'route', path: '/trash' },
+    { id: 'chat-news', title: t('main.search.routes.news'), type: 'route', path: '/chat/news' },
+  ]), [t])
+
+  const typeConfig = useMemo(() => ({
+    novel: { label: t('main.search.types.novel'), color: 'text-muted-foreground bg-muted' },
+    chat: { label: t('main.search.types.chat'), color: 'text-muted-foreground bg-muted' },
+    route: { label: t('main.search.types.route'), color: 'text-muted-foreground bg-muted' },
+  }), [t])
 
   useEffect(() => {
     if (!open) return
@@ -89,8 +91,8 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
       path: `/chat/${c.id}`,
     }))
 
-    return [...novelItems, ...chatItems, ...ROUTES]
-  }, [novels, chats])
+    return [...novelItems, ...chatItems, ...routes]
+  }, [novels, chats, routes])
 
   const filteredItems = useMemo<SearchItem[]>(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -127,14 +129,14 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
         showCloseButton={false}
         className="top-[18%] translate-y-0 max-w-2xl p-0 gap-0 overflow-hidden shadow-2xl"
       >
-        <DialogTitle className="sr-only">搜索</DialogTitle>
+        <DialogTitle className="sr-only">{t('main.search.title')}</DialogTitle>
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/20">
           <input
             autoFocus
             value={query}
             onChange={event => setQuery(event.target.value)}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none h-6"
-            placeholder="搜索..."
+            placeholder={t('main.search.placeholder')}
           />
           <button
             type="button"
@@ -148,20 +150,20 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
         <div className="max-h-[62vh] overflow-y-auto">
           {loading && (
             <div className="px-4 py-8 text-sm text-muted-foreground text-center">
-              加载中...
+              {t('main.search.loading')}
             </div>
           )}
           {!loading && (
             filteredItems.length === 0
               ? (
                   <div className="px-4 py-8 text-sm text-muted-foreground text-center">
-                    {query ? '未找到相关内容' : '输入关键词搜索...'}
+                    {query ? t('main.search.empty.noResults') : t('main.search.empty.hint')}
                   </div>
                 )
               : (
                   <ul className="py-2 space-y-1 px-2">
                     {filteredItems.map(item => {
-                      const config = TYPE_CONFIG[item.type]
+                      const config = typeConfig[item.type]
                       return (
                         <li key={`${item.type}-${item.id}`}>
                           <button

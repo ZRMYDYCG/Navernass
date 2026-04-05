@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 const ACTIONS_SELECTOR = '[data-chapter-header-actions]'
 
@@ -16,6 +17,7 @@ interface EmptyChaptersProps {
 }
 
 export function EmptyChapters(_props: EmptyChaptersProps) {
+  const { t } = useI18n()
   const rootRef = useRef<HTMLDivElement | null>(null)
   const logoRef = useRef<HTMLDivElement | null>(null)
   const [arrowData, setArrowData] = useState<ArrowData | null>(null)
@@ -160,20 +162,20 @@ export function EmptyChapters(_props: EmptyChaptersProps) {
             src="/assets/svg/logo-dark.svg"
             width={52}
             height={52}
-            alt="Narraverse"
+            alt={t('editor.logoAlt')}
             className="dark:hidden"
           />
           <Image
             src="/assets/svg/logo-light.svg"
             width={52}
             height={52}
-            alt="Narraverse"
+            alt={t('editor.logoAlt')}
             className="hidden dark:block"
           />
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-          开始你的创作之旅，创建你的第一个章节或卷
+          {t('editor.leftPanel.chapters.empty.subtitle')}
         </p>
       </div>
     </div>

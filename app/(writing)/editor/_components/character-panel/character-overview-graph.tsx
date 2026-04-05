@@ -4,6 +4,7 @@ import type { Character, Relationship } from './types'
 import * as d3 from 'd3'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { useI18n } from '@/hooks/use-i18n'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { cn } from '@/lib/utils'
 import { formatRelationshipLabel, getCharacterColor, useCharacterMaterialStore } from '@/store'
@@ -248,6 +249,7 @@ export function CharacterOverviewGraph({
   onCancelLink,
   className,
 }: CharacterOverviewGraphProps) {
+  const { t } = useI18n()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const svgRef = useRef<SVGSVGElement | null>(null)
   const cardLayerRef = useRef<HTMLDivElement | null>(null)
@@ -261,7 +263,9 @@ export function CharacterOverviewGraph({
       // 更新本地 store
       try {
         useCharacterMaterialStore.getState().upsertCharacter(updated as any)
-      } catch (_) {}
+      } catch (err) {
+        console.error('Failed to update character', err)
+      }
     } catch (err) {
       console.error('Failed to save position', err)
     }
@@ -343,13 +347,13 @@ export function CharacterOverviewGraph({
     const ringColor = lighten(baseColor, 0.25)
     const shadowColor = hexToRgba(baseColor, 0.35)
     const name = escapeHtml(node.name)
-    const description = escapeHtml(node.description ?? '暂无人物描述...')
+    const description = escapeHtml(node.description ?? t('editor.charactersPanel.overviewGraph.noDescription'))
     const firstAppearance = escapeHtml(node.first_appearance ?? '')
-    const appearanceText = firstAppearance || '未出场'
+    const appearanceText = firstAppearance || escapeHtml(t('editor.charactersPanel.overviewGraph.noAppearance'))
     const avatar = escapeHtml(node.avatar ?? '/assets/mock-avatar.svg')
     const placeholderHtml = node.avatar
       ? ''
-      : '<div class="absolute inset-0 flex items-center justify-center px-6 text-center text-[11px] text-white/85"><span>点击生成画像，与你的角色见面</span></div>'
+      : `<div class="absolute inset-0 flex items-center justify-center px-6 text-center text-[11px] text-white/85"><span>${escapeHtml(t('editor.charactersPanel.overviewGraph.clickGenerate'))}</span></div>`
 
     return `
       <div class="character-card-shell relative rounded-2xl border border-border/70 bg-card shadow-[0_12px_24px_rgba(15,23,42,0.08)] p-0.5 overflow-hidden">
@@ -361,7 +365,7 @@ export function CharacterOverviewGraph({
               ${placeholderHtml}
               <div class="absolute top-3 right-3 h-10 w-10 rounded-full border border-white/80 bg-white/10 shadow-sm overflow-hidden grid place-items-center">
                 ${node.avatar
-                  ? `<img src="${avatar}" alt="${name} 头像" class="h-full w-full object-cover" />`
+                  ? `<img src="${avatar}" alt="${name}" class="h-full w-full object-cover" />`
                   : `<svg class=\"h-5 w-5 text-white/80\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M4 21v-2a4 4 0 0 1 3-3.87\"/><path d=\"M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z\"/></svg>`}
               </div>
               <div class="absolute bottom-3 left-3 text-white drop-shadow-sm">
@@ -403,21 +407,21 @@ export function CharacterOverviewGraph({
                   <path d="M12 3l1.7 3.5L17 8l-3.3 1.5L12 13l-1.7-3.5L7 8l3.3-1.5L12 3z"/>
                   <path d="M5 13l1 2 2 .9-2 .9-1 2-1-2-2-.9 2-.9 1-2z"/>
                 </svg>
-                生成画像
+                ${escapeHtml(t('editor.charactersPanel.actions.generateAvatar'))}
               </button>
               <button data-action="edit" class="flex-1 inline-flex items-center justify-center gap-1 rounded-full border border-border px-2 py-1 text-[11px] text-foreground hover:bg-muted">
                 <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 20h9"/>
                   <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
                 </svg>
-                编辑
+                ${escapeHtml(t('editor.charactersPanel.actions.edit'))}
               </button>
             </div>
           </div>
         </div>
       </div>
     `
-  }, [])
+  }, [t])
 
   const updatePositions = useCallback(() => {
     const cardSelection = cardSelectionRef.current
@@ -973,7 +977,7 @@ export function CharacterOverviewGraph({
     if (!modal) return
 
     if (!promptText.trim()) {
-      setGenerateError('请输入角色描述')
+      setGenerateError(t('editor.charactersPanel.avatarPromptModal.promptRequired'))
       return
     }
 
@@ -981,9 +985,10 @@ export function CharacterOverviewGraph({
     setGenerateError(null)
 
     try {
-      const presetPrefix = '为小说角色生成一张头像，二次元插画风格，高质量，人物半身或头像构图，光线柔和，细节丰富。'
-      const presetSuffix = '纯净背景，适合用作角色头像。'
-      const prompt = `${presetPrefix}\n角色描述：${promptText.trim()}\n${presetSuffix}`
+      const presetPrefix = t('editor.charactersPanel.overviewGraph.avatarPromptPrefix')
+      const presetSuffix = t('editor.charactersPanel.overviewGraph.avatarPromptSuffix')
+      const descriptionLabel = t('editor.charactersPanel.overviewGraph.avatarPromptDescriptionLabel')
+      const prompt = `${presetPrefix}\n${descriptionLabel}${promptText.trim()}\n${presetSuffix}`
 
       const generateResponse = await fetch('/api/images/generate', {
         method: 'POST',
@@ -998,30 +1003,32 @@ export function CharacterOverviewGraph({
 
       if (!generateResponse.ok) {
         const error = await generateResponse.json().catch(() => null)
-        throw new Error(error?.error || '图片生成失败')
+        throw new Error(error?.error || t('editor.charactersPanel.overviewGraph.imageGenerateFailed'))
       }
 
       const data = await generateResponse.json()
       const url = data?.images?.[0]?.url as string | undefined
-      if (!url) throw new Error('未返回生成的图片')
+      if (!url) throw new Error(t('editor.charactersPanel.overviewGraph.noImageReturned'))
 
       const updated = await charactersApi.update(modal.characterId, { novel_id: novelId, avatar: url })
       try {
         useCharacterMaterialStore.getState().upsertCharacter(updated as any)
-      } catch (_) {}
+      } catch (err) {
+        console.error('Failed to update character', err)
+      }
 
-      toast.success('头像已更新')
+      toast.success(t('editor.charactersPanel.overviewGraph.avatarUpdated'))
       setPromptModal(null)
       setPromptText('')
     } catch (err: any) {
       console.error('Generate avatar failed:', err)
-      const message = err?.message || '生成失败'
+      const message = err?.message || t('editor.charactersPanel.overviewGraph.generateFailed')
       setGenerateError(message)
       toast.error(message)
     } finally {
       setIsGenerating(false)
     }
-  }, [novelId, promptModal, promptText])
+  }, [novelId, promptModal, promptText, t])
 
   return (
     <div
@@ -1096,7 +1103,7 @@ export function CharacterOverviewGraph({
 
       {characters.length === 0 && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-          暂无角色，请先新建角色
+          {t('editor.charactersPanel.empty.noCharacters')}
         </div>
       )}
 

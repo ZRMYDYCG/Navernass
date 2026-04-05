@@ -1,3 +1,5 @@
+'use client'
+
 import * as Dialog from '@radix-ui/react-dialog'
 import { FileText, Upload, X } from 'lucide-react'
 import * as React from 'react'
@@ -9,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useI18n } from '@/hooks/use-i18n'
 
 export interface ParsedChapter {
   title: string
@@ -34,6 +37,7 @@ export function ImportChapterDialog({
   isImporting,
   volumes = EMPTY_VOLUMES,
 }: ImportChapterDialogProps) {
+  const { t } = useI18n()
   const [file, setFile] = React.useState<File | null>(null)
   const [fileContent, setFileContent] = React.useState<string>('')
   const [selectedVolumeId, setSelectedVolumeId] = React.useState<string>('')
@@ -54,11 +58,11 @@ export function ImportChapterDialog({
       setPreviewChapters(chapters)
       setError('')
     } catch (err) {
-      setError('解析文件失败，请检查文件格式')
-      console.error('解析失败:', err)
+      setError(t('editor.importChapterDialog.errors.parseFailed'))
+      console.error('Failed to parse file:', err)
       setPreviewChapters([])
     }
-  }, [])
+  }, [t])
 
   // 处理文件选择
   const handleFileSelect = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +71,7 @@ export function ImportChapterDialog({
 
     // 只接受文本文件
     if (!selectedFile.type.startsWith('text/') && !selectedFile.name.endsWith('.txt')) {
-      setError('请选择 TXT 格式的文本文件')
+      setError(t('editor.importChapterDialog.errors.txtOnly'))
       return
     }
 
@@ -80,19 +84,19 @@ export function ImportChapterDialog({
       // 自动解析预览
       parseAndPreview(text)
     } catch (err) {
-      setError('读取文件失败，请确保文件格式正确')
-      console.error('读取文件失败:', err)
+      setError(t('editor.importChapterDialog.errors.readFailed'))
+      console.error('Failed to read file:', err)
     }
-  }, [parseAndPreview])
+  }, [parseAndPreview, t])
 
   // 处理导入
   const handleImport = () => {
     if (previewChapters.length === 0) {
-      setError('没有可导入的章节')
+      setError(t('editor.importChapterDialog.errors.noChapters'))
       return
     }
     if (!file) {
-      setError('请先选择文件')
+      setError(t('editor.importChapterDialog.errors.selectFileFirst'))
       return
     }
 
@@ -142,7 +146,7 @@ export function ImportChapterDialog({
             {/* 标题栏 */}
             <div className="flex items-center justify-between p-6 border-b border-border">
               <Dialog.Title className="text-xl font-semibold text-foreground">
-                批量导入章节
+                {t('editor.importChapterDialog.title')}
               </Dialog.Title>
               <Dialog.Close asChild>
                 <button
@@ -159,7 +163,7 @@ export function ImportChapterDialog({
               {/* 文件选择 */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  选择文件
+                  {t('editor.importChapterDialog.selectFile')}
                 </label>
                 <div className="flex items-center gap-3">
                   <input
@@ -175,7 +179,7 @@ export function ImportChapterDialog({
                     className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-secondary rounded-lg cursor-pointer transition-colors text-sm"
                   >
                     <Upload className="w-4 h-4" />
-                    选择 TXT 文件
+                    {t('editor.importChapterDialog.selectTxt')}
                   </label>
                   {file && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -204,17 +208,17 @@ export function ImportChapterDialog({
                 <div className="border-t border-border pt-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      导入到卷（可选）
+                      {t('editor.importChapterDialog.importToVolumeLabel')}
                     </label>
                     <Select
                       value={selectedVolumeId || undefined}
                       onValueChange={value => setSelectedVolumeId(value || '')}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="不导入到卷（根目录）" />
+                        <SelectValue placeholder={t('editor.importChapterDialog.rootPlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="__none__">不导入到卷（根目录）</SelectItem>
+                        <SelectItem value="__none__">{t('editor.importChapterDialog.rootPlaceholder')}</SelectItem>
                         {volumes.map(volume => (
                           <SelectItem key={volume.id} value={volume.id}>
                             {volume.title}
@@ -223,7 +227,7 @@ export function ImportChapterDialog({
                       </SelectContent>
                     </Select>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      选择要将章节导入到哪个卷中，留空则导入到根目录
+                      {t('editor.importChapterDialog.importToVolumeHint')}
                     </p>
                   </div>
                 </div>
@@ -238,7 +242,7 @@ export function ImportChapterDialog({
                   className="flex-1 bg-secondary text-foreground hover:bg-accent"
                   disabled={isImporting}
                 >
-                  取消
+                  {t('common.cancel')}
                 </Button>
               </Dialog.Close>
               <Button
@@ -246,7 +250,7 @@ export function ImportChapterDialog({
                 className="flex-1 bg-primary text-primary-foreground hover:opacity-90"
                 disabled={isImporting || !file || !fileContent}
               >
-                {isImporting ? '导入中...' : '导入'}
+                {isImporting ? t('editor.importChapterDialog.importing') : t('editor.importChapterDialog.import')}
               </Button>
             </div>
           </div>

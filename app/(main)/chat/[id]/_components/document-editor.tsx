@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { TiptapEditor } from '@/components/tiptap/index'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 import { copyTextToClipboard } from '@/lib/utils'
 import { ImportToNovelDialog } from './import-to-novel-dialog'
 
@@ -19,6 +20,7 @@ interface DocumentEditorProps {
 }
 
 export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClose, onSave: _onSave }: DocumentEditorProps) {
+  const { t } = useI18n()
   const activeMessage = latestAssistantMessage || message
   const editorContent = activeMessage?.content || ''
   const [content, setContent] = useState(editorContent)
@@ -40,9 +42,9 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
     try {
       const plainText = getPlainText(content)
       await copyTextToClipboard(plainText)
-      toast.success('已复制到剪贴板')
+      toast.success(t('chat.documentEditor.copySuccess'))
     } catch {
-      toast.error('复制失败')
+      toast.error(t('chat.documentEditor.copyFailed'))
     }
   }
 
@@ -53,32 +55,14 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `文档-${new Date().getTime()}.txt`
+      a.download = t('chat.documentEditor.fileName', { timestamp: new Date().getTime() })
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      toast.success('下载成功')
+      toast.success(t('chat.documentEditor.downloadSuccess'))
     } catch {
-      toast.error('下载失败')
-    }
-  }
-
-  const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'AI 写作助手',
-          text: content,
-        })
-      } else {
-        await copyTextToClipboard(content)
-        toast.success('已复制到剪贴板')
-      }
-    } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
-        toast.error('分享失败')
-      }
+      toast.error(t('chat.documentEditor.downloadFailed'))
     }
   }
 
@@ -92,7 +76,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
           size="sm"
           className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground lg:hidden"
           onClick={() => {
-            const menuButton = document.querySelector('button[aria-label="Toggle menu"]') as HTMLButtonElement
+            const menuButton = document.querySelector('button[data-sidebar-toggle]') as HTMLButtonElement
             if (menuButton) menuButton.click()
           }}
         >
@@ -115,7 +99,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
             key={editorKey}
             content={editorContent}
             onUpdate={setContent}
-            placeholder="开始编辑文档..."
+            placeholder={t('chat.documentEditor.placeholder')}
             className="h-full"
             editable={true}
           />
@@ -130,7 +114,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
           onClick={() => setShowImportDialog(true)}
         >
           <BookPlus className="w-4 h-4 mr-1.5" />
-          <span className="text-sm">保存</span>
+          <span className="text-sm">{t('chat.documentEditor.save')}</span>
         </Button>
 
         <div className="flex items-center gap-2">
@@ -141,7 +125,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
             onClick={handleCopy}
           >
             <Copy className="w-4 h-4 mr-1.5" />
-            <span className="text-sm">复制</span>
+            <span className="text-sm">{t('chat.documentEditor.copy')}</span>
           </Button>
           <Button
             variant="ghost"
@@ -150,7 +134,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
             onClick={handleDownload}
           >
             <Download className="w-4 h-4 mr-1.5" />
-            <span className="text-sm">下载</span>
+            <span className="text-sm">{t('chat.documentEditor.download')}</span>
           </Button>
         </div>
       </div>
@@ -160,7 +144,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
         onOpenChange={setShowImportDialog}
         content={content}
         onSuccess={() => {
-          toast.success('内容已成功导入到小说')
+          toast.success(t('chat.documentEditor.importSuccess'))
         }}
       />
     </div>

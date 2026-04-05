@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { useI18n } from '@/hooks/use-i18n'
 import { surveysApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 
@@ -106,6 +107,7 @@ function CheckboxGroup({ value = [], onValueChange, options, name }: { value: st
 }
 
 export default function SurveyPage() {
+  const { t } = useI18n()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
@@ -134,11 +136,11 @@ export default function SurveyPage() {
         contact: formData.contact,
       })
 
-      toast.success('感谢您的真知灼见，我们已收到！')
+      toast.success(t('survey.submit.success'))
       setSubmitted(true)
     } catch (error) {
       console.error('Submit survey error:', error)
-      toast.error('提交失败，请稍后重试')
+      toast.error(t('survey.submit.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -151,14 +153,12 @@ export default function SurveyPage() {
           <div className="h-16 w-16 mx-auto rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
             <Check className="h-8 w-8" />
           </div>
-          <h2 className="text-2xl font-medium tracking-tight mb-3 text-foreground">感谢您的分享</h2>
-          <p className="text-muted-foreground leading-relaxed mb-8">
-            每一位创作者的声音，都是 Narraverse 成长的养分。
-            <br />
-            我们会认真聆听，不负期待。
+          <h2 className="text-2xl font-medium tracking-tight mb-3 text-foreground">{t('survey.successScreen.title')}</h2>
+          <p className="text-muted-foreground leading-relaxed mb-8 whitespace-pre-line">
+            {t('survey.successScreen.message')}
           </p>
           <Button asChild variant="outline" className="rounded-full px-8">
-            <Link href="/">返回首页</Link>
+            <Link href="/">{t('survey.successScreen.backHome')}</Link>
           </Button>
         </div>
       </div>
@@ -172,16 +172,12 @@ export default function SurveyPage() {
         {/* Header */}
         <header className="flex flex-col items-center text-center mb-16 space-y-6">
 
-          <h1 className="text-3xl md:text-5xl font-serif font-medium text-foreground tracking-tight leading-tight">
-            共创计划：
-            <br className="md:hidden" />
-            寻找你的创作伙伴
+          <h1 className="text-3xl md:text-5xl font-serif font-medium text-foreground tracking-tight leading-tight whitespace-pre-line">
+            {t('survey.header.title')}
           </h1>
 
-          <p className="text-lg text-muted-foreground max-w-xl font-light leading-relaxed">
-            我们不只是在制造工具，更是在寻找一种能与灵感共舞的方式。
-            <br />
-            诚邀您花 3 分钟，聊聊那些关于写作的故事。
+          <p className="text-lg text-muted-foreground max-w-xl font-light leading-relaxed whitespace-pre-line">
+            {t('survey.header.subtitle')}
           </p>
         </header>
 
@@ -190,40 +186,27 @@ export default function SurveyPage() {
           {/* Section 1: 创作画像 */}
           <section className="space-y-6 animate-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-backwards">
             <div className="flex items-baseline gap-3 border-b border-border/40 pb-2 mb-6">
-              <span className="text-sm font-mono text-muted-foreground">01</span>
-              <h2 className="text-xl font-serif font-medium">关于你的创作旅程</h2>
+              <span className="text-sm font-mono text-muted-foreground">{t('survey.sections.profile.step')}</span>
+              <h2 className="text-xl font-serif font-medium">{t('survey.sections.profile.title')}</h2>
             </div>
 
             <div className="space-y-4">
-              <Label className="text-base font-medium text-foreground/80">目前的创作状态是？</Label>
+              <Label className="text-base font-medium text-foreground/80">{t('survey.sections.profile.experience')}</Label>
               <RadioGroup
                 name="experience"
                 value={formData.experience}
                 onValueChange={val => setFormData({ ...formData, experience: val })}
-                options={[
-                  { label: '初探门径 (刚开始尝试写作)', value: 'newbie' },
-                  { label: '渐入佳境 (累计创作 < 50万字)', value: 'intermediate' },
-                  { label: '笔耕不辍 (累计创作 > 50万字)', value: 'advanced' },
-                  { label: '职业作家 (以此为生/全职写作)', value: 'pro' },
-                ]}
+                options={t('survey.sections.profile.experienceOptions', { returnObjects: true }) as { label: string, value: string }[]}
               />
             </div>
 
             <div className="space-y-4 pt-4">
-              <Label className="text-base font-medium text-foreground/80">偏爱的创作领域？(可多选)</Label>
+              <Label className="text-base font-medium text-foreground/80">{t('survey.sections.profile.genres')}</Label>
               <CheckboxGroup
                 name="genres"
                 value={formData.genres}
                 onValueChange={val => setFormData({ ...formData, genres: val })}
-                options={[
-                  { label: '玄幻 / 仙侠 / 奇幻', value: 'fantasy' },
-                  { label: '都市 / 现实 / 言情', value: 'urban' },
-                  { label: '科幻 / 末世 / 无限', value: 'scifi' },
-                  { label: '悬疑 / 推理 / 惊悚', value: 'suspense' },
-                  { label: '历史 / 军事 / 权谋', value: 'history' },
-                  { label: '同人 / 衍生 / 轻小说', value: 'fanfic' },
-                  { label: '其他类型', value: 'other' },
-                ]}
+                options={t('survey.sections.profile.genresOptions', { returnObjects: true }) as { label: string, value: string }[]}
               />
             </div>
           </section>
@@ -231,40 +214,27 @@ export default function SurveyPage() {
           {/* Section 2: 痛点与习惯 */}
           <section className="space-y-6 animate-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-backwards">
             <div className="flex items-baseline gap-3 border-b border-border/40 pb-2 mb-6">
-              <span className="text-sm font-mono text-muted-foreground">02</span>
-              <h2 className="text-xl font-serif font-medium">那些让你停笔的瞬间</h2>
+              <span className="text-sm font-mono text-muted-foreground">{t('survey.sections.painPoints.step')}</span>
+              <h2 className="text-xl font-serif font-medium">{t('survey.sections.painPoints.title')}</h2>
             </div>
 
             <div className="space-y-4">
-              <Label className="text-base font-medium text-foreground/80">哪个环节最容易消磨你的热情？(可多选)</Label>
+              <Label className="text-base font-medium text-foreground/80">{t('survey.sections.painPoints.struggles')}</Label>
               <CheckboxGroup
                 name="painPoints"
                 value={formData.painPoints}
                 onValueChange={val => setFormData({ ...formData, painPoints: val })}
-                options={[
-                  { label: '灵感枯竭 (想写却不知道写什么)', value: 'idea' },
-                  { label: '结构困局 (大纲卡壳，逻辑不通)', value: 'outline' },
-                  { label: '设定迷宫 (世界观庞杂，难以自洽)', value: 'world' },
-                  { label: '角色扁平 (人物缺乏灵魂与弧光)', value: 'character' },
-                  { label: '行文卡顿 (正文推进困难，手速慢)', value: 'drafting' },
-                  { label: '润色繁琐 (查错改稿，词不达意)', value: 'editing' },
-                ]}
+                options={t('survey.sections.painPoints.strugglesOptions', { returnObjects: true }) as { label: string, value: string }[]}
               />
             </div>
 
             <div className="space-y-4 pt-4">
-              <Label className="text-base font-medium text-foreground/80">目前主要使用的工具？(可多选)</Label>
+              <Label className="text-base font-medium text-foreground/80">{t('survey.sections.painPoints.tools')}</Label>
               <CheckboxGroup
                 name="tools"
                 value={formData.tools}
                 onValueChange={val => setFormData({ ...formData, tools: val })}
-                options={[
-                  { label: 'Word / WPS / Pages', value: 'word' },
-                  { label: 'Notion / Obsidian / Logseq', value: 'note' },
-                  { label: 'Scrivener / Ulysses', value: 'scrivener' },
-                  { label: '墨者 / 大神 / 橙瓜', value: 'webnovel_tools' },
-                  { label: '手机备忘录 / 纯文本', value: 'memo' },
-                ]}
+                options={t('survey.sections.painPoints.toolsOptions', { returnObjects: true }) as { label: string, value: string }[]}
               />
             </div>
           </section>
@@ -272,15 +242,15 @@ export default function SurveyPage() {
           {/* Section 3: AI 期望 */}
           <section className="space-y-6 animate-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-backwards">
             <div className="flex items-baseline gap-3 border-b border-border/40 pb-2 mb-6">
-              <span className="text-sm font-mono text-muted-foreground">03</span>
-              <h2 className="text-xl font-serif font-medium">想象中的理想助手</h2>
+              <span className="text-sm font-mono text-muted-foreground">{t('survey.sections.expectations.step')}</span>
+              <h2 className="text-xl font-serif font-medium">{t('survey.sections.expectations.title')}</h2>
             </div>
 
             <div className="p-6 rounded-2xl bg-secondary/30 border border-border/50 space-y-6">
               <div className="space-y-4">
                 <Label className="text-base font-medium text-foreground/80 flex items-center justify-between">
-                  <span>如果 AI 是一位助手，你希望它擅长...</span>
-                  <span className="text-xs font-normal text-muted-foreground bg-background px-2 py-1 rounded-full border">至多选 3 项</span>
+                  <span>{t('survey.sections.expectations.aiFeatures')}</span>
+                  <span className="text-xs font-normal text-muted-foreground bg-background px-2 py-1 rounded-full border">{t('survey.sections.expectations.max3')}</span>
                 </Label>
                 <CheckboxGroup
                   name="aiExpectations"
@@ -290,23 +260,15 @@ export default function SurveyPage() {
                       setFormData({ ...formData, aiExpectations: val })
                     }
                   }}
-                  options={[
-                    { label: '灵感风暴：提供创意点子、反转剧情建议', value: 'brainstorm' },
-                    { label: '设定管家：自动整理、检索、可视化人物和世界观', value: 'wiki' },
-                    { label: '自动续写：根据上下文风格辅助生成段落', value: 'autocomplete' },
-                    { label: '逻辑纠错：检查前后文矛盾、时间线 BUG', value: 'logic_check' },
-                    { label: '角色绘图：一键生成角色立绘、场景插图', value: 'image_gen' },
-                    { label: '市场参谋：分析题材热度、读者喜好趋势', value: 'analytics' },
-                    { label: '角色扮演：模拟书中角色与我对戏，寻找语感', value: 'roleplay' },
-                  ]}
+                  options={t('survey.sections.expectations.aiFeaturesOptions', { returnObjects: true }) as { label: string, value: string }[]}
                 />
               </div>
 
               <div className="space-y-4 pt-2">
-                <Label htmlFor="aiConcerns" className="text-base font-medium text-foreground/80">对于 AI 辅助写作，你最大的顾虑或建议？</Label>
+                <Label htmlFor="aiConcerns" className="text-base font-medium text-foreground/80">{t('survey.sections.expectations.concerns')}</Label>
                 <Textarea
                   id="aiConcerns"
-                  placeholder="例如：担心版权问题、担心风格不统一、希望 AI 不要干涉核心创意..."
+                  placeholder={t('survey.sections.expectations.concernsPlaceholder')}
                   className="min-h-[120px] bg-background resize-none border-border/50 focus:border-primary/50 transition-colors"
                   value={formData.aiConcerns}
                   onChange={e => setFormData({ ...formData, aiConcerns: e.target.value })}
@@ -318,21 +280,21 @@ export default function SurveyPage() {
           {/* Section 4: 联系方式 */}
           <section className="space-y-6 animate-in slide-in-from-bottom-4 duration-700 delay-400 fill-mode-backwards">
             <div className="flex items-baseline gap-3 border-b border-border/40 pb-2 mb-6">
-              <span className="text-sm font-mono text-muted-foreground">04</span>
-              <h2 className="text-xl font-serif font-medium">保持联系</h2>
+              <span className="text-sm font-mono text-muted-foreground">{t('survey.sections.contact.step')}</span>
+              <h2 className="text-xl font-serif font-medium">{t('survey.sections.contact.title')}</h2>
             </div>
 
             <div className="space-y-4">
-              <Label htmlFor="contact" className="text-base font-medium text-foreground/80">留下联系方式，优先获取内测资格 (选填)</Label>
+              <Label htmlFor="contact" className="text-base font-medium text-foreground/80">{t('survey.sections.contact.info')}</Label>
               <Input
                 id="contact"
-                placeholder="Email 或 微信号"
+                placeholder={t('survey.sections.contact.infoPlaceholder')}
                 value={formData.contact}
                 onChange={e => setFormData({ ...formData, contact: e.target.value })}
                 className="h-12 bg-background border-border/50 focus:border-primary/50"
               />
               <p className="text-xs text-muted-foreground/80">
-                承诺：您的信息仅用于产品内测邀请，绝无垃圾邮件。
+                {t('survey.sections.contact.promise')}
               </p>
             </div>
           </section>
@@ -346,20 +308,20 @@ export default function SurveyPage() {
             >
               {isSubmitting
                 ? (
-                    <>正在提交...</>
+                    <>{t('survey.submit.submitting')}</>
                   )
                 : (
                     <>
                       <Send className="mr-2 h-5 w-5" />
                       {' '}
-                      发送反馈
+                      {t('survey.submit.button')}
                     </>
                   )}
             </Button>
 
             <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 group">
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              返回首页
+              {t('survey.successScreen.backHome')}
             </Link>
           </div>
         </form>
@@ -367,9 +329,9 @@ export default function SurveyPage() {
         <div className="flex justify-center pt-12 pb-4">
           <div className="relative group flex flex-col items-center">
             <p className="text-sm text-muted-foreground/60 cursor-default transition-colors hover:text-foreground/80 flex items-center gap-1.5">
-              想寻找更多同路人？
+              {t('survey.community.findMore')}
               <span className="underline decoration-dotted underline-offset-4 decoration-primary/30 hover:decoration-primary hover:text-primary cursor-pointer transition-all">
-                加入共创交流群
+                {t('survey.community.joinGroup')}
               </span>
             </p>
 
@@ -378,12 +340,12 @@ export default function SurveyPage() {
                 <div className="relative w-full aspect-square bg-white rounded-lg overflow-hidden border border-border/10">
                   <Image
                     src="/qunliao.jpg"
-                    alt="Narraverse 交流群"
+                    alt="Narraverse Group"
                     fill
                     className="object-cover scale-110"
                   />
                 </div>
-                <span className="text-xs text-muted-foreground font-medium">扫码加入 Narraverse 朋友们</span>
+                <span className="text-xs text-muted-foreground font-medium">{t('survey.community.scanQr')}</span>
               </div>
               <div className="w-3 h-3 bg-popover border-b border-r border-border rotate-45 absolute -bottom-1.5 left-1/2 -translate-x-1/2 shadow-sm"></div>
             </div>
@@ -391,7 +353,7 @@ export default function SurveyPage() {
         </div>
 
         <footer className="text-center text-xs text-muted-foreground/30 pb-8 font-mono">
-          Narraverse · Create Worlds with Intelligence
+          {t('survey.footer')}
         </footer>
       </div>
     </div>

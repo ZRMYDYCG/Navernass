@@ -76,5 +76,48 @@ Themes are implemented via the `data-theme` attribute on the root element and CS
 - **State Management**: React Context / Hooks (inferred)
 - **Code Style**:
   - **No Semicolons**: Prefer omitting semicolons where possible.
-  - **Imports**: Use clear, grouped imports.
-  - **Naming**: PascalCase for components, camelCase for functions/variables, kebab-case for filenames.
+## 4. Internationalization (i18n) (国际化规范)
+
+This project uses a custom i18n solution. When adding new features or modules, follow these rules:
+
+### 4.1 Dictionary Structure
+- Dictionaries are stored in `i18n/dicts/[locale]/`.
+- **Domain Separation**: Do not put all translations into a single file. Create domain-specific files (e.g., `marketing.ts`, `editor.ts`, `survey.ts`).
+- **Index Export**: Always export the new domain dictionary in `i18n/dicts/[locale]/index.ts`.
+
+### 4.2 Translation Keys
+- Group translations logically by components or sections.
+- Avoid deep nesting (keep it to 2-3 levels max).
+- Example:
+  ```ts
+  // survey.ts
+  const survey = {
+    title: 'Co-creation Plan',
+    sections: {
+      profile: 'Your writing profile',
+    }
+  } as const
+  export default survey
+  ```
+
+### 4.3 Usage in Components
+- Use the `useI18n` hook from `@/hooks/use-i18n`.
+- The `t` function supports dot notation.
+- Example:
+  ```tsx
+  import { useI18n } from '@/hooks/use-i18n'
+  
+  export function MyComponent() {
+    const { t } = useI18n()
+    return <h1>{t('survey.title')}</h1>
+  }
+  ```
+
+### 4.4 Arrays and Complex Types
+- If you need to render lists (like options for a select or radio group), store them as arrays in the dictionary.
+- Due to strict typing in `t()`, when retrieving an array or object, you may need to assert the type.
+- Example:
+  ```tsx
+  const rawOptions = t('survey.options', { returnObjects: true }) as unknown
+  const options = Array.isArray(rawOptions) ? rawOptions : []
+  ```
