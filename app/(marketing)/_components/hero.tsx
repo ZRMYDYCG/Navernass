@@ -6,30 +6,11 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { NovelDialog } from '@/app/(main)/novels/_components/novel-dialog'
-// import LightRays from '@/components/LightRays'
 import { Button } from '@/components/ui/button'
 import { Highlighter } from '@/components/ui/highlighter'
 import { useAuth } from '@/hooks/use-auth'
+import { useI18n } from '@/hooks/use-i18n'
 import { novelsApi } from '@/lib/supabase/sdk'
-
-const HERO_SAMPLE_CONTENT = `## 雨季不再来
-这已不知是第几日了，我总在落着雨的早晨醒来。窗外照例是一片灰镑镑的天空，没有黎明时的曙光，没有风，没有鸟叫。后院的小树都很寥寂的静立在雨中，无论从那一个窗口望出去，总有雨水在冲流着。除了雨水之外，听不见其他的声音，在这时分里，一切全是静止的。
-
-![](./landing-page-3.png)我胡乱的穿着衣服，想到今日的考试，想到心中挂念着的培，心情就又无端的沉落下去。而对这样的季候也无心再去咒诅它了。昨晚房中的台灯坏了，就以此为藉口，故意早早睡去，连笔记都不想碰一下，更不要说那一本本原文书了。当时客厅的电视正在上演着西部片，黑暗中，我躺在床上，偶尔会有音乐、对白和枪声传来，觉得有一丝朦胧的快乐。在那时，考试就变得极不重要，觉得那是不会有的事，明天也是不会来的。我将永远躺在这黑暗里，而培明日会不会去找我也不是问题了。不过是这个季节在烦恼着我们，明白就会好了，我们岂是真的就此分开了？这不过是雨在冲乱着我们的心绪罢了。
-
-每次早晨醒来的时候，我总喜欢仔细的去看看自己。浴室镜子里的我是一个陌生人，那是个奇异的时分。我的心境在刚刚醒来的时候是不设防的，镜中的自己也是不设防的。我喜欢一面将手漫在水里，一面凝望着自己，奇怪的轻声叫着我的名字——今日镜中的不是我，那是个满面渴想着培的女孩。我凝望着自己，追念着培的眼睛——我常常不能抗拒的驻留在那时分里，直到我听见母亲或弟弟在另一间浴室里漱洗的水声。那时我会突然记起自己该进入的日子和秩序，我就会快快的去喝一杯蜂蜜水，然后夹着些凌乱的笔记书本出门。
-
-今早要出去的时候，我找不到可穿的鞋子。我的鞋因为在雨地中不好好走路的缘故，已经全都湿光了。于是我只好去穿一双咖啡色的凉鞋，这件小事使得我在出门时不及想像的沉落。这凉鞋踏在清晨水湿的街道上的确是愉快的。我坐了三轮车去车站，天空仍灰得分不出时辰来。
-
-车帘外的一切被雨弄得静悄悄的，看不出什么显然的朝气。几个小男孩在水沟里放纸船，一个拾垃圾的老人无精打采的站在人行道边，一街的人车在这灰暗的城市中无声的奔流着。我看着这些景象，心中无端的升起一层疲惫来，这是怎样令人丧气的一个日子啊。
-
-下车付车钱时，我弄掉了笔记。当我俯身在泥泞中去拾起它时，心中就乍然的软弱无力起来。考试、培、雨、好似都没有一样的把我绞进里面去。
-
-有一日，我要在一个充满阳光的早晨醒来。那时我要躺在床上，静静地听听窗外如洗的鸟声，那是多么安适而又快乐的一种苏醒。到时候，我早晨起来，对着镜子，我会再度看见阳光驻留在我的脸上。
-
-我会一遍遍地告诉自己，雨季过了，雨季将不再来。我会觉得，在那一日早晨，当我出门的时候，我会穿着那双清洁干燥的黄球鞋，踏上一条充满日光的大道。
-
-那时候，我会说，看这阳光，雨季将不再来。`
 
 const LazyTiptapEditor = dynamic(
   () => import('@/components/tiptap').then(mod => mod.TiptapEditor),
@@ -54,15 +35,23 @@ function HeroEditorSkeleton() {
   )
 }
 
-function HeroEditor({ shouldRenderEditor }: { shouldRenderEditor: boolean }) {
+function HeroEditor({
+  shouldRenderEditor,
+  placeholder,
+  sampleContent,
+}: {
+  shouldRenderEditor: boolean
+  placeholder: string
+  sampleContent: string
+}) {
   return (
     <div className="mx-auto relative w-full max-w-4xl">
       <div className="h-[400px] w-full rounded-lg border border-border bg-background p-2 sm:h-[500px]">
         {shouldRenderEditor
           ? (
               <LazyTiptapEditor
-                placeholder="在这里开始你的创作之旅..."
-                content={HERO_SAMPLE_CONTENT}
+                placeholder={placeholder}
+                content={sampleContent}
                 className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[380px] sm:[&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto [&_.ProseMirror]:scrollbar-none [&_.ProseMirror::-webkit-scrollbar]:hidden [&_.ProseMirror::selection]:bg-primary/20 [&_.ProseMirror::selection]:text-foreground"
               />
             )
@@ -75,6 +64,7 @@ function HeroEditor({ shouldRenderEditor }: { shouldRenderEditor: boolean }) {
 export default function Hero() {
   const { user } = useAuth()
   const router = useRouter()
+  const { t } = useI18n()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [shouldRenderEditor, setShouldRenderEditor] = useState(false)
 
@@ -94,14 +84,14 @@ export default function Hero() {
         title: data.title,
         description: data.description || undefined,
       })
-      toast.success('创建成功')
+      toast.success(t('marketing.toast.createSuccess'))
       setDialogOpen(false)
       router.push(`/editor?id=${novel.id}`)
     } catch {
-      toast.error('创建失败')
-      throw new Error('创建失败')
+      toast.error(t('marketing.toast.createFailed'))
+      throw new Error(t('marketing.toast.createFailed'))
     }
-  }, [router])
+  }, [router, t])
 
   return (
     <section className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-background px-4 pt-20 selection:bg-primary/10 selection:text-primary md:px-6">
@@ -113,43 +103,25 @@ export default function Hero() {
         <div className="absolute top-[85%] left-[10%] h-px w-[70%] rotate-[-3deg] animate-pulse bg-gradient-to-r from-transparent via-primary/30 to-transparent [animation-delay:2s] [animation-duration:5s]" />
       </div>
 
-      {/* <div className="absolute inset-0 hidden dark:block">
-        <LightRays
-          raysOrigin="top-center"
-          raysColor="var(--color-primary)"
-          raysSpeed={1}
-          lightSpread={0.5}
-          rayLength={3}
-          followMouse={true}
-          mouseInfluence={0.1}
-          noiseAmount={0}
-          distortion={0}
-          className="custom-rays"
-          pulsating={false}
-          fadeDistance={1}
-          saturation={1}
-        />
-      </div> */}
-
       <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-primary/10 via-transparent to-transparent" />
 
       <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
         <h1 className="font-serif text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-          让写作回归
-          <Highlighter action="underline" color="var(--primary)">纯粹</Highlighter>
-          <span>与</span>
-          <Highlighter action="underline" color="var(--primary)">自由</Highlighter>
+          {t('marketing.hero.titlePart1')}
+          <Highlighter action="underline" color="var(--primary)">{t('marketing.hero.highlight1')}</Highlighter>
+          <span>{t('marketing.hero.connector')}</span>
+          <Highlighter action="underline" color="var(--primary)">{t('marketing.hero.highlight2')}</Highlighter>
         </h1>
 
         <p className="mt-4 mx-auto max-w-2xl px-2 text-base font-light leading-relaxed text-foreground/60 sm:px-0 sm:text-xl">
-          我们专注为才华横溢的创作者打造舒适的创作环境，降低优质内容被看见、被分享、被发掘的门槛。同时也为新手提供AI辅助，降低直面感受创作、学习创作、走进创作的门槛。
+          {t('marketing.hero.description')}
         </p>
 
         {user
           ? (
               <div className="my-8">
                 <Button onClick={() => setDialogOpen(true)} className="cursor-pointer px-4 sm:px-6">
-                  开启创作之旅
+                  {t('marketing.hero.cta')}
                 </Button>
               </div>
             )
@@ -157,7 +129,11 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 pt-8 sm:pt-10">
-        <HeroEditor shouldRenderEditor={shouldRenderEditor} />
+        <HeroEditor
+          shouldRenderEditor={shouldRenderEditor}
+          placeholder={t('marketing.hero.editorPlaceholder')}
+          sampleContent={t('marketing.hero.sampleContent')}
+        />
       </div>
 
       {user && (

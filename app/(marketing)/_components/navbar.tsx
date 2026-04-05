@@ -5,11 +5,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { AuthButton } from './auth-button'
 import { ContactDialog } from './contact-dialog'
 
 export default function Navbar() {
+  const { t } = useI18n()
   const { resolvedTheme, setTheme } = useThemeTransition()
   const [contactOpen, setContactOpen] = useState(false)
 
@@ -44,7 +46,7 @@ export default function Navbar() {
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">切换主题</span>
+              <span className="sr-only">{t('marketing.navbar.themeToggle')}</span>
             </Button>
             <AuthButton />
           </div>

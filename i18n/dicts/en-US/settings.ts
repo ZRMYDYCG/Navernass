@@ -15,6 +15,21 @@ const settings = {
   themeDark: 'Dark',
   themeSystem: 'System',
   langSimplified: 'Chinese (Simplified)',
+  colorNotes: {
+    default: 'Basic',
+    blue: 'Calm',
+    green: 'Natural',
+    orange: 'Warm',
+    red: 'Vibrant',
+    rose: 'Soft',
+    violet: 'Cool',
+    yellow: 'Bright',
+  },
+  errors: {
+    loadApiKey: 'Failed to load API key',
+    saveApiKey: 'Failed to save API key',
+    clearApiKey: 'Failed to clear API key',
+  },
 } as const
 
 export default settings

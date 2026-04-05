@@ -30,6 +30,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [isSaved, setIsSaved] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
+  const { t } = useI18n()
+  const { locale, setLocale } = useLocale()
+
   const loadApiKey = async () => {
     try {
       setIsLoading(true)
@@ -38,7 +41,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         setApiKey(key)
       }
     } catch (error) {
-      console.error('加载 API Key 失败:', error)
+      console.error(t('settings.errors.loadApiKey'), error)
     } finally {
       setIsLoading(false)
     }
@@ -59,7 +62,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       setIsSaved(true)
       setTimeout(() => setIsSaved(false), 2000)
     } catch (error) {
-      console.error('保存失败:', error)
+      console.error(t('settings.errors.saveApiKey'), error)
     } finally {
       setIsSaving(false)
     }
@@ -71,7 +74,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       await clearApiKey(DEFAULT_USER_ID)
       setApiKey('')
     } catch (error) {
-      console.error('清除失败:', error)
+      console.error(t('settings.errors.clearApiKey'), error)
     } finally {
       setIsSaving(false)
     }
@@ -84,20 +87,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   ]
 
   const colorThemes = [
-    { name: 'default', note: '基础', swatches: ['#18181B', '#52525B', '#E4E4E7'] },
-    { name: 'blue', note: '冷静', swatches: ['#2563EB', '#60A5FA', '#DBEAFE'] },
-    { name: 'green', note: '自然', swatches: ['#16A34A', '#4ADE80', '#DCFCE7'] },
-    { name: 'orange', note: '温暖', swatches: ['#F97316', '#FB923C', '#FFEDD5'] },
-    { name: 'red', note: '醒目', swatches: ['#DC2626', '#F87171', '#FEE2E2'] },
-    { name: 'rose', note: '柔和', swatches: ['#E11D48', '#FB7185', '#FFE4E6'] },
-    { name: 'violet', note: '偏冷', swatches: ['#7C3AED', '#A78BFA', '#EDE9FE'] },
-    { name: 'yellow', note: '明快', swatches: ['#EAB308', '#FACC15', '#FEF9C3'] },
+    { name: 'default', swatches: ['#18181B', '#52525B', '#E4E4E7'] },
+    { name: 'blue', swatches: ['#2563EB', '#60A5FA', '#DBEAFE'] },
+    { name: 'green', swatches: ['#16A34A', '#4ADE80', '#DCFCE7'] },
+    { name: 'orange', swatches: ['#F97316', '#FB923C', '#FFEDD5'] },
+    { name: 'red', swatches: ['#DC2626', '#F87171', '#FEE2E2'] },
+    { name: 'rose', swatches: ['#E11D48', '#FB7185', '#FFE4E6'] },
+    { name: 'violet', swatches: ['#7C3AED', '#A78BFA', '#EDE9FE'] },
+    { name: 'yellow', swatches: ['#EAB308', '#FACC15', '#FEF9C3'] },
   ]
 
   const selectedColorTheme = colorThemes.find(item => item.name === colorTheme) || colorThemes[0]
-
-  const { t } = useI18n()
-  const { locale, setLocale } = useLocale()
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -118,7 +118,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   type={showApiKey ? 'text' : 'password'}
                   value={apiKey}
                   onChange={e => setApiKey(e.target.value)}
-                  placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx"
+                  placeholder={t('settings.apiPlaceholder')}
                   disabled={isLoading}
                   className="w-full px-3 py-2 pr-10 text-sm rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
                 />
@@ -209,7 +209,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     ))}
                   </div>
                   <div className="min-w-0 text-left">
-                    <div className="text-sm font-medium text-foreground">{selectedColorTheme.note}</div>
+                    <div className="text-sm font-medium text-foreground">{t(`settings.colorNotes.${selectedColorTheme.name}`)}</div>
                   </div>
                 </div>
               </SelectTrigger>
@@ -226,7 +226,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                           />
                         ))}
                       </div>
-                      <span className="text-sm text-foreground">{theme.note}</span>
+                      <span className="text-sm text-foreground">{t(`settings.colorNotes.${theme.name}`)}</span>
                     </div>
                   </SelectItem>
                 ))}

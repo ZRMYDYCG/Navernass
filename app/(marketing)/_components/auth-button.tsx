@@ -16,10 +16,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/use-auth'
+import { useI18n } from '@/hooks/use-i18n'
 import { AuthDialog } from './auth-dialog'
 
 export function AuthButton() {
   const { user, profile, signOut, loading } = useAuth()
+  const { t } = useI18n()
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const router = useRouter()
@@ -30,16 +32,16 @@ export function AuthButton() {
 
       const { error } = await signOut()
       if (error) {
-        toast.error(error.message || '退出登录失败')
+        toast.error(error.message || t('auth.signOutFailed'))
         return
       }
 
-      toast.success('已退出登录')
+      toast.success(t('auth.signedOut'))
       router.push('/')
       router.refresh()
     } catch (error) {
       console.error('Sign out failed:', error)
-      toast.error('退出登录失败')
+      toast.error(t('auth.signOutFailedRetry'))
     } finally {
       setIsSigningOut(false)
     }
@@ -48,7 +50,7 @@ export function AuthButton() {
   if (loading && !user) {
     return (
       <Button variant="outline" disabled>
-        <div className="animate-pulse">加载中...</div>
+        <div className="animate-pulse">{t('common.loading')}</div>
       </Button>
     )
   }
@@ -57,7 +59,7 @@ export function AuthButton() {
     return (
       <>
         <Button variant="outline" onClick={() => setAuthDialogOpen(true)}>
-          登录 / 注册
+          {`${t('auth.signIn')} / ${t('auth.signUp')}`}
         </Button>
         <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
       </>
@@ -80,7 +82,7 @@ export function AuthButton() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {profile?.full_name || '用户'}
+              {profile?.full_name || t('common.user')}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
@@ -91,13 +93,13 @@ export function AuthButton() {
         <DropdownMenuItem asChild>
           <Link href="/workspace" className="flex items-center">
             <User className="mr-2 h-4 w-4" />
-            <span>进入应用</span>
+            <span>{t('workspace.title')}</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} disabled={isSigningOut}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>{isSigningOut ? '正在退出...' : '退出登录'}</span>
+          <span>{isSigningOut ? t('auth.signingOut') : t('auth.signOut')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

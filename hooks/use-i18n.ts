@@ -1,7 +1,7 @@
 'use client'
 
-import { useTranslation } from 'react-i18next'
 import type { Locale } from '@/i18n/config'
+import { useTranslation } from 'react-i18next'
 
 export function useI18n() {
   const { t } = useTranslation()

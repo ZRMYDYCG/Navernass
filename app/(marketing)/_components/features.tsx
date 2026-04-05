@@ -1,6 +1,7 @@
 'use client'
 
 import { Highlighter } from '@/components/ui/highlighter'
+import { useI18n } from '@/hooks/use-i18n'
 import { AiChatDemo } from './features/ai-chat-demo'
 import { AlbumCollage } from './features/album-collage'
 import { LightOrDay } from './features/light-or-day'
@@ -9,6 +10,8 @@ import { NovelManagement } from './features/novel-management'
 import { ThemeColorShowcase } from './features/theme-color-showcase'
 
 export default function Features() {
+  const { t } = useI18n()
+
   return (
     <>
       <section className="flex min-h-screen flex-col items-center relative overflow-hidden bg-background">
@@ -16,11 +19,11 @@ export default function Features() {
 
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-serif font-medium text-foreground/80 tracking-wide">
-              为创作者留下一方安静的书写角落
+              {t('marketing.features.title')}
             </h2>
 
             <p className="mt-4 text-sm font-serif italic text-foreground/50 max-w-xl mx-auto leading-relaxed">
-              每一个功能，都像放在桌边的小工具——温柔、不喧闹，只为让你写得更自在。
+              {t('marketing.features.subtitle')}
             </p>
 
             <div className="mt-8 w-14 h-[1.5px] bg-foreground/10 mx-auto rounded-full" />
@@ -54,9 +57,9 @@ export default function Features() {
             <div className="w-full">
               <div className="w-full h-full p-4 bg-background rounded-lg flex flex-col items-center text-center">
                 <h3 className="text-lg text-foreground mb-3">
-                  <Highlighter action="underline" color="var(--primary)">多格式导出</Highlighter>
+                  <Highlighter action="underline" color="var(--primary)">{t('marketing.features.multiFormatTitle')}</Highlighter>
                 </h3>
-                <span className="text-sm text-muted-foreground mb-4">一键生成排版精美的 MarkDown 或 Text,从草稿到成书，只差一个按钮。</span>
+                <span className="text-sm text-muted-foreground mb-4">{t('marketing.features.multiFormatDescription')}</span>
                 <AnimatedBeamMultipleOutputDemo />
               </div>
             </div>

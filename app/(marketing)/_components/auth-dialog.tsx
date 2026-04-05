@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuth } from '@/hooks/use-auth'
+import { useI18n } from '@/hooks/use-i18n'
 
 const EMAIL_DOMAINS = [
   { label: 'gmail.com', value: '@gmail.com' },
@@ -27,6 +28,7 @@ interface AuthDialogProps {
 
 export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const { signIn, signUp } = useAuth()
+  const { t } = useI18n()
   const [loading, setLoading] = useState(false)
   const [loginForm, setLoginForm] = useState({ email: '', password: '' })
   const [registerForm, setRegisterForm] = useState({
@@ -111,12 +113,12 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       if (error) {
         toast.error(error.message)
       } else {
-        toast.success('登录成功！')
+        toast.success(t('auth.signInSuccess'))
         onOpenChange(false)
         setLoginForm({ email: '', password: '' })
       }
     } catch {
-      toast.error('登录失败，请重试')
+      toast.error(t('auth.signInFailed'))
     } finally {
       setLoading(false)
     }
@@ -126,12 +128,12 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     e.preventDefault()
 
     if (registerForm.password !== registerForm.confirmPassword) {
-      toast.error('密码不匹配')
+      toast.error(t('auth.passwordMismatch'))
       return
     }
 
     if (registerForm.password.length < 6) {
-      toast.error('密码至少需要6位')
+      toast.error(t('auth.passwordTooShort'))
       return
     }
 
@@ -142,7 +144,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       if (error) {
         toast.error(error.message)
       } else {
-        toast.success('注册成功！请检查邮箱验证')
+        toast.success(t('auth.signUpSuccess'))
         onOpenChange(false)
         setRegisterForm({
           email: '',
@@ -152,7 +154,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         })
       }
     } catch {
-      toast.error('注册失败，请重试')
+      toast.error(t('auth.signUpFailed'))
     } finally {
       setLoading(false)
     }
@@ -162,28 +164,28 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>欢迎使用 Narraverse</DialogTitle>
+          <DialogTitle>{t('marketing.auth.welcomeTitle')}</DialogTitle>
           <DialogDescription>
-            登录或注册以开始你的创作之旅
+            {t('marketing.auth.description')}
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">登录</TabsTrigger>
-            <TabsTrigger value="register">注册</TabsTrigger>
+            <TabsTrigger value="login">{t('auth.signIn')}</TabsTrigger>
+            <TabsTrigger value="register">{t('auth.signUp')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="login">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="login-email">邮箱</Label>
+                <Label htmlFor="login-email">{t('auth.email')}</Label>
                 <div className="relative">
                   <Input
                     ref={loginInputRef}
                     id="login-email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder={t('marketing.auth.emailPlaceholder')}
                     value={loginForm.email}
                     onChange={handleLoginEmailChange}
                     required
@@ -212,7 +214,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                               className="w-full px-4 py-2 text-left hover:bg-accent hover:text-accent-foreground"
                               onClick={() => applyLoginDomain('')}
                             >
-                              使用自定义邮箱地址
+                              {t('auth.useCustomEmail')}
                             </button>
                           )}
                     </div>
@@ -220,7 +222,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="login-password">密码</Label>
+                <Label htmlFor="login-password">{t('auth.password')}</Label>
                 <Input
                   id="login-password"
                   type="password"
@@ -235,11 +237,11 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        登录中...
+                        {t('auth.signingIn')}
                       </>
                     )
                   : (
-                      '登录'
+                      t('auth.signIn')
                     )}
               </Button>
             </form>
@@ -248,23 +250,23 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           <TabsContent value="register">
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="register-name">姓名</Label>
+                <Label htmlFor="register-name">{t('auth.fullName')}</Label>
                 <Input
                   id="register-name"
                   type="text"
-                  placeholder="张三"
+                  placeholder={t('marketing.auth.namePlaceholder')}
                   value={registerForm.fullName}
                   onChange={e => setRegisterForm({ ...registerForm, fullName: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="register-email">邮箱</Label>
+                <Label htmlFor="register-email">{t('auth.email')}</Label>
                 <div className="relative">
                   <Input
                     ref={registerInputRef}
                     id="register-email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder={t('marketing.auth.emailPlaceholder')}
                     value={registerForm.email}
                     onChange={handleRegisterEmailChange}
                     required
@@ -293,7 +295,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                               className="w-full px-4 py-2 text-left hover:bg-accent hover:text-accent-foreground"
                               onClick={() => applyRegisterDomain('')}
                             >
-                              使用自定义邮箱地址
+                              {t('auth.useCustomEmail')}
                             </button>
                           )}
                     </div>
@@ -301,7 +303,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="register-password">密码</Label>
+                <Label htmlFor="register-password">{t('auth.password')}</Label>
                 <Input
                   id="register-password"
                   type="password"
@@ -312,7 +314,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="register-confirm-password">确认密码</Label>
+                <Label htmlFor="register-confirm-password">{t('auth.confirmPassword')}</Label>
                 <Input
                   id="register-confirm-password"
                   type="password"
@@ -327,11 +329,11 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        注册中...
+                        {t('auth.signingUp')}
                       </>
                     )
                   : (
-                      '注册'
+                      t('auth.signUp')
                     )}
               </Button>
             </form>

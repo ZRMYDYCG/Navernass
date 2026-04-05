@@ -12,15 +12,30 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Highlighter } from '@/components/ui/highlighter'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
+interface LightOrDayDemo {
+  library: string
+  currentNovel: string
+  publish: string
+  chapterTitle: string
+  paragraphs: string[]
+  highlight: string
+  lineAndColumn: string
+  wordCount: string
+}
+
 export function LightOrDay() {
+  const { t } = useI18n()
   const [sliderPosition, setSliderPosition] = useState(50)
   const [isDragging, setIsDragging] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const darkScrollRef = useRef<HTMLDivElement>(null)
   const lightScrollRef = useRef<HTMLDivElement>(null)
   const isSyncingScrollRef = useRef(false)
+  const rawDemo = t('marketing.lightOrDay.demo', { returnObjects: true }) as unknown
+  const demo = rawDemo as LightOrDayDemo
 
   const handleMove = useCallback(
     (clientX: number) => {
@@ -92,10 +107,10 @@ export function LightOrDay() {
       <div className="flex flex-col items-center justify-center mb-4 text-center">
         <div>
           <h3 className="text-lg mb-3 text-foreground">
-            <Highlighter action="underline" color="var(--primary)">日夜模式随心切换</Highlighter>
+            <Highlighter action="underline" color="var(--primary)">{t('marketing.lightOrDay.title')}</Highlighter>
           </h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
-            无论是在阳光明媚的午后，还是深夜静谧的书房，都能提供最舒适的沉浸式创作体验。
+            {t('marketing.lightOrDay.description')}
           </p>
         </div>
       </div>
@@ -110,6 +125,7 @@ export function LightOrDay() {
             theme="dark"
             contentRef={darkScrollRef}
             onContentScroll={scrollTop => handleContentScroll('dark', scrollTop)}
+            demo={demo}
           />
         </div>
 
@@ -124,6 +140,7 @@ export function LightOrDay() {
             theme="light"
             contentRef={lightScrollRef}
             onContentScroll={scrollTop => handleContentScroll('light', scrollTop)}
+            demo={demo}
           />
         </div>
 
@@ -144,10 +161,10 @@ export function LightOrDay() {
 
         {/* Labels */}
         <div className="absolute bottom-4 left-4 z-10 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-medium text-white/90 border border-white/10 shadow-lg pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100">
-          Dark Mode
+          {t('marketing.lightOrDay.darkMode')}
         </div>
         <div className="absolute bottom-4 right-4 z-10 px-3 py-1 rounded-full bg-white/80 backdrop-blur-md text-xs font-medium text-black/90 border border-black/5 shadow-lg pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100">
-          Light Mode
+          {t('marketing.lightOrDay.lightMode')}
         </div>
       </div>
     </div>
@@ -158,10 +175,12 @@ function DemoContent({
   theme,
   contentRef,
   onContentScroll,
+  demo,
 }: {
   theme: 'light' | 'dark'
   contentRef: React.RefObject<HTMLDivElement | null>
   onContentScroll: (scrollTop: number) => void
+  demo: LightOrDayDemo
 }) {
   const isLight = theme === 'light'
 
@@ -196,9 +215,9 @@ function DemoContent({
           </div>
           <div className={cn('h-4 w-px mx-2', isLight ? 'bg-zinc-200' : 'bg-zinc-800')} />
           <div className="flex items-center gap-2 text-xs font-medium opacity-80">
-            <span className={isLight ? 'text-zinc-500' : 'text-zinc-500'}>我的小说</span>
+            <span className={isLight ? 'text-zinc-500' : 'text-zinc-500'}>{demo.library}</span>
             <span className={isLight ? 'text-zinc-500' : 'text-zinc-500'}>/</span>
-            <span>迷雾重重</span>
+            <span>{demo.currentNovel}</span>
           </div>
         </div>
 
@@ -215,7 +234,7 @@ function DemoContent({
           </button>
           <div className={cn('h-4 w-px mx-1', isLight ? 'bg-zinc-200' : 'bg-zinc-800')} />
           <button className={cn('px-3 py-1.5 rounded-md text-xs font-semibold transition-colors shadow-sm', isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200')}>
-            发布
+            {demo.publish}
           </button>
         </div>
       </div>
@@ -249,39 +268,29 @@ function DemoContent({
             onScroll={event => onContentScroll(event.currentTarget.scrollTop)}
           >
             <div className="max-w-2xl mx-auto">
-              <h1 className="text-4xl font-bold leading-tight mb-8 tracking-tight">第三章：意外发现</h1>
+              <h1 className="text-4xl font-bold leading-tight mb-8 tracking-tight">{demo.chapterTitle}</h1>
 
               <div className={cn(
                 'space-y-6 text-lg leading-loose font-serif',
                 isLight ? 'text-zinc-700' : 'text-zinc-300',
               )}
               >
+                <p>{demo.paragraphs[0]}</p>
                 <p>
-                  雨水敲打着窗户，发出沉闷的声响。侦探李明坐在昏暗的办公室里，手中的香烟已经燃尽，只剩下一长串摇摇欲坠的烟灰。他盯着桌上的那张照片，眉头紧锁。
-                </p>
-                <p>
-                  <span className={cn('bg-yellow-200/30 dark:bg-yellow-500/20 px-1 rounded', isLight ? 'text-yellow-900' : 'text-yellow-200')}>"这不可能，"</span>
+                  <span className={cn('bg-yellow-200/30 dark:bg-yellow-500/20 px-1 rounded', isLight ? 'text-yellow-900' : 'text-yellow-200')}>{demo.highlight}</span>
                   {' '}
-                  他喃喃自语，"如果他在三点钟离开了现场，那么监控录像里为什么没有他的身影？"
+                  {demo.paragraphs[1]}
                 </p>
+                <p>{demo.paragraphs[2]}</p>
+                <p>{demo.paragraphs[3]}</p>
+                <p>{demo.paragraphs[4]}</p>
+                <p>{demo.paragraphs[5]}</p>
                 <p>
-                  窗外的霓虹灯光透过百叶窗的缝隙投射进来，在桌面上切出一道道光影。这座城市就像一个巨大的谜题，每个人都戴着面具，每个人都有秘密。空气中弥漫着陈旧纸张和湿润尘土混合的味道，这是他熟悉的味道，也是令他感到安心的味道。
-                </p>
-                <p>
-                  突然，电话铃声刺破了寂静。李明的手颤抖了一下，烟灰终于跌落在陈旧的文件堆上。他深吸一口气，拿起了听筒。那个老式的黑色电话机像一只蛰伏的野兽，随时准备发出致命的一击。
-                </p>
-                <p>
-                  "喂？" 他的声音沙哑而疲惫，仿佛刚刚从一场漫长的梦魇中醒来。
-                </p>
-                <p>
-                  电话那头是一阵令人不安的沉默，紧接着传来了一个熟悉而又陌生的声音："你离真相太近了，李侦探。" 那个声音低沉、冷静，却透着一股彻骨的寒意，让他不由自主地打了个寒颤。
-                </p>
-                <p>
-                  他猛地站起身，椅子在木地板上发出刺耳的摩擦声。"你是谁？" 他对着话筒大喊，但回应他的只有一阵忙音。嘟——嘟——嘟——这声音在空荡荡的房间里回荡，像是在嘲笑他的无力。
+                  {demo.paragraphs[6]}
                   <span className={cn('inline-block w-0.5 h-5 ml-1 align-middle animate-pulse', isLight ? 'border-zinc-900' : 'border-zinc-100')} />
                 </p>
                 <p className="opacity-50 blur-[1px]">
-                  李明放下电话，走到窗前。雨下得更大了，街道上的行人匆匆忙忙，像是一群被命运驱赶的蚂蚁。他知道，从这一刻起，游戏规则改变了。他不再是猎人，而成了猎物。
+                  {demo.paragraphs[7]}
                 </p>
               </div>
             </div>
@@ -300,8 +309,8 @@ function DemoContent({
           <span>UTF-8</span>
         </div>
         <div className="flex gap-4">
-          <span>Ln 42, Col 18</span>
-          <span>1,204 词</span>
+          <span>{demo.lineAndColumn}</span>
+          <span>{demo.wordCount}</span>
         </div>
       </div>
     </div>

@@ -1,6 +1,10 @@
 'use client'
 
+import { useI18n } from '@/hooks/use-i18n'
+
 export function MarketingSkeleton() {
+  const { t } = useI18n()
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
@@ -20,7 +24,7 @@ export function MarketingSkeleton() {
             />
           </div>
         </div>
-        <span className="text-muted-foreground animate-pulse">加载中...</span>
+        <span className="text-muted-foreground animate-pulse">{t('marketing.skeleton.loading')}</span>
       </div>
     </div>
   )

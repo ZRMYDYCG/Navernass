@@ -15,6 +15,21 @@ const settings = {
   themeDark: '深色',
   themeSystem: '跟随系统',
   langSimplified: '简体中文',
+  colorNotes: {
+    default: '基础',
+    blue: '冷静',
+    green: '自然',
+    orange: '温暖',
+    red: '醒目',
+    rose: '柔和',
+    violet: '偏冷',
+    yellow: '明快',
+  },
+  errors: {
+    loadApiKey: '加载 API Key 失败',
+    saveApiKey: '保存 API Key 失败',
+    clearApiKey: '清除 API Key 失败',
+  },
 } as const
 
 export default settings

@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { Highlighter } from '@/components/ui/highlighter'
 import { Spinner } from '@/components/ui/spinner'
+import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
 interface CollageImageProps {
@@ -146,6 +147,7 @@ const DESKTOP_LAYOUT = [
 interface PhotoOffset { x: number, y: number }
 
 export function AlbumCollage() {
+  const { t } = useI18n()
   const [activeIndex, setActiveIndex] = useState(8)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
@@ -216,13 +218,13 @@ export function AlbumCollage() {
       <div className="mb-4 flex flex-col items-center justify-center gap-3 text-center">
         <div>
           <h3 className="text-lg text-foreground">
-            版本号：
+            {t('marketing.albumCollage.versionLabel')}
             <Highlighter action="underline" color="var(--primary)">v0.10.0</Highlighter>
             {' '}
             ❤️
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Narraverse 正在变得越来越好，我们也在不断地收集大家的反馈和建议来改进产品。
+            {t('marketing.albumCollage.description')}
           </p>
         </div>
       </div>
@@ -329,7 +331,7 @@ export function AlbumCollage() {
                 }}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                aria-label={`Focus photo ${index + 1}`}
+                aria-label={t('marketing.albumCollage.focusPhoto', { index: index + 1 })}
               >
                 <div
                   className={cn(
@@ -343,7 +345,7 @@ export function AlbumCollage() {
                   <DraggablePhotoPin hidden={isDragging} isReattaching={!isDragging && isReattaching} />
                   <CollageImage
                     src={src}
-                    alt={`Landing album photo ${index + 1}`}
+                    alt={t('marketing.albumCollage.photoAlt', { index: index + 1 })}
                     sizes="(min-width: 1536px) 320px, (min-width: 1280px) 290px, (min-width: 1024px) 250px, 220px"
                     quality={80}
                     className={cn(
@@ -367,7 +369,7 @@ export function AlbumCollage() {
                 type="button"
                 className="w-[84vw] max-w-[360px] shrink-0 snap-center text-left focus-visible:outline-none"
                 onClick={() => setActiveIndex(index)}
-                aria-label={`Focus photo ${index + 1}`}
+                aria-label={t('marketing.albumCollage.focusPhoto', { index: index + 1 })}
               >
                 <div
                   className={cn(
@@ -379,7 +381,7 @@ export function AlbumCollage() {
                   <PhotoPin className="top-2" />
                   <CollageImage
                     src={src}
-                    alt={`Landing album photo ${index + 1}`}
+                    alt={t('marketing.albumCollage.photoAlt', { index: index + 1 })}
                     sizes="360px"
                     quality={80}
                   />

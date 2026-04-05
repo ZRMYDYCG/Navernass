@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface ContactDialogProps {
   open: boolean
@@ -13,6 +14,7 @@ interface ContactDialogProps {
 type View = 'group' | 'wechat'
 
 export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
+  const { t } = useI18n()
   const [view, setView] = useState<View>('group')
 
   const handleOpenChange = (next: boolean) => {
@@ -28,9 +30,9 @@ export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>加入我们</DialogTitle>
+          <DialogTitle>{t('marketing.contactDialog.title')}</DialogTitle>
           <DialogDescription>
-            优先扫码加入群聊，和其他创作者一起交流；如果群聊二维码失效或无法进入，可以切换到微信二维码加管理员拉你进群。
+            {isGroup ? t('marketing.contactDialog.descriptionGroup') : t('marketing.contactDialog.descriptionWechat')}
           </DialogDescription>
         </DialogHeader>
 
@@ -42,14 +44,14 @@ export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
                     <div className="relative w-[260px] h-[360px] max-w-full">
                       <Image
                         src="/qunliao.jpg"
-                        alt="Narraverse 群聊二维码"
+                        alt={t('marketing.contactDialog.groupQrAlt')}
                         fill
                         sizes="260px"
                         className="rounded-lg object-contain"
                       />
                     </div>
                     <p className="text-xs text-muted-foreground text-center">
-                      扫码加入「Navernass 的朋友们」微信群聊。
+                      {t('marketing.contactDialog.groupCaption')}
                     </p>
                     <Button
                       type="button"
@@ -58,7 +60,7 @@ export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
                       className="h-7 text-xs text-muted-foreground hover:text-foreground"
                       onClick={() => setView('wechat')}
                     >
-                      如果无法进群，点这里查看管理员微信
+                      {t('marketing.contactDialog.viewAdminWechat')}
                     </Button>
                   </div>
                 </section>
@@ -67,12 +69,12 @@ export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
                 <section className="space-y-3">
                   <div className="rounded-xl border bg-muted/40 p-3 flex flex-col items-center gap-3">
                     <p className="text-xs text-muted-foreground text-center">
-                      如果群聊人数已满或二维码过期，可以先加管理员微信备注「Narraverse」，会尽快拉你进群。
+                      {t('marketing.contactDialog.descriptionWechat')}
                     </p>
                     <div className="relative w-[220px] h-[320px] max-w-full">
                       <Image
                         src="/wechat.jpg"
-                        alt="微信二维码"
+                        alt={t('marketing.contactDialog.adminWechatAlt')}
                         fill
                         sizes="220px"
                         className="rounded-lg object-contain"
@@ -85,7 +87,7 @@ export function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
                       className="h-7 text-xs text-muted-foreground hover:text-foreground"
                       onClick={() => setView('group')}
                     >
-                      返回群聊二维码
+                      {t('marketing.contactDialog.backToGroup')}
                     </Button>
                   </div>
                 </section>

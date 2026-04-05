@@ -2,6 +2,7 @@
 
 import { SiFramer, SiNextdotjs, SiReact, SiShadcnui, SiTailwindcss, SiTypescript, SiVercel } from 'react-icons/si'
 import LogoLoop from '@/components/LogoLoop'
+import { useI18n } from '@/hooks/use-i18n'
 
 const techLogos = [
   {
@@ -49,6 +50,8 @@ const techLogos = [
 ]
 
 export default function TechStack() {
+  const { t } = useI18n()
+
   return (
     <section className="mx-auto max-w-4xl px-4 md:px-6 lg:px-8 overflow-hidden">
       <div className="h-20 relative">
@@ -63,7 +66,7 @@ export default function TechStack() {
           scaleOnHover
           fadeOut
           fadeOutColor="hsl(var(--background))"
-          ariaLabel="Technology stack"
+          ariaLabel={t('marketing.joinUs.techStackLabel')}
         />
       </div>
     </section>
