@@ -103,8 +103,6 @@ export default function Hero() {
         <div className="absolute top-[85%] left-[10%] h-px w-[70%] rotate-[-3deg] animate-pulse bg-gradient-to-r from-transparent via-primary/30 to-transparent [animation-delay:2s] [animation-duration:5s]" />
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-primary/10 via-transparent to-transparent" />
-
       <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
         <h1 className="font-serif text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
           {t('marketing.hero.titlePart1')}

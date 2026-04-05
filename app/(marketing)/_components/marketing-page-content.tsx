@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase'
 import Hero from './hero'
 import JoinUs from './join-us'
 import Navbar from './navbar'
+import { Pricing } from './pricing'
+import { Testimonials } from './testimonials'
 
 const LazyFeatures = dynamic(() => import('./features'), {
   ssr: false,
@@ -70,6 +72,8 @@ export default function MarketingPageContent() {
       <Navbar />
       <Hero />
       <LazyFeatures />
+      <Pricing />
+      <Testimonials />
       <JoinUs />
     </main>
   )

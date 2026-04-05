@@ -4,6 +4,7 @@ import { Moon, Sun } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+import { TextLocaleSwitcher } from '@/components/text-locale-switcher'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/hooks/use-i18n'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
@@ -38,6 +39,7 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-3 scale-90 md:scale-100">
+            <TextLocaleSwitcher />
             <Button
               variant="ghost"
               size="icon"

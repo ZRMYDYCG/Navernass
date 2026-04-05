@@ -156,6 +156,76 @@ And then I will say: look at this sunshine—the rainy season will never return.
     groupCaption: 'Scan to join the “Navernass Friends” WeChat group.',
     adminWechatAlt: 'Admin WeChat QR code',
   },
+  pricing: {
+    title: 'Keep writing pure, without paying for tools',
+    subtitle: 'Narraverse is completely free at this stage, with all features open to every creator.',
+    badge: 'Recommended',
+    cta: 'Start Now',
+    free: {
+      name: 'Basic',
+      price: 'Free',
+      description: 'Perfect for beginners, meeting daily writing needs.',
+      features: {
+        1: 'Unlimited local drafts',
+        2: 'Basic format export',
+        3: 'Day/Night mode',
+        4: 'Community group access',
+      },
+    },
+    pro: {
+      name: 'Pro',
+      price: 'Free',
+      description: 'Tailored for daily writers, unlocking creative potential.',
+      features: {
+        1: 'Everything in Basic',
+        2: 'Advanced AI assistance',
+        3: 'Cross-device cloud sync',
+        4: 'Character & Outline management',
+      },
+    },
+    team: {
+      name: 'Team',
+      price: 'Free',
+      description: 'For studios or co-writing teams, making collaboration efficient.',
+      features: {
+        1: 'Everything in Pro',
+        2: 'Real-time co-writing (Coming soon)',
+        3: 'History version tracking',
+        4: 'Priority support',
+      },
+    },
+  },
+  testimonials: {
+    title: 'Hear from our creators',
+    subtitle: 'These voices are our driving force and a testament to Narraverse growing with everyone.',
+    reviews: [
+      {
+        name: 'Rainy Night',
+        role: 'Mystery Author',
+        content: 'This is the most focused writing tool I\'ve ever used. The UI is so clean, and the AI assistance often provides unexpected inspiration when I have writer\'s block.',
+      },
+      {
+        name: 'Leaf in Wind',
+        role: 'Full-time Writer',
+        content: 'The day/night mode switch is incredibly smooth. For someone like me who often writes late into the night, the eye-care experience of dark mode is crucial.',
+      },
+      {
+        name: 'Galaxy',
+        role: 'Sci-Fi Enthusiast',
+        content: 'The outline and character management features are a lifesaver. I used to lose my settings in memos, but now I can systematically build my universe.',
+      },
+      {
+        name: 'Meow Chen',
+        role: 'Literature Student',
+        content: 'I love its immersive mode. Once I get into the zone, I can\'t stop. No flashy social features, just pure writing.',
+      },
+      {
+        name: 'Old Wang',
+        role: 'Veteran Author',
+        content: 'I was initially resistant to AI writing, but Narraverse\'s AI acts more like an "editor" and a "sparring partner". It didn\'t ruin my style; instead, it helped me find blind spots.',
+      },
+    ],
+  },
   auth: {
     welcomeTitle: 'Welcome to Narraverse',
     description: 'Sign in or sign up to start your creative journey',

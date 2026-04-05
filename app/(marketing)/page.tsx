@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
+import type { Locale } from '@/i18n/config'
 import { cookies } from 'next/headers'
-import enUS from '@/i18n/dicts/en-US'
-import zhCN from '@/i18n/dicts/zh-CN'
 import {
   DEFAULT_LOCALE,
-  LOCALES,
   LOCALE_COOKIE_KEY,
-  type Locale,
+  LOCALES,
 } from '@/i18n/config'
+import enUS from '@/i18n/dicts/en-US'
+import zhCN from '@/i18n/dicts/zh-CN'
 import { getAbsoluteUrl, seoConfig } from '@/lib/seo'
 import MarketingPageContent from './_components/marketing-page-content'
 
