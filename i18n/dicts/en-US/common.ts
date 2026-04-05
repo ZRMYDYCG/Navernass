@@ -13,7 +13,13 @@ const common = {
   saved: 'Saved',
   languages: {
     'zh-CN': 'Simplified Chinese',
+    'zh-TW': 'Traditional Chinese',
     'en-US': 'English',
+    'en-GB': 'English (UK)',
+    'ja-JP': 'Japanese',
+    'ko-KR': 'Korean',
+    'fr-FR': 'French',
+    'de-DE': 'German',
   },
   user: 'User',
   confirm: 'Confirm',

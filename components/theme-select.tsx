@@ -1,17 +1,17 @@
-"use client";
+'use client'
 
-import { Moon, Monitor, Sun, SwatchBook } from "lucide-react";
-import * as Popover from "@radix-ui/react-popover";
-import { useThemeTransition } from "@/hooks/use-theme-transition";
+import * as Popover from '@radix-ui/react-popover'
+import { Monitor, Moon, Sun, SwatchBook } from 'lucide-react'
+import { useThemeTransition } from '@/hooks/use-theme-transition'
 
 export function ThemeSection() {
-  const { theme, setTheme } = useThemeTransition();
+  const { theme, setTheme } = useThemeTransition()
 
   const themeOptions = [
-    { value: "light", label: "Light", icon: Sun },
-    { value: "dark", label: "Dark", icon: Moon },
-    { value: "system", label: "System", icon: Monitor },
-  ];
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+    { value: 'system', label: 'System', icon: Monitor },
+  ]
 
   return (
     <Popover.Root>
@@ -26,7 +26,7 @@ export function ThemeSection() {
           sideOffset={8}
           align="end"
           style={{
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
           }}
         >
           <div className="mb-3">
@@ -34,26 +34,26 @@ export function ThemeSection() {
           </div>
           <div className="flex gap-2 p-1 bg-muted rounded-lg">
             {themeOptions.map((option) => {
-              const Icon = option.icon;
-              const isActive = theme === option.value;
+              const Icon = option.icon
+              const isActive = theme === option.value
               return (
                 <button
                   key={option.value}
-                  onClick={(e) => setTheme(option.value, e)}
+                  onClick={e => setTheme(option.value, e)}
                   className={`flex-1 flex flex-col items-center gap-1 px-3 py-2 rounded-md transition-all ${
                     isActive
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="text-xs">{option.label}</span>
                 </button>
-              );
+              )
             })}
           </div>
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
-  );
+  )
 }

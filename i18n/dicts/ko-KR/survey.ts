@@ -1,0 +1,105 @@
+const survey = {
+  meta: {
+    title: '공동 창작 설문',
+    description: '3분만 투자해 당신의 집필 이야기를 들려주세요. Narraverse 공동 창작 플랜에 참여할 수 있어요.',
+    keywords: [
+      'AI 글쓰기 설문',
+      '소설 집필 리서치',
+      '작가 피드백',
+      'Narraverse 공동 창작',
+    ],
+    breadcrumbHome: '홈',
+    breadcrumbSurvey: '설문',
+  },
+  header: {
+    title: '공동 창작 플랜:\n당신의 글쓰기 파트너를 찾아요',
+    subtitle: '우리는 단지 도구를 만드는 게 아니라, 영감과 함께 춤추는 방법을 찾고 있어요.\n3분만 시간을 내어 당신의 글쓰기 이야기를 들려주세요.',
+  },
+  sections: {
+    profile: {
+      step: '01',
+      title: '당신의 글쓰기 여정',
+      experience: '현재 집필 단계는 어느 정도인가요?',
+      experienceOptions: [
+        { label: '초급(막 쓰기 시작함)', value: 'newbie' },
+        { label: '중급(누적 50만 자 미만)', value: 'intermediate' },
+        { label: '고급(누적 50만 자 이상)', value: 'advanced' },
+        { label: '프로(글로 생계를 유지)', value: 'pro' },
+      ],
+      genres: '선호 장르는 무엇인가요? (복수 선택)',
+      genresOptions: [
+        { label: '판타지 / 무협 / 선협', value: 'fantasy' },
+        { label: '현대 / 로맨스', value: 'urban' },
+        { label: 'SF / 아포칼립스', value: 'scifi' },
+        { label: '서스펜스 / 스릴러', value: 'suspense' },
+        { label: '역사 / 밀리터리', value: 'history' },
+        { label: '팬픽 / 라이트노벨', value: 'fanfic' },
+        { label: '기타', value: 'other' },
+      ],
+    },
+    painPoints: {
+      step: '02',
+      title: '멈춰 서게 되는 순간',
+      struggles: '가장 의욕을 갉아먹는 부분은 무엇인가요? (복수 선택)',
+      strugglesOptions: [
+        { label: '슬럼프(쓰고 싶은데 무엇을 써야 할지 모름)', value: 'idea' },
+        { label: '개요 막힘(플롯 구멍, 논리 붕괴)', value: 'outline' },
+        { label: '세계관 미로(복잡해서 스스로 납득이 안 됨)', value: 'world' },
+        { label: '평면적인 캐릭터(서사와 성장이 부족)', value: 'character' },
+        { label: '느린 초고 작성(메인 스토리를 밀기 어려움)', value: 'drafting' },
+        { label: '번거로운 퇴고(오류 확인, 적절한 표현 찾기)', value: 'editing' },
+      ],
+      tools: '현재 주로 쓰는 도구는 무엇인가요? (복수 선택)',
+      toolsOptions: [
+        { label: 'Word / WPS / Pages', value: 'word' },
+        { label: 'Notion / Obsidian / Logseq', value: 'note' },
+        { label: 'Scrivener / Ulysses', value: 'scrivener' },
+        { label: '웹소설 전용 도구', value: 'webnovel_tools' },
+        { label: '휴대폰 메모 / 일반 텍스트', value: 'memo' },
+      ],
+    },
+    expectations: {
+      step: '03',
+      title: '이상적인 조수',
+      aiFeatures: 'AI가 당신의 조수라면, 어떤 능력이 가장 뛰어났으면 하나요?',
+      max3: '최대 3개까지 선택',
+      aiFeaturesOptions: [
+        { label: '브레인스토밍: 아이디어와 반전 제안', value: 'brainstorm' },
+        { label: '위키 매니저: 인물/세계관 정리 및 시각화', value: 'wiki' },
+        { label: '자동완성: 맥락 기반 문단 보조', value: 'autocomplete' },
+        { label: '논리 검사: 플롯 구멍과 타임라인 오류 찾기', value: 'logic_check' },
+        { label: '이미지 생성: 캐릭터/장면 일러스트', value: 'image_gen' },
+        { label: '시장 분석: 트렌드와 독자 취향 분석', value: 'analytics' },
+        { label: '롤플레잉: 캐릭터가 되어 목소리 찾기', value: 'roleplay' },
+      ],
+      concerns: 'AI 글쓰기에 대한 가장 큰 걱정이나 제안은 무엇인가요?',
+      concernsPlaceholder: '예: 저작권이 걱정돼요, 문체가 들쭉날쭉해요, 핵심 아이디어에 AI가 개입하길 원치 않아요...',
+    },
+    contact: {
+      step: '04',
+      title: '연락처 남기기',
+      info: '우선 베타 체험 안내를 받고 싶다면 연락처를 남겨주세요 (선택)',
+      infoPlaceholder: '이메일 또는 카카오톡',
+      promise: '약속: 베타 초대에만 사용하며 스팸은 보내지 않습니다.',
+    },
+  },
+  submit: {
+    button: '피드백 보내기',
+    submitting: '제출 중...',
+    success: '소중한 의견 감사합니다! 정상적으로 접수되었습니다.',
+    error: '제출에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+  },
+  successScreen: {
+    title: '공유해 주셔서 감사합니다',
+    message: '모든 창작자의 목소리가 Narraverse의 성장을 키워요.\n귀 기울여 듣고 기대에 부응하겠습니다.',
+    backHome: '홈으로 돌아가기',
+  },
+  community: {
+    findMore: '함께할 동료를 찾고 있나요?',
+    joinGroup: '커뮤니티 참여',
+    scanQr: 'QR을 스캔해 Narraverse Friends에 참여하세요',
+  },
+  footer: 'Narraverse · 지능으로 세계를 창조하다',
+} as const
+
+export default survey

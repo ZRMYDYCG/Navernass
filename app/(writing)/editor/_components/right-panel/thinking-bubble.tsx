@@ -1,8 +1,8 @@
 'use client'
 
-import { memo, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { memo, useMemo, useState } from 'react'
 import { Avatar } from '@/components/ui/avatar'
 import { useI18n } from '@/hooks/use-i18n'
 
@@ -41,8 +41,7 @@ function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
             <span>{t('editor.rightPanel.deepThinking')}</span>
             {isExpanded
               ? <ChevronUp className="w-3 h-3" />
-              : <ChevronDown className="w-3 h-3" />
-            }
+              : <ChevronDown className="w-3 h-3" />}
           </button>
           {isStreaming && (
             <span className="inline-flex items-center justify-center w-3 h-3">

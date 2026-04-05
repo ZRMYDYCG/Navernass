@@ -1,0 +1,27 @@
+const auth = {
+  signIn: 'Sign In',
+  signUp: 'Sign Up',
+  signOut: 'Sign Out',
+  email: 'Email',
+  password: 'Password',
+  fullName: 'Full name',
+  confirmPassword: 'Confirm password',
+  forgotPassword: 'Forgot Password',
+  resetPassword: 'Reset Password',
+  signedOut: 'Signed out',
+  signedIn: 'Signed in',
+  signInFailed: 'Sign in failed',
+  signUpFailed: 'Registration failed',
+  signUpSuccess: 'Registration successful, please check your email',
+  signInSuccess: 'Signed in successfully',
+  signingIn: 'Signing in...',
+  signingUp: 'Signing up...',
+  passwordMismatch: 'Passwords do not match',
+  passwordTooShort: 'Password must be at least 6 characters',
+  useCustomEmail: 'Use custom email address',
+  signOutFailed: 'Sign out failed',
+  signOutFailedRetry: 'Sign out failed, please try again',
+  signingOut: 'Signing out...',
+} as const
+
+export default auth

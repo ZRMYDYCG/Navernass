@@ -1,0 +1,27 @@
+const auth = {
+  signIn: 'サインイン',
+  signUp: 'サインアップ',
+  signOut: 'サインアウト',
+  email: 'メール',
+  password: 'パスワード',
+  fullName: '氏名',
+  confirmPassword: 'パスワード（確認）',
+  forgotPassword: 'パスワードを忘れた',
+  resetPassword: 'パスワードをリセット',
+  signedOut: 'サインアウトしました',
+  signedIn: 'サインインしました',
+  signInFailed: 'サインインに失敗しました',
+  signUpFailed: '登録に失敗しました',
+  signUpSuccess: '登録が完了しました。メールをご確認ください',
+  signInSuccess: 'サインインしました',
+  signingIn: 'サインイン中...',
+  signingUp: 'サインアップ中...',
+  passwordMismatch: 'パスワードが一致しません',
+  passwordTooShort: 'パスワードは6文字以上にしてください',
+  useCustomEmail: '任意のメールアドレスを使用',
+  signOutFailed: 'サインアウトに失敗しました',
+  signOutFailedRetry: 'サインアウトに失敗しました。もう一度お試しください',
+  signingOut: 'サインアウト中...',
+} as const
+
+export default auth

@@ -1,0 +1,35 @@
+const settings = {
+  title: 'Einstellungen',
+  language: 'Sprache',
+  theme: 'Design',
+  profile: 'Profil',
+  account: 'Konto',
+  appearance: 'Darstellung',
+  color: 'Farbschema',
+  apiKey: 'API-Schlüssel',
+  apiSaved: '✓ API-Schlüssel in der Cloud gespeichert',
+  apiPlaceholder: 'Geben Sie Ihren API-Schlüssel ein, er wird sicher gespeichert',
+  default: 'Standard',
+  clear: 'Löschen',
+  themeLight: 'Hell',
+  themeDark: 'Dunkel',
+  themeSystem: 'System',
+  langSimplified: 'Chinesisch (Vereinfacht)',
+  colorNotes: {
+    default: 'Basis',
+    blue: 'Ruhig',
+    green: 'Natürlich',
+    orange: 'Warm',
+    red: 'Lebhaft',
+    rose: 'Sanft',
+    violet: 'Kühl',
+    yellow: 'Leuchtend',
+  },
+  errors: {
+    loadApiKey: 'API-Schlüssel konnte nicht geladen werden',
+    saveApiKey: 'API-Schlüssel konnte nicht gespeichert werden',
+    clearApiKey: 'API-Schlüssel konnte nicht gelöscht werden',
+  },
+} as const
+
+export default settings

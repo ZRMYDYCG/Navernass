@@ -1,0 +1,27 @@
+const auth = {
+  signIn: '登入',
+  signUp: '註冊',
+  signOut: '登出',
+  email: '電子郵件',
+  password: '密碼',
+  fullName: '姓名',
+  confirmPassword: '確認密碼',
+  forgotPassword: '忘記密碼',
+  resetPassword: '重設密碼',
+  signedOut: '已登出',
+  signedIn: '已登入',
+  signInFailed: '登入失敗',
+  signUpFailed: '註冊失敗',
+  signUpSuccess: '註冊成功，請檢查電子郵件完成驗證',
+  signInSuccess: '登入成功',
+  signingIn: '登入中...',
+  signingUp: '註冊中...',
+  passwordMismatch: '密碼不一致',
+  passwordTooShort: '密碼至少需要 6 位',
+  useCustomEmail: '使用自訂電子郵件地址',
+  signOutFailed: '登出失敗',
+  signOutFailedRetry: '登出失敗，請重試',
+  signingOut: '登出中...',
+} as const
+
+export default auth

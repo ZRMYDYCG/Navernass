@@ -1,0 +1,27 @@
+const auth = {
+  signIn: 'Anmelden',
+  signUp: 'Registrieren',
+  signOut: 'Abmelden',
+  email: 'E-Mail',
+  password: 'Passwort',
+  fullName: 'Vollständiger Name',
+  confirmPassword: 'Passwort bestätigen',
+  forgotPassword: 'Passwort vergessen',
+  resetPassword: 'Passwort zurücksetzen',
+  signedOut: 'Abgemeldet',
+  signedIn: 'Angemeldet',
+  signInFailed: 'Anmeldung fehlgeschlagen',
+  signUpFailed: 'Registrierung fehlgeschlagen',
+  signUpSuccess: 'Registrierung erfolgreich, bitte prüfen Sie Ihre E-Mail',
+  signInSuccess: 'Erfolgreich angemeldet',
+  signingIn: 'Anmeldung läuft...',
+  signingUp: 'Registrierung läuft...',
+  passwordMismatch: 'Passwörter stimmen nicht überein',
+  passwordTooShort: 'Das Passwort muss mindestens 6 Zeichen lang sein',
+  useCustomEmail: 'Benutzerdefinierte E-Mail-Adresse verwenden',
+  signOutFailed: 'Abmeldung fehlgeschlagen',
+  signOutFailedRetry: 'Abmeldung fehlgeschlagen, bitte versuchen Sie es erneut',
+  signingOut: 'Abmeldung läuft...',
+} as const
+
+export default auth

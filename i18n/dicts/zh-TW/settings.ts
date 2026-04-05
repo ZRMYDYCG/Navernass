@@ -1,0 +1,35 @@
+const settings = {
+  title: '設定',
+  language: '語言',
+  theme: '主題',
+  profile: '個人資料',
+  account: '帳號設定',
+  color: '配色',
+  apiKey: 'API Key',
+  apiSaved: '✓ API Key 已儲存到雲端',
+  apiPlaceholder: '請輸入您的 API Key，將安全儲存到雲端',
+  default: '預設',
+  clear: '清除',
+  themeLight: '淺色',
+  themeDark: '深色',
+  themeSystem: '跟隨系統',
+  langSimplified: '簡體中文',
+  appearance: '外觀',
+  colorNotes: {
+    default: '基礎',
+    blue: '冷靜',
+    green: '自然',
+    orange: '溫暖',
+    red: '醒目',
+    rose: '柔和',
+    violet: '偏冷',
+    yellow: '明快',
+  },
+  errors: {
+    loadApiKey: '載入 API Key 失敗',
+    saveApiKey: '儲存 API Key 失敗',
+    clearApiKey: '清除 API Key 失敗',
+  },
+} as const
+
+export default settings

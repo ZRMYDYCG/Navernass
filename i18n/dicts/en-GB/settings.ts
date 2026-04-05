@@ -1,0 +1,35 @@
+const settings = {
+  title: 'Settings',
+  language: 'Language',
+  theme: 'Theme',
+  profile: 'Profile',
+  account: 'Account',
+  appearance: 'Appearance',
+  color: 'Colour Scheme',
+  apiKey: 'API Key',
+  apiSaved: '✓ API Key saved to cloud',
+  apiPlaceholder: 'Enter your API Key, it will be securely saved',
+  default: 'Default',
+  clear: 'Clear',
+  themeLight: 'Light',
+  themeDark: 'Dark',
+  themeSystem: 'System',
+  langSimplified: 'Chinese (Simplified)',
+  colorNotes: {
+    default: 'Basic',
+    blue: 'Calm',
+    green: 'Natural',
+    orange: 'Warm',
+    red: 'Vibrant',
+    rose: 'Soft',
+    violet: 'Cool',
+    yellow: 'Bright',
+  },
+  errors: {
+    loadApiKey: 'Failed to load API key',
+    saveApiKey: 'Failed to save API key',
+    clearApiKey: 'Failed to clear API key',
+  },
+} as const
+
+export default settings

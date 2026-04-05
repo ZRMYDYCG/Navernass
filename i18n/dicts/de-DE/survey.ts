@@ -1,0 +1,105 @@
+const survey = {
+  meta: {
+    title: 'Umfrage zur Mitgestaltung',
+    description: 'Nehmen Sie sich 3 Minuten Zeit, um Ihre Schreibgeschichten zu teilen und am Narraverse-Mitgestaltungsplan teilzunehmen.',
+    keywords: [
+      'KI-Schreibumfrage',
+      'Roman-Schreibforschung',
+      'Rückmeldungen von Autor:innen',
+      'Narraverse-Mitgestaltung',
+    ],
+    breadcrumbHome: 'Startseite',
+    breadcrumbSurvey: 'Umfrage',
+  },
+  header: {
+    title: 'Mitgestaltungsplan:\nFinden Sie Ihren Schreibpartner',
+    subtitle: 'Wir bauen nicht nur ein Tool — wir suchen einen Weg, mit der Inspiration zu tanzen.\nWir laden Sie ein, sich 3 Minuten Zeit zu nehmen und über Ihre Schreibgeschichten zu sprechen.',
+  },
+  sections: {
+    profile: {
+      step: '01',
+      title: 'Über Ihre Schreibreise',
+      experience: 'Aktueller Schreibstatus?',
+      experienceOptions: [
+        { label: 'Anfänger:in (Gerade erst begonnen)', value: 'newbie' },
+        { label: 'Fortgeschritten (< 500k Wörter)', value: 'intermediate' },
+        { label: 'Sehr erfahren (> 500k Wörter)', value: 'advanced' },
+        { label: 'Professionell (Schreiben als Beruf)', value: 'pro' },
+      ],
+      genres: 'Bevorzugte Genres? (Mehrfachauswahl)',
+      genresOptions: [
+        { label: 'Fantasy / Xianxia', value: 'fantasy' },
+        { label: 'Urban / Romantik', value: 'urban' },
+        { label: 'Science-Fiction / Apokalypse', value: 'scifi' },
+        { label: 'Spannung / Thriller', value: 'suspense' },
+        { label: 'Historisch / Militär', value: 'history' },
+        { label: 'Fanfiction / Leichtroman', value: 'fanfic' },
+        { label: 'Sonstiges', value: 'other' },
+      ],
+    },
+    painPoints: {
+      step: '02',
+      title: 'Momente, die Sie stoppen lassen',
+      struggles: 'Welcher Teil raubt Ihnen am meisten die Leidenschaft? (Mehrfachauswahl)',
+      strugglesOptions: [
+        { label: 'Schreibblockade (Will schreiben, weiß aber nicht was)', value: 'idea' },
+        { label: 'Handlungsgerüst hängt (Plotlöcher, brüchige Logik)', value: 'outline' },
+        { label: 'Worldbuilding-Labyrinth (zu komplex, schwer zu begründen)', value: 'world' },
+        { label: 'Flache Figuren (keine Seele, kein Bogen)', value: 'character' },
+        { label: 'Langsames Schreiben (Haupthandlung kommt kaum voran)', value: 'drafting' },
+        { label: 'Mühsames Lektorat (Fehler prüfen, passende Worte finden)', value: 'editing' },
+      ],
+      tools: 'Welche Tools nutzen Sie hauptsächlich? (Mehrfachauswahl)',
+      toolsOptions: [
+        { label: 'Word / WPS / Pages', value: 'word' },
+        { label: 'Notion / Obsidian / Logseq', value: 'note' },
+        { label: 'Scrivener / Ulysses', value: 'scrivener' },
+        { label: 'Spezielle Webroman-Werkzeuge', value: 'webnovel_tools' },
+        { label: 'Handy-Notizen / Klartext', value: 'memo' },
+      ],
+    },
+    expectations: {
+      step: '03',
+      title: 'Der ideale Assistent',
+      aiFeatures: 'Wenn KI Ihr Assistent wäre, worin sollte sie besonders gut sein...',
+      max3: 'Bis zu 3 auswählen',
+      aiFeaturesOptions: [
+        { label: 'Brainstorming: Ideen und Wendungen liefern', value: 'brainstorm' },
+        { label: 'Wissens-Manager: Figuren/Welt organisieren und visualisieren', value: 'wiki' },
+        { label: 'Autovervollständigung: Absätze kontextbasiert fortsetzen', value: 'autocomplete' },
+        { label: 'Logikprüfung: Plotlöcher und Zeitachsen-Fehler finden', value: 'logic_check' },
+        { label: 'Bildgenerator: Porträts und Szenen erstellen', value: 'image_gen' },
+        { label: 'Marktanalyse: Trends und Leserpräferenzen analysieren', value: 'analytics' },
+        { label: 'Rollenspiel: Als Figur agieren, um die Stimme zu finden', value: 'roleplay' },
+      ],
+      concerns: 'Ihre größte Sorge oder Ihr wichtigster Vorschlag zu KI-Schreiben?',
+      concernsPlaceholder: 'Z. B. Sorge um Urheberrecht, inkonsistenter Stil, KI soll Kernideen nicht verändern...',
+    },
+    contact: {
+      step: '04',
+      title: 'In Kontakt bleiben',
+      info: 'Hinterlassen Sie Kontaktinfos für priorisierten Testzugang (optional)',
+      infoPlaceholder: 'E-Mail oder WeChat',
+      promise: 'Versprechen: Ihre Daten werden nur für Testeinladungen genutzt. Keine Werbenachrichten.',
+    },
+  },
+  submit: {
+    button: 'Rückmeldung senden',
+    submitting: 'Wird gesendet...',
+    success: 'Danke für Ihre Einblicke! Wir haben sie erhalten.',
+    error: 'Senden fehlgeschlagen. Bitte versuchen Sie es später erneut.',
+  },
+  successScreen: {
+    title: 'Danke fürs Teilen',
+    message: 'Jede Stimme von Kreativen nährt Narraverse\'s Wachstum.\nWir hören aufmerksam zu und werden den Erwartungen gerecht.',
+    backHome: 'Zur Startseite',
+  },
+  community: {
+    findMore: 'Suchen Sie Mitstreiter:innen?',
+    joinGroup: 'Der Gemeinschaft beitreten',
+    scanQr: 'Scannen, um „Narraverse Freundeskreis“ beizutreten',
+  },
+  footer: 'Narraverse · Erschaffe Welten mit Intelligenz',
+} as const
+
+export default survey

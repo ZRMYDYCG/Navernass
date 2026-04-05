@@ -1,0 +1,35 @@
+const settings = {
+  title: 'Paramètres',
+  language: 'Langue',
+  theme: 'Thème',
+  profile: 'Profil',
+  account: 'Compte',
+  appearance: 'Apparence',
+  color: 'Schéma de couleurs',
+  apiKey: 'Clé API',
+  apiSaved: '✓ Clé API enregistrée dans le cloud',
+  apiPlaceholder: 'Saisissez votre clé API, elle sera sauvegardée en toute sécurité',
+  default: 'Par défaut',
+  clear: 'Effacer',
+  themeLight: 'Clair',
+  themeDark: 'Sombre',
+  themeSystem: 'Système',
+  langSimplified: 'Chinois (simplifié)',
+  colorNotes: {
+    default: 'Basique',
+    blue: 'Calme',
+    green: 'Naturel',
+    orange: 'Chaleureux',
+    red: 'Vibrant',
+    rose: 'Doux',
+    violet: 'Frais',
+    yellow: 'Lumineux',
+  },
+  errors: {
+    loadApiKey: 'Échec du chargement de la clé API',
+    saveApiKey: 'Échec de l\'enregistrement de la clé API',
+    clearApiKey: 'Échec de la suppression de la clé API',
+  },
+} as const
+
+export default settings

@@ -1,0 +1,31 @@
+const common = {
+  ok: '확인',
+  cancel: '취소',
+  submit: '제출',
+  save: '저장',
+  delete: '삭제',
+  edit: '편집',
+  create: '생성',
+  search: '검색',
+  loading: '불러오는 중...',
+  noData: '데이터가 없습니다',
+  saving: '저장 중...',
+  saved: '저장됨',
+  languages: {
+    'zh-CN': '중국어(간체)',
+    'zh-TW': '중국어(번체)',
+    'en-US': '영어(미국)',
+    'en-GB': '영어(영국)',
+    'ja-JP': '일본어',
+    'ko-KR': '한국어',
+    'fr-FR': '프랑스어',
+    'de-DE': '독일어',
+  },
+  user: '사용자',
+  confirm: '확인',
+  back: '뒤로',
+  next: '다음',
+  done: '완료',
+} as const
+
+export default common

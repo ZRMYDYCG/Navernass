@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useI18n } from '@/hooks/use-i18n'
 import { AIFloatingMenu } from './ai-floating-menu'
-import { FormatToolbar } from './format-toolbar'
 import { acceptSuggestions, rejectSuggestions, selectionHasSuggestions } from './extensions/suggestion-track'
+import { FormatToolbar } from './format-toolbar'
 
 interface FloatingMenuProps {
   editor: Editor | null

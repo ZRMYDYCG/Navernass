@@ -50,6 +50,7 @@ function HeroEditor({
         {shouldRenderEditor
           ? (
               <LazyTiptapEditor
+                key={sampleContent}
                 placeholder={placeholder}
                 content={sampleContent}
                 className="[&_.ProseMirror]:max-w-[65ch] [&_.ProseMirror]:mx-auto [&_.ProseMirror]:h-[380px] sm:[&_.ProseMirror]:h-[480px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:overflow-y-auto [&_.ProseMirror]:scrollbar-none [&_.ProseMirror::-webkit-scrollbar]:hidden [&_.ProseMirror::selection]:bg-primary/20 [&_.ProseMirror::selection]:text-foreground"

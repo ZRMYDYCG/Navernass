@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select'
 import { useColorTheme } from '@/hooks/use-color-theme'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
+import { LOCALE_OPTIONS, type Locale } from '@/i18n/config'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { clearApiKey, getApiKey, saveApiKey } from '@/lib/api-key'
 
@@ -236,7 +237,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-foreground">{t('settings.language')}</h3>
-            <Select value={locale} onValueChange={(v: string) => setLocale(v as any)}>
+            <Select value={locale} onValueChange={(value: string) => setLocale(value as Locale)}>
               <SelectTrigger className="h-12 rounded-xl bg-card">
                 <div className="flex min-w-0 items-center justify-between">
                   <div className="min-w-0 text-left">
@@ -245,8 +246,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 </div>
               </SelectTrigger>
               <SelectContent className="z-[200] rounded-xl">
-                <SelectItem value="zh-CN" className="py-2.5">{t('common.languages.zh-CN')}</SelectItem>
-                <SelectItem value="en-US" className="py-2.5">{t('common.languages.en-US')}</SelectItem>
+                {LOCALE_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value} className="py-2.5">
+                    {t(`common.languages.${option.value}`)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

@@ -1,0 +1,105 @@
+const survey = {
+  meta: {
+    title: 'Enquête de co-création',
+    description: 'Prenez 3 minutes pour partager vos histoires d\'écriture et rejoindre le plan de co-création Narraverse.',
+    keywords: [
+      'enquête écriture IA',
+      'recherche écriture de romans',
+      'retours d\'auteurs',
+      'co-création Narraverse',
+    ],
+    breadcrumbHome: 'Accueil',
+    breadcrumbSurvey: 'Enquête',
+  },
+  header: {
+    title: 'Plan de co-création:\nTrouvez votre partenaire d\'écriture',
+    subtitle: 'Nous ne construisons pas seulement un outil, nous cherchons une façon de danser avec l\'inspiration.\nNous vous invitons à prendre 3 minutes pour parler de vos histoires d\'écriture.',
+  },
+  sections: {
+    profile: {
+      step: '01',
+      title: 'À propos de votre parcours d\'écriture',
+      experience: 'Statut d\'écriture actuel ?',
+      experienceOptions: [
+        { label: 'Débutant (vient de commencer)', value: 'newbie' },
+        { label: 'Intermédiaire (< 500k mots écrits)', value: 'intermediate' },
+        { label: 'Avancé (> 500k mots écrits)', value: 'advanced' },
+        { label: 'Professionnel (écriture rémunérée)', value: 'pro' },
+      ],
+      genres: 'Genres préférés ? (Choix multiple)',
+      genresOptions: [
+        { label: 'Fantasy / Xianxia', value: 'fantasy' },
+        { label: 'Urbain / Romance', value: 'urban' },
+        { label: 'Science-fiction / Apocalyptique', value: 'scifi' },
+        { label: 'Suspense / Thriller', value: 'suspense' },
+        { label: 'Histoire / Militaire', value: 'history' },
+        { label: 'Fanfiction / Light Novel', value: 'fanfic' },
+        { label: 'Autre', value: 'other' },
+      ],
+    },
+    painPoints: {
+      step: '02',
+      title: 'Moments qui vous arrêtent',
+      struggles: 'Quelle partie épuise le plus votre passion ? (Choix multiple)',
+      strugglesOptions: [
+        { label: 'Blocage de l\'écrivain (vouloir écrire mais ne pas savoir quoi)', value: 'idea' },
+        { label: 'Plan bloqué (trous de scénario, incohérences)', value: 'outline' },
+        { label: 'Enchevêtrement du worldbuilding (trop complexe à justifier)', value: 'world' },
+        { label: 'Personnages plats (manque d\'âme et d\'arc)', value: 'character' },
+        { label: 'Rédaction lente (difficulté à faire avancer l\'intrigue principale)', value: 'drafting' },
+        { label: 'Révision fastidieuse (corriger, trouver les mots justes)', value: 'editing' },
+      ],
+      tools: 'Outils principaux actuels ? (Choix multiple)',
+      toolsOptions: [
+        { label: 'Word / WPS / Pages', value: 'word' },
+        { label: 'Notion / Obsidian / Logseq', value: 'note' },
+        { label: 'Scrivener / Ulysses', value: 'scrivener' },
+        { label: 'Outils spécifiques aux webnovels', value: 'webnovel_tools' },
+        { label: 'Mémos téléphone / Texte brut', value: 'memo' },
+      ],
+    },
+    expectations: {
+      step: '03',
+      title: 'L\'assistant idéal',
+      aiFeatures: 'Si l\'IA était votre assistant, vous voudriez qu\'elle excelle en...',
+      max3: 'Sélectionnez jusqu\'à 3',
+      aiFeaturesOptions: [
+        { label: 'Brainstorming : proposer des idées et des rebondissements', value: 'brainstorm' },
+        { label: 'Gestionnaire Wiki : organiser et visualiser personnages/monde', value: 'wiki' },
+        { label: 'Autocomplétion : aider à rédiger des paragraphes selon le contexte', value: 'autocomplete' },
+        { label: 'Vérificateur logique : détecter trous de scénario et incohérences temporelles', value: 'logic_check' },
+        { label: 'Générateur d\'images : créer portraits et scènes', value: 'image_gen' },
+        { label: 'Analyste de marché : analyser tendances et préférences des lecteurs', value: 'analytics' },
+        { label: 'Jeu de rôle : incarner un personnage pour trouver sa voix', value: 'roleplay' },
+      ],
+      concerns: 'Votre plus grande préoccupation ou suggestion concernant l\'écriture IA ?',
+      concernsPlaceholder: 'Ex. préoccupations sur les droits d\'auteur, style incohérent, ne pas vouloir que l\'IA interfère avec les idées principales...',
+    },
+    contact: {
+      step: '04',
+      title: 'Rester en contact',
+      info: 'Laissez vos coordonnées pour un accès prioritaire à la bêta (optionnel)',
+      infoPlaceholder: 'E-mail ou WeChat',
+      promise: 'Promesse : Vos informations sont utilisées uniquement pour les invitations bêta. Pas de spam.',
+    },
+  },
+  submit: {
+    button: 'Envoyer le feedback',
+    submitting: 'Envoi en cours...',
+    success: 'Merci pour vos retours ! Nous les avons reçus.',
+    error: 'Échec de l\'envoi. Veuillez réessayer plus tard.',
+  },
+  successScreen: {
+    title: 'Merci pour votre partage',
+    message: 'La voix de chaque créateur nourrit la croissance de Narraverse.\nNous écouterons attentivement et répondrons aux attentes.',
+    backHome: 'Retour à l\'accueil',
+  },
+  community: {
+    findMore: 'Vous cherchez des compagnons ?',
+    joinGroup: 'Rejoindre la communauté',
+    scanQr: 'Scannez pour rejoindre les amis de Narraverse',
+  },
+  footer: 'Narraverse · Créez des mondes avec intelligence',
+} as const
+
+export default survey

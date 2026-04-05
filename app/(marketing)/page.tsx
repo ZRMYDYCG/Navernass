@@ -4,17 +4,39 @@ import { cookies } from 'next/headers'
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_KEY,
+  LOCALE_DICTIONARY_MAP,
+  LOCALE_OPEN_GRAPH_MAP,
   LOCALES,
 } from '@/i18n/config'
+import deDE from '@/i18n/dicts/de-DE'
+import enGB from '@/i18n/dicts/en-GB'
 import enUS from '@/i18n/dicts/en-US'
+import frFR from '@/i18n/dicts/fr-FR'
+import jaJP from '@/i18n/dicts/ja-JP'
+import koKR from '@/i18n/dicts/ko-KR'
 import zhCN from '@/i18n/dicts/zh-CN'
+import zhTW from '@/i18n/dicts/zh-TW'
 import { getAbsoluteUrl, seoConfig } from '@/lib/seo'
 import MarketingPageContent from './_components/marketing-page-content'
 
+type DeepWiden<T> = T extends string
+  ? string
+  : T extends readonly (infer U)[]
+    ? readonly DeepWiden<U>[]
+    : T extends object
+      ? { [K in keyof T]: DeepWiden<T[K]> }
+      : T
+
 const dictionaries = {
+  'de-DE': deDE,
+  'en-GB': enGB,
   'zh-CN': zhCN,
+  'zh-TW': zhTW,
   'en-US': enUS,
-} as const
+  'fr-FR': frFR,
+  'ja-JP': jaJP,
+  'ko-KR': koKR,
+} as const satisfies Record<Locale, DeepWiden<typeof zhCN>>
 
 function isValidLocale(value: string): value is Locale {
   return LOCALES.includes(value as Locale)
@@ -28,7 +50,7 @@ async function getCurrentLocale(): Promise<Locale> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getCurrentLocale()
-  const marketingSeo = dictionaries[locale].marketing.seo
+  const marketingSeo = dictionaries[LOCALE_DICTIONARY_MAP[locale]].marketing.seo
 
   return {
     title: marketingSeo.title,
@@ -42,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: marketingSeo.description,
       type: 'website',
       url: '/',
-      locale: locale === 'zh-CN' ? 'zh_CN' : 'en_US',
+      locale: LOCALE_OPEN_GRAPH_MAP[locale],
       images: [
         {
           url: seoConfig.defaultOgImage,

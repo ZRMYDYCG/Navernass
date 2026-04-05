@@ -1,0 +1,35 @@
+const settings = {
+  title: '설정',
+  language: '언어',
+  theme: '테마',
+  profile: '프로필',
+  account: '계정',
+  appearance: '모양',
+  color: '색상 테마',
+  apiKey: 'API 키',
+  apiSaved: '✓ API 키가 클라우드에 저장됨',
+  apiPlaceholder: 'API 키를 입력하세요. 안전하게 저장됩니다',
+  default: '기본',
+  clear: '지우기',
+  themeLight: '라이트',
+  themeDark: '다크',
+  themeSystem: '시스템',
+  langSimplified: '중국어(간체)',
+  colorNotes: {
+    default: '기본',
+    blue: '차분함',
+    green: '자연스러움',
+    orange: '따뜻함',
+    red: '생동감',
+    rose: '부드러움',
+    violet: '시원함',
+    yellow: '밝음',
+  },
+  errors: {
+    loadApiKey: 'API 키를 불러오지 못했습니다',
+    saveApiKey: 'API 키 저장에 실패했습니다',
+    clearApiKey: 'API 키 삭제에 실패했습니다',
+  },
+} as const
+
+export default settings

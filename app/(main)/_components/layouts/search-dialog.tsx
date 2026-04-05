@@ -1,15 +1,15 @@
 'use client'
 
+import type { Conversation, Novel } from '@/lib/supabase/sdk/types'
+
 import { X } from 'lucide-react'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useI18n } from '@/hooks/use-i18n'
+import { conversationsApi, novelsApi } from '@/lib/supabase/sdk'
+
 import { cn } from '@/lib/utils'
-import { conversationsApi } from '@/lib/supabase/sdk'
-import type { Conversation } from '@/lib/supabase/sdk/types'
-import type { Novel } from '@/lib/supabase/sdk/types'
-import { novelsApi } from '@/lib/supabase/sdk'
 
 interface SearchItem {
   id: string
@@ -99,7 +99,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     if (!normalizedQuery) {
       return allItems.slice(0, 10)
     }
-    return allItems.filter(item => {
+    return allItems.filter((item) => {
       const inTitle = item.title.toLowerCase().includes(normalizedQuery)
       const inDescription = item.description?.toLowerCase().includes(normalizedQuery)
       return inTitle || Boolean(inDescription)
@@ -162,7 +162,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 )
               : (
                   <ul className="py-2 space-y-1 px-2">
-                    {filteredItems.map(item => {
+                    {filteredItems.map((item) => {
                       const config = typeConfig[item.type]
                       return (
                         <li key={`${item.type}-${item.id}`}>
@@ -175,7 +175,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                             <span
                               className={cn(
                                 'px-2 py-0.5 rounded-full text-xs font-medium',
-                                config.color
+                                config.color,
                               )}
                             >
                               {config.label}

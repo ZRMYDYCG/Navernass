@@ -87,15 +87,6 @@ export default function RightPanel() {
     }
   }, [])
 
-  const loadMessagesSilently = useCallback(async (conversationId: string) => {
-    try {
-      const data = await novelConversationsApi.getMessages(conversationId)
-      setMessages(data)
-    } catch (error) {
-      console.error('Failed to load messages silently:', error)
-    }
-  }, [])
-
   useEffect(() => {
     if (!novelId) return
     let cancelled = false

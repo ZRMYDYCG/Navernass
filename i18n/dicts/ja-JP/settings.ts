@@ -1,0 +1,35 @@
+const settings = {
+  title: '設定',
+  language: '言語',
+  theme: 'テーマ',
+  profile: 'プロフィール',
+  account: 'アカウント',
+  appearance: '外観',
+  color: '配色',
+  apiKey: 'APIキー',
+  apiSaved: '✓ APIキーをクラウドに保存しました',
+  apiPlaceholder: 'APIキーを入力してください。安全に保存されます',
+  default: 'デフォルト',
+  clear: 'クリア',
+  themeLight: 'ライト',
+  themeDark: 'ダーク',
+  themeSystem: 'システム',
+  langSimplified: '中国語（簡体）',
+  colorNotes: {
+    default: 'ベーシック',
+    blue: '落ち着き',
+    green: 'ナチュラル',
+    orange: 'あたたかい',
+    red: '鮮やか',
+    rose: 'やわらかい',
+    violet: 'クール',
+    yellow: '明るい',
+  },
+  errors: {
+    loadApiKey: 'APIキーの読み込みに失敗しました',
+    saveApiKey: 'APIキーの保存に失敗しました',
+    clearApiKey: 'APIキーのクリアに失敗しました',
+  },
+} as const
+
+export default settings

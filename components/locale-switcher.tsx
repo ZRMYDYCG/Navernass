@@ -1,7 +1,7 @@
 'use client'
 
-import { useLocale } from '@/hooks/use-i18n'
 import type { Locale } from '@/i18n/config'
+import { useLocale } from '@/hooks/use-i18n'
 
 export function LocaleSwitcher() {
   const { locale, setLocale } = useLocale()

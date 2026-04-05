@@ -1,0 +1,31 @@
+const common = {
+  ok: '確定',
+  cancel: '取消',
+  submit: '提交',
+  save: '儲存',
+  delete: '刪除',
+  edit: '編輯',
+  create: '建立',
+  search: '搜尋',
+  loading: '載入中...',
+  noData: '暫無資料',
+  saving: '儲存中...',
+  saved: '已儲存',
+  languages: {
+    'zh-CN': '簡體中文',
+    'zh-TW': '繁體中文',
+    'en-US': 'English',
+    'en-GB': 'English (UK)',
+    'ja-JP': '日本語',
+    'ko-KR': '한국어',
+    'fr-FR': 'Français',
+    'de-DE': 'Deutsch',
+  },
+  user: '使用者',
+  confirm: '確認',
+  back: '返回',
+  next: '下一步',
+  done: '完成',
+} as const
+
+export default common

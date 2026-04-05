@@ -1,0 +1,27 @@
+const auth = {
+  signIn: '로그인',
+  signUp: '회원가입',
+  signOut: '로그아웃',
+  email: '이메일',
+  password: '비밀번호',
+  fullName: '이름',
+  confirmPassword: '비밀번호 확인',
+  forgotPassword: '비밀번호를 잊으셨나요',
+  resetPassword: '비밀번호 재설정',
+  signedOut: '로그아웃되었습니다',
+  signedIn: '로그인되었습니다',
+  signInFailed: '로그인에 실패했습니다',
+  signUpFailed: '회원가입에 실패했습니다',
+  signUpSuccess: '회원가입이 완료되었습니다. 이메일을 확인해 주세요',
+  signInSuccess: '로그인에 성공했습니다',
+  signingIn: '로그인 중...',
+  signingUp: '가입 중...',
+  passwordMismatch: '비밀번호가 일치하지 않습니다',
+  passwordTooShort: '비밀번호는 6자 이상이어야 합니다',
+  useCustomEmail: '사용자 지정 이메일 주소 사용',
+  signOutFailed: '로그아웃에 실패했습니다',
+  signOutFailedRetry: '로그아웃에 실패했습니다. 다시 시도해 주세요',
+  signingOut: '로그아웃 중...',
+} as const
+
+export default auth

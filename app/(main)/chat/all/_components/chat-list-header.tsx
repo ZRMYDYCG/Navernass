@@ -3,8 +3,8 @@
 import type { Dispatch, SetStateAction } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ROUTES } from '../config'
 import { useI18n } from '@/hooks/use-i18n'
+import { ROUTES } from '../config'
 import { ChatListToolbar } from './chat-list-toolbar'
 
 interface ChatListHeaderProps {
@@ -54,7 +54,9 @@ export function ChatListHeader({
           {title || t('chat.all.title')}
           {!isLoading && (
             <span className="text-sm font-normal text-muted-foreground ml-2">
-              ({chatCount})
+              (
+              {chatCount}
+              )
             </span>
           )}
         </h1>
