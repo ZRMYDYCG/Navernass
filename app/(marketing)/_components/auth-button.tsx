@@ -59,7 +59,8 @@ export function AuthButton() {
     return (
       <>
         <Button variant="outline" onClick={() => setAuthDialogOpen(true)}>
-          {`${t('auth.signIn')} / ${t('auth.signUp')}`}
+          <span className="sm:hidden">{t('auth.signIn')}</span>
+          <span className="hidden sm:inline">{`${t('auth.signIn')} / ${t('auth.signUp')}`}</span>
         </Button>
         <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
       </>

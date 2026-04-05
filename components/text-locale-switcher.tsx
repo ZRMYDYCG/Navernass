@@ -9,16 +9,18 @@ import { LOCALE_OPTIONS } from '@/i18n/config'
 function LocaleFlag({
   countryCode,
   label,
+  className,
 }: {
   countryCode: string
   label: string
+  className?: string
 }) {
   const Flag = Flags[countryCode as keyof typeof Flags]
 
   return (
     <Flag
       title={label}
-      className="h-3.5 w-5 overflow-hidden rounded-[2px] shadow-sm"
+      className={className ?? 'h-3.5 w-5 overflow-hidden rounded-[2px] shadow-sm'}
     />
   )
 }
@@ -33,29 +35,26 @@ export function TextLocaleSwitcher() {
     <Select value={locale} onValueChange={value => setLocale(value as Locale)}>
       <SelectTrigger
         aria-label={t('settings.language')}
-        className="h-9 w-auto min-w-40 gap-2 rounded-full border-0 bg-background/80 px-3 text-sm font-medium text-foreground shadow-none ring-0 focus:ring-0"
+        className="h-9 w-auto min-w-28 gap-2 rounded-full border-0 bg-background/80 px-2.5 text-sm font-medium text-foreground shadow-none ring-0 focus:ring-0 sm:min-w-40 sm:px-3"
       >
-        <div className="flex min-w-0 items-center gap-2">
-          <LocaleFlag
-            countryCode={currentOption.countryCode}
-            label={`${currentLocaleLabel} · ${currentOption.description}`}
-          />
-          <span className="truncate">{currentLocaleLabel}</span>
-        </div>
+        <LocaleFlag
+          countryCode={currentOption.countryCode}
+          label={`${currentLocaleLabel} · ${currentOption.description}`}
+          className="h-3.5 w-5 overflow-hidden rounded-[2px] shadow-sm"
+        />
+        <span className="truncate">{currentLocaleLabel}</span>
       </SelectTrigger>
 
       <SelectContent className="min-w-56">
         {LOCALE_OPTIONS.map(option => (
           <SelectItem key={option.value} value={option.value} className="py-2">
-            <span className="flex items-center gap-3">
+            <span className="flex items-center gap-2">
               <LocaleFlag
                 countryCode={option.countryCode}
                 label={`${t(`common.languages.${option.value}`)} · ${option.description}`}
               />
-              <span className="flex items-center gap-2">
-                <span className="font-medium text-foreground">{t(`common.languages.${option.value}`)}</span>
-                <span className="text-xs text-muted-foreground">{option.description}</span>
-              </span>
+              <span className="font-medium text-foreground">{t(`common.languages.${option.value}`)}</span>
+              <span className="text-xs text-muted-foreground">{option.description}</span>
             </span>
           </SelectItem>
         ))}

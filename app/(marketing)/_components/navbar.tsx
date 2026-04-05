@@ -21,9 +21,9 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-10 left-0 right-0 z-50 w-full bg-background/80 backdrop-blur-sm transition-all duration-300 border-b border-border/10">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+    <nav className="fixed top-10 left-0 right-0 z-50 w-full border-b border-border/10 bg-background/80 backdrop-blur-sm transition-all duration-300">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex h-16 items-center justify-between gap-2">
           <div>
             <Link href="/" className="flex items-center gap-2">
               <Image
@@ -32,13 +32,13 @@ export default function Navbar() {
                 height={32}
                 alt="Narraverse"
               />
-              <span className="text-xl font-bold text-foreground font-sans tracking-wide text-letterpress">
+              <span className="hidden text-xl font-bold text-foreground font-sans tracking-wide text-letterpress sm:inline">
                 Narraverse
               </span>
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-3 scale-90 md:scale-100">
+          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
             <TextLocaleSwitcher />
             <Button
               variant="ghost"
