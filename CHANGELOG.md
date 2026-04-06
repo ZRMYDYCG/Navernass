@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.12.0...v0.13.0) (2026-04-06)
+
+
+### Features
+
+* **layout:** 添加 sidebar 宽度持久化到 localStorage，优化主布局 ([18c8b6e](https://github.com/ZRMYDYCG/Navernass/commit/18c8b6e3c241ddb4d655490a1c333106ef321d6a))
+* **workspace:** 新版本 workspace 开发 ([14dd67b](https://github.com/ZRMYDYCG/Navernass/commit/14dd67b815db7fde47aea64594946ee448ad6929))
+
 ## [0.12.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.11.0...v0.12.0) (2026-04-05)
 
 
