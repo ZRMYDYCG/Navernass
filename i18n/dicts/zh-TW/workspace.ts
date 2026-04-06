@@ -59,6 +59,63 @@ const workspace = {
       },
     },
   },
+  dashboard: {
+    title: '工作台',
+    subtitle: '字裡行間，皆是你鑿刻的世界。',
+    statsCards: {
+      novelCount: '我的作品',
+      novelCountLabel: '本月有效作品',
+      totalWordCount: '總字數',
+      totalWordCountLabel: '所有作品累計',
+      totalChapterCount: '總章節數',
+      totalChapterCountLabel: '已創作章節',
+      conversationCount: 'AI 對話',
+      conversationCountLabel: '全部會話數',
+    },
+    wordCountTrend: {
+      title: '字數趨勢',
+      description: '近 7 個月每月更新字數',
+      seriesLabel: '字數',
+    },
+    novelStatus: {
+      title: '作品狀態',
+      description: '各狀態作品分佈',
+      draft: '草稿',
+      published: '連載中',
+      archived: '已完結',
+    },
+    characterMap: {
+      title: '角色圖譜',
+      description: '各作品角色與關係數量',
+      characters: '角色數',
+      relationships: '關係數',
+    },
+    genreRadar: {
+      title: '類型雷達',
+      description: '各題材作品狀態分佈',
+    },
+    writingCalendar: {
+      title: '創作日曆',
+      description: '近 12 週章節更新熱力圖',
+      activeDays: '天活躍',
+      updates: '次更新',
+      updatesTip: '次更新',
+      noActivity: '無活動',
+      dayLabels: ['一', '三', '五', '日'],
+    },
+    weather: {
+      sunny: '晴天',
+      partlyCloudy: '多雲',
+      cloudy: '陰天',
+      fog: '霧',
+      drizzle: '毛毛雨',
+      rain: '雨',
+      shower: '陣雨',
+      snow: '雪',
+      snowShower: '陣雪',
+      thunderstorm: '雷暴',
+    },
+  },
 } as const
 
 export default workspace

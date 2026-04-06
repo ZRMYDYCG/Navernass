@@ -1,24 +1,20 @@
+import type { WorkspaceStats } from './types'
 import { apiClient } from './client'
 
-export interface WorkspaceStats {
-  novelCount: number
-  totalWordCount: number
-  finishedChapterCount: number
-  characterCount: number
-  streak: number
-}
-
-export interface ActivityItem {
-  date: string
-  count: number
-  level: number
+export interface WeatherData {
+  available: boolean
+  city?: string
+  country?: string
+  temperature?: number
+  weatherCode?: number
+  windSpeed?: number
 }
 
 export const workspaceApi = {
   getStats: async (): Promise<WorkspaceStats> => {
-    return apiClient.get<WorkspaceStats>('/api/workspace/stats')
+    return apiClient.get<WorkspaceStats>('/api/workspace')
   },
-  getActivity: async (): Promise<ActivityItem[]> => {
-    return apiClient.get<ActivityItem[]>('/api/workspace/activity')
-  }
+  getWeather: async (): Promise<WeatherData> => {
+    return apiClient.get<WeatherData>('/api/workspace/weather')
+  },
 }

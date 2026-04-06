@@ -43,13 +43,11 @@
   --input: oklch(0.88 0.012 75);
   --ring: oklch(0.55 0.04 60);
 
-  --chart-1: oklch(0.6 0.15 250);
-  --chart-2: oklch(0.7 0.15 150);
-  --chart-3: oklch(0.75 0.15 40);
-  --chart-4: oklch(0.65 0.18 300);
-  --chart-5: oklch(0.75 0.15 90);
-
-  /* 侧边栏：比主背景深一点的羊皮纸感 */
+  --chart-1: oklch(0.22 0.012 50);   /* = foreground 最深墨 */
+  --chart-2: oklch(0.40 0.013 50);   /* 深灰墨 */
+  --chart-3: oklch(0.57 0.012 55);   /* 中灰 */
+  --chart-4: oklch(0.71 0.010 60);   /* 浅灰 */
+  --chart-5: oklch(0.84 0.008 70);   /* 近纸色 */
   --sidebar: oklch(0.965 0.01 75);
   --sidebar-foreground: oklch(0.18 0.012 50);
   --sidebar-primary: oklch(0.22 0.018 45);
@@ -98,11 +96,11 @@
   --input: oklch(0.26 0.016 50);
   --ring: oklch(0.65 0.04 70);
 
-  --chart-1: oklch(0.6 0.15 250);
-  --chart-2: oklch(0.7 0.15 150);
-  --chart-3: oklch(0.75 0.15 40);
-  --chart-4: oklch(0.65 0.18 300);
-  --chart-5: oklch(0.75 0.15 90);
+  --chart-1: oklch(0.88 0.010 70);   /* 近纸白 最亮 */
+  --chart-2: oklch(0.74 0.012 60);   /* 浅灰 */
+  --chart-3: oklch(0.58 0.013 55);   /* 中灰 */
+  --chart-4: oklch(0.42 0.013 50);   /* 深灰 */
+  --chart-5: oklch(0.28 0.012 50);   /* 近墨 */
 
   /* 侧边栏：比主背景深一点 */
   --sidebar: oklch(0.115 0.014 50);

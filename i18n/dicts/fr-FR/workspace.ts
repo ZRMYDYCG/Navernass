@@ -59,6 +59,63 @@ const workspace = {
       },
     },
   },
+  dashboard: {
+    title: 'Espace de travail',
+    subtitle: 'Entre chaque ligne se dessine un monde qui n\'appartient qu\'à toi.',
+    statsCards: {
+      novelCount: 'Mes œuvres',
+      novelCountLabel: 'Œuvres actives ce mois',
+      totalWordCount: 'Total de mots',
+      totalWordCountLabel: 'Cumulatif toutes œuvres',
+      totalChapterCount: 'Total de chapitres',
+      totalChapterCountLabel: 'Chapitres rédigés',
+      conversationCount: 'Chats IA',
+      conversationCountLabel: 'Toutes les conversations',
+    },
+    wordCountTrend: {
+      title: 'Tendance des mots',
+      description: 'Nombre de mots mensuels sur 7 mois',
+      seriesLabel: 'Mots',
+    },
+    novelStatus: {
+      title: 'Statut des œuvres',
+      description: 'Répartition par statut',
+      draft: 'Brouillon',
+      published: 'En série',
+      archived: 'Terminé',
+    },
+    characterMap: {
+      title: 'Carte des personnages',
+      description: 'Personnages et relations par œuvre',
+      characters: 'Personnages',
+      relationships: 'Relations',
+    },
+    genreRadar: {
+      title: 'Radar de genres',
+      description: 'Répartition des statuts par genre',
+    },
+    writingCalendar: {
+      title: 'Calendrier d\'écriture',
+      description: 'Heatmap des mises à jour sur 12 semaines',
+      activeDays: 'jours actifs',
+      updates: 'mises à jour',
+      updatesTip: 'mises à jour',
+      noActivity: 'Aucune activité',
+      dayLabels: ['Lun', 'Mer', 'Ven', 'Dim'],
+    },
+    weather: {
+      sunny: 'Ensoleillé',
+      partlyCloudy: 'Partiellement nuageux',
+      cloudy: 'Nuageux',
+      fog: 'Brouillard',
+      drizzle: 'Bruine',
+      rain: 'Pluie',
+      shower: 'Averses',
+      snow: 'Neige',
+      snowShower: 'Averses de neige',
+      thunderstorm: 'Orage',
+    },
+  },
 } as const
 
 export default workspace

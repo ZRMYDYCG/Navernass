@@ -59,6 +59,63 @@ const workspace = {
       },
     },
   },
+  dashboard: {
+    title: '工作台',
+    subtitle: '字里行间，皆是你凿刻的世界。',
+    statsCards: {
+      novelCount: '我的作品',
+      novelCountLabel: '本月有效作品',
+      totalWordCount: '总字数',
+      totalWordCountLabel: '所有作品累计',
+      totalChapterCount: '总章节数',
+      totalChapterCountLabel: '已创作章节',
+      conversationCount: 'AI 对话',
+      conversationCountLabel: '全部会话数',
+    },
+    wordCountTrend: {
+      title: '字数趋势',
+      description: '近 7 个月每月更新字数',
+      seriesLabel: '字数',
+    },
+    novelStatus: {
+      title: '作品状态',
+      description: '各状态作品分布',
+      draft: '草稿',
+      published: '连载中',
+      archived: '已完结',
+    },
+    characterMap: {
+      title: '角色图谱',
+      description: '各作品角色与关系数量',
+      characters: '角色数',
+      relationships: '关系数',
+    },
+    genreRadar: {
+      title: '类型雷达',
+      description: '各题材作品状态分布',
+    },
+    writingCalendar: {
+      title: '创作日历',
+      description: '近 12 周章节更新热力图',
+      activeDays: '天活跃',
+      updates: '次更新',
+      updatesTip: '次更新',
+      noActivity: '无活动',
+      dayLabels: ['一', '三', '五', '日'],
+    },
+    weather: {
+      sunny: '晴天',
+      partlyCloudy: '多云',
+      cloudy: '阴天',
+      fog: '雾',
+      drizzle: '毛毛雨',
+      rain: '雨',
+      shower: '阵雨',
+      snow: '雪',
+      snowShower: '阵雪',
+      thunderstorm: '雷暴',
+    },
+  },
 } as const
 
 export default workspace

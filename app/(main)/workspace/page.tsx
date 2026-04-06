@@ -1,43 +1,47 @@
 'use client'
 
 import { useI18n } from '@/hooks/use-i18n'
-import { ContributionGraph } from './_components/contribution-graph'
-import { ProjectList } from './_components/project-list'
-import { StatsCard } from './_components/stats-card'
-import { WelcomeCard } from './_components/welcome-card'
+import { useWorkspaceStats } from '@/hooks/use-workspace-stats'
+import { CharacterMap } from './_components/character-map'
+import { GenreRadar } from './_components/genre-radar'
+import { NovelStatusChart } from './_components/novel-status-chart'
+import { StatsCards } from './_components/stats-cards'
+import { WeatherWidget } from './_components/weather-widget'
+import { WordCountTrend } from './_components/word-count-trend'
+import { WritingCalendar } from './_components/writing-calendar'
 
 export default function WorkspacePage() {
   const { t } = useI18n()
+  const { data, isLoading } = useWorkspaceStats()
 
   return (
-    <div className="container mx-auto max-w-[1200px] space-y-8 px-4 py-8 md:py-12 animate-in fade-in duration-700">
-      <WelcomeCard />
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="lg:col-span-8 space-y-8">
-          <ProjectList />
+    <div className="flex flex-col gap-6 p-6">
+      {/* 页面标题 */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{t('workspace.dashboard.title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t('workspace.dashboard.subtitle')}</p>
         </div>
-
-        <div className="lg:col-span-4 space-y-8 lg:sticky lg:top-8">
-          <StatsCard />
-          <ContributionGraph />
-
-          <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-8 text-center shadow-paper-sm group hover:shadow-paper-md transition-all duration-500">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="mb-4 text-4xl text-primary/20 font-serif">"</div>
-            <p className="font-serif italic text-foreground/80 text-base leading-relaxed tracking-wide mb-4">
-              {t('workspace.page.quote')}
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <div className="h-px w-8 bg-border" />
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">
-                {t('workspace.page.author')}
-              </p>
-              <div className="h-px w-8 bg-border" />
-            </div>
-          </div>
-        </div>
+        <WeatherWidget />
       </div>
+
+      {/* 统计卡片 */}
+      <StatsCards data={data?.summary} isLoading={isLoading} />
+
+      {/* 图表行 1：趋势 + 状态分布 */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <WordCountTrend data={data?.wordCountTrend} isLoading={isLoading} />
+        <NovelStatusChart data={data?.novelStatusData} isLoading={isLoading} />
+      </div>
+
+      {/* 图表行 2：角色图谱 + 类型雷达 */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <CharacterMap data={data?.characterMapData} isLoading={isLoading} />
+        <GenreRadar data={data?.genreRadarData} isLoading={isLoading} />
+      </div>
+
+      {/* 创作日历 */}
+      <WritingCalendar data={data?.calendarData} isLoading={isLoading} />
     </div>
   )
 }

@@ -19,6 +19,7 @@ export interface NovelFormData {
   description: string
   cover?: string
   coverFile?: File | null
+  tags?: string[]
 }
 
 export interface NovelListQueryParams {

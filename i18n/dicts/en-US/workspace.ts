@@ -59,6 +59,63 @@ const workspace = {
       },
     },
   },
+  dashboard: {
+    title: 'Workspace',
+    subtitle: 'Between every line lies a world of your own making.',
+    statsCards: {
+      novelCount: 'My Works',
+      novelCountLabel: 'Active works this month',
+      totalWordCount: 'Total Words',
+      totalWordCountLabel: 'Cumulative across all works',
+      totalChapterCount: 'Total Chapters',
+      totalChapterCountLabel: 'Chapters created',
+      conversationCount: 'AI Chats',
+      conversationCountLabel: 'All conversations',
+    },
+    wordCountTrend: {
+      title: 'Word Count Trend',
+      description: 'Monthly word count over the last 7 months',
+      seriesLabel: 'Words',
+    },
+    novelStatus: {
+      title: 'Novel Status',
+      description: 'Distribution by status',
+      draft: 'Draft',
+      published: 'Serializing',
+      archived: 'Completed',
+    },
+    characterMap: {
+      title: 'Character Map',
+      description: 'Characters and relationships per novel',
+      characters: 'Characters',
+      relationships: 'Relationships',
+    },
+    genreRadar: {
+      title: 'Genre Radar',
+      description: 'Status distribution by genre',
+    },
+    writingCalendar: {
+      title: 'Writing Calendar',
+      description: 'Chapter update heatmap for the last 12 weeks',
+      activeDays: 'active days',
+      updates: 'updates',
+      updatesTip: 'updates',
+      noActivity: 'No activity',
+      dayLabels: ['Mon', 'Wed', 'Fri', 'Sun'],
+    },
+    weather: {
+      sunny: 'Sunny',
+      partlyCloudy: 'Partly Cloudy',
+      cloudy: 'Cloudy',
+      fog: 'Foggy',
+      drizzle: 'Drizzle',
+      rain: 'Rain',
+      shower: 'Showers',
+      snow: 'Snow',
+      snowShower: 'Snow Showers',
+      thunderstorm: 'Thunderstorm',
+    },
+  },
 } as const
 
 export default workspace

@@ -111,6 +111,7 @@ function NovelsContent() {
           title: data.title,
           description: data.description || undefined,
           cover: coverUrl || undefined,
+          tags: data.tags,
         })
         toast.success(t('novels.messages.updated'))
         setDialogOpen(false)
@@ -124,6 +125,7 @@ function NovelsContent() {
           title: data.title,
           description: data.description || undefined,
           cover,
+          tags: data.tags,
         })
         toast.success(t('novels.messages.created'))
         setDialogOpen(false)

@@ -373,6 +373,55 @@ export interface UserSettings {
 }
 
 // =============================================
+// 工作台统计类型
+// =============================================
+
+export interface WorkspaceStatsSummary {
+  novelCount: number
+  totalWordCount: number
+  totalChapterCount: number
+  conversationCount: number
+}
+
+export interface WordCountTrendItem {
+  month: string
+  wordCount: number
+}
+
+export interface NovelStatusItem {
+  status: string
+  label: string
+  value: number
+}
+
+export interface CharacterMapItem {
+  title: string
+  characters: number
+  relationships: number
+}
+
+export interface GenreRadarItem {
+  category: string
+  draft: number
+  published: number
+  archived: number
+}
+
+export interface CalendarDayItem {
+  date: string
+  count: number
+}
+
+export interface WorkspaceStats {
+  summary: WorkspaceStatsSummary
+  wordCountTrend: WordCountTrendItem[]
+  novelStatusData: NovelStatusItem[]
+  characterMapData: CharacterMapItem[]
+  genreRadarData: GenreRadarItem[]
+  calendarData: CalendarDayItem[]
+}
+
+// =============================================
 // 调研类型
 // =============================================
 

@@ -59,6 +59,63 @@ const workspace = {
       },
     },
   },
+  dashboard: {
+    title: 'ワークスペース',
+    subtitle: 'あなたが紡ぐ言葉の先に、世界が広がっています。',
+    statsCards: {
+      novelCount: '作品数',
+      novelCountLabel: '今月の有効作品',
+      totalWordCount: '総文字数',
+      totalWordCountLabel: '全作品合計',
+      totalChapterCount: '総チャプター数',
+      totalChapterCountLabel: '執筆済みチャプター',
+      conversationCount: 'AI会話',
+      conversationCountLabel: '全会話数',
+    },
+    wordCountTrend: {
+      title: '文字数トレンド',
+      description: '過去7ヶ月の月別文字数',
+      seriesLabel: '文字数',
+    },
+    novelStatus: {
+      title: '作品ステータス',
+      description: 'ステータス別分布',
+      draft: '下書き',
+      published: '連載中',
+      archived: '完結',
+    },
+    characterMap: {
+      title: 'キャラクターマップ',
+      description: '作品別キャラクターと関係数',
+      characters: 'キャラクター',
+      relationships: '関係',
+    },
+    genreRadar: {
+      title: 'ジャンルレーダー',
+      description: 'ジャンル別ステータス分布',
+    },
+    writingCalendar: {
+      title: '執筆カレンダー',
+      description: '直近12週のチャプター更新ヒートマップ',
+      activeDays: '日アクティブ',
+      updates: '回更新',
+      updatesTip: '回更新',
+      noActivity: '活動なし',
+      dayLabels: ['月', '水', '金', '日'],
+    },
+    weather: {
+      sunny: '晴れ',
+      partlyCloudy: '曇り時々晴れ',
+      cloudy: '曇り',
+      fog: '霧',
+      drizzle: '霧雨',
+      rain: '雨',
+      shower: 'にわか雨',
+      snow: '雪',
+      snowShower: 'にわか雪',
+      thunderstorm: '雷雨',
+    },
+  },
 } as const
 
 export default workspace

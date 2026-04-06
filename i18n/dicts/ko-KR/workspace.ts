@@ -59,6 +59,63 @@ const workspace = {
       },
     },
   },
+  dashboard: {
+    title: '워크스페이스',
+    subtitle: '당신의 글 속에 하나의 세계가 깃들어 있습니다.',
+    statsCards: {
+      novelCount: '내 작품',
+      novelCountLabel: '이번 달 유효 작품',
+      totalWordCount: '총 글자 수',
+      totalWordCountLabel: '전체 작품 누계',
+      totalChapterCount: '총 챕터 수',
+      totalChapterCountLabel: '작성된 챕터',
+      conversationCount: 'AI 대화',
+      conversationCountLabel: '전체 대화 수',
+    },
+    wordCountTrend: {
+      title: '글자 수 추이',
+      description: '최근 7개월 월별 업데이트 글자 수',
+      seriesLabel: '글자 수',
+    },
+    novelStatus: {
+      title: '작품 상태',
+      description: '상태별 작품 분포',
+      draft: '초고',
+      published: '연재 중',
+      archived: '완결',
+    },
+    characterMap: {
+      title: '캐릭터 맵',
+      description: '작품별 캐릭터 및 관계 수',
+      characters: '캐릭터',
+      relationships: '관계',
+    },
+    genreRadar: {
+      title: '장르 레이더',
+      description: '장르별 상태 분포',
+    },
+    writingCalendar: {
+      title: '창작 캘린더',
+      description: '최근 12주 챕터 업데이트 히트맵',
+      activeDays: '일 활성',
+      updates: '회 업데이트',
+      updatesTip: '회 업데이트',
+      noActivity: '활동 없음',
+      dayLabels: ['월', '수', '금', '일'],
+    },
+    weather: {
+      sunny: '맑음',
+      partlyCloudy: '구름 조금',
+      cloudy: '흐림',
+      fog: '안개',
+      drizzle: '이슬비',
+      rain: '비',
+      shower: '소나기',
+      snow: '눈',
+      snowShower: '눈 소나기',
+      thunderstorm: '천둥번개',
+    },
+  },
 } as const
 
 export default workspace

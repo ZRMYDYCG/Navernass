@@ -58,6 +58,7 @@ Themes are implemented via the `data-theme` attribute on the root element and CS
     ```
 2.  **Avoid Arbitrary Values**: Avoid `w-[123px]` unless strictly required by a design spec that deviates from the grid/spacing system.
 3.  **Mobile First**: Write responsive styles starting from mobile (`base`) and scaling up (`md:`, `lg:`).
+4.  **Prefer shadcn/ui Components**: **CRITICAL** — Always use the shadcn/ui components from `components/ui/` before reaching for native HTML elements. Native `<input>`, `<textarea>`, `<label>`, `<button>`, `<select>` etc. must NOT be used when an equivalent shadcn component exists. Current available components include: `Button`, `Input`, `Textarea`, `Label`, `Select`, `Dialog`, `Card`, `Badge`, `Avatar`, `Tooltip`, `Popover`, `Tabs`, `Table`, `Skeleton`, `Separator`, `ScrollArea`, `Sheet`, `Drawer`, `ContextMenu`, `DropdownMenu` and more — always check `components/ui/` first.
 
 ## 2. Project Structure (项目结构)
 
