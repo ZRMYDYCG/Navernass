@@ -9,21 +9,37 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname()
   const isMobile = useIsMobile()
 
-  const DEFAULT_DESKTOP_WIDTH = 224 // px (w-56)
+  const DEFAULT_DESKTOP_WIDTH = 260 // px
   const MIN_DESKTOP_WIDTH = DEFAULT_DESKTOP_WIDTH
   const MAX_DESKTOP_WIDTH = 420
+  const STORAGE_KEY = 'sidebar-width'
+
+  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
   const [desktopSidebarWidth, setDesktopSidebarWidth] = useState(DEFAULT_DESKTOP_WIDTH)
   const [isResizingSidebar, setIsResizingSidebar] = useState(false)
   const lastClientXRef = useRef<number | null>(null)
+
+  // 从 localStorage 恢复宽度
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const parsed = Number(saved)
+        if (!isNaN(parsed)) {
+          setDesktopSidebarWidth(clamp(parsed, MIN_DESKTOP_WIDTH, MAX_DESKTOP_WIDTH))
+        }
+      }
+    } catch {
+      // localStorage 不可用时忽略
+    }
+  }, [])
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const isCompositionPage = pathname === '/composition'
 
   useEffect(() => {
     if (!isResizingSidebar) return
-
-    const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
     const onMouseMove = (e: MouseEvent) => {
       if (lastClientXRef.current == null) {
@@ -36,9 +52,18 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       setDesktopSidebarWidth(prev => clamp(prev + deltaX, MIN_DESKTOP_WIDTH, MAX_DESKTOP_WIDTH))
     }
 
-    const onMouseUp = () => {
+    const onMouseUp = (e: MouseEvent) => {
       setIsResizingSidebar(false)
       lastClientXRef.current = null
+      // 持久化宽度到 localStorage
+      try {
+        setDesktopSidebarWidth((prev) => {
+          localStorage.setItem(STORAGE_KEY, String(prev))
+          return prev
+        })
+      } catch {
+        // localStorage 不可用时忽略
+      }
     }
 
     document.addEventListener('mousemove', onMouseMove)

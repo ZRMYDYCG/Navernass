@@ -128,7 +128,7 @@ export function Sidebar({
 
       <aside
         className={cn(
-          'fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar z-[60] flex flex-col',
+          'fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar z-[60] flex flex-col overflow-hidden',
           !isResizing && 'transition-all duration-300',
           translateClass,
           isMobile && 'w-[80vw] max-w-[320px] shadow-2xl',
