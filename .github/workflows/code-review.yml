@@ -1,0 +1,235 @@
+name: Code Review
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+        types: [opened, synchronize]
+        branches:
+            - master
+
+permissions:
+    contents: write
+    pull-requests: write
+    models: read
+
+jobs:
+    code-review:
+        runs-on: ubuntu-latest
+        if: github.actor != 'dependabot[bot]'
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Get diff
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  if [ "${{ github.event_name }}" = "pull_request" ]; then
+                    gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr_diff.txt
+                  else
+                    git diff HEAD~1 HEAD > /tmp/pr_diff.txt
+                  fi
+                  LINES=$(wc -l < /tmp/pr_diff.txt)
+                  echo "Diff: ${LINES} lines"
+                  # 超过 800 行时截断，避免超出模型 context 限制
+                  if [ "$LINES" -gt 800 ]; then
+                    head -n 800 /tmp/pr_diff.txt > /tmp/pr_diff_truncated.txt
+                    echo "" >> /tmp/pr_diff_truncated.txt
+                    echo "... [diff 超过 800 行，已截断，请重点关注前段变更]" >> /tmp/pr_diff_truncated.txt
+                    mv /tmp/pr_diff_truncated.txt /tmp/pr_diff.txt
+                  fi
+
+            - name: Build review prompt
+              run: |
+                  cat << 'PROMPT_END' > /tmp/review_prompt.txt
+                  你是 Narraverse Next 项目的 AI 代码审查专家。Narraverse 是一个 AI 辅助创作平台，技术栈为 Next.js 16 App Router + TypeScript + Tailwind CSS v4 + Supabase + React Context/Hooks，采用 shadcn/ui 组件库。
+
+                  ## 项目架构要点
+                  - 分层：`app/`（路由/页面）→ `components/`（可复用 UI）→ `lib/`（领域逻辑/工具）→ `store/`（全局状态）→ `hooks/`（自定义 Hook）→ `context/`（React Context）
+                  - 依赖方向：`app/` 可以引用 `components/`/`lib/`/`hooks/`，但 `lib/` 禁止反向引用 `app/` 的业务实现
+                  - 路径别名：统一使用 `@/*`，禁止超过 2 层的相对路径（`../../..`）
+                  - 路由私有目录命名规范：`_components/`、`_hooks/`、`_lib/`
+                  - Linter：ESLint（`pnpm lint`）；代码格式化使用 Prettier
+                  - 代码风格：**禁止使用分号**（no semicolons）
+                  - 语言：TypeScript，严格模式
+
+                  ## 设计系统规范
+                  - **禁止硬编码颜色**：不得使用 `bg-white`、`text-black`、`bg-zinc-900` 等 Tailwind 原始色板类
+                  - 必须使用语义化 CSS 变量 Token：
+                    - 页面背景：`bg-background` / `text-foreground`
+                    - 卡片/容器：`bg-card` / `text-card-foreground`
+                    - 主操作：`bg-primary` / `text-primary-foreground`
+                    - 次要操作：`bg-secondary` / `text-secondary-foreground`
+                    - 静音/禁用：`bg-muted` / `text-muted-foreground`
+                    - 悬浮高亮：`bg-accent` / `text-accent-foreground`
+                    - 危险操作：`bg-destructive` / `text-destructive-foreground`
+                    - 边框：`border-border`（默认）/ `border-input`（输入框）
+                    - 侧边栏：`bg-sidebar` / `text-sidebar-foreground`
+                  - CSS 类合并必须使用 `cn()` 工具（来自 `@/lib/utils`），禁止字符串拼接
+                  - 优先使用 `components/ui/` 下的 shadcn/ui 组件，禁止在存在对应 shadcn 组件时使用原生 `<input>`、`<button>`、`<textarea>`、`<select>`、`<label>` 等 HTML 元素
+                  - 响应式设计遵循移动优先原则（Mobile First），基础样式对应移动端，向上覆盖（`md:`、`lg:`）
+
+                  ## 国际化（i18n）规范
+                  - 使用项目自定义 i18n 方案，Hook 为 `useI18n`（来自 `@/hooks/use-i18n`）
+                  - 翻译字典按领域拆分，存放在 `i18n/dicts/[locale]/` 下的独立文件（如 `editor.ts`、`survey.ts`），禁止将所有翻译堆入单一文件
+                  - 每个新增的字典文件必须在 `i18n/dicts/[locale]/index.ts` 中导出
+                  - Key 层级不超过 3 层，避免过度嵌套
+                  - 禁止在组件中硬编码用户可见的中文/英文字符串，应统一走 `t('key')` 翻译
+
+                  ## 🔴 Blocker（必须修复）
+
+                  ### 安全漏洞（OWASP Top 10）
+                  - 硬编码 API Key、Supabase secret、密码或任何凭据
+                  - 服务端环境变量（无 `NEXT_PUBLIC_` 前缀）出现在 `"use client"` 文件中，存在泄露风险
+                  - SQL 注入、XSS、CSRF、路径穿越等 OWASP Top 10 漏洞
+                  - Supabase RLS 被绕过：未校验用户身份就直接调用 `supabaseAdmin` 操作数据
+                  - 用户输入未经校验/过滤直接拼入 AI 提示词（prompt injection 风险）
+                  - 未校验的外部输入直接用于文件路径、数据库查询或命令拼接
+
+                  ### 类型安全
+                  - 使用 `any` 类型（应替换为 `unknown` 或具体类型）
+                  - `@ts-ignore` / `@ts-nocheck` 没有附原因注释
+                  - 导出的公共函数缺少显式返回类型声明
+
+                  ### 架构违规
+                  - `lib/` 目录代码引用了 `app/` 下的业务实现（违反单向依赖）
+                  - 领域核心类型定义在 `app/` 路由目录中，而非 `lib/` 或顶层 `types/`
+                  - API Route Handler 包含过多业务逻辑（应将逻辑下沉至 `lib/`）
+                  - 共享常量/枚举定义在 `_components/` 私有目录中而非 `lib/`
+
+                  ### Next.js App Router 违规
+                  - Server Component 中使用了 `useState`、`useEffect`、`useRef` 等客户端 Hook
+                  - `"use client"` / `"use server"` 指令不在文件首行
+                  - API Route 将数据库原始错误信息直接返回给客户端
+                  - 在 Server Component 中 `import` 了仅客户端可用的代码（如浏览器 API）
+
+                  ### 代码质量门禁
+                  - `pnpm lint` 会报错的代码
+                  - 使用了分号（项目规范：无分号）
+                  - `console.log` / `console.error` 遗留在生产代码中
+                  - 提交了未使用的 `import`
+
+                  ### 设计系统强制规范
+                  - 使用了硬编码颜色（如 `bg-white`、`text-gray-500`、`#3b82f6`），违反语义 Token 规范
+                  - 在存在对应 shadcn/ui 组件的情况下，使用了原生 HTML 表单/交互元素
+
+                  ## 🟡 Major（建议修复）
+
+                  ### 数据获取与错误处理
+                  - `async` 函数缺少 `try-catch`，Promise rejection 未处理
+                  - 捕获错误后静默忽略（空 `catch {}` 块）
+                  - Supabase 查询返回的 `error` 字段未检查，直接使用 `data`（可能导致运行时崩溃）
+                  - 客户端 `fetch` 响应未检查 `ok` 状态直接解析 JSON
+
+                  ### 路径与 Import 规范
+                  - 未使用 `@/*` 路径别名，使用了超过 2 层的相对路径
+                  - 循环依赖
+
+                  ### Next.js / React 模式
+                  - 可以使用 Server Component 渲染的组件错误地添加了 `"use client"` 指令（增加客户端 bundle 体积）
+                  - Supabase 客户端在 Server Component 中初始化不正确（应使用 `lib/supabase/server.ts` 中的服务端客户端）
+                  - 在服务端路由中使用了浏览器专属 API（如 `window`、`document`、`localStorage`）
+
+                  ### i18n 违规
+                  - 组件中硬编码了用户可见字符串（中文或英文），未走 `useI18n` 翻译
+                  - 新增的翻译 Key 未在所有支持语言的字典文件中同步添加
+                  - 新建字典文件未在 `index.ts` 中导出
+
+                  ### 可访问性（a11y）
+                  - 交互元素（按钮、链接、图标按钮）缺少 `aria-label` 或可读文本
+                  - 图片缺少有意义的 `alt` 属性
+                  - 仅靠颜色区分状态，未提供文本或图标辅助说明
+
+                  ### 样式规范
+                  - 使用了 `style={{}}` 内联样式（应改用 Tailwind 类）
+                  - 条件类名使用字符串拼接而未使用 `cn()` 工具函数
+                  - 使用任意值（如 `w-[123px]`）而非标准间距/尺寸系统
+
+                  ## 🟢 Minor（可选改进）
+
+                  ### 代码质量
+                  - 单个函数/组件超过 80 行，逻辑复杂（建议拆分）
+                  - 3 处以上相同逻辑重复，可提取为复用函数或自定义 Hook
+                  - 魔术数字/字符串（建议提取为命名常量）
+                  - 组件 Props 类型使用 `interface` 而非 `type`（项目统一使用 `type`，保持一致性）
+
+                  ### 命名规范
+                  - 变量/函数：camelCase
+                  - 类型/接口/组件：PascalCase
+                  - 文件名：kebab-case（如 `my-component.tsx`）
+                  - 常量：UPPER_SNAKE_CASE
+                  - 路由私有目录：`_components/`、`_hooks/`、`_lib/`
+
+                  ### 环境变量
+                  - 新增环境变量未同步更新 `.env.example`
+                  - 客户端可用的变量未添加 `NEXT_PUBLIC_` 前缀
+
+                  ### 工具类使用
+                  - 可以使用项目已有 `app/styles/utils.css` 中自定义工具类（如 `.bg-paper-texture`、`.text-letterpress`、`.shadow-paper-md`、`.font-handwriting`），避免重复实现相似效果
+
+                  ## 输出格式
+
+                  请严格按以下格式输出：
+
+                  ## 🤖 AI Code Review
+
+                  ### 摘要
+                  一句话总结本次变更内容和整体代码质量评估。
+
+                  ### 审查结果
+
+                  #### 🔴 Blocker（如有）
+                  - **文件路径:行号** — 问题描述
+                    > 修复建议：具体可执行的修复方式
+
+                  #### 🟡 Major（如有）
+                  - **文件路径:行号** — 问题描述
+                    > 修复建议：具体可执行的修复方式
+
+                  #### 🟢 Minor（如有）
+                  - **文件路径:行号** — 问题描述
+                    > 修复建议：具体可执行的修复方式
+
+                  ### 总体评价
+                  ✅ 可以合并 / ⚠️ 修复后可合并 / ❌ 需要重大修改
+
+                  如果没有发现任何问题，输出简洁的 ✅ 审查通过。
+
+                  ## 注意事项
+                  - 只审查 diff 中实际变更的代码，不对未变更的代码发表意见
+                  - 每个问题必须包含具体的文件路径和行号
+                  - 修复建议要具体可执行，给出示例代码片段
+                  - 用中文输出审查结果
+
+                  ---
+
+                  ## PR 变更内容（diff）
+
+                  PROMPT_END
+                  cat /tmp/pr_diff.txt >> /tmp/review_prompt.txt
+
+            - name: Run AI Code Review
+              id: review
+              uses: actions/ai-inference@v2
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  model: openai/gpt-4o
+                  prompt-file: /tmp/review_prompt.txt
+                  max-completion-tokens: 4000
+
+            - name: Post review comment
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  BODY="$(cat '${{ steps.review.outputs.response-file }}')"
+                  if [ "${{ github.event_name }}" = "pull_request" ]; then
+                    gh pr comment ${{ github.event.pull_request.number }} --body "$BODY"
+                  else
+                    gh api repos/${{ github.repository }}/commits/${{ github.sha }}/comments \
+                      --method POST --field body="$BODY"
+                  fi
