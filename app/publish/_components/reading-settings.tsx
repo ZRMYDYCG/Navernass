@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
+import { useI18n } from '@/hooks/use-i18n'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 import {
@@ -25,7 +26,7 @@ import {
   LINE_HEIGHT_OPTIONS,
   READING_BG_MAP,
   READING_BG_OPTIONS,
-} from '../contants'
+} from '../constants'
 
 interface ReadingSettingsProps {
   settings: PublishSettings
@@ -42,6 +43,7 @@ function SettingsSection({ label, children }: { label: string, children: React.R
 }
 
 function SettingsPanel({ settings, onSettingsChange }: ReadingSettingsProps) {
+  const { t } = useI18n()
   const { setTheme } = useThemeTransition()
 
   const toggleTheme = (event: React.MouseEvent) => {
@@ -53,11 +55,12 @@ function SettingsPanel({ settings, onSettingsChange }: ReadingSettingsProps) {
   return (
     <div className="space-y-5 p-4">
       {/* Theme toggle */}
-      <SettingsSection label="主题">
+      <SettingsSection label={t('publish.settings.theme')}>
         <Button
           variant="outline"
           size="sm"
           onClick={toggleTheme}
+          aria-label={settings.theme === 'light' ? t('publish.settings.toggleToDark') : t('publish.settings.toggleToLight')}
           className="w-full justify-center gap-2"
         >
           {settings.theme === 'light'
@@ -65,21 +68,21 @@ function SettingsPanel({ settings, onSettingsChange }: ReadingSettingsProps) {
                 <>
                   <Moon className="size-4" />
                   {' '}
-                  切换深色模式
+                  {t('publish.settings.toggleToDark')}
                 </>
               )
             : (
                 <>
                   <Sun className="size-4" />
                   {' '}
-                  切换浅色模式
+                  {t('publish.settings.toggleToLight')}
                 </>
               )}
         </Button>
       </SettingsSection>
 
       {/* Font size */}
-      <SettingsSection label="字号">
+      <SettingsSection label={t('publish.settings.fontSize')}>
         <SegmentedControl
           value={settings.fontSize}
           onValueChange={v => onSettingsChange({ fontSize: v as PublishSettings['fontSize'] })}
@@ -88,14 +91,14 @@ function SettingsPanel({ settings, onSettingsChange }: ReadingSettingsProps) {
         >
           {FONT_SIZE_OPTIONS.map(opt => (
             <SegmentedControlItem key={opt.value} value={opt.value} className="flex-1" size="sm">
-              {opt.label}
+              {t(opt.i18nKey)}
             </SegmentedControlItem>
           ))}
         </SegmentedControl>
       </SettingsSection>
 
       {/* Line height */}
-      <SettingsSection label="行间距">
+      <SettingsSection label={t('publish.settings.lineHeight')}>
         <SegmentedControl
           value={settings.lineHeight}
           onValueChange={v => onSettingsChange({ lineHeight: v as PublishSettings['lineHeight'] })}
@@ -104,14 +107,14 @@ function SettingsPanel({ settings, onSettingsChange }: ReadingSettingsProps) {
         >
           {LINE_HEIGHT_OPTIONS.map(opt => (
             <SegmentedControlItem key={opt.value} value={opt.value} className="flex-1" size="sm">
-              {opt.label}
+              {t(opt.i18nKey)}
             </SegmentedControlItem>
           ))}
         </SegmentedControl>
       </SettingsSection>
 
       {/* Font family */}
-      <SettingsSection label="字体">
+      <SettingsSection label={t('publish.settings.fontFamily')}>
         <SegmentedControl
           value={settings.fontFamily}
           onValueChange={v => onSettingsChange({ fontFamily: v as PublishSettings['fontFamily'] })}
@@ -120,22 +123,24 @@ function SettingsPanel({ settings, onSettingsChange }: ReadingSettingsProps) {
         >
           {FONT_FAMILY_OPTIONS.map(opt => (
             <SegmentedControlItem key={opt.value} value={opt.value} className="flex-1" size="sm">
-              {opt.label}
+              {t(opt.i18nKey)}
             </SegmentedControlItem>
           ))}
         </SegmentedControl>
       </SettingsSection>
 
       {/* Reading background */}
-      <SettingsSection label="阅读背景">
+      <SettingsSection label={t('publish.settings.readingBg')}>
         <div className="flex gap-3">
           {READING_BG_OPTIONS.map((opt) => {
             const isActive = settings.readingBg === opt.value
             const meta = READING_BG_MAP[opt.value]
+            const label = t(meta.i18nKey)
             return (
               <button
                 key={opt.value}
                 type="button"
+                aria-label={label}
                 onClick={() => onSettingsChange({ readingBg: opt.value })}
                 className="flex flex-col items-center gap-1.5 group"
               >
@@ -146,7 +151,7 @@ function SettingsPanel({ settings, onSettingsChange }: ReadingSettingsProps) {
                   style={opt.value !== 'default' ? { backgroundColor: meta.bg } : undefined}
                 />
                 <span className={`text-xs ${isActive ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-                  {meta.label}
+                  {label}
                 </span>
               </button>
             )
@@ -158,20 +163,23 @@ function SettingsPanel({ settings, onSettingsChange }: ReadingSettingsProps) {
 }
 
 export function ReadingSettings({ settings, onSettingsChange }: ReadingSettingsProps) {
+  const { t } = useI18n()
   const isMobile = useIsMobile()
   const [open, setOpen] = useState(false)
+
+  const settingsTitle = t('publish.settings.title')
 
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-9" aria-label="阅读设置">
+          <Button variant="ghost" size="icon" className="size-9" aria-label={settingsTitle}>
             <Settings className="size-4" />
           </Button>
         </DrawerTrigger>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>阅读设置</DrawerTitle>
+            <DrawerTitle>{settingsTitle}</DrawerTitle>
           </DrawerHeader>
           <SettingsPanel settings={settings} onSettingsChange={onSettingsChange} />
         </DrawerContent>
@@ -182,13 +190,13 @@ export function ReadingSettings({ settings, onSettingsChange }: ReadingSettingsP
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="size-9" aria-label="阅读设置">
+        <Button variant="ghost" size="icon" className="size-9" aria-label={settingsTitle}>
           <Settings className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80">
         <div className="border-b px-4 py-3">
-          <span className="text-sm font-semibold">阅读设置</span>
+          <h3 className="text-sm font-semibold">{settingsTitle}</h3>
         </div>
         <SettingsPanel settings={settings} onSettingsChange={onSettingsChange} />
       </PopoverContent>

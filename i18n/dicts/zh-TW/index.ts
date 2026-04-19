@@ -6,6 +6,7 @@ import main from './main'
 import marketing from './marketing'
 import nav from './nav'
 import novels from './novels'
+import publish from './publish'
 import settings from './settings'
 import survey from './survey'
 import tiptap from './tiptap'
@@ -18,6 +19,7 @@ const zhTW = {
   auth,
   workspace,
   novels,
+  publish,
   main,
   chat,
   editor,

@@ -1,10 +1,11 @@
 'use client'
 
-import type { PublishSettings } from '../types'
+import type { PublishedChapter, PublishSettings } from '../types'
+import DOMPurify from 'isomorphic-dompurify'
+import { useMemo } from 'react'
+import { FONT_FAMILY_MAP, LINE_HEIGHT_MAP, READING_BG_MAP } from '../constants'
 import { FONT_SIZE_MAP } from '../types'
-import { FONT_FAMILY_MAP, LINE_HEIGHT_MAP, READING_BG_MAP } from '../contants'
 import { ChapterSummary } from './chapter-summary'
-import type { PublishedChapter } from '../types'
 
 interface ChapterContentProps {
   chapter: PublishedChapter
@@ -13,11 +14,14 @@ interface ChapterContentProps {
 
 export function ChapterContent({ chapter, settings }: ChapterContentProps) {
   const bgMeta = READING_BG_MAP[settings.readingBg]
+  const sanitizedContent = useMemo(() => DOMPurify.sanitize(chapter.content), [chapter.content])
 
   return (
     <article
       className="max-w-3xl mx-auto px-4 py-8 transition-colors"
-      style={settings.readingBg !== 'default' ? { backgroundColor: bgMeta.bg } : undefined}
+      style={settings.readingBg !== 'default'
+        ? { backgroundColor: bgMeta?.bg ?? 'transparent' }
+        : undefined}
     >
       <h1 className="text-3xl font-bold mb-2">{chapter.title}</h1>
 
@@ -45,7 +49,7 @@ export function ChapterContent({ chapter, settings }: ChapterContentProps) {
           lineHeight: LINE_HEIGHT_MAP[settings.lineHeight],
           fontFamily: FONT_FAMILY_MAP[settings.fontFamily],
         }}
-        dangerouslySetInnerHTML={{ __html: chapter.content }}
+        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
       />
     </article>
   )

@@ -5,7 +5,7 @@ import { ArrowUp } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { DEFAULT_PUBLISH_SETTINGS } from '../contants'
+import { DEFAULT_PUBLISH_SETTINGS } from '../constants'
 import { ChapterContent } from './chapter-content'
 import { ChapterNavigation } from './chapter-navigation'
 import { PublishFooter } from './publish-footer'
@@ -46,7 +46,6 @@ export function PublishPageClient() {
 
   useEffect(() => {
     if (!novelId) {
-      setError('未找到小说ID')
       setLoading(false)
       return
     }

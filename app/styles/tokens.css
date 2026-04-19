@@ -60,6 +60,11 @@
   /* 编辑器专属背景（稿纸白） */
   --editor-bg: oklch(0.996 0.004 90);
 
+  /* 阅读背景 */
+  --reading-bg-warm: oklch(0.96 0.02 80);
+  --reading-bg-green: oklch(0.93 0.03 145);
+  --reading-bg-sepia: oklch(0.93 0.03 70);
+
   /* 编辑器字体：Lora 英文 + Noto Serif SC 中文级联 */
   --font-editor: var(--font-serif), var(--font-serif-sc), 'Georgia', serif;
   --font-display: var(--font-serif), var(--font-serif-sc), 'Georgia', serif;
@@ -114,6 +119,11 @@
 
   /* 夜读模式：编辑器背景比主背景亮一点点 */
   --editor-bg: oklch(0.145 0.01 55);
+
+  /* 阅读背景（深色模式下调低亮度） */
+  --reading-bg-warm: oklch(0.2 0.02 70);
+  --reading-bg-green: oklch(0.18 0.02 145);
+  --reading-bg-sepia: oklch(0.19 0.025 60);
 }
 
 /* Blue Theme */
