@@ -1,6 +1,14 @@
+export type FontSizeKey = 'small' | 'medium' | 'large' | 'x-large'
+export type LineHeightKey = 'compact' | 'normal' | 'relaxed' | 'loose'
+export type FontFamilyKey = 'sans' | 'serif'
+export type ReadingBgKey = 'default' | 'warm' | 'green' | 'sepia'
+
 export interface PublishSettings {
   theme: 'light' | 'dark'
-  fontSize: 'small' | 'medium' | 'large' | 'x-large'
+  fontSize: FontSizeKey
+  lineHeight: LineHeightKey
+  fontFamily: FontFamilyKey
+  readingBg: ReadingBgKey
 }
 
 export interface PublishedChapter {
@@ -32,9 +40,9 @@ export interface PublishedNovel {
   chapters: PublishedChapter[]
 }
 
-export const FONT_SIZE_MAP = {
-  small: '16px',
-  medium: '18px',
-  large: '20px',
+export const FONT_SIZE_MAP: Record<FontSizeKey, string> = {
+  'small': '16px',
+  'medium': '18px',
+  'large': '20px',
   'x-large': '22px',
 } as const

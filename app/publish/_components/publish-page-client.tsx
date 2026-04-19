@@ -5,6 +5,7 @@ import { ArrowUp } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { DEFAULT_PUBLISH_SETTINGS } from '../contants'
 import { ChapterContent } from './chapter-content'
 import { ChapterNavigation } from './chapter-navigation'
 import { PublishFooter } from './publish-footer'
@@ -16,10 +17,7 @@ export function PublishPageClient() {
 
   const [novel, setNovel] = useState<PublishedNovel | null>(null)
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0)
-  const [settings, setSettings] = useState<PublishSettings>({
-    theme: 'light',
-    fontSize: 'medium',
-  })
+  const [settings, setSettings] = useState<PublishSettings>(DEFAULT_PUBLISH_SETTINGS)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showBackToTop, setShowBackToTop] = useState(false)
@@ -141,7 +139,7 @@ export function PublishPageClient() {
       />
 
       <main className="flex-1">
-        <ChapterContent chapter={currentChapter} fontSize={settings.fontSize} />
+        <ChapterContent chapter={currentChapter} settings={settings} />
       </main>
 
       <ChapterNavigation
