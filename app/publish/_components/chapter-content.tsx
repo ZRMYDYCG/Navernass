@@ -1,7 +1,7 @@
 'use client'
 
 import type { PublishedChapter, PublishSettings } from '../types'
-import DOMPurify from 'isomorphic-dompurify'
+import DOMPurify from 'dompurify'
 import { useMemo } from 'react'
 import { FONT_FAMILY_MAP, LINE_HEIGHT_MAP, READING_BG_MAP } from '../constants'
 import { FONT_SIZE_MAP } from '../types'
