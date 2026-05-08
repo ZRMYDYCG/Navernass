@@ -6,8 +6,8 @@ import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
 import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.service'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
-import { getChatPrompt } from '@/prompts'
 import { createClient } from '@/lib/supabase/server'
+import { getChatPrompt } from '@/prompts'
 
 export const POST = withErrorHandler(async (req: NextRequest) => {
   const supabase = await createClient()

@@ -1,10 +1,10 @@
 import type { NextRequest } from 'next/server'
 import type { SendMessageRequest } from '@/lib/supabase/sdk/types'
 import { getApiKey } from '@/lib/api-key'
-import { createClient } from '@/lib/supabase/server'
 import { ConversationsService } from '@/lib/supabase/sdk/services/conversations.service'
 import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
 import { SiliconFlowService } from '@/lib/supabase/sdk/services/silicon-flow.service'
+import { createClient } from '@/lib/supabase/server'
 import { getChatPrompt } from '@/prompts'
 
 /**

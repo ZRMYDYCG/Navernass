@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    
+
     const body = await request.json()
     const { experience, genres, pain_points, tools, ai_expectations, ai_concerns, contact } = body
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         tools,
         ai_expectations,
         ai_concerns,
-        contact
+        contact,
       })
       .select()
       .single()
