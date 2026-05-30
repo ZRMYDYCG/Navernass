@@ -4,7 +4,6 @@ import { ChevronsUpDown, LogOut, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useI18n } from '@/hooks/use-i18n'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/hooks/use-auth'
+import { useI18n } from '@/hooks/use-i18n'
 import { ProfileDialog } from './profile-dialog'
 
 interface UserProfileProps {

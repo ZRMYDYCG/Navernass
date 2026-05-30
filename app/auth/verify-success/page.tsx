@@ -2,7 +2,7 @@
 
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -11,8 +11,6 @@ type VerifyStatus = 'verifying' | 'success' | 'failed'
 export default function VerifySuccessPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
-  const [status, setStatus] = useState<VerifyStatus>('verifying')
-  const [errorMessage, setErrorMessage] = useState<string>('')
 
   const params = useMemo(() => {
     if (typeof window === 'undefined') return null
@@ -23,20 +21,13 @@ export default function VerifySuccessPage() {
   const successParam = params?.get('status') ?? null
   const redirectTo = params?.get('redirectTo') || '/'
 
-  useEffect(() => {
-    if (errorParam) {
-      setErrorMessage(decodeURIComponent(errorParam))
-      setStatus('failed')
-      return
-    }
+  const errorMessage = errorParam ? decodeURIComponent(errorParam) : ''
 
-    if (loading) return
-
-    if (user || successParam === 'success') {
-      setStatus('success')
-    } else {
-      setStatus('failed')
-    }
+  const status = useMemo<VerifyStatus>(() => {
+    if (errorParam) return 'failed'
+    if (loading) return 'verifying'
+    if (user || successParam === 'success') return 'success'
+    return 'failed'
   }, [user, loading, errorParam, successParam])
 
   const handleEnter = () => {
