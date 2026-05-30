@@ -106,10 +106,11 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (loading) return
     setLoading(true)
 
     try {
-      const { error } = await signIn(loginForm.email, loginForm.password)
+      const { error } = await signIn(loginForm.email.trim(), loginForm.password)
       if (error) {
         toast.error(error.message)
       } else {
@@ -126,6 +127,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (loading) return
 
     if (registerForm.password !== registerForm.confirmPassword) {
       toast.error(t('auth.passwordMismatch'))
@@ -140,7 +142,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     setLoading(true)
 
     try {
-      const { error } = await signUp(registerForm.email, registerForm.password)
+      const { error } = await signUp(registerForm.email.trim(), registerForm.password)
       if (error) {
         toast.error(error.message)
       } else {

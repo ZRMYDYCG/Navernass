@@ -1,0 +1,43 @@
+@import 'streamdown/styles.css';
+
+/* Streamdown 字符淡入（需配合 globals.css 中的 @source） */
+.agui-streamdown [data-sd-animate] {
+  --sd-duration: 70ms;
+  --sd-easing: ease-out;
+}
+
+.agui-assistant-stream {
+  font-size: 11.5px;
+  line-height: 1.65;
+}
+
+.agui-thinking-panel {
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid color-mix(in oklab, var(--border) 90%, transparent);
+  background: color-mix(in oklab, var(--muted) 35%, transparent);
+}
+
+.agui-thinking-panel[data-live='true'] {
+  border-color: color-mix(in oklab, var(--primary) 25%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 8%, transparent);
+}
+
+.agui-thinking-body {
+  max-height: 12rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.agui-stream-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background-color: var(--primary);
+  animation: cursor-blink 1s step-end infinite;
+}
+
+.agui-log {
+  font-feature-settings: 'liga' 0;
+}

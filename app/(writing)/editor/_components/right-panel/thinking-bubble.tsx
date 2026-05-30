@@ -1,10 +1,11 @@
 'use client'
 
-import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { memo, useMemo, useState } from 'react'
 import { Avatar } from '@/components/ui/avatar'
 import { useI18n } from '@/hooks/use-i18n'
+import { AguiExpandableContent, AguiExpandChevron } from './parts/agui-expandable'
 
 interface ThinkingBubbleProps {
   thinking: string | null | undefined
@@ -13,7 +14,7 @@ interface ThinkingBubbleProps {
 
 function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
   const { theme } = useTheme()
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true)
   const { t } = useI18n()
 
   const avatarSrc = useMemo(() => {
@@ -31,17 +32,16 @@ function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
           <img src={avatarSrc} alt={t('editor.aiAvatarAlt')} className="w-full h-full object-cover" />
         </Avatar>
       </div>
-      <div className="flex-1 max-w-[85%] sm:max-w-md lg:max-w-lg">
+      <div className="flex-1 w-full min-w-0 overflow-hidden">
         <div className="flex items-center gap-1">
           <button
+            type="button"
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
           >
             <Sparkles className="w-3 h-3" />
             <span>{t('editor.rightPanel.deepThinking')}</span>
-            {isExpanded
-              ? <ChevronUp className="w-3 h-3" />
-              : <ChevronDown className="w-3 h-3" />}
+            <AguiExpandChevron open={isExpanded} />
           </button>
           {isStreaming && (
             <span className="inline-flex items-center justify-center w-3 h-3">
@@ -50,11 +50,14 @@ function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
           )}
         </div>
 
-        {isExpanded && (
-          <div className="mt-1 ml-1 rounded px-2.5 py-2 text-[10px] bg-accent/50 text-muted-foreground whitespace-pre-wrap">
+        <AguiExpandableContent open={isExpanded} className="mt-1 ml-1">
+          <div className="agui-thinking-panel agui-thinking-body px-2.5 py-2 text-[10px] text-muted-foreground whitespace-pre-wrap leading-relaxed">
             {thinking}
+            {isStreaming && (
+              <span className="inline-block w-[2px] h-[12px] ml-0.5 bg-primary align-middle animate-cursor-blink" />
+            )}
           </div>
-        )}
+        </AguiExpandableContent>
       </div>
     </div>
   )

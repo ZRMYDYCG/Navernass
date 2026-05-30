@@ -90,8 +90,9 @@ function MessageBubble({ message, streamingMessageId, userAvatar }: MessageBubbl
 
       <div
         className={cn(
-          'max-w-[85%] sm:max-w-md lg:max-w-lg',
-          isUser ? 'ml-auto flex justify-end' : 'min-w-0 flex-1 flex justify-start',
+          isUser
+            ? 'max-w-[85%] sm:max-w-md lg:max-w-lg ml-auto flex justify-end'
+            : 'w-full min-w-0 flex-1 flex justify-start',
         )}
       >
         <div

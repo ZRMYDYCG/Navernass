@@ -47,7 +47,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .single()
 
       if (error) {
-        console.error('Error fetching profile:', error)
+        // 行不存在或刚注册尚未触发 trigger 时返回 null，不要打印为错误
+        if (error.code !== 'PGRST116') {
+          console.error('Error fetching profile:', error)
+        }
         return null
       }
 
@@ -60,43 +63,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     let isMounted = true
+    let initialized = false
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return
 
-        setUser(session?.user ?? null)
+        const nextUser = session?.user ?? null
+        setUser(nextUser)
 
-        if (!session?.user) {
-          if (isMounted) {
-            setProfile(null)
+        if (!nextUser) {
+          setProfile(null)
+          if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
             setLoading(false)
+            initialized = true
           }
           return
         }
 
-        const shouldBlockLoading = event === 'SIGNED_IN' || event === 'INITIAL_SESSION'
-        if (shouldBlockLoading && isMounted) {
-          setLoading(true)
-        }
+        // SIGNED_IN / INITIAL_SESSION 需要拉 profile；TOKEN_REFRESHED 时复用现有 profile，避免多次刷新
+        const needsProfile
+          = event === 'SIGNED_IN'
+            || event === 'INITIAL_SESSION'
+            || event === 'USER_UPDATED'
 
-        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+        if (needsProfile) {
           try {
-            const profileData = await fetchProfileByUserId(session.user.id)
-
-            if (isMounted) {
-              setProfile(profileData)
-            }
-          } catch (error) {
-            console.error('Error fetching profile:', error)
-            if (isMounted && shouldBlockLoading) {
-              setProfile(null)
-            }
+            const profileData = await fetchProfileByUserId(nextUser.id)
+            if (isMounted) setProfile(profileData)
           } finally {
-            if (isMounted && shouldBlockLoading) {
+            if (isMounted) {
               setLoading(false)
+              initialized = true
             }
           }
+        } else if (!initialized && isMounted) {
+          setLoading(false)
+          initialized = true
         }
       },
     )
@@ -134,43 +137,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [user])
 
   const signUp = async (email: string, password: string) => {
-    const result = await supabase.auth.signUp({
+    return await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     })
-    return result
   }
 
   const signIn = async (email: string, password: string) => {
-    const result = await supabase.auth.signInWithPassword({
+    return await supabase.auth.signInWithPassword({
       email,
       password,
     })
-    return result
   }
 
   const signOut = async () => {
-    const result = await supabase.auth.signOut()
+    // 先调用服务端清理 cookie（此时浏览器仍持有 session cookie），再清本地 session
     try {
-      await fetch('/api/auth/signout', { method: 'POST' })
+      await fetch('/api/auth/signout', {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+      })
     } catch (err) {
       console.warn('server signout cleanup failed:', err)
     }
+
+    const result = await supabase.auth.signOut()
+
+    // 双保险：立即同步本地状态，避免下游 UI 在 auth state 事件到达前看到旧用户
+    setUser(null)
+    setProfile(null)
+
     return result
   }
 
   const refreshProfile = async () => {
     if (!user) return
 
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
-
+    const data = await fetchProfileByUserId(user.id)
     setProfile(data)
   }
 

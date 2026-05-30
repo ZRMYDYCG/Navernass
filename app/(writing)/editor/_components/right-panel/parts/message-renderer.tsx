@@ -68,8 +68,9 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
 
       <div
         className={cn(
-          'max-w-[85%] sm:max-w-md lg:max-w-lg',
-          isUser ? 'ml-auto flex justify-end' : 'min-w-0 flex-1 flex justify-start',
+          isUser
+            ? 'max-w-[85%] sm:max-w-md lg:max-w-lg ml-auto flex justify-end'
+            : 'w-full min-w-0 flex-1 flex justify-start',
         )}
       >
         <div className={cn('space-y-1', isUser ? 'w-fit max-w-full' : 'w-full')}>
@@ -83,7 +84,7 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
                     'text-[12px] text-foreground transition-all duration-200',
                     isUser
                       ? 'rounded-lg px-2.5 py-1.5 bg-secondary w-fit max-w-full'
-                      : 'px-0.5 py-0.5',
+                      : 'px-0.5 py-0.5 agui-assistant-stream',
                   )}
                 >
                   {group.items.map(({ part, index }) =>

@@ -142,7 +142,7 @@ export function MessageList({
         ref={scrollAreaRef}
         className="h-full w-full overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:pr-3"
       >
-        <div className="space-y-1 pb-4">
+        <div className="agui-log space-y-1 pb-4">
           {messages.map(message => (
             <MessageRenderer
               key={message.id}

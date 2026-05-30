@@ -4,6 +4,9 @@
 @import './styles/editor.css';
 @import './styles/editor-surface.css';
 @import './styles/utils.css';
+@import './styles/agui.css';
+
+@source "../node_modules/streamdown/dist/*.js";
 
 @layer base {
   * {

@@ -27,6 +27,7 @@ export function AuthButton() {
   const router = useRouter()
 
   const handleSignOut = async () => {
+    if (isSigningOut) return
     try {
       setIsSigningOut(true)
 
@@ -37,7 +38,7 @@ export function AuthButton() {
       }
 
       toast.success(t('auth.signedOut'))
-      router.push('/')
+      router.replace('/')
       router.refresh()
     } catch (error) {
       console.error('Sign out failed:', error)

@@ -1,147 +1,155 @@
-import type { Chapter } from '@/lib/supabase/sdk'
-import { useEffect, useState } from 'react'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { Spinner } from '@/components/ui/spinner'
-import { useI18n } from '@/hooks/use-i18n'
+'use client'
 
-interface ChapterSelectorProps {
-  novelId: string
+import type { Chapter } from '@/lib/supabase/sdk'
+import { AtSign, Check, ChevronDown } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
+import { useI18n } from '@/hooks/use-i18n'
+import { cn } from '@/lib/utils'
+import { selectOrderedChapters, useChaptersStore } from '@/store'
+
+interface ChapterMentionPickerProps {
   selectedChapters: Chapter[]
   onSelectionChange: (chapters: Chapter[]) => void
-  onClose: () => void
+  disabled?: boolean
 }
 
-export function ChapterSelector({
-  novelId,
+export function ChapterMentionPicker({
   selectedChapters,
   onSelectionChange,
-  onClose,
-}: ChapterSelectorProps) {
+  disabled,
+}: ChapterMentionPickerProps) {
   const { t } = useI18n()
-  const [chapters, setChapters] = useState<Chapter[]>([])
-  const [loading, setLoading] = useState(true)
+  const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  useEffect(() => {
-    const fetchChapters = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch(`/api/novels/${novelId}/chapters`)
-        if (!response.ok) throw new Error(t('editor.rightPanel.chapterSelector.fetchFailed'))
-        const result = await response.json()
-        setChapters(result.data || [])
-      } catch (error) {
-        console.error(t('editor.rightPanel.chapterSelector.fetchFailed'), error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const chapters = useChaptersStore(useShallow(selectOrderedChapters))
+  const hydrated = useChaptersStore(s => s.hydrated)
 
-    if (novelId) {
-      fetchChapters()
-    }
-  }, [novelId, t])
+  const chapterOrder = useMemo(() => {
+    const map = new Map<string, number>()
+    chapters.forEach((chapter, index) => map.set(chapter.id, index + 1))
+    return map
+  }, [chapters])
 
-  const filteredChapters = chapters.filter(chapter =>
-    chapter.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredChapters = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return chapters
+    return chapters.filter(chapter => chapter.title.toLowerCase().includes(q))
+  }, [chapters, searchQuery])
+
+  const selectedIds = useMemo(
+    () => new Set(selectedChapters.map(c => c.id)),
+    [selectedChapters],
   )
 
   const toggleChapter = (chapter: Chapter) => {
-    const isSelected = selectedChapters.some(c => c.id === chapter.id)
-    if (isSelected) {
+    if (selectedIds.has(chapter.id)) {
       onSelectionChange(selectedChapters.filter(c => c.id !== chapter.id))
     } else {
       onSelectionChange([...selectedChapters, chapter])
     }
   }
 
-  const isChapterSelected = (chapterId: string) => {
-    return selectedChapters.some(c => c.id === chapterId)
+  const close = () => {
+    setOpen(false)
+    setSearchQuery('')
   }
 
+  const showSearch = chapters.length > 6
+
   return (
-    <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent showCloseButton={false} className="w-full max-w-md bg-background border border-border rounded-xl shadow-xl p-0">
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <h3 className="text-sm font-medium text-foreground">{t('editor.rightPanel.chapterSelector.title')}</h3>
-        </div>
+    <div className="relative shrink-0">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => {
+          if (disabled) return
+          setOpen(v => !v)
+        }}
+        className={cn(
+          'flex items-center gap-1 px-2 py-1 text-xs bg-background hover:bg-accent rounded-md transition-colors border border-border shadow-sm',
+          open && 'bg-accent',
+          disabled && 'opacity-50 cursor-not-allowed',
+        )}
+        title={t('editor.rightPanel.referenceChapter')}
+      >
+        <AtSign className="w-3 h-3 text-muted-foreground" />
+        {selectedChapters.length > 0 && (
+          <span className="text-foreground tabular-nums">{selectedChapters.length}</span>
+        )}
+        <ChevronDown
+          className={cn(
+            'w-2.5 h-2.5 text-muted-foreground transition-transform duration-200',
+            open && 'rotate-180',
+          )}
+        />
+      </button>
 
-        <div className="p-3 border-b border-border bg-background">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder={t('editor.rightPanel.chapterSelector.searchPlaceholder')}
-            className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring shadow-sm"
-          />
-        </div>
-
-        <div className="max-h-96 overflow-y-auto bg-background">
-          {loading
-            ? (
-                <div className="p-8 flex items-center justify-center">
-                  <Spinner className="w-6 h-6 text-muted-foreground" />
-                </div>
-              )
-            : filteredChapters.length === 0
-              ? (
-                  <div className="p-8 text-center text-sm text-muted-foreground">
-                    {searchQuery ? t('editor.rightPanel.chapterSelector.noResults') : t('editor.rightPanel.chapterSelector.empty')}
-                  </div>
-                )
-              : (
-                  <div className="p-2">
-                    {filteredChapters.map((chapter) => {
-                      const isSelected = isChapterSelected(chapter.id)
-                      return (
-                        <button
-                          key={chapter.id}
-                          type="button"
-                          onClick={() => toggleChapter(chapter)}
-                          className={`w-full text-left px-3 py-2.5 text-sm rounded-lg transition-all mb-1 ${
-                            isSelected
-                              ? 'bg-accent text-foreground shadow-sm border border-border'
-                              : 'hover:bg-accent text-foreground border border-transparent'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-4 h-4 border-2 rounded flex items-center justify-center shrink-0 transition-colors ${
-                                isSelected
-                                  ? 'border-primary bg-primary'
-                                  : 'border-border'
-                              }`}
-                            >
-                              {isSelected && (
-                                <div className="w-1.5 h-1.5 bg-primary-foreground rounded-full" />
-                              )}
-                            </div>
-                            <span className="truncate flex-1 font-medium">{chapter.title}</span>
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-        </div>
-
-        <div className="p-3 border-t border-border flex items-center justify-between bg-muted/50 rounded-b-xl">
-          <span className="text-xs text-muted-foreground">
-            {t('editor.rightPanel.chapterSelector.selectedPrefix')}
-            {' '}
-            {selectedChapters.length}
-            {' '}
-            {t('editor.rightPanel.chapterSelector.selectedSuffix')}
-          </span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-colors shadow-sm"
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={close} />
+          <div
+            className="absolute bottom-full left-0 z-20 mb-1 w-56 bg-card border border-border rounded-lg shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
+            onMouseDown={e => e.preventDefault()}
           >
-            {t('editor.rightPanel.chapterSelector.confirm')}
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
+            {showSearch && (
+              <div className="px-2.5 py-2 border-b border-border/60">
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder={t('editor.rightPanel.chapterSelector.searchPlaceholder')}
+                  className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
+                />
+              </div>
+            )}
+
+            <div className="max-h-52 overflow-y-auto py-1">
+              {!hydrated
+                ? (
+                    <div className="px-2.5 py-4 text-center text-xs text-muted-foreground">
+                      …
+                    </div>
+                  )
+                : filteredChapters.length === 0
+                  ? (
+                      <div className="px-2.5 py-4 text-center text-xs text-muted-foreground">
+                        {searchQuery
+                          ? t('editor.rightPanel.chapterSelector.noResults')
+                          : t('editor.rightPanel.chapterSelector.empty')}
+                      </div>
+                    )
+                  : (
+                      filteredChapters.map((chapter) => {
+                        const isSelected = selectedIds.has(chapter.id)
+                        const order = chapterOrder.get(chapter.id) ?? 0
+                        return (
+                          <button
+                            key={chapter.id}
+                            type="button"
+                            onClick={() => toggleChapter(chapter)}
+                            className={cn(
+                              'w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-xs transition-colors',
+                              isSelected
+                                ? 'bg-accent text-foreground'
+                                : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
+                            )}
+                          >
+                            <span className="w-4 shrink-0 text-[10px] tabular-nums text-muted-foreground/70">
+                              {order || '·'}
+                            </span>
+                            <span className="flex-1 truncate">{chapter.title}</span>
+                            {isSelected && (
+                              <Check className="w-3 h-3 shrink-0 text-foreground/70" strokeWidth={2.5} />
+                            )}
+                          </button>
+                        )
+                      })
+                    )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
   )
 }

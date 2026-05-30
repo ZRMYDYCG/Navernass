@@ -10,8 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
-import { AtButton } from './at-button'
-import { ChapterSelector } from './chapter-selector'
+import { ChapterMentionPicker } from './chapter-selector'
 import { ConversationHistory } from './conversation-history'
 import { EmptyState } from './empty-state'
 import { Header } from './header'
@@ -21,6 +20,7 @@ import { ModeSelector } from './mode-selector'
 import { ModelSelector } from './model-selector'
 import { ChatActionsProvider } from './parts/chat-actions-context'
 import type { FormSubmitPayload } from './parts/chat-actions-context'
+import { MessageErrorFallback } from './message-error-fallback'
 import { MessageErrorBoundary } from './message-error-boundary'
 import { RecentConversations } from './recent-conversations'
 import { SelectedChapters } from './selected-chapters'
@@ -117,7 +117,6 @@ export default function RightPanel() {
   const [model, setModel] = useState<AiModel>('MiniMax-M2.7')
   const [input, setInput] = useState('')
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([])
-  const [showChapterSelector, setShowChapterSelector] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
   const [loadMessagesError, setLoadMessagesError] = useState<string | null>(null)
@@ -198,13 +197,13 @@ export default function RightPanel() {
     } catch (e) {
       console.error('Failed to load messages:', e)
       setMessages([])
-      const msg = e instanceof Error ? e.message : '加载历史消息失败'
+      const msg = e instanceof Error ? e.message : t('editor.rightPanel.loadMessagesFailed')
       // 网络超时、500 等错误以前会被吞掉显示成空对话——现在显式呈现
       setLoadMessagesError(msg)
     } finally {
       setIsLoadingMessages(false)
     }
-  }, [setMessages])
+  }, [setMessages, t])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -273,15 +272,6 @@ export default function RightPanel() {
     isChatLoading: isLoading,
   }), [submitFormResponse, submittedFormKeys, isLoading])
 
-  const handleAtClick = () => {
-    if (!novelId) return
-    setShowChapterSelector(true)
-  }
-
-  const handleChapterSelectionChange = (chapters: Chapter[]) => {
-    setSelectedChapters(chapters)
-  }
-
   const handleRemoveChapter = (chapterId: string) => {
     setSelectedChapters(prev => prev.filter(c => c.id !== chapterId))
   }
@@ -341,7 +331,7 @@ export default function RightPanel() {
             : loadMessagesError
               ? (
                   <div className="h-full flex flex-col items-center justify-center gap-2 px-4">
-                    <div className="text-[12px] text-destructive font-medium">加载历史消息失败</div>
+                    <div className="text-[12px] text-destructive font-medium">{t('editor.rightPanel.loadMessagesFailed')}</div>
                     <div className="text-[11px] text-muted-foreground text-center max-w-xs break-all">
                       {loadMessagesError}
                     </div>
@@ -350,7 +340,7 @@ export default function RightPanel() {
                       onClick={() => currentConversationId && loadMessages(currentConversationId)}
                       className="text-[11px] underline text-foreground hover:opacity-80"
                     >
-                      重试
+                      {t('editor.rightPanel.retry')}
                     </button>
                   </div>
                 )
@@ -360,7 +350,11 @@ export default function RightPanel() {
                     )
                   : (
                       <ChatActionsProvider value={chatActions}>
-                        <MessageErrorBoundary>
+                        <MessageErrorBoundary
+                          fallback={(error, retry) => (
+                            <MessageErrorFallback error={error} onRetry={retry} />
+                          )}
+                        >
                           <MessageList
                             messages={messages}
                             streamingMessageId={streamingMessageId}
@@ -396,21 +390,16 @@ export default function RightPanel() {
           </div>
 
           <div className="flex items-center gap-2 pt-1">
-            <AtButton onClick={handleAtClick} />
+            <ChapterMentionPicker
+              selectedChapters={selectedChapters}
+              onSelectionChange={setSelectedChapters}
+              disabled={!novelId}
+            />
             <ModeSelector value={mode} onChange={setMode} />
             <ModelSelector value={model} onChange={setModel} />
             <SendButton onClick={handleSend} disabled={!input.trim() || isLoading} />
           </div>
         </div>
-
-        {showChapterSelector && novelId && (
-          <ChapterSelector
-            novelId={novelId}
-            selectedChapters={selectedChapters}
-            onSelectionChange={handleChapterSelectionChange}
-            onClose={() => setShowChapterSelector(false)}
-          />
-        )}
 
         {showHistory && (
           <ConversationHistory

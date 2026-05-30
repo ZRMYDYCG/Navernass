@@ -2,37 +2,46 @@
 
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
+
+type VerifyStatus = 'verifying' | 'success' | 'failed'
 
 export default function VerifySuccessPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
-  const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying')
+  const [status, setStatus] = useState<VerifyStatus>('verifying')
   const [errorMessage, setErrorMessage] = useState<string>('')
 
+  const params = useMemo(() => {
+    if (typeof window === 'undefined') return null
+    return new URLSearchParams(window.location.search)
+  }, [])
+
+  const errorParam = params?.get('error') ?? null
+  const successParam = params?.get('status') ?? null
+  const redirectTo = params?.get('redirectTo') || '/'
+
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search)
-    const error = searchParams.get('error')
-    const success = searchParams.get('status')
-    const timestamp = searchParams.get('timestamp')
-
-    if (error) {
-      setErrorMessage(decodeURIComponent(error))
+    if (errorParam) {
+      setErrorMessage(decodeURIComponent(errorParam))
+      setStatus('failed')
+      return
     }
 
-    if (!loading) {
-      if (user && status !== 'success') {
-        setStatus('success')
-        /* 用户手动确认后再跳转，不再自动跳转 */
-      } else if (success) {
-        setStatus('success')
-      } else {
-        setStatus('failed')
-      }
+    if (loading) return
+
+    if (user || successParam === 'success') {
+      setStatus('success')
+    } else {
+      setStatus('failed')
     }
-  }, [user, loading, router])
+  }, [user, loading, errorParam, successParam])
+
+  const handleEnter = () => {
+    router.replace(redirectTo)
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -48,7 +57,7 @@ export default function VerifySuccessPage() {
           <>
             <CheckCircle className="w-16 h-16 mx-auto text-green-500" />
             <h2 className="text-2xl font-semibold text-green-600">验证成功！</h2>
-            <Button variant="default" size="lg" onClick={() => router.push('/')}>进入应用</Button>
+            <Button variant="default" size="lg" onClick={handleEnter}>进入应用</Button>
           </>
         )}
         {status === 'failed' && (
@@ -66,7 +75,7 @@ export default function VerifySuccessPage() {
                 </p>
               )}
             </div>
-            <Button variant="default" size="lg" onClick={() => router.push('/')}>返回首页</Button>
+            <Button variant="default" size="lg" onClick={() => router.replace('/')}>返回首页</Button>
           </>
         )}
       </div>

@@ -34,6 +34,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
   const { t } = useI18n()
 
   const handleSignOut = async () => {
+    if (isSigningOut) return
     try {
       setIsSigningOut(true)
       const { error } = await signOut()
@@ -43,7 +44,7 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
       }
 
       toast.success(t('auth.signedOut'))
-      router.push('/')
+      router.replace('/')
       router.refresh()
     } catch (error) {
       console.error('Sign out failed:', error)
