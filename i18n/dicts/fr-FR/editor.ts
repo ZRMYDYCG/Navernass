@@ -538,6 +538,20 @@ const editor = {
     empty: {
       title: 'Assistant d\'écriture IA',
       description: 'Poursuivez l\'intrigue, affinez le texte et peaufinez les dialogues avec l\'IA.',
+      byMode: {
+        ask: {
+          title: 'Mode Demander',
+          description: 'Conseils sur l\'intrigue, le lore et le style — sans modifier le manuscrit',
+        },
+        plan: {
+          title: 'Mode Planifier',
+          description: 'Structurer l\'histoire et les plans — les données peuvent être enregistrées',
+        },
+        agent: {
+          title: 'Mode Agent',
+          description: 'Continuer, peaufiner, réviser et gérer les chapitres',
+        },
+      },
     },
     chapterSelector: {
       title: 'Sélectionner des chapitres',
@@ -551,6 +565,18 @@ const editor = {
     },
     mode: {
       ask: 'Demander',
+      plan: 'Planifier',
+      agent: 'Agent',
+      description: {
+        ask: 'Conseil en lecture seule — pas de modification ni d\'écriture',
+        plan: 'Structurer plans et lore ; peut enregistrer des données de planification',
+        agent: 'Agent complet — révision, continuation et gestion des chapitres',
+      },
+      placeholder: {
+        ask: 'Question sur l\'intrigue, le lore ou le style…',
+        plan: 'Aide-moi à planifier le prochain chapitre…',
+        agent: 'Continuer, peaufiner, réviser ou organiser le lore…',
+      },
     },
     history: {
       title: 'Historique',
@@ -573,8 +599,8 @@ const editor = {
     tools: {
       fallback: {
         title: 'Appel d’outil · {{name}}',
-        input: 'input',
-        output: 'output',
+        input: 'Entrée',
+        output: 'Sortie',
       },
       state: {
         inputStreaming: 'Réception des paramètres',
@@ -590,6 +616,17 @@ const editor = {
         toastSuccess: '{{label}} : {{title}}',
       },
       labels: {
+        read_chapter: 'Lire le chapitre',
+        search_chapters: 'Rechercher des chapitres',
+        list_volumes: 'Lister les volumes',
+        list_chapters: 'Lister les chapitres',
+        list_worldbook_entries: 'Lister les entrées de lore',
+        read_worldbook_entry: 'Lire une entrée de lore',
+        list_outlines: 'Lister les plans',
+        list_character_events: 'Chronologie du personnage',
+        list_characters: 'Lister les personnages',
+        ask_user: 'Collecter des informations',
+        propose_edit: 'Proposer une révision',
         create_volume: 'Créer un volume',
         create_chapter: 'Créer un chapitre',
         append_chapter: 'Poursuivre le chapitre',

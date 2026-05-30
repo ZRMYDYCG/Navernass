@@ -1,140 +1,28 @@
 'use client'
 
-import { Mic, Send } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useRef, useState } from 'react'
-
-import { Button } from '@/components/ui/button'
-import { useI18n } from '@/hooks/use-i18n'
+import { AiChatInput } from '@/components/buss'
 
 interface ChatInputBoxProps {
-  onSend?: (message: string) => void
+  onSend?: (message: string) => void | Promise<void>
   placeholder?: string
   disabled?: boolean
   centered?: boolean
 }
 
+/** @deprecated 请直接使用 `@/components/buss` 的 AiChatInput */
 export function ChatInputBox({
   onSend,
   placeholder,
   disabled = false,
   centered = false,
 }: ChatInputBoxProps) {
-  const { t } = useI18n()
-  const [isRecording, setIsRecording] = useState(false)
-  const [isEmpty, setIsEmpty] = useState(true)
-  const [isSending, setIsSending] = useState(false)
-  const editorRef = useRef<HTMLDivElement>(null)
-  const router = useRouter()
-
-  const handleInput = () => {
-    if (editorRef.current) {
-      const text = editorRef.current.textContent || ''
-      const isContentEmpty = text.trim().length === 0
-      setIsEmpty(isContentEmpty)
-
-      if (isContentEmpty && editorRef.current.innerHTML !== '') {
-        editorRef.current.innerHTML = ''
-      }
-
-      editorRef.current.scrollTop = editorRef.current.scrollHeight
-    }
-  }
-
-  const handleSend = async () => {
-    if (!editorRef.current || disabled || isSending) return
-    const message = editorRef.current.textContent?.trim() || ''
-    if (!message) return
-
-    setIsSending(true)
-
-    try {
-      if (onSend) {
-        await Promise.resolve(onSend(message))
-      } else {
-        router.push(`/chat/${Date.now()}`)
-      }
-
-      if (editorRef.current) {
-        editorRef.current.innerHTML = ''
-        editorRef.current.textContent = ''
-        setIsEmpty(true)
-      }
-    } finally {
-      if (editorRef.current) {
-        editorRef.current.focus()
-      }
-      setIsSending(false)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
-
-  const handleVoiceClick = () => {
-    setIsRecording(!isRecording)
-  }
-
   return (
-    <div className="w-full">
-      <div
-        className={`bg-card rounded-xl border border-border transition-all flex flex-col min-h-[120px] max-w-4xl focus-within:border-ring ${
-          centered ? 'mx-auto' : ''
-        }`}
-      >
-        <div
-          ref={editorRef}
-          contentEditable={!disabled}
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
-          className={`relative w-full px-4 py-4 bg-transparent border-none outline-none text-foreground flex-1 overflow-y-auto break-words max-h-[180px] font-serif leading-relaxed ${
-            disabled ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-          data-placeholder={disabled ? t('chat.input.waiting') : (placeholder || t('chat.input.placeholder'))}
-          suppressContentEditableWarning
-        />
-
-        <div className="px-4 pb-3 pt-1 flex justify-end">
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handleVoiceClick}
-              className={`h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full ${
-                isRecording ? 'text-destructive animate-pulse' : ''
-              }`}
-            >
-              <Mic className="w-5 h-5" />
-            </Button>
-
-            <Button
-              type="button"
-              onClick={handleSend}
-              disabled={isEmpty || disabled || isSending}
-              size="icon"
-              className={`h-9 w-9 bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed flex items-center justify-center transition-all rounded-lg shadow-sm ${
-                isSending
-                  ? 'disabled:opacity-100'
-                  : 'disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none'
-              }`}
-              aria-busy={isSending}
-            >
-              {isSending
-                ? (
-                    <span className="block w-3 h-3 bg-current rounded-sm animate-pulse" />
-                  )
-                : (
-                    <Send className="w-4 h-4" />
-                  )}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <AiChatInput
+      onSend={message => onSend?.(message)}
+      placeholder={placeholder}
+      disabled={disabled}
+      centered={centered}
+      showVoice
+    />
   )
 }

@@ -23,6 +23,8 @@ const chat = {
   input: {
     placeholder: '和 AI 一起创作你的小说世界...',
     waiting: '等待对话创建...',
+    send: '发送 (Enter)',
+    voice: '语音输入',
   },
   welcomeHeader: {
     newChat: '新建对话',

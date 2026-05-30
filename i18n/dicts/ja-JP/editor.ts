@@ -538,6 +538,20 @@ const editor = {
     empty: {
       title: 'AI執筆アシスタント',
       description: 'AIと一緒にプロットを進め、文章を整え、会話を磨きましょう。',
+      byMode: {
+        ask: {
+          title: '質問モード',
+          description: 'プロット・設定・文体について相談 — 原稿は変更しません',
+        },
+        plan: {
+          title: '計画モード',
+          description: '物語構成とアウトラインを整理 — 計画データを保存できます',
+        },
+        agent: {
+          title: '実行モード',
+          description: '続き書き、推敲、改稿、章と設定の管理',
+        },
+      },
     },
     chapterSelector: {
       title: '章を選択',
@@ -551,6 +565,18 @@ const editor = {
     },
     mode: {
       ask: '質問',
+      plan: '計画',
+      agent: '実行',
+      description: {
+        ask: '読み取り専用の相談 — 編集・書き込みなし',
+        plan: 'アウトラインと設定を整理、計画データを保存可能',
+        agent: 'フルエージェント — 改稿・続き書き・章管理',
+      },
+      placeholder: {
+        ask: 'プロット、設定、文体について質問…',
+        plan: '次の章のアウトラインを整理して…',
+        agent: '続き書き、推敲、改稿、設定整理…',
+      },
     },
     history: {
       title: '履歴',
@@ -573,8 +599,8 @@ const editor = {
     tools: {
       fallback: {
         title: 'ツール呼び出し · {{name}}',
-        input: 'input',
-        output: 'output',
+        input: '入力',
+        output: '出力',
       },
       state: {
         inputStreaming: '入力受信中',
@@ -590,6 +616,17 @@ const editor = {
         toastSuccess: '{{label}}：{{title}}',
       },
       labels: {
+        read_chapter: '章を読む',
+        search_chapters: '章を検索',
+        list_volumes: '巻一覧',
+        list_chapters: '章一覧',
+        list_worldbook_entries: '世界観エントリ一覧',
+        read_worldbook_entry: '世界観エントリを読む',
+        list_outlines: 'アウトライン一覧',
+        list_character_events: 'キャラクター年表',
+        list_characters: 'キャラクター一覧',
+        ask_user: '情報収集',
+        propose_edit: '改稿提案',
         create_volume: '巻を作成',
         create_chapter: '章を作成',
         append_chapter: '章を続き書き',

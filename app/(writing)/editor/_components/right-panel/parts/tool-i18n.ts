@@ -14,7 +14,9 @@ export function translateToolState(t: TFunction, state: string): string {
 }
 
 export function translateToolLabel(t: TFunction, toolName: AutoWriteToolName | string): string {
-  return t(`editor.rightPanel.tools.labels.${toolName}`)
+  const key = `editor.rightPanel.tools.labels.${toolName}`
+  const translated = t(key)
+  return translated === key ? toolName : translated
 }
 
 export function translateToolSuccess(

@@ -14,17 +14,16 @@ import { ChapterMentionPicker } from './chapter-selector'
 import { ConversationHistory } from './conversation-history'
 import { EmptyState } from './empty-state'
 import { Header } from './header'
-import { InputArea } from './input-area'
 import { MessageList } from './message-list'
 import { ModeSelector } from './mode-selector'
 import { ModelSelector } from './model-selector'
+import { AiChatInput } from '@/components/buss'
 import { ChatActionsProvider } from './parts/chat-actions-context'
 import type { FormSubmitPayload } from './parts/chat-actions-context'
 import { MessageErrorFallback } from './message-error-fallback'
 import { MessageErrorBoundary } from './message-error-boundary'
 import { RecentConversations } from './recent-conversations'
 import { SelectedChapters } from './selected-chapters'
-import { SendButton } from './send-button'
 
 /**
  * 把可能是字符串（旧 supabase 配置）或数组（新格式）的 parts 字段统一成数组。
@@ -234,8 +233,8 @@ export default function RightPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentConversationId])
 
-  const handleSend = async () => {
-    const text = input.trim()
+  const handleSend = async (textOverride?: string) => {
+    const text = (textOverride ?? input).trim()
     if (!text || isLoading || !novelId) return
     setInput('')
     try {
@@ -346,7 +345,7 @@ export default function RightPanel() {
                 )
               : !hasMessages
                   ? (
-                      <EmptyState />
+                      <EmptyState mode={mode} />
                     )
                   : (
                       <ChatActionsProvider value={chatActions}>
@@ -377,28 +376,36 @@ export default function RightPanel() {
               onSelect={handleSelectConversation}
             />
           )}
-          {selectedChapters.length > 0 && (
-            <SelectedChapters chapters={selectedChapters} onRemove={handleRemoveChapter} />
-          )}
-
-          <div className="flex gap-2 items-end">
-            <InputArea
-              value={input}
-              onChange={setInput}
-              onSend={handleSend}
-            />
-          </div>
-
-          <div className="flex items-center gap-2 pt-1">
-            <ChapterMentionPicker
-              selectedChapters={selectedChapters}
-              onSelectionChange={setSelectedChapters}
-              disabled={!novelId}
-            />
-            <ModeSelector value={mode} onChange={setMode} />
-            <ModelSelector value={model} onChange={setModel} />
-            <SendButton onClick={handleSend} disabled={!input.trim() || isLoading} />
-          </div>
+          <AiChatInput
+            value={input}
+            onChange={setInput}
+            onSend={text => handleSend(text)}
+            placeholder={t(`editor.rightPanel.mode.placeholder.${mode}`)}
+            disabled={isLoading || !novelId}
+            isSending={isLoading}
+            variant="compact"
+            references={
+              selectedChapters.length > 0
+                ? (
+                    <SelectedChapters
+                      chapters={selectedChapters}
+                      onRemove={handleRemoveChapter}
+                    />
+                  )
+                : undefined
+            }
+            toolbar={(
+              <>
+                <ChapterMentionPicker
+                  selectedChapters={selectedChapters}
+                  onSelectionChange={setSelectedChapters}
+                  disabled={!novelId}
+                />
+                <ModeSelector value={mode} onChange={setMode} />
+                <ModelSelector value={model} onChange={setModel} />
+              </>
+            )}
+          />
         </div>
 
         {showHistory && (

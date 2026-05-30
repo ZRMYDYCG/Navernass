@@ -21,7 +21,8 @@ export const editorSurgicalSkill: Skill = {
 - 一次只改一处，改动尽量小（"最小改动原则"）
 - 给出的 \`reasoning\` 字段要简短说明为什么这样改（一句话）`,
   toolNames: ['read_chapter', 'propose_edit'],
-  triggers: ({ text }) => {
+  triggers: ({ text, mode }) => {
+    if (mode !== 'agent') return false
     return /改|润色|修|优化|重写|调整|改写|polish|rewrite/i.test(text)
   },
 }

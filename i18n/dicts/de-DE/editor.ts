@@ -538,6 +538,20 @@ const editor = {
     empty: {
       title: 'KI-Schreibassistent',
       description: 'Setzen Sie den Plot fort, verfeinern Sie Prosa und polieren Sie Dialoge mit KI.',
+      byMode: {
+        ask: {
+          title: 'Fragemodus',
+          description: 'Beratung zu Plot, Lore und Stil — Ihr Manuskript bleibt unverändert',
+        },
+        plan: {
+          title: 'Planungsmodus',
+          description: 'Story-Struktur und Gliederung — Planungsdaten können gespeichert werden',
+        },
+        agent: {
+          title: 'Agent-Modus',
+          description: 'Fortsetzen, polieren, bearbeiten und Kapitel verwalten',
+        },
+      },
     },
     chapterSelector: {
       title: 'Kapitel auswählen',
@@ -551,6 +565,18 @@ const editor = {
     },
     mode: {
       ask: 'Fragen',
+      plan: 'Planen',
+      agent: 'Agent',
+      description: {
+        ask: 'Nur Beratung — keine Bearbeitung oder Speicherung',
+        plan: 'Gliederung und Lore strukturieren, Planungsdaten speichern',
+        agent: 'Voller Agent — bearbeiten, fortsetzen, Kapitel verwalten',
+      },
+      placeholder: {
+        ask: 'Frage zu Plot, Lore oder Stil…',
+        plan: 'Hilf mir, das nächste Kapitel zu planen…',
+        agent: 'Fortsetzen, polieren, bearbeiten oder Lore ordnen…',
+      },
     },
     history: {
       title: 'Verlauf',
@@ -573,8 +599,8 @@ const editor = {
     tools: {
       fallback: {
         title: 'Tool-Aufruf · {{name}}',
-        input: 'input',
-        output: 'output',
+        input: 'Eingabe',
+        output: 'Ausgabe',
       },
       state: {
         inputStreaming: 'Eingabe wird empfangen',
@@ -590,6 +616,17 @@ const editor = {
         toastSuccess: '{{label}}: {{title}}',
       },
       labels: {
+        read_chapter: 'Kapitel lesen',
+        search_chapters: 'Kapitel durchsuchen',
+        list_volumes: 'Bände auflisten',
+        list_chapters: 'Kapitel auflisten',
+        list_worldbook_entries: 'Weltbau-Einträge auflisten',
+        read_worldbook_entry: 'Weltbau-Eintrag lesen',
+        list_outlines: 'Gliederungen auflisten',
+        list_character_events: 'Charakter-Zeitstrahl',
+        list_characters: 'Charaktere auflisten',
+        ask_user: 'Informationen sammeln',
+        propose_edit: 'Bearbeitungsvorschlag',
         create_volume: 'Band erstellen',
         create_chapter: 'Kapitel erstellen',
         append_chapter: 'Kapitel fortsetzen',

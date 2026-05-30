@@ -538,6 +538,20 @@ const editor = {
     empty: {
       title: 'AI 글쓰기 도우미',
       description: '플롯을 이어가고, 문장을 다듬고, 대사를 윤문하는 데 AI를 활용하세요.',
+      byMode: {
+        ask: {
+          title: '질문 모드',
+          description: '플롯·설정·문체 상담 — 원고는 수정하지 않습니다',
+        },
+        plan: {
+          title: '기획 모드',
+          description: '스토리 구조와 개요 정리 — 기획 데이터 저장 가능',
+        },
+        agent: {
+          title: '실행 모드',
+          description: '이어쓰기, 다듬기, 교정, 챕터 및 설정 관리',
+        },
+      },
     },
     chapterSelector: {
       title: '장 선택',
@@ -551,6 +565,18 @@ const editor = {
     },
     mode: {
       ask: '질문',
+      plan: '기획',
+      agent: '실행',
+      description: {
+        ask: '읽기 전용 상담 — 편집·저장 없음',
+        plan: '개요와 설정 정리, 기획 데이터 저장 가능',
+        agent: '전체 에이전트 — 교정·이어쓰기·챕터 관리',
+      },
+      placeholder: {
+        ask: '플롯, 설정, 문체에 대해 질문…',
+        plan: '다음 장 개요를 정리해 줘…',
+        agent: '이어쓰기, 다듬기, 교정, 설정 정리…',
+      },
     },
     history: {
       title: '기록',
@@ -573,8 +599,8 @@ const editor = {
     tools: {
       fallback: {
         title: '도구 호출 · {{name}}',
-        input: 'input',
-        output: 'output',
+        input: '입력',
+        output: '출력',
       },
       state: {
         inputStreaming: '입력 수신 중',
@@ -590,6 +616,17 @@ const editor = {
         toastSuccess: '{{label}}: {{title}}',
       },
       labels: {
+        read_chapter: '챕터 읽기',
+        search_chapters: '챕터 검색',
+        list_volumes: '권 목록',
+        list_chapters: '챕터 목록',
+        list_worldbook_entries: '세계관 항목 목록',
+        read_worldbook_entry: '세계관 항목 읽기',
+        list_outlines: '개요 목록',
+        list_character_events: '캐릭터 타임라인',
+        list_characters: '캐릭터 목록',
+        ask_user: '정보 수집',
+        propose_edit: '교정 제안',
         create_volume: '권 만들기',
         create_chapter: '챕터 만들기',
         append_chapter: '챕터 이어 쓰기',

@@ -23,6 +23,8 @@ const chat = {
   input: {
     placeholder: '和 AI 一起創作你的小說世界...',
     waiting: '等待對話建立...',
+    send: '傳送 (Enter)',
+    voice: '語音輸入',
   },
   welcomeHeader: {
     newChat: '新建對話',

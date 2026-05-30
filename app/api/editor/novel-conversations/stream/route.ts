@@ -155,6 +155,7 @@ export async function POST(req: NextRequest) {
     uiMessages: messages,
     modelMessages,
     modelId: model,
+    mode: mode || 'ask',
     decision,
     toolContext: {
       supabase,
@@ -230,6 +231,7 @@ export async function POST(req: NextRequest) {
     headers: {
       'X-Conversation-Id': conversation.id,
       'X-Agent-Id': decision.agentId,
+      'X-Ai-Mode': mode || 'ask',
       'X-Skill-Ids': decision.skillIds.join(','),
     },
   })

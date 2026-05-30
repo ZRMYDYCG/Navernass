@@ -538,6 +538,20 @@ const editor = {
     empty: {
       title: 'AI Writing Assistant',
       description: 'Continue the plot, refine the prose, and polish dialogue with AI.',
+      byMode: {
+        ask: {
+          title: 'Ask mode',
+          description: 'Get advice on plot, lore, and prose — I won\'t change your manuscript',
+        },
+        plan: {
+          title: 'Plan mode',
+          description: 'Structure your story and outlines — planning data can be saved',
+        },
+        agent: {
+          title: 'Agent mode',
+          description: 'Continue, polish, edit chapters, and manage your project',
+        },
+      },
     },
     chapterSelector: {
       title: 'Select chapters',
@@ -551,6 +565,18 @@ const editor = {
     },
     mode: {
       ask: 'Ask',
+      plan: 'Plan',
+      agent: 'Agent',
+      description: {
+        ask: 'Read-only advice — no edits or writes',
+        plan: 'Structure outlines and lore; can save planning data',
+        agent: 'Full agent — edit, continue, and manage chapters',
+      },
+      placeholder: {
+        ask: 'Ask about plot, lore, or prose…',
+        plan: 'Help me outline the next chapter…',
+        agent: 'Continue, polish, edit, or organise lore…',
+      },
     },
     history: {
       title: 'History',
@@ -573,8 +599,8 @@ const editor = {
     tools: {
       fallback: {
         title: 'Tool call · {{name}}',
-        input: 'input',
-        output: 'output',
+        input: 'Input',
+        output: 'Output',
       },
       state: {
         inputStreaming: 'Receiving input',
@@ -590,6 +616,17 @@ const editor = {
         toastSuccess: '{{label}}: {{title}}',
       },
       labels: {
+        read_chapter: 'Read chapter',
+        search_chapters: 'Search chapters',
+        list_volumes: 'List volumes',
+        list_chapters: 'List chapters',
+        list_worldbook_entries: 'List worldbuilding entries',
+        read_worldbook_entry: 'Read worldbuilding entry',
+        list_outlines: 'List outlines',
+        list_character_events: 'List character timeline',
+        list_characters: 'List characters',
+        ask_user: 'Collect information',
+        propose_edit: 'Suggest edit',
         create_volume: 'Create volume',
         create_chapter: 'Create chapter',
         append_chapter: 'Continue chapter',

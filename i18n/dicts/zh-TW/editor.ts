@@ -538,6 +538,20 @@ const editor = {
     empty: {
       title: 'AI 寫作助手',
       description: '我可以幫你續寫劇情、優化文字、潤飾對話，讓創作更輕鬆',
+      byMode: {
+        ask: {
+          title: '提問模式',
+          description: '諮詢劇情、設定與文筆，我不會改動你的文稿',
+        },
+        plan: {
+          title: '規劃模式',
+          description: '梳理故事結構與大綱，把規劃寫入設定庫',
+        },
+        agent: {
+          title: '執行模式',
+          description: '續寫、潤色、改稿，並幫你管理章節與設定',
+        },
+      },
     },
     chapterSelector: {
       title: '選擇章節',
@@ -551,6 +565,18 @@ const editor = {
     },
     mode: {
       ask: '提問',
+      plan: '規劃',
+      agent: '執行',
+      description: {
+        ask: '只讀諮詢，不會修改章節或落庫',
+        plan: '梳理大綱與設定，可寫入規劃資料',
+        agent: '完整代理，可改稿、續寫、管理章節',
+      },
+      placeholder: {
+        ask: '問我劇情、設定、文筆建議…',
+        plan: '幫我梳理大綱、規劃下一章…',
+        agent: '續寫、潤色、改稿，或整理設定…',
+      },
     },
     history: {
       title: '歷史對話',
@@ -573,8 +599,8 @@ const editor = {
     tools: {
       fallback: {
         title: '工具調用 · {{name}}',
-        input: 'input',
-        output: 'output',
+        input: '輸入',
+        output: '輸出',
       },
       state: {
         inputStreaming: '接收參數中',
@@ -590,6 +616,17 @@ const editor = {
         toastSuccess: '{{label}}：{{title}}',
       },
       labels: {
+        read_chapter: '讀取章節',
+        search_chapters: '搜尋章節',
+        list_volumes: '列出卷',
+        list_chapters: '列出章節',
+        list_worldbook_entries: '列出世界觀條目',
+        read_worldbook_entry: '讀取世界觀條目',
+        list_outlines: '列出大綱',
+        list_character_events: '列出角色時間線',
+        list_characters: '列出角色',
+        ask_user: '收集資訊',
+        propose_edit: '提交改稿建議',
         create_volume: '建立新卷',
         create_chapter: '建立新章節',
         append_chapter: '續寫章節',

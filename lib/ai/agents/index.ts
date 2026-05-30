@@ -6,6 +6,7 @@ import { registerWriterAgent } from './writer'
 
 export * from './character-import-analyzer'
 export * from './character-scriptwriter'
+export * from './modes'
 export * from './registry'
 export * from './router'
 export * from './types'

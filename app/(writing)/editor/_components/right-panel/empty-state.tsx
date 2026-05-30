@@ -1,8 +1,17 @@
+'use client'
+
+import type { AiMode } from './types'
 import Image from 'next/image'
 import { useI18n } from '@/hooks/use-i18n'
 
-export function EmptyState() {
+interface EmptyStateProps {
+  mode?: AiMode
+}
+
+export function EmptyState({ mode = 'ask' }: EmptyStateProps) {
   const { t } = useI18n()
+  const title = t(`editor.rightPanel.empty.byMode.${mode}.title`)
+  const description = t(`editor.rightPanel.empty.byMode.${mode}.description`)
 
   return (
     <div className="h-full flex flex-col items-center justify-center text-center px-6 relative">
@@ -34,10 +43,10 @@ export function EmptyState() {
 
       <div className="relative z-10">
         <h3 className="text-lg font-medium text-foreground mb-2 tracking-tight">
-          {t('editor.rightPanel.empty.title')}
+          {title}
         </h3>
         <p className="text-sm text-muted-foreground mb-8 max-w-xs leading-relaxed">
-          {t('editor.rightPanel.empty.description')}
+          {description}
         </p>
       </div>
     </div>

@@ -23,6 +23,8 @@ const chat = {
   input: {
     placeholder: 'Schreiben Sie Ihre Romanwelt gemeinsam mit KI...',
     waiting: 'Warten auf Gespräch...',
+    send: 'Senden (Enter)',
+    voice: 'Spracheingabe',
   },
   welcomeHeader: {
     newChat: 'Neuer Chat',

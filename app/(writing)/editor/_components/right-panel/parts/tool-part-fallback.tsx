@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { AguiExpandableContent, AguiExpandChevron } from './agui-expandable'
-import { translateToolState } from './tool-i18n'
+import { translateToolLabel, translateToolState } from './tool-i18n'
 
 /**
  * Tool 调用的视觉壳：通用 collapsible 容器，标题 + 状态图标
@@ -26,7 +26,7 @@ export function ToolPartFallback({ part }: { part: ToolUIPart }) {
       >
         <ToolStateIcon state={state} />
         <span className="font-medium">
-          {t('editor.rightPanel.tools.fallback.title', { name: toolName })}
+          {translateToolLabel(t, toolName)}
         </span>
         <span className="ml-auto text-muted-foreground">{translateToolState(t, state)}</span>
         <AguiExpandChevron open={open} className="text-muted-foreground" />

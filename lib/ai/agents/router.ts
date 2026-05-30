@@ -1,17 +1,15 @@
 import type { RouteDecision } from './types'
 import { listSkills } from '../skills/types'
-import { DEFAULT_AGENT_ID, listAgents } from './registry'
+import { getModeConfig, normalizeMode } from './modes'
+import { DEFAULT_AGENT_ID, getAgent, listAgents } from './registry'
 
 /**
- * Router Agent (MVP 简化版)
+ * Router Agent (MVP)
  *
- * 当前策略：纯启发式路由（无 LLM 调用），后续阶段可替换为 generateObject。
- *   - mode === 'agent'  → 走 specialist + 启用所有匹配 skill
- *   - mode === 'plan'   → 暂时也走 writer（Planner 未实装），但禁用 editor-surgical skill
- *   - mode === 'ask'    → 走 writer，禁用 propose_edit 类工具型 skill
- *
- * 这样保留了 specialist/skill 的扩展位，让 stream/route.ts 不需要因为
- * 后续接 Planner/Editor agent 而再次大改。
+ * 按前端选择的 mode 决定 agent、skill 白名单与工具子集：
+ *   - ask    → 只读咨询，禁用写入类 skill
+ *   - plan   → 规划大纲/设定，启用 story-planning
+ *   - agent  → 完整写作代理，可按关键词启用 editor-surgical
  */
 export interface RouterInput {
   text: string
@@ -19,18 +17,27 @@ export interface RouterInput {
 }
 
 export function route(input: RouterInput): RouteDecision {
-  const { text, mode } = input
+  const { text } = input
+  const mode = normalizeMode(input.mode)
+  const modeConfig = getModeConfig(mode)
+
   const agents = listAgents()
+  const preferredAgent = getAgent(modeConfig.agentId)
   const writerExists = agents.some(a => a.id === DEFAULT_AGENT_ID)
-  const agentId = writerExists ? DEFAULT_AGENT_ID : (agents[0]?.id || DEFAULT_AGENT_ID)
+  const agentId = preferredAgent
+    ? modeConfig.agentId
+    : (writerExists ? DEFAULT_AGENT_ID : (agents[0]?.id || DEFAULT_AGENT_ID))
+
+  const agent = getAgent(agentId)
+  const agentSkillWhitelist = new Set(agent?.compatibleSkillIds || modeConfig.compatibleSkillIds)
 
   const skills = listSkills()
   const enabledSkillIds: string[] = []
   const reasons: string[] = []
 
   for (const skill of skills) {
-    // ask 模式不启用编辑器手术刀（避免误改稿）
-    if (mode === 'ask' && skill.id === 'editor-surgical') continue
+    if (!modeConfig.compatibleSkillIds.includes(skill.id)) continue
+    if (!agentSkillWhitelist.has(skill.id)) continue
 
     const triggered = skill.triggers ? skill.triggers({ text, mode }) : true
     if (triggered) {

@@ -4,6 +4,7 @@ import { stepCountIs, streamText } from 'ai'
 import { getMinimaxModel } from '@/lib/ai/minimax'
 import { getSkill } from '../skills/types'
 import { buildTools } from '../tools/registry'
+import { getModeConfig, isToolAllowedInMode, WRITER_DEFAULT_TOOL_NAMES } from './modes'
 import { registerAgent } from './registry'
 
 export const writerAgent: AgentDefinition = {
@@ -57,39 +58,18 @@ export const writerAgent: AgentDefinition = {
 
 【输出语言】
 中文。除工具调用外不使用 markdown。`,
-  defaultToolNames: [
-    'read_chapter',
-    'search_chapters',
-    'list_volumes',
-    'list_chapters',
-    'list_worldbook_entries',
-    'read_worldbook_entry',
-    'list_outlines',
-    'propose_edit',
-    'create_volume',
-    'create_chapter',
-    'append_chapter',
-    'create_worldbook_entry',
-    'create_outline',
-    'update_chapter',
-    'update_volume',
-    'update_worldbook_entry',
-    'update_outline',
-    'delete_chapter',
-    'delete_volume',
-    'delete_worldbook_entry',
-    'delete_outline',
-    'ask_user',
-  ],
-  compatibleSkillIds: ['editor-surgical', 'chinese-novel-style'],
+  defaultToolNames: [...WRITER_DEFAULT_TOOL_NAMES],
+  compatibleSkillIds: ['editor-surgical', 'chinese-novel-style', 'story-planning'],
 }
 
 export interface RunWriterAgentOptions extends AgentRunInput {
+  mode?: string
   onFinish?: StreamTextOnFinishCallback<ToolSet>
 }
 
 export function runWriterAgent(input: RunWriterAgentOptions) {
-  const { decision, modelMessages, modelId, toolContext, onFinish } = input
+  const { decision, modelMessages, modelId, toolContext, mode, onFinish } = input
+  const modeConfig = getModeConfig(mode)
 
   const skills = decision.skillIds
     .map(id => getSkill(id))
@@ -97,20 +77,25 @@ export function runWriterAgent(input: RunWriterAgentOptions) {
 
   const systemPrompt = [
     writerAgent.systemPrompt,
+    modeConfig.systemPromptOverlay,
     ...skills.map(s => s.systemPrompt),
   ].join('\n\n')
 
-  const toolNameSet = new Set<string>(writerAgent.defaultToolNames || [])
+  const toolNameSet = new Set<string>(modeConfig.toolNames)
   skills.forEach(s => s.toolNames?.forEach(n => toolNameSet.add(n)))
-  const tools = buildTools(Array.from(toolNameSet), toolContext)
+
+  const allowedToolNames = Array.from(toolNameSet).filter(name =>
+    isToolAllowedInMode(name, modeConfig.id),
+  )
+  const tools = buildTools(allowedToolNames, toolContext)
 
   return streamText({
     model: getMinimaxModel(modelId),
     system: systemPrompt,
     messages: modelMessages,
     tools,
-    temperature: 0.7,
-    stopWhen: stepCountIs(6),
+    temperature: modeConfig.id === 'ask' ? 0.5 : 0.7,
+    stopWhen: stepCountIs(modeConfig.maxSteps),
     onFinish,
     onError: (e) => {
       console.error('[writer-agent] streamText error:', e)
