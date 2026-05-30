@@ -2,7 +2,6 @@
 
 import type { Volume } from '../types'
 import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import * as Popover from '@radix-ui/react-popover'
 import { BookOpen, ChevronDown, Edit2, GripVertical, Trash2 } from 'lucide-react'
 import { useState, type MouseEvent, type ReactNode } from 'react'
@@ -39,7 +38,7 @@ export function VolumeItem({
   const { t } = useI18n()
   const [popoverOpen, setPopoverOpen] = useState(false)
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const { attributes, listeners, setNodeRef, isDragging } = useSortable({
     id: volume.id,
     data: {
       type: 'volume',
@@ -47,10 +46,10 @@ export function VolumeItem({
     },
   })
 
+  // 不应用 transform/transition；列表的"让位"靠 ChapterList 在 onDragOver 中
+  // 实时 arrayMove localVolumes 来呈现，而不是单个 item 平移。
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0 : 1,
   }
 
   return (
@@ -67,7 +66,7 @@ export function VolumeItem({
                     {...listeners}
                     className={cn(
                       'flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded transition-opacity',
-                      isExpanded ? 'opacity-100' : 'opacity-0 group-hover/volume:opacity-40',
+                      'opacity-50 group-hover/volume:opacity-100',
                     )}
                     onClick={e => e.stopPropagation()}
                   >

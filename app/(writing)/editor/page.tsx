@@ -1015,6 +1015,7 @@ function NovelsEditContent() {
               currentChapterId={activeTab}
               isImmersiveMode={isImmersiveMode}
               showLeftPanel={showLeftPanel}
+              showRightPanel={showRightPanel}
               onToggleLeftPanel={handleToggleLeftPanel}
               onSelectChapter={handleSelectChapter}
               onToggleAI={() => {
@@ -1042,8 +1043,7 @@ function NovelsEditContent() {
                 id="left-panel"
                 order={1}
                 defaultSize={20}
-                minSize={0}
-                maxSize={30}
+                minSize={15}
                 collapsible={true}
                 collapsedSize={0}
                 onCollapse={() => setShowLeftPanel(false)}
@@ -1082,14 +1082,14 @@ function NovelsEditContent() {
                 </ImmersiveRegion>
               </ResizablePanel>
 
-              <ResizableHandle withHandle className={!showLeftPanel ? 'hidden' : ''} />
+              <ResizableHandle withHandle />
 
               {/* 中间：编辑器 */}
               <ResizablePanel
                 id="editor-panel"
                 order={2}
-                defaultSize={activeLeftTab === 'characters' ? 80 : 60}
-                minSize={activeLeftTab === 'characters' ? 80 : 40}
+                defaultSize={60}
+                minSize={activeLeftTab === 'characters' ? 70 : 30}
               >
                 {activeLeftTab === 'characters'
                   ? (
@@ -1120,7 +1120,7 @@ function NovelsEditContent() {
                       )}
               </ResizablePanel>
 
-              <ResizableHandle withHandle className={!showRightPanel ? 'hidden' : ''} />
+              <ResizableHandle withHandle />
 
               {/* 右侧：AI助手 */}
               <ResizablePanel
@@ -1128,8 +1128,7 @@ function NovelsEditContent() {
                 id="right-panel"
                 order={3}
                 defaultSize={20}
-                minSize={0}
-                maxSize={30}
+                minSize={15}
                 collapsible={true}
                 collapsedSize={0}
                 onCollapse={() => setShowRightPanel(false)}

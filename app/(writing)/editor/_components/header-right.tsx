@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  Bot,
   Eye,
   EyeOff,
   Globe,
@@ -29,7 +28,6 @@ interface HeaderRightProps {
   isImmersiveMode?: boolean
   onToggleFullscreen?: () => void
   onToggleImmersiveMode?: () => void
-  onToggleAI?: () => void
   onToggleTerminal?: () => void
   onLock?: () => void
   onClose?: () => void
@@ -42,7 +40,6 @@ export function HeaderRight({
   isImmersiveMode = false,
   onToggleFullscreen,
   onToggleImmersiveMode,
-  onToggleAI,
   onLock,
   onClose,
   novelId,
@@ -105,21 +102,6 @@ export function HeaderRight({
           </TooltipTrigger>
           <TooltipContent>
             <p>{isImmersiveMode ? t('editor.header.exitImmersive') : t('editor.header.immersive')}</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              onClick={onToggleAI}
-              className={buttonClass}
-            >
-              <Bot {...iconProps} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{t('editor.header.aiAssistant')}</p>
           </TooltipContent>
         </Tooltip>
 

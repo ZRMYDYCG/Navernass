@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutPanelLeft } from 'lucide-react'
+import { LayoutPanelLeft, MessageCircle } from 'lucide-react'
 import {
   Tooltip,
   TooltipContent,
@@ -11,12 +11,16 @@ import { useI18n } from '@/hooks/use-i18n'
 
 interface HeaderLeftProps {
   showLeftPanel: boolean
+  showRightPanel?: boolean
   onToggleLeftPanel: () => void
+  onToggleAI?: () => void
 }
 
 export function HeaderLeft({
   showLeftPanel,
+  showRightPanel = false,
   onToggleLeftPanel,
+  onToggleAI,
 }: HeaderLeftProps) {
   const { t } = useI18n()
 
@@ -39,6 +43,25 @@ export function HeaderLeft({
           </TooltipTrigger>
           <TooltipContent>
             <p>{showLeftPanel ? t('editor.header.hideLeftPanel') : t('editor.header.showLeftPanel')}</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={onToggleAI}
+              className={`p-1.5 h-7 w-7 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer ${
+                showRightPanel
+                  ? 'text-foreground bg-accent'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+              }`}
+            >
+              <MessageCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{t('editor.header.aiAssistant')}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

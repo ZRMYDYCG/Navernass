@@ -11,6 +11,7 @@ interface EditorHeaderProps {
   currentChapterId?: string | null
   isImmersiveMode?: boolean
   showLeftPanel: boolean
+  showRightPanel?: boolean
   onToggleLeftPanel: () => void
   onSelectChapter?: (chapterId: string) => void
   onToggleAI?: () => void
@@ -28,6 +29,7 @@ export default function EditorHeader({
   currentChapterId,
   isImmersiveMode,
   showLeftPanel,
+  showRightPanel,
   onToggleLeftPanel,
   onSelectChapter,
   onToggleAI,
@@ -185,7 +187,9 @@ export default function EditorHeader({
       {/* 左侧：Logo + 折叠按钮 */}
       <HeaderLeft
         showLeftPanel={showLeftPanel}
+        showRightPanel={showRightPanel}
         onToggleLeftPanel={onToggleLeftPanel}
+        onToggleAI={onToggleAI}
       />
 
       {/* 中间：历史导航 + 标题搜索框 */}
@@ -198,11 +202,10 @@ export default function EditorHeader({
         onTitleClick={handleTitleClick}
       />
 
-      {/* 右侧：锁屏 + 终端 + AI + 全屏 + 关闭 */}
+      {/* 右侧：锁屏 + 终端 + 全屏 + 关闭 */}
       <HeaderRight
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
-        onToggleAI={onToggleAI}
         onToggleTerminal={onToggleTerminal}
         onLock={handleLock}
         onClose={handleClose}

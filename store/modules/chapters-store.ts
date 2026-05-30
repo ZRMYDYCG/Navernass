@@ -55,7 +55,7 @@ function sortByOrderIndex<T extends { order_index: number }>(items: T[]): T[] {
 
 export const useChaptersStore = create<ChaptersStoreState>()(
   devtools(
-    immer<ChaptersStoreState>((set) => ({
+    immer<ChaptersStoreState>(set => ({
       currentNovelId: null,
       chaptersById: {},
       chapterIdsOrdered: [],

@@ -152,6 +152,7 @@
     "lefthook": "^2.0.2",
     "lint-staged": "^16.2.6",
     "release-it": "^17.9.0",
+    "supabase": "^2.102.0",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4",
     "typescript": "^5"

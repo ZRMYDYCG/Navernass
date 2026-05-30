@@ -2,7 +2,6 @@
 
 import type { ChapterItemProps } from './types'
 import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import * as Popover from '@radix-ui/react-popover'
 import { ArrowRightLeft, Copy, Edit2, FileText, GripVertical, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -83,14 +82,14 @@ export function ChapterItem({
     }
   }
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const { attributes, listeners, setNodeRef, isDragging } = useSortable({
     id: chapter.id,
   })
 
+  // 不应用 transform/transition——让"刀切式"重排靠列表项位置变化呈现，
+  // 而不是单个 item 的 CSS transform 平移（那会产生漂浮感）。
   const style = {
-    transform: CSS.Transform.toString(transform) || undefined,
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0 : 1,
   }
 
   return (
@@ -117,7 +116,7 @@ export function ChapterItem({
                     'flex-shrink-0 cursor-grab rounded p-0.5 transition-all active:cursor-grabbing hover:bg-accent',
                     isSelected
                       ? 'opacity-100 text-primary/80'
-                      : 'opacity-0 group-hover/chapter:opacity-30',
+                      : 'opacity-30 group-hover/chapter:opacity-70',
                   )}
                   onClick={e => e.stopPropagation()}
                 >
