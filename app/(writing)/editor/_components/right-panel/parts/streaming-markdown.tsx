@@ -1,7 +1,7 @@
 'use client'
 
-import { memo } from 'react'
 import type { AnimateOptions } from 'streamdown'
+import { memo } from 'react'
 import { Streamdown } from 'streamdown'
 
 interface StreamingMarkdownProps {
@@ -22,7 +22,6 @@ const STREAM_ANIMATION: AnimateOptions = {
 /**
  * 基于 streamdown 的 markdown 渲染器。
  * - `animated` + `isAnimating`：新到达字符带闪光淡入
- * - `caret`：流式末尾块状光标
  * - `mode="streaming"` + `parseIncompleteMarkdown`：未闭合 markdown 不抖动
  */
 function StreamingMarkdownInner({ content, isStreaming = false }: StreamingMarkdownProps) {
@@ -37,7 +36,6 @@ function StreamingMarkdownInner({ content, isStreaming = false }: StreamingMarkd
         parseIncompleteMarkdown={isStreaming}
         isAnimating={isStreaming}
         animated={STREAM_ANIMATION}
-        caret={isStreaming ? 'block' : undefined}
         controls={{
           code: false,
           mermaid: false,

@@ -534,6 +534,7 @@ const editor = {
     newChat: '新建對話',
     historyButton: '歷史記錄',
     deepThinking: '深度思考',
+    streaming: '落筆中…',
     untitledConversation: '無標題對話',
     empty: {
       title: 'AI 寫作助手',

@@ -43,14 +43,35 @@
   overscroll-behavior: contain;
 }
 
-.agui-stream-caret {
-  display: inline-block;
-  width: 2px;
-  height: 1.05em;
-  margin-left: 1px;
-  vertical-align: text-bottom;
-  background-color: var(--primary);
-  animation: cursor-blink 1s step-end infinite;
+@keyframes agui-ink-drop {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0) scale(0.85);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1);
+  }
+}
+
+@keyframes agui-pen-sway {
+  0%,
+  100% {
+    transform: rotate(-8deg) translateY(0);
+  }
+  50% {
+    transform: rotate(6deg) translateY(-1px);
+  }
+}
+
+.agui-ink-drop {
+  animation: agui-ink-drop 1.1s ease-in-out infinite;
+}
+
+.agui-pen-sway {
+  animation: agui-pen-sway 1.6s ease-in-out infinite;
+  transform-origin: 20% 80%;
 }
 
 .agui-log {

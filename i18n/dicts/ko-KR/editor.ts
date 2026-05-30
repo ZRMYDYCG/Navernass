@@ -534,6 +534,7 @@ const editor = {
     newChat: '새 채팅',
     historyButton: '기록',
     deepThinking: '심층 사고',
+    streaming: '집필 중…',
     untitledConversation: '제목 없는 채팅',
     empty: {
       title: 'AI 글쓰기 도우미',

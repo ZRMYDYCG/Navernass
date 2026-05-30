@@ -534,6 +534,7 @@ const editor = {
     newChat: '新建对话',
     historyButton: '历史记录',
     deepThinking: '深度思考',
+    streaming: '落笔中…',
     untitledConversation: '无标题对话',
     empty: {
       title: 'AI 写作助手',

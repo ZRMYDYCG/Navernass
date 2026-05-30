@@ -125,6 +125,14 @@ export default function RightPanel() {
   conversationIdRef.current = currentConversationId
   const skipLoadOnceRef = useRef(false)
   const setConversationIdFromHeaderRef = useRef<(id: string) => void>(() => {})
+  const novelIdRef = useRef(novelId)
+  novelIdRef.current = novelId
+  const modeRef = useRef(mode)
+  modeRef.current = mode
+  const modelRef = useRef(model)
+  modelRef.current = model
+  const selectedChaptersRef = useRef(selectedChapters)
+  selectedChaptersRef.current = selectedChapters
 
   const transport = useMemo(
     () =>
@@ -140,15 +148,15 @@ export default function RightPanel() {
           body: {
             ...body,
             messages,
-            novelId,
+            novelId: novelIdRef.current,
             conversationId: conversationIdRef.current || undefined,
-            selectedChapterIds: selectedChapters.map(c => c.id),
-            mode,
-            model,
+            selectedChapterIds: selectedChaptersRef.current.map(c => c.id),
+            mode: modeRef.current,
+            model: modelRef.current,
           },
         }),
       }),
-    [novelId, selectedChapters, mode, model],
+    [],
   )
 
   setConversationIdFromHeaderRef.current = (id: string) => {

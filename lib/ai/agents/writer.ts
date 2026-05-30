@@ -77,6 +77,7 @@ export function runWriterAgent(input: RunWriterAgentOptions) {
 
   const systemPrompt = [
     writerAgent.systemPrompt,
+    `【模式优先级】用户可在对话中途切换模式；务必以本回合「当前模式」指令为准执行，勿根据历史消息里的旧模式说明拒绝操作或重复提示切换模式。`,
     modeConfig.systemPromptOverlay,
     ...skills.map(s => s.systemPrompt),
   ].join('\n\n')

@@ -534,6 +534,7 @@ const editor = {
     newChat: 'Neuer Chat',
     historyButton: 'Verlauf',
     deepThinking: 'Tiefes Nachdenken',
+    streaming: 'Schreibt…',
     untitledConversation: 'Chat ohne Titel',
     empty: {
       title: 'KI-Schreibassistent',

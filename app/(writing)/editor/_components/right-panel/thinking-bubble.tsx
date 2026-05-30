@@ -1,6 +1,6 @@
 'use client'
 
-import { Sparkles } from 'lucide-react'
+import { Brain } from 'lucide-react'
 import { memo, useState } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { AguiExpandableContent, AguiExpandChevron } from './parts/agui-expandable'
@@ -27,7 +27,7 @@ function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
           >
-            <Sparkles className="w-3 h-3" />
+            <Brain className="w-3 h-3" />
             <span>{t('editor.rightPanel.deepThinking')}</span>
             <AguiExpandChevron open={isExpanded} />
           </button>
@@ -39,7 +39,7 @@ function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
         </div>
 
         <AguiExpandableContent open={isExpanded} className="mt-1 ml-1">
-          <div className="agui-thinking-panel agui-thinking-body px-2.5 py-2 text-[10px] text-muted-foreground whitespace-pre-wrap leading-relaxed">
+          <div className="agui-thinking-body px-2 py-1.5 text-[10px] text-muted-foreground whitespace-pre-wrap leading-relaxed">
             {thinking}
             {isStreaming && (
               <span className="inline-block w-[2px] h-[12px] ml-0.5 bg-primary align-middle animate-cursor-blink" />

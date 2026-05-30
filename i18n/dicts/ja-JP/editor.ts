@@ -534,6 +534,7 @@ const editor = {
     newChat: '新しいチャット',
     historyButton: '履歴',
     deepThinking: '深く考える',
+    streaming: '執筆中…',
     untitledConversation: '無題の会話',
     empty: {
       title: 'AI執筆アシスタント',

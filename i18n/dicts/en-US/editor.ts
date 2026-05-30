@@ -534,6 +534,7 @@ const editor = {
     newChat: 'New chat',
     historyButton: 'History',
     deepThinking: 'Deep thinking',
+    streaming: 'Writing…',
     untitledConversation: 'Untitled chat',
     empty: {
       title: 'AI Writing Assistant',
