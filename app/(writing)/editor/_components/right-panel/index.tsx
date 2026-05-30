@@ -2,8 +2,11 @@
 
 import type { AiMode, AiModel } from './types'
 import type { Chapter, NovelConversation, NovelMessage } from '@/lib/supabase/sdk'
+import type { UIMessage } from 'ai'
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
 import { useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
@@ -20,57 +23,103 @@ import { RecentConversations } from './recent-conversations'
 import { SelectedChapters } from './selected-chapters'
 import { SendButton } from './send-button'
 
+/**
+ * 将 Supabase 中的 NovelMessage 转为 AI SDK 的 UIMessage（用于回填历史）。
+ * thinking 以 reasoning part 表达，content 以 text part 表达。
+ */
+function toUIMessages(messages: NovelMessage[]): UIMessage[] {
+  return messages.map((m) => {
+    const parts: UIMessage['parts'] = []
+    if (m.thinking) {
+      parts.push({ type: 'reasoning', text: m.thinking, state: 'done' } as UIMessage['parts'][number])
+    }
+    parts.push({ type: 'text', text: m.content, state: 'done' } as UIMessage['parts'][number])
+    return {
+      id: m.id,
+      role: m.role as 'user' | 'assistant' | 'system',
+      parts,
+    } as UIMessage
+  })
+}
+
 export default function RightPanel() {
   const { t } = useI18n()
   const searchParams = useSearchParams()
   const novelId = searchParams.get('id') || ''
 
-  const [messages, setMessages] = useState<NovelMessage[]>([])
   const [conversations, setConversations] = useState<NovelConversation[]>([])
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [mode, setMode] = useState<AiMode>('ask')
-  const [model, setModel] = useState<AiModel>('deepseek-ai/DeepSeek-R1-Distill-Qwen-7B')
+  const [model, setModel] = useState<AiModel>('MiniMax-M2.7')
   const [input, setInput] = useState('')
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([])
   const [showChapterSelector, setShowChapterSelector] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
-  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
 
-  const isProcessingRef = useRef(false)
-  const abortControllerRef = useRef<AbortController | null>(null)
-  const isStreamingRef = useRef(false)
+  const conversationIdRef = useRef<string | null>(null)
+  conversationIdRef.current = currentConversationId
+  const skipLoadOnceRef = useRef(false)
+  const setConversationIdFromHeaderRef = useRef<(id: string) => void>(() => {})
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: '/api/editor/novel-conversations/stream',
+        fetch: async (input, init) => {
+          const res = await fetch(input, init)
+          const id = res.headers.get('X-Conversation-Id')
+          if (id) setConversationIdFromHeaderRef.current(id)
+          return res
+        },
+        prepareSendMessagesRequest: ({ messages, body }) => ({
+          body: {
+            ...body,
+            messages,
+            novelId,
+            conversationId: conversationIdRef.current || undefined,
+            selectedChapterIds: selectedChapters.map(c => c.id),
+            mode,
+            model,
+          },
+        }),
+      }),
+    [novelId, selectedChapters, mode, model],
+  )
 
-    const handleInsertFromEditor = (event: Event) => {
-      const customEvent = event as CustomEvent<{ text?: string }>
-      const text = customEvent.detail?.text
-      if (!text) return
-
-      setInput((prev) => {
-        const current = prev.trim()
-        if (!current) return text
-        return `${current}\n\n${text}`
-      })
+  setConversationIdFromHeaderRef.current = (id: string) => {
+    if (conversationIdRef.current !== id) {
+      skipLoadOnceRef.current = true
+      setCurrentConversationId(id)
     }
+  }
 
-    window.addEventListener('novel-ai-insert-from-editor', handleInsertFromEditor)
+  const { messages, sendMessage, setMessages, status, stop, error } = useChat({
+    transport,
+    onFinish: () => {
+      void loadConversations()
+    },
+    onError: (err) => {
+      console.error('useChat error:', err)
+    },
+  })
 
-    return () => {
-      window.removeEventListener('novel-ai-insert-from-editor', handleInsertFromEditor)
-    }
-  }, [])
+  const isLoading = status === 'submitted' || status === 'streaming'
+  const streamingMessageId = useMemo(() => {
+    if (status !== 'streaming') return null
+    const last = messages[messages.length - 1]
+    return last?.role === 'assistant' ? last.id : null
+  }, [status, messages])
+
+  const hasMessages = messages.length > 0
 
   const loadConversations = useCallback(async () => {
     if (!novelId) return
     try {
       const data = await novelConversationsApi.getByNovelId(novelId)
       setConversations(data)
-    } catch (error) {
-      console.error('Failed to load conversations:', error)
+    } catch (e) {
+      console.error('Failed to load conversations:', e)
     }
   }, [novelId])
 
@@ -78,189 +127,52 @@ export default function RightPanel() {
     setIsLoadingMessages(true)
     try {
       const data = await novelConversationsApi.getMessages(conversationId)
-      setMessages(data)
-    } catch (error) {
-      console.error('Failed to load messages:', error)
+      setMessages(toUIMessages(data))
+    } catch (e) {
+      console.error('Failed to load messages:', e)
       setMessages([])
     } finally {
       setIsLoadingMessages(false)
     }
+  }, [setMessages])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handler = (event: Event) => {
+      const text = (event as CustomEvent<{ text?: string }>).detail?.text
+      if (!text) return
+      setInput(prev => (prev.trim() ? `${prev.trim()}\n\n${text}` : text))
+    }
+    window.addEventListener('novel-ai-insert-from-editor', handler)
+    return () => window.removeEventListener('novel-ai-insert-from-editor', handler)
   }, [])
 
   useEffect(() => {
     if (!novelId) return
-    let cancelled = false
-    void (async () => {
-      try {
-        const data = await novelConversationsApi.getByNovelId(novelId)
-        if (!cancelled) {
-          setConversations(data)
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.error('Failed to load conversations:', error)
-        }
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [novelId])
+    void loadConversations()
+  }, [novelId, loadConversations])
 
   useEffect(() => {
-    if (currentConversationId) {
-      if (!isStreamingRef.current) {
-        void loadMessages(currentConversationId)
-      }
-    } else {
-      const timer = setTimeout(() => {
-        setMessages([])
-        setIsLoadingMessages(false)
-      }, 0)
-      return () => clearTimeout(timer)
+    if (skipLoadOnceRef.current) {
+      skipLoadOnceRef.current = false
+      return
     }
-  }, [currentConversationId, loadMessages])
+    if (currentConversationId) {
+      void loadMessages(currentConversationId)
+    } else {
+      setMessages([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentConversationId])
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading || isProcessingRef.current || !novelId) return
-
-    isProcessingRef.current = true
-    setIsLoading(true)
-    isStreamingRef.current = true
-
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-    abortControllerRef.current = new AbortController()
-
-    const messageContent = input.trim()
+    const text = input.trim()
+    if (!text || isLoading || !novelId) return
     setInput('')
-
-    const tempUserMessage: NovelMessage = {
-      id: `temp-user-${Date.now()}`,
-      conversation_id: currentConversationId || '',
-      novel_id: novelId,
-      user_id: 'default-user',
-      role: 'user',
-      content: messageContent,
-      created_at: new Date().toISOString(),
-    }
-    setMessages(prev => [...prev, tempUserMessage])
-
-    let aiMessageId: string | null = null
-    let accumulatedContent = ''
-    let accumulatedThinking = ''
-    let newConversationId = currentConversationId
-
     try {
-      await novelConversationsApi.sendMessageStream(
-        {
-          novelId,
-          conversationId: currentConversationId || undefined,
-          message: messageContent,
-          selectedChapterIds: selectedChapters.map(c => c.id),
-          mode,
-          model,
-        },
-        {
-          onConversationId: (id) => {
-            newConversationId = id
-            setCurrentConversationId(id)
-            if (!currentConversationId) {
-              loadConversations()
-            }
-          },
-          onUserMessageId: (id) => {
-            setMessages(prev =>
-              prev.map(msg =>
-                msg.id === tempUserMessage.id ? { ...msg, id } : msg,
-              ),
-            )
-          },
-          onThinking: (chunk) => {
-            accumulatedThinking += chunk
-            if (!aiMessageId) {
-              const tempAiMessage: NovelMessage = {
-                id: `temp-ai-${Date.now()}`,
-                conversation_id: newConversationId || '',
-                novel_id: novelId,
-                user_id: 'default-user',
-                role: 'assistant',
-                content: accumulatedContent,
-                thinking: accumulatedThinking,
-                created_at: new Date().toISOString(),
-              }
-              aiMessageId = tempAiMessage.id
-              setStreamingMessageId(aiMessageId)
-              setMessages(prev => [...prev, tempAiMessage])
-            } else {
-              setMessages(prev =>
-                prev.map(msg =>
-                  msg.id === aiMessageId ? { ...msg, thinking: accumulatedThinking } : msg,
-                ),
-              )
-            }
-          },
-          onContent: (chunk) => {
-            accumulatedContent += chunk
-            if (!aiMessageId) {
-              const tempAiMessage: NovelMessage = {
-                id: `temp-ai-${Date.now()}`,
-                conversation_id: newConversationId || '',
-                novel_id: novelId,
-                user_id: 'default-user',
-                role: 'assistant',
-                content: accumulatedContent,
-                thinking: accumulatedThinking,
-                created_at: new Date().toISOString(),
-              }
-              aiMessageId = tempAiMessage.id
-              setStreamingMessageId(aiMessageId)
-              setMessages(prev => [...prev, tempAiMessage])
-            } else {
-              setMessages(prev =>
-                prev.map(msg =>
-                  msg.id === aiMessageId ? { ...msg, content: accumulatedContent, thinking: accumulatedThinking } : msg,
-                ),
-              )
-            }
-          },
-          onDone: async (data) => {
-            setStreamingMessageId(null)
-            setIsLoading(false)
-            isProcessingRef.current = false
-            abortControllerRef.current = null
-            isStreamingRef.current = false
-            if (aiMessageId && aiMessageId.startsWith('temp-')) {
-              setMessages(prev =>
-                prev.map(msg =>
-                  msg.id === aiMessageId
-                    ? { ...msg, id: data.messageId }
-                    : msg,
-                ),
-              )
-            }
-            await loadConversations()
-          },
-          onError: (error) => {
-            console.error('Streaming error:', error)
-            setIsLoading(false)
-            setStreamingMessageId(null)
-            isProcessingRef.current = false
-            abortControllerRef.current = null
-            isStreamingRef.current = false
-            setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id && msg.id !== aiMessageId))
-          },
-        },
-      )
-    } catch (error) {
-      console.error('Failed to send message:', error)
-      setIsLoading(false)
-      setStreamingMessageId(null)
-      isProcessingRef.current = false
-      abortControllerRef.current = null
-      isStreamingRef.current = false
-      setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id && msg.id !== aiMessageId))
+      await sendMessage({ text })
+    } catch (e) {
+      console.error('Failed to send message:', e)
     }
   }
 
@@ -278,19 +190,17 @@ export default function RightPanel() {
   }
 
   const handleNewChat = () => {
-    isStreamingRef.current = false
+    if (isLoading) stop()
     setCurrentConversationId(null)
     setMessages([])
     setSelectedChapters([])
     setInput('')
   }
 
-  const handleShowHistory = () => {
-    setShowHistory(true)
-  }
+  const handleShowHistory = () => setShowHistory(true)
 
   const handleSelectConversation = async (conversation: NovelConversation) => {
-    isStreamingRef.current = false
+    if (isLoading) stop()
     setCurrentConversationId(conversation.id)
     setShowHistory(false)
   }
@@ -303,8 +213,8 @@ export default function RightPanel() {
         setMessages([])
       }
       await loadConversations()
-    } catch (error) {
-      console.error('Failed to delete conversation:', error)
+    } catch (e) {
+      console.error('Failed to delete conversation:', e)
     }
   }
 
@@ -312,16 +222,14 @@ export default function RightPanel() {
     try {
       await novelConversationsApi.update(conversationId, { is_pinned: isPinned })
       await loadConversations()
-    } catch (error) {
-      console.error('Failed to pin conversation:', error)
+    } catch (e) {
+      console.error('Failed to pin conversation:', e)
     }
   }
 
   return (
     <div className="h-full w-full bg-transparent relative">
-      <div
-        className="h-full flex flex-col border-border bg-background"
-      >
+      <div className="h-full flex flex-col border-border bg-background">
         <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
 
         <div className="flex-1 min-h-0 overflow-hidden px-2 py-2 relative">
@@ -332,21 +240,26 @@ export default function RightPanel() {
                   <span className="text-xs text-muted-foreground">{t('editor.rightPanel.loadingConversation')}</span>
                 </div>
               )
-            : messages.length === 0
-              ? (
-                  <EmptyState />
-                )
-              : (
-                  <MessageList
-                    messages={messages}
-                    streamingMessageId={streamingMessageId}
-                    isLoading={isLoading && !streamingMessageId}
-                  />
-                )}
+            : !hasMessages
+                ? (
+                    <EmptyState />
+                  )
+                : (
+                    <MessageList
+                      messages={messages}
+                      streamingMessageId={streamingMessageId}
+                      isLoading={isLoading && !streamingMessageId}
+                    />
+                  )}
+          {error && (
+            <div className="absolute bottom-2 left-2 right-2 text-[11px] text-destructive bg-destructive/10 border border-destructive/30 rounded px-2 py-1">
+              {error.message}
+            </div>
+          )}
         </div>
 
         <div className="px-3 py-2 space-y-2 bg-background rounded-b-lg z-10">
-          {messages.length === 0 && !isLoadingMessages && (
+          {!hasMessages && !isLoadingMessages && (
             <RecentConversations
               conversations={conversations}
               onSelect={handleSelectConversation}

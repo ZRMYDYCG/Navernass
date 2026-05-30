@@ -3,14 +3,12 @@
  */
 
 export type AiMode = 'agent' | 'ask' | 'plan'
+
 export type AiModel =
-  | 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
-  | 'BAAI/bge-large-en-v1.5'
-  | 'THUDM/glm-4-9b-chat'
-  | 'Qwen/Qwen2.5-Coder-7B-Instruct'
-  | 'Qwen2-7B-Instruct'
-  | 'bge-large-zh-v1.5'
-  | 'Qwen/Qwen3-8B'
+  | 'MiniMax-M2.7'
+  | 'MiniMax-M2.1'
+  | 'MiniMax-Text-01'
+  | 'abab6.5s-chat'
 
 export interface Message {
   id: string

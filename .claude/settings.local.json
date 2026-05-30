@@ -3,7 +3,22 @@
     "allow": [
       "Bash(npm --version)",
       "Bash(npx @nestjs/cli@latest new . --package-manager npm --skip-git --skip-install)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(ls \"E:/workspace/Navernass/app/\\(writing\\)\")",
+      "Bash(ls \"E:/workspace/Navernass/app/\\(writing\\)/editor\")",
+      "Bash(ls:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npx tsc:*)",
+      "WebSearch",
+      "WebFetch(domain:platform.minimax.io)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh issue:*)",
+      "Bash(ls \"app/\\(writing\\)/editor/_components/right-panel/parts/\")",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:docs.vllm.ai)",
+      "WebFetch(domain:minimax-m2.com)",
+      "WebFetch(domain:streamdown.ai)",
+      "WebFetch(domain:www.npmjs.com)"
     ]
   }
 }

@@ -1,41 +1,47 @@
 'use client'
 
-import type { NovelMessage } from '@/lib/supabase/sdk/types'
+import type { UIMessage } from 'ai'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAuth } from '@/hooks/use-auth'
-import { MessageBubble } from './message-bubble'
+import { MessageRenderer } from './parts/message-renderer'
 import { ScrollToBottomButton } from './scroll-to-bottom-button'
-import { ThinkingBubble } from './thinking-bubble'
 import { TypingIndicator } from './typing-indicator'
 
 const SCROLL_THRESHOLD = 100
 
 interface MessageListProps {
-  messages: NovelMessage[]
+  messages: UIMessage[]
+  /** 当前正在流式输出的消息 id */
   streamingMessageId?: string | null
+  /** 是否正在等待 AI 第一条响应（typing 指示器） */
   isLoading?: boolean
 }
 
-export function MessageList({ messages, streamingMessageId = null, isLoading = false }: MessageListProps) {
+/**
+ * AG-UI 风格消息列表：直接渲染 UIMessage[]。
+ * 不再做 UIMessage <-> NovelMessage 适配。
+ */
+export function MessageList({
+  messages,
+  streamingMessageId = null,
+  isLoading = false,
+}: MessageListProps) {
   const { profile } = useAuth()
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
-  const lastStreamingContentLengthRef = useRef(0)
+  const lastStreamingLengthRef = useRef(0)
   const [showScrollButton, setShowScrollButton] = useState(false)
   const isNearBottomRef = useRef(true)
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
-    if (scrollContainer) {
+    const container = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null
+    if (container) {
       if (behavior === 'auto') {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight
+        container.scrollTop = container.scrollHeight
       } else {
-        scrollContainer.scrollTo({
-          top: scrollContainer.scrollHeight,
-          behavior: 'smooth',
-        })
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
       }
     } else {
       messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' })
@@ -43,113 +49,92 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
   }, [])
 
   const checkIfNearBottom = useCallback(() => {
-    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
-    if (!scrollContainer)
-      return true
-
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainer
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight
-    return distanceFromBottom < SCROLL_THRESHOLD
+    const container = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    if (!container) return true
+    const { scrollTop, scrollHeight, clientHeight } = container
+    return scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD
   }, [])
 
   const handleScroll = useCallback(() => {
-    const isNearBottom = checkIfNearBottom()
-    isNearBottomRef.current = isNearBottom
-
-    // 如果用户向上滚动且不在底部附近，显示"回到底部"按钮
-    if (!isNearBottom) {
-      setShowScrollButton(true)
-    } else {
-      setShowScrollButton(false)
-    }
+    const near = checkIfNearBottom()
+    isNearBottomRef.current = near
+    setShowScrollButton(!near)
   }, [checkIfNearBottom])
 
+  // 新消息到来时滚动
   useEffect(() => {
     if (messages.length > lastMessageCountRef.current && messages.length > 0) {
       lastMessageCountRef.current = messages.length
-
       if (isNearBottomRef.current) {
-        const timer = setTimeout(() => {
-          scrollToBottom('smooth')
-        }, 100)
-        return () => clearTimeout(timer)
+        const t = setTimeout(() => scrollToBottom('smooth'), 100)
+        return () => clearTimeout(t)
       }
     }
   }, [messages.length, scrollToBottom])
 
+  // typing 指示器出现时
   useEffect(() => {
     if (isLoading && isNearBottomRef.current) {
-      const timer = setTimeout(() => {
-        scrollToBottom('smooth')
-      }, 100)
-      return () => clearTimeout(timer)
+      const t = setTimeout(() => scrollToBottom('smooth'), 100)
+      return () => clearTimeout(t)
     }
   }, [isLoading, scrollToBottom])
 
+  // 流式输出过程中：观察当前流式消息的总文本长度变化以触发滚动
   useEffect(() => {
-    if (streamingMessageId) {
-      const streamingMessage = messages.find(msg => msg.id === streamingMessageId)
-      if (streamingMessage) {
-        const currentContentLength = streamingMessage.content.length
-        if (currentContentLength > lastStreamingContentLengthRef.current && isNearBottomRef.current) {
-          requestAnimationFrame(() => {
-            scrollToBottom('auto')
-          })
-          lastStreamingContentLengthRef.current = currentContentLength
-        }
-      } else {
-        lastStreamingContentLengthRef.current = 0
-      }
-    } else {
-      lastStreamingContentLengthRef.current = 0
+    if (!streamingMessageId) {
+      lastStreamingLengthRef.current = 0
+      return
     }
+    const m = messages.find(msg => msg.id === streamingMessageId)
+    if (!m) {
+      lastStreamingLengthRef.current = 0
+      return
+    }
+    let length = 0
+    for (const p of m.parts || []) {
+      if (p.type === 'text' || p.type === 'reasoning') {
+        length += (p as { text: string }).text.length
+      }
+    }
+    if (length > lastStreamingLengthRef.current && isNearBottomRef.current) {
+      requestAnimationFrame(() => scrollToBottom('auto'))
+    }
+    lastStreamingLengthRef.current = length
   }, [messages, streamingMessageId, scrollToBottom])
 
+  // 流式期间周期性吸底
   useEffect(() => {
-    if (streamingMessageId) {
-      lastStreamingContentLengthRef.current = 0
-
-      const interval = setInterval(() => {
-        if (isNearBottomRef.current) {
-          scrollToBottom('auto')
-        }
-      }, 50) // 每50ms检查一次
-
-      return () => clearInterval(interval)
-    } else {
-      lastStreamingContentLengthRef.current = 0
-    }
+    if (!streamingMessageId) return
+    const id = setInterval(() => {
+      if (isNearBottomRef.current) scrollToBottom('auto')
+    }, 50)
+    return () => clearInterval(id)
   }, [streamingMessageId, scrollToBottom])
 
+  // 首次挂载（已有消息）滚动到底
   useEffect(() => {
     if (messages.length > 0) {
-      const timer = setTimeout(() => {
-        const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
-        if (scrollContainer) {
-          scrollContainer.scrollTo({
-            top: scrollContainer.scrollHeight,
-            behavior: 'smooth',
-          })
+      const t = setTimeout(() => {
+        const container = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null
+        if (container) {
+          container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
         } else {
           messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
         }
       }, 100)
-      return () => clearTimeout(timer)
+      return () => clearTimeout(t)
     }
   }, [messages.length])
 
   useEffect(() => {
-    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
-    if (!scrollContainer)
-      return
-
-    scrollContainer.addEventListener('scroll', handleScroll)
-    return () => scrollContainer.removeEventListener('scroll', handleScroll)
+    const container = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    if (!container) return
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
   }, [handleScroll])
 
-  if (messages.length === 0) {
-    return null
-  }
+  if (messages.length === 0) return null
 
   return (
     <div className="relative h-full w-full">
@@ -158,26 +143,14 @@ export function MessageList({ messages, streamingMessageId = null, isLoading = f
         className="h-full w-full overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:pr-3"
       >
         <div className="space-y-1 pb-4">
-          {messages.map((message) => {
-            const isCurrentMessageStreaming = streamingMessageId === message.id
-            const showContent = !isCurrentMessageStreaming || (message.content && message.content.length > 0)
-
-            return (
-              <div key={message.id} className="flex flex-col">
-                <ThinkingBubble
-                  thinking={message.thinking}
-                  isStreaming={isCurrentMessageStreaming}
-                />
-                {showContent && (
-                  <MessageBubble
-                    message={message}
-                    streamingMessageId={streamingMessageId}
-                    userAvatar={profile?.avatar_url}
-                  />
-                )}
-              </div>
-            )
-          })}
+          {messages.map(message => (
+            <MessageRenderer
+              key={message.id}
+              message={message}
+              isStreaming={streamingMessageId === message.id}
+              userAvatar={profile?.avatar_url}
+            />
+          ))}
           {isLoading && !streamingMessageId && <TypingIndicator />}
           <div ref={messagesEndRef} className="h-1" />
         </div>
