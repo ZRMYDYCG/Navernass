@@ -7,6 +7,7 @@ import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { AguiExpandableContent, AguiExpandChevron } from './agui-expandable'
 import { StreamLoading } from './stream-loading'
+import { StreamingPlainText } from './streaming-plain-text'
 
 interface ReasoningPartProps {
   part: ReasoningUIPart
@@ -47,9 +48,12 @@ function ReasoningPartInner({ part, isStreaming }: ReasoningPartProps) {
         </div>
 
         <AguiExpandableContent open={isExpanded} className="mt-1 ml-1">
-          <div className="agui-thinking-body px-2 py-1.5 text-[10px] text-muted-foreground whitespace-pre-wrap leading-relaxed">
-            {text}
-            {isLive && !text && <StreamLoading />}
+          <div className="agui-thinking-body px-2 py-1.5 text-[10px] text-muted-foreground leading-relaxed">
+            {text
+              ? <StreamingPlainText content={text} isStreaming={isLive} />
+              : isLive
+                ? <StreamLoading />
+                : null}
           </div>
         </AguiExpandableContent>
       </div>

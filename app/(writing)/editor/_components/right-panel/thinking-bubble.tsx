@@ -4,6 +4,7 @@ import { Brain } from 'lucide-react'
 import { memo, useState } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { AguiExpandableContent, AguiExpandChevron } from './parts/agui-expandable'
+import { StreamingPlainText } from './parts/streaming-plain-text'
 
 interface ThinkingBubbleProps {
   thinking: string | null | undefined
@@ -39,11 +40,8 @@ function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
         </div>
 
         <AguiExpandableContent open={isExpanded} className="mt-1 ml-1">
-          <div className="agui-thinking-body px-2 py-1.5 text-[10px] text-muted-foreground whitespace-pre-wrap leading-relaxed">
-            {thinking}
-            {isStreaming && (
-              <span className="inline-block w-[2px] h-[12px] ml-0.5 bg-primary align-middle animate-cursor-blink" />
-            )}
+          <div className="agui-thinking-body px-2 py-1.5 text-[10px] text-muted-foreground leading-relaxed">
+            <StreamingPlainText content={thinking} isStreaming={isStreaming} />
           </div>
         </AguiExpandableContent>
       </div>

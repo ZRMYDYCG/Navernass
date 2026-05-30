@@ -1,22 +1,13 @@
 'use client'
 
-import type { AnimateOptions } from 'streamdown'
 import { memo } from 'react'
 import { Streamdown } from 'streamdown'
+import { STREAM_ANIMATION } from './stream-animation'
 
 interface StreamingMarkdownProps {
   content: string
   /** 当前是否处于流式输出中 */
   isStreaming?: boolean
-}
-
-/** 流式字符闪光：见 https://streamdown.ai/docs/animation */
-const STREAM_ANIMATION: AnimateOptions = {
-  animation: 'shimmerIn',
-  duration: 280,
-  easing: 'ease-out',
-  sep: 'char',
-  stagger: 16,
 }
 
 /**
