@@ -149,16 +149,18 @@ function NovelsEditContent() {
     }
   }, [isMobile])
 
-  // 加载小说和章节数据
-  const loadData = useCallback(async () => {
+  // 加载小说和章节数据；silent 为 true 时不触发全页 loading（避免导入分析弹窗被卸载）
+  const loadData = useCallback(async (options?: { silent?: boolean }) => {
     if (!novelId) {
       toast.error('缺少小说ID')
       router.push('/novels')
       return
     }
 
+    const silent = options?.silent ?? false
+
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const [novelData, chaptersData, volumesData, charactersData, relationshipsData] = await Promise.all([
         novelsApi.getById(novelId),
         chaptersApi.getByNovelId(novelId),
@@ -182,7 +184,7 @@ function NovelsEditContent() {
       const message = error instanceof Error ? error.message : '加载数据失败'
       toast.error(message)
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [novelId, router])
 
@@ -224,7 +226,7 @@ function NovelsEditContent() {
 
   // 处理章节导入后的刷新
   const handleChaptersImported = useCallback(() => {
-    loadData()
+    loadData({ silent: true })
   }, [loadData])
 
   // 键盘快捷键监听

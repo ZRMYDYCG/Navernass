@@ -1,6 +1,6 @@
 'use client'
 
-import type { ParsedChapter } from '../../import-chapter-dialog'
+import type { ImportResult, ParsedChapter } from '../../import-chapter-dialog'
 import type { Volume } from '../types'
 import { Download, Upload } from 'lucide-react'
 import { useState } from 'react'
@@ -12,8 +12,9 @@ import {
 } from '@/components/ui/tooltip'
 import { useI18n } from '@/hooks/use-i18n'
 import { chaptersApi } from '@/lib/supabase/sdk'
+import { useCharacterGraphStore } from '@/store'
 import { ExportChapterDialog } from '../../export-chapter-dialog'
-import { ImportChapterDialog } from '../../import-chapter-dialog'
+import { htmlToPlainText, ImportChapterDialog } from '../../import-chapter-dialog'
 
 interface Chapter {
   id: string
@@ -55,10 +56,10 @@ export function ImportExportButtons({
     setImportDialogOpen(true)
   }
 
-  const handleImport = async (parsedChapters: ParsedChapter[], _fileName: string) => {
+  const handleImport = async (parsedChapters: ParsedChapter[], _fileName: string): Promise<ImportResult> => {
     if (parsedChapters.length === 0) {
       toast.error(t('editor.leftPanel.chapters.importExport.noChaptersToImport'))
-      return
+      throw new Error('No chapters')
     }
 
     try {
@@ -72,6 +73,8 @@ export function ImportExportButtons({
       let successCount = 0
       let failCount = 0
       let currentOrderIndex = maxOrderIndex + 1
+      const chapterTitles: string[] = []
+      const plainTextParts: string[] = []
 
       for (const parsedChapter of parsedChapters) {
         try {
@@ -114,6 +117,8 @@ export function ImportExportButtons({
 
           successCount++
           currentOrderIndex++
+          chapterTitles.push(parsedChapter.title)
+          plainTextParts.push(htmlToPlainText(parsedChapter.content || ''))
 
           existingChapters.push({
             id: '',
@@ -140,21 +145,26 @@ export function ImportExportButtons({
         toast.warning(t('editor.leftPanel.chapters.importExport.importSummary', { success: successCount, fail: failCount }))
       }
 
-      setImportDialogOpen(false)
+      // 不在此处刷新页面数据，避免 loadData 触发全页 loading 导致分析弹窗被卸载
+      // 章节/角色刷新推迟到 AI 分析完成后（handleAnalysisComplete）
 
-      if (onChaptersImported) {
-        onChaptersImported()
-      } else {
-        setTimeout(() => {
-          window.location.reload()
-        }, 500)
+      return {
+        chapterTitles,
+        plainText: plainTextParts.join('\n\n'),
       }
     } catch (error) {
       console.error('Import failed:', error)
       toast.error(t('editor.leftPanel.chapters.importExport.importFailed'))
+      throw error
     } finally {
       setIsImporting(false)
     }
+  }
+
+  const handleAnalysisComplete = () => {
+    window.dispatchEvent(new CustomEvent('novel-characters-changed', { detail: { novelId } }))
+    useCharacterGraphStore.getState().loadRelationships(novelId, { force: true })
+    onChaptersImported?.()
   }
 
   const downloadFile = (content: string, filename: string, mimeType: string) => {
@@ -282,12 +292,13 @@ export function ImportExportButtons({
 
       {importDialogOpen && (
         <ImportChapterDialog
-          key={importDialogOpen ? 'open' : 'closed'}
           open={importDialogOpen}
           onOpenChange={setImportDialogOpen}
+          novelId={novelId}
           onImport={handleImport}
           isImporting={isImporting}
           volumes={volumes.map(v => ({ id: v.id, title: v.title }))}
+          onAnalysisComplete={handleAnalysisComplete}
         />
       )}
     </>

@@ -1,5 +1,11 @@
 import { registerTool } from './registry'
 import { appendChapterTool } from './append-chapter'
+import {
+  createCharacterTool,
+  createRelationshipTool,
+  listCharactersTool,
+  reportAnalysisStepTool,
+} from './characters'
 import { askUserTool } from './ask-user'
 import {
   createCharacterEventTool,
@@ -73,4 +79,9 @@ export function registerBuiltinTools() {
   registerTool('delete_character_event', deleteCharacterEventTool)
   // 交互
   registerTool('ask_user', askUserTool)
+  // 角色导入分析
+  registerTool('report_analysis_step', reportAnalysisStepTool)
+  registerTool('list_characters', listCharactersTool)
+  registerTool('create_character', createCharacterTool)
+  registerTool('create_relationship', createRelationshipTool)
 }
