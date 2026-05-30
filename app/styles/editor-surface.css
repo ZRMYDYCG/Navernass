@@ -234,9 +234,10 @@
 .editor-surface-swatch[data-editor-surface='apricot'] { background-color: oklch(0.948 0.025 25); }
 .editor-surface-swatch[data-editor-surface='night'] { background-color: oklch(0.14 0.012 280); }
 
-/* 编辑器内容：卷面内文字色完全走独立 token */
+/* 编辑器内容：卷面内文字色与字号完全走独立 token */
 [data-editor-surface] .prose {
   color: var(--editor-surface-fg);
+  font-size: var(--editor-surface-font-size);
   --tw-prose-body: var(--editor-surface-fg);
   --tw-prose-headings: var(--editor-surface-fg);
   --tw-prose-bold: var(--editor-surface-fg);
@@ -244,16 +245,49 @@
   --tw-prose-quote-borders: var(--editor-surface-border);
 }
 
+[data-editor-surface] .ProseMirror.prose,
+[data-editor-surface] .ProseMirror {
+  font-size: var(--editor-surface-font-size);
+}
+
+[data-editor-surface] .ProseMirror.prose p,
 [data-editor-surface] .ProseMirror p,
-[data-editor-surface] .ProseMirror h1,
-[data-editor-surface] .ProseMirror h2,
-[data-editor-surface] .ProseMirror h3,
-[data-editor-surface] .ProseMirror h4 {
+[data-editor-surface] .prose p {
+  font-size: 1em;
+  line-height: 1.9;
   color: var(--editor-surface-fg);
 }
 
-[data-editor-surface] .ProseMirror {
-  font-size: var(--editor-surface-font-size);
+[data-editor-surface] .ProseMirror.prose h1,
+[data-editor-surface] .ProseMirror h1,
+[data-editor-surface] .prose h1 {
+  font-size: 2.125em;
+  line-height: 1.5;
+  color: var(--editor-surface-fg);
+}
+
+[data-editor-surface] .ProseMirror.prose h2,
+[data-editor-surface] .ProseMirror h2,
+[data-editor-surface] .prose h2 {
+  font-size: 1.75em;
+  line-height: 1.5;
+  color: var(--editor-surface-fg);
+}
+
+[data-editor-surface] .ProseMirror.prose h3,
+[data-editor-surface] .ProseMirror h3,
+[data-editor-surface] .prose h3 {
+  font-size: 1.375em;
+  line-height: 1.5;
+  color: var(--editor-surface-fg);
+}
+
+[data-editor-surface] .ProseMirror.prose h4,
+[data-editor-surface] .ProseMirror h4,
+[data-editor-surface] .prose h4 {
+  font-size: 1.125em;
+  line-height: 1.5;
+  color: var(--editor-surface-fg);
 }
 
 [data-editor-surface] .ProseMirror blockquote {
