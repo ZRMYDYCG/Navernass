@@ -9,11 +9,13 @@ import {
   SelectTrigger,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
-import { useChaptersStore, useCharacterMaterialStore } from '@/store'
+import { useChaptersStore, useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
 import { Breadcrumb } from './breadcrumb'
+import { ChapterCharacterPreviewGraph } from './chapter-character-preview-graph'
 import { SmartTabs } from './smart-tabs'
 
 interface Tab {
@@ -88,6 +90,8 @@ export default function EditorContent({
   const isSavingRef = useRef(false)
 
   const characters = useCharacterMaterialStore(state => state.characters)
+  const chapterCharacterPreviewChapterId = useCharacterGraphStore(state => state.chapterCharacterPreviewChapterId)
+  const showCharacterPreview = chapterCharacterPreviewChapterId === chapterId
   const cachedChapter = useChaptersStore(state => (chapterId ? state.chaptersById[chapterId] : undefined))
   const upsertChapterInStore = useChaptersStore(state => state.upsertChapter)
 
@@ -254,6 +258,31 @@ export default function EditorContent({
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [chapterId, isSaving, lastSaved])
 
+  const editorBody = loading
+    ? (
+        <div className="h-full flex flex-col items-center justify-center gap-3">
+          <Spinner className="w-8 h-8 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground font-light tracking-wider">{t('editor.editor.loading')}</span>
+        </div>
+      )
+    : (
+        <div className="px-8 sm:px-12 min-h-full">
+          <TiptapEditor
+            key={chapterId}
+            content={chapter?.content || `<h1>${chapterTitle}</h1>`}
+            placeholder={t('editor.editor.placeholder')}
+            onUpdate={handleUpdate}
+            onStatsChange={handleStatsChange}
+            autoSave={true}
+            autoSaveDelay={3000}
+            className="outline-none"
+            editable={true}
+            chapterId={chapterId}
+            characters={characters}
+          />
+        </div>
+      )
+
   return (
     <div className="h-full flex flex-col bg-background">
       {/* 顶部页签区域 */}
@@ -279,33 +308,42 @@ export default function EditorContent({
       />
 
       {/* 编辑器内容区域 */}
-      <div className={cn(
-        'flex-1 min-h-0 overflow-y-auto transition-colors [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
-        currentEditorSurface.surfaceClassName,
-      )}
-      >
-        {loading
+      <div className="flex-1 min-h-0 flex flex-col">
+        {showCharacterPreview
           ? (
-              <div className="h-full flex flex-col items-center justify-center gap-3">
-                <Spinner className="w-8 h-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground font-light tracking-wider">{t('editor.editor.loading')}</span>
-              </div>
+              <ResizablePanelGroup
+                direction="vertical"
+                className="h-full min-h-0"
+                autoSaveId={`chapter-character-preview-${novelId}`}
+              >
+                <ResizablePanel defaultSize={35} minSize={15} maxSize={70}>
+                  <ChapterCharacterPreviewGraph
+                    novelId={novelId}
+                    chapterId={chapterId}
+                    chapterTitle={chapterTitle}
+                    chapterContent={chapter?.content}
+                    className="h-full"
+                  />
+                </ResizablePanel>
+                <ResizableHandle withHandle alwaysVisible />
+                <ResizablePanel defaultSize={65} minSize={30}>
+                  <div className={cn(
+                    'h-full overflow-y-auto transition-colors [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+                    currentEditorSurface.surfaceClassName,
+                  )}
+                  >
+                    {editorBody}
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
             )
           : (
-              <div className="px-8 sm:px-12 min-h-full">
-                <TiptapEditor
-                  key={chapterId}
-                  content={chapter?.content || `<h1>${chapterTitle}</h1>`}
-                  placeholder={t('editor.editor.placeholder')}
-                  onUpdate={handleUpdate}
-                  onStatsChange={handleStatsChange}
-                  autoSave={true}
-                  autoSaveDelay={3000}
-                  className="outline-none"
-                  editable={true}
-                  chapterId={chapterId}
-                  characters={characters}
-                />
+              <div className={cn(
+                'flex-1 min-h-0 overflow-y-auto transition-colors [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+                currentEditorSurface.surfaceClassName,
+              )}
+              >
+                {editorBody}
               </div>
             )}
       </div>

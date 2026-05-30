@@ -42,6 +42,12 @@ const editor = {
     loading: 'Papier wird vorbereitet...',
     placeholder: 'Beginnen Sie Ihre Geschichte hier...',
   },
+  chapterCharacterPreview: {
+    title: 'Charakterbeziehungen in diesem Kapitel',
+    characterCount: '{{count}} Charaktere',
+    empty: 'In diesem Kapitel wurden noch keine Charaktere erkannt',
+    close: 'Vorschau schließen',
+  },
   tabs: {
     menu: {
       close: 'Schließen',
@@ -282,6 +288,7 @@ const editor = {
         rename: 'Umbenennen',
         delete: 'Löschen',
         editTitle: 'Titel bearbeiten',
+        characterPreview: 'Charaktervorschau',
         creatingCopy: 'Kopie wird erstellt...',
         createCopy: 'Kopie erstellen',
         moveToVolume: 'In Band verschieben',

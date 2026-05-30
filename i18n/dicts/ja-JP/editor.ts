@@ -42,6 +42,12 @@ const editor = {
     loading: '紙面を準備中...',
     placeholder: 'ここから物語を始めましょう...',
   },
+  chapterCharacterPreview: {
+    title: '本章のキャラクター関係',
+    characterCount: '{{count}} 人',
+    empty: '本章ではまだキャラクターが検出されていません',
+    close: 'プレビューを閉じる',
+  },
   tabs: {
     menu: {
       close: '閉じる',
@@ -282,6 +288,7 @@ const editor = {
         rename: '名前を変更',
         delete: '削除',
         editTitle: 'タイトルを編集',
+        characterPreview: 'キャラクター関係プレビュー',
         creatingCopy: 'コピーを作成中...',
         createCopy: 'コピーを作成',
         moveToVolume: '巻に移動',

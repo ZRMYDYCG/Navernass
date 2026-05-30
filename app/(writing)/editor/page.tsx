@@ -255,6 +255,11 @@ function NovelsEditContent() {
     const chapter = chapters.find(c => c.id === chapterId)
     if (!chapter) return
 
+    const previewChapterId = useCharacterGraphStore.getState().chapterCharacterPreviewChapterId
+    if (previewChapterId && previewChapterId !== chapterId) {
+      useCharacterGraphStore.getState().setChapterCharacterPreview(null)
+    }
+
     setSelectedChapter(chapterId)
 
     // 如果该章节不在已打开的标签页中，添加它

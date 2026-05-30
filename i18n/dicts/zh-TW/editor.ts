@@ -42,6 +42,12 @@ const editor = {
     loading: '正在鋪開紙張...',
     placeholder: '在此寫下故事的開始...',
   },
+  chapterCharacterPreview: {
+    title: '本章角色關係',
+    characterCount: '{{count}} 位角色',
+    empty: '本章暫未檢測到角色出場',
+    close: '關閉預覽',
+  },
   tabs: {
     menu: {
       close: '關閉',
@@ -282,6 +288,7 @@ const editor = {
         rename: '重命名',
         delete: '刪除',
         editTitle: '編輯標題',
+        characterPreview: '角色關係預覽',
         creatingCopy: '建立複本中...',
         createCopy: '建立複本',
         moveToVolume: '將章節移入',

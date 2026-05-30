@@ -5,7 +5,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import * as Popover from '@radix-ui/react-popover'
 import { formatDistanceToNow } from 'date-fns'
 import { enUS, zhCN } from 'date-fns/locale'
-import { ArrowRightLeft, Copy, Edit2, FileText, GripVertical, Trash2 } from 'lucide-react'
+import { ArrowRightLeft, Copy, Edit2, FileText, GripVertical, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ContextMenu,
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/context-menu'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
+import { useCharacterGraphStore } from '@/store'
 import { HoverActionBar, HoverActionButton } from './hover-action-button'
 
 export function ChapterItem({
@@ -37,6 +38,9 @@ export function ChapterItem({
   const [editingTitle, setEditingTitle] = useState(chapter.title)
   const [isRenaming, setIsRenaming] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
+  const chapterCharacterPreviewChapterId = useCharacterGraphStore(state => state.chapterCharacterPreviewChapterId)
+  const toggleChapterCharacterPreview = useCharacterGraphStore(state => state.toggleChapterCharacterPreview)
+  const isCharacterPreviewActive = chapterCharacterPreviewChapterId === chapter.id
 
   const updatedAtLabel = useMemo(() => {
     if (!chapter.updated_at) return ''
@@ -235,13 +239,25 @@ export function ChapterItem({
             )}
 
             {!isEditingTitle && (
-              <HoverActionBar group="chapter" expanded={isSelected}>
+              <HoverActionBar group="chapter" expanded={isSelected || isCharacterPreviewActive}>
+                <HoverActionButton
+                  group="chapter"
+                  label={t('editor.leftPanel.chapters.chapterItem.characterPreview')}
+                  onClick={() => {
+                    onSelect()
+                    toggleChapterCharacterPreview(chapter.id)
+                  }}
+                  delayMs={0}
+                  className={cn(isCharacterPreviewActive && 'bg-primary/15 text-primary')}
+                >
+                  <Users className="h-2.5 w-2.5" />
+                </HoverActionButton>
                 {onRename && (
                   <HoverActionButton
                     group="chapter"
                     label={t('editor.leftPanel.chapters.chapterItem.editTitle')}
                     onClick={openInlineTitleEditor}
-                    delayMs={0}
+                    delayMs={45}
                   >
                     <Edit2 className="h-2.5 w-2.5" />
                   </HoverActionButton>
@@ -259,7 +275,7 @@ export function ChapterItem({
                       }
                     }}
                     disabled={isCopying}
-                    delayMs={45}
+                    delayMs={90}
                   >
                     <Copy className="h-2.5 w-2.5" />
                   </HoverActionButton>
@@ -269,7 +285,7 @@ export function ChapterItem({
                     group="chapter"
                     label={t('editor.leftPanel.chapters.chapterItem.moveToVolume')}
                     onClick={() => onMove(chapter)}
-                    delayMs={90}
+                    delayMs={135}
                   >
                     <ArrowRightLeft className="h-2.5 w-2.5" />
                   </HoverActionButton>
@@ -279,7 +295,7 @@ export function ChapterItem({
                     group="chapter"
                     label={t('editor.leftPanel.chapters.chapterItem.delete')}
                     onClick={() => onDelete(chapter)}
-                    delayMs={135}
+                    delayMs={180}
                     variant="destructive"
                   >
                     <Trash2 className="h-2.5 w-2.5" />

@@ -26,20 +26,26 @@ function ResizablePanel({ className, ...props }: React.ComponentProps<typeof Res
 
 function ResizableHandle({
   withHandle,
+  alwaysVisible,
   className,
   ...props
 }: React.ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
   withHandle?: boolean
+  alwaysVisible?: boolean
 }) {
   return (
     <ResizablePrimitive.PanelResizeHandle
       data-slot="resizable-handle"
       className={cn(
         'group relative flex items-center justify-center transition-all duration-200',
-        'bg-transparent hover:bg-muted/50',
+        alwaysVisible
+          ? 'bg-border/50 hover:bg-border/70'
+          : 'bg-transparent hover:bg-muted/50',
         'focus-visible:outline-none',
         'w-px after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-4 after:cursor-col-resize',
-        'data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full',
+        alwaysVisible
+          ? 'data-[panel-group-direction=vertical]:h-2.5 data-[panel-group-direction=vertical]:w-full'
+          : 'data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full',
         'data-[panel-group-direction=vertical]:after:inset-x-0 data-[panel-group-direction=vertical]:after:top-1/2 data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:h-4 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:cursor-row-resize',
         '[&[data-panel-group-direction=vertical]>div]:rotate-90',
         className,
@@ -47,7 +53,11 @@ function ResizableHandle({
       {...props}
     >
       {withHandle && (
-        <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border border-border bg-muted opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className={cn(
+          'z-10 flex h-4 w-3 items-center justify-center rounded-sm border border-border bg-muted transition-opacity duration-200',
+          alwaysVisible ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+        )}
+        >
           <GripVerticalIcon className="w-2.5 h-2.5 text-muted-foreground" />
         </div>
       )}

@@ -42,6 +42,12 @@ const editor = {
     loading: '종이를 준비하는 중...',
     placeholder: '여기서 이야기를 시작해 보세요...',
   },
+  chapterCharacterPreview: {
+    title: '이번 장 캐릭터 관계',
+    characterCount: '캐릭터 {{count}}명',
+    empty: '이 장에서 아직 캐릭터가 감지되지 않았습니다',
+    close: '미리보기 닫기',
+  },
   tabs: {
     menu: {
       close: '닫기',
@@ -282,6 +288,7 @@ const editor = {
         rename: '이름 변경',
         delete: '삭제',
         editTitle: '제목 편집',
+        characterPreview: '캐릭터 관계 미리보기',
         creatingCopy: '복사본 생성 중...',
         createCopy: '복사본 만들기',
         moveToVolume: '권으로 이동',

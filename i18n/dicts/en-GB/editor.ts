@@ -42,6 +42,12 @@ const editor = {
     loading: 'Preparing paper...',
     placeholder: 'Start your story here...',
   },
+  chapterCharacterPreview: {
+    title: 'Chapter character relations',
+    characterCount: '{{count}} characters',
+    empty: 'No characters detected in this chapter yet',
+    close: 'Close preview',
+  },
   tabs: {
     menu: {
       close: 'Close',
@@ -282,6 +288,7 @@ const editor = {
         rename: 'Rename',
         delete: 'Delete',
         editTitle: 'Edit title',
+        characterPreview: 'Character preview',
         creatingCopy: 'Creating copy...',
         createCopy: 'Create copy',
         moveToVolume: 'Move to volume',

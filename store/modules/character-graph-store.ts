@@ -53,6 +53,7 @@ interface CharacterGraphStoreState {
   relationshipGraphViewMode: RelationshipGraphViewMode
 
   selectedChapterId: string | null
+  chapterCharacterPreviewChapterId: string | null
 
   search: string
 
@@ -76,6 +77,8 @@ interface CharacterGraphStoreState {
   setViewMode: (mode: CharacterPanelViewMode) => void
   setRelationshipGraphViewMode: (mode: RelationshipGraphViewMode) => void
   setSelectedChapterId: (id?: string | null) => void
+  setChapterCharacterPreview: (chapterId?: string | null) => void
+  toggleChapterCharacterPreview: (chapterId: string) => void
   setSearch: (value: string) => void
 
   selectCharacter: (id?: string | null) => void
@@ -105,6 +108,7 @@ export const useCharacterGraphStore = create<CharacterGraphStoreState>()(
       viewMode: 'overview',
       relationshipGraphViewMode: 'force',
       selectedChapterId: null,
+      chapterCharacterPreviewChapterId: null,
       search: '',
       selectedCharacterId: null,
       selectedRelationshipId: null,
@@ -126,6 +130,11 @@ export const useCharacterGraphStore = create<CharacterGraphStoreState>()(
       setViewMode: mode => set({ viewMode: mode }),
       setRelationshipGraphViewMode: mode => set({ relationshipGraphViewMode: mode }),
       setSelectedChapterId: id => set({ selectedChapterId: id ?? null }),
+      setChapterCharacterPreview: chapterId => set({ chapterCharacterPreviewChapterId: chapterId ?? null }),
+      toggleChapterCharacterPreview: chapterId => set(state => ({
+        chapterCharacterPreviewChapterId:
+          state.chapterCharacterPreviewChapterId === chapterId ? null : chapterId,
+      })),
       setSearch: value => set({ search: value }),
 
       selectCharacter: id => set({ selectedCharacterId: id ?? null, selectedRelationshipId: null }),

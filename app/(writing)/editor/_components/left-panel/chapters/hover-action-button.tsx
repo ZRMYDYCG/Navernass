@@ -17,6 +17,7 @@ interface HoverActionButtonProps {
   delayMs: number
   group: HoverActionGroup
   variant?: 'default' | 'destructive'
+  className?: string
   children: ReactNode
 }
 
@@ -27,6 +28,7 @@ export function HoverActionButton({
   delayMs,
   group,
   variant = 'default',
+  className,
   children,
 }: HoverActionButtonProps) {
   return (
@@ -48,6 +50,7 @@ export function HoverActionButton({
         variant === 'destructive'
           ? 'text-destructive hover:bg-destructive/10'
           : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+        className,
       )}
     >
       {children}

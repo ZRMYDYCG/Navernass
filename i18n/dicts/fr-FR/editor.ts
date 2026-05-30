@@ -42,6 +42,12 @@ const editor = {
     loading: 'Préparation du support...',
     placeholder: 'Commencez votre histoire ici...',
   },
+  chapterCharacterPreview: {
+    title: 'Relations des personnages du chapitre',
+    characterCount: '{{count}} personnages',
+    empty: 'Aucun personnage détecté dans ce chapitre pour le moment',
+    close: 'Fermer l\'aperçu',
+  },
   tabs: {
     menu: {
       close: 'Fermer',
@@ -282,6 +288,7 @@ const editor = {
         rename: 'Renommer',
         delete: 'Supprimer',
         editTitle: 'Modifier le titre',
+        characterPreview: 'Aperçu des personnages',
         creatingCopy: 'Création d\'une copie...',
         createCopy: 'Créer une copie',
         moveToVolume: 'Déplacer vers le volume',
