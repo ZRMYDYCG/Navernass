@@ -10,10 +10,10 @@ interface ScrollToBottomButtonProps {
 }
 
 export function ScrollToBottomButton({ onClick, show }: ScrollToBottomButtonProps) {
+  const { t } = useI18n()
+
   if (!show)
     return null
-
-  const { t } = useI18n()
 
   return (
     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
