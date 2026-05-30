@@ -28,6 +28,8 @@ const editor = {
   surface: {
     label: '배경',
     scrollProgress: '읽기 진행률, 드래그하여 이동',
+    fontSize: '글꼴 크기',
+    fontSizeControl: '글꼴 크기, 드래그하여 조절',
     options: {
       paper: '宣白',
       plain: '素净',

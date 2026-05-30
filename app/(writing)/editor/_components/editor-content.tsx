@@ -10,6 +10,11 @@ import {
   EDITOR_SURFACE_OPTIONS,
   getEditorSurfaceStorageKey,
 } from '@/lib/editor/surface-options'
+import {
+  DEFAULT_EDITOR_FONT_SIZE,
+  getEditorFontSizeStorageKey,
+  parseStoredEditorFontSize,
+} from '@/lib/editor/font-size-options'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 import { useChaptersStore, useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
@@ -74,6 +79,7 @@ export default function EditorContent({
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [loading, setLoading] = useState(true)
   const [editorSurface, setEditorSurface] = useState<(typeof EDITOR_SURFACE_OPTIONS)[number]['value']>(DEFAULT_EDITOR_SURFACE)
+  const [editorFontSize, setEditorFontSize] = useState(DEFAULT_EDITOR_FONT_SIZE)
   const editorContentRef = useRef<string>('')
   const isSavingRef = useRef(false)
 
@@ -98,6 +104,7 @@ export default function EditorContent({
     const stored = window.localStorage.getItem(getEditorSurfaceStorageKey(novelId))
     const matched = EDITOR_SURFACE_OPTIONS.find(option => option.value === stored)
     setEditorSurface(matched?.value || DEFAULT_EDITOR_SURFACE)
+    setEditorFontSize(parseStoredEditorFontSize(window.localStorage.getItem(getEditorFontSizeStorageKey(novelId))))
   }, [novelId])
 
   const handleEditorSurfaceChange = (value: typeof editorSurface) => {
@@ -106,6 +113,11 @@ export default function EditorContent({
 
     setEditorSurface(matched.value)
     window.localStorage.setItem(getEditorSurfaceStorageKey(novelId), matched.value)
+  }
+
+  const handleEditorFontSizeChange = (value: number) => {
+    setEditorFontSize(value)
+    window.localStorage.setItem(getEditorFontSizeStorageKey(novelId), String(value))
   }
 
   // 加载章节内容：优先命中 store 缓存，未命中再请求
@@ -316,6 +328,8 @@ export default function EditorContent({
                 <ResizablePanel defaultSize={65} minSize={30}>
                   <EditorSurfaceScrollArea
                     editorSurface={editorSurface}
+                    fontSize={editorFontSize}
+                    onFontSizeChange={handleEditorFontSizeChange}
                     className="h-full"
                   >
                     {editorBody}
@@ -326,6 +340,8 @@ export default function EditorContent({
           : (
               <EditorSurfaceScrollArea
                 editorSurface={editorSurface}
+                fontSize={editorFontSize}
+                onFontSizeChange={handleEditorFontSizeChange}
                 className="flex-1 min-h-0"
               >
                 {editorBody}

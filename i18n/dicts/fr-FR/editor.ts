@@ -28,6 +28,8 @@ const editor = {
   surface: {
     label: 'Surface',
     scrollProgress: 'Progression de lecture, glisser pour naviguer',
+    fontSize: 'Taille',
+    fontSizeControl: 'Taille de police, glisser pour ajuster',
     options: {
       paper: 'Blanc Xuan',
       plain: 'Soie Pure',

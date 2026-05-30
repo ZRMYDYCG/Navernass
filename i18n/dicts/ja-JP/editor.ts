@@ -28,6 +28,8 @@ const editor = {
   surface: {
     label: '用紙',
     scrollProgress: '読書の進捗、ドラッグで移動',
+    fontSize: '文字サイズ',
+    fontSizeControl: '文字サイズ、ドラッグで調整',
     options: {
       paper: '宣白',
       plain: '素净',

@@ -28,6 +28,8 @@ const editor = {
   surface: {
     label: 'Untergrund',
     scrollProgress: 'Lesefortschritt, ziehen zum Springen',
+    fontSize: 'Schrift',
+    fontSizeControl: 'Schriftgröße, ziehen zum Anpassen',
     options: {
       paper: 'Xuanweiß',
       plain: 'Reine Seide',

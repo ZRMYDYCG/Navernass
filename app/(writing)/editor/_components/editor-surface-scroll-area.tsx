@@ -5,14 +5,20 @@ import { useI18n } from '@/hooks/use-i18n'
 import { EDITOR_SURFACE_OPTIONS, type EditorSurfaceValue } from '@/lib/editor/surface-options'
 import { cn } from '@/lib/utils'
 
+import { EditorSurfaceFontSizeControl } from './editor-surface-font-size-control'
+
 interface EditorSurfaceScrollAreaProps {
   editorSurface: EditorSurfaceValue
+  fontSize: number
+  onFontSizeChange: (fontSize: number) => void
   className?: string
   children: ReactNode
 }
 
 export function EditorSurfaceScrollArea({
   editorSurface,
+  fontSize,
+  onFontSizeChange,
   className,
   children,
 }: EditorSurfaceScrollAreaProps) {
@@ -147,6 +153,7 @@ export function EditorSurfaceScrollArea({
     <div
       data-editor-surface={editorSurface}
       className={cn('relative min-h-0', className)}
+      style={{ '--editor-surface-font-size': `${fontSize}px` } as React.CSSProperties}
     >
       <div
         ref={scrollRef}
@@ -213,6 +220,11 @@ export function EditorSurfaceScrollArea({
           </div>
         </div>
       )}
+
+      <EditorSurfaceFontSizeControl
+        fontSize={fontSize}
+        onFontSizeChange={onFontSizeChange}
+      />
     </div>
   )
 }

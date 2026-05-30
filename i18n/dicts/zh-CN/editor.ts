@@ -28,6 +28,8 @@ const editor = {
   surface: {
     label: '卷面',
     scrollProgress: '阅读进度，可拖拽跳转',
+    fontSize: '字号',
+    fontSizeControl: '字体大小，可拖拽调节',
     options: {
       paper: '宣白',
       plain: '素净',
