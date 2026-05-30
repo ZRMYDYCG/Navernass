@@ -27,6 +27,7 @@ const editor = {
   },
   surface: {
     label: '卷面',
+    scrollProgress: '閱讀進度，可拖曳跳轉',
     options: {
       paper: '宣白',
       plain: '素淨',

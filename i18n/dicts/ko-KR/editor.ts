@@ -27,6 +27,7 @@ const editor = {
   },
   surface: {
     label: '배경',
+    scrollProgress: '읽기 진행률, 드래그하여 이동',
     options: {
       paper: '宣白',
       plain: '素净',

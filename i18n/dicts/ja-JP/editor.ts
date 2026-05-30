@@ -27,6 +27,7 @@ const editor = {
   },
   surface: {
     label: '用紙',
+    scrollProgress: '読書の進捗、ドラッグで移動',
     options: {
       paper: '宣白',
       plain: '素净',

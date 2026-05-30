@@ -27,6 +27,7 @@ const editor = {
   },
   surface: {
     label: 'Untergrund',
+    scrollProgress: 'Lesefortschritt, ziehen zum Springen',
     options: {
       paper: 'Xuanweiß',
       plain: 'Reine Seide',

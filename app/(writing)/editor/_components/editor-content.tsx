@@ -16,6 +16,7 @@ import { useChaptersStore, useCharacterGraphStore, useCharacterMaterialStore } f
 import { Breadcrumb } from './breadcrumb'
 import { ChapterCharacterPreviewGraph } from './chapter-character-preview-graph'
 import { EditorSurfaceArcPicker } from './editor-surface-arc-picker'
+import { EditorSurfaceScrollArea } from './editor-surface-scroll-area'
 import { SmartTabs } from './smart-tabs'
 
 interface Tab {
@@ -92,12 +93,6 @@ export default function EditorContent({
   }, [chapterId, chapters, chapter?.volume_id, volumes])
 
   const loadingChapterIdRef = useRef<string | null>(null)
-  const currentEditorSurface = EDITOR_SURFACE_OPTIONS.find(option => option.value === editorSurface) || EDITOR_SURFACE_OPTIONS[0]
-
-  const editorSurfaceClassName = cn(
-    'transition-colors [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
-    currentEditorSurface.textured && 'bg-paper-texture',
-  )
 
   useEffect(() => {
     const stored = window.localStorage.getItem(getEditorSurfaceStorageKey(novelId))
@@ -319,22 +314,22 @@ export default function EditorContent({
                 </ResizablePanel>
                 <ResizableHandle withHandle alwaysVisible />
                 <ResizablePanel defaultSize={65} minSize={30}>
-                  <div
-                    data-editor-surface={editorSurface}
-                    className={cn('h-full overflow-y-auto', editorSurfaceClassName)}
+                  <EditorSurfaceScrollArea
+                    editorSurface={editorSurface}
+                    className="h-full"
                   >
                     {editorBody}
-                  </div>
+                  </EditorSurfaceScrollArea>
                 </ResizablePanel>
               </ResizablePanelGroup>
             )
           : (
-              <div
-                data-editor-surface={editorSurface}
-                className={cn('flex-1 min-h-0 overflow-y-auto', editorSurfaceClassName)}
+              <EditorSurfaceScrollArea
+                editorSurface={editorSurface}
+                className="flex-1 min-h-0"
               >
                 {editorBody}
-              </div>
+              </EditorSurfaceScrollArea>
             )}
       </div>
 

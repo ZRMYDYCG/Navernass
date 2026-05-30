@@ -27,6 +27,7 @@ const editor = {
   },
   surface: {
     label: 'Surface',
+    scrollProgress: 'Progression de lecture, glisser pour naviguer',
     options: {
       paper: 'Blanc Xuan',
       plain: 'Soie Pure',

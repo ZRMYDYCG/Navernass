@@ -276,3 +276,19 @@
 [data-editor-surface] [contenteditable][data-placeholder]:empty::before {
   color: var(--editor-surface-fg-muted);
 }
+
+/* 卷面阅读进度：右侧居中竖条，替代隐藏的原生滚动条 */
+[data-editor-surface] .editor-surface-scroll-progress-track {
+  background-color: color-mix(in oklab, var(--editor-surface-fg-muted) 16%, transparent);
+}
+
+[data-editor-surface] .editor-surface-scroll-progress-fill {
+  background-color: var(--editor-surface-fg-muted);
+}
+
+[data-editor-surface] .editor-surface-scroll-progress-thumb {
+  background-color: var(--editor-surface-fg);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--editor-surface-fg-muted) 45%, transparent),
+    0 0 0 3px color-mix(in oklab, var(--editor-surface-bg) 70%, transparent);
+}
