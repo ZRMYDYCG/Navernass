@@ -69,7 +69,6 @@ export function renderPart(part: AnyPart, ctx: PartRenderContext): ReactNode {
         part={part as Extract<AnyPart, { type: 'text' }>}
         role={ctx.message.role as 'user' | 'assistant' | 'system'}
         isStreaming={ctx.isStreaming && ctx.isLast}
-        isLast={ctx.isLast}
       />
     )
   }
