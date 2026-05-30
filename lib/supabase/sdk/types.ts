@@ -344,6 +344,8 @@ export interface NovelMessage {
   model?: string
   tokens?: number
   thinking?: string
+  /** AI SDK v6 UIMessage.parts 数组（含 text/reasoning/tool-* 等）。NULL 表示旧消息。 */
+  parts?: unknown[] | null
   created_at: string
 }
 
@@ -355,6 +357,7 @@ export interface CreateNovelMessageDto {
   model?: string
   tokens?: number
   thinking?: string
+  parts?: unknown[]
 }
 
 export interface SendNovelMessageRequest {

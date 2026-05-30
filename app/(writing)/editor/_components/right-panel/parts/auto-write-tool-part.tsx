@@ -1,7 +1,7 @@
 'use client'
 
 import { Check, Loader2, Pencil, Plus, Trash2, X } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { useChaptersStore } from '@/store'
 
@@ -15,6 +15,8 @@ export type AutoWriteToolName =
   | 'delete_volume'
 
 interface AutoWriteToolPartProps {
+  /** 该 part 的稳定 id（messageId + part index）。用于全局副作用去重 */
+  partKey: string
   toolName: AutoWriteToolName
   state: string
   input?: Record<string, any>
@@ -23,25 +25,25 @@ interface AutoWriteToolPartProps {
 }
 
 /**
- * 自治写入/更新/删除类工具的卡片
+ * 已经"处理过"的 partKey 集合（store upsert + toast）。
+ * Module 级 Set，组件卸载/重挂载/历史消息回填都不会重复触发副作用。
  *
- * 工具 execute 已经返回足够信息（output.chapter / output.volume / output.chapter_id 等），
- * 前端直接同步 store，不再二次 getById（避免 N+1 网络请求）。
- *
- * - create_*  / append_chapter / update_*  → upsertChapter / upsertVolume
- * - delete_*  → removeChapter / removeVolume
+ * 这是关键：历史会话加载时，所有 tool part 的 state 都是 output-available，
+ * useEffect 会立即跑——如果不去重，刷新页面会一次性弹 N 条 toast 并重复
+ * upsert/remove，导致 store 状态被历史动作覆盖、左侧列表错乱、严重时阻塞渲染。
  */
-export function AutoWriteToolPart({ toolName, state, input, output, errorText }: AutoWriteToolPartProps) {
-  const dispatchedRef = useRef(false)
+const processedKeys = new Set<string>()
+
+export function AutoWriteToolPart({ partKey, toolName, state, input, output, errorText }: AutoWriteToolPartProps) {
   const upsertVolume = useChaptersStore(s => s.upsertVolume)
   const upsertChapter = useChaptersStore(s => s.upsertChapter)
   const removeChapter = useChaptersStore(s => s.removeChapter)
   const removeVolume = useChaptersStore(s => s.removeVolume)
 
   useEffect(() => {
-    if (dispatchedRef.current) return
     if (state !== 'output-available') return
-    dispatchedRef.current = true
+    if (processedKeys.has(partKey)) return
+    processedKeys.add(partKey)
 
     if (!output?.ok) {
       toast.error(`${TOOL_LABELS[toolName]}失败`, {
@@ -80,7 +82,7 @@ export function AutoWriteToolPart({ toolName, state, input, output, errorText }:
         })
         break
     }
-  }, [state, output, toolName, errorText, upsertVolume, upsertChapter, removeChapter, removeVolume])
+  }, [partKey, state, output, toolName, errorText, upsertVolume, upsertChapter, removeChapter, removeVolume])
 
   const Icon = TOOL_ICONS[toolName] || Plus
   const isDelete = toolName.startsWith('delete_')

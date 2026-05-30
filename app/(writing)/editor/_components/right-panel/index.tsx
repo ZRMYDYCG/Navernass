@@ -21,27 +21,89 @@ import { ModeSelector } from './mode-selector'
 import { ModelSelector } from './model-selector'
 import { ChatActionsProvider } from './parts/chat-actions-context'
 import type { FormSubmitPayload } from './parts/chat-actions-context'
+import { MessageErrorBoundary } from './message-error-boundary'
 import { RecentConversations } from './recent-conversations'
 import { SelectedChapters } from './selected-chapters'
 import { SendButton } from './send-button'
 
 /**
+ * 把可能是字符串（旧 supabase 配置）或数组（新格式）的 parts 字段统一成数组。
+ * 任何失败都返回 null，让上层 fallback 到 content+thinking。
+ */
+function safeParseParts(raw: unknown): unknown[] | null {
+  if (Array.isArray(raw)) return raw
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw)
+      return Array.isArray(parsed) ? parsed : null
+    } catch {
+      return null
+    }
+  }
+  return null
+}
+
+/**
+ * 清洗历史 parts：丢掉处于"流式中途"或缺少必需字段的 part。
+ *
+ * 场景：上一次 stream 被网络断开/服务重启，半成品 tool part（state=input-streaming
+ * 或没有 output 的 output-available）被持久化。回填时 ai-sdk 会校验 part 形态，
+ * 不丢弃就直接抛 "Invalid part" 让整条消息渲染失败。
+ */
+function sanitizeParts(parts: unknown[]): unknown[] {
+  return parts.filter((p: any) => {
+    if (!p || typeof p !== 'object' || typeof p.type !== 'string') return false
+    if (p.type.startsWith('tool-')) {
+      // 只保留有 state 且至少进入 input-available 的 tool part
+      if (p.state === 'input-streaming') return false
+      // output-available 但 output 是 null/undefined 的也跳过
+      if (p.state === 'output-available' && p.output == null) return false
+    }
+    return true
+  })
+}
+
+/**
  * 将 Supabase 中的 NovelMessage 转为 AI SDK 的 UIMessage（用于回填历史）。
- * thinking 以 reasoning part 表达，content 以 text part 表达。
+ *
+ * 优先级：
+ *   1. m.parts 存在且是数组 → 直接用（tool / ask_user / reasoning 都能完整还原）
+ *   2. 否则按 thinking + content 兜底重建
+ *
+ * 即使某一条转换抛错，也跳过这一条而非让整个列表挂掉。
  */
 function toUIMessages(messages: NovelMessage[]): UIMessage[] {
-  return messages.map((m) => {
-    const parts: UIMessage['parts'] = []
-    if (m.thinking) {
-      parts.push({ type: 'reasoning', text: m.thinking, state: 'done' } as UIMessage['parts'][number])
+  const out: UIMessage[] = []
+  for (const m of messages) {
+    try {
+      const parts = safeParseParts(m.parts)
+      if (parts && parts.length > 0) {
+        const cleaned = sanitizeParts(parts)
+        if (cleaned.length > 0) {
+          out.push({
+            id: m.id,
+            role: m.role as 'user' | 'assistant' | 'system',
+            parts: cleaned as UIMessage['parts'],
+          } as UIMessage)
+          continue
+        }
+      }
+
+      const fallback: UIMessage['parts'] = []
+      if (m.thinking) {
+        fallback.push({ type: 'reasoning', text: m.thinking, state: 'done' } as UIMessage['parts'][number])
+      }
+      fallback.push({ type: 'text', text: m.content || '', state: 'done' } as UIMessage['parts'][number])
+      out.push({
+        id: m.id,
+        role: m.role as 'user' | 'assistant' | 'system',
+        parts: fallback,
+      } as UIMessage)
+    } catch (err) {
+      console.warn('[toUIMessages] skipped one message due to:', err, m)
     }
-    parts.push({ type: 'text', text: m.content, state: 'done' } as UIMessage['parts'][number])
-    return {
-      id: m.id,
-      role: m.role as 'user' | 'assistant' | 'system',
-      parts,
-    } as UIMessage
-  })
+  }
+  return out
 }
 
 export default function RightPanel() {
@@ -58,6 +120,7 @@ export default function RightPanel() {
   const [showChapterSelector, setShowChapterSelector] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+  const [loadMessagesError, setLoadMessagesError] = useState<string | null>(null)
   const [submittedFormKeys, setSubmittedFormKeys] = useState<Set<string>>(() => new Set())
 
   const conversationIdRef = useRef<string | null>(null)
@@ -128,12 +191,16 @@ export default function RightPanel() {
 
   const loadMessages = useCallback(async (conversationId: string) => {
     setIsLoadingMessages(true)
+    setLoadMessagesError(null)
     try {
       const data = await novelConversationsApi.getMessages(conversationId)
       setMessages(toUIMessages(data))
     } catch (e) {
       console.error('Failed to load messages:', e)
       setMessages([])
+      const msg = e instanceof Error ? e.message : '加载历史消息失败'
+      // 网络超时、500 等错误以前会被吞掉显示成空对话——现在显式呈现
+      setLoadMessagesError(msg)
     } finally {
       setIsLoadingMessages(false)
     }
@@ -271,19 +338,37 @@ export default function RightPanel() {
                   <span className="text-xs text-muted-foreground">{t('editor.rightPanel.loadingConversation')}</span>
                 </div>
               )
-            : !hasMessages
-                ? (
-                    <EmptyState />
-                  )
-                : (
-                    <ChatActionsProvider value={chatActions}>
-                      <MessageList
-                        messages={messages}
-                        streamingMessageId={streamingMessageId}
-                        isLoading={isLoading && !streamingMessageId}
-                      />
-                    </ChatActionsProvider>
-                  )}
+            : loadMessagesError
+              ? (
+                  <div className="h-full flex flex-col items-center justify-center gap-2 px-4">
+                    <div className="text-[12px] text-destructive font-medium">加载历史消息失败</div>
+                    <div className="text-[11px] text-muted-foreground text-center max-w-xs break-all">
+                      {loadMessagesError}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => currentConversationId && loadMessages(currentConversationId)}
+                      className="text-[11px] underline text-foreground hover:opacity-80"
+                    >
+                      重试
+                    </button>
+                  </div>
+                )
+              : !hasMessages
+                  ? (
+                      <EmptyState />
+                    )
+                  : (
+                      <ChatActionsProvider value={chatActions}>
+                        <MessageErrorBoundary>
+                          <MessageList
+                            messages={messages}
+                            streamingMessageId={streamingMessageId}
+                            isLoading={isLoading && !streamingMessageId}
+                          />
+                        </MessageErrorBoundary>
+                      </ChatActionsProvider>
+                    )}
           {error && (
             <div className="absolute bottom-2 left-2 right-2 text-[11px] text-destructive bg-destructive/10 border border-destructive/30 rounded px-2 py-1">
               {error.message}

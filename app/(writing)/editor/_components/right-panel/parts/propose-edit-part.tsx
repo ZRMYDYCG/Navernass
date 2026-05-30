@@ -1,7 +1,7 @@
 'use client'
 
 import { Check, Loader2, Pencil, X } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { useAiEditsStore } from '@/store'
 import type { ProposeEditOutput } from './types'
@@ -21,21 +21,20 @@ interface ProposeEditPartProps {
 }
 
 /**
- * propose_edit 工具的专属渲染卡片
- *
- * 在 output-available 时把 diff 推入 useAiEditsStore，编辑器侧订阅 store 并应用。
- * 用 store 而非 CustomEvent 是为了避免「派发瞬间编辑器未挂载导致丢失」。
+ * 已经 enqueue 过的 partKey；module 级 Set，重挂载/历史回填都不重复入队。
+ * （store.enqueue 自身也按 id 去重，这里再加一层是防御性措施。）
  */
+const enqueuedKeys = new Set<string>()
+
 export function ProposeEditPart({ partKey, state, input, output, errorText }: ProposeEditPartProps) {
   const enqueue = useAiEditsStore(s => s.enqueue)
-  const dispatchedRef = useRef(false)
 
   useEffect(() => {
-    if (dispatchedRef.current) return
     if (state !== 'output-available') return
     if (!output || !output.ok) return
     if (!output.chapter_id || !output.original_text) return
-    dispatchedRef.current = true
+    if (enqueuedKeys.has(partKey)) return
+    enqueuedKeys.add(partKey)
 
     enqueue({
       id: partKey,

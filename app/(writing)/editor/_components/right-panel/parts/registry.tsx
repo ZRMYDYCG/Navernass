@@ -94,6 +94,7 @@ function renderToolPart(part: any, ctx: PartRenderContext): ReactNode {
       return (
         <AutoWriteToolPart
           key={`tool-${ctx.index}`}
+          partKey={`${ctx.message.id}:${ctx.index}`}
           toolName={toolName as 'create_volume' | 'create_chapter' | 'append_chapter' | 'update_chapter' | 'update_volume' | 'delete_chapter' | 'delete_volume'}
           state={part.state}
           input={part.input}

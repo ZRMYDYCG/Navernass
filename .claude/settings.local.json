@@ -30,7 +30,11 @@
       "Bash(pnpm next:*)",
       "PowerShell(npx tsc --noEmit 2>&1 | Select-Object -First 80)",
       "PowerShell(pnpm add *)",
-      "PowerShell(Resolve-DnsName *)"
+      "PowerShell(Resolve-DnsName *)",
+      "WebFetch(domain:supabase.com)",
+      "WebFetch(domain:dev.to)",
+      "PowerShell(supabase *)",
+      "PowerShell(pnpm exec *)"
     ]
   }
 }

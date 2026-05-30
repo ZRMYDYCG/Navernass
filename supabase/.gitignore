@@ -1,0 +1,7 @@
+# Supabase 本地工作区临时文件
+.temp/
+.branches/
+logs/
+
+# `supabase login` 写入用户 home 的 .supabase，不在仓库里——但保险起见忽略
+.supabase/

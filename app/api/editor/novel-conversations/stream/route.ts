@@ -106,16 +106,6 @@ export async function POST(req: NextRequest) {
     return new Response(`Unknown agent: ${decision.agentId}`, { status: 500 })
   }
 
-  // 持久化用户消息
-  await messagesService.create({
-    conversation_id: conversation.id,
-    novel_id: novelId,
-    role: 'user',
-    content: userInput,
-    model: model || DEFAULT_LLM_MODEL,
-    tokens: 0,
-  })
-
   // 构建 model messages（注入章节上下文到最后一条 user message）
   const modelMessages = await convertToModelMessages(messages)
   if (contextMessage && modelMessages.length > 0) {
@@ -130,7 +120,37 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // ✅ 先同步存"用户消息"（不依赖 onFinish）
+  // 之前放到 toUIMessageStreamResponse.onFinish 里，部署在 Next.js 流式响应下
+  // 经常因为函数生命周期早于 onFinish 被收束而不触发，导致 GET /messages 返回空。
+  console.log('[stream] persisting user message...')
+  let userMessageRow: any
+  try {
+    const lastInputUser = [...messages].reverse().find(m => m.role === 'user')
+    userMessageRow = await messagesService.upsert({
+      id: lastInputUser?.id || crypto.randomUUID(),
+      conversation_id: conversation.id,
+      novel_id: novelId,
+      role: 'user',
+      content: userInput,
+      model: model || DEFAULT_LLM_MODEL,
+      tokens: 0,
+      parts: lastInputUser?.parts as unknown[] | undefined,
+    })
+    console.log('[stream] user message saved:', userMessageRow?.id)
+  } catch (error) {
+    console.error('[stream] FAILED to persist user message:', error)
+    return new Response('Failed to persist user message', { status: 500 })
+  }
+
   // 派发到 specialist agent
+  // assistant 消息走"流内"持久化：在 streamText 的 onFinish（每个 step 完成时）
+  // 收集 parts，最后由 toUIMessageStreamResponse.onFinish 兜底落库。
+  let lastAssistantParts: unknown[] = []
+  let lastAssistantText = ''
+  let lastAssistantReasoning = ''
+  let totalTokens = 0
+
   const result = runWriterAgent({
     uiMessages: messages,
     modelMessages,
@@ -144,28 +164,89 @@ export async function POST(req: NextRequest) {
       selectedChapterIds,
     },
     onFinish: async ({ text, reasoningText, usage }) => {
-      try {
-        await messagesService.create({
-          conversation_id: conversation.id,
-          novel_id: novelId,
-          role: 'assistant',
-          content: text,
-          thinking: reasoningText || undefined,
-          model: model || DEFAULT_LLM_MODEL,
-          tokens: usage?.totalTokens || 0,
-        })
-      } catch (error) {
-        console.error('Failed to persist assistant message:', error)
-      }
+      lastAssistantText = text
+      lastAssistantReasoning = reasoningText || ''
+      totalTokens = usage?.totalTokens || 0
+      console.log('[stream/streamText.onFinish] text len:', text.length, 'tokens:', totalTokens)
     },
   })
 
   return result.toUIMessageStreamResponse({
     sendReasoning: true,
+    originalMessages: messages,
+    onFinish: async ({ messages: finalMessages }) => {
+      console.log('[stream/uiOnFinish] final messages count:', finalMessages.length)
+      try {
+        // 取生成的 assistant 消息（input messages 都是 user/assistant 历史，最后新增的是这次 stream 产物）
+        const lastAssistant = [...finalMessages].reverse().find(m => m.role === 'assistant')
+        if (!lastAssistant) {
+          console.warn('[stream/uiOnFinish] no assistant message in finalMessages, fallback to streamText data')
+          // 兜底：用 streamText.onFinish 的数据建一个最小 parts
+          const fallbackParts: unknown[] = []
+          if (lastAssistantReasoning) {
+            fallbackParts.push({ type: 'reasoning', text: lastAssistantReasoning, state: 'done' })
+          }
+          if (lastAssistantText) {
+            fallbackParts.push({ type: 'text', text: lastAssistantText, state: 'done' })
+          }
+          if (fallbackParts.length === 0) {
+            console.warn('[stream/uiOnFinish] nothing to persist (empty assistant)')
+            return
+          }
+          const saved = await messagesService.upsert({
+            id: crypto.randomUUID(),
+            conversation_id: conversation.id,
+            novel_id: novelId,
+            role: 'assistant',
+            content: lastAssistantText,
+            thinking: lastAssistantReasoning || undefined,
+            model: model || DEFAULT_LLM_MODEL,
+            tokens: totalTokens,
+            parts: fallbackParts,
+          })
+          console.log('[stream/uiOnFinish] assistant fallback saved:', saved?.id)
+          return
+        }
+
+        lastAssistantParts = (lastAssistant.parts || []) as unknown[]
+        const partsCount = lastAssistantParts.length
+        console.log('[stream/uiOnFinish] saving assistant, parts count:', partsCount)
+        const saved = await messagesService.upsert({
+          id: lastAssistant.id,
+          conversation_id: conversation.id,
+          novel_id: novelId,
+          role: 'assistant',
+          content: extractTextFromParts(lastAssistantParts) || lastAssistantText,
+          thinking: extractReasoningFromParts(lastAssistantParts) || lastAssistantReasoning || undefined,
+          model: model || DEFAULT_LLM_MODEL,
+          tokens: totalTokens,
+          parts: lastAssistantParts,
+        })
+        console.log('[stream/uiOnFinish] assistant saved:', saved?.id, 'parts persisted:', !!saved?.parts)
+      } catch (error) {
+        console.error('[stream/uiOnFinish] FAILED to persist assistant message:', error)
+      }
+    },
     headers: {
       'X-Conversation-Id': conversation.id,
       'X-Agent-Id': decision.agentId,
       'X-Skill-Ids': decision.skillIds.join(','),
     },
   })
+}
+
+function extractTextFromParts(parts: unknown): string {
+  if (!Array.isArray(parts)) return ''
+  return parts
+    .filter((p: any) => p?.type === 'text' && typeof p.text === 'string')
+    .map((p: any) => p.text as string)
+    .join('')
+}
+
+function extractReasoningFromParts(parts: unknown): string {
+  if (!Array.isArray(parts)) return ''
+  return parts
+    .filter((p: any) => p?.type === 'reasoning' && typeof p.text === 'string')
+    .map((p: any) => p.text as string)
+    .join('\n')
 }
