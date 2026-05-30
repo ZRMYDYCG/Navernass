@@ -1,7 +1,9 @@
 import { registerBuiltinSkills } from '../skills'
 import { registerBuiltinTools } from '../tools'
+import { registerCharacterScriptwriterAgent } from './character-scriptwriter'
 import { registerWriterAgent } from './writer'
 
+export * from './character-scriptwriter'
 export * from './registry'
 export * from './router'
 export * from './types'
@@ -18,4 +20,5 @@ export function bootstrapAgents() {
   registerBuiltinTools()
   registerBuiltinSkills()
   registerWriterAgent()
+  registerCharacterScriptwriterAgent()
 }

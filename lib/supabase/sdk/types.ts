@@ -458,6 +458,55 @@ export interface UpdateOutlineDto {
 }
 
 // =============================================
+// 角色时间线（Character Timeline Events）类型
+// =============================================
+
+export type CharacterEventType =
+  | 'appearance'
+  | 'milestone'
+  | 'relation'
+  | 'conflict'
+  | 'growth'
+  | 'death'
+  | 'other'
+
+export interface CharacterTimelineEvent {
+  id: string
+  user_id: string
+  novel_id: string
+  character_id: string
+  chapter_id?: string | null
+  event_type: CharacterEventType
+  title: string
+  description: string
+  timeline_position: number
+  occurred_at_label?: string | null
+  created_at: string
+  updated_at: string
+  deleted_at?: string | null
+}
+
+export interface CreateCharacterTimelineEventDto {
+  novel_id: string
+  character_id: string
+  chapter_id?: string | null
+  event_type?: CharacterEventType
+  title: string
+  description?: string
+  timeline_position?: number
+  occurred_at_label?: string | null
+}
+
+export interface UpdateCharacterTimelineEventDto {
+  chapter_id?: string | null
+  event_type?: CharacterEventType
+  title?: string
+  description?: string
+  timeline_position?: number
+  occurred_at_label?: string | null
+}
+
+// =============================================
 // 工作台统计类型
 // =============================================
 

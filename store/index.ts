@@ -34,3 +34,9 @@ export {
   selectOrderedWorldbookEntries,
   useWorldviewStore,
 } from './modules/worldview-store'
+
+// Character Timeline Store (zustand + immer)
+export {
+  selectEventsForCharacter,
+  useTimelineStore,
+} from './modules/timeline-store'

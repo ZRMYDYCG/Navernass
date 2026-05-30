@@ -115,6 +115,9 @@ function renderToolPart(part: any, ctx: PartRenderContext): ReactNode {
     case 'create_outline':
     case 'update_outline':
     case 'delete_outline':
+    case 'create_character_event':
+    case 'update_character_event':
+    case 'delete_character_event':
       return (
         <AutoWriteToolPart
           key={`tool-${ctx.index}`}

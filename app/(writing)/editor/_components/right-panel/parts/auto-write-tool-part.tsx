@@ -3,7 +3,7 @@
 import { Check, Loader2, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { useChaptersStore, useWorldviewStore } from '@/store'
+import { useChaptersStore, useTimelineStore, useWorldviewStore } from '@/store'
 
 export type AutoWriteToolName =
   | 'create_volume'
@@ -19,6 +19,9 @@ export type AutoWriteToolName =
   | 'create_outline'
   | 'update_outline'
   | 'delete_outline'
+  | 'create_character_event'
+  | 'update_character_event'
+  | 'delete_character_event'
 
 interface AutoWriteToolPartProps {
   /** 该 part 的稳定 id（messageId + part index）。用于全局副作用去重 */
@@ -49,6 +52,8 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
   const removeWorldbookEntry = useWorldviewStore(s => s.removeWorldbookEntry)
   const upsertOutline = useWorldviewStore(s => s.upsertOutline)
   const removeOutline = useWorldviewStore(s => s.removeOutline)
+  const upsertEvent = useTimelineStore(s => s.upsertEvent)
+  const removeEvent = useTimelineStore(s => s.removeEvent)
 
   useEffect(() => {
     if (state !== 'output-available') return
@@ -66,12 +71,12 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
       case 'create_volume':
       case 'update_volume':
         if (output.volume) upsertVolume(output.volume)
-        toast.success(`${TOOL_LABELS[toolName]}：${output.title || ''}`)
+        toast.success(`${TOOL_LABELS[toolName]}:${output.title || ''}`)
         break
       case 'create_chapter':
       case 'update_chapter':
         if (output.chapter) upsertChapter(output.chapter)
-        toast.success(`${TOOL_LABELS[toolName]}：${output.title || ''}`)
+        toast.success(`${TOOL_LABELS[toolName]}:${output.title || ''}`)
         break
       case 'append_chapter':
         if (output.chapter) upsertChapter(output.chapter)
@@ -94,7 +99,7 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
       case 'create_worldbook_entry':
       case 'update_worldbook_entry':
         if (output.entry) upsertWorldbookEntry(output.entry)
-        toast.success(`${TOOL_LABELS[toolName]}：${output.title || ''}`)
+        toast.success(`${TOOL_LABELS[toolName]}:${output.title || ''}`)
         break
       case 'delete_worldbook_entry':
         if (output.entry_id) removeWorldbookEntry(output.entry_id)
@@ -105,11 +110,22 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
       case 'create_outline':
       case 'update_outline':
         if (output.outline) upsertOutline(output.outline)
-        toast.success(`${TOOL_LABELS[toolName]}：${output.title || ''}`)
+        toast.success(`${TOOL_LABELS[toolName]}:${output.title || ''}`)
         break
       case 'delete_outline':
         if (output.outline_id) removeOutline(output.outline_id)
         toast.success(`已删除大纲：${output.title}`, {
+          description: output.reason,
+        })
+        break
+      case 'create_character_event':
+      case 'update_character_event':
+        if (output.event) upsertEvent(output.event)
+        toast.success(`${TOOL_LABELS[toolName]}:${output.title || ''}`)
+        break
+      case 'delete_character_event':
+        if (output.event_id) removeEvent(output.event_id)
+        toast.success(`已删除时间线事件：${output.title}`, {
           description: output.reason,
         })
         break
@@ -119,6 +135,7 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
     upsertVolume, upsertChapter, removeChapter, removeVolume,
     upsertWorldbookEntry, removeWorldbookEntry,
     upsertOutline, removeOutline,
+    upsertEvent, removeEvent,
   ])
 
   const Icon = TOOL_ICONS[toolName] || Plus
@@ -188,6 +205,9 @@ function describeSuccess(toolName: AutoWriteToolName, output: any): string {
     case 'create_outline': return `大纲《${output.title}》已创建`
     case 'update_outline': return `大纲已更新为《${output.title}》`
     case 'delete_outline': return `大纲《${output.title}》已删除`
+    case 'create_character_event': return `时间线事件《${output.title}》已添加`
+    case 'update_character_event': return `时间线事件已更新为《${output.title}》`
+    case 'delete_character_event': return `时间线事件《${output.title}》已删除`
     default: return '操作成功'
   }
 }
@@ -206,6 +226,9 @@ const TOOL_LABELS: Record<AutoWriteToolName, string> = {
   create_outline: '创建大纲',
   update_outline: '更新大纲',
   delete_outline: '删除大纲',
+  create_character_event: '添加时间线事件',
+  update_character_event: '更新时间线事件',
+  delete_character_event: '删除时间线事件',
 }
 
 const TOOL_ICONS: Record<AutoWriteToolName, typeof Plus> = {
@@ -222,6 +245,9 @@ const TOOL_ICONS: Record<AutoWriteToolName, typeof Plus> = {
   create_outline: Plus,
   update_outline: Pencil,
   delete_outline: Trash2,
+  create_character_event: Plus,
+  update_character_event: Pencil,
+  delete_character_event: Trash2,
 }
 
 function StatusIcon({ state, ok }: { state: string, ok?: boolean }) {

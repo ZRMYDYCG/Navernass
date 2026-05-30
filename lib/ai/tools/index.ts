@@ -1,6 +1,12 @@
 import { registerTool } from './registry'
 import { appendChapterTool } from './append-chapter'
 import { askUserTool } from './ask-user'
+import {
+  createCharacterEventTool,
+  deleteCharacterEventTool,
+  listCharacterEventsTool,
+  updateCharacterEventTool,
+} from './character-events'
 import { createChapterTool } from './create-chapter'
 import { createVolumeTool } from './create-volume'
 import { deleteChapterTool } from './delete-chapter'
@@ -49,7 +55,7 @@ export function registerBuiltinTools() {
   // 删除（软删除）
   registerTool('delete_chapter', deleteChapterTool)
   registerTool('delete_volume', deleteVolumeTool)
-  // 世界观（lorebook）
+  // 世界观
   registerTool('list_worldbook_entries', listWorldbookEntriesTool)
   registerTool('read_worldbook_entry', readWorldbookEntryTool)
   registerTool('create_worldbook_entry', createWorldbookEntryTool)
@@ -60,6 +66,11 @@ export function registerBuiltinTools() {
   registerTool('create_outline', createOutlineTool)
   registerTool('update_outline', updateOutlineTool)
   registerTool('delete_outline', deleteOutlineTool)
+  // 角色时间线
+  registerTool('list_character_events', listCharacterEventsTool)
+  registerTool('create_character_event', createCharacterEventTool)
+  registerTool('update_character_event', updateCharacterEventTool)
+  registerTool('delete_character_event', deleteCharacterEventTool)
   // 交互
   registerTool('ask_user', askUserTool)
 }

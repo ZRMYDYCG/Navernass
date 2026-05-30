@@ -1,4 +1,5 @@
 export * from './chapters'
+export * from './character-timeline'
 export * from './characters'
 export * from './chat'
 export * from './client'

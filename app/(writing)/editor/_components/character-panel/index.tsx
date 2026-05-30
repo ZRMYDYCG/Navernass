@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
 
@@ -8,8 +8,10 @@ import { CastingPool } from './casting-pool'
 import { CharacterModal } from './character-modal'
 import { CharacterOverviewGraph } from './character-overview-graph'
 import { CharacterPanelHeader } from './character-panel-header'
+import { FloatingScriptChat } from './floating-script-chat'
 import { RelationshipGraph } from './relationship-graph'
 import { RelationshipModal } from './relationship-modal'
+import { TimelinePanel } from './timeline-panel'
 
 export { AvatarPromptModal } from './avatar-prompt-modal'
 
@@ -63,6 +65,15 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
   const editingCharacter = editingCharacterId
     ? characters.find(c => c.id === editingCharacterId)
     : null
+
+  const focusedCharacter = useMemo(
+    () => effectiveSelectedCharacterId
+      ? characters.find(c => c.id === effectiveSelectedCharacterId) || null
+      : null,
+    [characters, effectiveSelectedCharacterId],
+  )
+
+  const [scriptChatOpen, setScriptChatOpen] = useState(false)
 
   const {
     relationshipsByNovel,
@@ -173,7 +184,24 @@ export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
             )}
           </div>
         </section>
+
+        {/* 右侧时间线抽屉 */}
+        <aside className="w-72 shrink-0 border-l border-border">
+          <TimelinePanel
+            novelId={novelId}
+            character={focusedCharacter}
+            onOpenScriptChat={() => setScriptChatOpen(true)}
+          />
+        </aside>
       </div>
+
+      {/* 浮动剧本对话框：focusedCharacter 才能开 */}
+      <FloatingScriptChat
+        novelId={novelId}
+        character={focusedCharacter}
+        open={scriptChatOpen && !!focusedCharacter}
+        onClose={() => setScriptChatOpen(false)}
+      />
 
       <CharacterModal
         open={characterModalOpen}
