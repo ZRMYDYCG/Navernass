@@ -261,6 +261,7 @@ const editor = {
         newVolume: '建立卷',
         newChapter: '建立章節',
         collapseAll: '收起全部',
+        expandAll: '展開全部',
       },
       chapterItem: {
         rename: '重命名',

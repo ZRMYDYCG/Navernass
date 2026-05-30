@@ -1,5 +1,5 @@
 import type { ChaptersTabProps } from './types'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { ChapterHeader } from './chapter-header'
 import { ChapterList } from './chapter-list'
 
@@ -25,7 +25,9 @@ export default function ChaptersTab({
   onDeleteVolume,
   onRenameChapterInline,
 }: ChaptersTabProps) {
-  const collapseAllRef = useRef<(() => void) | null>(null)
+  const toggleAllVolumesRef = useRef<(() => void) | null>(null)
+  const [allVolumesExpanded, setAllVolumesExpanded] = useState(true)
+  const [hasVolumes, setHasVolumes] = useState(false)
 
   return (
     <div className="h-full flex flex-col isolate">
@@ -33,8 +35,10 @@ export default function ChaptersTab({
         novelTitle={novelTitle}
         onCreateChapter={onCreateChapterQuick ?? onCreateChapter}
         onCreateVolume={onCreateVolumeQuick ?? onCreateVolume}
-        onCollapseAll={() => {
-          collapseAllRef.current?.()
+        allVolumesExpanded={allVolumesExpanded}
+        hasVolumes={hasVolumes}
+        onToggleAllVolumes={() => {
+          toggleAllVolumesRef.current?.()
         }}
       />
       <ChapterList
@@ -55,7 +59,9 @@ export default function ChaptersTab({
         onCreateChapterInVolume={onCreateChapterInVolume}
         onCreateChapter={onCreateChapter}
         onCreateVolume={onCreateVolume}
-        onCollapseAllRef={collapseAllRef}
+        onToggleAllVolumesRef={toggleAllVolumesRef}
+        onAllVolumesExpandedChange={setAllVolumesExpanded}
+        onHasVolumesChange={setHasVolumes}
       />
     </div>
   )

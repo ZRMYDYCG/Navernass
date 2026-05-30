@@ -8,22 +8,27 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useI18n } from '@/hooks/use-i18n'
+import { cn } from '@/lib/utils'
 
 interface ChapterHeaderProps {
   novelTitle?: string
   onCreateChapter?: () => void
   onCreateVolume?: () => void
-  onCollapseAll?: () => void
+  allVolumesExpanded?: boolean
+  hasVolumes?: boolean
+  onToggleAllVolumes?: () => void
 }
 
 export function ChapterHeader({
   novelTitle,
   onCreateChapter,
   onCreateVolume,
-  onCollapseAll,
+  allVolumesExpanded = true,
+  hasVolumes = false,
+  onToggleAllVolumes,
 }: ChapterHeaderProps) {
   const { t } = useI18n()
-  const actionButtonClass = 'p-1.5 h-6 w-6 flex items-center justify-center rounded-md border border-border/60 bg-background/60 text-primary/80 hover:text-primary hover:border-primary/40 hover:bg-primary/10 transition-colors'
+  const actionButtonClass = 'p-1.5 h-6 w-6 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors'
 
   return (
     <div className="h-9 px-2 flex items-center justify-between border-b border-sidebar-border bg-sidebar/50 backdrop-blur-sm">
@@ -65,14 +70,25 @@ export function ChapterHeader({
             <TooltipTrigger asChild>
               <button
                 type="button"
-                onClick={onCollapseAll}
-                className={actionButtonClass}
+                onClick={onToggleAllVolumes}
+                disabled={!hasVolumes}
+                className={cn(actionButtonClass, !hasVolumes && 'opacity-40 pointer-events-none')}
               >
-                <ChevronUp className="w-3.5 h-3.5" strokeWidth={1.8} />
+                <ChevronUp
+                  className={cn(
+                    'w-3.5 h-3.5 transition-transform duration-200 ease-out',
+                    !allVolumesExpanded && 'rotate-180',
+                  )}
+                  strokeWidth={1.8}
+                />
               </button>
             </TooltipTrigger>
             <TooltipContent side="top" className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95 z-[9999]">
-              <p>{t('editor.leftPanel.chapters.header.collapseAll')}</p>
+              <p>
+                {allVolumesExpanded
+                  ? t('editor.leftPanel.chapters.header.collapseAll')
+                  : t('editor.leftPanel.chapters.header.expandAll')}
+              </p>
             </TooltipContent>
           </Tooltip>
         </div>

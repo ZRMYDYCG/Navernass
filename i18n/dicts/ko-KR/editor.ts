@@ -261,6 +261,7 @@ const editor = {
         newVolume: '새 권',
         newChapter: '새 장',
         collapseAll: '모두 접기',
+        expandAll: '모두 펼치기',
       },
       chapterItem: {
         rename: '이름 변경',

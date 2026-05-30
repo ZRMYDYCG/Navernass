@@ -261,6 +261,7 @@ const editor = {
         newVolume: '新しい巻',
         newChapter: '新しい章',
         collapseAll: 'すべて折りたたむ',
+        expandAll: 'すべて展開',
       },
       chapterItem: {
         rename: '名前を変更',

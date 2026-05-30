@@ -261,6 +261,7 @@ const editor = {
         newVolume: 'New volume',
         newChapter: 'New chapter',
         collapseAll: 'Collapse all',
+        expandAll: 'Expand all',
       },
       chapterItem: {
         rename: 'Rename',

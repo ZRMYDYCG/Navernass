@@ -4,7 +4,7 @@ import type { Volume } from '../types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import * as Popover from '@radix-ui/react-popover'
-import { BookOpen, ChevronDown, ChevronRight, Edit2, GripVertical, Trash2 } from 'lucide-react'
+import { BookOpen, ChevronDown, Edit2, GripVertical, Trash2 } from 'lucide-react'
 import { useState, type MouseEvent, type ReactNode } from 'react'
 import {
   ContextMenu,
@@ -117,13 +117,12 @@ export function VolumeItem({
                 onClick={onToggle}
                 className="p-1 hover:bg-accent rounded transition-colors text-muted-foreground"
               >
-                {isExpanded
-                  ? (
-                      <ChevronDown className="w-3.5 h-3.5" />
-                    )
-                  : (
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    )}
+                <ChevronDown
+                  className={cn(
+                    'w-3.5 h-3.5 transition-transform duration-200 ease-out',
+                    !isExpanded && '-rotate-90',
+                  )}
+                />
               </button>
 
               <div className="flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
@@ -171,9 +170,18 @@ export function VolumeItem({
             </HoverActionBar>
           </div>
 
-          {isExpanded && children && (
-            <div className="ml-3 border-l border-border pl-1.5 mt-0.5 space-y-0.5">
-              {children}
+          {children && (
+            <div
+              className={cn(
+                'grid transition-[grid-template-rows] duration-200 ease-out',
+                isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+              )}
+            >
+              <div className="overflow-hidden">
+                <div className="ml-3 border-l border-border pl-1.5 mt-0.5 space-y-0.5">
+                  {children}
+                </div>
+              </div>
             </div>
           )}
         </div>

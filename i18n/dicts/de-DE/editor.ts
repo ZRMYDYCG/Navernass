@@ -261,6 +261,7 @@ const editor = {
         newVolume: 'Neuer Band',
         newChapter: 'Neues Kapitel',
         collapseAll: 'Alle einklappen',
+        expandAll: 'Alle ausklappen',
       },
       chapterItem: {
         rename: 'Umbenennen',

@@ -67,7 +67,9 @@ interface ChapterListProps {
   onCreateChapterInVolume?: (volumeId: string) => void
   onCreateChapter?: () => void
   onCreateVolume?: () => void
-  onCollapseAllRef?: React.MutableRefObject<(() => void) | null>
+  onToggleAllVolumesRef?: React.MutableRefObject<(() => void) | null>
+  onAllVolumesExpandedChange?: (expanded: boolean) => void
+  onHasVolumesChange?: (hasVolumes: boolean) => void
 }
 
 export function ChapterList({
@@ -88,22 +90,15 @@ export function ChapterList({
   onCreateChapterInVolume,
   onCreateChapter,
   onCreateVolume,
-  onCollapseAllRef,
+  onToggleAllVolumesRef,
+  onAllVolumesExpandedChange,
+  onHasVolumesChange,
 }: ChapterListProps) {
   const [localChapters, setLocalChapters] = useState(() => chapters || [])
   const [localVolumes, setLocalVolumes] = useState(() => volumes || [])
   const [expandedVolumes, setExpandedVolumes] = useState<Set<string>>(new Set())
   const [activeId, setActiveId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
-
-  // 暴露收起所有卷的方法给父组件
-  useEffect(() => {
-    if (onCollapseAllRef) {
-      onCollapseAllRef.current = () => {
-        setExpandedVolumes(new Set())
-      }
-    }
-  }, [onCollapseAllRef])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -139,6 +134,30 @@ export function ChapterList({
       return next
     })
   }
+
+  const allVolumesExpanded = localVolumes.length > 0
+    && localVolumes.every(v => expandedVolumes.has(v.id))
+
+  useEffect(() => {
+    onHasVolumesChange?.(localVolumes.length > 0)
+  }, [localVolumes.length, onHasVolumesChange])
+
+  useEffect(() => {
+    onAllVolumesExpandedChange?.(allVolumesExpanded)
+  }, [allVolumesExpanded, onAllVolumesExpandedChange])
+
+  useEffect(() => {
+    if (!onToggleAllVolumesRef) return
+    onToggleAllVolumesRef.current = () => {
+      setExpandedVolumes((prev) => {
+        const currentlyAllExpanded = localVolumes.length > 0
+          && localVolumes.every(v => prev.has(v.id))
+        return currentlyAllExpanded
+          ? new Set<string>()
+          : new Set(localVolumes.map(v => v.id))
+      })
+    }
+  }, [onToggleAllVolumesRef, localVolumes])
 
   // 根目录放置区 ID（用于将章节从卷中移出）
   const ROOT_DROP_ZONE_ID = 'root-drop-zone'
