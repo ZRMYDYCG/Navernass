@@ -18,7 +18,16 @@
       "WebFetch(domain:docs.vllm.ai)",
       "WebFetch(domain:minimax-m2.com)",
       "WebFetch(domain:streamdown.ai)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:registry.npmjs.org)",
+      "WebFetch(domain:vercel-streamdown.mintlify.app)",
+      "WebFetch(domain:reactscript.com)",
+      "WebFetch(domain:www.xugj520.cn)",
+      "Bash(npm view:*)",
+      "Bash(npm pack:*)",
+      "Bash(curl -sL https://unpkg.com/streamdown@2.5.0/dist/index.d.ts)",
+      "Bash(npm i:*)",
+      "Bash(pnpm next:*)"
     ]
   }
 }
