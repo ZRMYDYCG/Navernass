@@ -28,14 +28,14 @@ const editor = {
   surface: {
     label: '卷面',
     options: {
-      paper: '纸感',
+      paper: '宣白',
       plain: '素净',
-      mist: '雾灰',
-      soft: '柔光',
-      rice: '轻米白',
-      aged: '旧纸',
-      cool: '冷白',
-      night: '夜纸',
+      mist: '烟岚',
+      soft: '鹅黄',
+      rice: '米宣',
+      aged: '古卷',
+      cool: '霜白',
+      night: '墨夜',
     },
   },
   editor: {

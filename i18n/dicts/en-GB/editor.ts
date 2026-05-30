@@ -28,14 +28,14 @@ const editor = {
   surface: {
     label: 'Surface',
     options: {
-      paper: 'Paper',
-      plain: 'Plain',
-      mist: 'Mist',
-      soft: 'Soft',
-      rice: 'Rice',
-      aged: 'Aged',
-      cool: 'Cool',
-      night: 'Night',
+      paper: 'Xuan White',
+      plain: 'Plain Silk',
+      mist: 'Mountain Mist',
+      soft: 'Goose Yellow',
+      rice: 'Rice Paper',
+      aged: 'Ancient Scroll',
+      cool: 'Frost White',
+      night: 'Ink Night',
     },
   },
   editor: {

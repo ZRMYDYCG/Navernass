@@ -1,0 +1,206 @@
+/*
+ * 卷面（Editor Surface）独立色系
+ * 与全局主题 token 完全隔离，仅作用于 [data-editor-surface] 容器及其内部编辑器内容。
+ * 每个卷面均定义昼/夜两套 bg + fg + muted + border，不受 data-theme 或 primary 等变量影响。
+ */
+
+[data-editor-surface] {
+  --editor-surface-bg: oklch(0.992 0.006 80);
+  --editor-surface-fg: oklch(0.18 0.012 50);
+  --editor-surface-fg-muted: oklch(0.52 0.015 60);
+  --editor-surface-border: oklch(0.82 0.012 75);
+  --editor-surface-underline: oklch(0.72 0.012 70);
+
+  background-color: var(--editor-surface-bg);
+  color: var(--editor-surface-fg);
+}
+
+/* 宣白 — 宣纸本色，温润留白 */
+[data-editor-surface='paper'] {
+  --editor-surface-bg: oklch(0.992 0.006 80);
+  --editor-surface-fg: oklch(0.18 0.012 50);
+  --editor-surface-fg-muted: oklch(0.50 0.015 58);
+  --editor-surface-border: oklch(0.84 0.012 78);
+  --editor-surface-underline: oklch(0.78 0.012 75);
+}
+
+.dark [data-editor-surface='paper'] {
+  --editor-surface-bg: oklch(0.20 0.012 55);
+  --editor-surface-fg: oklch(0.88 0.012 75);
+  --editor-surface-fg-muted: oklch(0.62 0.014 65);
+  --editor-surface-border: oklch(0.32 0.014 55);
+  --editor-surface-underline: oklch(0.42 0.012 58);
+}
+
+/* 素净 — 未染素绢，极简留白 */
+[data-editor-surface='plain'] {
+  --editor-surface-bg: oklch(0.978 0.008 80);
+  --editor-surface-fg: oklch(0.18 0.012 50);
+  --editor-surface-fg-muted: oklch(0.52 0.015 60);
+  --editor-surface-border: oklch(0.86 0.012 75);
+  --editor-surface-underline: oklch(0.76 0.012 72);
+}
+
+.dark [data-editor-surface='plain'] {
+  --editor-surface-bg: oklch(0.16 0.012 50);
+  --editor-surface-fg: oklch(0.90 0.012 75);
+  --editor-surface-fg-muted: oklch(0.60 0.015 62);
+  --editor-surface-border: oklch(0.28 0.014 52);
+  --editor-surface-underline: oklch(0.40 0.012 55);
+}
+
+/* 烟岚 — 远山烟霭，灰蓝朦胧 */
+[data-editor-surface='mist'] {
+  --editor-surface-bg: oklch(0.945 0.010 72);
+  --editor-surface-fg: oklch(0.28 0.014 58);
+  --editor-surface-fg-muted: oklch(0.54 0.014 62);
+  --editor-surface-border: oklch(0.82 0.012 70);
+  --editor-surface-underline: oklch(0.74 0.012 68);
+}
+
+.dark [data-editor-surface='mist'] {
+  --editor-surface-bg: oklch(0.19 0.010 55);
+  --editor-surface-fg: oklch(0.84 0.010 72);
+  --editor-surface-fg-muted: oklch(0.58 0.012 65);
+  --editor-surface-border: oklch(0.30 0.012 55);
+  --editor-surface-underline: oklch(0.40 0.010 58);
+}
+
+/* 鹅黄 — 初染鹅黄，暖光映卷 */
+[data-editor-surface='soft'] {
+  --editor-surface-bg: oklch(0.945 0.038 95);
+  --editor-surface-fg: oklch(0.28 0.028 65);
+  --editor-surface-fg-muted: oklch(0.52 0.025 68);
+  --editor-surface-border: oklch(0.82 0.030 88);
+  --editor-surface-underline: oklch(0.76 0.028 85);
+}
+
+.dark [data-editor-surface='soft'] {
+  --editor-surface-bg: oklch(0.22 0.025 75);
+  --editor-surface-fg: oklch(0.86 0.022 80);
+  --editor-surface-fg-muted: oklch(0.60 0.020 72);
+  --editor-surface-border: oklch(0.32 0.022 72);
+  --editor-surface-underline: oklch(0.42 0.020 75);
+}
+
+/* 米宣 — 米纸微黄，古意初显 */
+[data-editor-surface='rice'] {
+  --editor-surface-bg: oklch(0.955 0.018 85);
+  --editor-surface-fg: oklch(0.25 0.015 55);
+  --editor-surface-fg-muted: oklch(0.50 0.016 58);
+  --editor-surface-border: oklch(0.84 0.016 80);
+  --editor-surface-underline: oklch(0.76 0.015 78);
+}
+
+.dark [data-editor-surface='rice'] {
+  --editor-surface-bg: oklch(0.21 0.014 70);
+  --editor-surface-fg: oklch(0.86 0.014 78);
+  --editor-surface-fg-muted: oklch(0.60 0.014 70);
+  --editor-surface-border: oklch(0.32 0.014 68);
+  --editor-surface-underline: oklch(0.42 0.012 70);
+}
+
+/* 古卷 — 陈年黄卷，岁月留痕 */
+[data-editor-surface='aged'] {
+  --editor-surface-bg: oklch(0.905 0.028 78);
+  --editor-surface-fg: oklch(0.32 0.025 55);
+  --editor-surface-fg-muted: oklch(0.52 0.022 58);
+  --editor-surface-border: oklch(0.78 0.025 72);
+  --editor-surface-underline: oklch(0.70 0.022 70);
+}
+
+.dark [data-editor-surface='aged'] {
+  --editor-surface-bg: oklch(0.23 0.022 65);
+  --editor-surface-fg: oklch(0.84 0.018 75);
+  --editor-surface-fg-muted: oklch(0.58 0.016 68);
+  --editor-surface-border: oklch(0.34 0.020 62);
+  --editor-surface-underline: oklch(0.44 0.018 65);
+}
+
+/* 霜白 — 秋霜覆纸，清冷素净 */
+[data-editor-surface='cool'] {
+  --editor-surface-bg: oklch(0.975 0.008 250);
+  --editor-surface-fg: oklch(0.22 0.012 260);
+  --editor-surface-fg-muted: oklch(0.50 0.012 255);
+  --editor-surface-border: oklch(0.84 0.010 250);
+  --editor-surface-underline: oklch(0.74 0.010 252);
+}
+
+.dark [data-editor-surface='cool'] {
+  --editor-surface-bg: oklch(0.17 0.012 260);
+  --editor-surface-fg: oklch(0.88 0.010 250);
+  --editor-surface-fg-muted: oklch(0.58 0.010 255);
+  --editor-surface-border: oklch(0.28 0.012 260);
+  --editor-surface-underline: oklch(0.38 0.010 258);
+}
+
+/* 墨夜 — 灯前夜读，墨底银字（昼夜皆为深底，不受外界明暗干扰） */
+[data-editor-surface='night'] {
+  --editor-surface-bg: oklch(0.14 0.012 280);
+  --editor-surface-fg: oklch(0.88 0.010 80);
+  --editor-surface-fg-muted: oklch(0.58 0.012 75);
+  --editor-surface-border: oklch(0.26 0.014 280);
+  --editor-surface-underline: oklch(0.36 0.012 278);
+}
+
+.dark [data-editor-surface='night'] {
+  --editor-surface-bg: oklch(0.11 0.014 280);
+  --editor-surface-fg: oklch(0.90 0.012 80);
+  --editor-surface-fg-muted: oklch(0.60 0.012 75);
+  --editor-surface-border: oklch(0.24 0.014 280);
+  --editor-surface-underline: oklch(0.34 0.012 278);
+}
+
+/* 色块预览：始终展示昼间配色，便于在下拉中辨识 */
+.editor-surface-swatch[data-editor-surface='paper'] { background-color: oklch(0.992 0.006 80); }
+.editor-surface-swatch[data-editor-surface='plain'] { background-color: oklch(0.978 0.008 80); }
+.editor-surface-swatch[data-editor-surface='mist'] { background-color: oklch(0.945 0.010 72); }
+.editor-surface-swatch[data-editor-surface='soft'] { background-color: oklch(0.945 0.038 95); }
+.editor-surface-swatch[data-editor-surface='rice'] { background-color: oklch(0.955 0.018 85); }
+.editor-surface-swatch[data-editor-surface='aged'] { background-color: oklch(0.905 0.028 78); }
+.editor-surface-swatch[data-editor-surface='cool'] { background-color: oklch(0.975 0.008 250); }
+.editor-surface-swatch[data-editor-surface='night'] { background-color: oklch(0.14 0.012 280); }
+
+/* 编辑器内容：卷面内文字色完全走独立 token */
+[data-editor-surface] .prose {
+  color: var(--editor-surface-fg);
+  --tw-prose-body: var(--editor-surface-fg);
+  --tw-prose-headings: var(--editor-surface-fg);
+  --tw-prose-bold: var(--editor-surface-fg);
+  --tw-prose-quotes: var(--editor-surface-fg-muted);
+  --tw-prose-quote-borders: var(--editor-surface-border);
+}
+
+[data-editor-surface] .ProseMirror p,
+[data-editor-surface] .ProseMirror h1,
+[data-editor-surface] .ProseMirror h2,
+[data-editor-surface] .ProseMirror h3,
+[data-editor-surface] .ProseMirror h4 {
+  color: var(--editor-surface-fg);
+}
+
+[data-editor-surface] .ProseMirror blockquote {
+  color: var(--editor-surface-fg-muted);
+  border-left-color: var(--editor-surface-border);
+}
+
+[data-editor-surface] .ProseMirror::selection,
+[data-editor-surface] .ProseMirror *::selection {
+  background-color: color-mix(in oklab, var(--editor-surface-fg) 18%, transparent);
+  color: var(--editor-surface-fg);
+}
+
+[data-editor-surface] .ProseMirror.underline-solid p {
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(2.2em - 1px),
+    var(--editor-surface-underline) calc(2.2em - 1px),
+    var(--editor-surface-underline) 2.2em,
+    transparent 2.2em
+  );
+}
+
+[data-editor-surface] .ProseMirror p.is-editor-empty:first-child::before,
+[data-editor-surface] [contenteditable][data-placeholder]:empty::before {
+  color: var(--editor-surface-fg-muted);
+}

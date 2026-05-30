@@ -2,6 +2,7 @@
 @import './styles/animations.css';
 @import './styles/scrollbar.css';
 @import './styles/editor.css';
+@import './styles/editor-surface.css';
 @import './styles/utils.css';
 
 @layer base {

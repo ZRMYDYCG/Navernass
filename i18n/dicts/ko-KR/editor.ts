@@ -28,14 +28,14 @@ const editor = {
   surface: {
     label: '배경',
     options: {
-      paper: '종이',
-      plain: '심플',
-      mist: '안개',
-      soft: '소프트',
-      rice: '라이스',
-      aged: '빈티지',
-      cool: '쿨',
-      night: '나이트',
+      paper: '宣白',
+      plain: '素净',
+      mist: '烟岚',
+      soft: '鹅黄',
+      rice: '米宣',
+      aged: '古卷',
+      cool: '霜白',
+      night: '墨夜',
     },
   },
   editor: {

@@ -43,16 +43,16 @@ interface EditorContentProps {
 
 const EMPTY_ARRAY: never[] = []
 const SUGGESTION_MARKER_REGEX = /data-suggestion="(?:add|del)"|suggestion-(?:add|del)/i
-const DEFAULT_EDITOR_SURFACE = 'paper'
+const DEFAULT_EDITOR_SURFACE = 'plain'
 const EDITOR_SURFACE_OPTIONS = [
-  { value: 'paper', surfaceClassName: 'bg-card bg-paper-texture', swatchClassName: 'bg-card' },
-  { value: 'plain', surfaceClassName: 'bg-background', swatchClassName: 'bg-background' },
-  { value: 'mist', surfaceClassName: 'bg-muted/35', swatchClassName: 'bg-muted/70' },
-  { value: 'soft', surfaceClassName: 'bg-accent/40', swatchClassName: 'bg-accent/70' },
-  { value: 'rice', surfaceClassName: 'bg-[#f7f2e8] bg-paper-texture', swatchClassName: 'bg-[#f7f2e8]' },
-  { value: 'aged', surfaceClassName: 'bg-[#eadfc8] bg-paper-texture', swatchClassName: 'bg-[#eadfc8]' },
-  { value: 'cool', surfaceClassName: 'bg-[#f3f7fb]', swatchClassName: 'bg-[#f3f7fb]' },
-  { value: 'night', surfaceClassName: 'bg-[#17151d] text-zinc-100', swatchClassName: 'bg-[#17151d]' },
+  { value: 'plain', textured: false },
+  { value: 'paper', textured: true },
+  { value: 'mist', textured: false },
+  { value: 'soft', textured: false },
+  { value: 'rice', textured: true },
+  { value: 'aged', textured: true },
+  { value: 'cool', textured: false },
+  { value: 'night', textured: false },
 ] as const
 
 const getEditorSurfaceStorageKey = (novelId: string) => `editor-surface:${novelId}`
@@ -106,6 +106,11 @@ export default function EditorContent({
 
   const loadingChapterIdRef = useRef<string | null>(null)
   const currentEditorSurface = EDITOR_SURFACE_OPTIONS.find(option => option.value === editorSurface) || EDITOR_SURFACE_OPTIONS[0]
+
+  const editorSurfaceClassName = cn(
+    'transition-colors [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+    currentEditorSurface.textured && 'bg-paper-texture',
+  )
 
   useEffect(() => {
     const stored = window.localStorage.getItem(getEditorSurfaceStorageKey(novelId))
@@ -327,10 +332,9 @@ export default function EditorContent({
                 </ResizablePanel>
                 <ResizableHandle withHandle alwaysVisible />
                 <ResizablePanel defaultSize={65} minSize={30}>
-                  <div className={cn(
-                    'h-full overflow-y-auto transition-colors [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
-                    currentEditorSurface.surfaceClassName,
-                  )}
+                  <div
+                    data-editor-surface={editorSurface}
+                    className={cn('h-full overflow-y-auto', editorSurfaceClassName)}
                   >
                     {editorBody}
                   </div>
@@ -338,10 +342,9 @@ export default function EditorContent({
               </ResizablePanelGroup>
             )
           : (
-              <div className={cn(
-                'flex-1 min-h-0 overflow-y-auto transition-colors [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
-                currentEditorSurface.surfaceClassName,
-              )}
+              <div
+                data-editor-surface={editorSurface}
+                className={cn('flex-1 min-h-0 overflow-y-auto', editorSurfaceClassName)}
               >
                 {editorBody}
               </div>
@@ -355,7 +358,10 @@ export default function EditorContent({
           <Select value={editorSurface} onValueChange={handleEditorSurfaceChange}>
             <SelectTrigger className="h-7 min-w-24 border-none bg-transparent px-2 text-xs shadow-none focus:ring-0">
               <div className="flex min-w-0 items-center gap-2">
-                <span className={cn('h-2.5 w-2.5 rounded-full border border-border/60', currentEditorSurface.swatchClassName)} />
+                <span
+                  data-editor-surface={currentEditorSurface.value}
+                  className="editor-surface-swatch h-2.5 w-2.5 rounded-full border border-border/60"
+                />
                 <span>{t(`editor.surface.options.${currentEditorSurface.value}`)}</span>
               </div>
             </SelectTrigger>
@@ -363,7 +369,10 @@ export default function EditorContent({
               {EDITOR_SURFACE_OPTIONS.map(option => (
                 <SelectItem key={option.value} value={option.value} className="text-xs">
                   <div className="flex items-center gap-2">
-                    <span className={cn('h-2.5 w-2.5 rounded-full border border-border/60', option.swatchClassName)} />
+                    <span
+                      data-editor-surface={option.value}
+                      className="editor-surface-swatch h-2.5 w-2.5 rounded-full border border-border/60"
+                    />
                     <span>{t(`editor.surface.options.${option.value}`)}</span>
                   </div>
                 </SelectItem>
