@@ -1,8 +1,23 @@
 @import 'streamdown/styles.css';
 
-/* Streamdown 字符淡入（需配合 globals.css 中的 @source） */
-.agui-streamdown [data-sd-animate] {
-  --sd-duration: 70ms;
+/* 自定义 streamdown 字符动画：闪光淡入 — https://streamdown.ai/docs/animation */
+@keyframes sd-shimmerIn {
+  from {
+    opacity: 0.2;
+    filter: blur(3px) brightness(2);
+  }
+  55% {
+    opacity: 1;
+    filter: blur(0) brightness(1.45);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0) brightness(1);
+  }
+}
+
+.agui-streamdown[data-streaming='true'] [data-sd-animate] {
+  --sd-duration: 280ms;
   --sd-easing: ease-out;
 }
 
