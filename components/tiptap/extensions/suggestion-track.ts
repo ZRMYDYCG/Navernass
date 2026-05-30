@@ -136,41 +136,102 @@ export function selectionHasSuggestions(state: EditorState, from: number, to: nu
 }
 
 export function acceptSuggestions(editor: Editor, range?: Range): boolean {
-  return applySuggestions(editor, range, 'accept')
+  const targetRange = range ?? getFullDocumentRange(editor.state)
+  return applySuggestions(editor, targetRange, 'accept')
 }
 
 export function rejectSuggestions(editor: Editor, range?: Range): boolean {
-  return applySuggestions(editor, range, 'reject')
+  const targetRange = range ?? getFullDocumentRange(editor.state)
+  return applySuggestions(editor, targetRange, 'reject')
 }
 
-function applySuggestions(editor: Editor, range: Range | undefined, mode: 'accept' | 'reject'): boolean {
+/** 文档中是否存在 AI 修改建议标记 */
+export function documentHasSuggestions(state: EditorState): boolean {
+  const addMark = state.schema.marks.suggestion_add
+  const delMark = state.schema.marks.suggestion_del
+  if (!addMark && !delMark) return false
+
+  let found = false
+  state.doc.descendants((node) => {
+    if (!node.isInline || node.marks.length === 0) return
+    if (node.marks.some(mark => mark.type === addMark || mark.type === delMark)) {
+      found = true
+      return false
+    }
+  })
+  return found
+}
+
+/**
+ * 定位文档中已注入的 suggestion 区域（用于重复点击「定位」时滚动）。
+ * 注入 diff 后原文不再连续存在，不能再用 originalText 搜索。
+ */
+export function findDocumentSuggestionRange(
+  editor: Editor,
+  hint?: { originalText?: string },
+): Range | null {
+  const { state } = editor
+  const addMark = state.schema.marks.suggestion_add
+  const delMark = state.schema.marks.suggestion_del
+  if (!addMark && !delMark) return null
+
+  const spans: Range[] = []
+
+  state.doc.descendants((node, pos) => {
+    if (!node.isInline || node.marks.length === 0) return
+    if (!node.marks.some(mark => mark.type === addMark || mark.type === delMark)) return
+    spans.push({ from: pos, to: pos + node.nodeSize })
+  })
+
+  if (spans.length === 0) return null
+
+  spans.sort((a, b) => a.from - b.from)
+  const merged: Range[] = [{ ...spans[0]! }]
+  for (let i = 1; i < spans.length; i += 1) {
+    const last = merged[merged.length - 1]!
+    const current = spans[i]!
+    if (current.from <= last.to + 1) {
+      last.to = Math.max(last.to, current.to)
+    } else {
+      merged.push({ ...current })
+    }
+  }
+
+  if (merged.length === 1 || !hint?.originalText) {
+    return merged[0] ?? null
+  }
+
+  const normalizedHint = hint.originalText.replace(/\s+/g, '')
+  for (const range of merged) {
+    const text = state.doc.textBetween(range.from, range.to, '', '')
+    if (text.replace(/\s+/g, '').includes(normalizedHint)) {
+      return range
+    }
+  }
+
+  return merged[0] ?? null
+}
+
+function applySuggestions(editor: Editor, targetRange: Range, mode: 'accept' | 'reject'): boolean {
   const { state, view } = editor
   const addMark = state.schema.marks.suggestion_add
   const delMark = state.schema.marks.suggestion_del
   if (!addMark && !delMark) return false
 
-  const targetRange = resolveRange(state, range)
+  const range = normalizeRange(targetRange)
   let tr = state.tr
 
   if (mode === 'accept') {
-    if (addMark) {
-      tr = tr.removeMark(targetRange.from, targetRange.to, addMark)
-    }
-    if (delMark) {
-      const ranges = collectMarkRanges(state, delMark, targetRange)
-      for (let i = ranges.length - 1; i >= 0; i -= 1) {
-        tr = tr.delete(ranges[i].from, ranges[i].to)
-      }
+    tr = tr.removeMark(range.from, range.to, addMark)
+    const delRanges = collectMarkRanges(state, delMark, range)
+    for (let i = delRanges.length - 1; i >= 0; i -= 1) {
+      tr = tr.delete(delRanges[i].from, delRanges[i].to)
     }
   } else {
-    if (delMark) {
-      tr = tr.removeMark(targetRange.from, targetRange.to, delMark)
-    }
-    if (addMark) {
-      const ranges = collectMarkRanges(state, addMark, targetRange)
-      for (let i = ranges.length - 1; i >= 0; i -= 1) {
-        tr = tr.delete(ranges[i].from, ranges[i].to)
-      }
+    tr = tr.removeMark(range.from, range.to, delMark)
+    const addRanges = collectMarkRanges(state, addMark, range)
+    for (let i = addRanges.length - 1; i >= 0; i -= 1) {
+      tr = tr.delete(addRanges[i].from, addRanges[i].to)
     }
   }
 
@@ -178,6 +239,10 @@ function applySuggestions(editor: Editor, range: Range | undefined, mode: 'accep
   tr.scrollIntoView()
   view.dispatch(tr)
   return true
+}
+
+function getFullDocumentRange(state: EditorState): Range {
+  return { from: 0, to: state.doc.content.size }
 }
 
 function buildSegments(originalText: string, suggestedText: string): SuggestionSegment[] {
@@ -315,14 +380,9 @@ function collectMarkRanges(state: EditorState, markType: MarkType, range: Range)
   const ranges: Range[] = []
 
   state.doc.nodesBetween(range.from, range.to, (node, pos) => {
-    if (!node.isInline) return
+    if (!node.isText) return
     if (!node.marks.some(mark => mark.type === markType)) return
-
-    const from = Math.max(range.from, pos)
-    const to = Math.min(range.to, pos + node.nodeSize)
-    if (from < to) {
-      ranges.push({ from, to })
-    }
+    ranges.push({ from: pos, to: pos + node.nodeSize })
   })
 
   if (ranges.length <= 1) return ranges
@@ -342,15 +402,6 @@ function collectMarkRanges(state: EditorState, markType: MarkType, range: Range)
   return merged
 }
 
-function resolveRange(state: EditorState, range?: Range): Range {
-  if (!range) {
-    range = { from: state.selection.from, to: state.selection.to }
-  }
-  if (range.from === range.to) {
-    return { from: 0, to: state.doc.content.size }
-  }
-  return normalizeRange(range)
-}
 
 function normalizeRange(range: Range): Range {
   return range.from <= range.to ? range : { from: range.to, to: range.from }

@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Loader2, Pencil, X } from 'lucide-react'
+import { Check, Loader2, MapPin, Pencil, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
@@ -26,6 +26,8 @@ const enqueuedKeys = new Set<string>()
 export function ProposeEditPart({ partKey, state, input, output, errorText }: ProposeEditPartProps) {
   const { t } = useI18n()
   const enqueue = useAiEditsStore(s => s.enqueue)
+  const requestFocusEdit = useAiEditsStore(s => s.requestFocusEdit)
+  const pendingEdit = useAiEditsStore(s => s.edits[partKey])
 
   useEffect(() => {
     if (state !== 'output-available') return
@@ -41,14 +43,37 @@ export function ProposeEditPart({ partKey, state, input, output, errorText }: Pr
       originalText: output.original_text,
       suggestedText: output.suggested_text || '',
       reasoning: output.reasoning,
+      offset: output.offset,
     })
   }, [state, output, partKey, enqueue])
 
   const title = output?.chapter_title || t('editor.rightPanel.tools.proposeEdit.defaultChapterTitle')
   const reasoning = output?.reasoning || input?.reasoning
+  const canLocate = Boolean(output?.ok && output.chapter_id && output.original_text)
+
+  const handleLocate = () => {
+    if (!canLocate) return
+    requestFocusEdit(partKey)
+  }
 
   return (
-    <div className="rounded-md border border-amber-500/30 bg-amber-500/5 text-[11.5px] my-1.5 overflow-hidden">
+    <div
+      className={cn(
+        'rounded-md border border-amber-500/30 bg-amber-500/5 text-[11.5px] my-1.5 overflow-hidden',
+        canLocate && 'cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/10 transition-colors',
+      )}
+      role={canLocate ? 'button' : undefined}
+      tabIndex={canLocate ? 0 : undefined}
+      onClick={canLocate ? handleLocate : undefined}
+      onKeyDown={canLocate
+        ? (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              handleLocate()
+            }
+          }
+        : undefined}
+    >
       <div className="flex items-center gap-1.5 px-2.5 py-1.5 border-b border-amber-500/20 bg-amber-500/5">
         <Pencil className="w-3 h-3 text-amber-600" />
         <span className="font-medium text-foreground">{t('editor.rightPanel.tools.proposeEdit.title')}</span>
@@ -71,9 +96,42 @@ export function ProposeEditPart({ partKey, state, input, output, errorText }: Pr
                 {reasoning}
               </div>
             )}
-            <div className="text-[10px] text-emerald-600 flex items-center gap-1">
-              <Check className="w-3 h-3" />
-              {t('editor.rightPanel.tools.proposeEdit.annotated')}
+            <div className={cn(
+              'text-[10px] flex items-center gap-1',
+              pendingEdit?.status === 'accepted' || pendingEdit?.status === 'annotated'
+                ? 'text-emerald-600'
+                : pendingEdit?.status === 'rejected'
+                  ? 'text-muted-foreground'
+                  : 'text-amber-700 dark:text-amber-300',
+            )}
+            >
+              {pendingEdit?.status === 'accepted'
+                ? (
+                    <>
+                      <Check className="w-3 h-3" />
+                      {t('editor.rightPanel.tools.proposeEdit.acceptedLocate')}
+                    </>
+                  )
+                : pendingEdit?.status === 'rejected'
+                  ? (
+                      <>
+                        <MapPin className="w-3 h-3" />
+                        {t('editor.rightPanel.tools.proposeEdit.rejectedLocate')}
+                      </>
+                    )
+                  : pendingEdit?.status === 'annotated'
+                    ? (
+                        <>
+                          <MapPin className="w-3 h-3" />
+                          {t('editor.rightPanel.tools.proposeEdit.annotatedLocate')}
+                        </>
+                      )
+                    : (
+                        <>
+                          <MapPin className="w-3 h-3" />
+                          {t('editor.rightPanel.tools.proposeEdit.clickToLocate')}
+                        </>
+                      )}
             </div>
           </>
         )}

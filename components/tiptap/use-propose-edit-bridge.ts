@@ -1,101 +1,203 @@
 import type { Editor } from '@tiptap/react'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
+import { locateTextInEditor, scrollEditorToRange } from '@/lib/editor/locate-text-in-editor'
+import type { PendingEdit } from '@/store'
 import { useAiEditsStore } from '@/store'
-import { applySuggestionDiff } from './extensions/suggestion-track'
+import {
+  applySuggestionDiff,
+  documentHasSuggestions,
+  findDocumentSuggestionRange,
+} from './extensions/suggestion-track'
 
-/**
- * 把 AI 端发出的「修改建议」从 store 拉取并注入当前编辑器。
- *
- * 数据来源：useAiEditsStore（由 ProposeEditPart 推入）
- * - 编辑器即使晚于事件挂载，也能从 store 读到 pending edits
- * - 切走再回到该章节，未应用的 edit 仍然可见
- * - 同一个 edit 通过 partKey 去重，applied=true 后不再重复注入
- *
- * 实现细节：
- * - 直接订阅 edits 对象（稳定引用），用 useMemo 派生当前章节未应用的 edits
- *   避免 selector 每次返回新数组触发 React 19 的「getServerSnapshot should be cached」错误
- */
-export function useProposeEditBridge(editor: Editor | null, chapterId?: string) {
+interface UseProposeEditBridgeOptions {
+  isReady?: boolean
+  chapterHtml?: string
+}
+
+export function useProposeEditBridge(
+  editor: Editor | null,
+  chapterId?: string,
+  options: UseProposeEditBridgeOptions = {},
+) {
+  const { isReady = true, chapterHtml } = options
   const editsMap = useAiEditsStore(s => s.edits)
-  const markApplied = useAiEditsStore(s => s.markApplied)
+  const focusEditId = useAiEditsStore(s => s.focusEditId)
+  const focusRequestSeq = useAiEditsStore(s => s.focusRequestSeq)
+  const markAnnotated = useAiEditsStore(s => s.markAnnotated)
+  const clearFocusEdit = useAiEditsStore(s => s.clearFocusEdit)
 
   const pendingEdits = useMemo(() => {
     if (!chapterId) return []
     return Object.values(editsMap)
-      .filter(e => e.chapterId === chapterId && !e.applied)
+      .filter(e => e.chapterId === chapterId && e.status === 'pending')
       .sort((a, b) => a.createdAt - b.createdAt)
   }, [editsMap, chapterId])
 
+  const focusEdit = focusEditId ? editsMap[focusEditId] : undefined
+  const processedFocusRef = useRef<string | null>(null)
+
   useEffect(() => {
-    if (!editor || !chapterId || pendingEdits.length === 0) return
+    processedFocusRef.current = null
+  }, [focusEditId, focusRequestSeq, chapterId])
+
+  useEffect(() => {
+    if (!editor || !chapterId || !isReady) return
+
+    if (focusEdit?.chapterId === chapterId && focusEditId) {
+      const focusKey = `${focusEditId}:${focusRequestSeq}`
+      if (processedFocusRef.current === focusKey) return
+      processedFocusRef.current = focusKey
+
+      const result = focusEditInEditor(editor, focusEdit, chapterHtml)
+
+      if (result === 'scrolled') {
+        clearFocusEdit()
+        if (focusEdit.status === 'pending') markAnnotated(focusEdit.id)
+        toast.success('已定位到修改位置', {
+          description: focusEdit.reasoning || '请审阅后接受或拒绝',
+        })
+        return
+      }
+
+      if (result === 'applied') {
+        clearFocusEdit()
+        markAnnotated(focusEdit.id)
+        toast.success('已定位到修改位置', {
+          description: focusEdit.reasoning || '请审阅后接受或拒绝',
+        })
+        return
+      }
+
+      if (result === 'skipped') {
+        clearFocusEdit()
+        markAnnotated(focusEdit.id)
+        toast.info('修改建议与原文一致，跳过')
+        return
+      }
+
+      processedFocusRef.current = null
+      toast.warning('未能在章节正文中找到匹配片段', {
+        description: focusEdit.reasoning,
+      })
+      return
+    }
+
+    if (pendingEdits.length === 0) return
 
     for (const edit of pendingEdits) {
-      const { state } = editor
-      const fullText = state.doc.textBetween(0, state.doc.content.size, '\n', '\n')
-      const idx = fullText.indexOf(edit.originalText)
+      if (edit.id === focusEditId) continue
 
-      if (idx < 0) {
-        toast.warning('AI 提出了修改建议，但在当前章节中没有找到匹配片段', {
-          description: edit.reasoning,
+      const result = applyPendingEdit(editor, edit, { scroll: false }, chapterHtml)
+      if (result === 'applied') {
+        toast.success('AI 修改建议已注入编辑器', {
+          description: edit.reasoning || '请审阅后接受或拒绝',
         })
-        markApplied(edit.id)
-        continue
+        markAnnotated(edit.id)
+      } else if (result === 'skipped') {
+        markAnnotated(edit.id)
       }
-
-      const range = mapPlainOffsetToDocRange(editor, idx, edit.originalText.length)
-      if (!range) {
-        toast.warning('AI 提出了修改建议，但定位失败', {
-          description: edit.reasoning,
-        })
-        markApplied(edit.id)
-        continue
-      }
-
-      const applied = applySuggestionDiff(editor, range, edit.originalText, edit.suggestedText)
-      if (!applied) {
-        toast.info('修改建议与原文一致，跳过')
-        markApplied(edit.id)
-        continue
-      }
-
-      toast.success('AI 修改建议已注入编辑器', {
-        description: edit.reasoning || '请审阅后接受或拒绝',
-      })
-      markApplied(edit.id)
     }
-  }, [editor, chapterId, pendingEdits, markApplied])
+  }, [
+    editor,
+    chapterId,
+    isReady,
+    chapterHtml,
+    pendingEdits,
+    focusEdit,
+    focusEditId,
+    focusRequestSeq,
+    markAnnotated,
+    clearFocusEdit,
+  ])
 }
 
-/**
- * 将「纯文本字符偏移量」转换为 ProseMirror 文档位置区间。
- *
- * 注意：textBetween(0, size, '\n', '\n') 在节点边界产生换行符，所以纯文本偏移
- * 与 doc 位置不是简单 + 1。这里通过逐字符扫描映射回去。
- */
-function mapPlainOffsetToDocRange(editor: Editor, plainStart: number, plainLen: number): { from: number, to: number } | null {
-  const { state } = editor
-  const { doc } = state
-  let plainCursor = 0
-  let from = -1
-  let to = -1
-  const targetEnd = plainStart + plainLen
+type FocusResult = 'scrolled' | 'applied' | 'skipped' | 'not_found'
+type ApplyResult = 'applied' | 'skipped' | 'not_found'
 
-  doc.descendants((node, pos) => {
-    if (from >= 0 && to >= 0) return false
-    if (!node.isText) return true
-    const text = node.text || ''
-    for (let i = 0; i < text.length; i += 1) {
-      if (plainCursor === plainStart && from < 0) from = pos + i
-      plainCursor += 1
-      if (plainCursor === targetEnd) {
-        to = pos + i + 1
-        return false
-      }
+function focusEditInEditor(
+  editor: Editor,
+  edit: PendingEdit,
+  chapterHtml?: string,
+): FocusResult {
+  if (documentHasSuggestions(editor.state)) {
+    const suggestionRange = findDocumentSuggestionRange(editor, {
+      originalText: edit.originalText,
+    })
+    if (suggestionRange) {
+      scrollEditorToRange(editor, suggestionRange)
+      return 'scrolled'
     }
-    return true
-  })
+  }
 
-  if (from < 0 || to < 0) return null
-  return { from, to }
+  if (edit.status === 'accepted') {
+    if (scrollToNeedle(editor, edit.suggestedText, undefined, chapterHtml)) {
+      return 'scrolled'
+    }
+  }
+
+  if (edit.status === 'rejected' || edit.status === 'accepted' || edit.status === 'annotated') {
+    if (scrollToNeedle(editor, edit.originalText, edit.offset, chapterHtml)) {
+      return 'scrolled'
+    }
+  }
+
+  if (edit.status === 'pending') {
+    const result = applyPendingEdit(editor, edit, { scroll: true }, chapterHtml)
+    if (result === 'applied' || result === 'skipped') return result
+  }
+
+  if (scrollToNeedle(editor, edit.originalText, edit.offset, chapterHtml)) {
+    return 'scrolled'
+  }
+
+  if (edit.suggestedText && scrollToNeedle(editor, edit.suggestedText, undefined, chapterHtml)) {
+    return 'scrolled'
+  }
+
+  return 'not_found'
+}
+
+function scrollToNeedle(
+  editor: Editor,
+  needle: string | undefined,
+  offset: number | undefined,
+  chapterHtml?: string,
+): boolean {
+  if (!needle?.trim()) return false
+  const range = locateTextInEditor(editor, needle, offset, chapterHtml)
+  if (!range) return false
+  scrollEditorToRange(editor, range)
+  return true
+}
+
+function applyPendingEdit(
+  editor: Editor,
+  edit: PendingEdit,
+  options: { scroll: boolean },
+  chapterHtml?: string,
+): ApplyResult {
+  const range = locateTextInEditor(
+    editor,
+    edit.originalText,
+    edit.offset,
+    chapterHtml,
+  )
+  if (!range) return 'not_found'
+
+  const actualOriginal = editor.state.doc.textBetween(range.from, range.to, '', '')
+
+  if (options.scroll) {
+    scrollEditorToRange(editor, range)
+  }
+
+  const appliedRange = applySuggestionDiff(
+    editor,
+    range,
+    actualOriginal || edit.originalText,
+    edit.suggestedText,
+  )
+
+  if (!appliedRange) return 'skipped'
+  return 'applied'
 }

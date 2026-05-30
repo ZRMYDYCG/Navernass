@@ -282,7 +282,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     },
   })
 
-  useProposeEditBridge(editor, chapterId)
+  useProposeEditBridge(editor, chapterId, { isReady: isInitialized, chapterHtml: content })
   useEffect(() => {
     if (!editor) return
 

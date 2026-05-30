@@ -14,7 +14,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { chaptersApi, charactersApi, novelsApi, relationshipsApi, volumesApi } from '@/lib/supabase/sdk'
-import { selectOrderedChapters, selectOrderedVolumes, useCharacterGraphStore, useCharacterMaterialStore, useChaptersStore } from '@/store'
+import { selectOrderedChapters, selectOrderedVolumes, useAiEditsStore, useCharacterGraphStore, useCharacterMaterialStore, useChaptersStore } from '@/store'
 import { useShallow } from 'zustand/react/shallow'
 import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
 import { CharacterPanel } from './_components/character-panel'
@@ -277,6 +277,30 @@ function NovelsEditContent() {
       setLeftDrawerOpen(false)
     }
   }
+
+  const focusEditId = useAiEditsStore(s => s.focusEditId)
+  const focusEdit = useAiEditsStore(s => (focusEditId ? s.edits[focusEditId] : undefined))
+
+  // 用户点击手术刀卡片：切到对应章节并回到正文编辑区
+  useEffect(() => {
+    if (!focusEditId || !focusEdit) return
+
+    if (activeLeftTab === 'characters') {
+      setActiveLeftTab('files')
+    }
+    setCharacterPanelOpen(false)
+
+    if (activeTab !== focusEdit.chapterId) {
+      handleSelectChapter(focusEdit.chapterId)
+      return
+    }
+
+    if (selectedChapter !== focusEdit.chapterId) {
+      setSelectedChapter(focusEdit.chapterId)
+    }
+  // handleSelectChapter 依赖 chapters/openTabs，此处仅响应 focus 请求
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusEditId, focusEdit, activeTab, selectedChapter, activeLeftTab])
 
   const closeTab = (tabId: string) => {
     const newTabs = openTabs.filter(tab => tab.id !== tabId)
