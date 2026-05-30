@@ -277,6 +277,7 @@ const editor = {
         addChapter: '장 추가',
         editVolumeName: '권 이름 편집',
         deleteVolume: '권 삭제',
+        chapterCount: '{{count}}장',
       },
       rootDrop: {
         over: '놓으면 루트로 이동합니다',

@@ -19,6 +19,8 @@ import { HoverActionBar, HoverActionButton } from './hover-action-button'
 interface VolumeItemProps {
   volume: Volume
   isExpanded: boolean
+  /** 该卷下的章节数（用于在卷标题右侧显示统计） */
+  chapterCount?: number
   onToggle: () => void
   onRename?: (volume: Volume) => void
   onDelete?: (volume: Volume) => void
@@ -29,6 +31,7 @@ interface VolumeItemProps {
 export function VolumeItem({
   volume,
   isExpanded,
+  chapterCount,
   onToggle,
   onRename,
   onDelete,
@@ -132,6 +135,20 @@ export function VolumeItem({
                   </h3>
                 </div>
               </div>
+
+              {/* 章节数：hover 时让位给操作按钮 */}
+              {typeof chapterCount === 'number' && (
+                <span
+                  className={cn(
+                    'ml-1 shrink-0 text-[10px] tabular-nums whitespace-nowrap transition-opacity',
+                    'text-muted-foreground/70',
+                    'group-hover/volume:opacity-0',
+                  )}
+                  title={t('editor.leftPanel.chapters.volumeItem.chapterCount', { count: chapterCount })}
+                >
+                  {t('editor.leftPanel.chapters.volumeItem.chapterCount', { count: chapterCount })}
+                </span>
+              )}
             </div>
 
             <HoverActionBar group="volume">

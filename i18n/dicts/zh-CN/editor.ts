@@ -277,6 +277,7 @@ const editor = {
         addChapter: '新增章节',
         editVolumeName: '编辑卷名',
         deleteVolume: '删除卷',
+        chapterCount: '{{count}} 章',
       },
       rootDrop: {
         over: '松开以移出到根目录',

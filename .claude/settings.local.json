@@ -34,7 +34,8 @@
       "WebFetch(domain:supabase.com)",
       "WebFetch(domain:dev.to)",
       "PowerShell(supabase *)",
-      "PowerShell(pnpm exec *)"
+      "PowerShell(pnpm exec *)",
+      "PowerShell(git checkout *)"
     ]
   }
 }

@@ -277,6 +277,7 @@ const editor = {
         addChapter: 'Ajouter un chapitre',
         editVolumeName: 'Modifier le nom du volume',
         deleteVolume: 'Supprimer le volume',
+        chapterCount: '{{count}} chapitres',
       },
       rootDrop: {
         over: 'Relâchez pour déplacer à la racine',

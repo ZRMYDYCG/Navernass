@@ -277,6 +277,7 @@ const editor = {
         addChapter: '章を追加',
         editVolumeName: '巻タイトルを編集',
         deleteVolume: '巻を削除',
+        chapterCount: '{{count}} 章',
       },
       rootDrop: {
         over: '離してルートへ移動',

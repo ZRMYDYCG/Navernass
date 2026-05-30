@@ -331,6 +331,7 @@ export function ChapterList({
                     key={volume.id}
                     volume={volume}
                     isExpanded={expandedVolumes.has(volume.id)}
+                    chapterCount={getVolumeChapters(volume.id).length}
                     onToggle={() => toggleVolume(volume.id)}
                     onRename={onRenameVolume}
                     onDelete={onDeleteVolume}

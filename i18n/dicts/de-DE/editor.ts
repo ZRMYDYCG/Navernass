@@ -277,6 +277,7 @@ const editor = {
         addChapter: 'Kapitel hinzufügen',
         editVolumeName: 'Bandtitel bearbeiten',
         deleteVolume: 'Band löschen',
+        chapterCount: '{{count}} Kapitel',
       },
       rootDrop: {
         over: 'Loslassen, um in die Stammebene zu verschieben',

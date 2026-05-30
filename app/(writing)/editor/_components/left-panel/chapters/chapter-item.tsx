@@ -3,8 +3,10 @@
 import type { ChapterItemProps } from './types'
 import { useSortable } from '@dnd-kit/sortable'
 import * as Popover from '@radix-ui/react-popover'
+import { formatDistanceToNow } from 'date-fns'
+import { enUS, zhCN } from 'date-fns/locale'
 import { ArrowRightLeft, Copy, Edit2, FileText, GripVertical, Trash2 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -12,7 +14,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
-import { useI18n } from '@/hooks/use-i18n'
+import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { HoverActionBar, HoverActionButton } from './hover-action-button'
 
@@ -27,12 +29,26 @@ export function ChapterItem({
   onMove,
 }: ChapterItemProps) {
   const { t } = useI18n()
+  const { locale } = useLocale()
+  const dateLocale = locale === 'zh-CN' ? zhCN : enUS
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [isCopying, setIsCopying] = useState(false)
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [editingTitle, setEditingTitle] = useState(chapter.title)
   const [isRenaming, setIsRenaming] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
+
+  const updatedAtLabel = useMemo(() => {
+    if (!chapter.updated_at) return ''
+    try {
+      return formatDistanceToNow(new Date(chapter.updated_at), {
+        addSuffix: true,
+        locale: dateLocale,
+      })
+    } catch {
+      return ''
+    }
+  }, [chapter.updated_at, dateLocale])
 
   useEffect(() => {
     if (!isEditingTitle) {
@@ -203,6 +219,20 @@ export function ChapterItem({
                     </h3>
                   )}
             </div>
+
+            {!isEditingTitle && updatedAtLabel && (
+              <span
+                className={cn(
+                  'ml-1 shrink-0 text-[10px] tabular-nums whitespace-nowrap transition-opacity',
+                  'text-muted-foreground/70',
+                  // hover 时让位给操作按钮
+                  'group-hover/chapter:opacity-0',
+                )}
+                title={chapter.updated_at}
+              >
+                {updatedAtLabel}
+              </span>
+            )}
 
             {!isEditingTitle && (
               <HoverActionBar group="chapter" expanded={isSelected}>
