@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/context-menu'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
+import { HoverActionBar, HoverActionButton } from './hover-action-button'
 
 export function ChapterItem({
   chapter,
@@ -99,7 +100,7 @@ export function ChapterItem({
           ref={setNodeRef}
           style={style}
           className={cn(
-            'group relative my-0.5 flex min-h-[28px] items-center rounded-lg border px-2 py-0.5 transition-all duration-200 ease-out',
+            'group/chapter relative my-0.5 flex min-h-[28px] items-center overflow-hidden rounded-lg border px-2 py-0.5 transition-all duration-200 ease-out',
             isSelected
               ? 'border-border bg-background/95 shadow-paper-sm'
               : 'border-transparent hover:border-border/50 hover:bg-background/60',
@@ -116,7 +117,7 @@ export function ChapterItem({
                     'flex-shrink-0 cursor-grab rounded p-0.5 transition-all active:cursor-grabbing hover:bg-accent',
                     isSelected
                       ? 'opacity-100 text-primary/80'
-                      : 'opacity-0 group-hover:opacity-30',
+                      : 'opacity-0 group-hover/chapter:opacity-30',
                   )}
                   onClick={e => e.stopPropagation()}
                 >
@@ -203,6 +204,60 @@ export function ChapterItem({
                     </h3>
                   )}
             </div>
+
+            {!isEditingTitle && (
+              <HoverActionBar group="chapter" expanded={isSelected}>
+                {onRename && (
+                  <HoverActionButton
+                    group="chapter"
+                    label={t('editor.leftPanel.chapters.chapterItem.editTitle')}
+                    onClick={openInlineTitleEditor}
+                    delayMs={0}
+                  >
+                    <Edit2 className="h-2.5 w-2.5" />
+                  </HoverActionButton>
+                )}
+                {onCopy && (
+                  <HoverActionButton
+                    group="chapter"
+                    label={isCopying ? t('editor.leftPanel.chapters.chapterItem.creatingCopy') : t('editor.leftPanel.chapters.chapterItem.createCopy')}
+                    onClick={async () => {
+                      setIsCopying(true)
+                      try {
+                        await onCopy(chapter)
+                      } finally {
+                        setIsCopying(false)
+                      }
+                    }}
+                    disabled={isCopying}
+                    delayMs={45}
+                  >
+                    <Copy className="h-2.5 w-2.5" />
+                  </HoverActionButton>
+                )}
+                {onMove && (
+                  <HoverActionButton
+                    group="chapter"
+                    label={t('editor.leftPanel.chapters.chapterItem.moveToVolume')}
+                    onClick={() => onMove(chapter)}
+                    delayMs={90}
+                  >
+                    <ArrowRightLeft className="h-2.5 w-2.5" />
+                  </HoverActionButton>
+                )}
+                {onDelete && (
+                  <HoverActionButton
+                    group="chapter"
+                    label={t('editor.leftPanel.chapters.chapterItem.delete')}
+                    onClick={() => onDelete(chapter)}
+                    delayMs={135}
+                    variant="destructive"
+                  >
+                    <Trash2 className="h-2.5 w-2.5" />
+                  </HoverActionButton>
+                )}
+              </HoverActionBar>
+            )}
           </div>
         </div>
       </ContextMenuTrigger>
