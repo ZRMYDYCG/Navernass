@@ -1,5 +1,5 @@
 import type { TabConfig } from './types'
-import { LayoutDashboard, PencilLine, Search } from 'lucide-react'
+import { Globe2, LayoutDashboard, PencilLine, Search } from 'lucide-react'
 
 /**
  * 左侧 Tab 配置
@@ -7,5 +7,6 @@ import { LayoutDashboard, PencilLine, Search } from 'lucide-react'
 export const TAB_CONFIGS: TabConfig[] = [
   { value: 'files', icon: PencilLine },
   { value: 'search', icon: Search },
+  { value: 'worldview', icon: Globe2 },
   { value: 'workspace', icon: LayoutDashboard },
 ]

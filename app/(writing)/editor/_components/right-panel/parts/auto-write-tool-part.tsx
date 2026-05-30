@@ -3,7 +3,7 @@
 import { Check, Loader2, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { useChaptersStore } from '@/store'
+import { useChaptersStore, useWorldviewStore } from '@/store'
 
 export type AutoWriteToolName =
   | 'create_volume'
@@ -13,6 +13,12 @@ export type AutoWriteToolName =
   | 'update_volume'
   | 'delete_chapter'
   | 'delete_volume'
+  | 'create_worldbook_entry'
+  | 'update_worldbook_entry'
+  | 'delete_worldbook_entry'
+  | 'create_outline'
+  | 'update_outline'
+  | 'delete_outline'
 
 interface AutoWriteToolPartProps {
   /** 该 part 的稳定 id（messageId + part index）。用于全局副作用去重 */
@@ -39,6 +45,10 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
   const upsertChapter = useChaptersStore(s => s.upsertChapter)
   const removeChapter = useChaptersStore(s => s.removeChapter)
   const removeVolume = useChaptersStore(s => s.removeVolume)
+  const upsertWorldbookEntry = useWorldviewStore(s => s.upsertWorldbookEntry)
+  const removeWorldbookEntry = useWorldviewStore(s => s.removeWorldbookEntry)
+  const upsertOutline = useWorldviewStore(s => s.upsertOutline)
+  const removeOutline = useWorldviewStore(s => s.removeOutline)
 
   useEffect(() => {
     if (state !== 'output-available') return
@@ -81,8 +91,35 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
           description: output.reason,
         })
         break
+      case 'create_worldbook_entry':
+      case 'update_worldbook_entry':
+        if (output.entry) upsertWorldbookEntry(output.entry)
+        toast.success(`${TOOL_LABELS[toolName]}：${output.title || ''}`)
+        break
+      case 'delete_worldbook_entry':
+        if (output.entry_id) removeWorldbookEntry(output.entry_id)
+        toast.success(`已删除世界观条目：${output.title}`, {
+          description: output.reason,
+        })
+        break
+      case 'create_outline':
+      case 'update_outline':
+        if (output.outline) upsertOutline(output.outline)
+        toast.success(`${TOOL_LABELS[toolName]}：${output.title || ''}`)
+        break
+      case 'delete_outline':
+        if (output.outline_id) removeOutline(output.outline_id)
+        toast.success(`已删除大纲：${output.title}`, {
+          description: output.reason,
+        })
+        break
     }
-  }, [partKey, state, output, toolName, errorText, upsertVolume, upsertChapter, removeChapter, removeVolume])
+  }, [
+    partKey, state, output, toolName, errorText,
+    upsertVolume, upsertChapter, removeChapter, removeVolume,
+    upsertWorldbookEntry, removeWorldbookEntry,
+    upsertOutline, removeOutline,
+  ])
 
   const Icon = TOOL_ICONS[toolName] || Plus
   const isDelete = toolName.startsWith('delete_')
@@ -145,6 +182,12 @@ function describeSuccess(toolName: AutoWriteToolName, output: any): string {
     case 'append_chapter': return `已向《${output.chapter_title}》追加内容（共 ${output.new_word_count} 字）`
     case 'delete_chapter': return `章节《${output.chapter_title}》已删除`
     case 'delete_volume': return `卷《${output.volume_title}》已删除`
+    case 'create_worldbook_entry': return `世界观《${output.title}》已创建`
+    case 'update_worldbook_entry': return `世界观已更新为《${output.title}》`
+    case 'delete_worldbook_entry': return `世界观《${output.title}》已删除`
+    case 'create_outline': return `大纲《${output.title}》已创建`
+    case 'update_outline': return `大纲已更新为《${output.title}》`
+    case 'delete_outline': return `大纲《${output.title}》已删除`
     default: return '操作成功'
   }
 }
@@ -157,6 +200,12 @@ const TOOL_LABELS: Record<AutoWriteToolName, string> = {
   update_volume: '更新卷',
   delete_chapter: '删除章节',
   delete_volume: '删除卷',
+  create_worldbook_entry: '创建世界观条目',
+  update_worldbook_entry: '更新世界观条目',
+  delete_worldbook_entry: '删除世界观条目',
+  create_outline: '创建大纲',
+  update_outline: '更新大纲',
+  delete_outline: '删除大纲',
 }
 
 const TOOL_ICONS: Record<AutoWriteToolName, typeof Plus> = {
@@ -167,6 +216,12 @@ const TOOL_ICONS: Record<AutoWriteToolName, typeof Plus> = {
   update_volume: Pencil,
   delete_chapter: Trash2,
   delete_volume: Trash2,
+  create_worldbook_entry: Plus,
+  update_worldbook_entry: Pencil,
+  delete_worldbook_entry: Trash2,
+  create_outline: Plus,
+  update_outline: Pencil,
+  delete_outline: Trash2,
 }
 
 function StatusIcon({ state, ok }: { state: string, ok?: boolean }) {

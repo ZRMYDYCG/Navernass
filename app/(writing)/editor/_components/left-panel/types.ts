@@ -2,7 +2,7 @@
  * 左侧面板相关类型定义
  */
 
-export type LeftTabType = 'files' | 'search' | 'workspace'
+export type LeftTabType = 'files' | 'search' | 'workspace' | 'worldview'
 
 export interface Volume {
   id: string

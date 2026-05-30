@@ -253,6 +253,7 @@ const editor = {
     tabs: {
       files: 'Files',
       search: 'Search',
+      worldview: 'Worldview',
       workspace: 'Workspace',
     },
     chapters: {

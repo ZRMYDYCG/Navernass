@@ -109,11 +109,17 @@ function renderToolPart(part: any, ctx: PartRenderContext): ReactNode {
     case 'update_volume':
     case 'delete_chapter':
     case 'delete_volume':
+    case 'create_worldbook_entry':
+    case 'update_worldbook_entry':
+    case 'delete_worldbook_entry':
+    case 'create_outline':
+    case 'update_outline':
+    case 'delete_outline':
       return (
         <AutoWriteToolPart
           key={`tool-${ctx.index}`}
           partKey={`${ctx.message.id}:${ctx.index}`}
-          toolName={toolName as 'create_volume' | 'create_chapter' | 'append_chapter' | 'update_chapter' | 'update_volume' | 'delete_chapter' | 'delete_volume'}
+          toolName={toolName as any}
           state={part.state}
           input={part.input}
           output={part.output}

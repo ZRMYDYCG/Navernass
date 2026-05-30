@@ -378,6 +378,86 @@ export interface UserSettings {
 }
 
 // =============================================
+// 世界观（Worldbook）类型
+// =============================================
+
+export type WorldbookCategory =
+  | 'setting'
+  | 'location'
+  | 'item'
+  | 'faction'
+  | 'event'
+  | 'rule'
+  | 'character_lore'
+  | 'other'
+
+export interface WorldbookEntry {
+  id: string
+  user_id: string
+  novel_id: string
+  category: WorldbookCategory
+  title: string
+  content: string
+  keywords: string[]
+  order_index: number
+  created_at: string
+  updated_at: string
+  deleted_at?: string | null
+}
+
+export interface CreateWorldbookEntryDto {
+  novel_id: string
+  category?: WorldbookCategory
+  title: string
+  content?: string
+  keywords?: string[]
+  order_index?: number
+}
+
+export interface UpdateWorldbookEntryDto {
+  category?: WorldbookCategory
+  title?: string
+  content?: string
+  keywords?: string[]
+  order_index?: number
+}
+
+// =============================================
+// 大纲（Outlines）类型
+// =============================================
+
+export interface Outline {
+  id: string
+  user_id: string
+  novel_id: string
+  volume_id?: string | null
+  parent_id?: string | null
+  title: string
+  content: string
+  order_index: number
+  created_at: string
+  updated_at: string
+  deleted_at?: string | null
+}
+
+export interface CreateOutlineDto {
+  novel_id: string
+  volume_id?: string | null
+  parent_id?: string | null
+  title: string
+  content?: string
+  order_index?: number
+}
+
+export interface UpdateOutlineDto {
+  volume_id?: string | null
+  parent_id?: string | null
+  title?: string
+  content?: string
+  order_index?: number
+}
+
+// =============================================
 // 工作台统计类型
 // =============================================
 

@@ -2,6 +2,7 @@ import type { Chapter, LeftTabType, Volume } from './types'
 import ChaptersTab from './chapters'
 import { SearchTab } from './search-tab'
 import { TabSwitcher } from './tab-switcher'
+import { WorldviewTab } from './worldview'
 import WorkspaceTab from './workspace'
 
 interface LeftPanelProps {
@@ -105,6 +106,12 @@ export default function LeftPanel({
               selectedChapter={selectedChapter}
               onSelectChapter={onSelectChapter}
             />
+          </div>
+        )}
+
+        {activeTab === 'worldview' && (
+          <div className="h-full w-full absolute inset-0">
+            <WorldviewTab novelId={novelId} />
           </div>
         )}
 

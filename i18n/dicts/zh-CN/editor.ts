@@ -253,6 +253,7 @@ const editor = {
     tabs: {
       files: '文件',
       search: '搜索',
+      worldview: '世界观',
       workspace: '工作区',
     },
     chapters: {

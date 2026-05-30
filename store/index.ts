@@ -27,3 +27,10 @@ export {
   selectPendingEditsForChapter,
   useAiEditsStore,
 } from './modules/ai-edits-store'
+
+// Worldview Store (zustand + immer)
+export {
+  selectOrderedOutlines,
+  selectOrderedWorldbookEntries,
+  useWorldviewStore,
+} from './modules/worldview-store'
