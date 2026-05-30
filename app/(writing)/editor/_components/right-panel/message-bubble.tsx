@@ -1,8 +1,6 @@
 'use client'
 
 import type { NovelMessage } from '@/lib/supabase/sdk/types'
-import { useTheme } from 'next-themes'
-import { useMemo } from 'react'
 import { MarkdownRenderer } from '@/app/(main)/chat/[id]/_components/markdown-renderer'
 import { Avatar } from '@/components/ui/avatar'
 import { useI18n } from '@/hooks/use-i18n'
@@ -15,16 +13,9 @@ interface MessageBubbleProps {
 
 function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
   const isUser = message.role === 'user'
-  const isAssistant = message.role === 'assistant'
-  const { theme } = useTheme()
   const { t } = useI18n()
-  const hasThinking = isAssistant && message.thinking && message.thinking.length > 0
 
   const displayedContent = message.content
-
-  const avatarSrc = useMemo(() => {
-    return theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
-  }, [theme])
 
   const renderContent = (content: string) => {
     const imageRegex = /\[图片\]\((https?:\/\/[^\s)]+)\)/g
@@ -57,18 +48,11 @@ function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
 
   return (
     <div className={`flex gap-1.5 py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-      {!hasThinking && (
+      {isUser && userAvatar && (
         <div className="shrink-0">
-          {isAssistant && (
-            <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
-              <img src={avatarSrc} alt={t('editor.aiAvatarAlt')} className="w-full h-full object-cover" />
-            </Avatar>
-          )}
-          {isUser && userAvatar && (
-            <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
-              <img src={userAvatar} alt={t('editor.rightPanel.userAvatarAlt')} className="w-full h-full object-cover" />
-            </Avatar>
-          )}
+          <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
+            <img src={userAvatar} alt={t('editor.rightPanel.userAvatarAlt')} className="w-full h-full object-cover" />
+          </Avatar>
         </div>
       )}
 

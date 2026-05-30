@@ -1,9 +1,7 @@
 'use client'
 
 import { Sparkles } from 'lucide-react'
-import { useTheme } from 'next-themes'
-import { memo, useMemo, useState } from 'react'
-import { Avatar } from '@/components/ui/avatar'
+import { memo, useState } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { AguiExpandableContent, AguiExpandChevron } from './parts/agui-expandable'
 
@@ -13,26 +11,16 @@ interface ThinkingBubbleProps {
 }
 
 function ThinkingBubbleInner({ thinking, isStreaming }: ThinkingBubbleProps) {
-  const { theme } = useTheme()
   const [isExpanded, setIsExpanded] = useState(true)
   const { t } = useI18n()
-
-  const avatarSrc = useMemo(() => {
-    return theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
-  }, [theme])
 
   if (!thinking || thinking.length === 0) {
     return null
   }
 
   return (
-    <div className="flex gap-1.5 py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200">
-      <div className="shrink-0">
-        <Avatar className="w-5 h-5">
-          <img src={avatarSrc} alt={t('editor.aiAvatarAlt')} className="w-full h-full object-cover" />
-        </Avatar>
-      </div>
-      <div className="flex-1 w-full min-w-0 overflow-hidden">
+    <div className="py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200">
+      <div className="w-full min-w-0 overflow-hidden">
         <div className="flex items-center gap-1">
           <button
             type="button"

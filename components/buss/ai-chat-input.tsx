@@ -1,12 +1,43 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { Mic, Send } from 'lucide-react'
+import { Mic, PlaneTakeoff, Send } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
+
+interface SendIconSwapProps {
+  compact?: boolean
+}
+
+/** hover 时 Send → PlaneTakeoff 切换 */
+function SendIconSwap({ compact }: SendIconSwapProps) {
+  const iconClass = compact ? 'w-3.5 h-3.5' : 'w-4 h-4'
+
+  return (
+    <span className={cn('relative block shrink-0', compact ? 'size-3.5' : 'size-4')}>
+      <Send
+        className={cn(
+          iconClass,
+          'absolute inset-0 transition-all duration-300 ease-out',
+          'group-hover/send:opacity-0 group-hover/send:-translate-y-1 group-hover/send:translate-x-0.5 group-hover/send:scale-75',
+        )}
+        aria-hidden
+      />
+      <PlaneTakeoff
+        className={cn(
+          iconClass,
+          'absolute inset-0 opacity-0 scale-75 translate-y-1 -translate-x-0.5',
+          'transition-all duration-300 ease-out',
+          'group-hover/send:opacity-100 group-hover/send:translate-y-0 group-hover/send:translate-x-0 group-hover/send:scale-100',
+        )}
+        aria-hidden
+      />
+    </span>
+  )
+}
 
 export interface AiChatInputProps {
   value?: string
@@ -153,8 +184,12 @@ export function AiChatInput({
               disabled={!canSend}
               size="icon"
               className={cn(
-                'bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed shadow-sm',
+                'group/send bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed transition-all duration-300',
                 isCompact ? 'h-8 w-8 rounded-md' : 'h-9 w-9 rounded-lg',
+                canSend && [
+                  'shadow-[0_0_10px_color-mix(in_oklab,var(--primary)_32%,transparent)]',
+                  'hover:shadow-[0_0_16px_color-mix(in_oklab,var(--primary)_48%,transparent)]',
+                ],
                 isSending
                   ? 'disabled:opacity-100'
                   : 'disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none',
@@ -168,7 +203,7 @@ export function AiChatInput({
                     <span className="block w-3 h-3 bg-current rounded-sm animate-pulse" />
                   )
                 : (
-                    <Send className={cn(isCompact ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+                    <SendIconSwap compact={isCompact} />
                   )}
             </Button>
           </div>
