@@ -5,6 +5,7 @@ import { ChapterList } from './chapter-list'
 
 export default function ChaptersTab({
   novelTitle,
+  novelId,
   chapters,
   volumes,
   selectedChapter,
@@ -24,6 +25,7 @@ export default function ChaptersTab({
   onRenameVolume,
   onDeleteVolume,
   onRenameChapterInline,
+  onChaptersImported,
 }: ChaptersTabProps) {
   const toggleAllVolumesRef = useRef<(() => void) | null>(null)
   const [allVolumesExpanded, setAllVolumesExpanded] = useState(true)
@@ -33,6 +35,9 @@ export default function ChaptersTab({
     <div className="h-full flex flex-col isolate">
       <ChapterHeader
         novelTitle={novelTitle}
+        novelId={novelId}
+        chapters={chapters}
+        volumes={volumes}
         onCreateChapter={onCreateChapterQuick ?? onCreateChapter}
         onCreateVolume={onCreateVolumeQuick ?? onCreateVolume}
         allVolumesExpanded={allVolumesExpanded}
@@ -40,6 +45,7 @@ export default function ChaptersTab({
         onToggleAllVolumes={() => {
           toggleAllVolumesRef.current?.()
         }}
+        onChaptersImported={onChaptersImported}
       />
       <ChapterList
         chapters={chapters}

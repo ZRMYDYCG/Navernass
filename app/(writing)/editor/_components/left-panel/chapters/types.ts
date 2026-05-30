@@ -2,6 +2,7 @@ import type { Chapter, Volume } from '../types'
 
 export interface ChaptersTabProps {
   novelTitle?: string
+  novelId: string
   chapters: Chapter[]
   volumes: Volume[]
   selectedChapter: string | null
@@ -21,6 +22,7 @@ export interface ChaptersTabProps {
   onMoveChapter?: (chapter: Chapter) => void
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
+  onChaptersImported?: () => void
 }
 
 export interface ChapterItemProps {

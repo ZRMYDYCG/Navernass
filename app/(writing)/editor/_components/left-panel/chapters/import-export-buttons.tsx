@@ -2,10 +2,14 @@
 
 import type { ParsedChapter } from '../../import-chapter-dialog'
 import type { Volume } from '../types'
-import * as Tooltip from '@radix-ui/react-tooltip'
-import { Download, ScanEye, Upload } from 'lucide-react'
+import { Download, Upload } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useI18n } from '@/hooks/use-i18n'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { ExportChapterDialog } from '../../export-chapter-dialog'
@@ -16,16 +20,23 @@ interface Chapter {
   title: string
 }
 
-interface ActionButtonsProps {
+interface ImportExportButtonsProps {
   chapters: Chapter[]
   novelId: string
   volumes?: Volume[]
   onChaptersImported?: () => void
+  buttonClassName: string
 }
 
 const EMPTY_VOLUMES: Volume[] = []
 
-export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onChaptersImported }: ActionButtonsProps) {
+export function ImportExportButtons({
+  chapters,
+  novelId,
+  volumes = EMPTY_VOLUMES,
+  onChaptersImported,
+  buttonClassName,
+}: ImportExportButtonsProps) {
   const { t } = useI18n()
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
@@ -34,7 +45,7 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
 
   const handleExportClick = () => {
     if (chapters.length === 0) {
-      toast.error(t('editor.leftPanel.workspace.fileOps.noChaptersToExport'))
+      toast.error(t('editor.leftPanel.chapters.importExport.noChaptersToExport'))
       return
     }
     setExportDialogOpen(true)
@@ -44,17 +55,15 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
     setImportDialogOpen(true)
   }
 
-  // ... (keep existing handler functions: handleImport, downloadFile, handleExport)
   const handleImport = async (parsedChapters: ParsedChapter[], _fileName: string) => {
     if (parsedChapters.length === 0) {
-      toast.error(t('editor.leftPanel.workspace.fileOps.noChaptersToImport'))
+      toast.error(t('editor.leftPanel.chapters.importExport.noChaptersToImport'))
       return
     }
 
     try {
       setIsImporting(true)
 
-      // 获取当前所有章节，用于计算 order_index
       const existingChapters = await chaptersApi.getByNovelId(novelId)
       const maxOrderIndex = existingChapters.length > 0
         ? Math.max(...existingChapters.map(c => c.order_index))
@@ -64,15 +73,11 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
       let failCount = 0
       let currentOrderIndex = maxOrderIndex + 1
 
-      // 按顺序创建章节
       for (const parsedChapter of parsedChapters) {
         try {
-          // 使用章节的 volumeId（如果已设置）
           const chapterVolumeId = parsedChapter.volumeId || undefined
 
-          // 计算 order_index
           if (chapterVolumeId) {
-            // 如果章节在卷中，需要计算卷内的 order_index
             const volumeChapters = existingChapters
               .filter(c => c.volume_id === chapterVolumeId)
               .sort((a, b) => a.order_index - b.order_index)
@@ -80,7 +85,6 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
             if (volumeChapters.length > 0) {
               currentOrderIndex = Math.max(...volumeChapters.map(c => c.order_index)) + 1
             } else {
-              // 卷的第一个章节，查找卷的 order_index
               const volume = volumes.find(v => v.id === chapterVolumeId)
               if (volume) {
                 currentOrderIndex = (volume.order_index ?? 0) * 1000
@@ -89,7 +93,6 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
               }
             }
           } else {
-            // 不在卷中，计算根目录的 order_index
             const rootChapters = existingChapters
               .filter(c => !c.volume_id)
               .sort((a, b) => a.order_index - b.order_index)
@@ -101,10 +104,9 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
             }
           }
 
-          // 创建章节（使用文件名作为标题）
           await chaptersApi.create({
             novel_id: novelId,
-            title: parsedChapter.title, // 已经在对话框中设置为文件名
+            title: parsedChapter.title,
             content: parsedChapter.content || '',
             order_index: currentOrderIndex,
             volume_id: chapterVolumeId,
@@ -113,9 +115,8 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
           successCount++
           currentOrderIndex++
 
-          // 更新 existingChapters（用于后续计算）
           existingChapters.push({
-            id: '', // 临时ID，仅用于计算
+            id: '',
             novel_id: novelId,
             volume_id: chapterVolumeId,
             user_id: '',
@@ -134,25 +135,23 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
       }
 
       if (failCount === 0) {
-        toast.success(t('editor.leftPanel.workspace.fileOps.importSuccess', { count: successCount }))
+        toast.success(t('editor.leftPanel.chapters.importExport.importSuccess', { count: successCount }))
       } else {
-        toast.warning(t('editor.leftPanel.workspace.fileOps.importSummary', { success: successCount, fail: failCount }))
+        toast.warning(t('editor.leftPanel.chapters.importExport.importSummary', { success: successCount, fail: failCount }))
       }
 
       setImportDialogOpen(false)
 
-      // 通知父组件刷新章节列表
       if (onChaptersImported) {
         onChaptersImported()
       } else {
-        // 如果没有回调，延迟刷新页面
         setTimeout(() => {
           window.location.reload()
         }, 500)
       }
     } catch (error) {
       console.error('Import failed:', error)
-      toast.error(t('editor.leftPanel.workspace.fileOps.importFailed'))
+      toast.error(t('editor.leftPanel.chapters.importExport.importFailed'))
     } finally {
       setIsImporting(false)
     }
@@ -183,18 +182,18 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
         const chapterId = chapterIds[0]
         const chapter = await chaptersApi.getById(chapterId)
         if (!chapter) {
-          toast.error(t('editor.leftPanel.workspace.fileOps.unableFetchChapter'))
+          toast.error(t('editor.leftPanel.chapters.importExport.unableFetchChapter'))
           return
         }
 
         const content = chapter.content || ''
-        const title = chapter.title || t('editor.leftPanel.workspace.fileOps.unnamedChapter')
+        const title = chapter.title || t('editor.leftPanel.chapters.importExport.unnamedChapter')
 
         const exportContent = format === 'md' ? htmlToMarkdown(content) : htmlToText(content)
         const filename = `${title}.${extension}`
 
         downloadFile(exportContent, filename, mimeType)
-        toast.success(t('editor.leftPanel.workspace.fileOps.exportSuccess'))
+        toast.success(t('editor.leftPanel.chapters.importExport.exportSuccess'))
       } else {
         let successCount = 0
         let failCount = 0
@@ -208,7 +207,7 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
             }
 
             const content = chapter.content || ''
-            const title = chapter.title || t('editor.leftPanel.workspace.fileOps.unnamedChapter')
+            const title = chapter.title || t('editor.leftPanel.chapters.importExport.unnamedChapter')
 
             const exportContent = format === 'md' ? htmlToMarkdown(content) : htmlToText(content)
             const filename = `${title}.${extension}`
@@ -223,80 +222,52 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
         }
 
         if (failCount === 0) {
-          toast.success(t('editor.leftPanel.workspace.fileOps.exportCountSuccess', { count: successCount }))
+          toast.success(t('editor.leftPanel.chapters.importExport.exportCountSuccess', { count: successCount }))
         } else {
-          toast.warning(t('editor.leftPanel.workspace.fileOps.exportSummary', { success: successCount, fail: failCount }))
+          toast.warning(t('editor.leftPanel.chapters.importExport.exportSummary', { success: successCount, fail: failCount }))
         }
       }
 
       setExportDialogOpen(false)
     } catch (error) {
       console.error('Export failed:', error)
-      toast.error(t('editor.leftPanel.workspace.fileOps.exportFailed'))
+      toast.error(t('editor.leftPanel.chapters.importExport.exportFailed'))
     } finally {
       setIsExporting(false)
     }
   }
 
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-xs font-medium text-foreground px-1 font-serif">
-        {t('editor.leftPanel.workspace.fileOps.title')}
-      </span>
-      <div className="flex gap-1">
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <button
-              type="button"
-              onClick={handleImportClick}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all text-muted-foreground hover:text-foreground hover:shadow-sm"
-            >
-              <Download className="w-3.5 h-3.5" />
-            </button>
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content className="bg-foreground text-background text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
-              {t('editor.leftPanel.workspace.fileOps.import')}
-              <Tooltip.Arrow className="fill-foreground" />
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
+    <>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={handleImportClick}
+            className={buttonClassName}
+          >
+            <Download className="w-3.5 h-3.5" strokeWidth={1.8} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95 z-[9999]">
+          <p>{t('editor.leftPanel.chapters.importExport.import')}</p>
+        </TooltipContent>
+      </Tooltip>
 
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <button
-              type="button"
-              onClick={handleExportClick}
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all text-muted-foreground hover:text-foreground hover:shadow-sm"
-            >
-              <Upload className="w-3.5 h-3.5" />
-            </button>
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content className="bg-foreground text-background text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
-              {t('editor.leftPanel.workspace.fileOps.export')}
-              <Tooltip.Arrow className="fill-foreground" />
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
-
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <button
-              type="button"
-              className="p-1.5 h-7 w-7 flex items-center justify-center hover:bg-accent rounded-md transition-all text-muted-foreground hover:text-foreground hover:shadow-sm"
-            >
-              <ScanEye className="w-3.5 h-3.5" />
-            </button>
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content className="bg-foreground text-background text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95">
-              {t('editor.leftPanel.workspace.fileOps.preview')}
-              <Tooltip.Arrow className="fill-foreground" />
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
-      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={handleExportClick}
+            className={buttonClassName}
+          >
+            <Upload className="w-3.5 h-3.5" strokeWidth={1.8} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="bg-popover text-popover-foreground text-[11px] px-2 py-1 rounded shadow-md animate-in fade-in-0 zoom-in-95 z-[9999]">
+          <p>{t('editor.leftPanel.chapters.importExport.export')}</p>
+        </TooltipContent>
+      </Tooltip>
 
       {exportDialogOpen && (
         <ExportChapterDialog
@@ -319,7 +290,7 @@ export function ActionButtons({ chapters, novelId, volumes = EMPTY_VOLUMES, onCh
           volumes={volumes.map(v => ({ id: v.id, title: v.title }))}
         />
       )}
-    </div>
+    </>
   )
 }
 

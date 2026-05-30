@@ -135,13 +135,6 @@ function NovelsEditContent() {
     setIsImmersiveMode(prev => !prev)
   }, [])
 
-  const handleImageGenerated = (imageUrl: string) => {
-    const editorEvent = new CustomEvent('novel-insert-image-to-editor', {
-      detail: { imageUrl, chapterId: selectedChapter },
-    })
-    window.dispatchEvent(editorEvent)
-  }
-
   const handleToggleRightPanel = useCallback(() => {
     if (isMobile) {
       setRightDrawerOpen(true)
@@ -1076,7 +1069,6 @@ function NovelsEditContent() {
                     onRenameVolume={handleRenameVolume}
                     onDeleteVolume={handleDeleteVolume}
                     onChaptersImported={handleChaptersImported}
-                    onImageGenerated={handleImageGenerated}
                     onToggleCharacters={() => setCharacterPanelOpen(true)}
                   />
                 </ImmersiveRegion>
@@ -1171,7 +1163,6 @@ function NovelsEditContent() {
                     onRenameVolume={handleRenameVolume}
                     onDeleteVolume={handleDeleteVolume}
                     onChaptersImported={handleChaptersImported}
-                    onImageGenerated={handleImageGenerated}
                   />
                 </div>
               </DrawerContent>

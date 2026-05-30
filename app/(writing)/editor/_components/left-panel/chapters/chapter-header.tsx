@@ -1,5 +1,6 @@
 'use client'
 
+import type { Chapter, Volume } from '../types'
 import { ChevronUp, FileText, Plus } from 'lucide-react'
 import {
   Tooltip,
@@ -9,23 +10,32 @@ import {
 } from '@/components/ui/tooltip'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
+import { ImportExportButtons } from './import-export-buttons'
 
 interface ChapterHeaderProps {
   novelTitle?: string
+  novelId: string
+  chapters: Chapter[]
+  volumes: Volume[]
   onCreateChapter?: () => void
   onCreateVolume?: () => void
   allVolumesExpanded?: boolean
   hasVolumes?: boolean
   onToggleAllVolumes?: () => void
+  onChaptersImported?: () => void
 }
 
 export function ChapterHeader({
   novelTitle,
+  novelId,
+  chapters,
+  volumes,
   onCreateChapter,
   onCreateVolume,
   allVolumesExpanded = true,
   hasVolumes = false,
   onToggleAllVolumes,
+  onChaptersImported,
 }: ChapterHeaderProps) {
   const { t } = useI18n()
   const actionButtonClass = 'p-1.5 h-6 w-6 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors'
@@ -91,6 +101,13 @@ export function ChapterHeader({
               </p>
             </TooltipContent>
           </Tooltip>
+          <ImportExportButtons
+            chapters={chapters.map(c => ({ id: c.id, title: c.title }))}
+            novelId={novelId}
+            volumes={volumes}
+            onChaptersImported={onChaptersImported}
+            buttonClassName={actionButtonClass}
+          />
         </div>
       </TooltipProvider>
     </div>

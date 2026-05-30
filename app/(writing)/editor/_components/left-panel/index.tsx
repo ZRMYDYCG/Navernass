@@ -3,7 +3,6 @@ import ChaptersTab from './chapters'
 import { SearchTab } from './search-tab'
 import { TabSwitcher } from './tab-switcher'
 import { WorldviewTab } from './worldview'
-import WorkspaceTab from './workspace'
 
 interface LeftPanelProps {
   novelTitle?: string
@@ -30,7 +29,6 @@ interface LeftPanelProps {
   onRenameVolume?: (volume: Volume) => void
   onDeleteVolume?: (volume: Volume) => void
   onChaptersImported?: () => void
-  onImageGenerated?: (imageUrl: string) => void
   onToggleCharacters?: () => void
 }
 
@@ -59,7 +57,6 @@ export default function LeftPanel({
   onRenameVolume,
   onDeleteVolume,
   onChaptersImported,
-  onImageGenerated,
   onToggleCharacters,
 }: LeftPanelProps) {
   return (
@@ -75,6 +72,7 @@ export default function LeftPanel({
           <div className="h-full w-full absolute inset-0">
             <ChaptersTab
               novelTitle={novelTitle}
+              novelId={novelId}
               chapters={chapters}
               volumes={volumes}
               selectedChapter={selectedChapter}
@@ -94,6 +92,7 @@ export default function LeftPanel({
               onMoveChapter={onMoveChapter}
               onRenameVolume={onRenameVolume}
               onDeleteVolume={onDeleteVolume}
+              onChaptersImported={onChaptersImported}
             />
           </div>
         )}
@@ -115,29 +114,6 @@ export default function LeftPanel({
           </div>
         )}
 
-        {activeTab === 'workspace' && (
-          <div className="h-full w-full absolute inset-0">
-            <WorkspaceTab
-              chapters={chapters.map((c) => {
-                const wordCountStr = c.wordCount || '0'
-                const wordCountNum = Number.parseFloat(wordCountStr.replace(/[^0-9.]/g, '')) || 0
-                const multiplier = wordCountStr.includes('k') ? 1000 : 1
-                return {
-                  id: c.id,
-                  title: c.title,
-                  word_count: wordCountNum * multiplier,
-                  updated_at: (c as { updated_at?: string }).updated_at,
-                }
-              })}
-              novelId={novelId}
-              volumes={volumes}
-              onChaptersImported={onChaptersImported}
-              onCreateChapter={onCreateChapter}
-              onSelectChapter={onSelectChapter}
-              onImageGenerated={onImageGenerated}
-            />
-          </div>
-        )}
       </div>
     </div>
   )
