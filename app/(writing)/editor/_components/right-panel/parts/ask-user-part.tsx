@@ -45,7 +45,8 @@ export function AskUserPart({ formKey, state, input, output, errorText }: AskUse
     return null
   }, [input, output])
 
-  const fields = formData?.fields ?? []
+  // 关键：fields / title / description 都从 formData 派生，避免 ?? [] 导致每渲染新引用
+  const fields = useMemo<AskUserField[]>(() => formData?.fields ?? [], [formData])
   const title = formData?.title
   const description = formData?.description
 
@@ -55,15 +56,25 @@ export function AskUserPart({ formKey, state, input, output, errorText }: AskUse
   const isSubmitted = chatActions?.isFormSubmitted(formKey) ?? false
   const isDisabled = !isReady || hasError || isSubmitted || isSubmitting || chatActions?.isChatLoading
 
+  // 用稳定的字段 id 序列做依赖，避免 fields 数组引用变化触发死循环。
+  // 同时只在"真的有新字段"时 setValues，幂等性保证不触发无谓更新。
+  const fieldIdsKey = useMemo(() => fields.map(f => f.id).join(''), [fields])
+
   useEffect(() => {
+    if (fields.length === 0) return
     setValues((prev) => {
-      const next = { ...prev }
+      let changed = false
+      const next: Record<string, string> = { ...prev }
       for (const field of fields) {
-        if (next[field.id] === undefined) next[field.id] = ''
+        if (next[field.id] === undefined) {
+          next[field.id] = ''
+          changed = true
+        }
       }
-      return next
+      return changed ? next : prev
     })
-  }, [fields])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fieldIdsKey])
 
   const setFieldValue = useCallback((id: string, value: string) => {
     setValues(prev => ({ ...prev, [id]: value }))

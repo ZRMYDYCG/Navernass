@@ -1,12 +1,11 @@
 'use client'
 
 import type { UIMessage, UIMessagePart } from 'ai'
-import { useTheme } from 'next-themes'
-import { memo, useMemo } from 'react'
+import { memo } from 'react'
 import { Avatar } from '@/components/ui/avatar'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
-import { findLastRenderableIndex, isBubblePart, isRenderablePart, renderPart } from './registry'
+import { findLastRenderableIndex, hasVisibleContent, isBubblePart, isRenderablePart, renderPart } from './registry'
 
 interface MessageRendererProps {
   message: UIMessage
@@ -28,13 +27,7 @@ type AnyPart = UIMessagePart<any, any>
  */
 function MessageRendererInner({ message, isStreaming = false, userAvatar }: MessageRendererProps) {
   const { t } = useI18n()
-  const { theme } = useTheme()
   const isUser = message.role === 'user'
-  const isAssistant = message.role === 'assistant'
-
-  const avatarSrc = useMemo(() => {
-    return theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
-  }, [theme])
 
   const parts = (message.parts || []) as AnyPart[]
   const lastIdx = findLastRenderableIndex(parts)
@@ -47,6 +40,7 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i]
     if (!isRenderablePart(part)) continue
+    if (!hasVisibleContent(part, { isStreaming, index: i, lastIdx })) continue
     if (isBubblePart(part)) {
       const tail = groups[groups.length - 1]
       if (tail && tail.kind === 'bubble') {
@@ -62,23 +56,15 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
   // 没有可渲染内容、且不在流式过程中：不渲染
   if (groups.length === 0 && !isStreaming) return null
 
-  const hasVisibleText = parts.some(p => p.type === 'text' && (p as { text?: string }).text && (p as { text: string }).text.length > 0)
-
   return (
     <div className={`flex gap-1.5 py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-      {/* 头像区：只要有文本气泡就显示，避免与 reasoning 卡片重复 */}
-      <div className="shrink-0 w-5">
-        {hasVisibleText && isAssistant && (
-          <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
-            <img src={avatarSrc} alt={t('editor.aiAvatarAlt')} className="w-full h-full object-cover" />
-          </Avatar>
-        )}
-        {hasVisibleText && isUser && userAvatar && (
+      {isUser && userAvatar && (
+        <div className="shrink-0 w-5">
           <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
             <img src={userAvatar} alt={t('editor.rightPanel.userAvatarAlt')} className="w-full h-full object-cover" />
           </Avatar>
-        )}
-      </div>
+        </div>
+      )}
 
       <div
         className={cn(
@@ -89,12 +75,15 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
         <div className={cn('space-y-1', isUser ? 'w-fit max-w-full' : 'w-full')}>
           {groups.map((group, gi) => {
             if (group.kind === 'bubble') {
+              if (group.items.length === 0) return null
               return (
                 <div
                   key={`g-${gi}`}
                   className={cn(
-                    'rounded-lg px-2.5 py-1.5 text-[12px] bg-secondary text-foreground transition-all duration-200',
-                    isUser && 'w-fit max-w-full',
+                    'text-[12px] text-foreground transition-all duration-200',
+                    isUser
+                      ? 'rounded-lg px-2.5 py-1.5 bg-secondary w-fit max-w-full'
+                      : 'px-0.5 py-0.5',
                   )}
                 >
                   {group.items.map(({ part, index }) =>

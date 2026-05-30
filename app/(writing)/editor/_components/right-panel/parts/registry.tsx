@@ -35,6 +35,24 @@ export function isBubblePart(part: AnyPart): boolean {
   return part.type === 'text'
 }
 
+/** 该 part 是否应在 UI 中占位（避免空 text 渲染空白气泡） */
+export function hasVisibleContent(
+  part: AnyPart,
+  ctx: { isStreaming: boolean, index: number, lastIdx: number },
+): boolean {
+  if (part.type === 'text') {
+    const text = ((part as { text?: string }).text || '').trim()
+    const isPartStreaming = ctx.isStreaming && ctx.index === ctx.lastIdx
+    return text.length > 0 || isPartStreaming
+  }
+  if (part.type === 'reasoning') {
+    const text = ((part as { text?: string }).text || '').trim()
+    const isPartStreaming = ctx.isStreaming && ctx.index === ctx.lastIdx
+    return text.length > 0 || isPartStreaming
+  }
+  return true
+}
+
 export interface PartRenderContext {
   message: UIMessage
   isStreaming: boolean
