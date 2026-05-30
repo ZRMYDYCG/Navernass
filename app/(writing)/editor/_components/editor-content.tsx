@@ -2,20 +2,20 @@ import type { Chapter, Volume } from '@/lib/supabase/sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { TiptapEditor } from '@/components/tiptap'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
+import {
+  DEFAULT_EDITOR_SURFACE,
+  EDITOR_SURFACE_OPTIONS,
+  getEditorSurfaceStorageKey,
+} from '@/lib/editor/surface-options'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 import { useChaptersStore, useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
 import { Breadcrumb } from './breadcrumb'
 import { ChapterCharacterPreviewGraph } from './chapter-character-preview-graph'
+import { EditorSurfaceArcPicker } from './editor-surface-arc-picker'
 import { SmartTabs } from './smart-tabs'
 
 interface Tab {
@@ -43,19 +43,6 @@ interface EditorContentProps {
 
 const EMPTY_ARRAY: never[] = []
 const SUGGESTION_MARKER_REGEX = /data-suggestion="(?:add|del)"|suggestion-(?:add|del)/i
-const DEFAULT_EDITOR_SURFACE = 'plain'
-const EDITOR_SURFACE_OPTIONS = [
-  { value: 'plain', textured: false },
-  { value: 'paper', textured: true },
-  { value: 'mist', textured: false },
-  { value: 'soft', textured: false },
-  { value: 'rice', textured: true },
-  { value: 'aged', textured: true },
-  { value: 'cool', textured: false },
-  { value: 'night', textured: false },
-] as const
-
-const getEditorSurfaceStorageKey = (novelId: string) => `editor-surface:${novelId}`
 
 const hasSuggestionMarkup = (content: string) => SUGGESTION_MARKER_REGEX.test(content)
 
@@ -118,7 +105,7 @@ export default function EditorContent({
     setEditorSurface(matched?.value || DEFAULT_EDITOR_SURFACE)
   }, [novelId])
 
-  const handleEditorSurfaceChange = (value: string) => {
+  const handleEditorSurfaceChange = (value: typeof editorSurface) => {
     const matched = EDITOR_SURFACE_OPTIONS.find(option => option.value === value)
     if (!matched) return
 
@@ -353,33 +340,10 @@ export default function EditorContent({
 
       {/* 底部状态栏 */}
       <div className="h-10 px-6 flex items-center justify-between bg-transparent border-t border-border backdrop-blur-sm">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="whitespace-nowrap">{t('editor.surface.label')}</span>
-          <Select value={editorSurface} onValueChange={handleEditorSurfaceChange}>
-            <SelectTrigger className="h-7 min-w-24 border-none bg-transparent px-2 text-xs shadow-none focus:ring-0">
-              <div className="flex min-w-0 items-center gap-2">
-                <span
-                  data-editor-surface={currentEditorSurface.value}
-                  className="editor-surface-swatch h-2.5 w-2.5 rounded-full border border-border/60"
-                />
-                <span>{t(`editor.surface.options.${currentEditorSurface.value}`)}</span>
-              </div>
-            </SelectTrigger>
-            <SelectContent align="start" className="z-[120] min-w-28">
-              {EDITOR_SURFACE_OPTIONS.map(option => (
-                <SelectItem key={option.value} value={option.value} className="text-xs">
-                  <div className="flex items-center gap-2">
-                    <span
-                      data-editor-surface={option.value}
-                      className="editor-surface-swatch h-2.5 w-2.5 rounded-full border border-border/60"
-                    />
-                    <span>{t(`editor.surface.options.${option.value}`)}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <EditorSurfaceArcPicker
+          value={editorSurface}
+          onChange={handleEditorSurfaceChange}
+        />
         <div className="flex items-center gap-3 text-xs text-muted-foreground font-light tracking-wide">
           <span>
             {t('editor.wordCount')}
