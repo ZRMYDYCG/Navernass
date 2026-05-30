@@ -5,6 +5,7 @@ import { useTheme } from 'next-themes'
 import { memo, useMemo } from 'react'
 import { Avatar } from '@/components/ui/avatar'
 import { useI18n } from '@/hooks/use-i18n'
+import { cn } from '@/lib/utils'
 import { findLastRenderableIndex, isBubblePart, isRenderablePart, renderPart } from './registry'
 
 interface MessageRendererProps {
@@ -79,14 +80,22 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
         )}
       </div>
 
-      <div className={`flex-1 max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'flex justify-end' : 'flex justify-start'}`}>
-        <div className="w-full space-y-1">
+      <div
+        className={cn(
+          'max-w-[85%] sm:max-w-md lg:max-w-lg',
+          isUser ? 'ml-auto flex justify-end' : 'min-w-0 flex-1 flex justify-start',
+        )}
+      >
+        <div className={cn('space-y-1', isUser ? 'w-fit max-w-full' : 'w-full')}>
           {groups.map((group, gi) => {
             if (group.kind === 'bubble') {
               return (
                 <div
                   key={`g-${gi}`}
-                  className="rounded-lg px-2.5 py-1.5 text-[12px] bg-secondary text-foreground transition-all duration-200"
+                  className={cn(
+                    'rounded-lg px-2.5 py-1.5 text-[12px] bg-secondary text-foreground transition-all duration-200',
+                    isUser && 'w-fit max-w-full',
+                  )}
                 >
                   {group.items.map(({ part, index }) =>
                     renderPart(part, {
@@ -94,6 +103,7 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
                       isStreaming,
                       index,
                       isLast: index === lastIdx,
+                      formKey: `${message.id}-${index}`,
                     }),
                   )}
                 </div>
@@ -106,6 +116,7 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
                   isStreaming,
                   index: group.index,
                   isLast: group.index === lastIdx,
+                  formKey: `${message.id}-${group.index}`,
                 })}
               </div>
             )

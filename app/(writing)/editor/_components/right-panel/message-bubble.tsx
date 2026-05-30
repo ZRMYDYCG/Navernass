@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react'
 import { MarkdownRenderer } from '@/app/(main)/chat/[id]/_components/markdown-renderer'
 import { Avatar } from '@/components/ui/avatar'
 import { useI18n } from '@/hooks/use-i18n'
+import { cn } from '@/lib/utils'
 
 interface MessageBubbleProps {
   message: NovelMessage
@@ -87,8 +88,18 @@ function MessageBubble({ message, streamingMessageId, userAvatar }: MessageBubbl
         </div>
       )}
 
-      <div className={`flex-1 max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'flex justify-end' : 'flex justify-start'}`}>
-        <div className="rounded-lg px-2.5 py-1.5 text-[12px] bg-secondary text-foreground transition-all duration-200">
+      <div
+        className={cn(
+          'max-w-[85%] sm:max-w-md lg:max-w-lg',
+          isUser ? 'ml-auto flex justify-end' : 'min-w-0 flex-1 flex justify-start',
+        )}
+      >
+        <div
+          className={cn(
+            'rounded-lg px-2.5 py-1.5 text-[12px] bg-secondary text-foreground transition-all duration-200',
+            isUser ? 'w-fit max-w-full' : 'w-full max-w-full',
+          )}
+        >
           {isUser
             ? (
                 <p className="whitespace-pre-wrap break-words leading-snug text-[12px]">{message.content}</p>

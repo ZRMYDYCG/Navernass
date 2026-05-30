@@ -588,6 +588,13 @@ const editor = {
         confirm: 'Löschen',
       },
     },
+    askUserForm: {
+      defaultTitle: 'Bitte füllen Sie die Angaben aus',
+      submit: 'Absenden',
+      submitted: 'Gesendet — warte auf KI…',
+      error: 'Formular konnte nicht geladen werden',
+      replyHeader: 'Formularantwort',
+    },
   },
 } as const
 

@@ -588,6 +588,13 @@ const editor = {
         confirm: '삭제',
       },
     },
+    askUserForm: {
+      defaultTitle: '아래 정보를 입력해 주세요',
+      submit: '제출',
+      submitted: '제출됨 — AI 응답 대기 중…',
+      error: '양식을 불러오지 못했습니다',
+      replyHeader: '양식 응답',
+    },
   },
 } as const
 

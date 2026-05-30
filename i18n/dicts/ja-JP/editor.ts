@@ -588,6 +588,13 @@ const editor = {
         confirm: '削除',
       },
     },
+    askUserForm: {
+      defaultTitle: '以下の情報を入力してください',
+      submit: '送信',
+      submitted: '送信済み — AI の返答を待っています…',
+      error: 'フォームの読み込みに失敗しました',
+      replyHeader: 'フォーム回答',
+    },
   },
 } as const
 

@@ -12,7 +12,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
-import { useCharacterMaterialStore } from '@/store'
+import { useChaptersStore, useCharacterMaterialStore } from '@/store'
 import { Breadcrumb } from './breadcrumb'
 import { SmartTabs } from './smart-tabs'
 
@@ -88,6 +88,8 @@ export default function EditorContent({
   const isSavingRef = useRef(false)
 
   const characters = useCharacterMaterialStore(state => state.characters)
+  const cachedChapter = useChaptersStore(state => (chapterId ? state.chaptersById[chapterId] : undefined))
+  const upsertChapterInStore = useChaptersStore(state => state.upsertChapter)
 
   // 找到当前章节所属的卷（优先使用传入的 chapters 数据，不等待加载）
   const currentVolume = useMemo(() => {
@@ -115,9 +117,17 @@ export default function EditorContent({
     window.localStorage.setItem(getEditorSurfaceStorageKey(novelId), matched.value)
   }
 
-  // 加载章节内容
+  // 加载章节内容：优先命中 store 缓存，未命中再请求
   useEffect(() => {
     if (!chapterId || loadingChapterIdRef.current === chapterId) return
+
+    // store 缓存命中：直接使用，0 网络请求
+    if (cachedChapter) {
+      setChapter(cachedChapter)
+      editorContentRef.current = cachedChapter.content
+      setLoading(false)
+      return
+    }
 
     loadingChapterIdRef.current = chapterId
     editorContentRef.current = ''
@@ -129,6 +139,7 @@ export default function EditorContent({
         if (loadingChapterIdRef.current === chapterId) {
           setChapter(data)
           editorContentRef.current = data.content
+          upsertChapterInStore(data)
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : t('editor.messages.loadChapterFailed')
@@ -142,7 +153,7 @@ export default function EditorContent({
     }
 
     loadChapter()
-  }, [chapterId, t])
+  }, [chapterId, cachedChapter, upsertChapterInStore, t])
 
   const handleUpdate = async (content: string) => {
     editorContentRef.current = content
@@ -151,9 +162,11 @@ export default function EditorContent({
 
     try {
       setIsSaving(true)
-      await chaptersApi.update({ id: chapterId, content })
+      const updated = await chaptersApi.update({ id: chapterId, content })
       // 更新本地 chapter state，确保切换章节后能加载最新内容
       setChapter(prev => (prev ? { ...prev, content } : null))
+      // 同步到 store，避免下次切回该章拿到旧内容
+      upsertChapterInStore(updated)
       setLastSavedMap(prev => ({ ...prev, [chapterId]: new Date() }))
     } catch (error) {
       const message = error instanceof Error ? error.message : t('editor.messages.saveFailed')
@@ -175,11 +188,12 @@ export default function EditorContent({
         toast(t('editor.messages.resolveSuggestionsBeforeSave'))
         return
       }
-      await chaptersApi.update({
+      const updated = await chaptersApi.update({
         id: chapterId,
         content,
       })
       setChapter(prev => (prev ? { ...prev, content } : null))
+      upsertChapterInStore(updated)
       setLastSavedMap(prev => ({ ...prev, [chapterId]: new Date() }))
       toast.success(t('editor.messages.saveSuccess'), { duration: 1500 })
     } catch (error) {

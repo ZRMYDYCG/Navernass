@@ -127,7 +127,7 @@ importers:
         version: 14.1.2
       '@xyflow/react':
         specifier: ^12.8.6
-        version: 12.10.0(@types/react@19.2.7)(immer@11.1.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 12.10.0(@types/react@19.2.7)(immer@11.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       ai:
         specifier: ^6.0.193
         version: 6.0.193(zod@4.2.1)
@@ -164,6 +164,9 @@ importers:
       i18next:
         specifier: ^26.0.3
         version: 26.0.3(typescript@5.9.3)
+      immer:
+        specifier: ^11.1.8
+        version: 11.1.8
       lodash-es:
         specifier: ^4.17.23
         version: 4.17.23
@@ -274,7 +277,7 @@ importers:
         version: 4.2.1
       zustand:
         specifier: ^5.0.9
-        version: 5.0.9(@types/react@19.2.7)(immer@11.1.4)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
+        version: 5.0.9(@types/react@19.2.7)(immer@11.1.8)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^6.2.0
@@ -4606,8 +4609,8 @@ packages:
   immer@10.2.0:
     resolution: {integrity: sha512-d/+XTN3zfODyjr89gM3mPq1WNX2B8pYsu7eORitdwyA2sBubnTl3laYlBk4sXY5FUa5qTZGBDPJICVbvqzjlbw==}
 
-  immer@11.1.4:
-    resolution: {integrity: sha512-XREFCPo6ksxVzP4E0ekD5aMdf8WMwmdNaz6vuvxgI40UaEiu6q3p8X52aU6GdyvLY3XXX/8R7JOTXStz/nBbRw==}
+  immer@11.1.8:
+    resolution: {integrity: sha512-/tbkHMW7y10Lx6i1crLjD4/OhNkRG+Fo7byZHtah0547nIeXYcpIXaUh0IAQY6gO5459qpGGYapcEOHtFXkIuA==}
 
   import-fresh@3.3.1:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
@@ -9203,7 +9206,7 @@ snapshots:
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@standard-schema/utils': 0.3.0
-      immer: 11.1.4
+      immer: 11.1.8
       redux: 5.0.1
       redux-thunk: 3.1.0(redux@5.0.1)
       reselect: 5.1.1
@@ -10116,13 +10119,13 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@xyflow/react@12.10.0(@types/react@19.2.7)(immer@11.1.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@xyflow/react@12.10.0(@types/react@19.2.7)(immer@11.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@xyflow/system': 0.0.74
       classcat: 5.0.5
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
-      zustand: 4.5.7(@types/react@19.2.7)(immer@11.1.4)(react@19.1.0)
+      zustand: 4.5.7(@types/react@19.2.7)(immer@11.1.8)(react@19.1.0)
     transitivePeerDependencies:
       - '@types/react'
       - immer
@@ -12114,7 +12117,7 @@ snapshots:
 
   immer@10.2.0: {}
 
-  immer@11.1.4: {}
+  immer@11.1.8: {}
 
   import-fresh@3.3.1:
     dependencies:
@@ -15207,18 +15210,18 @@ snapshots:
 
   zod@4.2.1: {}
 
-  zustand@4.5.7(@types/react@19.2.7)(immer@11.1.4)(react@19.1.0):
+  zustand@4.5.7(@types/react@19.2.7)(immer@11.1.8)(react@19.1.0):
     dependencies:
       use-sync-external-store: 1.6.0(react@19.1.0)
     optionalDependencies:
       '@types/react': 19.2.7
-      immer: 11.1.4
+      immer: 11.1.8
       react: 19.1.0
 
-  zustand@5.0.9(@types/react@19.2.7)(immer@11.1.4)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0)):
+  zustand@5.0.9(@types/react@19.2.7)(immer@11.1.8)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0)):
     optionalDependencies:
       '@types/react': 19.2.7
-      immer: 11.1.4
+      immer: 11.1.8
       react: 19.1.0
       use-sync-external-store: 1.6.0(react@19.1.0)
 

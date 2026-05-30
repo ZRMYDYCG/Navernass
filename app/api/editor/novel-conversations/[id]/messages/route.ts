@@ -1,8 +1,8 @@
 import type { NextRequest } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { NovelMessagesService } from '@/lib/supabase/sdk/services/novel-messages.service'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
+import { createClient } from '@/lib/supabase/server'
 
 /**
  * GET /api/editor/novel-conversations/[id]/messages

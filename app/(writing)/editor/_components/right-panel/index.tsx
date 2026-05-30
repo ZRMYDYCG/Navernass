@@ -19,6 +19,8 @@ import { InputArea } from './input-area'
 import { MessageList } from './message-list'
 import { ModeSelector } from './mode-selector'
 import { ModelSelector } from './model-selector'
+import { ChatActionsProvider } from './parts/chat-actions-context'
+import type { FormSubmitPayload } from './parts/chat-actions-context'
 import { RecentConversations } from './recent-conversations'
 import { SelectedChapters } from './selected-chapters'
 import { SendButton } from './send-button'
@@ -56,6 +58,7 @@ export default function RightPanel() {
   const [showChapterSelector, setShowChapterSelector] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+  const [submittedFormKeys, setSubmittedFormKeys] = useState<Set<string>>(() => new Set())
 
   const conversationIdRef = useRef<string | null>(null)
   conversationIdRef.current = currentConversationId
@@ -176,6 +179,33 @@ export default function RightPanel() {
     }
   }
 
+  const submitFormResponse = useCallback(async (payload: FormSubmitPayload) => {
+    if (isLoading || submittedFormKeys.has(payload.formKey)) return
+    const header = payload.title || t('editor.rightPanel.askUserForm.replyHeader')
+    const lines = Object.entries(payload.values)
+      .filter(([, v]) => v.trim())
+      .map(([id, v]) => `${payload.labels[id] || id}: ${v}`)
+      .join('\n')
+    if (!lines) return
+    setSubmittedFormKeys(prev => new Set(prev).add(payload.formKey))
+    try {
+      await sendMessage({ text: `[${header}]\n${lines}` })
+    } catch (e) {
+      setSubmittedFormKeys((prev) => {
+        const next = new Set(prev)
+        next.delete(payload.formKey)
+        return next
+      })
+      console.error('Failed to submit form:', e)
+    }
+  }, [isLoading, submittedFormKeys, sendMessage, t])
+
+  const chatActions = useMemo(() => ({
+    submitFormResponse,
+    isFormSubmitted: (formKey: string) => submittedFormKeys.has(formKey),
+    isChatLoading: isLoading,
+  }), [submitFormResponse, submittedFormKeys, isLoading])
+
   const handleAtClick = () => {
     if (!novelId) return
     setShowChapterSelector(true)
@@ -195,6 +225,7 @@ export default function RightPanel() {
     setMessages([])
     setSelectedChapters([])
     setInput('')
+    setSubmittedFormKeys(new Set())
   }
 
   const handleShowHistory = () => setShowHistory(true)
@@ -245,11 +276,13 @@ export default function RightPanel() {
                     <EmptyState />
                   )
                 : (
-                    <MessageList
-                      messages={messages}
-                      streamingMessageId={streamingMessageId}
-                      isLoading={isLoading && !streamingMessageId}
-                    />
+                    <ChatActionsProvider value={chatActions}>
+                      <MessageList
+                        messages={messages}
+                        streamingMessageId={streamingMessageId}
+                        isLoading={isLoading && !streamingMessageId}
+                      />
+                    </ChatActionsProvider>
                   )}
           {error && (
             <div className="absolute bottom-2 left-2 right-2 text-[11px] text-destructive bg-destructive/10 border border-destructive/30 rounded px-2 py-1">

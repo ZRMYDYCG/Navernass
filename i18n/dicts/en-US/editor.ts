@@ -588,6 +588,13 @@ const editor = {
         confirm: 'Delete',
       },
     },
+    askUserForm: {
+      defaultTitle: 'Please fill in the details',
+      submit: 'Submit',
+      submitted: 'Submitted — waiting for AI…',
+      error: 'Failed to load form',
+      replyHeader: 'Form response',
+    },
   },
 } as const
 

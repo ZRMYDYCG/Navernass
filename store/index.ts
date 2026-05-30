@@ -13,3 +13,17 @@ export {
 export {
   useCharacterMaterialStore,
 } from './modules/character-material-store'
+
+// Chapters Store (zustand + immer)
+export {
+  selectOrderedChapters,
+  selectOrderedVolumes,
+  useChaptersStore,
+} from './modules/chapters-store'
+
+// AI Pending Edits Store (zustand + immer)
+export {
+  type PendingEdit,
+  selectPendingEditsForChapter,
+  useAiEditsStore,
+} from './modules/ai-edits-store'

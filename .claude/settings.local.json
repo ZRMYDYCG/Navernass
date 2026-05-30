@@ -27,7 +27,10 @@
       "Bash(npm pack:*)",
       "Bash(curl -sL https://unpkg.com/streamdown@2.5.0/dist/index.d.ts)",
       "Bash(npm i:*)",
-      "Bash(pnpm next:*)"
+      "Bash(pnpm next:*)",
+      "PowerShell(npx tsc --noEmit 2>&1 | Select-Object -First 80)",
+      "PowerShell(pnpm add *)",
+      "PowerShell(Resolve-DnsName *)"
     ]
   }
 }

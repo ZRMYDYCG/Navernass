@@ -38,6 +38,8 @@ import { SlashCommand } from './extensions/slash-command'
 import { SuggestionAdd, SuggestionDel } from './extensions/suggestion-track'
 import { FloatingMenu } from './floating-menu'
 import { SearchBox } from './search-box'
+import { useProposeEditBridge } from './use-propose-edit-bridge'
+import { ProposeEditToolbar } from './propose-edit-toolbar'
 import 'tippy.js/dist/tippy.css'
 import './tiptap.css'
 
@@ -280,6 +282,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
     },
   })
 
+  useProposeEditBridge(editor, chapterId)
   useEffect(() => {
     if (!editor) return
 
@@ -661,6 +664,7 @@ function TiptapEditorInner(props: TiptapEditorProps) {
 
   return (
     <div className={`${className} relative`} ref={editorRef}>
+      <ProposeEditToolbar editor={editor} chapterId={chapterId} />
       <TooltipProvider>
         <Tooltip open={!!nameSuggest && editable} disableHoverableContent={false}>
           <TooltipTrigger asChild>

@@ -14,7 +14,8 @@ import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { chaptersApi, charactersApi, novelsApi, relationshipsApi, volumesApi } from '@/lib/supabase/sdk'
-import { useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
+import { selectOrderedChapters, selectOrderedVolumes, useCharacterGraphStore, useCharacterMaterialStore, useChaptersStore } from '@/store'
+import { useShallow } from 'zustand/react/shallow'
 import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
 import { CharacterPanel } from './_components/character-panel'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
@@ -38,8 +39,13 @@ function NovelsEditContent() {
   const novelId = searchParams.get('id')
 
   const [novel, setNovel] = useState<Novel | null>(null)
-  const [chapters, setChapters] = useState<Chapter[]>([])
-  const [volumes, setVolumes] = useState<Volume[]>([])
+  // chapters / volumes 直接从 store 派生，setChapters / setVolumes 是 store 的 action。
+  // 选择器返回新数组（map+filter），必须用 useShallow 做浅比较，否则触发
+  // 「The result of getServerSnapshot should be cached」无限循环。
+  const chapters = useChaptersStore(useShallow(selectOrderedChapters))
+  const volumes = useChaptersStore(useShallow(selectOrderedVolumes))
+  const setChapters = useChaptersStore(s => s.setChapters)
+  const setVolumes = useChaptersStore(s => s.setVolumes)
   // eslint-disable-next-line unused-imports/no-unused-vars
   const [characters, setCharacters] = useState<NovelCharacter[]>([])
   const [loading, setLoading] = useState(true)
@@ -168,9 +174,11 @@ function NovelsEditContent() {
         relationshipsApi.getByNovelId(novelId),
       ])
       setNovel(novelData)
-      setChapters(chaptersData)
-      setVolumes(volumesData)
       setCharacters(charactersData)
+
+      // 一次性 hydrate chapters store —— page.tsx 的 chapters/volumes 直接从 store 派生
+      // 后续切章节直接命中缓存，无需再请求；AI 写入也通过 store 自动反映到左侧
+      useChaptersStore.getState().hydrate(novelId, chaptersData, volumesData)
 
       // 存入角色素材 store
       useCharacterMaterialStore.getState().setCharacters(charactersData)

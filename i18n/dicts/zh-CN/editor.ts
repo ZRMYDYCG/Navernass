@@ -588,6 +588,13 @@ const editor = {
         confirm: '删除',
       },
     },
+    askUserForm: {
+      defaultTitle: '请填写以下信息',
+      submit: '提交',
+      submitted: '已提交，等待 AI 回复…',
+      error: '表单加载失败',
+      replyHeader: '表单回复',
+    },
   },
 } as const
 

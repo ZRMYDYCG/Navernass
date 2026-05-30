@@ -316,6 +316,8 @@ export interface NovelConversation {
   title: string
   is_pinned?: boolean
   pinned_at?: string
+  /** 滚动摘要，由 Memory Agent 维护；MVP 阶段始终为 null。 */
+  summary?: string | null
   created_at: string
   updated_at: string
   message_count?: number

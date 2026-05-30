@@ -588,6 +588,13 @@ const editor = {
         confirm: 'Supprimer',
       },
     },
+    askUserForm: {
+      defaultTitle: 'Veuillez remplir les informations',
+      submit: 'Envoyer',
+      submitted: 'Envoyé — en attente de l’IA…',
+      error: 'Échec du chargement du formulaire',
+      replyHeader: 'Réponse au formulaire',
+    },
   },
 } as const
 
