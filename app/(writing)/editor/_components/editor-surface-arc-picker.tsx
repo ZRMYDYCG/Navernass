@@ -13,13 +13,11 @@ import { useI18n } from '@/hooks/use-i18n'
 import { useIsMobile } from '@/hooks/use-media-query'
 import {
   EDITOR_SURFACE_OPTIONS,
+  getSurfaceArcLayout,
   getSurfaceArcPosition,
   type EditorSurfaceValue,
 } from '@/lib/editor/surface-options'
 import { cn } from '@/lib/utils'
-
-const ARC_RADIUS = 84
-const SWATCH_SIZE = 30
 
 interface EditorSurfacePickerProps {
   value: EditorSurfaceValue
@@ -46,7 +44,7 @@ function EditorSurfaceMobileSelect({ value, onChange }: EditorSurfacePickerProps
             <span>{t(`editor.surface.options.${current.value}`)}</span>
           </div>
         </SelectTrigger>
-        <SelectContent side="top" align="start" className="z-[120] min-w-28">
+        <SelectContent side="top" align="start" className="z-[120] min-w-28 max-h-48">
           {EDITOR_SURFACE_OPTIONS.map(option => (
             <SelectItem key={option.value} value={option.value} className="text-xs">
               <div className="flex items-center gap-2">
@@ -124,13 +122,36 @@ function EditorSurfaceArcMenu({ value, onChange }: EditorSurfacePickerProps) {
     setOpen(false)
   }
 
+  const optionCount = EDITOR_SURFACE_OPTIONS.length
+  const arcLayout = useMemo(() => getSurfaceArcLayout(optionCount), [optionCount])
+
   const hoveredIndex = Math.max(0, EDITOR_SURFACE_OPTIONS.findIndex(option => option.value === hovered))
   const hoveredLabelPosition = useMemo(
-    () => getSurfaceArcPosition(hoveredIndex, EDITOR_SURFACE_OPTIONS.length, ARC_RADIUS),
-    [hoveredIndex],
+    () => getSurfaceArcPosition(hoveredIndex, optionCount, arcLayout),
+    [hoveredIndex, optionCount, arcLayout],
   )
 
-  const arcPath = `M ${-ARC_RADIUS} 0 A ${ARC_RADIUS} ${ARC_RADIUS} 0 0 1 ${ARC_RADIUS} 0`
+  const { radius: arcRadius, swatchSize } = arcLayout
+  const svgPad = swatchSize / 2 + 6
+  const svgWidth = arcRadius * 2 + svgPad * 2
+  const svgHeight = arcRadius + svgPad
+  const svgOriginX = svgWidth / 2
+  const svgOriginY = svgHeight
+
+  const spokeLines = useMemo(
+    () => EDITOR_SURFACE_OPTIONS.map((option, index) => {
+      const position = getSurfaceArcPosition(index, optionCount, arcLayout)
+      const length = Math.hypot(position.x, position.y) || 1
+      const inset = swatchSize / 2
+
+      return {
+        value: option.value,
+        x2: svgOriginX + position.x * (1 - inset / length),
+        y2: svgOriginY + position.y * (1 - inset / length),
+      }
+    }),
+    [arcLayout, optionCount, svgOriginX, svgOriginY, swatchSize],
+  )
 
   const arcPanel = open && anchor && mounted
     ? createPortal(
@@ -149,25 +170,45 @@ function EditorSurfaceArcMenu({ value, onChange }: EditorSurfacePickerProps) {
           >
             <div className="relative" style={{ width: 0, height: 0 }}>
               <svg
-                className="absolute -translate-x-1/2 overflow-visible"
-                width={ARC_RADIUS * 2 + SWATCH_SIZE}
-                height={ARC_RADIUS + SWATCH_SIZE / 2}
-                style={{ left: 0, top: -(ARC_RADIUS + SWATCH_SIZE / 2) }}
+                className="absolute overflow-visible pointer-events-none"
+                width={svgWidth}
+                height={svgHeight}
+                style={{ left: 0, top: -svgHeight, transform: 'translateX(-50%)' }}
                 aria-hidden
               >
-                <path
-                  d={arcPath}
-                  fill="none"
+                {spokeLines.map((line, index) => {
+                  const isHighlighted = line.value === hovered
+
+                  return (
+                    <line
+                      key={line.value}
+                      x1={svgOriginX}
+                      y1={svgOriginY}
+                      x2={line.x2}
+                      y2={line.y2}
+                      stroke="var(--border)"
+                      strokeWidth={isHighlighted ? 1.25 : 1}
+                      strokeOpacity={isHighlighted ? 0.6 : 0.32}
+                      strokeLinecap="round"
+                      className="transition-all duration-300 ease-[var(--ease-bounce)]"
+                      style={{ transitionDelay: open ? `${index * 35}ms` : '0ms' }}
+                    />
+                  )
+                })}
+                <circle
+                  cx={svgOriginX}
+                  cy={svgOriginY}
+                  r={3}
+                  fill="var(--muted)"
+                  fillOpacity={0.55}
                   stroke="var(--border)"
-                  strokeWidth="1"
-                  strokeOpacity="0.45"
-                  strokeLinecap="round"
-                  transform={`translate(${ARC_RADIUS + SWATCH_SIZE / 2}, ${ARC_RADIUS + SWATCH_SIZE / 2})`}
+                  strokeWidth={1}
+                  strokeOpacity={0.5}
                 />
               </svg>
 
               {EDITOR_SURFACE_OPTIONS.map((option, index) => {
-                const position = getSurfaceArcPosition(index, EDITOR_SURFACE_OPTIONS.length, ARC_RADIUS)
+                const position = getSurfaceArcPosition(index, optionCount, arcLayout)
                 const isSelected = option.value === value
 
                 return (
@@ -185,8 +226,8 @@ function EditorSurfaceArcMenu({ value, onChange }: EditorSurfacePickerProps) {
                       open ? 'opacity-100' : 'opacity-0',
                     )}
                     style={{
-                      width: SWATCH_SIZE,
-                      height: SWATCH_SIZE,
+                      width: swatchSize,
+                      height: swatchSize,
                       transitionDelay: open ? `${index * 35}ms` : '0ms',
                       transform: open
                         ? `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${isSelected ? 1.1 : 1})`

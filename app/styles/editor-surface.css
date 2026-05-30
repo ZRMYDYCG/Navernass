@@ -151,6 +151,74 @@
   --editor-surface-underline: oklch(0.34 0.012 278);
 }
 
+/* 竹青 — 新竹映纸，清绿含烟 */
+[data-editor-surface='bamboo'] {
+  --editor-surface-bg: oklch(0.942 0.028 155);
+  --editor-surface-fg: oklch(0.26 0.030 150);
+  --editor-surface-fg-muted: oklch(0.50 0.026 152);
+  --editor-surface-border: oklch(0.82 0.024 154);
+  --editor-surface-underline: oklch(0.74 0.022 153);
+}
+
+.dark [data-editor-surface='bamboo'] {
+  --editor-surface-bg: oklch(0.18 0.022 150);
+  --editor-surface-fg: oklch(0.86 0.020 145);
+  --editor-surface-fg-muted: oklch(0.58 0.018 148);
+  --editor-surface-border: oklch(0.30 0.020 150);
+  --editor-surface-underline: oklch(0.40 0.018 149);
+}
+
+/* 赭石 — 赭色染卷，丹砂余温 */
+[data-editor-surface='ochre'] {
+  --editor-surface-bg: oklch(0.918 0.045 45);
+  --editor-surface-fg: oklch(0.30 0.035 40);
+  --editor-surface-fg-muted: oklch(0.52 0.030 42);
+  --editor-surface-border: oklch(0.80 0.038 44);
+  --editor-surface-underline: oklch(0.72 0.035 43);
+}
+
+.dark [data-editor-surface='ochre'] {
+  --editor-surface-bg: oklch(0.22 0.030 42);
+  --editor-surface-fg: oklch(0.86 0.025 48);
+  --editor-surface-fg-muted: oklch(0.60 0.022 44);
+  --editor-surface-border: oklch(0.32 0.028 42);
+  --editor-surface-underline: oklch(0.42 0.025 43);
+}
+
+/* 黛蓝 — 黛色浸染，靛青入纸 */
+[data-editor-surface='indigo'] {
+  --editor-surface-bg: oklch(0.932 0.025 265);
+  --editor-surface-fg: oklch(0.24 0.030 270);
+  --editor-surface-fg-muted: oklch(0.50 0.024 268);
+  --editor-surface-border: oklch(0.82 0.022 266);
+  --editor-surface-underline: oklch(0.72 0.020 267);
+}
+
+.dark [data-editor-surface='indigo'] {
+  --editor-surface-bg: oklch(0.17 0.025 270);
+  --editor-surface-fg: oklch(0.86 0.018 265);
+  --editor-surface-fg-muted: oklch(0.58 0.016 268);
+  --editor-surface-border: oklch(0.28 0.022 270);
+  --editor-surface-underline: oklch(0.38 0.018 268);
+}
+
+/* 杏粉 — 杏花初绽，浅粉映白 */
+[data-editor-surface='apricot'] {
+  --editor-surface-bg: oklch(0.948 0.025 25);
+  --editor-surface-fg: oklch(0.30 0.028 30);
+  --editor-surface-fg-muted: oklch(0.52 0.024 28);
+  --editor-surface-border: oklch(0.84 0.022 26);
+  --editor-surface-underline: oklch(0.76 0.020 27);
+}
+
+.dark [data-editor-surface='apricot'] {
+  --editor-surface-bg: oklch(0.21 0.020 28);
+  --editor-surface-fg: oklch(0.86 0.018 35);
+  --editor-surface-fg-muted: oklch(0.60 0.016 30);
+  --editor-surface-border: oklch(0.32 0.018 28);
+  --editor-surface-underline: oklch(0.42 0.016 29);
+}
+
 /* 色块预览：始终展示昼间配色，便于在下拉中辨识 */
 .editor-surface-swatch[data-editor-surface='paper'] { background-color: oklch(0.992 0.006 80); }
 .editor-surface-swatch[data-editor-surface='plain'] { background-color: oklch(0.978 0.008 80); }
@@ -159,6 +227,10 @@
 .editor-surface-swatch[data-editor-surface='rice'] { background-color: oklch(0.955 0.018 85); }
 .editor-surface-swatch[data-editor-surface='aged'] { background-color: oklch(0.905 0.028 78); }
 .editor-surface-swatch[data-editor-surface='cool'] { background-color: oklch(0.975 0.008 250); }
+.editor-surface-swatch[data-editor-surface='bamboo'] { background-color: oklch(0.942 0.028 155); }
+.editor-surface-swatch[data-editor-surface='ochre'] { background-color: oklch(0.918 0.045 45); }
+.editor-surface-swatch[data-editor-surface='indigo'] { background-color: oklch(0.932 0.025 265); }
+.editor-surface-swatch[data-editor-surface='apricot'] { background-color: oklch(0.948 0.025 25); }
 .editor-surface-swatch[data-editor-surface='night'] { background-color: oklch(0.14 0.012 280); }
 
 /* 编辑器内容：卷面内文字色完全走独立 token */
