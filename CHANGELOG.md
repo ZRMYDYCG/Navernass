@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.15.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.14.0...v0.15.0) (2026-05-31)
+
+
+### Features
+
+* 新增管理后台 ([61f50dc](https://github.com/ZRMYDYCG/Navernass/commit/61f50dcab5161598e080a9c8fcde356f75b02b6c))
+* 优化右侧面板组件以提升流式输出和消息渲染体验 ([eed65e4](https://github.com/ZRMYDYCG/Navernass/commit/eed65e4be2af13c7c6bcb0de6e4641fc277c36ff))
+* enhance right panel with new chapter chat input and mention menu ([b7bedcf](https://github.com/ZRMYDYCG/Navernass/commit/b7bedcf71a8a73bb9f28c17f00fe6235964550ef))
+* **marketing:** 营销页功能演示与定价相关代码提交 ([137e30a](https://github.com/ZRMYDYCG/Navernass/commit/137e30abef7ad897b5e5017a9c934361b778c264))
+* swap AgentShowcase and AlbumCollage components in Features ([db890fc](https://github.com/ZRMYDYCG/Navernass/commit/db890fc39af218c0a338a0f531ddcdf53d2ccd23))
+
 ## [0.14.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.13.0...v0.14.0) (2026-05-31)
 
 
