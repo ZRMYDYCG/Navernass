@@ -11,6 +11,7 @@ import { TypingIndicator } from './typing-indicator'
 const SCROLL_THRESHOLD = 100
 
 interface MessageListProps {
+  novelId: string
   messages: UIMessage[]
   /** 当前正在流式输出的消息 id */
   streamingMessageId?: string | null
@@ -23,6 +24,7 @@ interface MessageListProps {
  * 不再做 UIMessage <-> NovelMessage 适配。
  */
 export function MessageList({
+  novelId,
   messages,
   streamingMessageId = null,
   isLoading = false,
@@ -146,6 +148,7 @@ export function MessageList({
           {messages.map(message => (
             <MessageRenderer
               key={message.id}
+              novelId={novelId}
               message={message}
               isStreaming={streamingMessageId === message.id}
               userAvatar={profile?.avatar_url}

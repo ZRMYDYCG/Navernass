@@ -28,9 +28,9 @@ Ich werde mir immer wieder sagen, dass die Regenzeit vorbei ist, dass sie nie wi
 Und dann werde ich sagen: Schau dir dieses Sonnenlicht an — die Regenzeit kehrt nie zurück.`,
   },
   announcement: {
-    tag: 'Ankündigung',
+    tag: 'Neu',
     items: [
-      '🚀 Start: Komplettplan für einen integrierten Roman-Schreibagenten — wir bauen den besten KI-Schreibassistenten.',
+      '🎉 All-in-one Roman-Authoring Agent ist live — fünf Modi decken Ihren gesamten Workflow von der Idee bis zum fertigen Kapitel ab.',
       '🤝 Wir laden talentierte Kreative ein, gemeinsam mit uns zu gestalten — Ihre Erfahrung formt das Produkt.',
       '💎 Ihre Vorschläge sind unbezahlbar. Treten Sie Narraverse bei und helfen Sie uns beim Iterieren!',
     ],
@@ -43,8 +43,67 @@ Und dann werde ich sagen: Schau dir dieses Sonnenlicht an — die Regenzeit kehr
     multiFormatDescription: 'Exportieren Sie schön formatiertes Markdown oder Text mit einem Klick.',
   },
   aiChatDemo: {
-    title: 'Kreativassistent',
-    description: 'Chatten Sie in Echtzeit mit einem KI-Assistenten, um Ideen zu bekommen, Prosa zu verfeinern und Plotrichtungen zu erkunden.',
+    title: 'Echtzeit-KI-Chat',
+    description: 'Sprechen Sie im Editor mit dem Agent — Kapitel fortsetzen, Prosa verfeinern, Lore organisieren oder Plot-Ideen erkunden.',
+  },
+  agentShowcase: {
+    title: 'All-in-one Roman-Authoring Agent',
+    subtitle: 'Fünf Modi mit klaren Aufgaben — von schreibgeschützter Beratung bis zur Kapitelfortsetzung, mit persistentem Projektspeicher.',
+    modelLabel: 'MiniMax M2.7',
+    modes: {
+      agent: { name: 'Agent', tagline: 'Fortsetzen, verfeinern, bearbeiten und Projekt verwalten' },
+      ask: { name: 'Ask', tagline: 'Nur Beratung — das Manuskript bleibt unberührt' },
+      plan: { name: 'Plan', tagline: 'Story-Bögen und Beats in Plan-Dateien speichern' },
+      outline: { name: 'Outline', tagline: 'Band/Kapitel-Struktur im Outline-Baum speichern' },
+      worldbook: { name: 'Worldbook', tagline: 'Lore-Einträge konsistent im Worldbook pflegen' },
+    },
+    sidebar: {
+      agent: { title: 'Kapitel' },
+      ask: { title: 'Chat', hint: 'Ask-Modus liefert nur Ratschläge — keine Kapitel- oder Dateiänderungen.' },
+      plan: { title: 'Plan-Dateien' },
+      outline: { title: 'Outline-Baum' },
+      worldbook: { title: 'Worldbook' },
+    },
+    sidebarContent: {
+      agent: ['Kapitel 3: Unerwartete Entdeckung', 'Kapitel 2: Besucher im Regen', 'Kapitel 1: Eröffnungsszene'],
+      plan: ['plan/story-arc.md', 'plan/vol1-beats.md', 'plan/foreshadowing.md'],
+      outline: ['Band 1: Nebelschichten', '  ├ Kapitel 1: Eröffnungsszene', '  ├ Kapitel 2: Besucher im Regen', '  └ Kapitel 3: Unerwartete Entdeckung'],
+      worldbook: ['Setting: Nebelhafen', 'Fraktion: Nachtwächter-Gesellschaft', 'Regel: Nie einen wahren Namen sprechen'],
+    },
+    demo: {
+      agent: {
+        user: 'Setze diese Szene fort — Spannung beibehalten, keine Spoiler für die Wendung.',
+        assistant: 'Ich habe den Worldbook-Eintrag für Nebelhafen und das Ende des vorherigen Kapitels geprüft. Der Detektiv hat den Überwachungsblindspot noch nicht gefunden. Ich beginne mit dem Klingeln des Telefons und stapele kurze Sätze für Spannung.',
+        toolAction: '320 Wörter zu Kapitel 3 hinzugefügt',
+        diffLabel: 'Diff-Vorschau:',
+        diffHint: 'Änderungen erscheinen als Diff — Sie genehmigen jede Änderung vor dem Speichern.',
+      },
+      ask: {
+        user: 'Ist dieser Dialog zu direkt? Gibt es subtilere Alternativen?',
+        assistant: 'Behalten Sie die Information, verbergen Sie die Schlussfolgerung in Handlungen — Pause, dann Themenwechsel. So bleibt Plot-Fortschritt und Leserraum erhalten.',
+        toolAction: '',
+      },
+      plan: {
+        user: 'Erstelle den Story-Bogen für Band 1 mit Wendepunkten und Foreshadowing-Auflösungen.',
+        assistant: 'In drei Akten strukturiert: Akt I etabliert Nebelhafen-Regeln und das Dilemma; Akt II führt die Nachtwächter-Gesellschaft ein; Akt III verknüpft Blindspot und Namens-Tabu.',
+        toolAction: 'Gespeichert in plan/story-arc.md',
+      },
+      outline: {
+        user: 'Teile Band 2 in 8 Kapitel auf, jedes mit einem Kernkonflikt.',
+        assistant: '8 Kapitelknoten unter Band 2 erstellt, jeweils mit Einzeiler-Synopsis und Konflikttyp (Person vs. Regel / Person vs. Selbst).',
+        toolAction: '8 Knoten im Outline-Baum aktualisiert',
+      },
+      worldbook: {
+        user: 'Ergänze Lore zur Nachtwächter-Gesellschaft — Zweck, Beitrittskosten, Bezug zum Namens-Tabu.',
+        assistant: 'Fraktionseintrag erstellt mit öffentlichem Zweck (Ordnung in Nebelhafen) und versteckter Kosten (ein Erinnerungsverlust), verknüpft mit der Regel „Nie einen wahren Namen sprechen“.',
+        toolAction: 'Worldbook-Eintrag „Nachtwächter-Gesellschaft“ erstellt',
+      },
+    },
+    highlights: {
+      1: { title: 'Sie genehmigen jede Änderung', description: 'Änderungen kommen als Diff — annehmen oder ablehnen. KI als Editor, nicht als Ghostwriter.' },
+      2: { title: 'Gedächtnis lebt im Projekt', description: 'Pläne, Outlines, Worldbook und Kapitel teilen eine Quelle. Der Agent liest Lore vor dem Schreiben.' },
+      3: { title: 'Fortsetzung mit Belegen', description: 'Agent-Modus durchsucht Kapitel und Lore vor dem Fortsetzen — weniger Kontinuitätsfehler.' },
+    },
   },
   albumCollage: {
     versionLabel: 'Version',
@@ -178,9 +237,9 @@ Und dann werde ich sagen: Schau dir dieses Sonnenlicht an — die Regenzeit kehr
       description: 'Für tägliche Schreiber:innen — entfaltet kreatives Potenzial.',
       features: {
         1: 'Alles aus Basis',
-        2: 'Erweiterte KI-Unterstützung',
+        2: 'Fünf KI-Modi (Ask / Plan / Outline / Worldbook / Agent)',
         3: 'Cloud-Synchronisierung über Geräte hinweg',
-        4: 'Figuren- & Gliederungsverwaltung',
+        4: 'Figuren-, Gliederungs- & Worldbook-Verwaltung',
       },
     },
     team: {
@@ -242,14 +301,14 @@ Und dann werde ich sagen: Schau dir dieses Sonnenlicht an — die Regenzeit kehr
     loading: 'Wird geladen...',
   },
   seo: {
-    title: 'KI-Roman-Schreibplattform und Webroman-Assistent',
-    description: 'Narraverse ist eine KI-Roman-Schreibplattform, die Kreativen hilft, Ideen zu formen, Figuren aufzubauen, Kapitel fortzusetzen und Inhalte schneller und hochwertiger zu verfeinern.',
+    title: 'KI-Roman-Authoring-Agent und Webroman-Assistent',
+    description: 'Narraverse bietet einen All-in-one Roman-Authoring-Agent — fünf Modi für Ask, Plan, Outline, Worldbook und Agent, mit Diff-Freigabe und Lore-Verwaltung von der Idee bis zum Entwurf.',
     keywords: [
-      'KI-Roman-Schreibplattform',
+      'KI-Roman-Authoring-Agent',
       'KI-Schreibassistent',
       'Webroman-Schreibwerkzeug',
       'Roman-Fortsetzung',
-      'Figurenverwaltung',
+      'Worldbuilding-Verwaltung',
     ],
     ogAlt: 'Vorschau der Narraverse-Startseite',
     about: [

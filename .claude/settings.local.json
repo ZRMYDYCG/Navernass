@@ -35,7 +35,9 @@
       "WebFetch(domain:dev.to)",
       "PowerShell(supabase *)",
       "PowerShell(pnpm exec *)",
-      "PowerShell(git checkout *)"
+      "PowerShell(git checkout *)",
+      "mcp__ide__getDiagnostics",
+      "PowerShell(cd E:\\\\workspace\\\\Navernass; git diff HEAD -- app/\\\\\\(writing\\)\\\\editor\\\\_components\\\\right-panel\\\\novel-chat)"
     ]
   }
 }

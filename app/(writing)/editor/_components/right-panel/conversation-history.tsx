@@ -18,7 +18,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
@@ -27,6 +26,7 @@ interface ConversationHistoryDropdownProps {
   currentConversationId?: string
   onSelect: (conversation: NovelConversation) => void
   onDelete: (conversationId: string) => void
+  onOpenChange?: (open: boolean) => void
 }
 
 function formatCompactTime(dateString: string, locale: string): string {
@@ -52,6 +52,7 @@ export function ConversationHistoryDropdown({
   currentConversationId,
   onSelect,
   onDelete,
+  onOpenChange,
 }: ConversationHistoryDropdownProps) {
   const { t } = useI18n()
   const { locale } = useLocale()
@@ -96,7 +97,13 @@ export function ConversationHistoryDropdown({
 
   return (
     <>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next)
+          onOpenChange?.(next)
+        }}
+      >
         <PopoverTrigger asChild>
           <button
             type="button"
@@ -127,7 +134,7 @@ export function ConversationHistoryDropdown({
             </div>
           </div>
 
-          <ScrollArea className="max-h-[min(360px,50vh)]">
+          <div className="max-h-[min(360px,50vh)] overflow-y-auto overscroll-contain">
             {sortedConversations.length === 0
               ? (
                   <div className="px-3 py-8 text-center text-xs text-muted-foreground">
@@ -184,7 +191,7 @@ export function ConversationHistoryDropdown({
                     })}
                   </div>
                 )}
-          </ScrollArea>
+          </div>
         </PopoverContent>
       </Popover>
 

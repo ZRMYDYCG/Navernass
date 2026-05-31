@@ -2,6 +2,7 @@
 
 import { Highlighter } from '@/components/ui/highlighter'
 import { useI18n } from '@/hooks/use-i18n'
+import { AgentShowcase } from './features/agent-showcase'
 import { AiChatDemo } from './features/ai-chat-demo'
 import { AlbumCollage } from './features/album-collage'
 import { LightOrDay } from './features/light-or-day'
@@ -32,6 +33,10 @@ export default function Features() {
 
         <div className="container mx-auto p-4">
           <div className="w-full flex flex-col gap-4">
+            <div className="w-full">
+              <AgentShowcase />
+            </div>
+
             <div className="w-full">
               <AlbumCollage />
             </div>

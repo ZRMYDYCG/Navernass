@@ -92,6 +92,7 @@ export const useChaptersStore = create<ChaptersStoreState>()(
       }),
 
       upsertChapter: chapter => set((state) => {
+        if (state.currentNovelId && chapter.novel_id !== state.currentNovelId) return
         const exists = state.chaptersById[chapter.id]
         state.chaptersById[chapter.id] = chapter
         if (!exists) {
@@ -120,6 +121,7 @@ export const useChaptersStore = create<ChaptersStoreState>()(
       }),
 
       upsertVolume: volume => set((state) => {
+        if (state.currentNovelId && volume.novel_id !== state.currentNovelId) return
         const exists = state.volumesById[volume.id]
         state.volumesById[volume.id] = volume
         if (!exists) {

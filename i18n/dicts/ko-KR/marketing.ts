@@ -28,9 +28,9 @@ const marketing = {
 그리고 나는 말할 것이다. 이 햇빛을 봐—비의 계절은 다시 오지 않아.`,
   },
   announcement: {
-    tag: '공지',
+    tag: '새 기능',
     items: [
-      '🚀 시작: 올인원 소설 창작 에이전트 개발 플랜 — 최고의 AI 글쓰기 도우미를 만듭니다.',
+      '🎉 올인원 소설 창작 Agent 출시 — 다섯 모드로 아이디어에서 완성된 챕터까지 전 과정을 지원합니다.',
       '🤝 재능 있는 창작자 여러분을 공동 창작에 초대합니다 — 여러분의 경험이 제품의 형태를 만듭니다.',
       '💎 여러분의 제안은 무엇보다 소중합니다. Narraverse에 참여해 함께 개선해 주세요!',
     ],
@@ -43,8 +43,67 @@ const marketing = {
     multiFormatDescription: '클릭 한 번으로 보기 좋은 Markdown 또는 텍스트로 내보내세요.',
   },
   aiChatDemo: {
-    title: '창작 도우미',
-    description: 'AI 도우미와 실시간으로 대화하며 아이디어를 얻고, 문장을 다듬고, 플롯 방향을 탐색하세요.',
+    title: '실시간 AI 대화',
+    description: '에디터 오른쪽에서 Agent와 대화 — 이어쓰기, 다듬기, 설정 정리, 플롯 상담이 가능합니다.',
+  },
+  agentShowcase: {
+    title: '올인원 소설 창작 Agent',
+    subtitle: '다섯 모드가 역할 분담 — 읽기 전용 조언부터 챕터 이어쓰기까지, 프로젝트에 기억을 유지합니다.',
+    modelLabel: 'MiniMax M2.7',
+    modes: {
+      agent: { name: 'Agent', tagline: '이어쓰기, 다듬기, 교정 및 프로젝트 관리' },
+      ask: { name: 'Ask', tagline: '읽기 전용 조언 — 원고는 변경하지 않음' },
+      plan: { name: 'Plan', tagline: '스토리 아크와 비트를 플랜 파일에 저장' },
+      outline: { name: 'Outline', tagline: '권·장 구조를 아웃라인 트리에 저장' },
+      worldbook: { name: 'Worldbook', tagline: '설정 정리 및 lore 일관성 유지' },
+    },
+    sidebar: {
+      agent: { title: '챕터' },
+      ask: { title: '대화', hint: 'Ask 모드는 조언만 제공 — 챕터나 프로젝트 파일을 수정하지 않습니다.' },
+      plan: { title: '플랜 파일' },
+      outline: { title: '아웃라인 트리' },
+      worldbook: { title: '세계관 라이브러리' },
+    },
+    sidebarContent: {
+      agent: ['3장: 예상치 못한 발견', '2장: 비 오는 밤의 손님', '1장: 오프닝'],
+      plan: ['plan/story-arc.md', 'plan/vol1-beats.md', 'plan/foreshadowing.md'],
+      outline: ['1권: 안개의 층', '  ├ 1장: 오프닝', '  ├ 2장: 비 오는 밤의 손님', '  └ 3장: 예상치 못한 발견'],
+      worldbook: ['설정: 안개항', '세력: 야간 순찰 협회', '규칙: 진명을 부르지 말 것'],
+    },
+    demo: {
+      agent: {
+        user: '이 장면을 이어써 줘. 서스펜스를 유지하고, 앞으로의 반전은 스포일러하지 마.',
+        assistant: '세계관「안개항」과 이전 장의 끝을 확인했습니다. 탐정은 아직 감시 사각지대를 찾지 못했습니다. 전화벨 소리로 들어가 짧은 문장으로 긴장감을 쌓겠습니다.',
+        toolAction: '3장에 320자 추가됨',
+        diffLabel: '차이 미리보기:',
+        diffHint: '수정은 diff 형태로 표시되며, 승인 후 챕터에 반영됩니다.',
+      },
+      ask: {
+        user: '이 대화가 너무 직설적이야? 더 함축적인 표현은?',
+        assistant: '정보는 유지하되 결론을 행동에 숨기세요 — 침묵 후 화제를 바꾸는 식으로. 플롯을 진행하면서 독자에게 여백을 남깁니다.',
+        toolAction: '',
+      },
+      plan: {
+        user: '1권 스토리 아크를 정리하고, 전환점과 복선 회수를 표시해 줘.',
+        assistant: '3막 구조로 정리: 1막은 안개항 규칙과 주인공의 딜레마, 2막에서 야간 순찰 협회 등장, 3막에서 감시 사각지대와 진명 금기의 연관을 드러냅니다.',
+        toolAction: 'plan/story-arc.md에 저장됨',
+      },
+      outline: {
+        user: '2권을 8장으로 나누고, 각 장의 핵심 갈등을 표시해 줘.',
+        assistant: '2권 아래 8개 챕터 노드를 생성하고, 각 장에 한 줄 시놉시스와 갈등 유형(인 vs 규칙 / 인 vs 자아)을 추가했습니다.',
+        toolAction: '아웃라인 트리 8개 노드 업데이트됨',
+      },
+      worldbook: {
+        user: '「야간 순찰 협회」 설정 추가 — 목적, 가입 대가, 진명 금기와의 관계.',
+        assistant: '세력 항목 생성. 공개 목적(안개항 질서 유지)과 숨겨진 대가(기억 하나를 바침)를 기록하고, 「진명 금지」 규칙과 상호 참조했습니다.',
+        toolAction: '세계관 항목「야간 순찰 협회」 생성됨',
+      },
+    },
+    highlights: {
+      1: { title: '모든 수정을 승인', description: '변경은 diff로 전달 — 수락·거절은 당신이 결정. AI는 대필가가 아닌 편집자.' },
+      2: { title: '기억은 프로젝트 안에', description: '플랜, 아웃라인, 세계관, 챕터가 하나의 소스. Agent는 집필 전 설정을 참조합니다.' },
+      3: { title: '근거 있는 이어쓰기', description: 'Agent 모드는 챕터와 설정을 검색한 뒤 집필 — 설정 붕괴와 모순을 줄입니다.' },
+    },
   },
   albumCollage: {
     versionLabel: '버전',
@@ -178,9 +237,9 @@ const marketing = {
       description: '매일 쓰는 작가를 위한 구성, 창작 잠재력을 열어줍니다.',
       features: {
         1: '베이직의 모든 기능',
-        2: '고급 AI 창작 보조',
+        2: '5가지 AI 모드 (Ask / Plan / Outline / Worldbook / Agent)',
         3: '기기 간 클라우드 동기화',
-        4: '캐릭터 & 개요 관리',
+        4: '캐릭터, 아웃라인 및 세계관 관리',
       },
     },
     team: {
@@ -242,14 +301,14 @@ const marketing = {
     loading: '불러오는 중...',
   },
   seo: {
-    title: 'AI 소설 창작 플랫폼 및 웹소설 글쓰기 도우미',
-    description: 'Narraverse는 창작자가 아이디어를 다듬고, 캐릭터를 구축하고, 장을 이어 쓰며, 더 빠르고 더 높은 품질로 내용을 정제할 수 있도록 돕는 AI 소설 창작 플랫폼입니다.',
+    title: 'AI 소설 창작 Agent 및 웹소설 글쓰기 도우미',
+    description: 'Narraverse 내장 올인원 소설 창작 Agent — Ask / Plan / Outline / Worldbook / Agent 다섯 모드, diff 승인 편집과 설정 관리로 아이디어에서 초고까지 지원합니다.',
     keywords: [
-      'AI 소설 창작 플랫폼',
+      'AI 소설 창작 Agent',
       'AI 글쓰기 도우미',
       '웹소설 글쓰기 툴',
       '소설 이어쓰기',
-      '캐릭터 관리',
+      '세계관 설정 관리',
     ],
     ogAlt: 'Narraverse 홈페이지 미리보기',
     about: [

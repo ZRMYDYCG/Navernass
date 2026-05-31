@@ -46,3 +46,11 @@ export {
   selectEventsForCharacter,
   useTimelineStore,
 } from './modules/timeline-store'
+
+// Novel Chat Store (zustand + immer) — per-novel AI session UI state
+export {
+  selectNovelChatUiSession,
+  useNovelChatStore,
+  type NovelChatSelectedChapter,
+  type NovelChatUiSession,
+} from './modules/novel-chat-store'

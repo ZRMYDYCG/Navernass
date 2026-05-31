@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { findLastRenderableIndex, hasVisibleContent, isBubblePart, isRenderablePart, renderPart } from './registry'
 
 interface MessageRendererProps {
+  novelId: string
   message: UIMessage
   /** 该消息是否处于流式状态（仅最新 assistant 消息为 true） */
   isStreaming?: boolean
@@ -25,7 +26,7 @@ type AnyPart = UIMessagePart<any, any>
  * - 非 bubble part（reasoning 等）独立成块，会打断气泡分组。
  * 这样 reasoning 与 text 可以严格按到达顺序交错呈现。
  */
-function MessageRendererInner({ message, isStreaming = false, userAvatar }: MessageRendererProps) {
+function MessageRendererInner({ novelId, message, isStreaming = false, userAvatar }: MessageRendererProps) {
   const { t } = useI18n()
   const isUser = message.role === 'user'
 
@@ -89,6 +90,7 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
                 >
                   {group.items.map(({ part, index }) =>
                     renderPart(part, {
+                      novelId,
                       message,
                       isStreaming,
                       index,
@@ -102,6 +104,7 @@ function MessageRendererInner({ message, isStreaming = false, userAvatar }: Mess
             return (
               <div key={`g-${gi}`}>
                 {renderPart(group.part, {
+                  novelId,
                   message,
                   isStreaming,
                   index: group.index,

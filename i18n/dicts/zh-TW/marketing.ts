@@ -28,9 +28,9 @@ const marketing = {
 那時候，我會說，看這陽光，雨季將不再來。`,
   },
   announcement: {
-    tag: '預告',
+    tag: '新功能',
     items: [
-      '🚀 預告：我們將啟動「全能型小說創作 Agent」開發計畫，致力打造業內最好用的 AI 寫作助手。',
+      '🎉 全能型小說創作 Agent 已上線 — 五種模式涵蓋從靈感到成稿的完整創作鏈路。',
       '🤝 誠邀才華橫溢的您加入共創！讓我們建立開發者與使用者的直通橋樑，您的經驗將直接決定產品的形態。',
       '💎 您的每一條建議都彌足珍貴。加入 Narraverse，與我們共同迭代，為更多內容創作者賦能！',
     ],
@@ -43,8 +43,67 @@ const marketing = {
     multiFormatDescription: '一鍵生成排版精美的 MarkDown 或 Text，從草稿到成書，只差一個按鈕。',
   },
   aiChatDemo: {
-    title: '創作助手',
-    description: '與 AI 助手即時交流，取得創作靈感、優化建議與故事發展思路。',
+    title: '即時 AI 對話',
+    description: '在編輯器右側與 Agent 即時交流 — 續寫、潤色、整理設定，或純粹探討劇情走向。',
+  },
+  agentShowcase: {
+    title: '全能型小說創作 Agent',
+    subtitle: '五種模式，各司其職 — 從靈感諮詢到章節續寫，每一步都有專屬工作流與持久化記憶。',
+    modelLabel: 'MiniMax M2.7',
+    modes: {
+      agent: { name: '執行', tagline: '續寫、潤色、改稿與管理專案' },
+      ask: { name: '提問', tagline: '唯讀諮詢，不修改你的稿件' },
+      plan: { name: '規劃', tagline: '梳理故事弧線與節拍，寫入規劃檔案' },
+      outline: { name: '大綱', tagline: '編輯卷章結構，寫入大綱樹' },
+      worldbook: { name: '世界觀', tagline: '整理設定庫，保持 lore 一致' },
+    },
+    sidebar: {
+      agent: { title: '章節' },
+      ask: { title: '對話', hint: 'Ask 模式僅提供建議，不會修改章節或寫入專案檔案。' },
+      plan: { title: '規劃檔案' },
+      outline: { title: '大綱樹' },
+      worldbook: { title: '世界觀庫' },
+    },
+    sidebarContent: {
+      agent: ['第三章：意外發現', '第二章：雨夜來客', '第一章：開場白'],
+      plan: ['plan/story-arc.md', 'plan/vol1-beats.md', 'plan/foreshadowing.md'],
+      outline: ['第一卷：迷霧重重', '  ├ 第一章：開場白', '  ├ 第二章：雨夜來客', '  └ 第三章：意外發現'],
+      worldbook: ['設定：霧港市', '勢力：守夜人協會', '規則：不可直呼真名'],
+    },
+    demo: {
+      agent: {
+        user: '幫我續寫這段，保持懸疑氛圍，不要劇透後面的反轉。',
+        assistant: '我先查閱了世界觀設定「霧港市」和上一章結尾，確認偵探尚未發現監控盲區。接下來將從電話鈴聲切入，用短句堆疊緊張感。',
+        toolAction: '已追加 320 字至第三章',
+        diffLabel: '差異預覽：',
+        diffHint: '修改會以 diff 形式呈現，你逐條批准後才寫入章節。',
+      },
+      ask: {
+        user: '這段對話是否太直白？有沒有更含蓄的寫法？',
+        assistant: '可以保留資訊，但把結論藏在動作裡 — 比如讓角色先沉默、再轉移話題。這樣既推進劇情，又給讀者留白。',
+        toolAction: '',
+      },
+      plan: {
+        user: '幫我梳理第一卷的故事弧線，標註關鍵轉折和伏筆回收點。',
+        assistant: '已按三幕結構整理：第一幕建立霧港規則與主角困境，第二幕引入守夜人協會，第三幕揭露監控盲區與真名禁忌的關聯。',
+        toolAction: '已寫入 plan/story-arc.md',
+      },
+      outline: {
+        user: '把第二卷拆成 8 章，每章標註核心衝突。',
+        assistant: '已在第二卷下建立 8 個章節節點，並為每章補充一句話梗概與衝突類型（人 vs 規則 / 人 vs 自我）。',
+        toolAction: '已更新大綱樹 8 個節點',
+      },
+      worldbook: {
+        user: '補充「守夜人協會」的設定：宗旨、入會的代價、與真名禁忌的關係。',
+        assistant: '已建立勢力條目，包含公開宗旨（維護霧港秩序）與隱藏代價（入會者須交出一項記憶），並與「不可直呼真名」規則建立交叉引用。',
+        toolAction: '已建立世界觀條目「守夜人協會」',
+      },
+    },
+    highlights: {
+      1: { title: '你批准每一處修改', description: '改稿以 diff 形式呈現，接受或拒絕由你決定 — AI 是編輯，不是代筆。' },
+      2: { title: '記憶活在專案裡', description: '規劃、大綱、世界觀與章節同源儲存，Agent 續寫前會先查閱你的設定。' },
+      3: { title: '續寫有據可查', description: '執行模式會先搜尋章節與設定，再動筆續寫 — 減少人設崩塌與劇情穿幫。' },
+    },
   },
   albumCollage: {
     versionLabel: '版本號：',
@@ -178,9 +237,9 @@ const marketing = {
       description: '為日更作者量身打造，釋放創作潛能。',
       features: {
         1: '包含基礎版所有功能',
-        2: '進階 AI 創作輔助',
+        2: '五種 AI 創作模式（Ask / Plan / Outline / Worldbook / Agent）',
         3: '多端雲同步',
-        4: '角色與大綱管理',
+        4: '角色、大綱與世界觀管理',
       },
     },
     team: {
@@ -242,14 +301,14 @@ const marketing = {
     loading: '載入中...',
   },
   seo: {
-    title: 'AI 小說創作平台與網文寫作助手',
-    description: 'Narraverse AI 小說創作平台，協助創作者完成靈感梳理、角色設定、章節續寫與內容打磨，提升寫作效率與品質。',
+    title: 'AI 小說創作 Agent 與網文寫作助手',
+    description: 'Narraverse 內建全能型小說創作 Agent — 五種模式涵蓋提問、規劃、大綱、世界觀與執行，支援 diff 審閱續寫與設定管理，協助創作者高效完成從靈感到成稿的全流程。',
     keywords: [
-      'AI 小說創作平台',
+      'AI 小說創作 Agent',
       'AI 寫作助手',
       '網文創作工具',
       '小說續寫',
-      '人物設定管理',
+      '世界觀設定管理',
     ],
     ogAlt: 'Narraverse 首頁展示圖',
     about: [

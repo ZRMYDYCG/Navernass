@@ -28,9 +28,9 @@ Je me dirai encore et encore que la saison des pluies est finie, qu\'elle ne rev
 Et alors, je dirai : regarde ce soleil — la saison des pluies ne reviendra plus.`,
   },
   announcement: {
-    tag: 'Annonce',
+    tag: 'Nouveau',
     items: [
-      '🚀 Lancement : Plan « Agent auteur tout-en-un » — création du meilleur assistant d\'écriture IA.',
+      '🎉 L\'Agent auteur tout-en-un est disponible — cinq modes couvrent tout le parcours, de l\'idée au chapitre finalisé.',
       '🤝 Nous invitons les créateurs talentueux à co-créer avec nous — votre expérience façonnera le produit.',
       '💎 Vos suggestions sont précieuses. Rejoignez Narraverse et participez à l\'itération !',
     ],
@@ -43,8 +43,67 @@ Et alors, je dirai : regarde ce soleil — la saison des pluies ne reviendra plu
     multiFormatDescription: 'Exportez en un clic du Markdown ou du texte joliment formaté.',
   },
   aiChatDemo: {
-    title: 'Assistant créatif',
-    description: 'Discutez en temps réel avec un assistant IA pour obtenir des idées, peaufiner le texte et explorer des pistes d\'intrigue.',
+    title: 'Chat IA en temps réel',
+    description: 'Parlez à l\'Agent dans l\'éditeur — continuer un chapitre, peaufiner le texte, organiser le lore ou explorer l\'intrigue.',
+  },
+  agentShowcase: {
+    title: 'Agent auteur tout-en-un',
+    subtitle: 'Cinq modes, chacun avec un rôle clair — du conseil en lecture seule à la continuation de chapitres, avec mémoire persistante.',
+    modelLabel: 'MiniMax M2.7',
+    modes: {
+      agent: { name: 'Agent', tagline: 'Continuer, peaufiner, éditer et gérer le projet' },
+      ask: { name: 'Ask', tagline: 'Conseil en lecture seule — ne touche jamais au manuscrit' },
+      plan: { name: 'Plan', tagline: 'Arcs narratifs et beats sauvegardés dans les fichiers plan' },
+      outline: { name: 'Outline', tagline: 'Structure volume/chapitre dans l\'arbre outline' },
+      worldbook: { name: 'Worldbook', tagline: 'Entrées lore cohérentes dans votre bible' },
+    },
+    sidebar: {
+      agent: { title: 'Chapitres' },
+      ask: { title: 'Chat', hint: 'Le mode Ask ne donne que des conseils — aucune modification de chapitre ou de fichier.' },
+      plan: { title: 'Fichiers plan' },
+      outline: { title: 'Arbre outline' },
+      worldbook: { title: 'Worldbook' },
+    },
+    sidebarContent: {
+      agent: ['Chapitre 3 : Découverte inattendue', 'Chapitre 2 : Visiteur sous la pluie', 'Chapitre 1 : Scène d\'ouverture'],
+      plan: ['plan/story-arc.md', 'plan/vol1-beats.md', 'plan/foreshadowing.md'],
+      outline: ['Vol. 1 : Couches de brume', '  ├ Chapitre 1 : Scène d\'ouverture', '  ├ Chapitre 2 : Visiteur sous la pluie', '  └ Chapitre 3 : Découverte inattendue'],
+      worldbook: ['Setting : Port-Brume', 'Faction : Société des Veilleurs', 'Règle : Ne jamais prononcer un vrai nom'],
+    },
+    demo: {
+      agent: {
+        user: 'Continue cette scène — garde le suspense, pas de spoiler pour le retournement.',
+        assistant: 'J\'ai consulté l\'entrée worldbook de Port-Brume et la fin du chapitre précédent. Le détective n\'a pas encore trouvé l\'angle mort des caméras. J\'entrerai par la sonnerie du téléphone avec des phrases courtes pour la tension.',
+        toolAction: '320 mots ajoutés au chapitre 3',
+        diffLabel: 'Aperçu diff :',
+        diffHint: 'Les modifications apparaissent en diff — vous approuvez chaque changement avant écriture.',
+      },
+      ask: {
+        user: 'Ce dialogue est-il trop explicite ? Des alternatives plus subtiles ?',
+        assistant: 'Gardez l\'information, cachez la conclusion dans l\'action — pause, puis changement de sujet. Le plot avance tout en laissant de la place au lecteur.',
+        toolAction: '',
+      },
+      plan: {
+        user: 'Trace l\'arc narratif du volume 1 avec points tournants et résolutions de foreshadowing.',
+        assistant: 'Structuré en trois actes : Acte I établit les règles de Port-Brume et le dilemme ; Acte II introduit la Société des Veilleurs ; Acte III relie l\'angle mort au tabou du vrai nom.',
+        toolAction: 'Enregistré dans plan/story-arc.md',
+      },
+      outline: {
+        user: 'Découpe le volume 2 en 8 chapitres, chacun avec un conflit central.',
+        assistant: '8 nœuds chapitre créés sous le volume 2, chacun avec synopsis d\'une ligne et type de conflit (personne vs règle / personne vs soi).',
+        toolAction: '8 nœuds mis à jour dans l\'arbre outline',
+      },
+      worldbook: {
+        user: 'Ajoute le lore de la Société des Veilleurs — but, coût d\'adhésion, lien au tabou du vrai nom.',
+        assistant: 'Entrée faction créée avec but public (maintenir l\'ordre) et coût caché (sacrifice d\'un souvenir), liée à la règle « Ne jamais prononcer un vrai nom ».',
+        toolAction: 'Entrée worldbook « Société des Veilleurs » créée',
+      },
+    },
+    highlights: {
+      1: { title: 'Vous approuvez chaque modification', description: 'Les changements arrivent en diff — accepter ou refuser. L\'IA comme éditeur, pas ghostwriter.' },
+      2: { title: 'La mémoire vit dans le projet', description: 'Plans, outlines, worldbook et chapitres partagent une source. L\'Agent lit le lore avant d\'écrire.' },
+      3: { title: 'Continuation fondée', description: 'Le mode Agent recherche chapitres et lore avant de continuer — moins de ruptures de continuité.' },
+    },
   },
   albumCollage: {
     versionLabel: 'Version',
@@ -178,9 +237,9 @@ Et alors, je dirai : regarde ce soleil — la saison des pluies ne reviendra plu
       description: 'Conçu pour les auteurs quotidiens, libérant le potentiel créatif.',
       features: {
         1: 'Tout ce qui est dans Basique',
-        2: 'Assistance IA avancée',
+        2: 'Cinq modes IA (Ask / Plan / Outline / Worldbook / Agent)',
         3: 'Synchronisation cloud multi-appareils',
-        4: 'Gestion des personnages et du plan',
+        4: 'Gestion personnages, plan & worldbook',
       },
     },
     team: {
@@ -242,14 +301,14 @@ Et alors, je dirai : regarde ce soleil — la saison des pluies ne reviendra plu
     loading: 'Chargement...',
   },
   seo: {
-    title: 'Plateforme d\'écriture de romans IA et assistant d\'écriture en ligne',
-    description: 'Narraverse est une plateforme d\'écriture de romans assistée par IA qui aide les créateurs à structurer des idées, construire des personnages, poursuivre des chapitres et affiner le contenu plus rapidement et qualitativement.',
+    title: 'Agent auteur IA et assistant d\'écriture web fiction',
+    description: 'Narraverse intègre un Agent auteur tout-en-un — cinq modes Ask, Plan, Outline, Worldbook et Agent, avec édition diff et gestion du lore, de l\'idée au brouillon.',
     keywords: [
-      'plateforme d\'écriture de romans IA',
+      'agent auteur roman IA',
       'assistant d\'écriture IA',
       'outil d\'écriture web fiction',
       'suite de continuation de roman',
-      'gestion des personnages',
+      'gestion worldbuilding',
     ],
     ogAlt: 'Aperçu de la page d\'accueil de Narraverse',
     about: [

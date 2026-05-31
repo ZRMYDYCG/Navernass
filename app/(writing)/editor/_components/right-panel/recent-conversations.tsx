@@ -14,7 +14,7 @@ interface RecentConversationsProps {
 export function RecentConversations({ conversations, onSelect }: RecentConversationsProps) {
   const { t } = useI18n()
   const { locale } = useLocale()
-  const recentConversations = conversations
+  const recentConversations = [...conversations]
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
     .slice(0, 3)
 

@@ -1,6 +1,7 @@
 import type { UIMessage } from 'ai'
 import type { NextRequest } from 'next/server'
-import { convertToModelMessages } from 'ai'
+import { after } from 'next/server'
+import { consumeStream, convertToModelMessages } from 'ai'
 import { bootstrapAgents, runWriterAgent, route, getAgent } from '@/lib/ai/agents'
 import { DEFAULT_LLM_MODEL } from '@/lib/ai/minimax'
 import {
@@ -155,14 +156,50 @@ export async function POST(req: NextRequest) {
     return new Response('Failed to persist user message', { status: 500 })
   }
 
-  // 派发到 specialist agent
-  // assistant 消息走"流内"持久化：在 streamText 的 onFinish（每个 step 完成时）
-  // 收集 parts，最后由 toUIMessageStreamResponse.onFinish 兜底落库。
-  let lastAssistantParts: unknown[] = []
-  let lastAssistantText = ''
-  let lastAssistantReasoning = ''
+  // 预建 assistant 占位行，便于流中断后 GET /messages 仍能恢复部分内容
+  const assistantMessageId = crypto.randomUUID()
+  let accumulatedText = ''
+  let accumulatedReasoning = ''
   let totalTokens = 0
 
+  const persistAssistantPartial = async (opts?: { parts?: unknown[], force?: boolean }) => {
+    const parts = opts?.parts ?? buildPartialParts(accumulatedReasoning, accumulatedText)
+    if (!opts?.force && parts.length === 0) return
+    try {
+      await messagesService.upsert({
+        id: assistantMessageId,
+        conversation_id: conversation.id,
+        novel_id: novelId,
+        role: 'assistant',
+        content: accumulatedText,
+        thinking: accumulatedReasoning || undefined,
+        model: model || DEFAULT_LLM_MODEL,
+        tokens: totalTokens,
+        parts,
+      })
+    } catch (error) {
+      console.error('[stream] partial assistant persist failed:', error)
+    }
+  }
+
+  try {
+    await messagesService.upsert({
+      id: assistantMessageId,
+      conversation_id: conversation.id,
+      novel_id: novelId,
+      role: 'assistant',
+      content: '',
+      model: model || DEFAULT_LLM_MODEL,
+      tokens: 0,
+      parts: [],
+    })
+    console.log('[stream] assistant placeholder created:', assistantMessageId)
+  } catch (error) {
+    console.error('[stream] FAILED to create assistant placeholder:', error)
+  }
+
+  // 派发到 specialist agent
+  // assistant 分步落库（onStepFinish）+ 流结束兜底（ui onFinish）
   const result = runWriterAgent({
     uiMessages: messages,
     modelMessages,
@@ -176,70 +213,78 @@ export async function POST(req: NextRequest) {
       conversationId: conversation.id,
       selectedChapterIds,
     },
+    onStepFinish: ({ text, reasoningText }) => {
+      if (reasoningText) {
+        accumulatedReasoning = accumulatedReasoning
+          ? `${accumulatedReasoning}\n${reasoningText}`
+          : reasoningText
+      }
+      if (text) accumulatedText += text
+      console.log('[stream/onStepFinish] text len:', accumulatedText.length, 'reasoning len:', accumulatedReasoning.length)
+      void persistAssistantPartial()
+    },
     onFinish: async ({ text, reasoningText, usage }) => {
-      lastAssistantText = text
-      lastAssistantReasoning = reasoningText || ''
+      if (text) accumulatedText = text
+      if (reasoningText) accumulatedReasoning = reasoningText
       totalTokens = usage?.totalTokens || 0
-      console.log('[stream/streamText.onFinish] text len:', text.length, 'tokens:', totalTokens)
+      console.log('[stream/streamText.onFinish] text len:', accumulatedText.length, 'tokens:', totalTokens)
+      await persistAssistantPartial({ force: true })
     },
   })
 
   return result.toUIMessageStreamResponse({
     sendReasoning: true,
     originalMessages: messages,
-    onFinish: async ({ messages: finalMessages }) => {
-      console.log('[stream/uiOnFinish] final messages count:', finalMessages.length)
+    generateMessageId: () => assistantMessageId,
+    consumeSseStream: ({ stream }) => {
+      // 立即在后台消费 SSE 副本，与客户端并行拉流，减轻客户端停读时的反压
+      void consumeStream({
+        stream,
+        onError: (error) => {
+          console.error('[stream/consumeSseStream] error:', error)
+        },
+      })
+        .then(() => console.log('[stream/consumeSseStream] background consume finished'))
+        .catch((error) => console.error('[stream/consumeSseStream] failed:', error))
+    },
+    onFinish: async ({ messages: finalMessages, isAborted }) => {
+      console.log('[stream/uiOnFinish] final messages count:', finalMessages.length, 'isAborted:', isAborted)
       try {
-        // 取生成的 assistant 消息（input messages 都是 user/assistant 历史，最后新增的是这次 stream 产物）
         const lastAssistant = [...finalMessages].reverse().find(m => m.role === 'assistant')
         if (!lastAssistant) {
-          console.warn('[stream/uiOnFinish] no assistant message in finalMessages, fallback to streamText data')
-          // 兜底：用 streamText.onFinish 的数据建一个最小 parts
-          const fallbackParts: unknown[] = []
-          if (lastAssistantReasoning) {
-            fallbackParts.push({ type: 'reasoning', text: lastAssistantReasoning, state: 'done' })
-          }
-          if (lastAssistantText) {
-            fallbackParts.push({ type: 'text', text: lastAssistantText, state: 'done' })
-          }
-          if (fallbackParts.length === 0) {
-            console.warn('[stream/uiOnFinish] nothing to persist (empty assistant)')
-            return
-          }
-          const saved = await messagesService.upsert({
-            id: crypto.randomUUID(),
-            conversation_id: conversation.id,
-            novel_id: novelId,
-            role: 'assistant',
-            content: lastAssistantText,
-            thinking: lastAssistantReasoning || undefined,
-            model: model || DEFAULT_LLM_MODEL,
-            tokens: totalTokens,
-            parts: fallbackParts,
-          })
-          console.log('[stream/uiOnFinish] assistant fallback saved:', saved?.id)
+          console.warn('[stream/uiOnFinish] no assistant in finalMessages, using accumulated fallback')
+          await persistAssistantPartial({ force: true })
           return
         }
 
         const rawParts = (lastAssistant.parts || []) as unknown[]
-        lastAssistantParts = sanitizeUIMessagePartsForDisplay(rawParts)
-        const partsCount = lastAssistantParts.length
-        console.log('[stream/uiOnFinish] saving assistant, parts count:', partsCount, '(raw:', rawParts.length, ')')
+        const displayParts = sanitizeUIMessagePartsForDisplay(rawParts)
+        accumulatedText = extractTextFromParts(displayParts) || accumulatedText
+        accumulatedReasoning = extractReasoningFromParts(displayParts) || accumulatedReasoning
+        console.log('[stream/uiOnFinish] saving assistant, parts count:', displayParts.length)
         const saved = await messagesService.upsert({
-          id: lastAssistant.id,
+          id: assistantMessageId,
           conversation_id: conversation.id,
           novel_id: novelId,
           role: 'assistant',
-          content: extractTextFromParts(lastAssistantParts) || lastAssistantText,
-          thinking: extractReasoningFromParts(lastAssistantParts) || lastAssistantReasoning || undefined,
+          content: accumulatedText,
+          thinking: accumulatedReasoning || undefined,
           model: model || DEFAULT_LLM_MODEL,
           tokens: totalTokens,
-          parts: lastAssistantParts,
+          parts: displayParts.length > 0 ? displayParts : buildPartialParts(accumulatedReasoning, accumulatedText),
         })
-        console.log('[stream/uiOnFinish] assistant saved:', saved?.id, 'parts persisted:', !!saved?.parts)
+        console.log('[stream/uiOnFinish] assistant saved:', saved?.id)
       } catch (error) {
         console.error('[stream/uiOnFinish] FAILED to persist assistant message:', error)
+        await persistAssistantPartial({ force: true })
       }
+    },
+    onError: (error) => {
+      console.error('[stream/uiOnError]', error)
+      after(async () => {
+        await persistAssistantPartial({ force: true })
+      })
+      return 'An error occurred.'
     },
     headers: {
       'X-Conversation-Id': conversation.id,
@@ -248,6 +293,17 @@ export async function POST(req: NextRequest) {
       'X-Skill-Ids': decision.skillIds.join(','),
     },
   })
+}
+
+function buildPartialParts(reasoning: string, text: string): unknown[] {
+  const parts: unknown[] = []
+  if (reasoning.trim()) {
+    parts.push({ type: 'reasoning', text: reasoning, state: 'done' })
+  }
+  if (text.trim()) {
+    parts.push({ type: 'text', text, state: 'done' })
+  }
+  return parts
 }
 
 function extractTextFromParts(parts: unknown): string {

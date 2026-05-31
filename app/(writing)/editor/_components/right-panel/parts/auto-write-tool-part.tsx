@@ -4,7 +4,7 @@ import { Check, Loader2, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
-import { useChaptersStore, usePlanStore, useTimelineStore, useWorldviewStore } from '@/store'
+import { useChaptersStore, useNovelChatStore, usePlanStore, useTimelineStore, useWorldviewStore } from '@/store'
 import { translateToolLabel, translateToolSuccess } from './tool-i18n'
 
 export type AutoWriteToolName =
@@ -29,6 +29,8 @@ export type AutoWriteToolName =
   | 'delete_character_event'
 
 interface AutoWriteToolPartProps {
+  /** 所属 project，用于避免切换 project 时后台流式 tool 写入错误 store */
+  novelId: string
   /** 该 part 的稳定 id（messageId + part index）。用于全局副作用去重 */
   partKey: string
   toolName: AutoWriteToolName
@@ -44,8 +46,10 @@ interface AutoWriteToolPartProps {
  */
 const processedKeys = new Set<string>()
 
-export function AutoWriteToolPart({ partKey, toolName, state, input, output, errorText }: AutoWriteToolPartProps) {
+export function AutoWriteToolPart({ novelId, partKey, toolName, state, input, output, errorText }: AutoWriteToolPartProps) {
   const { t } = useI18n()
+  const activeNovelId = useNovelChatStore(s => s.activeNovelId)
+  const currentNovelId = useChaptersStore(s => s.currentNovelId)
   const upsertVolume = useChaptersStore(s => s.upsertVolume)
   const upsertChapter = useChaptersStore(s => s.upsertChapter)
   const removeChapter = useChaptersStore(s => s.removeChapter)
@@ -64,6 +68,8 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
   useEffect(() => {
     if (state !== 'output-available') return
     if (processedKeys.has(partKey)) return
+    // 仅当前激活 project 才执行写入副作用，避免后台流式 tool 污染其他 project
+    if (activeNovelId && activeNovelId !== novelId) return
 
     if (!output?.ok) {
       processedKeys.add(partKey)
@@ -86,14 +92,22 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
         break
       case 'create_chapter':
       case 'update_chapter':
-        if (output.chapter) upsertChapter(output.chapter)
+        if (output.chapter) {
+          if (!currentNovelId || output.chapter.novel_id === currentNovelId) {
+            upsertChapter(output.chapter)
+          }
+        }
         toast.success(t('editor.rightPanel.tools.common.toastSuccess', {
           label,
           title: output.title || '',
         }))
         break
       case 'append_chapter':
-        if (output.chapter) upsertChapter(output.chapter)
+        if (output.chapter) {
+          if (!currentNovelId || output.chapter.novel_id === currentNovelId) {
+            upsertChapter(output.chapter)
+          }
+        }
         toast.success(t('editor.rightPanel.tools.toast.appendChapter', {
           title: output.chapter_title || '',
         }), {
@@ -182,6 +196,7 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
         break
     }
   }, [
+    novelId, activeNovelId, currentNovelId,
     partKey, state, output, toolName, errorText, label, t,
     upsertVolume, upsertChapter, removeChapter, removeVolume,
     upsertWorldbookEntry, removeWorldbookEntry,

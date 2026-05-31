@@ -29,9 +29,9 @@ const marketing = {
 そして私は言うのだ。ほら、この日差しを——雨季は二度と戻らない。`,
   },
   announcement: {
-    tag: 'お知らせ',
+    tag: '新機能',
     items: [
-      '🚀 公開中：オールインワン小説執筆エージェント計画 — 最高のAI執筆アシスタントを目指しています。',
+      '🎉 オールインワン小説執筆 Agent が登場 — 5モードでアイデアから完成章までをカバー。',
       '🤝 才能あるクリエイターの皆さんと共創したい — あなたの体験がプロダクトを形づくります。',
       '💎 ご提案は宝物です。Narraverseに参加して一緒に改善しましょう！',
     ],
@@ -44,8 +44,67 @@ const marketing = {
     multiFormatDescription: '整ったMarkdownやテキストをワンクリックで書き出しできます。',
   },
   aiChatDemo: {
-    title: '創作アシスタント',
-    description: 'AIアシスタントとリアルタイムで会話して、アイデア出し、推敲、プロットの方向性探索を行えます。',
+    title: 'リアルタイム AI チャット',
+    description: 'エディター右側で Agent と会話 — 続き書き、推敲、設定整理、プロット相談ができます。',
+  },
+  agentShowcase: {
+    title: 'オールインワン小説執筆 Agent',
+    subtitle: '5つのモードが役割分担 — 読み取り専用アドバイスから章の続き書きまで、プロジェクト内に記憶を保持。',
+    modelLabel: 'MiniMax M2.7',
+    modes: {
+      agent: { name: 'Agent', tagline: '続き書き・推敲・改稿・プロジェクト管理' },
+      ask: { name: 'Ask', tagline: '読み取り専用 — 原稿は変更しません' },
+      plan: { name: 'Plan', tagline: 'ストーリー弧とビートをプランファイルに保存' },
+      outline: { name: 'Outline', tagline: '巻・章構造をアウトラインツリーに保存' },
+      worldbook: { name: 'Worldbook', tagline: '設定庫を整理し lore の一貫性を維持' },
+    },
+    sidebar: {
+      agent: { title: '章' },
+      ask: { title: 'チャット', hint: 'Ask モードはアドバイスのみ — 章やプロジェクトファイルは変更しません。' },
+      plan: { title: 'プランファイル' },
+      outline: { title: 'アウトラインツリー' },
+      worldbook: { title: '世界観ライブラリ' },
+    },
+    sidebarContent: {
+      agent: ['第3章：意外な発見', '第2章：雨夜の来客', '第1章：オープニング'],
+      plan: ['plan/story-arc.md', 'plan/vol1-beats.md', 'plan/foreshadowing.md'],
+      outline: ['第1巻：霧の重層', '  ├ 第1章：オープニング', '  ├ 第2章：雨夜の来客', '  └ 第3章：意外な発見'],
+      worldbook: ['設定：霧港市', '勢力：守夜人協会', 'ルール：真名を口にしてはならない'],
+    },
+    demo: {
+      agent: {
+        user: 'この場面を続けて。サスペンスを保ち、これからのどんでん返しはネタバレしないで。',
+        assistant: '世界観「霧港市」と前章の末尾を確認しました。探偵はまだ監視の死角を見つけていません。電話のベルから入り、短い文で緊張感を積み上げます。',
+        toolAction: '第3章に320字を追加しました',
+        diffLabel: '差分プレビュー：',
+        diffHint: '編集は diff として表示され、承認後に章へ反映されます。',
+      },
+      ask: {
+        user: 'この会話は説明的すぎ？もっと含蓄のある書き方は？',
+        assistant: '情報は残しつつ、結論を動作に隠しましょう — 沈黙のあと話題を変えるなど。プロットを進めつつ読者に余白を残せます。',
+        toolAction: '',
+      },
+      plan: {
+        user: '第1巻のストーリー弧を整理し、転換点と伏線回収をマークして。',
+        assistant: '三幕構成で整理：第1幕は霧港のルールと主人公の困境、第2幕で守夜人協会登場、第3幕で監視死角と真名タブーの関連を明かします。',
+        toolAction: 'plan/story-arc.md に保存しました',
+      },
+      outline: {
+        user: '第2巻を8章に分割し、各章の核心衝突を付けて。',
+        assistant: '第2巻下に8つの章ノードを作成し、各章に一行あらすじと衝突タイプ（人 vs ルール / 人 vs 自己）を追加しました。',
+        toolAction: 'アウトラインツリーの8ノードを更新しました',
+      },
+      worldbook: {
+        user: '「守夜人協会」の設定を追加 — 目的、入会の代償、真名タブーとの関係。',
+        assistant: '勢力エントリを作成。公開目的（霧港の秩序維持）と隠された代償（記憶を一つ捧げる）を記載し、「真名禁止」ルールと相互参照しました。',
+        toolAction: '世界観エントリ「守夜人協会」を作成しました',
+      },
+    },
+    highlights: {
+      1: { title: '編集はすべてあなたが承認', description: '変更は diff で届き、承認・却下はあなた次第 — AI は代筆者ではなく編集者。' },
+      2: { title: '記憶はプロジェクト内に', description: 'プラン・アウトライン・世界観・章が一体。Agent は執筆前に設定を参照します。' },
+      3: { title: '根拠ある続き書き', description: 'Agent モードは章と設定を検索してから執筆 — 設定崩れや矛盾を減らします。' },
+    },
   },
   albumCollage: {
     versionLabel: 'バージョン',
@@ -181,9 +240,9 @@ const marketing = {
       description: '日常的に書く人向け。創造力を解放します。',
       features: {
         1: 'ベーシックの全機能',
-        2: '高度なAIアシスト',
+        2: '5つのAIモード（Ask / Plan / Outline / Worldbook / Agent）',
         3: 'クロスデバイスのクラウド同期',
-        4: 'キャラクター＆アウトライン管理',
+        4: 'キャラクター・アウトライン・世界観管理',
       },
     },
     team: {
@@ -250,15 +309,15 @@ const marketing = {
     loading: '読み込み中...',
   },
   seo: {
-    title: 'AI小説執筆プラットフォーム＆Web小説アシスタント',
+    title: 'AI小説執筆 Agent ＆ Web小説アシスタント',
     description:
-      'Narraverseは、アイデアの具体化、キャラクター構築、章の続き執筆、文章の推敲を、より速く高品質に行えるAI小説執筆プラットフォームです。',
+      'Narraverse 内蔵のオールインワン小説執筆 Agent — Ask / Plan / Outline / Worldbook / Agent の5モード、diff 承認付き編集と設定管理で、アイデアから下書きまでを支援します。',
     keywords: [
-      'AI小説執筆プラットフォーム',
+      'AI小説執筆 Agent',
       'AI執筆アシスタント',
       'Web小説執筆ツール',
       '小説の続き執筆',
-      'キャラクター管理',
+      '世界観設定管理',
     ],
     ogAlt: 'Narraverseホームページのプレビュー',
     about: [

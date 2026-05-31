@@ -28,9 +28,9 @@ I will tell myself again and again that the rainy season is over, that it will n
 And then I will say: look at this sunshine—the rainy season will never return.`,
   },
   announcement: {
-    tag: 'Announcement',
+    tag: 'New',
     items: [
-      '🚀 Launching: All-in-one Novel Authoring Agent plan — building the best AI writing assistant.',
+      '🎉 All-in-one Novel Authoring Agent is live — five modes cover your full workflow from ideas to finished chapters.',
       '🤝 We invite talented creators to co-create with us — your experience shapes the product.',
       '💎 Your suggestions are invaluable. Join Narraverse and help us iterate!',
     ],
@@ -43,8 +43,91 @@ And then I will say: look at this sunshine—the rainy season will never return.
     multiFormatDescription: 'Export beautifully formatted Markdown or Text with one click.',
   },
   aiChatDemo: {
-    title: 'Creative Assistant',
-    description: 'Chat with an AI assistant in real time to get ideas, polish prose, and explore plot directions.',
+    title: 'Real-time AI Chat',
+    description: 'Talk to the Agent in the editor sidebar — continue chapters, polish prose, organize lore, or explore plot directions.',
+  },
+  agentShowcase: {
+    title: 'All-in-one Novel Authoring Agent',
+    subtitle: 'Five modes, each with a clear job — from read-only advice to chapter continuation, with persistent project memory.',
+    modelLabel: 'MiniMax M2.7',
+    modes: {
+      agent: {
+        name: 'Agent',
+        tagline: 'Continue, polish, edit, and manage your project',
+      },
+      ask: {
+        name: 'Ask',
+        tagline: 'Read-only advice — never touches your manuscript',
+      },
+      plan: {
+        name: 'Plan',
+        tagline: 'Story arcs and beats saved to plan files',
+      },
+      outline: {
+        name: 'Outline',
+        tagline: 'Volume/chapter structure saved to the outline tree',
+      },
+      worldbook: {
+        name: 'Worldbook',
+        tagline: 'Lore entries kept consistent in your world bible',
+      },
+    },
+    sidebar: {
+      agent: { title: 'Chapters' },
+      ask: { title: 'Chat', hint: 'Ask mode gives advice only — it will not edit chapters or write project files.' },
+      plan: { title: 'Plan Files' },
+      outline: { title: 'Outline Tree' },
+      worldbook: { title: 'Worldbook' },
+    },
+    sidebarContent: {
+      agent: ['Chapter 3: Unexpected Discovery', 'Chapter 2: Visitor in the Rain', 'Chapter 1: Opening Scene'],
+      plan: ['plan/story-arc.md', 'plan/vol1-beats.md', 'plan/foreshadowing.md'],
+      outline: ['Vol. 1: Layers of Mist', '  ├ Chapter 1: Opening Scene', '  ├ Chapter 2: Visitor in the Rain', '  └ Chapter 3: Unexpected Discovery'],
+      worldbook: ['Setting: Mistport City', 'Faction: Night Watch Society', 'Rule: Never speak a true name'],
+    },
+    demo: {
+      agent: {
+        user: 'Continue this scene — keep the suspense, no spoilers for the twist ahead.',
+        assistant: 'I checked the worldbook entry for Mistport City and the previous chapter ending. The detective still hasn\'t found the surveillance blind spot. I\'ll cut in with the phone ringing and stack short sentences for tension.',
+        toolAction: 'Appended 320 words to Chapter 3',
+        diffLabel: 'Diff preview:',
+        diffHint: 'Edits appear as diffs — you approve each change before it hits the chapter.',
+      },
+      ask: {
+        user: 'Is this dialogue too on-the-nose? Any subtler alternatives?',
+        assistant: 'Keep the information, but hide the conclusion in action — let the character pause, then change the subject. That advances the plot while leaving room for the reader.',
+        toolAction: '',
+      },
+      plan: {
+        user: 'Map out Volume 1\'s story arc with turning points and foreshadowing payoffs.',
+        assistant: 'Structured in three acts: Act I establishes Mistport rules and the protagonist\'s dilemma; Act II introduces the Night Watch Society; Act III links the surveillance blind spot to the true-name taboo.',
+        toolAction: 'Saved to plan/story-arc.md',
+      },
+      outline: {
+        user: 'Break Volume 2 into 8 chapters, each with a core conflict.',
+        assistant: 'Created 8 chapter nodes under Volume 2, each with a one-line synopsis and conflict type (person vs. rule / person vs. self).',
+        toolAction: 'Updated 8 nodes in the outline tree',
+      },
+      worldbook: {
+        user: 'Add lore for the Night Watch Society — purpose, cost of joining, link to the true-name taboo.',
+        assistant: 'Created a faction entry with public purpose (maintain order in Mistport) and hidden cost (members surrender one memory), cross-linked to the "never speak a true name" rule.',
+        toolAction: 'Created worldbook entry "Night Watch Society"',
+      },
+    },
+    highlights: {
+      1: {
+        title: 'You approve every edit',
+        description: 'Changes arrive as diffs — accept or reject on your terms. AI as editor, not ghostwriter.',
+      },
+      2: {
+        title: 'Memory lives in your project',
+        description: 'Plans, outlines, worldbook, and chapters share one source of truth. Agent reads your lore before writing.',
+      },
+      3: {
+        title: 'Continuation with evidence',
+        description: 'Agent mode searches chapters and lore before continuing — fewer continuity breaks and character slips.',
+      },
+    },
   },
   albumCollage: {
     versionLabel: 'Version',
@@ -178,9 +261,9 @@ And then I will say: look at this sunshine—the rainy season will never return.
       description: 'Tailored for daily writers, unlocking creative potential.',
       features: {
         1: 'Everything in Basic',
-        2: 'Advanced AI assistance',
+        2: 'Five AI modes (Ask / Plan / Outline / Worldbook / Agent)',
         3: 'Cross-device cloud sync',
-        4: 'Character & Outline management',
+        4: 'Character, outline & worldbook management',
       },
     },
     team: {
@@ -242,14 +325,14 @@ And then I will say: look at this sunshine—the rainy season will never return.
     loading: 'Loading...',
   },
   seo: {
-    title: 'AI Novel Writing Platform and Web Fiction Assistant',
-    description: 'Narraverse is an AI novel writing platform that helps creators shape ideas, build characters, continue chapters, and refine content with greater speed and quality.',
+    title: 'AI Novel Authoring Agent and Web Fiction Assistant',
+    description: 'Narraverse ships an all-in-one Novel Authoring Agent — five modes for Ask, Plan, Outline, Worldbook, and Agent workflows, with diff-reviewed edits and lore management from idea to draft.',
     keywords: [
-      'AI novel writing platform',
+      'AI novel authoring agent',
       'AI writing assistant',
       'web fiction writing tool',
       'novel continuation',
-      'character management',
+      'worldbuilding management',
     ],
     ogAlt: 'Narraverse homepage preview',
     about: [

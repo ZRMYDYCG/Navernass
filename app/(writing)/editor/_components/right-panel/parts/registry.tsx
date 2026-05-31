@@ -54,6 +54,7 @@ export function hasVisibleContent(
 }
 
 export interface PartRenderContext {
+  novelId: string
   message: UIMessage
   isStreaming: boolean
   index: number
@@ -123,6 +124,7 @@ function renderToolPart(part: any, ctx: PartRenderContext): ReactNode {
       return (
         <AutoWriteToolPart
           key={`tool-${ctx.index}`}
+          novelId={ctx.novelId}
           partKey={`${ctx.message.id}:${ctx.index}`}
           toolName={toolName as any}
           state={part.state}

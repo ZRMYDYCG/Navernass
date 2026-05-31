@@ -1,4 +1,4 @@
-import type { StreamTextOnFinishCallback, ToolSet } from 'ai'
+import type { StreamTextOnFinishCallback, StreamTextOnStepFinishCallback, ToolSet } from 'ai'
 import type { AgentDefinition, AgentRunInput } from './types'
 import { stepCountIs, streamText } from 'ai'
 import { getMinimaxModel } from '@/lib/ai/minimax'
@@ -160,10 +160,11 @@ function getBasePromptForMode(modeId: string): string {
 export interface RunWriterAgentOptions extends AgentRunInput {
   mode?: string
   onFinish?: StreamTextOnFinishCallback<ToolSet>
+  onStepFinish?: StreamTextOnStepFinishCallback<ToolSet>
 }
 
 export function runWriterAgent(input: RunWriterAgentOptions) {
-  const { decision, modelMessages, modelId, toolContext, mode, onFinish } = input
+  const { decision, modelMessages, modelId, toolContext, mode, onFinish, onStepFinish } = input
   const modeConfig = getModeConfig(mode)
 
   const skills = decision.skillIds
@@ -195,6 +196,10 @@ export function runWriterAgent(input: RunWriterAgentOptions) {
     temperature: modeConfig.id === 'ask' ? 0.5 : 0.7,
     stopWhen: stepCountIs(modeConfig.maxSteps),
     onFinish,
+    onStepFinish,
+    onAbort: ({ steps }) => {
+      console.warn('[writer-agent] streamText aborted after', steps.length, 'step(s)')
+    },
     onError: (e) => {
       console.error('[writer-agent] streamText error:', e)
     },

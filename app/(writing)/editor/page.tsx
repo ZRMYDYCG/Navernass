@@ -58,6 +58,7 @@ function NovelsEditContent() {
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const isMobile = useIsMobile()
   const prevIsMobileRef = useRef(isMobile)
+  const prevNovelIdRef = useRef<string | null>(null)
   const desktopLeftStateRef = useRef<boolean | null>(null)
   const desktopRightStateRef = useRef<boolean | null>(null)
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
@@ -161,7 +162,8 @@ function NovelsEditContent() {
       return
     }
 
-    const silent = options?.silent ?? false
+    const isNovelSwitch = prevNovelIdRef.current !== null && prevNovelIdRef.current !== novelId
+    const silent = options?.silent ?? isNovelSwitch
 
     try {
       if (!silent) setLoading(true)
@@ -190,8 +192,19 @@ function NovelsEditContent() {
       toast.error(message)
     } finally {
       if (!silent) setLoading(false)
+      prevNovelIdRef.current = novelId
     }
   }, [novelId, router])
+
+  useEffect(() => {
+    if (!novelId) return
+    setSelectedChapter(null)
+    setSelectedPlanFileId(null)
+    setOpenTabs([])
+    setActiveTab(null)
+    setCharacterPanelOpen(false)
+    setCharacterPanelClosing(false)
+  }, [novelId, setSelectedPlanFileId])
 
   useEffect(() => {
     loadData()
@@ -1255,7 +1268,7 @@ function NovelsEditContent() {
                 style={isMobile && !showRightPanel ? { display: 'none' } : undefined}
               >
                 <ImmersiveRegion isImmersive={immersiveActive} className="h-full">
-                  <RightPanel />
+                  <RightPanel key={novelId} />
                 </ImmersiveRegion>
               </ResizablePanel>
             </ResizablePanelGroup>
@@ -1303,7 +1316,7 @@ function NovelsEditContent() {
             <Drawer open={rightDrawerOpen} onOpenChange={setRightDrawerOpen} direction="right">
               <DrawerContent className="h-full max-w-[85%] sm:max-w-sm">
                 <div className="h-full overflow-hidden">
-                  <RightPanel />
+                  <RightPanel key={novelId} />
                 </div>
               </DrawerContent>
             </Drawer>

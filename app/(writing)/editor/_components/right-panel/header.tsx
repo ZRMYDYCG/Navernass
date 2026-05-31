@@ -19,6 +19,7 @@ interface HeaderProps {
   currentConversationId?: string
   onSelectConversation: (conversation: NovelConversation) => void
   onDeleteConversation: (conversationId: string) => void
+  onHistoryOpenChange?: (open: boolean) => void
 }
 
 export function Header({
@@ -28,6 +29,7 @@ export function Header({
   currentConversationId,
   onSelectConversation,
   onDeleteConversation,
+  onHistoryOpenChange,
 }: HeaderProps) {
   const { t } = useI18n()
   const currentConversation = conversations.find(c => c.id === currentConversationId)
@@ -80,6 +82,7 @@ export function Header({
             currentConversationId={currentConversationId}
             onSelect={onSelectConversation}
             onDelete={onDeleteConversation}
+            onOpenChange={onHistoryOpenChange}
           />
         </div>
       </TooltipProvider>
