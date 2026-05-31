@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-const PROTECTED_PATHS = ['/chat', '/novels', '/trash', '/writing']
+const PROTECTED_PATHS = ['/chat', '/novels', '/trash', '/writing', '/admin']
 
 export function isProtectedPath(pathname: string) {
   return PROTECTED_PATHS.some(path => pathname.startsWith(path))

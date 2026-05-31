@@ -1,6 +1,6 @@
 'use client'
 
-import { LogOut, User } from 'lucide-react'
+import { LogOut, ShieldAlert, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -17,10 +17,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/use-auth'
 import { useI18n } from '@/hooks/use-i18n'
+import { useSuperAdmin } from '@/hooks/use-super-admin'
 import { AuthDialog } from './auth-dialog'
 
 export function AuthButton() {
   const { user, profile, signOut, loading } = useAuth()
+  const { isSuperAdmin } = useSuperAdmin()
   const { t } = useI18n()
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
@@ -98,6 +100,16 @@ export function AuthButton() {
             <span>{t('workspace.title')}</span>
           </Link>
         </DropdownMenuItem>
+        {isSuperAdmin
+          ? (
+              <DropdownMenuItem asChild>
+                <Link href="/admin" className="flex items-center">
+                  <ShieldAlert className="mr-2 h-4 w-4" />
+                  <span>{t('nav.admin')}</span>
+                </Link>
+              </DropdownMenuItem>
+            )
+          : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} disabled={isSigningOut}>
           <LogOut className="mr-2 h-4 w-4" />

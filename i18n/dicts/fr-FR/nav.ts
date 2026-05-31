@@ -7,6 +7,7 @@ const nav = {
   news: 'Actualités produit',
   trash: 'Corbeille',
   settings: 'Paramètres',
+  admin: 'Admin',
 } as const
 
 export default nav

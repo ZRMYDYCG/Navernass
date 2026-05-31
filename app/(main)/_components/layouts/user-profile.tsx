@@ -1,6 +1,7 @@
 'use client'
 
-import { ChevronsUpDown, LogOut, User } from 'lucide-react'
+import { ChevronsUpDown, LogOut, ShieldAlert, User } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -17,6 +18,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/hooks/use-auth'
 import { useI18n } from '@/hooks/use-i18n'
+import { useSuperAdmin } from '@/hooks/use-super-admin'
 import { ProfileDialog } from './profile-dialog'
 
 interface UserProfileProps {
@@ -28,6 +30,7 @@ interface UserProfileProps {
 
 export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSettingsClick, compact = false }: UserProfileProps) {
   const { user, profile, signOut, loading } = useAuth()
+  const { isSuperAdmin } = useSuperAdmin()
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
@@ -142,6 +145,17 @@ export function UserProfile({ isCollapsed = false, isMobileOpen = false, onSetti
               <User className="mr-2 h-4 w-4" />
               <span>{t('settings.profile')}</span>
             </DropdownMenuItem>
+
+            {isSuperAdmin
+              ? (
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/admin">
+                      <ShieldAlert className="mr-2 h-4 w-4" />
+                      <span>{t('nav.admin')}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )
+              : null}
 
             <DropdownMenuSeparator />
 

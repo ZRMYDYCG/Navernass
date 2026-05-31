@@ -7,6 +7,7 @@ const nav = {
   news: 'プロダクトニュース',
   trash: 'ゴミ箱',
   settings: '設定',
+  admin: '管理',
 } as const
 
 export default nav

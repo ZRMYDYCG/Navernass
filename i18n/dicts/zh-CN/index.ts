@@ -1,3 +1,4 @@
+import admin from './admin'
 import auth from './auth'
 import chat from './chat'
 import common from './common'
@@ -28,6 +29,7 @@ const zhCN = {
   survey,
   tiptap,
   trash,
+  admin,
 } as const
 
 export default zhCN

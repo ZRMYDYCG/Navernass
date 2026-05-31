@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import type { UpdateNewsDto } from '@/lib/supabase/sdk/types'
+import { requireSuperAdmin } from '@/lib/admin-auth'
 import { NewsService } from '@/lib/supabase/sdk/services/news.service'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
@@ -20,6 +21,7 @@ export const GET = withErrorHandler(
 
 export const PUT = withErrorHandler(
   async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    await requireSuperAdmin()
     const supabase = await createClient()
     const newsService = new NewsService(supabase)
     const { id } = await params
@@ -31,6 +33,7 @@ export const PUT = withErrorHandler(
 
 export const DELETE = withErrorHandler(
   async (_req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    await requireSuperAdmin()
     const supabase = await createClient()
     const newsService = new NewsService(supabase)
     const { id } = await params

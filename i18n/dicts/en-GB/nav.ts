@@ -7,6 +7,7 @@ const nav = {
   news: 'Product News',
   trash: 'Trash',
   settings: 'Settings',
+  admin: 'Admin',
 } as const
 
 export default nav

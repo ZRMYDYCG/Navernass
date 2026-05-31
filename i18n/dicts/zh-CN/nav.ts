@@ -7,6 +7,7 @@ const nav = {
   news: '产品动态',
   trash: '回收站',
   settings: '设置',
+  admin: '后台管理',
 } as const
 
 export default nav

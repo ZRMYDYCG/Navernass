@@ -1,3 +1,4 @@
+import { getServerAdminContext, isConfiguredSuperAdminEmail, syncSuperAdminProfile } from '@/lib/admin-auth'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
@@ -6,18 +7,30 @@ export async function GET() {
   const { data: { user }, error } = await supabase.auth.getUser()
 
   if (error || !user) {
-    return NextResponse.json({ user: null, profile: null }, { status: 200 })
+    return NextResponse.json({ user: null, profile: null, isSuperAdmin: false }, { status: 200 })
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  let profile = null
 
-  if (profileError) {
-    return NextResponse.json({ user, profile: null }, { status: 200 })
+  if (isConfiguredSuperAdminEmail(user.email)) {
+    profile = await syncSuperAdminProfile(user)
+  } else {
+    const { data, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (!profileError) {
+      profile = data
+    }
   }
 
-  return NextResponse.json({ user, profile }, { status: 200 })
+  const adminContext = await getServerAdminContext()
+
+  return NextResponse.json({
+    user,
+    profile,
+    isSuperAdmin: Boolean(adminContext),
+  }, { status: 200 })
 }

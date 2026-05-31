@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import type { CreateNewsDto } from '@/lib/supabase/sdk/types'
+import { requireSuperAdmin } from '@/lib/admin-auth'
 import { NewsService } from '@/lib/supabase/sdk/services/news.service'
 import { withErrorHandler } from '@/lib/supabase/sdk/utils/handler'
 import { ApiResponseBuilder } from '@/lib/supabase/sdk/utils/response'
@@ -29,6 +30,7 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
 })
 
 export const POST = withErrorHandler(async (req: NextRequest) => {
+  await requireSuperAdmin()
   const supabase = await createClient()
   const newsService = new NewsService(supabase)
   const body: CreateNewsDto = await req.json()
@@ -37,7 +39,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     return ApiResponseBuilder.error(
       'Type, title and content are required',
       'INVALID_DATA',
-      400
+      400,
     )
   }
 
