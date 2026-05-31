@@ -132,8 +132,8 @@ And then I will say: look at this sunshine—the rainy season will never return.
   albumCollage: {
     versionLabel: 'Version',
     description: 'Narraverse keeps getting better — we\'re collecting feedback to improve the product.',
-    focusPhoto: 'Focus photo {{index}}',
-    photoAlt: 'Homepage album photo {{index}}',
+    dayAlt: 'Narraverse v0.14.0 feature showcase (light)',
+    nightAlt: 'Narraverse v0.14.0 feature showcase (dark)',
   },
   lightOrDay: {
     title: 'Switch day/night modes at will',

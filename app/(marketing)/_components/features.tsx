@@ -34,11 +34,11 @@ export default function Features() {
         <div className="container mx-auto p-4">
           <div className="w-full flex flex-col gap-4">
             <div className="w-full">
-              <AgentShowcase />
+              <AlbumCollage />
             </div>
 
             <div className="w-full">
-              <AlbumCollage />
+              <AgentShowcase />
             </div>
 
             <div className="w-full">

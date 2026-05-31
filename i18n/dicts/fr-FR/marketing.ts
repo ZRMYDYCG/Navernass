@@ -108,8 +108,8 @@ Et alors, je dirai : regarde ce soleil — la saison des pluies ne reviendra plu
   albumCollage: {
     versionLabel: 'Version',
     description: 'Narraverse s\'améliore sans cesse — nous recueillons les retours pour améliorer le produit.',
-    focusPhoto: 'Photo focus {{index}}',
-    photoAlt: 'Photo de l\'album d\'accueil {{index}}',
+    dayAlt: 'Présentation des fonctionnalités Narraverse v0.14.0 (clair)',
+    nightAlt: 'Présentation des fonctionnalités Narraverse v0.14.0 (sombre)',
   },
   lightOrDay: {
     title: 'Basculer entre les modes jour/nuit à volonté',

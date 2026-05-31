@@ -108,8 +108,8 @@ const marketing = {
   albumCollage: {
     versionLabel: '버전',
     description: 'Narraverse는 계속 더 좋아지고 있어요 — 피드백을 모아 제품을 개선하고 있습니다.',
-    focusPhoto: '포커스 사진 {{index}}',
-    photoAlt: '홈페이지 앨범 사진 {{index}}',
+    dayAlt: 'Narraverse v0.14.0 기능 소개 (라이트)',
+    nightAlt: 'Narraverse v0.14.0 기능 소개 (다크)',
   },
   lightOrDay: {
     title: '주/야간 모드를 자유롭게 전환',

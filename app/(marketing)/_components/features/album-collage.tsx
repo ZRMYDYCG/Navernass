@@ -1,40 +1,32 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Highlighter } from '@/components/ui/highlighter'
 import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 
-interface CollageImageProps {
+interface ShowcaseImageProps {
   src: string
   alt: string
-  sizes: string
-  quality?: number
   className?: string
-  wrapperClassName?: string
   loading?: 'eager' | 'lazy'
-  unoptimized?: boolean
 }
 
-function CollageImage({
+function ShowcaseImage({
   src,
   alt,
-  sizes,
-  quality = 80,
   className,
-  wrapperClassName,
   loading = 'lazy',
-  unoptimized = true,
-}: CollageImageProps) {
+}: ShowcaseImageProps) {
   const [isLoaded, setIsLoaded] = useState(false)
 
   return (
     <div
       className={cn(
-        'relative aspect-[2/1] overflow-hidden rounded-[calc(var(--radius)-6px)] border border-border/60 bg-muted/50',
-        wrapperClassName,
+        'relative aspect-[16/9] overflow-hidden rounded-[calc(var(--radius)-2px)] border border-border/60 bg-muted/50',
+        className,
       )}
     >
       {!isLoaded && (
@@ -49,169 +41,27 @@ function CollageImage({
         src={src}
         alt={alt}
         fill
-        sizes={sizes}
-        quality={quality}
+        sizes="(min-width: 1280px) 1200px, 100vw"
+        quality={90}
         draggable={false}
         onDragStart={(event) => {
           event.preventDefault()
         }}
         className={cn(
-          'object-cover transition-[transform,opacity] duration-500 ease-out',
+          'object-contain transition-opacity duration-500 ease-out',
           isLoaded ? 'opacity-100' : 'opacity-0',
-          className,
         )}
         loading={loading}
         onLoadingComplete={() => setIsLoaded(true)}
         onError={() => setIsLoaded(true)}
-        unoptimized={unoptimized}
+        unoptimized
       />
     </div>
   )
 }
 
-function PhotoPin({ className }: { className?: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={cn(
-        'pointer-events-none absolute left-1/2 top-1 z-20 -translate-x-1/2 -translate-y-1/2',
-        className,
-      )}
-    >
-      <div className="flex flex-col items-center">
-        <div className="relative h-4 w-4 rounded-full border border-primary/60 bg-destructive/80 shadow-paper-sm">
-          <div className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/70" />
-          <div className="absolute inset-0 rounded-full ring-1 ring-primary/20" />
-        </div>
-        <div className="-mt-0.5 h-3 w-[2px] rounded-full bg-primary/35 shadow-paper-sm" />
-      </div>
-    </div>
-  )
-}
-
-function DraggablePhotoPin({
-  className,
-  hidden,
-  isReattaching,
-}: {
-  className?: string
-  hidden?: boolean
-  isReattaching?: boolean
-}) {
-  return (
-    <PhotoPin
-      className={cn(
-        'transition-[opacity,transform] duration-200 ease-out',
-        hidden ? 'opacity-0 scale-95' : 'opacity-100 scale-100',
-        isReattaching && 'animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-200',
-        className,
-      )}
-    />
-  )
-}
-
-const LANDING_IMAGES = [
-  '/images/landingpage/01c3cd90f826d7e4ae8d90d365894eae.png',
-  '/images/landingpage/0cca92647217e848b0459cc6bd7d9e5d.png',
-  '/images/landingpage/1f70a81535e5ef796e09487133db44aa.png',
-  '/images/landingpage/20b4bd21996e28c2453808a75236e4bc.png',
-  '/images/landingpage/2bb5a46da800a6e8d0eb39fb6f24176d.png',
-  '/images/landingpage/3f86b14e5cbce19bdac9d589346fbbea.png',
-  '/images/landingpage/42a9cb91c9e3b8426e71853f7dee0651.png',
-  '/images/landingpage/4397d38f2b3a3289dacec399b5f4cc59.png',
-  '/images/landingpage/63e5c94d255e75ccabe5ca54e35ddb0d.png',
-  '/images/landingpage/a87cab7d9b1a8492fbbbcf66ef0d2250.png',
-  '/images/landingpage/c239bdf68ff856567047117ec97bb2c0.png',
-  '/images/landingpage/d601379664c81b2b9eb2f822c063627f.png',
-  '/images/landingpage/e379c4dfb6df620ff9542845210114cc.png',
-  '/images/landingpage/f0eaf48b7de60dc39f08a94b53526927.png',
-] as const
-
-const DESKTOP_LAYOUT = [
-  { top: '6%', left: '2%', width: 'clamp(200px, 18vw, 320px)', rotate: -8, depth: 4 },
-  { top: '9%', left: '18%', width: 'clamp(190px, 16vw, 290px)', rotate: -3, depth: 7 },
-  { top: '5%', left: '34%', width: 'clamp(210px, 18vw, 330px)', rotate: 6, depth: 5 },
-  { top: '10%', left: '53%', width: 'clamp(185px, 16vw, 280px)', rotate: -5, depth: 8 },
-  { top: '7%', left: '69%', width: 'clamp(200px, 17vw, 305px)', rotate: 4, depth: 6 },
-  { top: '33%', left: '8%', width: 'clamp(205px, 17vw, 315px)', rotate: 7, depth: 7 },
-  { top: '30%', left: '24%', width: 'clamp(185px, 16vw, 285px)', rotate: -6, depth: 5 },
-  { top: '36%', left: '41%', width: 'clamp(210px, 18vw, 330px)', rotate: 5, depth: 10 },
-  { top: '32%', left: '58%', width: 'clamp(190px, 16vw, 295px)', rotate: -8, depth: 6 },
-  { top: '35%', left: '75%', width: 'clamp(180px, 15vw, 270px)', rotate: 4, depth: 8 },
-  { top: '61%', left: '15%', width: 'clamp(210px, 18vw, 330px)', rotate: -4, depth: 11 },
-  { top: '57%', left: '34%', width: 'clamp(190px, 16vw, 300px)', rotate: 6, depth: 9 },
-  { top: '62%', left: '53%', width: 'clamp(205px, 17vw, 315px)', rotate: -5, depth: 10 },
-  { top: '58%', left: '70%', width: 'clamp(190px, 16vw, 290px)', rotate: 3, depth: 9 },
-] as const
-
-interface PhotoOffset { x: number, y: number }
-
 export function AlbumCollage() {
   const { t } = useI18n()
-  const [activeIndex, setActiveIndex] = useState(8)
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
-  const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
-  const [pinAnimation, setPinAnimation] = useState<{ index: number, nonce: number } | null>(null)
-  const [offsets, setOffsets] = useState<PhotoOffset[]>(() =>
-    LANDING_IMAGES.map(() => ({ x: 0, y: 0 })),
-  )
-
-  const offsetsRef = useRef(offsets)
-  useEffect(() => {
-    offsetsRef.current = offsets
-  }, [offsets])
-
-  const suppressClickRef = useRef(false)
-  const pinNonceRef = useRef(0)
-  const rafRef = useRef<number | null>(null)
-  const pendingRef = useRef<{ index: number, x: number, y: number } | null>(null)
-  const dragRef = useRef<{
-    index: number
-    pointerId: number
-    startX: number
-    startY: number
-    originX: number
-    originY: number
-    moved: boolean
-  } | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    }
-  }, [])
-
-  const scheduleOffsetUpdate = (index: number, x: number, y: number) => {
-    pendingRef.current = { index, x, y }
-    if (rafRef.current) return
-
-    rafRef.current = requestAnimationFrame(() => {
-      rafRef.current = null
-      const pending = pendingRef.current
-      pendingRef.current = null
-      if (!pending) return
-
-      setOffsets((prev) => {
-        if (!prev[pending.index]) return prev
-        const next = prev.slice()
-        next[pending.index] = { x: pending.x, y: pending.y }
-        return next
-      })
-    })
-  }
-
-  const startPinAnimation = (index: number) => {
-    pinNonceRef.current += 1
-    const nonce = pinNonceRef.current
-    setPinAnimation({ index, nonce })
-    window.setTimeout(() => {
-      setPinAnimation((current) => {
-        if (!current) return current
-        if (current.index !== index || current.nonce !== nonce) return current
-        return null
-      })
-    }, 240)
-  }
 
   return (
     <section className="w-full rounded-[calc(var(--radius)+4px)] bg-background p-4 shadow-paper-md md:p-5">
@@ -219,7 +69,7 @@ export function AlbumCollage() {
         <div>
           <h3 className="text-lg text-foreground">
             {t('marketing.albumCollage.versionLabel')}
-            <Highlighter action="underline" color="var(--primary)">v0.10.0</Highlighter>
+            <Highlighter action="underline" color="var(--primary)">v0.14.0</Highlighter>
             {' '}
             ❤️
           </h3>
@@ -230,166 +80,17 @@ export function AlbumCollage() {
       </div>
 
       <div className="rounded-[var(--radius)] border border-border/70 bg-background/60 p-3 md:p-4">
-        <div className="relative hidden h-[640px] overflow-hidden rounded-[calc(var(--radius)-2px)] bg-paper-texture md:block">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-background/50 via-transparent to-background/20" />
-          {LANDING_IMAGES.map((src, index) => {
-            const layout = DESKTOP_LAYOUT[index]
-            const isActive = activeIndex === index
-            const isDragging = draggingIndex === index
-            const isReattaching = pinAnimation?.index === index
-            const offset = offsets[index] ?? { x: 0, y: 0 }
-
-            return (
-              <button
-                key={src}
-                type="button"
-                className={cn(
-                  'group absolute select-none touch-none text-left focus-visible:outline-none',
-                  isDragging ? 'cursor-grabbing' : 'cursor-grab',
-                )}
-                style={{
-                  top: layout.top,
-                  left: layout.left,
-                  width: layout.width,
-                  zIndex: isDragging ? 90 : hoveredIndex === index ? 80 : isActive ? 60 : layout.depth,
-                  transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
-                }}
-                onPointerDown={(event) => {
-                  if (event.button !== 0) return
-
-                  const currentOffset = offsetsRef.current[index] ?? { x: 0, y: 0 }
-                  dragRef.current = {
-                    index,
-                    pointerId: event.pointerId,
-                    startX: event.clientX,
-                    startY: event.clientY,
-                    originX: currentOffset.x,
-                    originY: currentOffset.y,
-                    moved: false,
-                  }
-
-                  suppressClickRef.current = false
-                  setHoveredIndex(index)
-                  setActiveIndex(index)
-                  setDraggingIndex(index)
-                  try {
-                    event.currentTarget.setPointerCapture(event.pointerId)
-                  } catch {}
-                }}
-                onPointerMove={(event) => {
-                  const drag = dragRef.current
-                  if (!drag) return
-                  if (drag.pointerId !== event.pointerId) return
-                  if (drag.index !== index) return
-
-                  const dx = event.clientX - drag.startX
-                  const dy = event.clientY - drag.startY
-                  if (!drag.moved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
-                    drag.moved = true
-                  }
-                  scheduleOffsetUpdate(index, drag.originX + dx, drag.originY + dy)
-                }}
-                onPointerUp={(event) => {
-                  const drag = dragRef.current
-                  if (!drag) return
-                  if (drag.pointerId !== event.pointerId) return
-                  if (drag.index !== index) return
-
-                  suppressClickRef.current = drag.moved
-                  dragRef.current = null
-                  setDraggingIndex(null)
-                  setHoveredIndex(null)
-                  startPinAnimation(index)
-                  try {
-                    event.currentTarget.releasePointerCapture(event.pointerId)
-                  } catch {}
-                  window.setTimeout(() => {
-                    suppressClickRef.current = false
-                  }, 0)
-                }}
-                onPointerCancel={(event) => {
-                  const drag = dragRef.current
-                  if (!drag) return
-                  if (drag.pointerId !== event.pointerId) return
-                  if (drag.index !== index) return
-
-                  suppressClickRef.current = true
-                  dragRef.current = null
-                  setDraggingIndex(null)
-                  setHoveredIndex(null)
-                  startPinAnimation(index)
-                  try {
-                    event.currentTarget.releasePointerCapture(event.pointerId)
-                  } catch {}
-                  window.setTimeout(() => {
-                    suppressClickRef.current = false
-                  }, 0)
-                }}
-                onClick={() => {
-                  if (suppressClickRef.current) return
-                  setActiveIndex(index)
-                }}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                aria-label={t('marketing.albumCollage.focusPhoto', { index: index + 1 })}
-              >
-                <div
-                  className={cn(
-                    'relative rounded-[calc(var(--radius)-2px)] border border-border/80 bg-popover p-2 transition-all duration-300 ease-out',
-                    isActive
-                      ? 'translate-y-[-6px] scale-[1.04] shadow-paper-lg'
-                      : 'hover:translate-y-[-5px] hover:scale-[1.03] hover:shadow-paper-lg',
-                  )}
-                  style={{ rotate: `${isActive ? 0 : layout.rotate}deg` }}
-                >
-                  <DraggablePhotoPin hidden={isDragging} isReattaching={!isDragging && isReattaching} />
-                  <CollageImage
-                    src={src}
-                    alt={t('marketing.albumCollage.photoAlt', { index: index + 1 })}
-                    sizes="(min-width: 1536px) 320px, (min-width: 1280px) 290px, (min-width: 1024px) 250px, 220px"
-                    quality={80}
-                    className={cn(
-                      isActive ? 'scale-[1.03]' : 'group-hover:scale-[1.06]',
-                    )}
-                  />
-                </div>
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 md:hidden">
-          {LANDING_IMAGES.map((src, index) => {
-            const isActive = activeIndex === index
-            const rotate = index % 2 === 0 ? '-2deg' : '2deg'
-
-            return (
-              <button
-                key={src}
-                type="button"
-                className="w-[84vw] max-w-[360px] shrink-0 snap-center text-left focus-visible:outline-none"
-                onClick={() => setActiveIndex(index)}
-                aria-label={t('marketing.albumCollage.focusPhoto', { index: index + 1 })}
-              >
-                <div
-                  className={cn(
-                    'relative rounded-[var(--radius)] border border-border bg-popover p-2 transition-all duration-300',
-                    isActive ? 'shadow-paper-md ring-2 ring-ring' : 'shadow-paper-sm',
-                  )}
-                  style={{ rotate }}
-                >
-                  <PhotoPin className="top-2" />
-                  <CollageImage
-                    src={src}
-                    alt={t('marketing.albumCollage.photoAlt', { index: index + 1 })}
-                    sizes="360px"
-                    quality={80}
-                  />
-                </div>
-              </button>
-            )
-          })}
-        </div>
+        <ShowcaseImage
+          src="/v0.14.0-day.png"
+          alt={t('marketing.albumCollage.dayAlt')}
+          className="dark:hidden"
+          loading="eager"
+        />
+        <ShowcaseImage
+          src="/v0.14.0-night.png"
+          alt={t('marketing.albumCollage.nightAlt')}
+          className="hidden dark:block"
+        />
       </div>
     </section>
   )

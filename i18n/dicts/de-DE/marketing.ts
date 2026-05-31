@@ -108,8 +108,8 @@ Und dann werde ich sagen: Schau dir dieses Sonnenlicht an — die Regenzeit kehr
   albumCollage: {
     versionLabel: 'Version',
     description: 'Narraverse wird immer besser — wir sammeln Rückmeldungen, um das Produkt zu verbessern.',
-    focusPhoto: 'Fokusfoto {{index}}',
-    photoAlt: 'Homepage-Albumfoto {{index}}',
+    dayAlt: 'Narraverse v0.14.0 Feature-Übersicht (Hell)',
+    nightAlt: 'Narraverse v0.14.0 Feature-Übersicht (Dunkel)',
   },
   lightOrDay: {
     title: 'Tag-/Nachtmodus nach Belieben wechseln',

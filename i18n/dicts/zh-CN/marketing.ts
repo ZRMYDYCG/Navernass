@@ -132,8 +132,8 @@ const marketing = {
   albumCollage: {
     versionLabel: '版本号：',
     description: 'Narraverse 正在变得越来越好，我们也在不断地收集大家的反馈和建议来改进产品。',
-    focusPhoto: '聚焦照片 {{index}}',
-    photoAlt: '首页相册图片 {{index}}',
+    dayAlt: 'Narraverse v0.14.0 功能展示（浅色）',
+    nightAlt: 'Narraverse v0.14.0 功能展示（深色）',
   },
   lightOrDay: {
     title: '日夜模式随心切换',
