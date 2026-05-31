@@ -2,7 +2,7 @@
 
 import { Highlighter } from '@/components/ui/highlighter'
 import { useI18n } from '@/hooks/use-i18n'
-import { ThemeVideo } from './theme-video'
+import { FeatureGif } from './feature-gif'
 
 export function AiChatDemo() {
   const { t } = useI18n()
@@ -17,9 +17,9 @@ export function AiChatDemo() {
       </p>
 
       <div className="relative w-full h-[300px] rounded-lg overflow-hidden border border-border bg-muted">
-        <ThemeVideo
-          lightSrc="/ai-day.mp4"
-          darkSrc="/ai-night.mp4"
+        <FeatureGif
+          src="/aifuzhu.gif"
+          alt={t('marketing.aiChatDemo.title')}
         />
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { Highlighter } from '@/components/ui/highlighter'
 import { useI18n } from '@/hooks/use-i18n'
-import { ThemeVideo } from './theme-video'
+import { FeatureGif } from './feature-gif'
 
 export function NovelManagement() {
   const { t } = useI18n()
@@ -20,9 +20,9 @@ export function NovelManagement() {
       </p>
 
       <div className="relative w-full h-[300px] rounded-lg overflow-hidden border border-border bg-muted">
-        <ThemeVideo
-          lightSrc="/wirte-day.mp4"
-          darkSrc="/wirte-night.mp4"
+        <FeatureGif
+          src="/chengjing.gif"
+          alt={t('marketing.novelManagement.title')}
         />
       </div>
     </div>

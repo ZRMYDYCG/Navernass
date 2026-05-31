@@ -1,15 +1,28 @@
-import { Check } from 'lucide-react'
-import { Highlighter } from '@/components/ui/highlighter'
 import { useI18n } from '@/hooks/use-i18n'
+import { cn } from '@/lib/utils'
+
+type PricingPlan = {
+  name: string
+  price: string
+  description: string
+  features: string[]
+  highlighted?: boolean
+  frozen?: boolean
+  badge?: string
+  cta?: string
+  priceIsFree?: boolean
+  priceHint?: string
+}
 
 export function Pricing() {
   const { t } = useI18n()
 
-  const plans = [
+  const plans: PricingPlan[] = [
     {
       name: t('marketing.pricing.free.name'),
       price: t('marketing.pricing.free.price'),
       description: t('marketing.pricing.free.description'),
+      priceIsFree: true,
       features: [
         t('marketing.pricing.free.features.1'),
         t('marketing.pricing.free.features.2'),
@@ -22,6 +35,7 @@ export function Pricing() {
       name: t('marketing.pricing.pro.name'),
       price: t('marketing.pricing.pro.price'),
       description: t('marketing.pricing.pro.description'),
+      priceIsFree: true,
       features: [
         t('marketing.pricing.pro.features.1'),
         t('marketing.pricing.pro.features.2'),
@@ -29,18 +43,23 @@ export function Pricing() {
         t('marketing.pricing.pro.features.4'),
       ],
       highlighted: true,
+      badge: t('marketing.pricing.badge'),
+      cta: t('marketing.pricing.cta'),
     },
     {
-      name: t('marketing.pricing.team.name'),
-      price: t('marketing.pricing.team.price'),
-      description: t('marketing.pricing.team.description'),
+      name: t('marketing.pricing.subscription.name'),
+      price: t('marketing.pricing.subscription.price'),
+      priceHint: t('marketing.pricing.subscription.priceHint'),
+      description: t('marketing.pricing.subscription.description'),
       features: [
-        t('marketing.pricing.team.features.1'),
-        t('marketing.pricing.team.features.2'),
-        t('marketing.pricing.team.features.3'),
-        t('marketing.pricing.team.features.4'),
+        t('marketing.pricing.subscription.features.1'),
+        t('marketing.pricing.subscription.features.2'),
+        t('marketing.pricing.subscription.features.3'),
+        t('marketing.pricing.subscription.features.4'),
       ],
-      highlighted: false,
+      frozen: true,
+      badge: t('marketing.pricing.previewBadge'),
+      cta: t('marketing.pricing.ctaFrozen'),
     },
   ]
 
@@ -61,53 +80,76 @@ export function Pricing() {
           {plans.map((plan, i) => (
             <div
               key={i}
-              className={`relative flex flex-col p-6 md:p-8 rounded-2xl border transition-all duration-300
-                ${
-                  plan.highlighted
+              className={cn(
+                'relative flex flex-col p-6 md:p-8 rounded-2xl border transition-all duration-300',
+                plan.frozen
+                  ? 'border border-dashed border-border bg-card/70 shadow-paper-sm'
+                  : plan.highlighted
                     ? 'border-primary/50 shadow-paper-md bg-card/80 scale-100 md:scale-105 z-10'
-                    : 'border-border/50 shadow-paper-sm bg-card/40 hover:bg-card/60'
-                }
-              `}
+                    : 'border-border/50 shadow-paper-sm bg-card/40 hover:bg-card/60',
+              )}
+              aria-disabled={plan.frozen || undefined}
             >
-              {plan.highlighted && (
+              {plan.badge && (
                 <div className="absolute -top-3 left-0 right-0 flex justify-center">
-                  <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full shadow-sm">
-                    {t('marketing.pricing.badge')}
+                  <span
+                    className={cn(
+                      'text-xs font-medium px-3 py-1 rounded-full shadow-sm tracking-wide',
+                      plan.frozen
+                        ? 'bg-muted text-muted-foreground border border-border'
+                        : 'bg-primary text-primary-foreground',
+                    )}
+                  >
+                    {plan.badge}
                   </span>
                 </div>
               )}
 
-              <div className="mb-6">
+              <div className="relative mb-6">
                 <h3 className="text-xl font-medium text-foreground mb-2">{plan.name}</h3>
-                <div className="flex items-baseline gap-1 mb-3">
-                  <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                  {plan.price !== '免费' && plan.price !== 'Free' && plan.price !== '0' && (
+                <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span
+                    className={cn(
+                      'font-bold text-foreground',
+                      plan.frozen ? 'text-3xl' : 'text-4xl',
+                    )}
+                  >
+                    {plan.price}
+                  </span>
+                  {plan.priceHint && (
+                    <span className="text-xs font-medium text-muted-foreground rounded-full border border-border bg-muted/50 px-2 py-0.5">
+                      {plan.priceHint}
+                    </span>
+                  )}
+                  {!plan.priceIsFree && !plan.frozen && (
                     <span className="text-sm text-muted-foreground">/mo</span>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground min-h-[40px]">{plan.description}</p>
+                <p className="text-sm text-muted-foreground min-h-[40px] leading-relaxed">{plan.description}</p>
               </div>
 
-              <div className="flex-1 space-y-4 mb-8">
+              <ul className="flex-1 space-y-2.5 mb-8 text-sm text-foreground/85 leading-relaxed">
                 {plan.features.map((feature, j) => (
-                  <div key={j} className="flex items-start gap-3 text-sm text-foreground/80">
-                    <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                    <span>{feature}</span>
-                  </div>
+                  <li key={j} className="pl-3 border-l-2 border-border/80">
+                    {feature}
+                  </li>
                 ))}
-              </div>
+              </ul>
 
               <button
                 type="button"
-                className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors
-                  ${
-                    plan.highlighted
+                disabled={plan.frozen}
+                aria-disabled={plan.frozen}
+                className={cn(
+                  'w-full py-2.5 rounded-lg text-sm font-medium transition-colors',
+                  plan.frozen
+                    ? 'cursor-not-allowed bg-muted/80 text-muted-foreground border border-border'
+                    : plan.highlighted
                       ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
-                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                  }
-                `}
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+                )}
               >
-                {t('marketing.pricing.cta')}
+                {plan.cta ?? t('marketing.pricing.cta')}
               </button>
             </div>
           ))}
