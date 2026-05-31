@@ -15,19 +15,6 @@ export function EmptyState({ mode = 'agent' }: EmptyStateProps) {
 
   return (
     <div className="h-full flex flex-col px-6 relative">
-      <div className="flex items-center justify-center gap-2 pt-10 shrink-0">
-        <Image
-          src="/logo.png"
-          width={20}
-          height={20}
-          alt={t('editor.rightPanel.empty.brandLogoAlt')}
-          className="shrink-0"
-        />
-        <span className="text-sm font-serif text-foreground tracking-tight">
-          {t('editor.rightPanel.empty.brandName')}
-        </span>
-      </div>
-
       <div className="flex-1 flex flex-col items-center justify-center text-center relative min-h-0">
         <div className="absolute inset-0 overflow-hidden pointer-events-none hidden dark:block">
           <div className="absolute top-[15%] left-[10%] w-[60%] h-[0.5px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent rotate-[-15deg] animate-pulse [animation-duration:3s]" />

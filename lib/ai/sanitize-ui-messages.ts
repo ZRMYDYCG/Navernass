@@ -42,6 +42,10 @@ export function sanitizeUIMessagePartsForDisplay(parts: unknown[]): unknown[] {
     const part = raw as Record<string, unknown> | null
     if (!part || typeof part !== 'object' || typeof part.type !== 'string') continue
 
+    if (part.type === 'data-chapter-ref' || part.type === 'data-volume-ref') {
+      continue
+    }
+
     if (!isToolPart(part)) {
       out.push(part)
       continue
@@ -70,6 +74,10 @@ export function sanitizeUIMessagePartsForModel(parts: unknown[]): unknown[] {
   for (const raw of parts) {
     const part = raw as Record<string, unknown> | null
     if (!part || typeof part !== 'object' || typeof part.type !== 'string') continue
+
+    if (part.type === 'data-chapter-ref' || part.type === 'data-volume-ref') {
+      continue
+    }
 
     if (!isToolPart(part)) {
       out.push(part)

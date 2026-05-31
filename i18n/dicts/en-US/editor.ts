@@ -554,8 +554,6 @@ const editor = {
     empty: {
       title: 'AI Writing Assistant',
       description: 'Continue the plot, refine the prose, and polish dialogue with AI.',
-      brandName: 'Versakit Lab',
-      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: 'Ask mode',
@@ -583,6 +581,8 @@ const editor = {
       title: 'Select chapters',
       searchPlaceholder: 'Search chapters...',
       empty: 'No chapters',
+      volumesSection: 'Volumes',
+      chaptersSection: 'Chapters',
       noResults: 'No matching chapters',
       selectedPrefix: 'Selected',
       selectedSuffix: 'chapters',
@@ -603,11 +603,11 @@ const editor = {
         agent: 'Full agent — edit, continue, and manage chapters',
       },
       placeholder: {
-        ask: 'Ask about plot, lore, or prose…',
-        plan: 'Help me plan the story and save to a plan file…',
-        outline: 'Help me organize chapter outlines in the tree…',
-        worldbook: 'Help me organize worldbuilding entries…',
-        agent: 'Continue, polish, edit, or organize lore…',
+        ask: 'Ask about plot, lore, or prose — type @ for chapters or volumes',
+        plan: 'Plan your story — type @ for chapters or volumes',
+        outline: 'Organize outlines — type @ for chapters or volumes',
+        worldbook: 'Organize worldbuilding — type @ for chapters or volumes',
+        agent: 'Continue, polish, or edit — type @ for chapters or volumes',
       },
     },
     history: {

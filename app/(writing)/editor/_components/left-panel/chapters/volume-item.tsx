@@ -13,6 +13,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { useI18n } from '@/hooks/use-i18n'
+import { setVolumeAttachmentDragData } from '@/lib/editor/chapter-attachment-drag'
 import { cn } from '@/lib/utils'
 import { HoverActionBar, HoverActionButton } from './hover-action-button'
 
@@ -127,7 +128,17 @@ export function VolumeItem({
                 />
               </button>
 
-              <div className="flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
+              <div
+                className="flex-1 min-w-0 cursor-grab active:cursor-grabbing"
+                draggable
+                onDragStart={(e) => {
+                  setVolumeAttachmentDragData(e.dataTransfer, {
+                    id: volume.id,
+                    title: volume.title,
+                  })
+                }}
+                onClick={onToggle}
+              >
                 <div className="flex items-center gap-1.5">
                   <BookOpen className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                   <h3 className="text-[12px] font-medium text-foreground truncate leading-snug">

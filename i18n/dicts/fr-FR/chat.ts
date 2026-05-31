@@ -24,6 +24,7 @@ const chat = {
     placeholder: 'Co-écrivez votre univers romanesque avec l\'IA...',
     waiting: 'En attente de la conversation...',
     send: 'Envoyer (Entrée)',
+    sendLabel: 'Envoyer',
     voice: 'Saisie vocale',
   },
   welcomeHeader: {

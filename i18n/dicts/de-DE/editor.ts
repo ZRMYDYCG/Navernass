@@ -554,8 +554,6 @@ const editor = {
     empty: {
       title: 'KI-Schreibassistent',
       description: 'Setzen Sie den Plot fort, verfeinern Sie Prosa und polieren Sie Dialoge mit KI.',
-      brandName: 'Versakit Lab',
-      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: 'Fragemodus',
@@ -583,6 +581,8 @@ const editor = {
       title: 'Kapitel auswählen',
       searchPlaceholder: 'Kapitel suchen...',
       empty: 'Keine Kapitel',
+      volumesSection: 'Bände',
+      chaptersSection: 'Kapitel',
       noResults: 'Keine passenden Kapitel',
       selectedPrefix: 'Ausgewählt',
       selectedSuffix: 'Kapitel',
@@ -603,11 +603,11 @@ const editor = {
         agent: 'Voller Agent — bearbeiten, fortsetzen, Kapitel verwalten',
       },
       placeholder: {
-        ask: 'Frage zu Plot, Lore oder Stil…',
-        plan: 'Story planen und in Plan-Datei speichern…',
-        outline: 'Kapitelgliederung im Baum organisieren…',
-        worldbook: 'Worldbuilding-Einträge organisieren…',
-        agent: 'Fortsetzen, polieren, bearbeiten oder Lore ordnen…',
+        ask: 'Frage zu Plot, Lore oder Stil — @ für Kapitelkontext',
+        plan: 'Story planen — @ für Kapitelbezug',
+        outline: 'Gliederung organisieren — @ für Kapitelbezug',
+        worldbook: 'Worldbuilding ordnen — @ für Kapitelbezug',
+        agent: 'Fortsetzen, polieren, bearbeiten — @ für Kapitelbezug',
       },
     },
     history: {

@@ -554,8 +554,6 @@ const editor = {
     empty: {
       title: 'AI 寫作助手',
       description: '我可以幫你續寫劇情、優化文字、潤飾對話，讓創作更輕鬆',
-      brandName: 'Versakit Lab',
-      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: '提問模式',
@@ -583,6 +581,8 @@ const editor = {
       title: '選擇章節',
       searchPlaceholder: '搜尋章節...',
       empty: '暫無章節',
+      volumesSection: '卷',
+      chaptersSection: '章節',
       noResults: '未找到匹配的章節',
       selectedPrefix: '已選擇',
       selectedSuffix: '個章節',
@@ -603,11 +603,11 @@ const editor = {
         agent: '完整代理，可改稿、續寫、管理章節',
       },
       placeholder: {
-        ask: '問我劇情、設定、文筆建議…',
-        plan: '幫我梳理故事規劃，寫入規劃文件…',
-        outline: '幫我整理章節大綱，寫入大綱樹…',
-        worldbook: '幫我整理世界觀設定，寫入設定庫…',
-        agent: '續寫、潤色、改稿，或整理設定…',
+        ask: '問我劇情、設定或文筆，@ 可附上章節',
+        plan: '幫我梳理故事規劃，@ 可引用相關章節',
+        outline: '幫我整理章節大綱，@ 可引用章節',
+        worldbook: '幫我整理世界觀設定，@ 可引用章節',
+        agent: '續寫、潤色或改稿，@ 可引用章節',
       },
     },
     history: {

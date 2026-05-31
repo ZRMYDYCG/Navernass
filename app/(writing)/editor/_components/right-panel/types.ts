@@ -27,4 +27,5 @@ export interface ModelOption {
   value: AiModel
   label: string
   isThinking?: boolean
+  icon: React.ComponentType<{ className?: string }>
 }

@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
+import { setChapterAttachmentDragData } from '@/lib/editor/chapter-attachment-drag'
 import { selectOrderedChapters, useChaptersStore } from '@/store'
 
 interface ChapterMentionPickerProps {
@@ -68,7 +69,7 @@ export function ChapterMentionPicker({
           setOpen(v => !v)
         }}
         className={cn(
-          'flex items-center gap-1 px-2 py-1 text-xs bg-background hover:bg-accent rounded-md transition-colors border border-border shadow-sm',
+          'flex h-8 items-center gap-1 px-2 text-xs bg-background hover:bg-accent rounded-md transition-colors border border-border/80',
           open && 'bg-accent',
           disabled && 'opacity-50 cursor-not-allowed',
         )}
@@ -127,9 +128,16 @@ export function ChapterMentionPicker({
                           <button
                             key={chapter.id}
                             type="button"
+                            draggable
+                            onDragStart={(e) => {
+                              setChapterAttachmentDragData(e.dataTransfer, {
+                                id: chapter.id,
+                                title: chapter.title,
+                              })
+                            }}
                             onClick={() => toggleChapter(chapter)}
                             className={cn(
-                              'w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-xs transition-colors',
+                              'w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-xs transition-colors cursor-grab active:cursor-grabbing',
                               isSelected
                                 ? 'bg-accent text-foreground'
                                 : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',

@@ -1,5 +1,7 @@
 const marketing = {
   hero: {
+    brandName: 'Versakit Lab',
+    brandLogoAlt: 'Versakit Lab logo',
     titlePart1: 'Redonner à l\'écriture',
     highlight1: 'pureté',
     connector: 'et',

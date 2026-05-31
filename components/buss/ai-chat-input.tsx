@@ -46,8 +46,15 @@ export interface AiChatInputProps {
   placeholder?: string
   disabled?: boolean
   isSending?: boolean
-  /** 输入框上方引用区：章节标签、问卷引用等 */
+  /** @deprecated 请使用 inputLeading，在输入框内部展示附件激活块 */
   references?: ReactNode
+  /** 输入框内部顶部：章节激活块等（Cursor 式内嵌附件） */
+  inputLeading?: ReactNode
+  /** 拖放章节等到输入区 */
+  onInputDrop?: (event: React.DragEvent<HTMLDivElement>) => void
+  hasChapterDrop?: (dataTransfer: DataTransfer) => boolean
+  isInputDropActive?: boolean
+  onInputDragStateChange?: (active: boolean) => void
   /** 卡片底部工具栏：模式、模型、章节选择等 */
   toolbar?: ReactNode
   showVoice?: boolean
@@ -55,6 +62,9 @@ export interface AiChatInputProps {
   variant?: 'default' | 'compact'
   className?: string
   maxHeight?: number
+  /** 自定义输入区（如内联 @ 提及编辑器），替换 textarea */
+  inputSlot?: ReactNode
+  canSendOverride?: boolean
 }
 
 export function AiChatInput({
@@ -65,12 +75,19 @@ export function AiChatInput({
   disabled = false,
   isSending = false,
   references,
+  inputLeading,
+  onInputDrop,
+  hasChapterDrop,
+  isInputDropActive = false,
+  onInputDragStateChange,
   toolbar,
   showVoice = false,
   centered = false,
   variant = 'default',
   className,
   maxHeight,
+  inputSlot,
+  canSendOverride,
 }: AiChatInputProps) {
   const { t } = useI18n()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -79,9 +96,9 @@ export function AiChatInput({
   const isControlled = value !== undefined
   const text = isControlled ? value : internalValue
   const isCompact = variant === 'compact'
-  const resolvedMaxHeight = maxHeight ?? (isCompact ? 96 : 180)
-  const minTextareaHeight = isCompact ? 24 : 56
-  const canSend = text.trim().length > 0 && !disabled && !isSending
+  const resolvedMaxHeight = maxHeight ?? (isCompact ? 168 : 180)
+  const minTextareaHeight = isCompact ? 72 : 56
+  const canSend = (canSendOverride ?? text.trim().length > 0) && !disabled && !isSending
 
   const setText = useCallback((next: string) => {
     if (!isControlled) setInternalValue(next)
@@ -104,13 +121,15 @@ export function AiChatInput({
 
   const handleSend = async () => {
     if (!canSend) return
-    const message = text.trim()
+    const message = inputSlot ? undefined : text.trim()
     try {
-      await Promise.resolve(onSend(message))
-      setText('')
-      requestAnimationFrame(() => adjustHeight())
+      await Promise.resolve(onSend(message ?? text.trim()))
+      if (!inputSlot) {
+        setText('')
+        requestAnimationFrame(() => adjustHeight())
+      }
     } finally {
-      textareaRef.current?.focus()
+      if (!inputSlot) textareaRef.current?.focus()
     }
   }
 
@@ -121,104 +140,150 @@ export function AiChatInput({
     }
   }
 
+  const canAcceptDrop = Boolean(onInputDrop && hasChapterDrop)
+
+  const handleInputDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!canAcceptDrop || !hasChapterDrop!(e.dataTransfer)) return
+    e.preventDefault()
+    onInputDragStateChange?.(true)
+  }
+
+  const handleInputDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!canAcceptDrop || !hasChapterDrop!(e.dataTransfer)) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+    onInputDragStateChange?.(true)
+  }
+
+  const handleInputDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!canAcceptDrop) return
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return
+    onInputDragStateChange?.(false)
+  }
+
+  const handleInputDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!canAcceptDrop || !hasChapterDrop!(e.dataTransfer)) return
+    e.preventDefault()
+    onInputDragStateChange?.(false)
+    onInputDrop!(e)
+  }
+
+  const leading = inputLeading ?? references
+
   return (
     <div className={cn('w-full', centered && 'mx-auto max-w-4xl', className)}>
       <div
         className={cn(
-          'bg-card rounded-xl border border-border transition-all flex flex-col focus-within:border-ring focus-within:shadow-sm',
+          'bg-card rounded-xl border border-border overflow-hidden flex flex-col',
+          'transition-[border-color,box-shadow] duration-200',
+          'focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/25 focus-within:shadow-paper-sm',
         )}
       >
-        {references ? (
-          <div className={cn('border-b border-border/50', isCompact ? 'px-2.5 pt-2 pb-1.5' : 'px-3 pt-3 pb-2')}>
-            {references}
-          </div>
-        ) : null}
-
         <div
           className={cn(
-            'flex gap-2',
-            isCompact ? 'items-end px-2.5 py-2' : 'items-center px-4 py-4',
+            'relative',
+            isCompact ? 'min-h-[96px] px-3 py-3' : 'px-4 py-4',
+            canAcceptDrop && isInputDropActive && 'bg-accent/30 ring-1 ring-inset ring-ring/30',
           )}
+          onDragEnter={canAcceptDrop ? handleInputDragEnter : undefined}
+          onDragOver={canAcceptDrop ? handleInputDragOver : undefined}
+          onDragLeave={canAcceptDrop ? handleInputDragLeave : undefined}
+          onDrop={canAcceptDrop ? handleInputDrop : undefined}
         >
-          <Textarea
-            ref={textareaRef}
-            value={text}
-            onChange={(e) => {
-              setText(e.target.value)
-              adjustHeight()
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder ?? t('chat.input.placeholder')}
-            disabled={disabled}
-            rows={1}
-            className={cn(
-              'input-area-scrollbar flex-1 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 p-0',
-              'text-foreground placeholder:text-muted-foreground leading-relaxed',
-              isCompact ? 'min-h-0 text-[13px]' : 'min-h-[56px] text-base font-serif',
-            )}
-            style={{ maxHeight: resolvedMaxHeight }}
-          />
-
-          <div className={cn('flex shrink-0 items-center gap-1.5', isCompact && 'pb-0.5')}>
-            {showVoice ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsRecording(v => !v)}
+          {inputSlot ?? (
+            <>
+              {leading ? (
+                <div className="mb-2">
+                  {leading}
+                </div>
+              ) : null}
+              <Textarea
+                ref={textareaRef}
+                value={text}
+                onChange={(e) => {
+                  setText(e.target.value)
+                  adjustHeight()
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholder ?? t('chat.input.placeholder')}
                 disabled={disabled}
+                rows={isCompact ? 3 : 1}
                 className={cn(
-                  'text-muted-foreground hover:text-foreground hover:bg-accent rounded-full',
-                  isCompact ? 'h-8 w-8' : 'h-9 w-9',
-                  isRecording && 'text-destructive animate-pulse',
+                  'input-area-scrollbar w-full resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 p-0',
+                  'text-foreground placeholder:text-muted-foreground/80',
+                  leading ? 'mt-2' : '',
+                  isCompact
+                    ? 'min-h-[72px] text-sm leading-relaxed'
+                    : 'min-h-[56px] text-base font-serif leading-relaxed',
                 )}
-                aria-label={t('chat.input.voice')}
-              >
-                <Mic className={cn(isCompact ? 'w-4 h-4' : 'w-5 h-5')} />
-              </Button>
-            ) : null}
-
-            <Button
-              type="button"
-              onClick={() => void handleSend()}
-              disabled={!canSend}
-              size="icon"
-              className={cn(
-                'group/send bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed transition-all duration-300',
-                isCompact ? 'h-8 w-8 rounded-md' : 'h-9 w-9 rounded-lg',
-                canSend && [
-                  'shadow-[0_0_10px_color-mix(in_oklab,var(--primary)_32%,transparent)]',
-                  'hover:shadow-[0_0_16px_color-mix(in_oklab,var(--primary)_48%,transparent)]',
-                ],
-                isSending
-                  ? 'disabled:opacity-100'
-                  : 'disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none',
-              )}
-              aria-busy={isSending}
-              aria-label={t('chat.input.send')}
-              title={t('chat.input.send')}
-            >
-              {isSending
-                ? (
-                    <span className="block w-3 h-3 bg-current rounded-sm animate-pulse" />
-                  )
-                : (
-                    <SendIconSwap compact={isCompact} />
-                  )}
-            </Button>
-          </div>
+                style={{ maxHeight: resolvedMaxHeight }}
+              />
+            </>
+          )}
         </div>
 
         {toolbar ? (
           <div
             className={cn(
-              'flex flex-wrap items-center gap-2 border-t border-border/50',
-              isCompact ? 'px-2.5 py-1.5' : 'px-3 py-2',
+              'flex flex-wrap items-center gap-1.5 border-t border-border/60 bg-muted/25',
+              isCompact ? 'px-2.5 py-2' : 'px-3 py-2',
             )}
           >
             {toolbar}
           </div>
         ) : null}
+
+        <div
+          className={cn(
+            'flex items-center gap-2 border-t border-border/60',
+            isCompact ? 'px-2.5 py-2' : 'px-3 py-2.5',
+          )}
+        >
+          {showVoice ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsRecording(v => !v)}
+              disabled={disabled}
+              className={cn(
+                'shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full',
+                isCompact ? 'h-8 w-8' : 'h-9 w-9',
+                isRecording && 'text-destructive animate-pulse',
+              )}
+              aria-label={t('chat.input.voice')}
+            >
+              <Mic className={cn(isCompact ? 'w-4 h-4' : 'w-5 h-5')} />
+            </Button>
+          ) : null}
+
+          <Button
+            type="button"
+            onClick={() => void handleSend()}
+            disabled={!canSend}
+            className={cn(
+              'group/send flex-1 w-full min-w-0 gap-2 font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed transition-colors duration-200',
+              isCompact ? 'h-9 rounded-md text-sm' : 'h-10 rounded-lg text-sm',
+              isSending
+                ? 'disabled:opacity-100'
+                : 'disabled:bg-muted disabled:text-muted-foreground',
+            )}
+            aria-busy={isSending}
+            aria-label={t('chat.input.send')}
+            title={t('chat.input.send')}
+          >
+            {isSending
+              ? (
+                  <span className="block w-3 h-3 bg-current rounded-sm animate-pulse" />
+                )
+              : (
+                  <>
+                    <SendIconSwap compact={isCompact} />
+                    <span>{t('chat.input.sendLabel')}</span>
+                  </>
+                )}
+          </Button>
+        </div>
       </div>
     </div>
   )

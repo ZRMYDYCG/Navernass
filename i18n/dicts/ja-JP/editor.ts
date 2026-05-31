@@ -554,8 +554,6 @@ const editor = {
     empty: {
       title: 'AI執筆アシスタント',
       description: 'AIと一緒にプロットを進め、文章を整え、会話を磨きましょう。',
-      brandName: 'Versakit Lab',
-      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: '質問モード',
@@ -583,6 +581,8 @@ const editor = {
       title: '章を選択',
       searchPlaceholder: '章を検索...',
       empty: '章がありません',
+      volumesSection: '巻',
+      chaptersSection: '章',
       noResults: '一致する章がありません',
       selectedPrefix: '選択',
       selectedSuffix: '章',
@@ -603,11 +603,11 @@ const editor = {
         agent: 'フルエージェント — 改稿・続き書き・章管理',
       },
       placeholder: {
-        ask: 'プロット、設定、文体について質問…',
-        plan: '物語の計画を整理して計画ファイルに保存…',
-        outline: '章のアウトラインを整理してツリーに保存…',
-        worldbook: '世界観設定を整理してライブラリに保存…',
-        agent: '続き書き、推敲、改稿、設定整理…',
+        ask: 'プロット・設定・文体について質問。@ で章を添付',
+        plan: '物語の計画を整理。@ で章を参照',
+        outline: '章のアウトラインを整理。@ で章を参照',
+        worldbook: '世界観設定を整理。@ で章を参照',
+        agent: '続き書き・推敲・改稿。@ で章を参照',
       },
     },
     history: {

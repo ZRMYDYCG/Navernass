@@ -554,8 +554,6 @@ const editor = {
     empty: {
       title: 'Assistant d\'écriture IA',
       description: 'Poursuivez l\'intrigue, affinez le texte et peaufinez les dialogues avec l\'IA.',
-      brandName: 'Versakit Lab',
-      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: 'Mode Demander',
@@ -583,6 +581,8 @@ const editor = {
       title: 'Sélectionner des chapitres',
       searchPlaceholder: 'Rechercher des chapitres...',
       empty: 'Aucun chapitre',
+      volumesSection: 'Volumes',
+      chaptersSection: 'Chapitres',
       noResults: 'Aucun résultat',
       selectedPrefix: 'Sélectionné',
       selectedSuffix: 'chapitres',
@@ -603,11 +603,11 @@ const editor = {
         agent: 'Agent complet — révision, continuation et gestion des chapitres',
       },
       placeholder: {
-        ask: 'Question sur l\'intrigue, le lore ou le style…',
-        plan: 'Planifier l\'histoire et l\'enregistrer dans un fichier Plan…',
-        outline: 'Organiser les plans de chapitres dans l\'arbre…',
-        worldbook: 'Organiser les entrées de worldbuilding…',
-        agent: 'Continuer, peaufiner, réviser ou organiser le lore…',
+        ask: 'Question sur l\'intrigue, le lore ou le style — @ pour joindre un chapitre',
+        plan: 'Planifier l\'histoire — @ pour référencer des chapitres',
+        outline: 'Organiser les plans — @ pour référencer des chapitres',
+        worldbook: 'Organiser le worldbuilding — @ pour référencer des chapitres',
+        agent: 'Continuer, peaufiner ou réviser — @ pour référencer des chapitres',
       },
     },
     history: {

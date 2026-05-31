@@ -3,19 +3,17 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
-import { ChapterMentionPicker } from './chapter-selector'
 import { EmptyState } from './empty-state'
 import { Header } from './header'
 import { MessageList } from './message-list'
 import { ModeSelector } from './mode-selector'
 import { ModelSelector } from './model-selector'
-import { AiChatInput } from '@/components/buss'
+import { ChapterChatInput } from './chapter-chat-input'
 import { ChatActionsProvider } from './parts/chat-actions-context'
 import type { FormSubmitPayload } from './parts/chat-actions-context'
 import { MessageErrorFallback } from './message-error-fallback'
 import { MessageErrorBoundary } from './message-error-boundary'
 import { RecentConversations } from './recent-conversations'
-import { SelectedChapters } from './selected-chapters'
 import { useNovelChat } from './novel-chat'
 
 export default function RightPanel() {
@@ -31,7 +29,6 @@ export default function RightPanel() {
     mode,
     model,
     input,
-    selectedChapters,
     conversations,
     currentConversationId,
     isDraftConversation,
@@ -86,10 +83,6 @@ export default function RightPanel() {
     isFormSubmitted: (formKey: string) => submittedFormKeys.has(formKey),
     isChatLoading: isLoading,
   }), [submitFormResponse, submittedFormKeys, isLoading])
-
-  const handleRemoveChapter = (chapterId: string) => {
-    setSelectedChapters(prev => prev.filter(c => c.id !== chapterId))
-  }
 
   return (
     <div className="h-full w-full bg-transparent relative">
@@ -164,35 +157,19 @@ export default function RightPanel() {
               onSelect={handleSelectConversation}
             />
           )}
-          <AiChatInput
+          <ChapterChatInput
             value={input}
             onChange={setInput}
-            onSend={text => handleSend(text)}
+            onSend={() => handleSend()}
             placeholder={t(`editor.rightPanel.mode.placeholder.${mode}`)}
             disabled={isLoading || !novelId}
             isSending={isLoading}
             variant="compact"
-            references={
-              selectedChapters.length > 0
-                ? (
-                    <SelectedChapters
-                      chapters={selectedChapters}
-                      onRemove={handleRemoveChapter}
-                    />
-                  )
-                : undefined
-            }
-            toolbar={(
-              <>
-                <ChapterMentionPicker
-                  selectedChapters={selectedChapters}
-                  onSelectionChange={setSelectedChapters}
-                  disabled={!novelId}
-                />
-                <ModeSelector value={mode} onChange={setMode} />
-                <ModelSelector value={model} onChange={setModel} />
-              </>
-            )}
+            onSelectionChange={setSelectedChapters}
+            mode={mode}
+            model={model}
+            onModeChange={setMode}
+            onModelChange={setModel}
           />
         </div>
       </div>

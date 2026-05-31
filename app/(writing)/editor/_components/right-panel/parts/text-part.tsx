@@ -25,9 +25,9 @@ function TextPartInner({ part, role, isStreaming }: TextPartProps) {
 
   if (role === 'user') {
     return (
-      <p className="whitespace-pre-wrap break-words leading-snug text-[12px]">
+      <span className="whitespace-pre-wrap break-words leading-snug text-[12px]">
         {text}
-      </p>
+      </span>
     )
   }
 

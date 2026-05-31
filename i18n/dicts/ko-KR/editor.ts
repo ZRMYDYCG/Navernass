@@ -554,8 +554,6 @@ const editor = {
     empty: {
       title: 'AI 글쓰기 도우미',
       description: '플롯을 이어가고, 문장을 다듬고, 대사를 윤문하는 데 AI를 활용하세요.',
-      brandName: 'Versakit Lab',
-      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: '질문 모드',
@@ -583,6 +581,8 @@ const editor = {
       title: '장 선택',
       searchPlaceholder: '장 검색...',
       empty: '장이 없습니다',
+      volumesSection: '권',
+      chaptersSection: '장',
       noResults: '일치하는 장이 없습니다',
       selectedPrefix: '선택됨',
       selectedSuffix: '개 장',
@@ -603,11 +603,11 @@ const editor = {
         agent: '전체 에이전트 — 교정·이어쓰기·챕터 관리',
       },
       placeholder: {
-        ask: '플롯, 설정, 문체에 대해 질문…',
-        plan: '스토리 기획을 정리해서 기획 파일에 저장…',
-        outline: '장 개요를 정리해서 개요 트리에 저장…',
-        worldbook: '세계관 설정을 정리해서 라이브러리에 저장…',
-        agent: '이어쓰기, 다듬기, 교정, 설정 정리…',
+        ask: '플롯·설정·문체에 대해 질문. @ 로 장 첨부',
+        plan: '스토리 기획 정리. @ 로 장 참조',
+        outline: '장 개요 정리. @ 로 장 참조',
+        worldbook: '세계관 설정 정리. @ 로 장 참조',
+        agent: '이어쓰기·다듬기·교정. @ 로 장 참조',
       },
     },
     history: {

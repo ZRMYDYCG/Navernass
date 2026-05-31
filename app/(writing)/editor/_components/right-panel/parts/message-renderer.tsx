@@ -76,7 +76,7 @@ function MessageRendererInner({ novelId, message, isStreaming = false }: Message
                   className={cn(
                     'text-[12px] text-foreground transition-all duration-200',
                     isUser
-                      ? 'rounded-lg px-2.5 py-1.5 bg-secondary w-fit max-w-full'
+                      ? 'rounded-lg px-2.5 py-1.5 bg-secondary w-fit max-w-full flex flex-wrap items-center gap-x-0.5 gap-y-1'
                       : 'px-0.5 py-0.5 agui-assistant-stream',
                   )}
                 >

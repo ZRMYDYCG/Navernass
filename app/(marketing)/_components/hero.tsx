@@ -2,6 +2,7 @@
 
 import type { NovelFormData } from '@/app/(main)/novels/types'
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -105,6 +106,19 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
+        <div className="mb-6 flex items-center justify-center gap-2">
+          <Image
+            src="/logo.png"
+            width={20}
+            height={20}
+            alt={t('marketing.hero.brandLogoAlt')}
+            className="shrink-0"
+          />
+          <span className="font-serif text-sm tracking-tight text-foreground">
+            {t('marketing.hero.brandName')}
+          </span>
+        </div>
+
         <h1 className="font-serif text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
           {t('marketing.hero.titlePart1')}
           <Highlighter action="underline" color="var(--primary)">{t('marketing.hero.highlight1')}</Highlighter>

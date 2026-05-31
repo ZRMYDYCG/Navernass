@@ -8,6 +8,9 @@ import { ProposeEditPart } from './propose-edit-part'
 import { ReasoningPart } from './reasoning-part'
 import { TextPart } from './text-part'
 import { ToolPartFallback } from './tool-part-fallback'
+import { ChapterRefPart } from './chapter-ref-part'
+import { VolumeRefPart } from './volume-ref-part'
+import { isChapterRefPart, isInlineRefPart, isVolumeRefPart } from '@/lib/editor/composer-message'
 
 /**
  * AG-UI part 注册表
@@ -27,12 +30,12 @@ function isToolPart(part: AnyPart): boolean {
 }
 
 export function isRenderablePart(part: AnyPart): boolean {
-  return part.type === 'text' || part.type === 'reasoning' || isToolPart(part)
+  return part.type === 'text' || part.type === 'reasoning' || isToolPart(part) || isInlineRefPart(part)
 }
 
-/** 仅 text part 进入气泡合并 */
+/** text / 内联引用块进入同一气泡（与输入框内联顺序一致） */
 export function isBubblePart(part: AnyPart): boolean {
-  return part.type === 'text'
+  return part.type === 'text' || isInlineRefPart(part)
 }
 
 /** 该 part 是否应在 UI 中占位（避免空 text 渲染空白气泡） */
@@ -40,6 +43,9 @@ export function hasVisibleContent(
   part: AnyPart,
   ctx: { isStreaming: boolean, index: number, lastIdx: number },
 ): boolean {
+  if (isChapterRefPart(part) || isVolumeRefPart(part)) {
+    return Boolean(part.data?.title)
+  }
   if (part.type === 'text') {
     const text = ((part as { text?: string }).text || '').trim()
     const isPartStreaming = ctx.isStreaming && ctx.index === ctx.lastIdx
@@ -63,6 +69,22 @@ export interface PartRenderContext {
 }
 
 export function renderPart(part: AnyPart, ctx: PartRenderContext): ReactNode {
+  if (isChapterRefPart(part)) {
+    return (
+      <ChapterRefPart
+        key={`ch-${ctx.index}`}
+        data={part.data}
+      />
+    )
+  }
+  if (isVolumeRefPart(part)) {
+    return (
+      <VolumeRefPart
+        key={`vol-${ctx.index}`}
+        data={part.data}
+      />
+    )
+  }
   if (part.type === 'text') {
     return (
       <TextPart

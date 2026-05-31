@@ -2,13 +2,16 @@
 
 import type { NovelConversation } from '@/lib/supabase/sdk'
 import type { Chapter } from '@/lib/supabase/sdk'
+import type { UIMessage } from 'ai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
-import { useNovelChatStore, selectNovelChatUiSession } from '@/store'
+import { selectOrderedChapters, useNovelChatStore, selectNovelChatUiSession, useChaptersStore } from '@/store'
 import { useNovelChatContext } from './context'
 import { useNovelChatRuntime } from './provider'
 import { makeConversationKey } from './conversation-keys'
+import { buildUserComposerMessage } from '@/lib/editor/composer-message'
+import { chapterRefsEqual, hasComposerContent } from '@/lib/editor/inline-composer'
 import { fromChapterRefs, resetDraftConversation, toChapterRefs } from './session-host'
 import { messageHasVisibleContent } from '../parts/registry'
 import { getNovelChatSessionBridge } from './chat-instances'
@@ -77,10 +80,11 @@ export function useNovelChat() {
 
   const setInput = useCallback((value: string | ((prev: string) => string)) => {
     if (!novelId) return
-    patchUiSession(novelId, {
-      input: typeof value === 'function' ? value(uiSession?.input ?? '') : value,
-    })
-  }, [novelId, patchUiSession, uiSession?.input])
+    const current = useNovelChatStore.getState().sessionsByNovelId[novelId]?.input ?? ''
+    const next = typeof value === 'function' ? value(current) : value
+    if (next === current) return
+    patchUiSession(novelId, { input: next })
+  }, [novelId, patchUiSession])
 
   const setMode = useCallback((value: typeof mode) => {
     if (!novelId) return
@@ -94,10 +98,19 @@ export function useNovelChat() {
 
   const setSelectedChapters = useCallback((chapters: Chapter[] | ((prev: Chapter[]) => Chapter[])) => {
     if (!novelId) return
-    const current = toChapterRefs(uiSession?.selectedChapters ?? [])
+    const session = useNovelChatStore.getState().sessionsByNovelId[novelId]
+    const current = toChapterRefs(session?.selectedChapters ?? [])
     const next = typeof chapters === 'function' ? chapters(current) : chapters
-    patchUiSession(novelId, { selectedChapters: fromChapterRefs(next) })
-  }, [novelId, patchUiSession, uiSession?.selectedChapters])
+    const nextRefs = fromChapterRefs(next)
+    const currentRefs = session?.selectedChapters ?? []
+    if (chapterRefsEqual(
+      currentRefs.map(c => ({ id: c.id, title: c.title })),
+      nextRefs.map(c => ({ id: c.id, title: c.title })),
+    )) {
+      return
+    }
+    patchUiSession(novelId, { selectedChapters: nextRefs })
+  }, [novelId, patchUiSession])
 
   const addSubmittedFormKey = useCallback((formKey: string) => {
     if (!novelId) return
@@ -113,15 +126,30 @@ export function useNovelChat() {
     })
   }, [novelId, patchUiSession, uiSession?.submittedFormKeys])
 
-  const handleSend = useCallback(async (textOverride?: string) => {
-    const text = (textOverride ?? input).trim()
-    if (!text || isLoading || !novelId || !sendMessage) return
+  const handleSend = useCallback(async () => {
+    const raw = input
+    if (!hasComposerContent(raw) || isLoading || !novelId || !sendMessage) return
+
+    const orderedChapters = selectOrderedChapters(useChaptersStore.getState())
+    const payload = buildUserComposerMessage(raw, orderedChapters)
+    const chapterRefs = fromChapterRefs(toChapterRefs(payload.chapters))
     const conversationKey = makeConversationKey(novelId, currentConversationId, isDraftConversation)
     const bridge = getNovelChatSessionBridge(conversationKey)
     bridge.isDraftConversationRef.current = false
-    patchUiSession(novelId, { input: '', isDraftConversation: false })
+    bridge.selectedChaptersRef.current = chapterRefs
+
+    patchUiSession(novelId, {
+      input: '',
+      selectedChapters: chapterRefs,
+      isDraftConversation: false,
+    })
+
     try {
-      await sendMessage({ text })
+      await sendMessage({
+        parts: payload.parts as UIMessage['parts'],
+      })
+      patchUiSession(novelId, { selectedChapters: [] })
+      bridge.selectedChaptersRef.current = []
     } catch (e) {
       console.error('Failed to send message:', e)
     }

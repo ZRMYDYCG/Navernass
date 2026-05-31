@@ -13,6 +13,7 @@ import { ChaptersService } from '@/lib/supabase/sdk/services/chapters.service'
 import { NovelConversationsService } from '@/lib/supabase/sdk/services/novel-conversations.service'
 import { NovelMessagesService } from '@/lib/supabase/sdk/services/novel-messages.service'
 import { createClient } from '@/lib/supabase/server'
+import { extractApiTextFromUserMessage } from '@/lib/editor/composer-message'
 import { buildChapterContext } from '@/prompts'
 
 interface ChatRequestBody {
@@ -32,11 +33,14 @@ function pickLastUserText(messages: UIMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i]
     if (m.role !== 'user') continue
-    const text = (m.parts || [])
-      .filter((p: any) => p?.type === 'text')
-      .map((p: any) => p.text as string)
+    const parts = m.parts || []
+    const merged = extractApiTextFromUserMessage(parts)
+    if (merged.trim().length > 0) return merged
+    const textOnly = parts
+      .filter((p: { type?: string }) => p?.type === 'text')
+      .map((p: { text?: string }) => p.text as string)
       .join('')
-    if (text.trim().length > 0) return text
+    if (textOnly.trim().length > 0) return textOnly
   }
   return ''
 }

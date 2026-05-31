@@ -15,6 +15,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
+import { setChapterAttachmentDragData } from '@/lib/editor/chapter-attachment-drag'
 import { cn } from '@/lib/utils'
 import { useCharacterGraphStore } from '@/store'
 import { HoverActionBar, HoverActionButton } from './hover-action-button'
@@ -182,7 +183,18 @@ export function ChapterItem({
             </Popover.Root>
 
             <div
-              className="flex-1 min-w-0 flex items-center gap-1.5"
+              className={cn(
+                'flex-1 min-w-0 flex items-center gap-1.5',
+                !isEditingTitle && 'cursor-grab active:cursor-grabbing',
+              )}
+              draggable={!isEditingTitle}
+              onDragStart={(e) => {
+                if (isEditingTitle) return
+                setChapterAttachmentDragData(e.dataTransfer, {
+                  id: chapter.id,
+                  title: chapter.title,
+                })
+              }}
               onClick={isEditingTitle ? undefined : onSelect}
             >
               <FileText className={cn('h-3.5 w-3.5 flex-shrink-0 transition-colors', isSelected ? 'text-primary/85' : 'text-muted-foreground')} />

@@ -24,6 +24,7 @@ const chat = {
     placeholder: '和 AI 一起創作你的小說世界...',
     waiting: '等待對話建立...',
     send: '傳送 (Enter)',
+    sendLabel: '傳送',
     voice: '語音輸入',
   },
   welcomeHeader: {

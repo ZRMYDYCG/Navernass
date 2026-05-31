@@ -24,6 +24,7 @@ const chat = {
     placeholder: 'Schreiben Sie Ihre Romanwelt gemeinsam mit KI...',
     waiting: 'Warten auf Gespräch...',
     send: 'Senden (Enter)',
+    sendLabel: 'Senden',
     voice: 'Spracheingabe',
   },
   welcomeHeader: {
