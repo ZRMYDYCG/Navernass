@@ -1,5 +1,44 @@
 # Changelog
 
+## [0.14.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.13.0...v0.14.0) (2026-05-31)
+
+
+### Features
+
+* 多agent链路流程跑通 ([b8868a3](https://github.com/ZRMYDYCG/Navernass/commit/b8868a363756fb34905e59bbb95df4c51dbdbe0e))
+* 更新编辑器卷面选择器与多语言支持 [#13](https://github.com/ZRMYDYCG/Navernass/issues/13) ([aaa6f65](https://github.com/ZRMYDYCG/Navernass/commit/aaa6f65937e6676a4fd6e8993452b7986c74277d))
+* 更新编辑器样式以支持独立字体大小设置 [#22](https://github.com/ZRMYDYCG/Navernass/issues/22) ([b20febb](https://github.com/ZRMYDYCG/Navernass/commit/b20febbf6eb857842ed36229b6b1b7430cc62ab6))
+* 更新流式 Markdown 渲染器以支持自定义动画 ([ed00c90](https://github.com/ZRMYDYCG/Navernass/commit/ed00c9045b9b8f6088c41bf18ed9acaae5d1cf39))
+* 更新用户个人资料与认证组件 ([f8e9ea4](https://github.com/ZRMYDYCG/Navernass/commit/f8e9ea42914074867587a63aa1c4a22f862ba667))
+* 卷的时候只有那张卡片跟着鼠标，其他卷在它落到哪一行就刀切让位 ([19c37a5](https://github.com/ZRMYDYCG/Navernass/commit/19c37a5c1786ede24058e4f6add6ebb2696646e4))
+* 流式输出友好 ([b7b0efc](https://github.com/ZRMYDYCG/Navernass/commit/b7b0efc28a56fed970e21c0c85d7651a0c11fbc3))
+* 全局多 useChat 不刷新状态下并发 ([d4925ad](https://github.com/ZRMYDYCG/Navernass/commit/d4925adf1b9cac69d10f123a14c0168384107757))
+* 添加 .env.example 文件以提供环境变量示例 ([35cb976](https://github.com/ZRMYDYCG/Navernass/commit/35cb976577c0c5fc00e33e713c868a4cdeeb3fc2))
+* 添加编辑器滚动区域与进度指示功能 [#21](https://github.com/ZRMYDYCG/Navernass/issues/21) ([6085960](https://github.com/ZRMYDYCG/Navernass/commit/6085960295e4223c418e18debf7d53073267c727))
+* 添加编辑器卷面功能与多语言支持 [#13](https://github.com/ZRMYDYCG/Navernass/issues/13) ([c6d507a](https://github.com/ZRMYDYCG/Navernass/commit/c6d507af0f73c2078e0c013deb38895c83fb2665))
+* 添加编辑器字体大小控制功能 [#22](https://github.com/ZRMYDYCG/Navernass/issues/22) ([136e2c9](https://github.com/ZRMYDYCG/Navernass/commit/136e2c9a870c0a885c55292d805767a556eea2d4))
+* 添加计划文件编辑功能并优化章节管理 ([86b5880](https://github.com/ZRMYDYCG/Navernass/commit/86b5880692ad958e49559e02f3079f6f7cf10345))
+* 添加角色剧本助手与时间线管理功能 ([1115095](https://github.com/ZRMYDYCG/Navernass/commit/1115095055114767dd579db845252ff7fcb36ddd))
+* 添加世界观功能与大纲管理 ([bfd5d92](https://github.com/ZRMYDYCG/Navernass/commit/bfd5d92f7a355ddd7b6e1ae7e974c7eef60dbf79))
+* 添加章节导入与角色分析功能 [#3](https://github.com/ZRMYDYCG/Navernass/issues/3) ([41f720c](https://github.com/ZRMYDYCG/Navernass/commit/41f720c94b840f590c0fcb6b28bcb92e1a55e41b))
+* 添加章节角色关系预览功能 [#11](https://github.com/ZRMYDYCG/Navernass/issues/11) ([c40617b](https://github.com/ZRMYDYCG/Navernass/commit/c40617b6a2e0272bf074ee7b64341e43a703313f))
+* 小说编辑器接入 ai-sdk ([1dcc5dc](https://github.com/ZRMYDYCG/Navernass/commit/1dcc5dc397358338eda170ea7fd10c6064876795))
+* 引入 StreamingPlainText 组件以增强流式文本渲染 ([602faed](https://github.com/ZRMYDYCG/Navernass/commit/602faedcaea8b7d5a9b7aa64469e2aa98f325ec8))
+* 引入编辑器卷面选择器与相关功能 [#13](https://github.com/ZRMYDYCG/Navernass/issues/13) ([e926bb6](https://github.com/ZRMYDYCG/Navernass/commit/e926bb6a5ac84c0079d9a34deacc6ec852c769a9))
+* 增强编辑器的AI修改建议功能 [#26](https://github.com/ZRMYDYCG/Navernass/issues/26) ([d493578](https://github.com/ZRMYDYCG/Navernass/commit/d4935786e5706aa330e5b376da77b87832f7f93e))
+* 章节列表顶部操作栏相关代码提交 ([980db6a](https://github.com/ZRMYDYCG/Navernass/commit/980db6a90157b616abb6f76dd093673ba085c476))
+* 章节列表与 Agent skills 相关代码提交 ([bf45404](https://github.com/ZRMYDYCG/Navernass/commit/bf454045a174c455a1b0b911ca6a024427d91182))
+* 重构聊天输入组件并引入新AI聊天输入组件 ([e6129cf](https://github.com/ZRMYDYCG/Navernass/commit/e6129cff406d6f3c74e3ea40ec259a4008be72ce))
+* 重构右侧面板组件以增强流式输出体验 ([12c9cd5](https://github.com/ZRMYDYCG/Navernass/commit/12c9cd5ac11660c55781285eff8db04626c08b63))
+* **code-review:** 添加无差异时跳过审查的提示信息 ([7dbc21d](https://github.com/ZRMYDYCG/Navernass/commit/7dbc21d2f005dec77d480dfd79f16a34f231eb00))
+* **pubish:** 小说发布体验升级 ([c7e920f](https://github.com/ZRMYDYCG/Navernass/commit/c7e920fa0de69ff29b4951df972aed84737b34e1))
+
+
+### Bug Fixes
+
+* 修复用户个人资料组件中的国际化导入逻辑 ([053650a](https://github.com/ZRMYDYCG/Navernass/commit/053650ad99ecb016439fa867bd4291e7002254a4))
+* move useI18n hook to the correct position in ScrollToBottomButton component ([d3e2240](https://github.com/ZRMYDYCG/Navernass/commit/d3e2240b47fe4f2d9bc3b92c0eac688e808dd352))
+
 ## [0.13.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.12.0...v0.13.0) (2026-04-06)
 
 
