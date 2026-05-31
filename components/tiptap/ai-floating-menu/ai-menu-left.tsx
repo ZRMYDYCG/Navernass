@@ -48,15 +48,16 @@ export function AIMenuLeft({ onPresetAction, onEditAdjust, isLoading, editor }: 
   }
 
   return (
-    <div className="bg-popover border border-border rounded shadow-xl w-[220px] overflow-hidden">
+    <div className="bg-popover border border-border rounded shadow-xl w-[220px] overflow-hidden ai-menu-panel-enter">
       <div className="py-0.5">
-        {editItems.map(item => (
+        {editItems.map((item, index) => (
           <button
             key={item.id}
             type="button"
             onClick={() => handleClick(item)}
             disabled={isLoading}
-            className="w-full px-2.5 py-1.5 text-left text-xs text-popover-foreground hover:bg-accent transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ animationDelay: `${index * 30}ms` }}
+            className="w-full px-2.5 py-1.5 text-left text-xs text-popover-foreground hover:bg-accent transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed animate-in fade-in slide-in-from-bottom-1 duration-200 fill-mode-backwards"
           >
             <span>{t(`tiptap.aiMenu.left.items.${item.id}.label`)}</span>
             {item.hasSubmenu && (

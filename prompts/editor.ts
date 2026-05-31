@@ -3,6 +3,8 @@
  * 用于编辑器中的文本处理操作（改进、修正、缩短、扩展、翻译、续写等）
  */
 
+export type EditorAction = keyof typeof EDITOR_PROMPTS | 'custom'
+
 export const EDITOR_PROMPTS = {
   improve: '你是一个专业的写作助手。请改进以下文本，使其更清晰、流畅、专业，保持原意但提升表达质量。\n\n重要：直接返回改进后的文本内容，不要使用任何 markdown 语法（如 **粗体**、*斜体*、`代码`、## 标题等），不要添加解释说明，不要使用特殊格式。',
 
@@ -27,7 +29,7 @@ export const EDITOR_PROMPTS = {
 /**
  * 获取编辑器提示词
  */
-export function getEditorPrompt(action: keyof typeof EDITOR_PROMPTS | 'custom', customPrompt?: string): string {
+export function getEditorPrompt(action: EditorAction, customPrompt?: string): string {
   if (action === 'custom') {
     return EDITOR_PROMPTS.custom(customPrompt)
   }

@@ -18,10 +18,45 @@ import {
   Sparkles,
 } from 'lucide-react'
 import tippy from 'tippy.js'
+import { streamSelectionAI, type SelectionAIStreamRequest } from '@/lib/editor/selection-ai-stream'
 import { CommandList } from '../command-list'
 import { showGlobalImageGenerationDialog, showGlobalInputDialog } from '../dialog-manager'
 
 type TFunctionLike = (key: string, options?: Record<string, any>) => string
+
+async function streamAIIntoEditor(
+  editor: { chain: () => any, state: { selection: { from: number } } },
+  request: SelectionAIStreamRequest,
+  loadingText: string,
+) {
+  editor.chain().focus().insertContent(loadingText).run()
+
+  let insertedFrom: number | null = null
+  let insertedTo: number | null = null
+
+  await streamSelectionAI(request, {
+    onTextUpdate: (fullText) => {
+      const currentPos = editor.state.selection.from
+
+      if (insertedFrom === null) {
+        const from = currentPos - loadingText.length
+        editor.chain().focus()
+          .deleteRange({ from, to: currentPos })
+          .insertContentAt(from, fullText)
+          .run()
+        insertedFrom = from
+        insertedTo = from + fullText.length
+        return
+      }
+
+      editor.chain().focus()
+        .deleteRange({ from: insertedFrom, to: insertedTo! })
+        .insertContentAt(insertedFrom, fullText)
+        .run()
+      insertedTo = insertedFrom + fullText.length
+    },
+  })
+}
 
 export interface SlashCommandOptions {
   t?: TFunctionLike
@@ -258,61 +293,13 @@ export const SlashCommand = Extension.create<SlashCommandOptions>({
 // AI 续写功能
 async function triggerAIContinue(editor: any, t: TFunctionLike) {
   try {
-    // 获取光标前的文本作为上下文
     const { from } = editor.state.selection
     const textBefore = editor.state.doc.textBetween(Math.max(0, from - 500), from, ' ')
-
-    // 插入加载提示
-    editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.continue.loading')).run()
-
-    const response = await fetch('/api/editor/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'continue',
-        text: textBefore,
-      }),
-    })
-
-    if (!response.ok) throw new Error(t('tiptap.slashCommand.ai.continue.requestFailed'))
-
-    // 删除加载提示
-    const loadingText = t('tiptap.slashCommand.ai.continue.loading')
-    const currentPos = editor.state.selection.from
-    editor.chain().focus().deleteRange({ from: currentPos - loadingText.length, to: currentPos }).run()
-
-    // 处理流式响应
-    const reader = response.body?.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          const trimmedLine = line.trim()
-          if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue
-
-          try {
-            const jsonStr = trimmedLine.slice(6)
-            const data = JSON.parse(jsonStr)
-
-            if (data.type === 'content') {
-              // 实时插入内容
-              editor.chain().focus().insertContent(data.data).run()
-            }
-          } catch {
-            console.warn('Failed to parse SSE:', trimmedLine)
-          }
-        }
-      }
-    }
+    await streamAIIntoEditor(
+      editor,
+      { action: 'continue', text: textBefore },
+      t('tiptap.slashCommand.ai.continue.loading'),
+    )
   } catch (error) {
     console.error('AI continue failed:', error)
     editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.continue.failedInline')).run()
@@ -329,55 +316,15 @@ async function triggerAIBrainstorm(editor: any, t: TFunctionLike) {
   if (!userInput) return
 
   try {
-    editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.brainstorm.loading')).run()
-
-    const response = await fetch('/api/editor/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    await streamAIIntoEditor(
+      editor,
+      {
         action: 'custom',
         text: userInput,
         prompt: t('tiptap.slashCommand.ai.brainstorm.systemPrompt'),
-      }),
-    })
-
-    if (!response.ok) throw new Error(t('tiptap.slashCommand.ai.brainstorm.requestFailed'))
-
-    const loadingText = t('tiptap.slashCommand.ai.brainstorm.loading')
-    const currentPos = editor.state.selection.from
-    editor.chain().focus().deleteRange({ from: currentPos - loadingText.length, to: currentPos }).run()
-
-    const reader = response.body?.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          const trimmedLine = line.trim()
-          if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue
-
-          try {
-            const jsonStr = trimmedLine.slice(6)
-            const data = JSON.parse(jsonStr)
-
-            if (data.type === 'content') {
-              editor.chain().focus().insertContent(data.data).run()
-            }
-          } catch {
-            console.warn('Failed to parse SSE:', trimmedLine)
-          }
-        }
-      }
-    }
-
+      },
+      t('tiptap.slashCommand.ai.brainstorm.loading'),
+    )
     editor.chain().focus().insertContent('\n\n').run()
   } catch (error) {
     console.error('AI brainstorm failed:', error)
@@ -394,55 +341,15 @@ async function triggerAIOutline(editor: any, t: TFunctionLike) {
   if (!userInput) return
 
   try {
-    editor.chain().focus().insertContent(t('tiptap.slashCommand.ai.outline.loading')).run()
-
-    const response = await fetch('/api/editor/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    await streamAIIntoEditor(
+      editor,
+      {
         action: 'custom',
         text: userInput,
         prompt: t('tiptap.slashCommand.ai.outline.systemPrompt'),
-      }),
-    })
-
-    if (!response.ok) throw new Error(t('tiptap.slashCommand.ai.outline.requestFailed'))
-
-    const loadingText = t('tiptap.slashCommand.ai.outline.loading')
-    const currentPos = editor.state.selection.from
-    editor.chain().focus().deleteRange({ from: currentPos - loadingText.length, to: currentPos }).run()
-
-    const reader = response.body?.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          const trimmedLine = line.trim()
-          if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue
-
-          try {
-            const jsonStr = trimmedLine.slice(6)
-            const data = JSON.parse(jsonStr)
-
-            if (data.type === 'content') {
-              editor.chain().focus().insertContent(data.data).run()
-            }
-          } catch {
-            console.warn('Failed to parse SSE:', trimmedLine)
-          }
-        }
-      }
-    }
-
+      },
+      t('tiptap.slashCommand.ai.outline.loading'),
+    )
     editor.chain().focus().insertContent('\n\n').run()
   } catch (error) {
     console.error('AI outline failed:', error)

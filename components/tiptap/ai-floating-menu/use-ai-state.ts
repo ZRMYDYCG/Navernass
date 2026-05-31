@@ -1,6 +1,12 @@
+'use client'
+
 import type { Editor } from '@tiptap/react'
-import { useRef, useState } from 'react'
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
+import { extractTextFromUIMessage } from '@/lib/editor/selection-ai-stream'
+import type { EditorAction } from '@/prompts/editor'
 import { applySuggestionDiff } from '../extensions/suggestion-track'
 
 function stripMarkdown(text: string): string {
@@ -25,23 +31,89 @@ function stripMarkdown(text: string): string {
 export function useAIState(editor: Editor | null, onActionComplete?: () => void) {
   const { t } = useI18n()
   const [aiPrompt, setAiPrompt] = useState('')
-  const [isAILoading, setIsAILoading] = useState(false)
-  const abortControllerRef = useRef<AbortController | null>(null)
   const lastPromptRef = useRef<string>('')
+  const requestMetaRef = useRef<{ action: EditorAction, selectedText: string, customPrompt: string }>({
+    action: 'custom',
+    selectedText: '',
+    customPrompt: '',
+  })
   const selectionRef = useRef<{
     originalFrom: number
     originalTo: number
     originalText: string
     liveRange: { from: number, to: number }
   } | null>(null)
+  const lastAppliedTextRef = useRef('')
+  const prevStatusRef = useRef<string>('ready')
+  const skipFinishEffectRef = useRef(false)
 
-  const resetAI = () => {
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: '/api/editor/selection-ai/stream',
+        prepareSendMessagesRequest: ({ messages, body }) => ({
+          body: {
+            ...body,
+            messages,
+            action: requestMetaRef.current.action,
+            selectedText: requestMetaRef.current.selectedText,
+            customPrompt: requestMetaRef.current.customPrompt,
+          },
+        }),
+      }),
+    [],
+  )
+
+  const { messages, sendMessage, setMessages, status, stop } = useChat({
+    transport,
+    onError: (err) => {
+      console.error(t('tiptap.aiMenu.state.processFailedLog'), err)
+    },
+  })
+
+  const isAILoading = status === 'submitted' || status === 'streaming'
+
+  const resetAI = useCallback(() => {
     setAiPrompt('')
-    setIsAILoading(false)
+    setMessages([])
     selectionRef.current = null
-  }
+    lastAppliedTextRef.current = ''
+  }, [setMessages])
 
-  const handleAI = async (customPrompt: string) => {
+  useEffect(() => {
+    if (!editor || !isAILoading) return
+
+    const lastAssistant = [...messages].reverse().find(message => message.role === 'assistant')
+    const cleanContent = stripMarkdown(extractTextFromUIMessage(lastAssistant))
+    if (!cleanContent || cleanContent === lastAppliedTextRef.current) return
+
+    const snapshot = selectionRef.current
+    if (!snapshot) return
+
+    const updatedRange = applySuggestionDiff(
+      editor,
+      snapshot.liveRange,
+      snapshot.originalText,
+      cleanContent,
+    )
+    if (updatedRange) {
+      snapshot.liveRange = updatedRange
+      lastAppliedTextRef.current = cleanContent
+    }
+  }, [editor, isAILoading, messages])
+
+  useEffect(() => {
+    if (skipFinishEffectRef.current) return
+
+    const prev = prevStatusRef.current
+    if ((prev === 'streaming' || prev === 'submitted') && status === 'ready') {
+      resetAI()
+      onActionComplete?.()
+    }
+    prevStatusRef.current = status
+  }, [status, resetAI, onActionComplete])
+
+  const handleAI = useCallback(async (customPrompt: string) => {
     if (!editor || !customPrompt.trim()) return
 
     const selectedText = editor.state.doc.textBetween(
@@ -51,6 +123,7 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
     )
 
     if (!selectedText) return
+
     selectionRef.current = {
       originalFrom: editor.state.selection.from,
       originalTo: editor.state.selection.to,
@@ -58,124 +131,32 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
       liveRange: { from: editor.state.selection.from, to: editor.state.selection.to },
     }
 
-    try {
-      setIsAILoading(true)
-      lastPromptRef.current = customPrompt
-
-      abortControllerRef.current = new AbortController()
-
-      const response = await fetch('/api/editor/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'custom',
-          text: selectedText,
-          prompt: customPrompt,
-        }),
-        signal: abortControllerRef.current.signal,
-      })
-
-      if (!response.ok) {
-        throw new Error(t('tiptap.aiMenu.state.requestFailed'))
-      }
-
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
-
-      if (!reader) {
-        throw new Error(t('tiptap.aiMenu.state.unreadableResponse'))
-      }
-
-      let buffer = ''
-      let fullContent = ''
-      let didApply = false
-      let applyTimer: ReturnType<typeof setTimeout> | null = null
-
-      const applyLiveDiff = () => {
-        const snapshot = selectionRef.current
-        if (!snapshot) return
-
-        const cleanContent = stripMarkdown(fullContent)
-        if (!cleanContent) return
-
-        const updatedRange = applySuggestionDiff(
-          editor,
-          snapshot.liveRange,
-          snapshot.originalText,
-          cleanContent,
-        )
-        if (updatedRange) {
-          snapshot.liveRange = updatedRange
-          didApply = true
-        }
-      }
-
-      const scheduleApply = () => {
-        if (applyTimer) return
-        applyTimer = setTimeout(() => {
-          applyTimer = null
-          applyLiveDiff()
-        }, 120)
-      }
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          const trimmedLine = line.trim()
-          if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue
-
-          try {
-            const jsonStr = trimmedLine.slice(6)
-            const data = JSON.parse(jsonStr)
-
-            if (data.type === 'content') {
-              fullContent += data.data
-              scheduleApply()
-            } else if (data.type === 'done') {
-              setIsAILoading(false)
-              applyLiveDiff()
-              resetAI()
-              onActionComplete?.()
-            } else if (data.type === 'error') {
-              throw new Error(data.data)
-            }
-          } catch {
-          }
-        }
-      }
-
-      if (!didApply) {
-        setIsAILoading(false)
-        applyLiveDiff()
-        resetAI()
-        onActionComplete?.()
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error && error.name === 'AbortError') { /* empty */ } else {
-        console.error(t('tiptap.aiMenu.state.processFailedLog'), error)
-      }
-      setIsAILoading(false)
-      resetAI()
-    } finally {
-      abortControllerRef.current = null
+    lastPromptRef.current = customPrompt
+    lastAppliedTextRef.current = ''
+    requestMetaRef.current = {
+      action: 'custom',
+      selectedText,
+      customPrompt,
     }
-  }
 
-  const retryAI = async () => {
+    setMessages([])
+    try {
+      await sendMessage({ text: customPrompt })
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') return
+      console.error(t('tiptap.aiMenu.state.processFailedLog'), error)
+      resetAI()
+    }
+  }, [editor, resetAI, sendMessage, setMessages, t])
+
+  const retryAI = useCallback(async () => {
     if (!lastPromptRef.current) return
     await handleAI(lastPromptRef.current)
-  }
+  }, [handleAI])
 
-  const cancelAI = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
+  const cancelAI = useCallback(async () => {
+    skipFinishEffectRef.current = true
+    await stop()
     const snapshot = selectionRef.current
     if (editor && snapshot) {
       editor
@@ -187,7 +168,8 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
     }
     resetAI()
     onActionComplete?.()
-  }
+    skipFinishEffectRef.current = false
+  }, [editor, onActionComplete, resetAI, stop])
 
   return {
     aiPrompt,

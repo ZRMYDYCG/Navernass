@@ -2,6 +2,7 @@ import type { EditorView } from 'prosemirror-view'
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from 'prosemirror-state'
 import { DecorationSet } from 'prosemirror-view'
+import { streamSelectionAI } from '@/lib/editor/selection-ai-stream'
 
 export interface AIAutocompleteOptions {
   trigger: string
@@ -194,83 +195,62 @@ async function triggerAIAutocomplete(view: EditorView, t: (key: string, options?
       }
     }, 400)
 
-    const response = await fetch('/api/editor/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    let insertedFrom: number | null = null
+    let insertedTo: number | null = null
+
+    await streamSelectionAI(
+      {
         action: 'continue',
         text: textBefore,
-      }),
-    })
+      },
+      {
+        onTextUpdate: (fullText) => {
+          const currentState = view.state
 
-    if (!response.ok) {
-      throw new Error(t('tiptap.aiAutocomplete.requestFailed'))
-    }
+          if (insertedFrom === null) {
+            if (loadingAnimationInterval) {
+              clearInterval(loadingAnimationInterval)
+              loadingAnimationInterval = null
+            }
+
+            const loadingEnd = currentState.selection.from
+            const loadingStart = loadingEnd - loadingFrames[0].length
+            if (loadingStart < 0) return
+
+            const tr = currentState.tr
+              .delete(loadingStart, loadingEnd)
+              .insertText(fullText, loadingStart)
+            view.dispatch(tr)
+            insertedFrom = loadingStart
+            insertedTo = loadingStart + fullText.length
+          } else {
+            const tr = currentState.tr.replaceWith(
+              insertedFrom,
+              insertedTo!,
+              currentState.schema.text(fullText),
+            )
+            view.dispatch(tr)
+            insertedTo = insertedFrom + fullText.length
+          }
+
+          if (isTriggeredAtBottom) {
+            scrollToBottom(true)
+          }
+        },
+      },
+    )
 
     if (loadingAnimationInterval) {
       clearInterval(loadingAnimationInterval)
       loadingAnimationInterval = null
     }
 
-    const currentState = view.state
-    const currentFrom = currentState.selection.from
-    const deleteTr = currentState.tr.delete(
-      currentFrom - loadingFrames[0].length,
-      currentFrom,
-    )
-    view.dispatch(deleteTr)
-
-    const reader = response.body?.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          const trimmedLine = line.trim()
-          if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue
-
-          try {
-            const jsonStr = trimmedLine.slice(6)
-            const data = JSON.parse(jsonStr)
-
-            if (data.type === 'content') {
-              const currentState = view.state
-              const insertTr = currentState.tr.insertText(
-                data.data,
-                currentState.selection.from,
-              )
-              view.dispatch(insertTr)
-
-              // 如果是在底部触发的续写，每次插入内容后立即滚动到底部（不使用防抖）
-              if (isTriggeredAtBottom) {
-                scrollToBottom(true)
-              }
-            } else if (data.type === 'done') {
-              const finalState = view.state
-              view.dispatch(finalState.tr.setMeta('ai-generating', false))
-
-              // 完成后再次确保滚动到底部（立即滚动）
-              if (isTriggeredAtBottom) {
-                scrollToBottom(true)
-              }
-            }
-          } catch {
-            console.warn('Failed to parse SSE:', trimmedLine)
-          }
-        }
-      }
-    }
-
     const finalState = view.state
     view.dispatch(finalState.tr.setMeta('ai-generating', false))
+
+    if (isTriggeredAtBottom) {
+      scrollToBottom(true)
+    }
   } catch (error) {
     console.error('AI autocomplete failed:', error)
 

@@ -2,10 +2,12 @@ import { registerBuiltinSkills } from '../skills'
 import { registerBuiltinTools } from '../tools'
 import { registerCharacterImportAnalyzerAgent } from './character-import-analyzer'
 import { registerCharacterScriptwriterAgent } from './character-scriptwriter'
+import { registerSelectionEditorAgent } from './selection-editor'
 import { registerWriterAgent } from './writer'
 
 export * from './character-import-analyzer'
 export * from './character-scriptwriter'
+export * from './selection-editor'
 export * from './modes'
 export * from './registry'
 export * from './router'
@@ -25,4 +27,5 @@ export function bootstrapAgents() {
   registerWriterAgent()
   registerCharacterScriptwriterAgent()
   registerCharacterImportAnalyzerAgent()
+  registerSelectionEditorAgent()
 }

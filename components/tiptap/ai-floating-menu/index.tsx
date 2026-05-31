@@ -1,6 +1,7 @@
 'use client'
 
 import type { Editor } from '@tiptap/react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AIInputBox } from './ai-input-box'
 import { AIMenuLeft } from './ai-menu-left'
@@ -47,7 +48,7 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
     shakeTimeoutRef.current = setTimeout(() => {
       setIsShaking(false)
       shakeTimeoutRef.current = null
-    }, 600)
+    }, 220)
   }, [])
 
   const handleCloseRequest = useCallback(() => {
@@ -317,24 +318,43 @@ export function AIFloatingMenu({ editor, showAI, onCloseAI }: AIFloatingMenuProp
         hasActiveConversation={hasActiveConversation}
       />
 
-      {showInput && !aiPrompt.trim() && !hasActiveConversation && (
-        <div className="flex items-start gap-2">
-          <AIMenuLeft
-            onPresetAction={handlePresetAI}
-            onEditAdjust={handleEditAdjust}
-            isLoading={isAILoading}
-            editor={editor}
-          />
-
-          {showEditMenu && (
-            <AIMenuRight
+      <AnimatePresence>
+        {showInput && !aiPrompt.trim() && !hasActiveConversation && (
+          <motion.div
+            key="ai-menu-panels"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.04 }}
+            className="flex items-start gap-2"
+          >
+            <AIMenuLeft
               onPresetAction={handlePresetAI}
+              onEditAdjust={handleEditAdjust}
               isLoading={isAILoading}
               editor={editor}
             />
-          )}
-        </div>
-      )}
+
+            <AnimatePresence>
+              {showEditMenu && (
+                <motion.div
+                  key="ai-menu-right"
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -6 }}
+                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                >
+                  <AIMenuRight
+                    onPresetAction={handlePresetAI}
+                    isLoading={isAILoading}
+                    editor={editor}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
