@@ -6,12 +6,14 @@ import type { Skill } from '../agents/types'
 export const storyPlanningSkill: Skill = {
   id: 'story-planning',
   name: '故事规划',
-  description: '梳理大纲、章节节奏与世界观设定',
-  systemPrompt: `## 规划模式规则
-- 输出侧重：故事弧线、章节节拍、伏笔布局、角色动机与世界观一致性
-- 讨论「接下来怎么写」时，优先 create_outline / update_outline 把规划落档
-- 新设定（地名、势力、规则）用 create_worldbook_entry 记录，避免口头约定
-- 不要输出大段正文续写；如需示例，控制在 2-3 句说明写法即可
-- 规划完成后简要总结已落库条目，方便用户核对`,
+  description: '写入 Plan 规划文件，梳理故事结构与章节节拍',
+  systemPrompt: `## 规划模式规则（Plan 文件优先）
+- **Plan 文件** = 左侧「规划」区域的 Markdown 文档，是本模式的默认且首选产出
+- 典型 path：plan/story-arc、plan/vol1-beats、plan/foreshadowing、plan/character-arcs
+- 工作流：list_plan_files → read_plan_file（若存在）→ create_plan_file 或 update_plan_file
+- 内容侧重：故事弧线、章节节拍、伏笔布局、角色动机、与已有正文的衔接
+- create_outline / create_worldbook_entry **不能**在本模式使用；用户需要时提示切换「大纲 Outline」或「世界观 Worldbook」模式
+- 不要输出大段正文续写；如需示例，控制在 2-3 句
+- 完成后告知用户已写入的 plan path 与文件名，便于在左侧打开`,
   triggers: ({ mode }) => mode === 'plan',
 }

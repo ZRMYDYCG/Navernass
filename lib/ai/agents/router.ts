@@ -7,13 +7,15 @@ import { DEFAULT_AGENT_ID, getAgent, listAgents } from './registry'
  * Router Agent (MVP)
  *
  * 按前端选择的 mode 决定 agent、skill 白名单与工具子集：
- *   - ask    → 只读咨询，禁用写入类 skill
- *   - plan   → 规划大纲/设定，启用 story-planning
- *   - agent  → 完整写作代理，可按关键词启用 editor-surgical
+ *   - ask       → 只读咨询
+ *   - plan      → Plan 规划文件，启用 story-planning
+ *   - outline   → 大纲树，启用 outline-editing
+ *   - worldbook → 世界观库，启用 worldbook-editing
+ *   - agent     → 完整写作代理，可按关键词启用 editor-surgical
  */
 export interface RouterInput {
   text: string
-  mode: 'agent' | 'ask' | 'plan' | string
+  mode: 'agent' | 'ask' | 'plan' | 'outline' | 'worldbook' | string
 }
 
 export function route(input: RouterInput): RouteDecision {

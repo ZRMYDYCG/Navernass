@@ -49,6 +49,11 @@ const editor = {
     loading: 'Papier wird vorbereitet...',
     placeholder: 'Beginnen Sie Ihre Geschichte hier...',
   },
+  planFile: {
+    placeholder: 'Plan hier schreiben…',
+    loadFailed: 'Plan-Datei konnte nicht geladen werden',
+    loading: 'Wird geladen…',
+  },
   chapterCharacterPreview: {
     title: 'Charakterbeziehungen in diesem Kapitel',
     characterCount: '{{count}} Charaktere',
@@ -335,6 +340,15 @@ const editor = {
         subtitle: 'Starten Sie, indem Sie Ihr erstes Kapitel oder Ihren ersten Band hinzufügen',
       },
     },
+    planDrawer: {
+      title: 'Plan',
+      pathHint: 'Plan-Modus — Skills, Hooks und Versionsverlauf',
+      comingSoon: 'Demnächst',
+      skills: 'Skills',
+      hooks: 'Hooks',
+      versions: 'Versionsverlauf',
+      empty: 'Noch keine Plan-Dateien — im Plan-Modus per KI anlegen',
+    },
     searchTab: {
       keywordLabel: 'Suchbegriff',
       keywordPlaceholder: 'Suchbegriff...',
@@ -532,6 +546,7 @@ const editor = {
     remove: 'Entfernen',
     referenceChapter: 'Referenzkapitel',
     newChat: 'Neuer Chat',
+    newChatAlreadyActive: 'Bereits ein neuer Chat',
     historyButton: 'Verlauf',
     deepThinking: 'Tiefes Nachdenken',
     streaming: 'Schreibt…',
@@ -539,6 +554,8 @@ const editor = {
     empty: {
       title: 'KI-Schreibassistent',
       description: 'Setzen Sie den Plot fort, verfeinern Sie Prosa und polieren Sie Dialoge mit KI.',
+      brandName: 'Versakit Lab',
+      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: 'Fragemodus',
@@ -546,7 +563,15 @@ const editor = {
         },
         plan: {
           title: 'Planungsmodus',
-          description: 'Story-Struktur und Gliederung — Planungsdaten können gespeichert werden',
+          description: 'Story-Struktur planen — in Plan-Dateien in der linken Seitenleiste speichern',
+        },
+        outline: {
+          title: 'Gliederungsmodus',
+          description: 'Band/Kapitel/Szenen-Knoten im Gliederungsbaum speichern',
+        },
+        worldbook: {
+          title: 'Worldbook-Modus',
+          description: 'Lore-Einträge in der Worldbook-Bibliothek verwalten',
         },
         agent: {
           title: 'Agent-Modus',
@@ -567,20 +592,28 @@ const editor = {
     mode: {
       ask: 'Fragen',
       plan: 'Planen',
+      outline: 'Gliederung',
+      worldbook: 'Worldbook',
       agent: 'Agent',
       description: {
         ask: 'Nur Beratung — keine Bearbeitung oder Speicherung',
-        plan: 'Gliederung und Lore strukturieren, Planungsdaten speichern',
+        plan: 'Story-Pläne in Plan-Dateien der Seitenleiste',
+        outline: 'Gliederungsknoten im Gliederungs-Tab',
+        worldbook: 'Lore-Einträge im Worldbook-Tab',
         agent: 'Voller Agent — bearbeiten, fortsetzen, Kapitel verwalten',
       },
       placeholder: {
         ask: 'Frage zu Plot, Lore oder Stil…',
-        plan: 'Hilf mir, das nächste Kapitel zu planen…',
+        plan: 'Story planen und in Plan-Datei speichern…',
+        outline: 'Kapitelgliederung im Baum organisieren…',
+        worldbook: 'Worldbuilding-Einträge organisieren…',
         agent: 'Fortsetzen, polieren, bearbeiten oder Lore ordnen…',
       },
     },
     history: {
       title: 'Verlauf',
+      searchPlaceholder: 'Sitzungen suchen…',
+      noResults: 'Keine passenden Sitzungen',
       close: 'Schließen',
       empty: 'Kein Verlauf',
       recent: 'Zuletzt',
@@ -624,6 +657,8 @@ const editor = {
         list_worldbook_entries: 'Weltbau-Einträge auflisten',
         read_worldbook_entry: 'Weltbau-Eintrag lesen',
         list_outlines: 'Gliederungen auflisten',
+        list_plan_files: 'List plan files',
+        read_plan_file: 'Read plan file',
         list_character_events: 'Charakter-Zeitstrahl',
         list_characters: 'Charaktere auflisten',
         ask_user: 'Informationen sammeln',
@@ -641,6 +676,9 @@ const editor = {
         create_outline: 'Gliederung erstellen',
         update_outline: 'Gliederung aktualisieren',
         delete_outline: 'Gliederung löschen',
+        create_plan_file: 'Plan-Datei erstellen',
+        update_plan_file: 'Plan-Datei aktualisieren',
+        delete_plan_file: 'Plan-Datei löschen',
         create_character_event: 'Zeitstrahl-Ereignis hinzufügen',
         update_character_event: 'Zeitstrahl-Ereignis aktualisieren',
         delete_character_event: 'Zeitstrahl-Ereignis löschen',
@@ -659,6 +697,9 @@ const editor = {
         create_outline: 'Gliederung „{{title}}“ erstellt',
         update_outline: 'Gliederung aktualisiert: „{{title}}“',
         delete_outline: 'Gliederung „{{title}}“ gelöscht',
+        create_plan_file: 'Plan-Datei „{{title}}“ erstellt',
+        update_plan_file: 'Plan-Datei aktualisiert: „{{title}}“',
+        delete_plan_file: 'Plan-Datei „{{title}}“ gelöscht',
         create_character_event: 'Ereignis „{{title}}“ hinzugefügt',
         update_character_event: 'Ereignis aktualisiert: „{{title}}“',
         delete_character_event: 'Ereignis „{{title}}“ gelöscht',
@@ -669,6 +710,7 @@ const editor = {
         deleteVolume: 'Band gelöscht: {{title}}',
         deleteWorldbook: 'Weltbau-Eintrag gelöscht: {{title}}',
         deleteOutline: 'Gliederung gelöscht: {{title}}',
+        deletePlanFile: 'Plan file deleted: {{title}}',
         deleteEvent: 'Ereignis gelöscht: {{title}}',
       },
       proposeEdit: {

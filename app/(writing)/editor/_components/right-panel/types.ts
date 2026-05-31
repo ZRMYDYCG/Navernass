@@ -2,7 +2,7 @@
  * AI 助手相关类型定义
  */
 
-export type AiMode = 'agent' | 'ask' | 'plan'
+export type AiMode = 'agent' | 'ask' | 'plan' | 'outline' | 'worldbook'
 
 export type AiModel =
   | 'MiniMax-M2.7'

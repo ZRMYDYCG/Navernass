@@ -27,6 +27,17 @@ import { VolumeItem } from './volume-item'
 
 const ROOT_DROP_ZONE_ID = '__root__'
 
+function normalizeVolumeId(volumeId: string | null | undefined): string | null {
+  return volumeId ?? null
+}
+
+function sameVolume(
+  a: string | null | undefined,
+  b: string | null | undefined,
+): boolean {
+  return normalizeVolumeId(a) === normalizeVolumeId(b)
+}
+
 interface ChapterListProps {
   chapters: Chapter[]
   volumes: Volume[]
@@ -98,6 +109,8 @@ export function ChapterList({
 
   // dragStart 时记录 active 项的初始容器（卷 id），用于 dragEnd 判断是否跨卷
   const startVolumeIdRef = useRef<string | null | undefined>(undefined)
+  const lastHasVolumesRef = useRef<boolean | null>(null)
+  const lastAllExpandedRef = useRef<boolean | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -122,10 +135,15 @@ export function ChapterList({
     && localVolumes.every(v => expandedVolumes.has(v.id))
 
   useEffect(() => {
-    onHasVolumesChange?.(localVolumes.length > 0)
+    const hasVolumes = localVolumes.length > 0
+    if (lastHasVolumesRef.current === hasVolumes) return
+    lastHasVolumesRef.current = hasVolumes
+    onHasVolumesChange?.(hasVolumes)
   }, [localVolumes.length, onHasVolumesChange])
 
   useEffect(() => {
+    if (lastAllExpandedRef.current === allVolumesExpanded) return
+    lastAllExpandedRef.current = allVolumesExpanded
     onAllVolumesExpandedChange?.(allVolumesExpanded)
   }, [allVolumesExpanded, onAllVolumesExpandedChange])
 
@@ -161,12 +179,34 @@ export function ChapterList({
     const id = String(event.active.id)
     setActiveId(id)
     const ch = localChapters.find(c => c.id === id)
-    startVolumeIdRef.current = ch ? (ch.volume_id ?? null) : undefined
+    startVolumeIdRef.current = ch ? normalizeVolumeId(ch.volume_id) : undefined
+  }
+
+  const insertChapterIntoVolume = (
+    chapters: Chapter[],
+    chapterId: string,
+    volumeId: string,
+  ): Chapter[] => {
+    const idx = chapters.findIndex(c => c.id === chapterId)
+    if (idx < 0) return chapters
+
+    const moving = { ...chapters[idx], volume_id: volumeId }
+    const rest = chapters.filter(c => c.id !== chapterId)
+
+    let insertAt = rest.length
+    for (let i = rest.length - 1; i >= 0; i--) {
+      if (sameVolume(rest[i].volume_id, volumeId)) {
+        insertAt = i + 1
+        break
+      }
+    }
+
+    return [...rest.slice(0, insertAt), moving, ...rest.slice(insertAt)]
   }
 
   /**
    * 实时排序：拖动经过其他项时，立即把 active 项移到目标位置。
-   * 这是"刀切式"体验的关键——不是等松手才移动。
+   * 仅在数据实际变化时 setState，避免 dragOver 触发无限重渲染。
    */
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event
@@ -175,27 +215,32 @@ export function ChapterList({
     const overId = String(over.id)
     if (activeId === overId) return
 
-    const activeChapter = localChapters.find(c => c.id === activeId)
     const activeVolume = localVolumes.find(v => v.id === activeId)
 
     // 卷之间排序
     if (activeVolume) {
-      const overVolumeIdx = localVolumes.findIndex(v => v.id === overId)
-      if (overVolumeIdx < 0) return
-      const oldIdx = localVolumes.findIndex(v => v.id === activeId)
-      if (oldIdx === overVolumeIdx) return
-      setLocalVolumes(prev => arrayMove(prev, oldIdx, overVolumeIdx))
+      setLocalVolumes((prev) => {
+        const oldIdx = prev.findIndex(v => v.id === activeId)
+        const overVolumeIdx = prev.findIndex(v => v.id === overId)
+        if (oldIdx < 0 || overVolumeIdx < 0 || oldIdx === overVolumeIdx) return prev
+        return arrayMove(prev, oldIdx, overVolumeIdx)
+      })
       return
     }
 
+    const activeChapter = localChapters.find(c => c.id === activeId)
     if (!activeChapter) return
 
     // 章节拖到根空白：移出卷到根尾部
     if (overId === ROOT_DROP_ZONE_ID) {
-      if (activeChapter.volume_id !== undefined) {
-        setLocalChapters(prev => prev.map(c =>
-          c.id === activeId ? { ...c, volume_id: undefined } : c,
-        ))
+      if (!sameVolume(activeChapter.volume_id, null)) {
+        setLocalChapters((prev) => {
+          const idx = prev.findIndex(c => c.id === activeId)
+          if (idx < 0 || sameVolume(prev[idx].volume_id, null)) return prev
+          const moving = { ...prev[idx], volume_id: undefined }
+          const rest = prev.filter(c => c.id !== activeId)
+          return [...rest, moving]
+        })
       }
       return
     }
@@ -203,10 +248,9 @@ export function ChapterList({
     // 章节拖到卷标题：移入该卷末尾
     const overVolume = localVolumes.find(v => v.id === overId)
     if (overVolume) {
-      if (activeChapter.volume_id !== overVolume.id) {
-        setLocalChapters(prev => prev.map(c =>
-          c.id === activeId ? { ...c, volume_id: overVolume.id } : c,
-        ))
+      if (!sameVolume(activeChapter.volume_id, overVolume.id)) {
+        setLocalChapters(prev => insertChapterIntoVolume(prev, activeId, overVolume.id))
+        setExpandedVolumes(prev => new Set([...prev, overVolume.id]))
       }
       return
     }
@@ -215,23 +259,37 @@ export function ChapterList({
     const overChapter = localChapters.find(c => c.id === overId)
     if (!overChapter) return
 
-    const targetVolumeId = overChapter.volume_id ?? undefined
-    const isSameContainer = activeChapter.volume_id === targetVolumeId
+    const targetVolumeId = normalizeVolumeId(overChapter.volume_id)
 
-    if (isSameContainer) {
-      const oldIdx = localChapters.findIndex(c => c.id === activeId)
-      const newIdx = localChapters.findIndex(c => c.id === overId)
-      if (oldIdx === newIdx) return
-      setLocalChapters(prev => arrayMove(prev, oldIdx, newIdx))
-    } else {
-      // 跨卷：先把章节的 volume_id 改成目标卷，并把它插入到目标章节附近
+    if (sameVolume(activeChapter.volume_id, targetVolumeId)) {
       setLocalChapters((prev) => {
-        const next = prev.map(c => c.id === activeId ? { ...c, volume_id: targetVolumeId } : c)
-        const oldIdx = next.findIndex(c => c.id === activeId)
-        const newIdx = next.findIndex(c => c.id === overId)
-        if (oldIdx < 0 || newIdx < 0) return next
-        return arrayMove(next, oldIdx, newIdx)
+        const oldIdx = prev.findIndex(c => c.id === activeId)
+        const newIdx = prev.findIndex(c => c.id === overId)
+        if (oldIdx < 0 || newIdx < 0 || oldIdx === newIdx) return prev
+        return arrayMove(prev, oldIdx, newIdx)
       })
+    } else {
+      setLocalChapters((prev) => {
+        const oldIdx = prev.findIndex(c => c.id === activeId)
+        const newIdx = prev.findIndex(c => c.id === overId)
+        if (oldIdx < 0 || newIdx < 0) return prev
+
+        const nextVolumeKey = targetVolumeId
+        const needsVolumeUpdate = !sameVolume(prev[oldIdx]?.volume_id, nextVolumeKey)
+        const mapped = needsVolumeUpdate
+          ? prev.map(c => c.id === activeId
+            ? { ...c, volume_id: nextVolumeKey ?? undefined }
+            : c)
+          : prev
+
+        const fromIdx = mapped.findIndex(c => c.id === activeId)
+        const toIdx = mapped.findIndex(c => c.id === overId)
+        if (fromIdx < 0 || toIdx < 0 || (fromIdx === toIdx && !needsVolumeUpdate)) return prev
+        return arrayMove(mapped, fromIdx, toIdx)
+      })
+      if (targetVolumeId) {
+        setExpandedVolumes(prev => new Set([...prev, targetVolumeId]))
+      }
     }
   }
 
@@ -259,14 +317,14 @@ export function ChapterList({
     // 章节
     if (finalChapter) {
       const startVolumeId = startVolumeIdRef.current
-      const endVolumeId = finalChapter.volume_id ?? null
+      const endVolumeId = normalizeVolumeId(finalChapter.volume_id)
       const movedAcrossVolumes = startVolumeId !== endVolumeId
 
       if (movedAcrossVolumes) {
         onMoveChapterToVolume?.(wasActiveId, endVolumeId)
       } else {
         const containerChapters = localChapters
-          .filter(c => (c.volume_id ?? null) === endVolumeId)
+          .filter(c => sameVolume(c.volume_id, endVolumeId))
           .map((c, i) => ({ ...c, order_index: i }))
         onReorderChapters?.(containerChapters)
       }
@@ -304,7 +362,7 @@ export function ChapterList({
   )
 
   return (
-    <div className="flex-1 overflow-y-auto p-2 scrollbar-none">
+    <div className="min-h-0 flex-1 overflow-y-auto p-2 scrollbar-none">
       {!hasContent
         ? (
             <EmptyChapters onCreateChapter={onCreateChapter} onCreateVolume={onCreateVolume} />

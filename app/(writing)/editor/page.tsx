@@ -14,7 +14,8 @@ import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { chaptersApi, charactersApi, novelsApi, relationshipsApi, volumesApi } from '@/lib/supabase/sdk'
-import { selectOrderedChapters, selectOrderedVolumes, useAiEditsStore, useCharacterGraphStore, useCharacterMaterialStore, useChaptersStore } from '@/store'
+import { isPlanTabId, parsePlanTabId, planTabId } from '@/lib/editor/plan-path'
+import { selectOrderedChapters, selectOrderedVolumes, useAiEditsStore, useCharacterGraphStore, useCharacterMaterialStore, useChaptersStore, usePlanStore } from '@/store'
 import { useShallow } from 'zustand/react/shallow'
 import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
 import { CharacterPanel } from './_components/character-panel'
@@ -22,6 +23,7 @@ import { CreateChapterDialog } from './_components/create-chapter-dialog'
 import { CreateVolumeDialog } from './_components/create-volume-dialog'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
 import EditorContent from './_components/editor-content'
+import { PlanFileEditor } from './_components/plan-file-editor'
 import EditorHeader from './_components/editor-header'
 import { EditorWelcome } from './_components/editor-welcome'
 import { ImmersiveRegion } from './_components/immersive-region'
@@ -50,6 +52,8 @@ function NovelsEditContent() {
   const [characters, setCharacters] = useState<NovelCharacter[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedChapter, setSelectedChapter] = useState<string | null>(null)
+  const selectedPlanFileId = usePlanStore(s => s.selectedPlanFileId)
+  const setSelectedPlanFileId = usePlanStore(s => s.setSelectedPlanFileId)
   const [openTabs, setOpenTabs] = useState<Array<{ id: string, title: string }>>([])
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const isMobile = useIsMobile()
@@ -174,6 +178,7 @@ function NovelsEditContent() {
       // 一次性 hydrate chapters store —— page.tsx 的 chapters/volumes 直接从 store 派生
       // 后续切章节直接命中缓存，无需再请求；AI 写入也通过 store 自动反映到左侧
       useChaptersStore.getState().hydrate(novelId, chaptersData, volumesData)
+      usePlanStore.getState().resetForNovel(novelId)
 
       // 存入角色素材 store
       useCharacterMaterialStore.getState().setCharacters(charactersData)
@@ -262,6 +267,7 @@ function NovelsEditContent() {
       useCharacterGraphStore.getState().setChapterCharacterPreview(null)
     }
 
+    setSelectedPlanFileId(null)
     setSelectedChapter(chapterId)
 
     // 如果该章节不在已打开的标签页中，添加它
@@ -277,6 +283,76 @@ function NovelsEditContent() {
       setLeftDrawerOpen(false)
     }
   }
+
+  const handleSelectPlanFile = (planFileId: string) => {
+    const file = usePlanStore.getState().planFilesById[planFileId]
+    if (!file) return
+
+    const tabId = planTabId(planFileId)
+    setSelectedChapter(null)
+    setSelectedPlanFileId(planFileId)
+
+    if (!openTabs.find(tab => tab.id === tabId)) {
+      setOpenTabs([...openTabs, { id: tabId, title: file.name }])
+    }
+
+    setActiveTab(tabId)
+
+    if (isMobile) {
+      setLeftDrawerOpen(false)
+    }
+  }
+
+  const handleEditorTabChange = (tabId: string) => {
+    setActiveTab(tabId)
+    if (isPlanTabId(tabId)) {
+      setSelectedChapter(null)
+      setSelectedPlanFileId(parsePlanTabId(tabId))
+    } else {
+      setSelectedPlanFileId(null)
+      setSelectedChapter(tabId)
+    }
+  }
+
+  const syncSelectionAfterTabClose = (nextActiveTab: string | null) => {
+    if (!nextActiveTab) {
+      setSelectedChapter(null)
+      setSelectedPlanFileId(null)
+      return
+    }
+    if (isPlanTabId(nextActiveTab)) {
+      setSelectedChapter(null)
+      setSelectedPlanFileId(parsePlanTabId(nextActiveTab))
+    } else {
+      setSelectedPlanFileId(null)
+      setSelectedChapter(nextActiveTab)
+    }
+  }
+
+  // AI / store 删除章节后，关闭已失效的章节 tab（避免 EditorContent 把软删章节拉回列表）
+  useEffect(() => {
+    const chapterIds = new Set(chapters.map(c => c.id))
+    const staleTabIds = openTabs
+      .filter(tab => !isPlanTabId(tab.id) && !chapterIds.has(tab.id))
+      .map(tab => tab.id)
+
+    if (staleTabIds.length === 0) return
+
+    const staleSet = new Set(staleTabIds)
+    const remaining = openTabs.filter(tab => !staleSet.has(tab.id))
+
+    setOpenTabs(remaining)
+
+    setActiveTab((prev) => {
+      if (!prev || !staleSet.has(prev)) return prev
+      return remaining.length > 0 ? remaining[remaining.length - 1].id : null
+    })
+    setSelectedChapter((prev) => {
+      if (!prev || !staleSet.has(prev)) return prev
+      const chapterTabs = remaining.filter(tab => !isPlanTabId(tab.id))
+      return chapterTabs.length > 0 ? chapterTabs[chapterTabs.length - 1].id : null
+    })
+  }, [chapters, openTabs])
 
   const focusEditId = useAiEditsStore(s => s.focusEditId)
   const focusEdit = useAiEditsStore(s => (focusEditId ? s.edits[focusEditId] : undefined))
@@ -307,11 +383,12 @@ function NovelsEditContent() {
     setOpenTabs(newTabs)
     if (activeTab === tabId) {
       if (newTabs.length > 0) {
-        setActiveTab(newTabs[newTabs.length - 1].id)
-        setSelectedChapter(newTabs[newTabs.length - 1].id)
+        const nextTab = newTabs[newTabs.length - 1].id
+        setActiveTab(nextTab)
+        syncSelectionAfterTabClose(nextTab)
       } else {
         setActiveTab(null)
-        setSelectedChapter(null)
+        syncSelectionAfterTabClose(null)
       }
     }
   }
@@ -323,14 +400,14 @@ function NovelsEditContent() {
 
     setOpenTabs([tabToKeep])
     setActiveTab(tabId)
-    setSelectedChapter(tabId)
+    syncSelectionAfterTabClose(tabId)
   }
 
   // 关闭所有标签页
   const closeAllTabs = () => {
     setOpenTabs([])
     setActiveTab(null)
-    setSelectedChapter(null)
+    syncSelectionAfterTabClose(null)
   }
 
   // 关闭左侧标签页
@@ -342,7 +419,7 @@ function NovelsEditContent() {
     setOpenTabs(newTabs)
     if (activeTab !== tabId) {
       setActiveTab(tabId)
-      setSelectedChapter(tabId)
+      syncSelectionAfterTabClose(tabId)
     }
   }
 
@@ -356,7 +433,7 @@ function NovelsEditContent() {
     // 如果当前激活的标签页在右侧，需要切换到当前标签页
     if (activeTab !== tabId && !newTabs.find(tab => tab.id === activeTab)) {
       setActiveTab(tabId)
-      setSelectedChapter(tabId)
+      syncSelectionAfterTabClose(tabId)
     }
   }
 
@@ -842,6 +919,7 @@ function NovelsEditContent() {
       setIsDeletingChapter(true)
       await chaptersApi.delete(chapterToDelete.id)
       toast.success('章节删除成功！')
+      useChaptersStore.getState().removeChapter(chapterToDelete.id)
 
       // 如果删除的是当前打开的章节，关闭它
       if (activeTab === chapterToDelete.id) {
@@ -1081,9 +1159,11 @@ function NovelsEditContent() {
                     chapters={formattedChapters}
                     volumes={volumes}
                     selectedChapter={selectedChapter}
+                    selectedPlanFileId={selectedPlanFileId}
                     activeTab={activeLeftTab as LeftTabType}
                     onTabChange={setActiveLeftTab as (tab: LeftTabType) => void}
                     onSelectChapter={handleSelectChapter}
+                    onSelectPlanFile={handleSelectPlanFile}
                     onCreateChapter={handleOpenCreateChapterDialog}
                     onCreateChapterQuick={handleQuickCreateChapter}
                     onCreateChapterInVolume={handleCreateChapterInVolume}
@@ -1118,15 +1198,31 @@ function NovelsEditContent() {
                   ? (
                       <CharacterPanel novelId={novelId!} novelTitle={novel?.title} />
                     )
-                  : selectedChapter === null || activeTab === null
+                  : activeTab === null
                     ? (
                         <EditorWelcome />
                       )
-                    : (
+                    : isPlanTabId(activeTab) && selectedPlanFileId
+                      ? (
+                          <PlanFileEditor
+                            openTabs={openTabs}
+                            activeTab={activeTab}
+                            onTabChange={handleEditorTabChange}
+                            onTabClose={closeTab}
+                            onTabCloseOthers={closeOtherTabs}
+                            onTabCloseAll={closeAllTabs}
+                            onTabCloseLeft={closeLeftTabs}
+                            onTabCloseRight={closeRightTabs}
+                            novelId={novelId!}
+                            novelTitle={novel.title}
+                            planFileId={selectedPlanFileId}
+                          />
+                        )
+                      : (
                         <EditorContent
                           openTabs={openTabs}
                           activeTab={activeTab}
-                          onTabChange={setActiveTab}
+                          onTabChange={handleEditorTabChange}
                           onTabClose={closeTab}
                           onTabCloseOthers={closeOtherTabs}
                           onTabCloseAll={closeAllTabs}
@@ -1176,9 +1272,11 @@ function NovelsEditContent() {
                     chapters={formattedChapters}
                     volumes={volumes}
                     selectedChapter={selectedChapter}
+                    selectedPlanFileId={selectedPlanFileId}
                     activeTab={activeLeftTab as LeftTabType}
                     onTabChange={setActiveLeftTab as (tab: LeftTabType) => void}
                     onSelectChapter={handleSelectChapter}
+                    onSelectPlanFile={handleSelectPlanFile}
                     onCreateChapter={handleOpenCreateChapterDialog}
                     onCreateChapterQuick={handleQuickCreateChapter}
                     onCreateVolume={handleOpenCreateVolumeDialog}

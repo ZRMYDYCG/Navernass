@@ -49,6 +49,11 @@ const editor = {
     loading: 'Préparation du support...',
     placeholder: 'Commencez votre histoire ici...',
   },
+  planFile: {
+    placeholder: 'Rédigez votre plan ici…',
+    loadFailed: 'Échec du chargement du fichier de plan',
+    loading: 'Chargement…',
+  },
   chapterCharacterPreview: {
     title: 'Relations des personnages du chapitre',
     characterCount: '{{count}} personnages',
@@ -335,6 +340,15 @@ const editor = {
         subtitle: 'Commencez à créer en ajoutant votre premier chapitre ou volume',
       },
     },
+    planDrawer: {
+      title: 'Plan',
+      pathHint: 'Espace Plan — skills, hooks et historique des versions',
+      comingSoon: 'Bientôt',
+      skills: 'Skills',
+      hooks: 'Hooks',
+      versions: 'Historique',
+      empty: 'Aucun fichier de plan — demandez à l’IA en mode Plan',
+    },
     searchTab: {
       keywordLabel: 'Mot-clé',
       keywordPlaceholder: 'Rechercher un mot-clé...',
@@ -532,6 +546,7 @@ const editor = {
     remove: 'Supprimer',
     referenceChapter: 'Chapitre de référence',
     newChat: 'Nouvelle conversation',
+    newChatAlreadyActive: 'Déjà une nouvelle conversation',
     historyButton: 'Historique',
     deepThinking: 'Réflexion approfondie',
     streaming: 'Rédaction…',
@@ -539,6 +554,8 @@ const editor = {
     empty: {
       title: 'Assistant d\'écriture IA',
       description: 'Poursuivez l\'intrigue, affinez le texte et peaufinez les dialogues avec l\'IA.',
+      brandName: 'Versakit Lab',
+      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: 'Mode Demander',
@@ -546,7 +563,15 @@ const editor = {
         },
         plan: {
           title: 'Mode Planifier',
-          description: 'Structurer l\'histoire et les plans — les données peuvent être enregistrées',
+          description: 'Structurer l\'histoire — enregistrer dans les fichiers Plan de la barre latérale',
+        },
+        outline: {
+          title: 'Mode Outline',
+          description: 'Nœuds volume/chapitre/scène dans l\'arbre Outline',
+        },
+        worldbook: {
+          title: 'Mode Worldbook',
+          description: 'Entrées de lore dans la bibliothèque Worldbook',
         },
         agent: {
           title: 'Mode Agent',
@@ -567,20 +592,28 @@ const editor = {
     mode: {
       ask: 'Demander',
       plan: 'Planifier',
+      outline: 'Outline',
+      worldbook: 'Worldbook',
       agent: 'Agent',
       description: {
         ask: 'Conseil en lecture seule — pas de modification ni d\'écriture',
-        plan: 'Structurer plans et lore ; peut enregistrer des données de planification',
+        plan: 'Plans d\'histoire dans les fichiers Plan de la barre latérale',
+        outline: 'Nœuds d\'outline dans l\'onglet Outline',
+        worldbook: 'Entrées de lore dans l\'onglet Worldbook',
         agent: 'Agent complet — révision, continuation et gestion des chapitres',
       },
       placeholder: {
         ask: 'Question sur l\'intrigue, le lore ou le style…',
-        plan: 'Aide-moi à planifier le prochain chapitre…',
+        plan: 'Planifier l\'histoire et l\'enregistrer dans un fichier Plan…',
+        outline: 'Organiser les plans de chapitres dans l\'arbre…',
+        worldbook: 'Organiser les entrées de worldbuilding…',
         agent: 'Continuer, peaufiner, réviser ou organiser le lore…',
       },
     },
     history: {
       title: 'Historique',
+      searchPlaceholder: 'Rechercher des sessions…',
+      noResults: 'Aucune session correspondante',
       close: 'Fermer',
       empty: 'Aucun historique',
       recent: 'Récent',
@@ -624,6 +657,8 @@ const editor = {
         list_worldbook_entries: 'Lister les entrées de lore',
         read_worldbook_entry: 'Lire une entrée de lore',
         list_outlines: 'Lister les plans',
+        list_plan_files: 'List plan files',
+        read_plan_file: 'Read plan file',
         list_character_events: 'Chronologie du personnage',
         list_characters: 'Lister les personnages',
         ask_user: 'Collecter des informations',
@@ -641,6 +676,9 @@ const editor = {
         create_outline: 'Créer un plan',
         update_outline: 'Mettre à jour le plan',
         delete_outline: 'Supprimer le plan',
+        create_plan_file: 'Créer un fichier de plan',
+        update_plan_file: 'Mettre à jour le fichier de plan',
+        delete_plan_file: 'Supprimer le fichier de plan',
         create_character_event: 'Ajouter un événement chronologique',
         update_character_event: 'Mettre à jour l’événement',
         delete_character_event: 'Supprimer l’événement',
@@ -659,6 +697,9 @@ const editor = {
         create_outline: 'Plan « {{title}} » créé',
         update_outline: 'Plan mis à jour : « {{title}} »',
         delete_outline: 'Plan « {{title}} » supprimé',
+        create_plan_file: 'Fichier de plan « {{title}} » créé',
+        update_plan_file: 'Fichier de plan mis à jour : « {{title}} »',
+        delete_plan_file: 'Fichier de plan « {{title}} » supprimé',
         create_character_event: 'Événement « {{title}} » ajouté',
         update_character_event: 'Événement mis à jour : « {{title}} »',
         delete_character_event: 'Événement « {{title}} » supprimé',
@@ -669,6 +710,7 @@ const editor = {
         deleteVolume: 'Volume supprimé : {{title}}',
         deleteWorldbook: 'Entrée supprimée : {{title}}',
         deleteOutline: 'Plan supprimé : {{title}}',
+        deletePlanFile: 'Plan file deleted: {{title}}',
         deleteEvent: 'Événement supprimé : {{title}}',
       },
       proposeEdit: {

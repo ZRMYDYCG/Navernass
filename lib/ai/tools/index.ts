@@ -25,6 +25,13 @@ import {
   listOutlinesTool,
   updateOutlineTool,
 } from './outlines'
+import {
+  createPlanFileTool,
+  deletePlanFileTool,
+  listPlanFilesTool,
+  readPlanFileTool,
+  updatePlanFileTool,
+} from './plan-files'
 import { proposeEditTool } from './propose-edit'
 import { readChapterTool } from './read-chapter'
 import { searchChaptersTool } from './search-chapters'
@@ -72,6 +79,12 @@ export function registerBuiltinTools() {
   registerTool('create_outline', createOutlineTool)
   registerTool('update_outline', updateOutlineTool)
   registerTool('delete_outline', deleteOutlineTool)
+  // Plan 规划文件
+  registerTool('list_plan_files', listPlanFilesTool)
+  registerTool('read_plan_file', readPlanFileTool)
+  registerTool('create_plan_file', createPlanFileTool)
+  registerTool('update_plan_file', updatePlanFileTool)
+  registerTool('delete_plan_file', deletePlanFileTool)
   // 角色时间线
   registerTool('list_character_events', listCharacterEventsTool)
   registerTool('create_character_event', createCharacterEventTool)

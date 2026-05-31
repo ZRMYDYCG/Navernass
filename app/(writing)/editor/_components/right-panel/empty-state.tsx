@@ -8,46 +8,61 @@ interface EmptyStateProps {
   mode?: AiMode
 }
 
-export function EmptyState({ mode = 'ask' }: EmptyStateProps) {
+export function EmptyState({ mode = 'agent' }: EmptyStateProps) {
   const { t } = useI18n()
   const title = t(`editor.rightPanel.empty.byMode.${mode}.title`)
   const description = t(`editor.rightPanel.empty.byMode.${mode}.description`)
 
   return (
-    <div className="h-full flex flex-col items-center justify-center text-center px-6 relative">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none hidden dark:block">
-        <div className="absolute top-[15%] left-[10%] w-[60%] h-[0.5px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent rotate-[-15deg] animate-pulse [animation-duration:3s]" />
-        <div className="absolute top-[35%] right-[5%] w-[55%] h-[0.5px] bg-gradient-to-r from-transparent via-sky-400/50 to-transparent rotate-[10deg] animate-pulse [animation-duration:4s] [animation-delay:0.5s]" />
-        <div className="absolute top-[60%] left-[15%] w-[50%] h-[0.5px] bg-gradient-to-r from-transparent via-pink-400/40 to-transparent rotate-[-8deg] animate-pulse [animation-duration:3.5s] [animation-delay:1s]" />
-        <div className="absolute top-[80%] right-[10%] w-[45%] h-[0.5px] bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent rotate-[6deg] animate-pulse [animation-duration:4.5s] [animation-delay:1.5s]" />
+    <div className="h-full flex flex-col px-6 relative">
+      <div className="flex items-center justify-center gap-2 pt-10 shrink-0">
+        <Image
+          src="/logo.png"
+          width={20}
+          height={20}
+          alt={t('editor.rightPanel.empty.brandLogoAlt')}
+          className="shrink-0"
+        />
+        <span className="text-sm font-serif text-foreground tracking-tight">
+          {t('editor.rightPanel.empty.brandName')}
+        </span>
       </div>
 
-      <div className="mb-6 relative z-10">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center">
-          <Image
-            src="/assets/svg/logo-dark.svg"
-            width={50}
-            height={50}
-            alt={t('editor.logoAlt')}
-            className="dark:hidden"
-          />
-          <Image
-            src="/assets/svg/logo-light.svg"
-            width={50}
-            height={50}
-            alt={t('editor.logoAlt')}
-            className="hidden dark:block"
-          />
+      <div className="flex-1 flex flex-col items-center justify-center text-center relative min-h-0">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none hidden dark:block">
+          <div className="absolute top-[15%] left-[10%] w-[60%] h-[0.5px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent rotate-[-15deg] animate-pulse [animation-duration:3s]" />
+          <div className="absolute top-[35%] right-[5%] w-[55%] h-[0.5px] bg-gradient-to-r from-transparent via-sky-400/50 to-transparent rotate-[10deg] animate-pulse [animation-duration:4s] [animation-delay:0.5s]" />
+          <div className="absolute top-[60%] left-[15%] w-[50%] h-[0.5px] bg-gradient-to-r from-transparent via-pink-400/40 to-transparent rotate-[-8deg] animate-pulse [animation-duration:3.5s] [animation-delay:1s]" />
+          <div className="absolute top-[80%] right-[10%] w-[45%] h-[0.5px] bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent rotate-[6deg] animate-pulse [animation-duration:4.5s] [animation-delay:1.5s]" />
         </div>
-      </div>
 
-      <div className="relative z-10">
-        <h3 className="text-lg font-medium text-foreground mb-2 tracking-tight">
-          {title}
-        </h3>
-        <p className="text-sm text-muted-foreground mb-8 max-w-xs leading-relaxed">
-          {description}
-        </p>
+        <div className="mb-6 relative z-10">
+          <div className="w-20 h-20 rounded-full flex items-center justify-center">
+            <Image
+              src="/assets/svg/logo-dark.svg"
+              width={50}
+              height={50}
+              alt={t('editor.logoAlt')}
+              className="dark:hidden"
+            />
+            <Image
+              src="/assets/svg/logo-light.svg"
+              width={50}
+              height={50}
+              alt={t('editor.logoAlt')}
+              className="hidden dark:block"
+            />
+          </div>
+        </div>
+
+        <div className="relative z-10">
+          <h3 className="text-lg font-medium text-foreground mb-2 tracking-tight">
+            {title}
+          </h3>
+          <p className="text-sm text-muted-foreground mb-8 max-w-xs leading-relaxed">
+            {description}
+          </p>
+        </div>
       </div>
     </div>
   )

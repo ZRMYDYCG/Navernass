@@ -49,6 +49,11 @@ const editor = {
     loading: '紙面を準備中...',
     placeholder: 'ここから物語を始めましょう...',
   },
+  planFile: {
+    placeholder: 'ここに計画を書いてください…',
+    loadFailed: '計画ファイルの読み込みに失敗',
+    loading: '読み込み中…',
+  },
   chapterCharacterPreview: {
     title: '本章のキャラクター関係',
     characterCount: '{{count}} 人',
@@ -335,6 +340,15 @@ const editor = {
         subtitle: '最初の章や巻を追加して作成を始めましょう',
       },
     },
+    planDrawer: {
+      title: '計画',
+      pathHint: 'Plan モード作業スペース — スキル、フック、履歴',
+      comingSoon: '近日公開',
+      skills: 'Skills',
+      hooks: 'Hooks',
+      versions: '履歴',
+      empty: '計画ファイルがありません。Plan モードで AI に作成を依頼してください',
+    },
     searchTab: {
       keywordLabel: 'キーワード',
       keywordPlaceholder: 'キーワードを検索...',
@@ -532,6 +546,7 @@ const editor = {
     remove: '削除',
     referenceChapter: '参照章',
     newChat: '新しいチャット',
+    newChatAlreadyActive: 'すでに新しいチャットです',
     historyButton: '履歴',
     deepThinking: '深く考える',
     streaming: '執筆中…',
@@ -539,6 +554,8 @@ const editor = {
     empty: {
       title: 'AI執筆アシスタント',
       description: 'AIと一緒にプロットを進め、文章を整え、会話を磨きましょう。',
+      brandName: 'Versakit Lab',
+      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: '質問モード',
@@ -546,7 +563,15 @@ const editor = {
         },
         plan: {
           title: '計画モード',
-          description: '物語構成とアウトラインを整理 — 計画データを保存できます',
+          description: '物語構成を整理 — 左サイドバーの「計画」ファイルに保存',
+        },
+        outline: {
+          title: 'アウトラインモード',
+          description: '卷/章/シーンのノードを「アウトライン」ツリーに保存',
+        },
+        worldbook: {
+          title: '世界観モード',
+          description: '設定エントリを「世界観」ライブラリに保存',
         },
         agent: {
           title: '実行モード',
@@ -567,20 +592,28 @@ const editor = {
     mode: {
       ask: '質問',
       plan: '計画',
+      outline: 'アウトライン',
+      worldbook: '世界観',
       agent: '実行',
       description: {
         ask: '読み取り専用の相談 — 編集・書き込みなし',
-        plan: 'アウトラインと設定を整理、計画データを保存可能',
+        plan: '物語の計画を左側の計画ファイルに保存',
+        outline: 'アウトラインタブのツリーノードを編集',
+        worldbook: '世界観タブの設定エントリを編集',
         agent: 'フルエージェント — 改稿・続き書き・章管理',
       },
       placeholder: {
         ask: 'プロット、設定、文体について質問…',
-        plan: '次の章のアウトラインを整理して…',
+        plan: '物語の計画を整理して計画ファイルに保存…',
+        outline: '章のアウトラインを整理してツリーに保存…',
+        worldbook: '世界観設定を整理してライブラリに保存…',
         agent: '続き書き、推敲、改稿、設定整理…',
       },
     },
     history: {
       title: '履歴',
+      searchPlaceholder: 'セッションを検索…',
+      noResults: '一致するセッションがありません',
       close: '閉じる',
       empty: '履歴なし',
       recent: '最近',
@@ -624,6 +657,8 @@ const editor = {
         list_worldbook_entries: '世界観エントリ一覧',
         read_worldbook_entry: '世界観エントリを読む',
         list_outlines: 'アウトライン一覧',
+        list_plan_files: 'List plan files',
+        read_plan_file: 'Read plan file',
         list_character_events: 'キャラクター年表',
         list_characters: 'キャラクター一覧',
         ask_user: '情報収集',
@@ -641,6 +676,9 @@ const editor = {
         create_outline: 'アウトラインを作成',
         update_outline: 'アウトラインを更新',
         delete_outline: 'アウトラインを削除',
+        create_plan_file: '計画ファイルを作成',
+        update_plan_file: '計画ファイルを更新',
+        delete_plan_file: '計画ファイルを削除',
         create_character_event: 'タイムラインイベントを追加',
         update_character_event: 'タイムラインイベントを更新',
         delete_character_event: 'タイムラインイベントを削除',
@@ -659,6 +697,9 @@ const editor = {
         create_outline: 'アウトライン「{{title}}」を作成しました',
         update_outline: 'アウトラインを「{{title}}」に更新しました',
         delete_outline: 'アウトライン「{{title}}」を削除しました',
+        create_plan_file: '計画ファイル「{{title}}」を作成しました',
+        update_plan_file: '計画ファイルを「{{title}}」に更新しました',
+        delete_plan_file: '計画ファイル「{{title}}」を削除しました',
         create_character_event: 'タイムラインイベント「{{title}}」を追加しました',
         update_character_event: 'タイムラインイベントを「{{title}}」に更新しました',
         delete_character_event: 'タイムラインイベント「{{title}}」を削除しました',
@@ -669,6 +710,7 @@ const editor = {
         deleteVolume: '巻を削除：{{title}}',
         deleteWorldbook: '世界観エントリを削除：{{title}}',
         deleteOutline: 'アウトラインを削除：{{title}}',
+        deletePlanFile: 'Plan file deleted: {{title}}',
         deleteEvent: 'タイムラインイベントを削除：{{title}}',
       },
       proposeEdit: {

@@ -9,6 +9,7 @@ export * from './news'
 export * from './novel-conversations'
 export * from './novels'
 export * from './outlines'
+export * from './plan-files'
 export * from './relationships'
 export * from './types'
 

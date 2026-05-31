@@ -28,6 +28,12 @@ export {
   useAiEditsStore,
 } from './modules/ai-edits-store'
 
+// Plan Store (zustand + immer)
+export {
+  selectOrderedPlanFiles,
+  usePlanStore,
+} from './modules/plan-store'
+
 // Worldview Store (zustand + immer)
 export {
   selectOrderedOutlines,

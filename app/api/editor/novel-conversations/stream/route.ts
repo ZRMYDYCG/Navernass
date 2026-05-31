@@ -3,6 +3,11 @@ import type { NextRequest } from 'next/server'
 import { convertToModelMessages } from 'ai'
 import { bootstrapAgents, runWriterAgent, route, getAgent } from '@/lib/ai/agents'
 import { DEFAULT_LLM_MODEL } from '@/lib/ai/minimax'
+import {
+  sanitizeUIMessagePartsForDisplay,
+  sanitizeUIMessagesForModel,
+  stripToolPartsFromMessages,
+} from '@/lib/ai/sanitize-ui-messages'
 import { ChaptersService } from '@/lib/supabase/sdk/services/chapters.service'
 import { NovelConversationsService } from '@/lib/supabase/sdk/services/novel-conversations.service'
 import { NovelMessagesService } from '@/lib/supabase/sdk/services/novel-messages.service'
@@ -107,7 +112,14 @@ export async function POST(req: NextRequest) {
   }
 
   // 构建 model messages（注入章节上下文到最后一条 user message）
-  const modelMessages = await convertToModelMessages(messages)
+  let modelMessages
+  try {
+    const sanitized = sanitizeUIMessagesForModel(messages)
+    modelMessages = await convertToModelMessages(sanitized)
+  } catch (error) {
+    console.warn('[stream] convertToModelMessages failed after sanitize, fallback to text-only:', error)
+    modelMessages = await convertToModelMessages(stripToolPartsFromMessages(messages))
+  }
   if (contextMessage && modelMessages.length > 0) {
     const last = modelMessages[modelMessages.length - 1]
     if (last.role === 'user' && typeof last.content === 'string') {
@@ -209,9 +221,10 @@ export async function POST(req: NextRequest) {
           return
         }
 
-        lastAssistantParts = (lastAssistant.parts || []) as unknown[]
+        const rawParts = (lastAssistant.parts || []) as unknown[]
+        lastAssistantParts = sanitizeUIMessagePartsForDisplay(rawParts)
         const partsCount = lastAssistantParts.length
-        console.log('[stream/uiOnFinish] saving assistant, parts count:', partsCount)
+        console.log('[stream/uiOnFinish] saving assistant, parts count:', partsCount, '(raw:', rawParts.length, ')')
         const saved = await messagesService.upsert({
           id: lastAssistant.id,
           conversation_id: conversation.id,

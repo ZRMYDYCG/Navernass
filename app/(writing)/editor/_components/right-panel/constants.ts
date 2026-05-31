@@ -1,13 +1,15 @@
 import type { ModelOption, ModeOption } from './types'
-import { Bot, ClipboardList, MessageSquare } from 'lucide-react'
+import { Bot, ClipboardList, Globe2, ListTree, MessageSquare } from 'lucide-react'
 
 /**
  * AI 模式选项配置
  */
 export const MODE_OPTIONS: ModeOption[] = [
+  { value: 'agent', label: 'Agent', icon: Bot },
   { value: 'ask', label: 'Ask', icon: MessageSquare },
   { value: 'plan', label: 'Plan', icon: ClipboardList },
-  { value: 'agent', label: 'Agent', icon: Bot },
+  { value: 'outline', label: 'Outline', icon: ListTree },
+  { value: 'worldbook', label: 'Worldbook', icon: Globe2 },
 ]
 
 /**

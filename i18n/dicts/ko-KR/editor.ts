@@ -49,6 +49,11 @@ const editor = {
     loading: '종이를 준비하는 중...',
     placeholder: '여기서 이야기를 시작해 보세요...',
   },
+  planFile: {
+    placeholder: '여기에 계획을 작성하세요…',
+    loadFailed: '계획 파일 불러오기 실패',
+    loading: '불러오는 중…',
+  },
   chapterCharacterPreview: {
     title: '이번 장 캐릭터 관계',
     characterCount: '캐릭터 {{count}}명',
@@ -335,6 +340,15 @@ const editor = {
         subtitle: '첫 장 또는 권을 추가해 창작을 시작해 보세요',
       },
     },
+    planDrawer: {
+      title: '계획',
+      pathHint: 'Plan 모드 작업 공간 — 스킬, 훅, 버전 기록',
+      comingSoon: '곧 제공',
+      skills: 'Skills',
+      hooks: 'Hooks',
+      versions: '버전 기록',
+      empty: '계획 파일이 없습니다. Plan 모드에서 AI에게 생성을 요청하세요',
+    },
     searchTab: {
       keywordLabel: '키워드',
       keywordPlaceholder: '키워드 검색...',
@@ -532,6 +546,7 @@ const editor = {
     remove: '제거',
     referenceChapter: '참고 장',
     newChat: '새 채팅',
+    newChatAlreadyActive: '이미 새 채팅 상태입니다',
     historyButton: '기록',
     deepThinking: '심층 사고',
     streaming: '집필 중…',
@@ -539,6 +554,8 @@ const editor = {
     empty: {
       title: 'AI 글쓰기 도우미',
       description: '플롯을 이어가고, 문장을 다듬고, 대사를 윤문하는 데 AI를 활용하세요.',
+      brandName: 'Versakit Lab',
+      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: '질문 모드',
@@ -546,7 +563,15 @@ const editor = {
         },
         plan: {
           title: '기획 모드',
-          description: '스토리 구조와 개요 정리 — 기획 데이터 저장 가능',
+          description: '스토리 구조 정리 — 왼쪽 사이드바 「기획」 파일에 저장',
+        },
+        outline: {
+          title: '개요 모드',
+          description: '권/장/장면 노드를 「개요」 트리에 저장',
+        },
+        worldbook: {
+          title: '세계관 모드',
+          description: '설정 항목을 「세계관」 라이브러리에 저장',
         },
         agent: {
           title: '실행 모드',
@@ -567,20 +592,28 @@ const editor = {
     mode: {
       ask: '질문',
       plan: '기획',
+      outline: '개요',
+      worldbook: '세계관',
       agent: '실행',
       description: {
         ask: '읽기 전용 상담 — 편집·저장 없음',
-        plan: '개요와 설정 정리, 기획 데이터 저장 가능',
+        plan: '스토리 기획을 왼쪽 기획 파일에 저장',
+        outline: '개요 탭의 트리 노드 편집',
+        worldbook: '세계관 탭의 설정 항목 편집',
         agent: '전체 에이전트 — 교정·이어쓰기·챕터 관리',
       },
       placeholder: {
         ask: '플롯, 설정, 문체에 대해 질문…',
-        plan: '다음 장 개요를 정리해 줘…',
+        plan: '스토리 기획을 정리해서 기획 파일에 저장…',
+        outline: '장 개요를 정리해서 개요 트리에 저장…',
+        worldbook: '세계관 설정을 정리해서 라이브러리에 저장…',
         agent: '이어쓰기, 다듬기, 교정, 설정 정리…',
       },
     },
     history: {
       title: '기록',
+      searchPlaceholder: '세션 검색…',
+      noResults: '일치하는 세션이 없습니다',
       close: '닫기',
       empty: '기록이 없습니다',
       recent: '최근',
@@ -624,6 +657,8 @@ const editor = {
         list_worldbook_entries: '세계관 항목 목록',
         read_worldbook_entry: '세계관 항목 읽기',
         list_outlines: '개요 목록',
+        list_plan_files: 'List plan files',
+        read_plan_file: 'Read plan file',
         list_character_events: '캐릭터 타임라인',
         list_characters: '캐릭터 목록',
         ask_user: '정보 수집',
@@ -641,6 +676,9 @@ const editor = {
         create_outline: '개요 만들기',
         update_outline: '개요 수정',
         delete_outline: '개요 삭제',
+        create_plan_file: '계획 파일 생성',
+        update_plan_file: '계획 파일 업데이트',
+        delete_plan_file: '계획 파일 삭제',
         create_character_event: '타임라인 이벤트 추가',
         update_character_event: '타임라인 이벤트 수정',
         delete_character_event: '타임라인 이벤트 삭제',
@@ -659,6 +697,9 @@ const editor = {
         create_outline: '개요 "{{title}}" 생성됨',
         update_outline: '개요가 "{{title}}"(으)로 업데이트됨',
         delete_outline: '개요 "{{title}}" 삭제됨',
+        create_plan_file: '계획 파일 "{{title}}" 생성됨',
+        update_plan_file: '계획 파일이 "{{title}}"(으)로 업데이트됨',
+        delete_plan_file: '계획 파일 "{{title}}" 삭제됨',
         create_character_event: '타임라인 이벤트 "{{title}}" 추가됨',
         update_character_event: '타임라인 이벤트가 "{{title}}"(으)로 업데이트됨',
         delete_character_event: '타임라인 이벤트 "{{title}}" 삭제됨',
@@ -669,6 +710,7 @@ const editor = {
         deleteVolume: '권 삭제: {{title}}',
         deleteWorldbook: '세계관 항목 삭제: {{title}}',
         deleteOutline: '개요 삭제: {{title}}',
+        deletePlanFile: 'Plan file deleted: {{title}}',
         deleteEvent: '타임라인 이벤트 삭제: {{title}}',
       },
       proposeEdit: {

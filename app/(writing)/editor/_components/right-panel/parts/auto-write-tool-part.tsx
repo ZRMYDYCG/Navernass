@@ -4,7 +4,7 @@ import { Check, Loader2, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
-import { useChaptersStore, useTimelineStore, useWorldviewStore } from '@/store'
+import { useChaptersStore, usePlanStore, useTimelineStore, useWorldviewStore } from '@/store'
 import { translateToolLabel, translateToolSuccess } from './tool-i18n'
 
 export type AutoWriteToolName =
@@ -21,6 +21,9 @@ export type AutoWriteToolName =
   | 'create_outline'
   | 'update_outline'
   | 'delete_outline'
+  | 'create_plan_file'
+  | 'update_plan_file'
+  | 'delete_plan_file'
   | 'create_character_event'
   | 'update_character_event'
   | 'delete_character_event'
@@ -51,6 +54,8 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
   const removeWorldbookEntry = useWorldviewStore(s => s.removeWorldbookEntry)
   const upsertOutline = useWorldviewStore(s => s.upsertOutline)
   const removeOutline = useWorldviewStore(s => s.removeOutline)
+  const upsertPlanFile = usePlanStore(s => s.upsertPlanFile)
+  const removePlanFile = usePlanStore(s => s.removePlanFile)
   const upsertEvent = useTimelineStore(s => s.upsertEvent)
   const removeEvent = useTimelineStore(s => s.removeEvent)
 
@@ -59,14 +64,16 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
   useEffect(() => {
     if (state !== 'output-available') return
     if (processedKeys.has(partKey)) return
-    processedKeys.add(partKey)
 
     if (!output?.ok) {
+      processedKeys.add(partKey)
       toast.error(t('editor.rightPanel.tools.common.toastFailed', { label }), {
         description: output?.error || output?.hint || errorText,
       })
       return
     }
+
+    processedKeys.add(partKey)
 
     switch (toolName) {
       case 'create_volume':
@@ -141,6 +148,22 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
           description: output.reason,
         })
         break
+      case 'create_plan_file':
+      case 'update_plan_file':
+        if (output.plan_file) upsertPlanFile(output.plan_file)
+        toast.success(t('editor.rightPanel.tools.common.toastSuccess', {
+          label,
+          title: output.title || output.name || '',
+        }))
+        break
+      case 'delete_plan_file':
+        if (output.plan_file_id) removePlanFile(output.plan_file_id)
+        toast.success(t('editor.rightPanel.tools.toast.deletePlanFile', {
+          title: output.title || '',
+        }), {
+          description: output.reason,
+        })
+        break
       case 'create_character_event':
       case 'update_character_event':
         if (output.event) upsertEvent(output.event)
@@ -163,6 +186,7 @@ export function AutoWriteToolPart({ partKey, toolName, state, input, output, err
     upsertVolume, upsertChapter, removeChapter, removeVolume,
     upsertWorldbookEntry, removeWorldbookEntry,
     upsertOutline, removeOutline,
+    upsertPlanFile, removePlanFile,
     upsertEvent, removeEvent,
   ])
 
@@ -234,6 +258,9 @@ const TOOL_ICONS: Record<AutoWriteToolName, typeof Plus> = {
   create_outline: Plus,
   update_outline: Pencil,
   delete_outline: Trash2,
+  create_plan_file: Plus,
+  update_plan_file: Pencil,
+  delete_plan_file: Trash2,
   create_character_event: Plus,
   update_character_event: Pencil,
   delete_character_event: Trash2,

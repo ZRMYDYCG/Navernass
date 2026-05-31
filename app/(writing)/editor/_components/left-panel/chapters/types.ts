@@ -6,7 +6,9 @@ export interface ChaptersTabProps {
   chapters: Chapter[]
   volumes: Volume[]
   selectedChapter: string | null
+  selectedPlanFileId?: string | null
   onSelectChapter: (id: string) => void
+  onSelectPlanFile?: (id: string) => void
   onCreateChapter?: () => void
   onCreateChapterQuick?: () => void
   onCreateChapterInVolume?: (volumeId: string) => void

@@ -49,7 +49,7 @@ export function ModeSelector({ value, onChange }: ModeSelectorProps) {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute bottom-full mb-1 left-0 z-20 min-w-[200px] bg-card border border-border rounded-lg shadow-xl py-1 animate-in fade-in-0 zoom-in-95 duration-200">
+          <div className="absolute bottom-full mb-1 left-0 z-20 min-w-[220px] bg-card border border-border rounded-lg shadow-xl py-1 animate-in fade-in-0 zoom-in-95 duration-200">
             {MODE_OPTIONS.map((mode) => {
               const IconComp = mode.icon
               const isActive = value === mode.value

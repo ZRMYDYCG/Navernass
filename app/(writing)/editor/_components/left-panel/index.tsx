@@ -10,9 +10,11 @@ interface LeftPanelProps {
   chapters: Chapter[]
   volumes?: Volume[]
   selectedChapter: string | null
+  selectedPlanFileId?: string | null
   activeTab: LeftTabType
   onTabChange: (tab: LeftTabType) => void
   onSelectChapter: (id: string) => void
+  onSelectPlanFile?: (id: string) => void
   onCreateChapter?: () => void
   onCreateChapterQuick?: () => void
   onCreateChapterInVolume?: (volumeId: string) => void
@@ -38,9 +40,11 @@ export default function LeftPanel({
   chapters,
   volumes = [],
   selectedChapter,
+  selectedPlanFileId,
   activeTab,
   onTabChange,
   onSelectChapter,
+  onSelectPlanFile,
   onCreateChapter,
   onCreateChapterQuick,
   onCreateChapterInVolume,
@@ -76,7 +80,9 @@ export default function LeftPanel({
               chapters={chapters}
               volumes={volumes}
               selectedChapter={selectedChapter}
+              selectedPlanFileId={selectedPlanFileId}
               onSelectChapter={onSelectChapter}
+              onSelectPlanFile={onSelectPlanFile}
               onCreateChapter={onCreateChapter}
               onCreateChapterQuick={onCreateChapterQuick}
               onCreateChapterInVolume={onCreateChapterInVolume}

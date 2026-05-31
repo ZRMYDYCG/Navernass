@@ -458,6 +458,38 @@ export interface UpdateOutlineDto {
 }
 
 // =============================================
+// Plan 规划文件
+// =============================================
+
+export interface PlanFile {
+  id: string
+  user_id: string
+  novel_id: string
+  path: string
+  name: string
+  content: string
+  order_index: number
+  created_at: string
+  updated_at: string
+  deleted_at?: string | null
+}
+
+export interface CreatePlanFileDto {
+  novel_id: string
+  path: string
+  name?: string
+  content?: string
+  order_index?: number
+}
+
+export interface UpdatePlanFileDto {
+  path?: string
+  name?: string
+  content?: string
+  order_index?: number
+}
+
+// =============================================
 // 角色时间线（Character Timeline Events）类型
 // =============================================
 

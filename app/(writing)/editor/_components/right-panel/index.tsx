@@ -10,8 +10,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
+import {
+  sanitizeUIMessagePartsForDisplay,
+  sanitizeUIMessagesForModel,
+} from '@/lib/ai/sanitize-ui-messages'
 import { ChapterMentionPicker } from './chapter-selector'
-import { ConversationHistory } from './conversation-history'
 import { EmptyState } from './empty-state'
 import { Header } from './header'
 import { MessageList } from './message-list'
@@ -43,23 +46,10 @@ function safeParseParts(raw: unknown): unknown[] | null {
 }
 
 /**
- * 清洗历史 parts：丢掉处于"流式中途"或缺少必需字段的 part。
- *
- * 场景：上一次 stream 被网络断开/服务重启，半成品 tool part（state=input-streaming
- * 或没有 output 的 output-available）被持久化。回填时 ai-sdk 会校验 part 形态，
- * 不丢弃就直接抛 "Invalid part" 让整条消息渲染失败。
+ * 清洗历史 parts（与 lib/ai/sanitize-ui-messages 保持一致）
  */
 function sanitizeParts(parts: unknown[]): unknown[] {
-  return parts.filter((p: any) => {
-    if (!p || typeof p !== 'object' || typeof p.type !== 'string') return false
-    if (p.type.startsWith('tool-')) {
-      // 只保留有 state 且至少进入 input-available 的 tool part
-      if (p.state === 'input-streaming') return false
-      // output-available 但 output 是 null/undefined 的也跳过
-      if (p.state === 'output-available' && p.output == null) return false
-    }
-    return true
-  })
+  return sanitizeUIMessagePartsForDisplay(parts)
 }
 
 /**
@@ -112,11 +102,10 @@ export default function RightPanel() {
 
   const [conversations, setConversations] = useState<NovelConversation[]>([])
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
-  const [mode, setMode] = useState<AiMode>('ask')
+  const [mode, setMode] = useState<AiMode>('agent')
   const [model, setModel] = useState<AiModel>('MiniMax-M2.7')
   const [input, setInput] = useState('')
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([])
-  const [showHistory, setShowHistory] = useState(false)
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
   const [loadMessagesError, setLoadMessagesError] = useState<string | null>(null)
   const [submittedFormKeys, setSubmittedFormKeys] = useState<Set<string>>(() => new Set())
@@ -147,7 +136,7 @@ export default function RightPanel() {
         prepareSendMessagesRequest: ({ messages, body }) => ({
           body: {
             ...body,
-            messages,
+            messages: sanitizeUIMessagesForModel(messages),
             novelId: novelIdRef.current,
             conversationId: conversationIdRef.current || undefined,
             selectedChapterIds: selectedChaptersRef.current.map(c => c.id),
@@ -292,12 +281,9 @@ export default function RightPanel() {
     setSubmittedFormKeys(new Set())
   }
 
-  const handleShowHistory = () => setShowHistory(true)
-
   const handleSelectConversation = async (conversation: NovelConversation) => {
     if (isLoading) stop()
     setCurrentConversationId(conversation.id)
-    setShowHistory(false)
   }
 
   const handleDeleteConversation = async (conversationId: string) => {
@@ -313,19 +299,17 @@ export default function RightPanel() {
     }
   }
 
-  const handlePinConversation = async (conversationId: string, isPinned: boolean) => {
-    try {
-      await novelConversationsApi.update(conversationId, { is_pinned: isPinned })
-      await loadConversations()
-    } catch (e) {
-      console.error('Failed to pin conversation:', e)
-    }
-  }
-
   return (
     <div className="h-full w-full bg-transparent relative">
       <div className="h-full flex flex-col border-border bg-background">
-        <Header onNewChat={handleNewChat} onShowHistory={handleShowHistory} />
+        <Header
+          onNewChat={handleNewChat}
+          isNewChatActive={!currentConversationId && !hasMessages}
+          conversations={conversations}
+          currentConversationId={currentConversationId || undefined}
+          onSelectConversation={handleSelectConversation}
+          onDeleteConversation={handleDeleteConversation}
+        />
 
         <div className="flex-1 min-h-0 overflow-hidden px-2 py-2 relative">
           {isLoadingMessages
@@ -415,17 +399,6 @@ export default function RightPanel() {
             )}
           />
         </div>
-
-        {showHistory && (
-          <ConversationHistory
-            conversations={conversations}
-            currentConversationId={currentConversationId || undefined}
-            onSelect={handleSelectConversation}
-            onDelete={handleDeleteConversation}
-            onPin={handlePinConversation}
-            onClose={() => setShowHistory(false)}
-          />
-        )}
       </div>
     </div>
   )

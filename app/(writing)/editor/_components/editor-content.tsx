@@ -87,6 +87,10 @@ export default function EditorContent({
   const chapterCharacterPreviewChapterId = useCharacterGraphStore(state => state.chapterCharacterPreviewChapterId)
   const showCharacterPreview = chapterCharacterPreviewChapterId === chapterId
   const cachedChapter = useChaptersStore(state => (chapterId ? state.chaptersById[chapterId] : undefined))
+  const chaptersStoreHydrated = useChaptersStore(state => state.hydrated)
+  const chapterListedInStore = useChaptersStore(state =>
+    chapterId ? state.chapterIdsOrdered.includes(chapterId) : false,
+  )
   const upsertChapterInStore = useChaptersStore(state => state.upsertChapter)
 
   // 找到当前章节所属的卷（优先使用传入的 chapters 数据，不等待加载）
@@ -132,6 +136,15 @@ export default function EditorContent({
       return
     }
 
+    // store 已 hydrate 且列表中无此章 → 已被删除，勿再 getById 拉回
+    if (chaptersStoreHydrated && !chapterListedInStore) {
+      setChapter(null)
+      editorContentRef.current = ''
+      setLoading(false)
+      loadingChapterIdRef.current = null
+      return
+    }
+
     loadingChapterIdRef.current = chapterId
     editorContentRef.current = ''
 
@@ -139,14 +152,20 @@ export default function EditorContent({
       try {
         setLoading(true)
         const data = await chaptersApi.getById(chapterId)
-        if (loadingChapterIdRef.current === chapterId) {
-          setChapter(data)
-          editorContentRef.current = data.content
-          upsertChapterInStore(data)
+        if (loadingChapterIdRef.current !== chapterId) return
+        if (data.deleted_at) {
+          setChapter(null)
+          return
         }
+        setChapter(data)
+        editorContentRef.current = data.content
+        upsertChapterInStore(data)
       } catch (error) {
-        const message = error instanceof Error ? error.message : t('editor.messages.loadChapterFailed')
-        toast.error(message)
+        if (loadingChapterIdRef.current === chapterId) {
+          setChapter(null)
+          const message = error instanceof Error ? error.message : t('editor.messages.loadChapterFailed')
+          toast.error(message)
+        }
       } finally {
         setLoading(false)
         if (loadingChapterIdRef.current === chapterId) {
@@ -156,7 +175,7 @@ export default function EditorContent({
     }
 
     loadChapter()
-  }, [chapterId, cachedChapter, upsertChapterInStore, t])
+  }, [chapterId, cachedChapter, chaptersStoreHydrated, chapterListedInStore, upsertChapterInStore, t])
 
   const handleUpdate = async (content: string) => {
     editorContentRef.current = content

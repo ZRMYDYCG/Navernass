@@ -49,6 +49,11 @@ const editor = {
     loading: 'Preparing paper...',
     placeholder: 'Start your story here...',
   },
+  planFile: {
+    placeholder: 'Write your plan here…',
+    loadFailed: 'Failed to load plan file',
+    loading: 'Loading…',
+  },
   chapterCharacterPreview: {
     title: 'Chapter character relations',
     characterCount: '{{count}} characters',
@@ -335,6 +340,15 @@ const editor = {
         subtitle: 'Start creating by adding your first chapter or volume',
       },
     },
+    planDrawer: {
+      title: 'Plan',
+      pathHint: 'Plan mode workspace — skills, hooks & version history',
+      comingSoon: 'Coming soon',
+      skills: 'Skills',
+      hooks: 'Hooks',
+      versions: 'Version history',
+      empty: 'No plan files yet — ask AI in Plan mode to create one',
+    },
     searchTab: {
       keywordLabel: 'Keyword',
       keywordPlaceholder: 'Search keyword...',
@@ -532,6 +546,7 @@ const editor = {
     remove: 'Remove',
     referenceChapter: 'Reference chapter',
     newChat: 'New chat',
+    newChatAlreadyActive: 'Already in a new chat',
     historyButton: 'History',
     deepThinking: 'Deep thinking',
     streaming: 'Writing…',
@@ -539,6 +554,8 @@ const editor = {
     empty: {
       title: 'AI Writing Assistant',
       description: 'Continue the plot, refine the prose, and polish dialogue with AI.',
+      brandName: 'Versakit Lab',
+      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: 'Ask mode',
@@ -546,7 +563,15 @@ const editor = {
         },
         plan: {
           title: 'Plan mode',
-          description: 'Structure your story and outlines — planning data can be saved',
+          description: 'Structure your story — save plans to the left sidebar Plan files',
+        },
+        outline: {
+          title: 'Outline mode',
+          description: 'Edit volume/chapter/scene nodes in the Outline tree',
+        },
+        worldbook: {
+          title: 'Worldbook mode',
+          description: 'Manage lore entries in the Worldbook library',
         },
         agent: {
           title: 'Agent mode',
@@ -567,20 +592,28 @@ const editor = {
     mode: {
       ask: 'Ask',
       plan: 'Plan',
+      outline: 'Outline',
+      worldbook: 'Worldbook',
       agent: 'Agent',
       description: {
         ask: 'Read-only advice — no edits or writes',
-        plan: 'Structure outlines and lore; can save planning data',
+        plan: 'Story plans saved to sidebar Plan files',
+        outline: 'Outline nodes saved to the Outline tab',
+        worldbook: 'Lore entries saved to the Worldbook tab',
         agent: 'Full agent — edit, continue, and manage chapters',
       },
       placeholder: {
         ask: 'Ask about plot, lore, or prose…',
-        plan: 'Help me outline the next chapter…',
+        plan: 'Help me plan the story and save to a plan file…',
+        outline: 'Help me organize chapter outlines in the tree…',
+        worldbook: 'Help me organize worldbuilding entries…',
         agent: 'Continue, polish, edit, or organize lore…',
       },
     },
     history: {
       title: 'History',
+      searchPlaceholder: 'Search sessions…',
+      noResults: 'No matching sessions',
       close: 'Close',
       empty: 'No history',
       recent: 'Recent',
@@ -624,6 +657,8 @@ const editor = {
         list_worldbook_entries: 'List worldbuilding entries',
         read_worldbook_entry: 'Read worldbuilding entry',
         list_outlines: 'List outlines',
+        list_plan_files: 'List plan files',
+        read_plan_file: 'Read plan file',
         list_character_events: 'List character timeline',
         list_characters: 'List characters',
         ask_user: 'Collect information',
@@ -641,6 +676,9 @@ const editor = {
         create_outline: 'Create outline',
         update_outline: 'Update outline',
         delete_outline: 'Delete outline',
+        create_plan_file: 'Create plan file',
+        update_plan_file: 'Update plan file',
+        delete_plan_file: 'Delete plan file',
         create_character_event: 'Add timeline event',
         update_character_event: 'Update timeline event',
         delete_character_event: 'Delete timeline event',
@@ -659,6 +697,9 @@ const editor = {
         create_outline: 'Outline "{{title}}" created',
         update_outline: 'Outline updated to "{{title}}"',
         delete_outline: 'Outline "{{title}}" deleted',
+        create_plan_file: 'Plan file "{{title}}" created',
+        update_plan_file: 'Plan file updated to "{{title}}"',
+        delete_plan_file: 'Plan file "{{title}}" deleted',
         create_character_event: 'Timeline event "{{title}}" added',
         update_character_event: 'Timeline event updated to "{{title}}"',
         delete_character_event: 'Timeline event "{{title}}" deleted',
@@ -669,6 +710,7 @@ const editor = {
         deleteVolume: 'Volume deleted: {{title}}',
         deleteWorldbook: 'Worldbuilding entry deleted: {{title}}',
         deleteOutline: 'Outline deleted: {{title}}',
+        deletePlanFile: 'Plan file deleted: {{title}}',
         deleteEvent: 'Timeline event deleted: {{title}}',
       },
       proposeEdit: {

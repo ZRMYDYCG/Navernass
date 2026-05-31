@@ -49,6 +49,11 @@ const editor = {
     loading: '正在铺开纸张...',
     placeholder: '在此写下故事的开始...',
   },
+  planFile: {
+    placeholder: '在此编写规划内容…',
+    loadFailed: '加载规划文件失败',
+    loading: '加载中…',
+  },
   chapterCharacterPreview: {
     title: '本章角色关系',
     characterCount: '{{count}} 位角色',
@@ -335,6 +340,15 @@ const editor = {
         subtitle: '开始你的创作之旅，创建你的第一个章节或卷',
       },
     },
+    planDrawer: {
+      title: '规划',
+      pathHint: 'Plan 模式工作区 — 技能、钩子与历史版本',
+      comingSoon: '即将推出',
+      skills: 'Skills',
+      hooks: 'Hooks',
+      versions: '历史版本',
+      empty: '暂无规划文件，可在 Plan 模式中让 AI 创建',
+    },
     searchTab: {
       keywordLabel: '搜索关键字',
       keywordPlaceholder: '搜索关键字...',
@@ -532,6 +546,7 @@ const editor = {
     remove: '移除',
     referenceChapter: '引用章节内容',
     newChat: '新建对话',
+    newChatAlreadyActive: '当前已是新对话',
     historyButton: '历史记录',
     deepThinking: '深度思考',
     streaming: '落笔中…',
@@ -539,6 +554,8 @@ const editor = {
     empty: {
       title: 'AI 写作助手',
       description: '我可以帮你续写剧情、优化文字、润色对话，让创作更轻松',
+      brandName: 'Versakit Lab',
+      brandLogoAlt: 'Versakit Lab logo',
       byMode: {
         ask: {
           title: '提问模式',
@@ -546,7 +563,15 @@ const editor = {
         },
         plan: {
           title: '规划模式',
-          description: '梳理故事结构与大纲，把规划写入设定库',
+          description: '梳理故事结构，写入左侧「规划」文件',
+        },
+        outline: {
+          title: '大纲模式',
+          description: '整理卷/章/场景大纲，写入左侧「大纲」树',
+        },
+        worldbook: {
+          title: '世界观模式',
+          description: '整理设定条目，写入左侧「世界观」库',
         },
         agent: {
           title: '执行模式',
@@ -567,20 +592,28 @@ const editor = {
     mode: {
       ask: '提问',
       plan: '规划',
+      outline: '大纲',
+      worldbook: '世界观',
       agent: '执行',
       description: {
         ask: '只读咨询，不会修改章节或落库',
-        plan: '梳理大纲与设定，可写入规划数据',
+        plan: '梳理故事规划，写入左侧规划文件',
+        outline: '编辑大纲树节点，写入左侧大纲页',
+        worldbook: '编辑世界观设定，写入左侧世界观页',
         agent: '完整代理，可改稿、续写、管理章节',
       },
       placeholder: {
         ask: '问我剧情、设定、文笔建议…',
-        plan: '帮我梳理大纲、规划下一章…',
+        plan: '帮我梳理故事规划，写入规划文件…',
+        outline: '帮我整理章节大纲，写入大纲树…',
+        worldbook: '帮我整理世界观设定，写入设定库…',
         agent: '续写、润色、改稿，或整理设定…',
       },
     },
     history: {
       title: '历史对话',
+      searchPlaceholder: '搜索对话…',
+      noResults: '未找到匹配的对话',
       close: '关闭',
       empty: '暂无历史对话',
       recent: '最近',
@@ -624,6 +657,8 @@ const editor = {
         list_worldbook_entries: '列出世界观条目',
         read_worldbook_entry: '读取世界观条目',
         list_outlines: '列出大纲',
+        list_plan_files: '列出规划文件',
+        read_plan_file: '读取规划文件',
         list_character_events: '列出角色时间线',
         list_characters: '列出角色',
         ask_user: '收集信息',
@@ -641,6 +676,9 @@ const editor = {
         create_outline: '创建大纲',
         update_outline: '更新大纲',
         delete_outline: '删除大纲',
+        create_plan_file: '创建规划文件',
+        update_plan_file: '更新规划文件',
+        delete_plan_file: '删除规划文件',
         create_character_event: '添加时间线事件',
         update_character_event: '更新时间线事件',
         delete_character_event: '删除时间线事件',
@@ -659,6 +697,9 @@ const editor = {
         create_outline: '大纲《{{title}}》已创建',
         update_outline: '大纲已更新为《{{title}}》',
         delete_outline: '大纲《{{title}}》已删除',
+        create_plan_file: '规划文件《{{title}}》已创建',
+        update_plan_file: '规划文件已更新为《{{title}}》',
+        delete_plan_file: '规划文件《{{title}}》已删除',
         create_character_event: '时间线事件《{{title}}》已添加',
         update_character_event: '时间线事件已更新为《{{title}}》',
         delete_character_event: '时间线事件《{{title}}》已删除',
@@ -669,6 +710,7 @@ const editor = {
         deleteVolume: '已删除卷：{{title}}',
         deleteWorldbook: '已删除世界观条目：{{title}}',
         deleteOutline: '已删除大纲：{{title}}',
+        deletePlanFile: '已删除规划文件：{{title}}',
         deleteEvent: '已删除时间线事件：{{title}}',
       },
       proposeEdit: {

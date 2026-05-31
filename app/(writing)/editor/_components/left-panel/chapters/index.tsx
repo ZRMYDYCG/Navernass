@@ -2,6 +2,7 @@ import type { ChaptersTabProps } from './types'
 import { useRef, useState } from 'react'
 import { ChapterHeader } from './chapter-header'
 import { ChapterList } from './chapter-list'
+import { PlanDrawer } from './plan-drawer'
 
 export default function ChaptersTab({
   novelTitle,
@@ -9,7 +10,9 @@ export default function ChaptersTab({
   chapters,
   volumes,
   selectedChapter,
+  selectedPlanFileId,
   onSelectChapter,
+  onSelectPlanFile,
   onCreateChapter,
   onCreateChapterQuick,
   onCreateChapterInVolume,
@@ -68,6 +71,11 @@ export default function ChaptersTab({
         onToggleAllVolumesRef={toggleAllVolumesRef}
         onAllVolumesExpandedChange={setAllVolumesExpanded}
         onHasVolumesChange={setHasVolumes}
+      />
+      <PlanDrawer
+        novelId={novelId}
+        selectedPlanFileId={selectedPlanFileId}
+        onSelectPlanFile={onSelectPlanFile}
       />
     </div>
   )

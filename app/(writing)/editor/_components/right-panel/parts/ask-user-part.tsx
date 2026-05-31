@@ -102,7 +102,7 @@ export function AskUserPart({ formKey, state, input, output, errorText }: AskUse
   }
 
   return (
-    <div className="rounded-md border border-border bg-card text-[11.5px] my-1.5 overflow-hidden shadow-paper-sm">
+    <div className="my-1.5 min-w-0 max-w-full overflow-hidden rounded-md border border-border bg-card text-[11.5px] shadow-paper-sm">
       <div className="flex items-center gap-1.5 px-2.5 py-1.5 border-b border-border bg-muted/40">
         <ClipboardList className="w-3 h-3 text-primary shrink-0" />
         <span className="font-medium text-foreground">
@@ -116,7 +116,7 @@ export function AskUserPart({ formKey, state, input, output, errorText }: AskUse
         )}
       </div>
 
-      <div className="px-2.5 py-2 space-y-2.5">
+      <div className="min-w-0 space-y-2.5 px-2.5 py-2">
         {description && (
           <p className="text-[10.5px] text-muted-foreground leading-relaxed">
             {description}
@@ -181,6 +181,53 @@ export function AskUserPart({ formKey, state, input, output, errorText }: AskUse
   )
 }
 
+/** 仅当所有选项文案较短时，才用横向 SegmentedControl */
+function shouldUseCompactRadio(options: { label: string }[]) {
+  return options.length <= 4 && options.every(opt => opt.label.length <= 18)
+}
+
+function RadioOptionList({
+  fieldId,
+  options,
+  value,
+  onChange,
+  disabled,
+}: {
+  fieldId: string
+  options: { label: string, value: string }[]
+  value: string
+  onChange: (v: string) => void
+  disabled?: boolean
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1.5">
+      {options.map(opt => {
+        const selected = value === opt.value
+        const optionId = `${fieldId}-${opt.value}`
+
+        return (
+          <button
+            key={opt.value}
+            id={optionId}
+            type="button"
+            disabled={disabled}
+            aria-pressed={selected}
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              'w-full min-w-0 rounded-lg border px-2.5 py-2 text-left text-[10.5px] leading-relaxed transition-all duration-200',
+              selected
+                ? 'border-border bg-background/95 text-foreground shadow-paper-sm'
+                : 'border-transparent bg-muted/30 text-foreground/90 hover:bg-muted/50',
+            )}
+          >
+            <span className="block break-words">{opt.label}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function FormField({
   field,
   value,
@@ -199,7 +246,7 @@ function FormField({
   return (
     <div
       className={cn(
-        'space-y-1',
+        'min-w-0 space-y-1',
         isNew && 'animate-in fade-in-0 slide-in-from-bottom-1 duration-300',
       )}
     >
@@ -247,27 +294,37 @@ function FormField({
       )}
 
       {field.type === 'radio' && field.options && (
-        field.options.length <= 4
+        shouldUseCompactRadio(field.options)
           ? (
               <SegmentedControl
                 value={value}
                 onValueChange={onChange}
                 disabled={disabled}
-                className="w-full flex-wrap h-auto gap-1 p-1"
+                className="h-auto w-full min-w-0 flex-wrap gap-1 p-1"
                 size="sm"
               >
                 {field.options.map(opt => (
                   <SegmentedControlItem
                     key={opt.value}
                     value={opt.value}
-                    className="flex-1 min-w-0 text-[10px]"
+                    className="min-w-0 flex-1 basis-[calc(33.333%-0.25rem)] whitespace-normal px-2 py-1 text-center text-[10px] leading-snug"
                   >
                     {opt.label}
                   </SegmentedControlItem>
                 ))}
               </SegmentedControl>
             )
-          : (
+          : field.options.length <= 8
+            ? (
+                <RadioOptionList
+                  fieldId={id}
+                  options={field.options}
+                  value={value}
+                  onChange={onChange}
+                  disabled={disabled}
+                />
+              )
+            : (
               <Select value={value} onValueChange={onChange} disabled={disabled}>
                 <SelectTrigger className="h-8 text-[11px]">
                   <SelectValue placeholder={field.placeholder || field.label} />
@@ -301,9 +358,9 @@ function SubmittedSummary({
         {t('editor.rightPanel.askUserForm.submitted')}
       </div>
       {fields.map(f => (
-        <div key={f.id} className="text-[10.5px]">
+        <div key={f.id} className="min-w-0 text-[10.5px]">
           <span className="text-muted-foreground">{f.label}: </span>
-          <span className="text-foreground">{values[f.id] || '—'}</span>
+          <span className="break-words text-foreground">{values[f.id] || '—'}</span>
         </div>
       ))}
     </div>
