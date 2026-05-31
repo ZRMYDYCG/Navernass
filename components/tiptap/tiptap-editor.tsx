@@ -383,12 +383,9 @@ function TiptapEditorInner(props: TiptapEditorProps) {
   useEffect(() => {
     if (editor) {
       editor.setEditable(editable)
-      const editorElement = editor.view.dom
-      if (editable) {
-        editorElement.setAttribute('style', 'cursor: text; opacity: 1;')
-      } else {
-        editorElement.setAttribute('style', 'cursor: default; opacity: 0.8;')
-      }
+      const editorElement = editor.view.dom as HTMLElement
+      editorElement.style.opacity = editable ? '1' : '0.8'
+      editorElement.style.removeProperty('cursor')
     }
   }, [editor, editable])
 

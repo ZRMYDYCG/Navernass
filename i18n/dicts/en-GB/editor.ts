@@ -45,6 +45,19 @@ const editor = {
       night: 'Ink Night',
     },
   },
+  cursor: {
+    label: 'Cursor style',
+    options: {
+      default: 'System default',
+      feather: 'Feather pen',
+      ink: 'Ink drop',
+      brush: 'Brush tip',
+      star: 'Starlight',
+      moon: 'Crescent',
+      leaf: 'Leaf tip',
+      dot: 'Minimal dot',
+    },
+  },
   editor: {
     loading: 'Preparing paper...',
     placeholder: 'Start your story here...',

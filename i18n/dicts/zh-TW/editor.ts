@@ -45,6 +45,19 @@ const editor = {
       night: '墨夜',
     },
   },
+  cursor: {
+    label: '滑鼠樣式',
+    options: {
+      default: '系統預設',
+      feather: '羽筆',
+      ink: '墨滴',
+      brush: '毛筆',
+      star: '星芒',
+      moon: '月弧',
+      leaf: '葉尖',
+      dot: '圓點',
+    },
+  },
   editor: {
     loading: '正在鋪開紙張...',
     placeholder: '在此寫下故事的開始...',

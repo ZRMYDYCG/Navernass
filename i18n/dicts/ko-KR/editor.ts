@@ -45,6 +45,19 @@ const editor = {
       night: '墨夜',
     },
   },
+  cursor: {
+    label: '커서 스타일',
+    options: {
+      default: '시스템 기본',
+      feather: '깃펜',
+      ink: '잉크',
+      brush: '붓',
+      star: '별빛',
+      moon: '초승달',
+      leaf: '잎',
+      dot: '점',
+    },
+  },
   editor: {
     loading: '종이를 준비하는 중...',
     placeholder: '여기서 이야기를 시작해 보세요...',

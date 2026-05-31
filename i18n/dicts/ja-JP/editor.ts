@@ -45,6 +45,19 @@ const editor = {
       night: '墨夜',
     },
   },
+  cursor: {
+    label: 'カーソル',
+    options: {
+      default: 'システム標準',
+      feather: '羽ペン',
+      ink: '墨滴',
+      brush: '毛筆',
+      star: '星芒',
+      moon: '月弧',
+      leaf: '葉先',
+      dot: '丸点',
+    },
+  },
   editor: {
     loading: '紙面を準備中...',
     placeholder: 'ここから物語を始めましょう...',

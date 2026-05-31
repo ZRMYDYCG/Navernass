@@ -45,6 +45,19 @@ const editor = {
       night: 'Nuit Encre',
     },
   },
+  cursor: {
+    label: 'Style de curseur',
+    options: {
+      default: 'Par défaut',
+      feather: 'Plume',
+      ink: 'Encre',
+      brush: 'Pinceau',
+      star: 'Étoile',
+      moon: 'Croissant',
+      leaf: 'Feuille',
+      dot: 'Point',
+    },
+  },
   editor: {
     loading: 'Préparation du support...',
     placeholder: 'Commencez votre histoire ici...',

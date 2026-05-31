@@ -3,6 +3,7 @@
 @import './styles/scrollbar.css';
 @import './styles/editor.css';
 @import './styles/editor-surface.css';
+@import './styles/editor-cursor.css';
 @import './styles/utils.css';
 @import './styles/agui.css';
 

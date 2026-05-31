@@ -15,11 +15,13 @@ import {
   getEditorFontSizeStorageKey,
   parseStoredEditorFontSize,
 } from '@/lib/editor/font-size-options'
+import type { EditorCursorValue } from '@/lib/editor/cursor-options'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 import { useChaptersStore, useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
 import { Breadcrumb } from './breadcrumb'
 import { ChapterCharacterPreviewGraph } from './chapter-character-preview-graph'
+import { EditorCursorPicker } from './editor-cursor-picker'
 import { EditorSurfaceArcPicker } from './editor-surface-arc-picker'
 import { EditorSurfaceScrollArea } from './editor-surface-scroll-area'
 import { SmartTabs } from './smart-tabs'
@@ -45,6 +47,8 @@ interface EditorContentProps {
   volumes?: Volume[]
   chapters?: Chapter[]
   onSelectChapter?: (chapterId: string) => void
+  editorCursor?: EditorCursorValue
+  onEditorCursorChange?: (value: EditorCursorValue) => void
 }
 
 const EMPTY_ARRAY: never[] = []
@@ -68,6 +72,8 @@ export default function EditorContent({
   volumes = EMPTY_ARRAY,
   chapters = EMPTY_ARRAY,
   onSelectChapter,
+  editorCursor,
+  onEditorCursorChange,
 }: EditorContentProps) {
   const { t } = useI18n()
   const { locale } = useLocale()
@@ -370,10 +376,18 @@ export default function EditorContent({
 
       {/* 底部状态栏 */}
       <div className="h-10 px-6 flex items-center justify-between bg-transparent border-t border-border backdrop-blur-sm">
-        <EditorSurfaceArcPicker
-          value={editorSurface}
-          onChange={handleEditorSurfaceChange}
-        />
+        <div className="flex min-w-0 items-center gap-1">
+          <EditorSurfaceArcPicker
+            value={editorSurface}
+            onChange={handleEditorSurfaceChange}
+          />
+          {editorCursor && onEditorCursorChange && (
+            <EditorCursorPicker
+              value={editorCursor}
+              onChange={onEditorCursorChange}
+            />
+          )}
+        </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground font-light tracking-wide">
           <span>
             {t('editor.wordCount')}

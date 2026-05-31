@@ -45,6 +45,19 @@ const editor = {
       night: 'Tintennacht',
     },
   },
+  cursor: {
+    label: 'Cursor-Stil',
+    options: {
+      default: 'Systemstandard',
+      feather: 'Feder',
+      ink: 'Tintentropfen',
+      brush: 'Pinsel',
+      star: 'Stern',
+      moon: 'Mond',
+      leaf: 'Blatt',
+      dot: 'Punkt',
+    },
+  },
   editor: {
     loading: 'Papier wird vorbereitet...',
     placeholder: 'Beginnen Sie Ihre Geschichte hier...',

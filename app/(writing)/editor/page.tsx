@@ -15,6 +15,12 @@ import { useI18n } from '@/hooks/use-i18n'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { chaptersApi, charactersApi, novelsApi, relationshipsApi, volumesApi } from '@/lib/supabase/sdk'
 import { isPlanTabId, parsePlanTabId, planTabId } from '@/lib/editor/plan-path'
+import {
+  DEFAULT_EDITOR_CURSOR,
+  persistEditorCursor,
+  readStoredEditorCursor,
+  type EditorCursorValue,
+} from '@/lib/editor/cursor-options'
 import { selectOrderedChapters, selectOrderedVolumes, useAiEditsStore, useCharacterGraphStore, useCharacterMaterialStore, useChaptersStore, usePlanStore } from '@/store'
 import { useShallow } from 'zustand/react/shallow'
 import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
@@ -22,6 +28,7 @@ import { CharacterPanel } from './_components/character-panel'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
 import { CreateVolumeDialog } from './_components/create-volume-dialog'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
+import { EditorCursorOverlay } from './_components/editor-cursor-overlay'
 import EditorContent from './_components/editor-content'
 import { PlanFileEditor } from './_components/plan-file-editor'
 import EditorHeader from './_components/editor-header'
@@ -97,7 +104,18 @@ function NovelsEditContent() {
   const [activeLeftTab, setActiveLeftTab] = useState<LeftTabType | 'characters'>('files')
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false)
   const [characterPanelClosing, setCharacterPanelClosing] = useState(false)
+  const [editorCursor, setEditorCursor] = useState<EditorCursorValue>(DEFAULT_EDITOR_CURSOR)
+  const editorRootRef = useRef<HTMLDivElement>(null)
   const immersiveActive = isImmersiveMode && !isMobile
+
+  useEffect(() => {
+    setEditorCursor(readStoredEditorCursor())
+  }, [])
+
+  const handleEditorCursorChange = useCallback((value: EditorCursorValue) => {
+    setEditorCursor(value)
+    persistEditorCursor(value)
+  }, [])
 
   useEffect(() => {
     const prev = prevIsMobileRef.current
@@ -1123,7 +1141,16 @@ function NovelsEditContent() {
   return (
     <Tooltip.Provider>
       <LockScreen onLockChange={handleLockChange}>
-        <div className="h-screen flex flex-col overflow-hidden">
+        <div
+          ref={editorRootRef}
+          className="h-screen flex flex-col overflow-hidden"
+          data-editor-cursor={editorCursor}
+        >
+          <EditorCursorOverlay
+            cursor={editorCursor}
+            containerRef={editorRootRef}
+            disabled={isMobile}
+          />
           <ImmersiveRegion isImmersive={immersiveActive}>
             <EditorHeader
               title={activeTab ? chapters.find(c => c.id === activeTab)?.title || t('editor.headerCenter.noChapterSelected') : t('editor.headerCenter.noChapterSelected')}
@@ -1248,6 +1275,8 @@ function NovelsEditContent() {
                           volumes={volumes}
                           chapters={chapters}
                           onSelectChapter={handleSelectChapter}
+                          editorCursor={editorCursor}
+                          onEditorCursorChange={handleEditorCursorChange}
                         />
                       )}
               </ResizablePanel>
