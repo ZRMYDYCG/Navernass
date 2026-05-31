@@ -38,6 +38,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # supabase 工作区临时文件（CLI 自动管理）
 supabase/.temp/
