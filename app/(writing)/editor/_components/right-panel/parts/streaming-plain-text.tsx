@@ -18,7 +18,7 @@ interface StreamingPlainTextProps {
 function StreamingPlainTextInner({ content, isStreaming = false, className }: StreamingPlainTextProps) {
   return (
     <div
-      className={cn('break-words agui-streamdown [&_p]:my-0 [&_p]:leading-relaxed', className)}
+      className={cn('break-words leading-[1.45] agui-streamdown [&_p]:my-0 [&_p]:leading-[1.45]', className)}
       data-streaming={isStreaming ? 'true' : undefined}
     >
       <Streamdown

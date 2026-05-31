@@ -27,6 +27,7 @@ export default function RightPanel() {
     isLoading,
     hasMessages,
     streamingMessageId,
+    isAwaitingFirstToken,
     mode,
     model,
     input,
@@ -105,7 +106,7 @@ export default function RightPanel() {
           }}
         />
 
-        <div className="flex-1 min-h-0 overflow-hidden px-2 py-2 relative">
+        <div className="flex-1 min-h-0 overflow-hidden py-2 relative">
           {isLoadingMessages
             ? (
                 <div className="h-full flex flex-col items-center justify-center gap-2">
@@ -144,7 +145,7 @@ export default function RightPanel() {
                             novelId={novelId}
                             messages={messages}
                             streamingMessageId={streamingMessageId}
-                            isLoading={isLoading && !streamingMessageId}
+                            isLoading={isAwaitingFirstToken}
                           />
                         </MessageErrorBoundary>
                       </ChatActionsProvider>
@@ -156,7 +157,7 @@ export default function RightPanel() {
           )}
         </div>
 
-        <div className="px-3 py-2 space-y-2 bg-background rounded-b-lg z-10">
+        <div className="px-5 py-2 space-y-2 bg-background rounded-b-lg z-10">
           {!hasMessages && !isLoadingMessages && (
             <RecentConversations
               conversations={conversations}

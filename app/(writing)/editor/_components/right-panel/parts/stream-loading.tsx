@@ -18,8 +18,7 @@ export function StreamLoading({ className, variant = 'inline' }: StreamLoadingPr
     return (
       <div
         className={cn(
-          'inline-flex items-center gap-2 rounded-[calc(var(--radius)-2px)]',
-          'border border-border/70 bg-muted/25 px-2.5 py-1.5 shadow-paper-sm',
+          'inline-flex items-center gap-2 px-0.5 py-1',
           'animate-in fade-in-0 slide-in-from-bottom-1 duration-300',
           className,
         )}

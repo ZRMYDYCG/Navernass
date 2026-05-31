@@ -2,8 +2,6 @@
 
 import type { UIMessage, UIMessagePart } from 'ai'
 import { memo } from 'react'
-import { Avatar } from '@/components/ui/avatar'
-import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { findLastRenderableIndex, hasVisibleContent, isBubblePart, isRenderablePart, renderPart } from './registry'
 
@@ -12,8 +10,6 @@ interface MessageRendererProps {
   message: UIMessage
   /** 该消息是否处于流式状态（仅最新 assistant 消息为 true） */
   isStreaming?: boolean
-  /** 用户头像 URL */
-  userAvatar?: string | null
 }
 
 type AnyPart = UIMessagePart<any, any>
@@ -26,8 +22,7 @@ type AnyPart = UIMessagePart<any, any>
  * - 非 bubble part（reasoning 等）独立成块，会打断气泡分组。
  * 这样 reasoning 与 text 可以严格按到达顺序交错呈现。
  */
-function MessageRendererInner({ novelId, message, isStreaming = false, userAvatar }: MessageRendererProps) {
-  const { t } = useI18n()
+function MessageRendererInner({ novelId, message, isStreaming = false }: MessageRendererProps) {
   const isUser = message.role === 'user'
 
   const parts = (message.parts || []) as AnyPart[]
@@ -54,19 +49,16 @@ function MessageRendererInner({ novelId, message, isStreaming = false, userAvata
     }
   }
 
-  // 没有可渲染内容、且不在流式过程中：不渲染
-  if (groups.length === 0 && !isStreaming) return null
+  // 尚无可见 part：由 MessageList 的落笔中指示器承接，避免空白占位
+  if (groups.length === 0) return null
 
   return (
-    <div className={`flex gap-1.5 py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-      {isUser && userAvatar && (
-        <div className="shrink-0 w-5">
-          <Avatar className="w-5 h-5 transition-transform duration-200 hover:scale-110">
-            <img src={userAvatar} alt={t('editor.rightPanel.userAvatarAlt')} className="w-full h-full object-cover" />
-          </Avatar>
-        </div>
+    <div
+      className={cn(
+        'py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200',
+        isUser ? 'flex justify-end' : 'flex justify-start',
       )}
-
+    >
       <div
         className={cn(
           isUser

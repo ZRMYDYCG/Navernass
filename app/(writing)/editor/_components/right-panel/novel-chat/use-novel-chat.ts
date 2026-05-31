@@ -10,6 +10,7 @@ import { useNovelChatContext } from './context'
 import { useNovelChatRuntime } from './provider'
 import { makeConversationKey } from './conversation-keys'
 import { fromChapterRefs, resetDraftConversation, toChapterRefs } from './session-host'
+import { messageHasVisibleContent } from '../parts/registry'
 import { getNovelChatSessionBridge } from './chat-instances'
 
 export function useNovelChat() {
@@ -43,10 +44,19 @@ export function useNovelChat() {
   const hasMessages = messages.length > 0
 
   const streamingMessageId = useMemo(() => {
-    if (status !== 'streaming') return null
+    if (status !== 'submitted' && status !== 'streaming') return null
     const last = messages[messages.length - 1]
     return last?.role === 'assistant' ? last.id : null
   }, [status, messages])
+
+  /** 请求已发出但助手侧尚无可见内容时保持「落笔中」 */
+  const isAwaitingFirstToken = useMemo(() => {
+    if (!isLoading) return false
+    if (!streamingMessageId) return true
+    const streamingMessage = messages.find(m => m.id === streamingMessageId)
+    if (!streamingMessage) return true
+    return !messageHasVisibleContent(streamingMessage, true)
+  }, [isLoading, streamingMessageId, messages])
 
   const mode = uiSession?.mode ?? 'agent'
   const model = uiSession?.model ?? 'MiniMax-M2.7'
@@ -164,6 +174,7 @@ export function useNovelChat() {
     isLoading,
     hasMessages,
     streamingMessageId,
+    isAwaitingFirstToken,
     mode,
     model,
     input,

@@ -1,11 +1,8 @@
 'use client'
 
 import type { UIMessage } from 'ai'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useAuth } from '@/hooks/use-auth'
+import { useCallback, useEffect, useRef } from 'react'
 import { MessageRenderer } from './parts/message-renderer'
-import { ScrollToBottomButton } from './scroll-to-bottom-button'
 import { TypingIndicator } from './typing-indicator'
 
 const SCROLL_THRESHOLD = 100
@@ -29,16 +26,14 @@ export function MessageList({
   streamingMessageId = null,
   isLoading = false,
 }: MessageListProps) {
-  const { profile } = useAuth()
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
   const lastStreamingLengthRef = useRef(0)
-  const [showScrollButton, setShowScrollButton] = useState(false)
   const isNearBottomRef = useRef(true)
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    const container = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null
+    const container = scrollContainerRef.current
     if (container) {
       if (behavior === 'auto') {
         container.scrollTop = container.scrollHeight
@@ -51,16 +46,14 @@ export function MessageList({
   }, [])
 
   const checkIfNearBottom = useCallback(() => {
-    const container = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    const container = scrollContainerRef.current
     if (!container) return true
     const { scrollTop, scrollHeight, clientHeight } = container
     return scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD
   }, [])
 
   const handleScroll = useCallback(() => {
-    const near = checkIfNearBottom()
-    isNearBottomRef.current = near
-    setShowScrollButton(!near)
+    isNearBottomRef.current = checkIfNearBottom()
   }, [checkIfNearBottom])
 
   // 新消息到来时滚动
@@ -117,20 +110,13 @@ export function MessageList({
   // 首次挂载（已有消息）滚动到底
   useEffect(() => {
     if (messages.length > 0) {
-      const t = setTimeout(() => {
-        const container = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null
-        if (container) {
-          container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
-        } else {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-        }
-      }, 100)
+      const t = setTimeout(() => scrollToBottom('smooth'), 100)
       return () => clearTimeout(t)
     }
-  }, [messages.length])
+  }, [messages.length, scrollToBottom])
 
   useEffect(() => {
-    const container = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    const container = scrollContainerRef.current
     if (!container) return
     container.addEventListener('scroll', handleScroll)
     return () => container.removeEventListener('scroll', handleScroll)
@@ -139,30 +125,22 @@ export function MessageList({
   if (messages.length === 0) return null
 
   return (
-    <div className="relative h-full w-full">
-      <ScrollArea
-        ref={scrollAreaRef}
-        className="h-full w-full overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:overflow-x-hidden [&_[data-radix-scroll-area-viewport]]:pr-3"
-      >
-        <div className="agui-log space-y-1 pb-4">
-          {messages.map(message => (
-            <MessageRenderer
-              key={message.id}
-              novelId={novelId}
-              message={message}
-              isStreaming={streamingMessageId === message.id}
-              userAvatar={profile?.avatar_url}
-            />
-          ))}
-          {isLoading && !streamingMessageId && <TypingIndicator />}
-          <div ref={messagesEndRef} className="h-1" />
-        </div>
-      </ScrollArea>
-
-      <ScrollToBottomButton
-        show={showScrollButton}
-        onClick={() => scrollToBottom('smooth')}
-      />
+    <div
+      ref={scrollContainerRef}
+      className="h-full w-full overflow-y-auto overflow-x-hidden scrollbar-none px-5"
+    >
+      <div className="agui-log space-y-1 pb-4">
+        {messages.map(message => (
+          <MessageRenderer
+            key={message.id}
+            novelId={novelId}
+            message={message}
+            isStreaming={streamingMessageId === message.id}
+          />
+        ))}
+        {isLoading && <TypingIndicator />}
+        <div ref={messagesEndRef} className="h-1" />
+      </div>
     </div>
   )
 }

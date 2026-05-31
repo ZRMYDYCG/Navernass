@@ -23,7 +23,27 @@
 
 .agui-assistant-stream {
   font-size: 11.5px;
-  line-height: 1.65;
+  line-height: 1.45;
+}
+
+.agui-assistant-stream .agui-streamdown,
+.agui-assistant-stream .agui-streamdown-inner {
+  line-height: 1.45;
+}
+
+.agui-assistant-stream .agui-streamdown-inner p {
+  margin-top: 0.125rem;
+  margin-bottom: 0.125rem;
+}
+
+/* Markdown 分割线：收紧 prose 默认的过大上下留白 */
+.agui-assistant-stream .prose hr,
+.agui-assistant-stream .agui-streamdown-inner hr {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+  border: none !important;
+  border-top: 1px solid color-mix(in oklab, var(--border) 60%, transparent) !important;
+  height: 0;
 }
 
 .agui-thinking-panel {

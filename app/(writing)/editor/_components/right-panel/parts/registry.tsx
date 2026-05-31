@@ -155,3 +155,17 @@ export function findLastRenderableIndex(parts: AnyPart[]): number {
   }
   return -1
 }
+
+/** 消息是否已有可展示的 part（含流式中的空 text/reasoning 占位） */
+export function messageHasVisibleContent(message: UIMessage, messageIsStreaming: boolean): boolean {
+  const parts = (message.parts || []) as AnyPart[]
+  const lastIdx = findLastRenderableIndex(parts)
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i]
+    if (!isRenderablePart(part)) continue
+    if (hasVisibleContent(part, { isStreaming: messageIsStreaming, index: i, lastIdx })) {
+      return true
+    }
+  }
+  return false
+}

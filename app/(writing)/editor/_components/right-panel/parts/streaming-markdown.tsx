@@ -18,7 +18,7 @@ interface StreamingMarkdownProps {
 function StreamingMarkdownInner({ content, isStreaming = false }: StreamingMarkdownProps) {
   return (
     <div
-      className="prose prose-sm dark:prose-invert max-w-none break-words agui-streamdown"
+      className="prose prose-sm dark:prose-invert max-w-none break-words leading-[1.45] agui-streamdown [&_hr]:my-1 [&_hr]:border-border/60"
       data-streaming={isStreaming ? 'true' : undefined}
     >
       <Streamdown
