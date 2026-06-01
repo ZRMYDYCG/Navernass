@@ -596,6 +596,7 @@ const editor = {
       empty: '장이 없습니다',
       volumesSection: '권',
       chaptersSection: '장',
+      charactersSection: '캐릭터',
       noResults: '일치하는 장이 없습니다',
       selectedPrefix: '선택됨',
       selectedSuffix: '개 장',
@@ -662,6 +663,15 @@ const editor = {
         toastFailed: '{{label}} 실패',
         toastSuccess: '{{label}}: {{title}}',
       },
+      subagent: {
+        running: '하위 에이전트 실행 중',
+        done: '하위 에이전트 완료',
+        task: '작업',
+        character: '캐릭터: {{name}}',
+        steps: '실행 단계',
+        preview: '미리보기',
+        summary: '메인 에이전트용 요약',
+      },
       labels: {
         read_chapter: '챕터 읽기',
         search_chapters: '챕터 검색',
@@ -695,6 +705,8 @@ const editor = {
         create_character_event: '타임라인 이벤트 추가',
         update_character_event: '타임라인 이벤트 수정',
         delete_character_event: '타임라인 이벤트 삭제',
+        deep_research: '위임 · 심층 조사',
+        delegate_character_timeline: '위임 · 캐릭터 타임라인',
       },
       success: {
         create_volume: '권 "{{title}}" 생성됨',

@@ -4,14 +4,13 @@ import { getModeConfig, normalizeMode } from './modes'
 import { DEFAULT_AGENT_ID, getAgent, listAgents } from './registry'
 
 /**
- * Router Agent (MVP)
+ * Router：按前端 mode 派发到独立 specialist agent + skill 子集。
  *
- * 按前端选择的 mode 决定 agent、skill 白名单与工具子集：
- *   - ask       → 只读咨询
- *   - plan      → Plan 规划文件，启用 story-planning
- *   - outline   → 大纲树，启用 outline-editing
- *   - worldbook → 世界观库，启用 worldbook-editing
- *   - agent     → 完整写作代理，可按关键词启用 editor-surgical
+ *   - ask       → ask-specialist（只读顾问）
+ *   - plan      → plan-specialist + story-planning
+ *   - outline   → outline-specialist + outline-editing
+ *   - worldbook → worldbook-specialist + worldbook-editing
+ *   - agent     → writer（执行写作，含 deep_research 子 Agent 工具）
  */
 export interface RouterInput {
   text: string
@@ -48,9 +47,11 @@ export function route(input: RouterInput): RouteDecision {
     }
   }
 
+  const agentLabel = agent?.name || agentId
+
   return {
     agentId,
     skillIds: enabledSkillIds,
-    reason: `mode=${mode} → agent=${agentId} skills=[${reasons.join(',')}]`,
+    reason: `mode=${mode} → ${agentLabel}(${agentId}) skills=[${reasons.join(',') || 'none'}]`,
   }
 }

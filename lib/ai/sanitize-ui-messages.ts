@@ -1,4 +1,5 @@
 import type { UIMessage } from 'ai'
+import { collapseUserPartsForModel } from '@/lib/editor/composer-message'
 
 function normalizeToolInput(input: unknown): Record<string, unknown> | null {
   if (input === null || input === undefined) return null
@@ -42,7 +43,12 @@ export function sanitizeUIMessagePartsForDisplay(parts: unknown[]): unknown[] {
     const part = raw as Record<string, unknown> | null
     if (!part || typeof part !== 'object' || typeof part.type !== 'string') continue
 
-    if (part.type === 'data-chapter-ref' || part.type === 'data-volume-ref') {
+    if (
+      part.type === 'data-chapter-ref'
+      || part.type === 'data-volume-ref'
+      || part.type === 'data-character-ref'
+    ) {
+      out.push(part)
       continue
     }
 
@@ -75,7 +81,11 @@ export function sanitizeUIMessagePartsForModel(parts: unknown[]): unknown[] {
     const part = raw as Record<string, unknown> | null
     if (!part || typeof part !== 'object' || typeof part.type !== 'string') continue
 
-    if (part.type === 'data-chapter-ref' || part.type === 'data-volume-ref') {
+    if (
+      part.type === 'data-chapter-ref'
+      || part.type === 'data-volume-ref'
+      || part.type === 'data-character-ref'
+    ) {
       continue
     }
 
@@ -103,7 +113,10 @@ export function sanitizeUIMessagesForModel(messages: UIMessage[]): UIMessage[] {
   return messages
     .map((message) => {
       const parts = Array.isArray(message.parts) ? message.parts : []
-      const cleaned = sanitizeUIMessagePartsForModel(parts)
+      const prepared = message.role === 'user'
+        ? collapseUserPartsForModel(parts)
+        : parts
+      const cleaned = sanitizeUIMessagePartsForModel(prepared)
       if (cleaned.length === 0) return null
       return { ...message, parts: cleaned as UIMessage['parts'] }
     })

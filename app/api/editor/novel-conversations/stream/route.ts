@@ -2,7 +2,7 @@ import type { UIMessage } from 'ai'
 import type { NextRequest } from 'next/server'
 import { after } from 'next/server'
 import { consumeStream, convertToModelMessages } from 'ai'
-import { bootstrapAgents, runWriterAgent, route, getAgent } from '@/lib/ai/agents'
+import { bootstrapAgents, runRoutedAgent, route, getAgent } from '@/lib/ai/agents'
 import { DEFAULT_LLM_MODEL } from '@/lib/ai/minimax'
 import {
   sanitizeUIMessagePartsForDisplay,
@@ -13,7 +13,17 @@ import { ChaptersService } from '@/lib/supabase/sdk/services/chapters.service'
 import { NovelConversationsService } from '@/lib/supabase/sdk/services/novel-conversations.service'
 import { NovelMessagesService } from '@/lib/supabase/sdk/services/novel-messages.service'
 import { createClient } from '@/lib/supabase/server'
-import { extractApiTextFromUserMessage } from '@/lib/editor/composer-message'
+import {
+  extractApiTextFromUserMessage,
+  extractCharacterRefsFromMessageParts,
+  isRefsOnlyUserMessage,
+} from '@/lib/editor/composer-message'
+import {
+  buildCharacterContextBlock,
+  pickPrimaryCharacter,
+  resolveCharacterRefsForRequest,
+} from '@/lib/editor/character-composer'
+import type { SerializedCharacterRef } from '@/lib/editor/inline-composer'
 import { buildChapterContext } from '@/prompts'
 
 interface ChatRequestBody {
@@ -21,6 +31,8 @@ interface ChatRequestBody {
   conversationId?: string
   messages: UIMessage[]
   selectedChapterIds?: string[]
+  selectedCharacterIds?: string[]
+  focusCharacter?: SerializedCharacterRef
   mode?: string
   model?: string
 }
@@ -28,6 +40,48 @@ interface ChatRequestBody {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 bootstrapAgents()
+
+function isEmptyModelContent(content: unknown): boolean {
+  if (typeof content === 'string') return content.trim().length === 0
+  if (Array.isArray(content)) {
+    return content.every((part) => {
+      if (typeof part !== 'object' || part === null) return true
+      const p = part as { type?: string, text?: string }
+      return p.type !== 'text' || !p.text?.trim()
+    })
+  }
+  return true
+}
+
+function injectContextIntoLastUserMessage(
+  modelMessages: Awaited<ReturnType<typeof convertToModelMessages>>,
+  contextMessage: string,
+  userInput: string,
+) {
+  const last = modelMessages[modelMessages.length - 1]
+  if (last.role !== 'user') return
+
+  const question = userInput.trim() || '（用户通过 @ 引用聚焦，请结合上文继续）'
+  const prefix = `${contextMessage}用户问题：`
+
+  if (typeof last.content === 'string') {
+    last.content = last.content.trim()
+      ? `${prefix}${last.content}`
+      : `${prefix}${question}`
+    return
+  }
+
+  if (Array.isArray(last.content)) {
+    if (isEmptyModelContent(last.content)) {
+      last.content = [{ type: 'text', text: `${prefix}${question}` }]
+      return
+    }
+    last.content = [
+      { type: 'text', text: contextMessage },
+      ...last.content,
+    ]
+  }
+}
 
 function pickLastUserText(messages: UIMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i--) {
@@ -73,7 +127,16 @@ export async function POST(req: NextRequest) {
   const chaptersService = new ChaptersService(supabase)
 
   const body = (await req.json()) as ChatRequestBody
-  const { novelId, conversationId, messages, selectedChapterIds, mode, model } = body
+  const {
+    novelId,
+    conversationId,
+    messages,
+    selectedChapterIds,
+    selectedCharacterIds,
+    focusCharacter: focusCharacterFromBody,
+    mode,
+    model,
+  } = body
 
   if (!novelId || !messages || messages.length === 0) {
     return new Response('novelId and messages are required', { status: 400 })
@@ -96,7 +159,17 @@ export async function POST(req: NextRequest) {
     userInput,
   )
 
-  // 章节上下文
+  const lastUserMessage = [...messages].reverse().find(m => m.role === 'user')
+  const characterRefsFromParts = extractCharacterRefsFromMessageParts(
+    (lastUserMessage?.parts || []) as unknown[],
+  )
+  const characterRefs = resolveCharacterRefsForRequest(
+    focusCharacterFromBody,
+    characterRefsFromParts,
+  )
+  const focusCharacter = pickPrimaryCharacter(characterRefs)
+
+  // 章节 + @ 角色上下文
   let contextMessage = ''
   if (selectedChapterIds && selectedChapterIds.length > 0) {
     try {
@@ -107,6 +180,16 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       console.warn('Failed to load selected chapters:', error)
     }
+  }
+  const refsOnlyMention = lastUserMessage
+    ? isRefsOnlyUserMessage((lastUserMessage.parts || []) as unknown[])
+    : false
+  const characterBlock = buildCharacterContextBlock(characterRefs, {
+    refsOnlyMention,
+    userText: userInput,
+  })
+  if (characterBlock) {
+    contextMessage = `${contextMessage}${characterBlock}`
   }
 
   // Router 决策：派给哪个 agent + 启用哪些 skill
@@ -126,14 +209,16 @@ export async function POST(req: NextRequest) {
     modelMessages = await convertToModelMessages(stripToolPartsFromMessages(messages))
   }
   if (contextMessage && modelMessages.length > 0) {
+    injectContextIntoLastUserMessage(modelMessages, contextMessage, userInput)
+  } else if (modelMessages.length > 0) {
     const last = modelMessages[modelMessages.length - 1]
-    if (last.role === 'user' && typeof last.content === 'string') {
-      last.content = `${contextMessage}用户问题：${last.content}`
-    } else if (last.role === 'user' && Array.isArray(last.content)) {
-      last.content = [
-        { type: 'text', text: contextMessage } as any,
-        ...last.content,
-      ]
+    if (last.role === 'user' && isEmptyModelContent(last.content)) {
+      const fallback = userInput.trim() || '请结合上文继续。'
+      if (typeof last.content === 'string') {
+        last.content = fallback
+      } else if (Array.isArray(last.content)) {
+        last.content = [{ type: 'text', text: fallback }]
+      }
     }
   }
 
@@ -202,13 +287,13 @@ export async function POST(req: NextRequest) {
     console.error('[stream] FAILED to create assistant placeholder:', error)
   }
 
-  // 派发到 specialist agent
-  // assistant 分步落库（onStepFinish）+ 流结束兜底（ui onFinish）
-  const result = runWriterAgent({
+  // 按 router 派发到对应 specialist / writer（含 subagent 工具）
+  const result = runRoutedAgent({
     uiMessages: messages,
     modelMessages,
     modelId: model,
     mode: mode || 'ask',
+    userText: userInput,
     decision,
     toolContext: {
       supabase,
@@ -216,6 +301,8 @@ export async function POST(req: NextRequest) {
       novelId,
       conversationId: conversation.id,
       selectedChapterIds,
+      focusCharacterId: focusCharacter?.id,
+      focusCharacterName: focusCharacter?.name,
     },
     onStepFinish: ({ text, reasoningText }) => {
       if (reasoningText) {

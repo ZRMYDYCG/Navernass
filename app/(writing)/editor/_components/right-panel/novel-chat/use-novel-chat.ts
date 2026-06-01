@@ -6,7 +6,13 @@ import type { UIMessage } from 'ai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
-import { selectOrderedChapters, useNovelChatStore, selectNovelChatUiSession, useChaptersStore } from '@/store'
+import {
+  selectOrderedChapters,
+  useNovelChatStore,
+  selectNovelChatUiSession,
+  useChaptersStore,
+  useCharacterMaterialStore,
+} from '@/store'
 import { useNovelChatContext } from './context'
 import { useNovelChatRuntime } from './provider'
 import { makeConversationKey } from './conversation-keys'
@@ -131,12 +137,16 @@ export function useNovelChat() {
     if (!hasComposerContent(raw) || isLoading || !novelId || !sendMessage) return
 
     const orderedChapters = selectOrderedChapters(useChaptersStore.getState())
-    const payload = buildUserComposerMessage(raw, orderedChapters)
+    const allCharacters = useCharacterMaterialStore.getState().characters
+      .filter(c => !c.novel_id || c.novel_id === novelId)
+      .map(c => ({ id: c.id, name: c.name }))
+    const payload = buildUserComposerMessage(raw, orderedChapters, allCharacters)
     const chapterRefs = fromChapterRefs(toChapterRefs(payload.chapters))
     const conversationKey = makeConversationKey(novelId, currentConversationId, isDraftConversation)
     const bridge = getNovelChatSessionBridge(conversationKey)
     bridge.isDraftConversationRef.current = false
     bridge.selectedChaptersRef.current = chapterRefs
+    bridge.selectedCharactersRef.current = payload.characters
 
     patchUiSession(novelId, {
       input: '',
@@ -150,6 +160,7 @@ export function useNovelChat() {
       })
       patchUiSession(novelId, { selectedChapters: [] })
       bridge.selectedChaptersRef.current = []
+      bridge.selectedCharactersRef.current = []
     } catch (e) {
       console.error('Failed to send message:', e)
     }

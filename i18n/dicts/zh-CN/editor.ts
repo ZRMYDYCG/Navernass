@@ -596,6 +596,7 @@ const editor = {
       empty: '暂无章节',
       volumesSection: '卷',
       chaptersSection: '章节',
+      charactersSection: '角色',
       noResults: '未找到匹配的章节',
       selectedPrefix: '已选择',
       selectedSuffix: '个章节',
@@ -662,6 +663,15 @@ const editor = {
         toastFailed: '{{label}}失败',
         toastSuccess: '{{label}}：{{title}}',
       },
+      subagent: {
+        running: '子助手执行中',
+        done: '子助手已完成',
+        task: '任务',
+        character: '角色：{{name}}',
+        steps: '执行步骤',
+        preview: '实时预览',
+        summary: '返回摘要',
+      },
       labels: {
         read_chapter: '读取章节',
         search_chapters: '搜索章节',
@@ -695,6 +705,8 @@ const editor = {
         create_character_event: '添加时间线事件',
         update_character_event: '更新时间线事件',
         delete_character_event: '删除时间线事件',
+        deep_research: '委派 · 深度调研',
+        delegate_character_timeline: '委派 · 角色时间线',
       },
       success: {
         create_volume: '卷《{{title}}》已创建',

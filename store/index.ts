@@ -52,5 +52,6 @@ export {
   selectNovelChatUiSession,
   useNovelChatStore,
   type NovelChatSelectedChapter,
+  type NovelChatSelectedCharacter,
   type NovelChatUiSession,
 } from './modules/novel-chat-store'

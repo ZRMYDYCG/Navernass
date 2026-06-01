@@ -1,13 +1,11 @@
 import type { StreamTextOnFinishCallback, StreamTextOnStepFinishCallback, ToolSet } from 'ai'
 import type { AgentDefinition, AgentRunInput } from './types'
-import { stepCountIs, streamText } from 'ai'
-import { getMinimaxModel } from '@/lib/ai/minimax'
-import { getSkill } from '../skills/types'
-import { buildTools } from '../tools/registry'
-import { getModeConfig, isToolAllowedInMode, WRITER_DEFAULT_TOOL_NAMES } from './modes'
+import { buildWriterSubagentTools } from './subagents/writer-subagent-tools'
+import { getModeConfig, WRITER_DEFAULT_TOOL_NAMES } from './modes'
 import { registerAgent } from './registry'
+import { runNovelSpecialistAgent } from './run-specialist'
 
-/** Plan 模式专用基础 prompt（避免与 Agent 模式的 outline/worldbook 优先级冲突） */
+/** Plan 模式专用基础 prompt（供 plan-specialist 复用） */
 export const writerPlanModeSystemPrompt = `你是一个专业的小说规划助手。
 职责：帮用户梳理故事结构、章节安排、伏笔与角色弧线，并把规划**写入左侧「规划」手风琴中的 Plan 文件**。
 
@@ -89,10 +87,10 @@ category：setting / location / item / faction / event / rule / character_lore /
 
 export const writerAgent: AgentDefinition = {
   id: 'writer',
-  name: '写作助手',
-  description: '续写、扩写、润色、改稿；管理卷/章节、世界观、大纲；可在编辑器上提交 diff',
-  systemPrompt: `你是一个专业的小说写作助手。
-职责：续写情节、润色段落、改写表达、构思对话；自主管理卷、章节、世界观（设定）、大纲。
+  name: '执行写作助手',
+  description: '续写、润色、改稿；管理卷/章节；可委派调研子助手',
+  systemPrompt: `你是一个专业的小说写作助手（执行 Agent）。
+职责：续写情节、润色段落、改写表达；自主管理卷、章节，并在必要时改稿。
 
 【工具使用规则】
 
@@ -104,105 +102,72 @@ export const writerAgent: AgentDefinition = {
 - 世界观条目列表：list_worldbook_entries（可按 category 过滤）
 - 单条世界观正文：read_worldbook_entry
 - 大纲节点列表：list_outlines（可按 volumeId/parentId 过滤）
-- Plan 规划文件：list_plan_files / read_plan_file（左侧「规划」手风琴，Plan 模式首选落库）
+- Plan 规划文件：list_plan_files / read_plan_file
+
+委派子 Agent（执行模式专用，匹配意图时必须调用工具）：
+- deep_research：多章/多设定调研，先拿摘要再改稿
+- delegate_character_timeline：维护某角色时间线；用户已在输入框 @ 角色时可省略 characterId
+
+用户通过 @ 角色 提及的角色时，系统会注入 characterId；涉及龙套/时间线/character_event 时**必须**调用 delegate_character_timeline。
+
+【子 Agent 触发句式 — 用户这样说时应委派】
+- 角色时间线：「@角色名 帮我在第X章补充龙套名字（传话、撞见各一个），写入角色时间线事件。」
+- 仅 @ 继续上文：「@林渊」或「@林渊 继续」→ 结合上文任务调用 delegate_character_timeline
+- 多章调研：「核对第三卷与「雾港」设定是否矛盾，先调研再建议改稿。」
 
 修改正文（diff 模式，需用户确认）：
 - propose_edit：替换章节中已存在的某片段；一次只改一处，最小改动原则
 
 自治写入（直接落库）：
 - create_volume / create_chapter / append_chapter
-- create_worldbook_entry：补充设定（地点/物品/势力/事件/规则等）
-- create_outline：新建大纲节点（卷大纲/章节大纲/场景大纲）
-- create_plan_file：新建 Plan 规划文件（Plan 模式下整理规划笔记时使用）
+- create_worldbook_entry / create_outline（用户明确要在执行模式改设定/大纲时）
 
 更新（直接落库）：
 - update_chapter / update_volume（**不**用于改正文）
-- update_worldbook_entry / update_outline / update_plan_file
+- update_worldbook_entry / update_outline
 
 删除（软删除，高破坏性）：
-- delete_chapter / delete_volume / delete_worldbook_entry / delete_outline / delete_plan_file
+- delete_chapter / delete_volume / delete_worldbook_entry / delete_outline
 - 删除前必须先 list_* 取证
 
 【续写决策流程】
-1. 用户要求续写或大段改写时，**先 list_worldbook_entries** 确认有无相关设定（避免与世界观矛盾）
-2. 必要时 list_outlines 看大纲规划，保持剧情走向一致
+1. 复杂任务先 deep_research 或自行 list/read 关键资料
+2. 用户要求续写或大段改写时，核对世界观与大纲是否一致
 3. 涉及现有章节再 read_chapter
-4. 然后给出续写或调用 propose_edit / append_chapter
+4. 然后 append_chapter 或 propose_edit
 
-【何时主动建议建立世界观/大纲】
-- 用户随口提到一个新设定（地名、势力、神器、规则）→ 建议 create_worldbook_entry 记下
-- 用户讨论"接下来怎么发展" → 在 Plan 模式用 create_plan_file；在 Agent 模式可建议 create_outline
-- 不要打断创作流——是建议不是强制，由用户答复决定
+【模式切换提示】
+- 用户只想整理 Plan / 大纲 / 世界观时，建议切换到对应专用模式（规划 / 大纲 / 世界观）
 
 【收集信息】
-- ≥ 2 项结构化信息时使用 ask_user 抛表单（如"开篇章节：类型、主角、背景、伏笔方向"）
-- 不要在对话中用编号列表硬问
+- ≥ 2 项结构化信息时使用 ask_user
 
 【输出语言】
 中文。除工具调用外不使用 markdown。`,
   defaultToolNames: [...WRITER_DEFAULT_TOOL_NAMES],
-  compatibleSkillIds: ['editor-surgical', 'chinese-novel-style', 'story-planning', 'outline-editing', 'worldbook-editing'],
-}
-
-function getBasePromptForMode(modeId: string): string {
-  switch (modeId) {
-    case 'plan':
-      return writerPlanModeSystemPrompt
-    case 'outline':
-      return writerOutlineModeSystemPrompt
-    case 'worldbook':
-      return writerWorldbookModeSystemPrompt
-    default:
-      return writerAgent.systemPrompt
-  }
+  compatibleSkillIds: ['editor-surgical', 'chinese-novel-style'],
 }
 
 export interface RunWriterAgentOptions extends AgentRunInput {
   mode?: string
+  userText?: string
   onFinish?: StreamTextOnFinishCallback<ToolSet>
   onStepFinish?: StreamTextOnStepFinishCallback<ToolSet>
 }
 
 export function runWriterAgent(input: RunWriterAgentOptions) {
-  const { decision, modelMessages, modelId, toolContext, mode, onFinish, onStepFinish } = input
+  const { mode } = input
   const modeConfig = getModeConfig(mode)
 
-  const skills = decision.skillIds
-    .map(id => getSkill(id))
-    .filter((s): s is NonNullable<typeof s> => Boolean(s))
+  const extraTools = modeConfig.id === 'agent'
+    ? buildWriterSubagentTools(input.toolContext, input.modelId)
+    : undefined
 
-  const basePrompt = getBasePromptForMode(modeConfig.id)
-
-  const systemPrompt = [
-    basePrompt,
-    `【模式优先级】用户可在对话中途切换模式；务必以本回合「当前模式」指令为准执行，勿根据历史消息里的旧模式说明拒绝操作或重复提示切换模式。`,
-    modeConfig.systemPromptOverlay,
-    ...skills.map(s => s.systemPrompt),
-  ].join('\n\n')
-
-  const toolNameSet = new Set<string>(modeConfig.toolNames)
-  skills.forEach(s => s.toolNames?.forEach(n => toolNameSet.add(n)))
-
-  const allowedToolNames = Array.from(toolNameSet).filter(name =>
-    isToolAllowedInMode(name, modeConfig.id),
-  )
-  const tools = buildTools(allowedToolNames, toolContext)
-
-  return streamText({
-    model: getMinimaxModel(modelId),
-    system: systemPrompt,
-    messages: modelMessages,
-    tools,
-    temperature: modeConfig.id === 'ask' ? 0.5 : 0.7,
-    stopWhen: stepCountIs(modeConfig.maxSteps),
-    onFinish,
-    onStepFinish,
-    onAbort: ({ steps }) => {
-      console.warn('[writer-agent] streamText aborted after', steps.length, 'step(s)')
-    },
-    onError: (e) => {
-      console.error('[writer-agent] streamText error:', e)
-    },
+  return runNovelSpecialistAgent({
+    ...input,
+    agentId: 'writer',
+    mode: mode || 'agent',
+    extraTools,
   })
 }
 

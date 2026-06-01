@@ -7,10 +7,12 @@ import { AskUserPart } from './ask-user-part'
 import { ProposeEditPart } from './propose-edit-part'
 import { ReasoningPart } from './reasoning-part'
 import { TextPart } from './text-part'
+import { isSubagentToolName, SubagentToolPart } from './subagent-tool-part'
 import { ToolPartFallback } from './tool-part-fallback'
 import { ChapterRefPart } from './chapter-ref-part'
 import { VolumeRefPart } from './volume-ref-part'
-import { isChapterRefPart, isInlineRefPart, isVolumeRefPart } from '@/lib/editor/composer-message'
+import { isChapterRefPart, isCharacterRefPart, isInlineRefPart, isVolumeRefPart } from '@/lib/editor/composer-message'
+import { CharacterRefPart } from './character-ref-part'
 
 /**
  * AG-UI part 注册表
@@ -45,6 +47,9 @@ export function hasVisibleContent(
 ): boolean {
   if (isChapterRefPart(part) || isVolumeRefPart(part)) {
     return Boolean(part.data?.title)
+  }
+  if (isCharacterRefPart(part)) {
+    return Boolean(part.data?.name)
   }
   if (part.type === 'text') {
     const text = ((part as { text?: string }).text || '').trim()
@@ -81,6 +86,14 @@ export function renderPart(part: AnyPart, ctx: PartRenderContext): ReactNode {
     return (
       <VolumeRefPart
         key={`vol-${ctx.index}`}
+        data={part.data}
+      />
+    )
+  }
+  if (isCharacterRefPart(part)) {
+    return (
+      <CharacterRefPart
+        key={`char-${ctx.index}`}
         data={part.data}
       />
     )
@@ -167,6 +180,20 @@ function renderToolPart(part: any, ctx: PartRenderContext): ReactNode {
         />
       )
     default:
+      if (isSubagentToolName(toolName)) {
+        return (
+          <SubagentToolPart
+            key={`tool-${ctx.index}`}
+            novelId={ctx.novelId}
+            partKey={`${ctx.message.id}:${ctx.index}`}
+            toolName={toolName}
+            state={part.state}
+            input={part.input}
+            output={part.output}
+            errorText={part.errorText}
+          />
+        )
+      }
       return <ToolPartFallback key={`tool-${ctx.index}`} part={part} />
   }
 }

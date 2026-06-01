@@ -9,6 +9,11 @@ export interface NovelChatSelectedChapter {
   title: string
 }
 
+export interface NovelChatSelectedCharacter {
+  id: string
+  name: string
+}
+
 export interface NovelChatUiSession {
   currentConversationId: string | null
   /** 用户主动新建对话后为 true，忽略旧请求的 X-Conversation-Id，直到下次发送 */

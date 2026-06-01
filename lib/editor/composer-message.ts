@@ -1,13 +1,16 @@
 import {
   extractContextChapterRefs,
+  extractContextCharacterRefs,
   parseComposerSegments,
   stripRefMarkers,
   type ComposerSegment,
   type SerializedChapterRef,
+  type SerializedCharacterRef,
 } from './inline-composer'
 
 export const CHAPTER_REF_PART_TYPE = 'data-chapter-ref' as const
 export const VOLUME_REF_PART_TYPE = 'data-volume-ref' as const
+export const CHARACTER_REF_PART_TYPE = 'data-character-ref' as const
 
 export interface ChapterRefPartData {
   id: string
@@ -19,15 +22,22 @@ export interface VolumeRefPartData {
   title: string
 }
 
+export interface CharacterRefPartData {
+  id: string
+  name: string
+}
+
 export type UserComposerPart =
   | { type: 'text', text: string, state?: 'done' }
   | { type: typeof CHAPTER_REF_PART_TYPE, data: ChapterRefPartData }
   | { type: typeof VOLUME_REF_PART_TYPE, data: VolumeRefPartData }
+  | { type: typeof CHARACTER_REF_PART_TYPE, data: CharacterRefPartData }
 
 export interface UserComposerMessagePayload {
   parts: UserComposerPart[]
   plainText: string
   chapters: SerializedChapterRef[]
+  characters: SerializedCharacterRef[]
   /** 发给 API / 存入 content 字段的文本 */
   apiText: string
 }
@@ -39,6 +49,8 @@ export function formatRefsFallback(
   for (const segment of segments) {
     if (segment.type === 'chapter' || segment.type === 'volume') {
       chunks.push(`@${segment.title}`)
+    } else if (segment.type === 'character') {
+      chunks.push(`@${segment.name}`)
     }
   }
   return chunks.join(' ')
@@ -54,6 +66,12 @@ function segmentToParts(segment: ComposerSegment): UserComposerPart[] {
       data: { id: segment.id, title: segment.title },
     }]
   }
+  if (segment.type === 'character') {
+    return [{
+      type: CHARACTER_REF_PART_TYPE,
+      data: { id: segment.id, name: segment.name },
+    }]
+  }
   return [{
     type: CHAPTER_REF_PART_TYPE,
     data: { id: segment.id, title: segment.title },
@@ -63,18 +81,84 @@ function segmentToParts(segment: ComposerSegment): UserComposerPart[] {
 export function buildUserComposerMessage(
   raw: string,
   allChapters: Array<{ id: string, title: string, volume_id?: string | null }> = [],
+  allCharacters: Array<{ id: string, name: string }> = [],
 ): UserComposerMessagePayload {
   const segments = parseComposerSegments(raw)
   const parts = segments.flatMap(segmentToParts)
   const chapters = extractContextChapterRefs(raw, allChapters)
+  const characters = extractContextCharacterRefs(raw).map((ref) => {
+    const full = allCharacters.find(c => c.id === ref.id)
+    return full ? { id: full.id, name: full.name } : ref
+  })
   const plainText = stripRefMarkers(raw).trim()
-  const apiText = plainText || formatRefsFallback(segments)
+  const apiText = buildComposerApiText(segments, plainText)
 
-  if (parts.length === 0 && apiText) {
-    parts.push({ type: 'text', text: apiText, state: 'done' })
+  // UI：chip 即 @，text part 仅保留纯正文；勿把 @名字 再写入 text（会重复显示）
+  syncDisplayTextParts(parts, plainText)
+
+  return { parts, plainText, chapters, characters, apiText }
+}
+
+/** @ 引用 + 正文合并为模型可见的一行（避免 sanitize 去掉 chip 后丢失 @） */
+export function buildComposerApiText(
+  segments: ComposerSegment[],
+  plainText: string,
+): string {
+  const refs = formatRefsFallback(segments).trim()
+  const body = plainText.trim()
+  if (refs && body) return `${refs} ${body}`
+  return refs || body
+}
+
+/** 用户消息 parts 折叠为单条 text（发给 LLM 前） */
+export function collapseUserPartsForModel(parts: unknown[]): unknown[] {
+  const apiText = extractApiTextFromUserMessage(parts).trim()
+  if (!apiText) return parts
+
+  const extras = parts.filter((raw) => {
+    const part = raw as { type?: string }
+    return part?.type !== 'text' && !isInlineRefPart(raw)
+  })
+
+  return [{ type: 'text', text: apiText, state: 'done' }, ...extras]
+}
+
+/** 仅同步纯正文到 text part；有 @ chip 时不注入 "@名字" 文本 */
+function syncDisplayTextParts(parts: UserComposerPart[], plainText: string) {
+  const body = plainText.trim()
+  const textIndices = parts
+    .map((p, i) => (p.type === 'text' ? i : -1))
+    .filter(i => i >= 0)
+
+  if (body) {
+    if (textIndices.length === 0) {
+      parts.push({ type: 'text', text: body, state: 'done' })
+      return
+    }
+    parts[textIndices[0]] = { type: 'text', text: body, state: 'done' }
+    for (let i = textIndices.length - 1; i >= 1; i--) {
+      parts.splice(textIndices[i], 1)
+    }
+    return
   }
 
-  return { parts, plainText, chapters, apiText }
+  // 仅 @ chip、无正文：去掉多余的 "@名字" 纯文本 part
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i]
+    if (p.type !== 'text' || typeof p.text !== 'string') continue
+    const t = p.text.trim()
+    if (!t || /^@[^\s@]+(\s+@[^\s@]+)*$/.test(t)) {
+      parts.splice(i, 1)
+    }
+  }
+}
+
+/** 用户是否只发了 @ 引用（无额外说明文字） */
+export function isRefsOnlyUserMessage(parts: unknown[]): boolean {
+  if (!parts.some(p => isInlineRefPart(p))) return false
+  const apiText = extractApiTextFromUserMessage(parts).trim()
+  if (!apiText) return false
+  return /^@[^\s@]+(\s+@[^\s@]+)*$/.test(apiText)
 }
 
 export function isChapterRefPart(part: unknown): part is { type: typeof CHAPTER_REF_PART_TYPE, data: ChapterRefPartData } {
@@ -91,26 +175,67 @@ export function isVolumeRefPart(part: unknown): part is { type: typeof VOLUME_RE
     && typeof (part as { data?: { id?: string } }).data?.id === 'string'
 }
 
-export function isInlineRefPart(part: unknown): boolean {
-  return isChapterRefPart(part) || isVolumeRefPart(part)
+export function isCharacterRefPart(part: unknown): part is { type: typeof CHARACTER_REF_PART_TYPE, data: CharacterRefPartData } {
+  return typeof part === 'object'
+    && part !== null
+    && (part as { type?: string }).type === CHARACTER_REF_PART_TYPE
+    && typeof (part as { data?: { id?: string } }).data?.id === 'string'
 }
 
+export function isInlineRefPart(part: unknown): boolean {
+  return isChapterRefPart(part) || isVolumeRefPart(part) || isCharacterRefPart(part)
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/** 从 text 中去掉与 chip 重复的 @提及（兼容旧消息） */
+function stripRedundantAtMentions(text: string, names: string[]): string {
+  let body = text.trim()
+  for (const name of names) {
+    if (!name) continue
+    const re = new RegExp(`@${escapeRegExp(name)}(?=\\s|$)`, 'g')
+    body = body.replace(re, '').replace(/\s+/g, ' ').trim()
+  }
+  return body
+}
+
+/** 合并 chip + 正文，供 API / 模型使用（不在 UI parts 里写 @ 文本） */
 export function extractApiTextFromUserMessage(parts: unknown[]): string {
-  const chunks: string[] = []
+  const refChunks: string[] = []
+  const mentionNames: string[] = []
+  const textChunks: string[] = []
+
   for (const raw of parts) {
     if (isChapterRefPart(raw) || isVolumeRefPart(raw)) {
-      chunks.push(`@${raw.data.title}`)
+      refChunks.push(`@${raw.data.title}`)
+      mentionNames.push(raw.data.title)
+      continue
+    }
+    if (isCharacterRefPart(raw)) {
+      refChunks.push(`@${raw.data.name}`)
+      mentionNames.push(raw.data.name)
       continue
     }
     const part = raw as { type?: string, text?: string }
     if (part?.type === 'text' && part.text) {
-      chunks.push(part.text)
+      textChunks.push(part.text)
     }
   }
-  return chunks.join('').trim()
+
+  const body = stripRedundantAtMentions(
+    textChunks.join(' ').replace(/\s+/g, ' ').trim(),
+    mentionNames,
+  )
+  const refs = refChunks.join(' ')
+  if (refs && body) return `${refs} ${body}`
+  return refs || body
 }
 
 /** @deprecated 使用 formatRefsFallback */
 export function formatChapterRefsFallback(chapters: SerializedChapterRef[]): string {
   return chapters.map(c => `@${c.title}`).join(' ')
 }
+
+export { extractCharacterRefsFromMessageParts } from './character-composer'

@@ -82,7 +82,7 @@ export interface ModeConfig {
 const MODE_CONFIGS: Record<AiChatMode, ModeConfig> = {
   ask: {
     id: 'ask',
-    agentId: 'writer',
+    agentId: 'ask-specialist',
     compatibleSkillIds: ['chinese-novel-style'],
     toolNames: ASK_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：提问 Ask】
@@ -95,7 +95,7 @@ const MODE_CONFIGS: Record<AiChatMode, ModeConfig> = {
   },
   plan: {
     id: 'plan',
-    agentId: 'writer',
+    agentId: 'plan-specialist',
     compatibleSkillIds: ['chinese-novel-style', 'story-planning'],
     toolNames: PLAN_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：规划 Plan】
@@ -109,7 +109,7 @@ const MODE_CONFIGS: Record<AiChatMode, ModeConfig> = {
   },
   outline: {
     id: 'outline',
-    agentId: 'writer',
+    agentId: 'outline-specialist',
     compatibleSkillIds: ['chinese-novel-style', 'outline-editing'],
     toolNames: OUTLINE_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：大纲 Outline】
@@ -122,7 +122,7 @@ const MODE_CONFIGS: Record<AiChatMode, ModeConfig> = {
   },
   worldbook: {
     id: 'worldbook',
-    agentId: 'writer',
+    agentId: 'worldbook-specialist',
     compatibleSkillIds: ['chinese-novel-style', 'worldbook-editing'],
     toolNames: WORLDBOOK_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：世界观 Worldbook】

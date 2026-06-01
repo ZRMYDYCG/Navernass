@@ -596,6 +596,7 @@ const editor = {
       empty: 'Aucun chapitre',
       volumesSection: 'Volumes',
       chaptersSection: 'Chapitres',
+      charactersSection: 'Personnages',
       noResults: 'Aucun résultat',
       selectedPrefix: 'Sélectionné',
       selectedSuffix: 'chapitres',
@@ -662,6 +663,15 @@ const editor = {
         toastFailed: 'Échec : {{label}}',
         toastSuccess: '{{label}} : {{title}}',
       },
+      subagent: {
+        running: 'Sous-agent en cours',
+        done: 'Sous-agent terminé',
+        task: 'Tâche',
+        character: 'Personnage : {{name}}',
+        steps: 'Étapes',
+        preview: 'Aperçu',
+        summary: 'Résumé',
+      },
       labels: {
         read_chapter: 'Lire le chapitre',
         search_chapters: 'Rechercher des chapitres',
@@ -695,6 +705,8 @@ const editor = {
         create_character_event: 'Ajouter un événement chronologique',
         update_character_event: 'Mettre à jour l’événement',
         delete_character_event: 'Supprimer l’événement',
+        deep_research: 'Déléguer · Recherche approfondie',
+        delegate_character_timeline: 'Déléguer · Chronologie du personnage',
       },
       success: {
         create_volume: 'Volume « {{title}} » créé',

@@ -1,11 +1,17 @@
 'use client'
 
 import type { Chapter } from '@/lib/supabase/sdk'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useShallow } from 'zustand/react/shallow'
 import { AiChatInput, type AiChatInputProps } from '@/components/buss'
 import { hasComposerContent } from '@/lib/editor/inline-composer'
-import { selectOrderedChapters, selectOrderedVolumes, useChaptersStore } from '@/store'
+import {
+  selectOrderedChapters,
+  selectOrderedVolumes,
+  useChaptersStore,
+  useCharacterMaterialStore,
+} from '@/store'
 import type { AiMode } from './types'
 import { InlineChapterComposer } from './inline-chapter-composer'
 import { ModeSelector } from './mode-selector'
@@ -40,8 +46,17 @@ export function ChapterChatInput({
   maxHeight,
   ...rest
 }: ChapterChatInputProps) {
+  const searchParams = useSearchParams()
+  const novelId = searchParams.get('id') || ''
   const allChapters = useChaptersStore(useShallow(selectOrderedChapters))
   const allVolumes = useChaptersStore(useShallow(selectOrderedVolumes))
+  const allCharacters = useCharacterMaterialStore(
+    useShallow(s => s.characters.filter(c => !c.novel_id || c.novel_id === novelId)),
+  )
+  const characterRefs = useMemo(
+    () => allCharacters.map(c => ({ id: c.id, name: c.name })),
+    [allCharacters],
+  )
   const isCompact = variant === 'compact'
   const resolvedMaxHeight = maxHeight ?? (isCompact ? 168 : 180)
 
@@ -67,6 +82,7 @@ export function ChapterChatInput({
           onChaptersChange={handleComposerChaptersChange}
           chapters={allChapters}
           volumes={allVolumes}
+          characters={characterRefs}
           placeholder={placeholder}
           disabled={disabled}
           isCompact={isCompact}

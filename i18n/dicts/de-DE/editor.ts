@@ -596,6 +596,7 @@ const editor = {
       empty: 'Keine Kapitel',
       volumesSection: 'Bände',
       chaptersSection: 'Kapitel',
+      charactersSection: 'Charaktere',
       noResults: 'Keine passenden Kapitel',
       selectedPrefix: 'Ausgewählt',
       selectedSuffix: 'Kapitel',
@@ -662,6 +663,15 @@ const editor = {
         toastFailed: '{{label}} fehlgeschlagen',
         toastSuccess: '{{label}}: {{title}}',
       },
+      subagent: {
+        running: 'Sub-Agent arbeitet',
+        done: 'Sub-Agent fertig',
+        task: 'Aufgabe',
+        character: 'Figur: {{name}}',
+        steps: 'Schritte',
+        preview: 'Live-Vorschau',
+        summary: 'Zusammenfassung',
+      },
       labels: {
         read_chapter: 'Kapitel lesen',
         search_chapters: 'Kapitel durchsuchen',
@@ -695,6 +705,8 @@ const editor = {
         create_character_event: 'Zeitstrahl-Ereignis hinzufügen',
         update_character_event: 'Zeitstrahl-Ereignis aktualisieren',
         delete_character_event: 'Zeitstrahl-Ereignis löschen',
+        deep_research: 'Delegieren · Recherche',
+        delegate_character_timeline: 'Delegieren · Charakter-Zeitstrahl',
       },
       success: {
         create_volume: 'Band „{{title}}“ erstellt',

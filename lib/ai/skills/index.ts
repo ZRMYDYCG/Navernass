@@ -2,8 +2,8 @@ import { chineseNovelStyleSkill } from './chinese-novel-style'
 import { editorSurgicalSkill } from './editor-surgical'
 import { outlineEditingSkill } from './outline-editing'
 import { storyPlanningSkill } from './story-planning'
-import { worldbookEditingSkill } from './worldbook-editing'
 import { registerSkill } from './types'
+import { worldbookEditingSkill } from './worldbook-editing'
 
 export * from './types'
 export {

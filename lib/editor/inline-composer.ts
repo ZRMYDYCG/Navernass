@@ -1,7 +1,8 @@
 /** 内联引用块在 input 字符串中的序列化格式 */
-const REF_MARKER_RE = /\[\[(ch|vol):([^:\]]+):([^\]]+)\]\]/g
+const REF_MARKER_RE = /\[\[(ch|vol|char):([^:\]]+):([^\]]+)\]\]/g
 const CHAPTER_MARKER_RE = /\[\[ch:([^:\]]+):([^\]]+)\]\]/g
 const VOLUME_MARKER_RE = /\[\[vol:([^:\]]+):([^\]]+)\]\]/g
+const CHARACTER_MARKER_RE = /\[\[char:([^:\]]+):([^\]]+)\]\]/g
 
 export interface SerializedChapterRef {
   id: string
@@ -13,12 +14,21 @@ export interface SerializedVolumeRef {
   title: string
 }
 
+export interface SerializedCharacterRef {
+  id: string
+  name: string
+}
+
 export function encodeChapterMarker(chapter: SerializedChapterRef): string {
   return `[[ch:${chapter.id}:${encodeURIComponent(chapter.title)}]]`
 }
 
 export function encodeVolumeMarker(volume: SerializedVolumeRef): string {
   return `[[vol:${volume.id}:${encodeURIComponent(volume.title)}]]`
+}
+
+export function encodeCharacterMarker(character: SerializedCharacterRef): string {
+  return `[[char:${character.id}:${encodeURIComponent(character.name)}]]`
 }
 
 /** 从序列化文本提取显式 @ 的章节（按出现顺序，允许同一章多次出现在正文） */
@@ -34,6 +44,17 @@ export function extractChapterMarkersFromSerialized(value: string): SerializedCh
 }
 
 /** 从序列化文本提取显式 @ 的卷（按出现顺序，允许同一卷多次） */
+export function extractCharacterMarkersFromSerialized(value: string): SerializedCharacterRef[] {
+  const characters: SerializedCharacterRef[] = []
+  for (const match of value.matchAll(CHARACTER_MARKER_RE)) {
+    characters.push({
+      id: match[1],
+      name: decodeURIComponent(match[2]),
+    })
+  }
+  return characters
+}
+
 export function extractVolumeMarkersFromSerialized(value: string): SerializedVolumeRef[] {
   const volumes: SerializedVolumeRef[] = []
   for (const match of value.matchAll(VOLUME_MARKER_RE)) {
@@ -77,6 +98,19 @@ export function extractContextChapterRefs(
   return result
 }
 
+/** 从正文 @ 角色标记提取角色（按出现顺序去重 id） */
+export function extractContextCharacterRefs(value: string): SerializedCharacterRef[] {
+  const result: SerializedCharacterRef[] = []
+  const seen = new Set<string>()
+  for (const segment of parseComposerSegments(value)) {
+    if (segment.type !== 'character') continue
+    if (seen.has(segment.id)) continue
+    seen.add(segment.id)
+    result.push({ id: segment.id, name: segment.name })
+  }
+  return result
+}
+
 /** @deprecated 使用 extractContextChapterRefs；保留兼容旧调用 */
 export function extractChaptersFromSerialized(value: string): SerializedChapterRef[] {
   const seen = new Set<string>()
@@ -102,6 +136,7 @@ export function hasComposerContent(value: string): boolean {
   return stripRefMarkers(value).trim().length > 0
     || /\[\[ch:[^:\]]+:[^\]]+\]\]/.test(value)
     || /\[\[vol:[^:\]]+:[^\]]+\]\]/.test(value)
+    || /\[\[char:[^:\]]+:[^\]]+\]\]/.test(value)
 }
 
 export function chapterRefsEqual(
@@ -115,10 +150,22 @@ export function chapterRefsEqual(
   return true
 }
 
+export function characterRefsEqual(
+  a: SerializedCharacterRef[],
+  b: SerializedCharacterRef[],
+): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].id !== b[i].id || a[i].name !== b[i].name) return false
+  }
+  return true
+}
+
 export type ComposerSegment =
   | { type: 'text', value: string }
   | { type: 'chapter', id: string, title: string }
   | { type: 'volume', id: string, title: string }
+  | { type: 'character', id: string, name: string }
 
 export function parseComposerSegments(value: string): ComposerSegment[] {
   if (!value) return [{ type: 'text', value: '' }]
@@ -136,8 +183,10 @@ export function parseComposerSegments(value: string): ComposerSegment[] {
     const title = decodeURIComponent(match[3])
     if (kind === 'ch') {
       segments.push({ type: 'chapter', id, title })
-    } else {
+    } else if (kind === 'vol') {
       segments.push({ type: 'volume', id, title })
+    } else {
+      segments.push({ type: 'character', id, name: title })
     }
     lastIndex = index + match[0].length
   }
@@ -160,7 +209,10 @@ export function serializeComposerSegments(segments: ComposerSegment[]): string {
       if (segment.type === 'chapter') {
         return encodeChapterMarker({ id: segment.id, title: segment.title })
       }
-      return encodeVolumeMarker({ id: segment.id, title: segment.title })
+      if (segment.type === 'volume') {
+        return encodeVolumeMarker({ id: segment.id, title: segment.title })
+      }
+      return encodeCharacterMarker({ id: segment.id, name: segment.name })
     })
     .join('')
 }
@@ -183,14 +235,17 @@ export function getMentionQueryFromTextBefore(textBefore: string): MentionQueryM
 export type MentionListItem =
   | { type: 'volume', id: string, title: string }
   | { type: 'chapter', id: string, title: string }
+  | { type: 'character', id: string, name: string }
 
 export function filterMentionListItems(
   volumes: Array<{ id: string, title: string }>,
   chapters: Array<{ id: string, title: string }>,
   query: string,
+  characters: Array<{ id: string, name: string }> = [],
 ): MentionListItem[] {
   const q = query.trim().toLowerCase()
   const matchTitle = (title: string) => !q || title.toLowerCase().includes(q)
+  const matchName = (name: string) => !q || name.toLowerCase().includes(q)
 
   const volumeItems: MentionListItem[] = volumes
     .filter(v => matchTitle(v.title))
@@ -200,5 +255,9 @@ export function filterMentionListItems(
     .filter(c => matchTitle(c.title))
     .map(c => ({ type: 'chapter' as const, id: c.id, title: c.title }))
 
-  return [...volumeItems, ...chapterItems]
+  const characterItems: MentionListItem[] = characters
+    .filter(c => matchName(c.name))
+    .map(c => ({ type: 'character' as const, id: c.id, name: c.name }))
+
+  return [...volumeItems, ...chapterItems, ...characterItems]
 }

@@ -596,6 +596,7 @@ const editor = {
       empty: 'No chapters',
       volumesSection: 'Volumes',
       chaptersSection: 'Chapters',
+      charactersSection: 'Characters',
       noResults: 'No matching chapters',
       selectedPrefix: 'Selected',
       selectedSuffix: 'chapters',
@@ -662,6 +663,15 @@ const editor = {
         toastFailed: '{{label}} failed',
         toastSuccess: '{{label}}: {{title}}',
       },
+      subagent: {
+        running: 'Sub-agent working',
+        done: 'Sub-agent finished',
+        task: 'Task',
+        character: 'Character: {{name}}',
+        steps: 'Steps',
+        preview: 'Live preview',
+        summary: 'Summary for main agent',
+      },
       labels: {
         read_chapter: 'Read chapter',
         search_chapters: 'Search chapters',
@@ -695,6 +705,8 @@ const editor = {
         create_character_event: 'Add timeline event',
         update_character_event: 'Update timeline event',
         delete_character_event: 'Delete timeline event',
+        deep_research: 'Delegate · Deep research',
+        delegate_character_timeline: 'Delegate · Character timeline',
       },
       success: {
         create_volume: 'Volume "{{title}}" created',

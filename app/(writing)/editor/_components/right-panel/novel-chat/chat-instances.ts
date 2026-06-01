@@ -1,5 +1,5 @@
 import type { AiMode, AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
-import type { NovelChatSelectedChapter } from '@/store'
+import type { NovelChatSelectedChapter, NovelChatSelectedCharacter } from '@/store'
 import { Chat } from '@ai-sdk/react'
 import type { UIMessage } from 'ai'
 import { DefaultChatTransport } from 'ai'
@@ -13,6 +13,7 @@ export interface NovelChatSessionBridge {
   modeRef: { current: AiMode }
   modelRef: { current: AiModel }
   selectedChaptersRef: { current: NovelChatSelectedChapter[] }
+  selectedCharactersRef: { current: NovelChatSelectedCharacter[] }
   setConversationIdFromHeader: (id: string) => void
   onStreamFinish: () => void
   onStreamError: (err: Error) => void
@@ -43,6 +44,7 @@ function createDefaultBridge(novelId: string, conversationId: string | null): No
     modeRef: { current: 'agent' },
     modelRef: { current: 'MiniMax-M2.7' },
     selectedChaptersRef: { current: [] },
+    selectedCharactersRef: { current: [] },
     setConversationIdFromHeader: () => {},
     onStreamFinish: () => {},
     onStreamError: () => {},
@@ -141,6 +143,8 @@ function createTransportForConversation(keyRef: { current: string }) {
           novelId,
           conversationId: bridge.conversationIdRef.current || undefined,
           selectedChapterIds: bridge.selectedChaptersRef.current.map(c => c.id),
+          selectedCharacterIds: bridge.selectedCharactersRef.current.map(c => c.id),
+          focusCharacter: bridge.selectedCharactersRef.current[0] ?? undefined,
           mode: bridge.modeRef.current,
           model: bridge.modelRef.current,
         },

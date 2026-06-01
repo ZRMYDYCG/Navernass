@@ -596,6 +596,7 @@ const editor = {
       empty: '章がありません',
       volumesSection: '巻',
       chaptersSection: '章',
+      charactersSection: 'キャラクター',
       noResults: '一致する章がありません',
       selectedPrefix: '選択',
       selectedSuffix: '章',
@@ -662,6 +663,15 @@ const editor = {
         toastFailed: '{{label}}に失敗しました',
         toastSuccess: '{{label}}：{{title}}',
       },
+      subagent: {
+        running: 'サブエージェント実行中',
+        done: 'サブエージェント完了',
+        task: 'タスク',
+        character: 'キャラクター：{{name}}',
+        steps: '実行ステップ',
+        preview: 'プレビュー',
+        summary: 'メインへ返す要約',
+      },
       labels: {
         read_chapter: '章を読む',
         search_chapters: '章を検索',
@@ -695,6 +705,8 @@ const editor = {
         create_character_event: 'タイムラインイベントを追加',
         update_character_event: 'タイムラインイベントを更新',
         delete_character_event: 'タイムラインイベントを削除',
+        deep_research: '委任 · 深度調査',
+        delegate_character_timeline: '委任 · キャラクター年表',
       },
       success: {
         create_volume: '巻「{{title}}」を作成しました',
