@@ -21,8 +21,9 @@ export function NovelContextMenu({
   onDelete,
   onClose,
 }: NovelContextMenuProps) {
-  if (!novel) return null
   const { t } = useI18n()
+
+  if (!novel) return null
 
   return (
     <div
