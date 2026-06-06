@@ -25,7 +25,7 @@ export default function RightPanel() {
     isLoading,
     hasMessages,
     streamingMessageId,
-    isAwaitingFirstToken,
+    isAwaitingConnection,
     mode,
     model,
     input,
@@ -138,7 +138,7 @@ export default function RightPanel() {
                             novelId={novelId}
                             messages={messages}
                             streamingMessageId={streamingMessageId}
-                            isLoading={isAwaitingFirstToken}
+                            isAwaitingConnection={isAwaitingConnection}
                           />
                         </MessageErrorBoundary>
                       </ChatActionsProvider>

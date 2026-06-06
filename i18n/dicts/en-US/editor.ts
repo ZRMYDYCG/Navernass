@@ -563,6 +563,9 @@ const editor = {
     historyButton: 'History',
     deepThinking: 'Deep thinking',
     streaming: 'Writing…',
+    streamConnecting: 'Connecting…',
+    streamThinking: 'Thinking…',
+    streamContinuing: 'Continuing…',
     untitledConversation: 'Untitled chat',
     empty: {
       title: 'AI Writing Assistant',

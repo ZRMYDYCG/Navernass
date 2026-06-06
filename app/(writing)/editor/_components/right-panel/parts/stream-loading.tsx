@@ -8,11 +8,20 @@ interface StreamLoadingProps {
   className?: string
   /** inline：嵌在文本流里；card：等待首字时的独立块 */
   variant?: 'inline' | 'card'
+  /** streaming=落笔中；connecting=建立连接；thinking=停顿思考；continuing=工具后继续 */
+  tone?: 'streaming' | 'connecting' | 'thinking' | 'continuing'
 }
 
 /** 流式输出等待态：纸感墨滴 + 手写提示，替代块状光标 */
-export function StreamLoading({ className, variant = 'inline' }: StreamLoadingProps) {
+export function StreamLoading({ className, variant = 'inline', tone = 'streaming' }: StreamLoadingProps) {
   const { t } = useI18n()
+  const label = tone === 'connecting'
+    ? t('editor.rightPanel.streamConnecting')
+    : tone === 'thinking'
+      ? t('editor.rightPanel.streamThinking')
+      : tone === 'continuing'
+        ? t('editor.rightPanel.streamContinuing')
+        : t('editor.rightPanel.streaming')
 
   if (variant === 'card') {
     return (
@@ -23,7 +32,7 @@ export function StreamLoading({ className, variant = 'inline' }: StreamLoadingPr
           className,
         )}
         role="status"
-        aria-label={t('editor.rightPanel.streaming')}
+        aria-label={label}
       >
         <PenLine className="w-3 h-3 text-primary agui-pen-sway shrink-0" aria-hidden />
         <span className="inline-flex items-center gap-1" aria-hidden>
@@ -36,7 +45,7 @@ export function StreamLoading({ className, variant = 'inline' }: StreamLoadingPr
           ))}
         </span>
         <span className="font-handwriting text-[12px] text-muted-foreground leading-none">
-          {t('editor.rightPanel.streaming')}
+          {label}
         </span>
       </div>
     )
@@ -46,7 +55,7 @@ export function StreamLoading({ className, variant = 'inline' }: StreamLoadingPr
     <span
       className={cn('inline-flex items-center gap-1 align-middle', className)}
       role="status"
-      aria-label={t('editor.rightPanel.streaming')}
+      aria-label={label}
     >
       {[0, 1, 2].map(i => (
         <span

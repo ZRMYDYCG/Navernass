@@ -50,7 +50,16 @@ function ReasoningPartInner({ part, isStreaming }: ReasoningPartProps) {
         <AguiExpandableContent open={isExpanded} className="mt-1 ml-1">
           <div className="agui-thinking-body px-2 py-1.5 text-[10px] text-muted-foreground leading-[1.45]">
             {text
-              ? <StreamingPlainText content={text} isStreaming={isLive} />
+              ? (
+                  <>
+                    <StreamingPlainText content={text} isStreaming={isLive} />
+                    {isLive ? (
+                      <span className="inline-block ml-1 align-middle">
+                        <StreamLoading variant="inline" />
+                      </span>
+                    ) : null}
+                  </>
+                )
               : isLive
                 ? <StreamLoading />
                 : null}

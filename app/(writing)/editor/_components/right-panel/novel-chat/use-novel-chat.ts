@@ -61,10 +61,15 @@ export function useNovelChat() {
     return last?.role === 'assistant' ? last.id : null
   }, [status, messages])
 
-  /** 请求已发出但助手侧尚无可见内容时保持「落笔中」 */
-  const isAwaitingFirstToken = useMemo(() => {
+  /** 已提交、尚未创建助手消息占位（建立连接 / 等待响应头） */
+  const isAwaitingConnection = useMemo(() => {
     if (!isLoading) return false
-    if (!streamingMessageId) return true
+    return !streamingMessageId
+  }, [isLoading, streamingMessageId])
+
+  /** 助手消息已创建但尚无可见内容（等待首 token） */
+  const isAwaitingFirstToken = useMemo(() => {
+    if (!isLoading || !streamingMessageId) return false
     const streamingMessage = messages.find(m => m.id === streamingMessageId)
     if (!streamingMessage) return true
     return !messageHasVisibleContent(streamingMessage, true)
@@ -226,6 +231,7 @@ export function useNovelChat() {
     isLoading,
     hasMessages,
     streamingMessageId,
+    isAwaitingConnection,
     isAwaitingFirstToken,
     mode,
     model,

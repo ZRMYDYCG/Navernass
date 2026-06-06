@@ -12,8 +12,8 @@ interface MessageListProps {
   messages: UIMessage[]
   /** 当前正在流式输出的消息 id */
   streamingMessageId?: string | null
-  /** 是否正在等待 AI 第一条响应（typing 指示器） */
-  isLoading?: boolean
+  /** 已发送、正在建立连接（尚无助手消息占位） */
+  isAwaitingConnection?: boolean
 }
 
 /**
@@ -24,7 +24,7 @@ export function MessageList({
   novelId,
   messages,
   streamingMessageId = null,
-  isLoading = false,
+  isAwaitingConnection = false,
 }: MessageListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -67,13 +67,13 @@ export function MessageList({
     }
   }, [messages.length, scrollToBottom])
 
-  // typing 指示器出现时
+  // 建立连接指示器出现时吸底
   useEffect(() => {
-    if (isLoading && isNearBottomRef.current) {
+    if (isAwaitingConnection && isNearBottomRef.current) {
       const t = setTimeout(() => scrollToBottom('smooth'), 100)
       return () => clearTimeout(t)
     }
-  }, [isLoading, scrollToBottom])
+  }, [isAwaitingConnection, scrollToBottom])
 
   // 流式输出过程中：观察当前流式消息的总文本长度变化以触发滚动
   useEffect(() => {
@@ -138,7 +138,11 @@ export function MessageList({
             isStreaming={streamingMessageId === message.id}
           />
         ))}
-        {isLoading && <TypingIndicator />}
+        {isAwaitingConnection ? (
+          <div className="py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200 flex justify-start">
+            <TypingIndicator tone="connecting" />
+          </div>
+        ) : null}
         <div ref={messagesEndRef} className="h-1" />
       </div>
     </div>

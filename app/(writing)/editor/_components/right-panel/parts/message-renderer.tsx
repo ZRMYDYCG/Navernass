@@ -3,7 +3,11 @@
 import type { UIMessage, UIMessagePart } from 'ai'
 import { memo } from 'react'
 import { cn } from '@/lib/utils'
+import { TypingIndicator } from '../typing-indicator'
 import { findLastRenderableIndex, hasVisibleContent, isBubblePart, isRenderablePart, renderPart } from './registry'
+import { getMessageStreamFingerprint, shouldShowStreamTailActivity } from './stream-activity'
+import { StreamLoading } from './stream-loading'
+import { useStreamStale } from './use-stream-stale'
 
 interface MessageRendererProps {
   novelId: string
@@ -49,8 +53,22 @@ function MessageRendererInner({ novelId, message, isStreaming = false }: Message
     }
   }
 
-  // 尚无可见 part：由 MessageList 的落笔中指示器承接，避免空白占位
-  if (groups.length === 0) return null
+  const showTailActivity = !isUser && shouldShowStreamTailActivity(parts, isStreaming)
+  const streamFingerprint = getMessageStreamFingerprint(parts)
+  const isStreamStale = useStreamStale(isStreaming && !isUser, streamFingerprint)
+  const tailTone = showTailActivity
+    ? (isStreamStale ? 'thinking' as const : 'continuing' as const)
+    : 'streaming' as const
+
+  // 首字未到达：在消息位内展示落笔指示（ChatGPT/Cursor 风格）
+  if (groups.length === 0) {
+    if (!isStreaming || isUser) return null
+    return (
+      <div className="py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200 flex justify-start">
+        <TypingIndicator />
+      </div>
+    )
+  }
 
   return (
     <div
@@ -106,6 +124,11 @@ function MessageRendererInner({ novelId, message, isStreaming = false }: Message
               </div>
             )
           })}
+          {showTailActivity ? (
+            <div className="pt-1 pl-0.5">
+              <StreamLoading variant="card" tone={tailTone} />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

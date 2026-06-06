@@ -563,6 +563,9 @@ const editor = {
     historyButton: '历史记录',
     deepThinking: '深度思考',
     streaming: '落笔中…',
+    streamConnecting: '连接中…',
+    streamThinking: '思考中…',
+    streamContinuing: '继续落笔…',
     untitledConversation: '无标题对话',
     empty: {
       title: 'AI 写作助手',
