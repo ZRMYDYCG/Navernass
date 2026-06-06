@@ -5,6 +5,7 @@
 export type AiMode = 'agent' | 'ask' | 'plan' | 'outline' | 'worldbook'
 
 export type AiModel =
+  | 'MiniMax-M3'
   | 'MiniMax-M2.7'
   | 'MiniMax-M2.1'
   | 'MiniMax-Text-01'

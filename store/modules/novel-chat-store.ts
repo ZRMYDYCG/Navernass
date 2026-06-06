@@ -49,7 +49,7 @@ function createDefaultUiSession(): NovelChatUiSession {
     conversations: [],
     conversationsLoaded: false,
     mode: 'agent',
-    model: 'MiniMax-M2.7',
+    model: 'MiniMax-M3',
     input: '',
     selectedChapters: [],
     submittedFormKeys: [],

@@ -38,6 +38,23 @@ function ModelIconBase({
   )
 }
 
+function MiniMaxM3Icon({ className }: ModelIconProps) {
+  return (
+    <ModelIconBase
+      className={className}
+      gradientId="minimax-m3"
+      from="#6366F1"
+      to="#8B5CF6"
+      glyph={(
+        <path
+          d="M4.2 11V5h1.1l1.7 3.1L8.7 5h1.1v6H8.6V7.7L6.9 11h-.7L4.5 7.7V11H4.2z"
+          fill="white"
+        />
+      )}
+    />
+  )
+}
+
 function MiniMaxM27Icon({ className }: ModelIconProps) {
   return (
     <ModelIconBase
@@ -107,6 +124,7 @@ function AbabIcon({ className }: ModelIconProps) {
 }
 
 export const MODEL_ICON_MAP: Record<AiModel, ComponentType<ModelIconProps>> = {
+  'MiniMax-M3': MiniMaxM3Icon,
   'MiniMax-M2.7': MiniMaxM27Icon,
   'MiniMax-M2.1': MiniMaxM21Icon,
   'MiniMax-Text-01': MiniMaxTextIcon,

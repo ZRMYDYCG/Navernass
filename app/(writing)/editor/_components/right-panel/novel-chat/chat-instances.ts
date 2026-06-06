@@ -42,7 +42,7 @@ function createDefaultBridge(novelId: string, conversationId: string | null): No
     conversationIdRef: { current: conversationId },
     isDraftConversationRef: { current: conversationId === null },
     modeRef: { current: 'agent' },
-    modelRef: { current: 'MiniMax-M2.7' },
+    modelRef: { current: 'MiniMax-M3' },
     selectedChaptersRef: { current: [] },
     selectedCharactersRef: { current: [] },
     setConversationIdFromHeader: () => {},

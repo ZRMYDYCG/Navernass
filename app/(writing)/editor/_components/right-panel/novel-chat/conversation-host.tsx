@@ -45,7 +45,7 @@ export function NovelChatConversationHost({
   const uiSession = useNovelChatStore(s => s.sessionsByNovelId[novelId])
 
   const mode = uiSession?.mode ?? 'agent'
-  const model = uiSession?.model ?? 'MiniMax-M2.7'
+  const model = uiSession?.model ?? 'MiniMax-M3'
 
   const bridge = getNovelChatSessionBridge(conversationKey)
   bridge.conversationIdRef.current = conversationId
