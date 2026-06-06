@@ -47,6 +47,8 @@ export function sanitizeUIMessagePartsForDisplay(parts: unknown[]): unknown[] {
       part.type === 'data-chapter-ref'
       || part.type === 'data-volume-ref'
       || part.type === 'data-character-ref'
+      || part.type === 'data-worldbook-ref'
+      || part.type === 'data-outline-ref'
     ) {
       out.push(part)
       continue
@@ -85,6 +87,8 @@ export function sanitizeUIMessagePartsForModel(parts: unknown[]): unknown[] {
       part.type === 'data-chapter-ref'
       || part.type === 'data-volume-ref'
       || part.type === 'data-character-ref'
+      || part.type === 'data-worldbook-ref'
+      || part.type === 'data-outline-ref'
     ) {
       continue
     }

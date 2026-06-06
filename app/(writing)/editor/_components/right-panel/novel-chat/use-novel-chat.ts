@@ -8,10 +8,13 @@ import { useSearchParams } from 'next/navigation'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
 import {
   selectOrderedChapters,
+  selectOrderedOutlines,
+  selectOrderedWorldbookEntries,
   useNovelChatStore,
   selectNovelChatUiSession,
   useChaptersStore,
   useCharacterMaterialStore,
+  useWorldviewStore,
 } from '@/store'
 import { useNovelChatContext } from './context'
 import { useNovelChatRuntime } from './provider'
@@ -140,7 +143,17 @@ export function useNovelChat() {
     const allCharacters = useCharacterMaterialStore.getState().characters
       .filter(c => !c.novel_id || c.novel_id === novelId)
       .map(c => ({ id: c.id, name: c.name }))
-    const payload = buildUserComposerMessage(raw, orderedChapters, allCharacters)
+    const allWorldbookEntries = selectOrderedWorldbookEntries(useWorldviewStore.getState())
+      .map(e => ({ id: e.id, title: e.title }))
+    const allOutlines = selectOrderedOutlines(useWorldviewStore.getState())
+      .map(o => ({ id: o.id, title: o.title }))
+    const payload = buildUserComposerMessage(
+      raw,
+      orderedChapters,
+      allCharacters,
+      allWorldbookEntries,
+      allOutlines,
+    )
     const chapterRefs = fromChapterRefs(toChapterRefs(payload.chapters))
     const conversationKey = makeConversationKey(novelId, currentConversationId, isDraftConversation)
     const bridge = getNovelChatSessionBridge(conversationKey)

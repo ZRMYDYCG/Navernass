@@ -17,7 +17,9 @@ import {
 import {
   encodeChapterMarker,
   encodeCharacterMarker,
+  encodeOutlineMarker,
   encodeVolumeMarker,
+  encodeWorldbookMarker,
   chapterRefsEqual,
   characterRefsEqual,
   extractContextChapterRefs,
@@ -31,7 +33,9 @@ import {
   type MentionListItem,
   type SerializedChapterRef,
   type SerializedCharacterRef,
+  type SerializedOutlineRef,
   type SerializedVolumeRef,
+  type SerializedWorldbookRef,
 } from '@/lib/editor/inline-composer'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
@@ -88,6 +92,8 @@ interface InlineChapterComposerProps {
   chapters: Chapter[]
   volumes?: Volume[]
   characters?: Array<{ id: string, name: string }>
+  worldbookEntries?: Array<{ id: string, title: string }>
+  outlines?: Array<{ id: string, title: string }>
   placeholder?: string
   disabled?: boolean
   isCompact?: boolean
@@ -98,7 +104,13 @@ interface InlineChapterComposerProps {
 
 function isComposerChipElement(node: HTMLElement): boolean {
   return node.classList.contains(CHIP_CLASS)
-    && (Boolean(node.dataset.chapterId) || Boolean(node.dataset.volumeId) || Boolean(node.dataset.characterId))
+    && (
+      Boolean(node.dataset.chapterId)
+      || Boolean(node.dataset.volumeId)
+      || Boolean(node.dataset.characterId)
+      || Boolean(node.dataset.worldbookId)
+      || Boolean(node.dataset.outlineId)
+    )
 }
 
 function createChapterChipElement(chapter: SerializedChapterRef): HTMLSpanElement {
@@ -141,6 +153,46 @@ function createVolumeChipElement(volume: SerializedVolumeRef): HTMLSpanElement {
   return chip
 }
 
+function createWorldbookChipElement(entry: SerializedWorldbookRef): HTMLSpanElement {
+  const chip = document.createElement('span')
+  chip.dataset.worldbookId = entry.id
+  chip.dataset.worldbookTitle = entry.title
+  chip.contentEditable = 'false'
+  chip.className = cn(
+    CHIP_CLASS,
+    'mx-0.5 inline-flex max-w-[200px] align-middle items-center gap-0.5 rounded-md border border-chart-3/30',
+    'bg-chart-3/10 px-1.5 py-0.5 text-xs font-medium text-foreground select-none',
+  )
+  chip.setAttribute('aria-label', entry.title)
+
+  const label = document.createElement('span')
+  label.className = 'truncate max-w-[180px]'
+  label.textContent = entry.title
+
+  chip.append(label)
+  return chip
+}
+
+function createOutlineChipElement(outline: SerializedOutlineRef): HTMLSpanElement {
+  const chip = document.createElement('span')
+  chip.dataset.outlineId = outline.id
+  chip.dataset.outlineTitle = outline.title
+  chip.contentEditable = 'false'
+  chip.className = cn(
+    CHIP_CLASS,
+    'mx-0.5 inline-flex max-w-[200px] align-middle items-center gap-0.5 rounded-md border border-chart-4/30',
+    'bg-chart-4/10 px-1.5 py-0.5 text-xs font-medium text-foreground select-none',
+  )
+  chip.setAttribute('aria-label', outline.title)
+
+  const label = document.createElement('span')
+  label.className = 'truncate max-w-[180px]'
+  label.textContent = outline.title
+
+  chip.append(label)
+  return chip
+}
+
 function createCharacterChipElement(character: SerializedCharacterRef): HTMLSpanElement {
   const chip = document.createElement('span')
   chip.dataset.characterId = character.id
@@ -161,6 +213,21 @@ function createCharacterChipElement(character: SerializedCharacterRef): HTMLSpan
   return chip
 }
 
+function createMentionChipElement(item: MentionListItem): HTMLSpanElement {
+  switch (item.type) {
+    case 'volume':
+      return createVolumeChipElement({ id: item.id, title: item.title })
+    case 'character':
+      return createCharacterChipElement({ id: item.id, name: item.name })
+    case 'worldbook':
+      return createWorldbookChipElement({ id: item.id, title: item.title })
+    case 'outline':
+      return createOutlineChipElement({ id: item.id, title: item.title })
+    case 'chapter':
+      return createChapterChipElement({ id: item.id, title: item.title })
+  }
+}
+
 function appendTextNode(root: HTMLElement, text: string) {
   if (!text) return
   root.append(document.createTextNode(text))
@@ -175,6 +242,10 @@ function renderSegmentsToEditor(root: HTMLElement, segments: ComposerSegment[]) 
       root.append(createVolumeChipElement(segment))
     } else if (segment.type === 'character') {
       root.append(createCharacterChipElement(segment))
+    } else if (segment.type === 'worldbook') {
+      root.append(createWorldbookChipElement(segment))
+    } else if (segment.type === 'outline') {
+      root.append(createOutlineChipElement(segment))
     } else {
       root.append(createChapterChipElement(segment))
     }
@@ -207,6 +278,16 @@ function serializeFromEditor(root: HTMLElement): string {
         result += encodeCharacterMarker({
           id: node.dataset.characterId,
           name: node.dataset.characterName ?? '',
+        })
+      } else if (node.dataset.worldbookId) {
+        result += encodeWorldbookMarker({
+          id: node.dataset.worldbookId,
+          title: node.dataset.worldbookTitle ?? '',
+        })
+      } else if (node.dataset.outlineId) {
+        result += encodeOutlineMarker({
+          id: node.dataset.outlineId,
+          title: node.dataset.outlineTitle ?? '',
         })
       }
       return
@@ -335,6 +416,8 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
       chapters,
       volumes = [],
       characters = [],
+      worldbookEntries = [],
+      outlines = [],
       placeholder,
       disabled,
       isCompact = true,
@@ -415,12 +498,7 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
         deleteCharsBeforeCaret(root, textBefore.length - mention.startOffset)
       }
 
-      const chip = item.type === 'volume'
-        ? createVolumeChipElement({ id: item.id, title: item.title })
-        : item.type === 'character'
-          ? createCharacterChipElement({ id: item.id, name: item.name })
-          : createChapterChipElement({ id: item.id, title: item.title })
-      insertChipAtCaret(root, chip)
+      insertChipAtCaret(root, createMentionChipElement(item))
       closeMentionMenu()
       syncFromEditor()
       root.focus()
@@ -501,7 +579,14 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
       }
 
       if (mentionOpen) {
-        const filtered = filterMentionListItems(volumes, chapters, mentionQuery, characters)
+        const filtered = filterMentionListItems(
+          volumes,
+          chapters,
+          mentionQuery,
+          characters,
+          worldbookEntries,
+          outlines,
+        )
         if (e.key === 'ArrowDown') {
           e.preventDefault()
           setMentionIndex(i => (i + 1) % Math.max(filtered.length, 1))
@@ -587,6 +672,8 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
               volumes={volumes}
               chapters={chapters}
               characters={characters}
+              worldbookEntries={worldbookEntries}
+              outlines={outlines}
               query={mentionQuery}
               activeIndex={mentionIndex}
               onActiveIndexChange={setMentionIndex}

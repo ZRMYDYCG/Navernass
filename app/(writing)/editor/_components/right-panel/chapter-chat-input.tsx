@@ -8,9 +8,12 @@ import { AiChatInput, type AiChatInputProps } from '@/components/buss'
 import { hasComposerContent } from '@/lib/editor/inline-composer'
 import {
   selectOrderedChapters,
+  selectOrderedOutlines,
   selectOrderedVolumes,
+  selectOrderedWorldbookEntries,
   useChaptersStore,
   useCharacterMaterialStore,
+  useWorldviewStore,
 } from '@/store'
 import type { AiMode } from './types'
 import { InlineChapterComposer } from './inline-chapter-composer'
@@ -57,6 +60,16 @@ export function ChapterChatInput({
     () => allCharacters.map(c => ({ id: c.id, name: c.name })),
     [allCharacters],
   )
+  const allWorldbookEntries = useWorldviewStore(useShallow(selectOrderedWorldbookEntries))
+  const allOutlines = useWorldviewStore(useShallow(selectOrderedOutlines))
+  const worldbookRefs = useMemo(
+    () => allWorldbookEntries.map(e => ({ id: e.id, title: e.title })),
+    [allWorldbookEntries],
+  )
+  const outlineRefs = useMemo(
+    () => allOutlines.map(o => ({ id: o.id, title: o.title })),
+    [allOutlines],
+  )
   const isCompact = variant === 'compact'
   const resolvedMaxHeight = maxHeight ?? (isCompact ? 168 : 180)
 
@@ -83,6 +96,8 @@ export function ChapterChatInput({
           chapters={allChapters}
           volumes={allVolumes}
           characters={characterRefs}
+          worldbookEntries={worldbookRefs}
+          outlines={outlineRefs}
           placeholder={placeholder}
           disabled={disabled}
           isCompact={isCompact}

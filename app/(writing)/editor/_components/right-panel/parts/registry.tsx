@@ -11,8 +11,17 @@ import { isSubagentToolName, SubagentToolPart } from './subagent-tool-part'
 import { ToolPartFallback } from './tool-part-fallback'
 import { ChapterRefPart } from './chapter-ref-part'
 import { VolumeRefPart } from './volume-ref-part'
-import { isChapterRefPart, isCharacterRefPart, isInlineRefPart, isVolumeRefPart } from '@/lib/editor/composer-message'
+import {
+  isChapterRefPart,
+  isCharacterRefPart,
+  isInlineRefPart,
+  isOutlineRefPart,
+  isVolumeRefPart,
+  isWorldbookRefPart,
+} from '@/lib/editor/composer-message'
 import { CharacterRefPart } from './character-ref-part'
+import { OutlineRefPart } from './outline-ref-part'
+import { WorldbookRefPart } from './worldbook-ref-part'
 
 /**
  * AG-UI part 注册表
@@ -50,6 +59,9 @@ export function hasVisibleContent(
   }
   if (isCharacterRefPart(part)) {
     return Boolean(part.data?.name)
+  }
+  if (isWorldbookRefPart(part) || isOutlineRefPart(part)) {
+    return Boolean(part.data?.title)
   }
   if (part.type === 'text') {
     const text = ((part as { text?: string }).text || '').trim()
@@ -94,6 +106,22 @@ export function renderPart(part: AnyPart, ctx: PartRenderContext): ReactNode {
     return (
       <CharacterRefPart
         key={`char-${ctx.index}`}
+        data={part.data}
+      />
+    )
+  }
+  if (isWorldbookRefPart(part)) {
+    return (
+      <WorldbookRefPart
+        key={`wb-${ctx.index}`}
+        data={part.data}
+      />
+    )
+  }
+  if (isOutlineRefPart(part)) {
+    return (
+      <OutlineRefPart
+        key={`ol-${ctx.index}`}
         data={part.data}
       />
     )

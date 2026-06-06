@@ -4,13 +4,19 @@ import {
   parseComposerSegments,
   stripRefMarkers,
   type ComposerSegment,
+  extractContextOutlineRefs,
+  extractContextWorldbookRefs,
   type SerializedChapterRef,
   type SerializedCharacterRef,
+  type SerializedOutlineRef,
+  type SerializedWorldbookRef,
 } from './inline-composer'
 
 export const CHAPTER_REF_PART_TYPE = 'data-chapter-ref' as const
 export const VOLUME_REF_PART_TYPE = 'data-volume-ref' as const
 export const CHARACTER_REF_PART_TYPE = 'data-character-ref' as const
+export const WORLDBOOK_REF_PART_TYPE = 'data-worldbook-ref' as const
+export const OUTLINE_REF_PART_TYPE = 'data-outline-ref' as const
 
 export interface ChapterRefPartData {
   id: string
@@ -27,17 +33,31 @@ export interface CharacterRefPartData {
   name: string
 }
 
+export interface WorldbookRefPartData {
+  id: string
+  title: string
+}
+
+export interface OutlineRefPartData {
+  id: string
+  title: string
+}
+
 export type UserComposerPart =
   | { type: 'text', text: string, state?: 'done' }
   | { type: typeof CHAPTER_REF_PART_TYPE, data: ChapterRefPartData }
   | { type: typeof VOLUME_REF_PART_TYPE, data: VolumeRefPartData }
   | { type: typeof CHARACTER_REF_PART_TYPE, data: CharacterRefPartData }
+  | { type: typeof WORLDBOOK_REF_PART_TYPE, data: WorldbookRefPartData }
+  | { type: typeof OUTLINE_REF_PART_TYPE, data: OutlineRefPartData }
 
 export interface UserComposerMessagePayload {
   parts: UserComposerPart[]
   plainText: string
   chapters: SerializedChapterRef[]
   characters: SerializedCharacterRef[]
+  worldbookEntries: SerializedWorldbookRef[]
+  outlines: SerializedOutlineRef[]
   /** 发给 API / 存入 content 字段的文本 */
   apiText: string
 }
@@ -47,7 +67,12 @@ export function formatRefsFallback(
 ): string {
   const chunks: string[] = []
   for (const segment of segments) {
-    if (segment.type === 'chapter' || segment.type === 'volume') {
+    if (
+      segment.type === 'chapter'
+      || segment.type === 'volume'
+      || segment.type === 'worldbook'
+      || segment.type === 'outline'
+    ) {
       chunks.push(`@${segment.title}`)
     } else if (segment.type === 'character') {
       chunks.push(`@${segment.name}`)
@@ -72,16 +97,33 @@ function segmentToParts(segment: ComposerSegment): UserComposerPart[] {
       data: { id: segment.id, name: segment.name },
     }]
   }
-  return [{
-    type: CHAPTER_REF_PART_TYPE,
-    data: { id: segment.id, title: segment.title },
-  }]
+  if (segment.type === 'worldbook') {
+    return [{
+      type: WORLDBOOK_REF_PART_TYPE,
+      data: { id: segment.id, title: segment.title },
+    }]
+  }
+  if (segment.type === 'outline') {
+    return [{
+      type: OUTLINE_REF_PART_TYPE,
+      data: { id: segment.id, title: segment.title },
+    }]
+  }
+  if (segment.type === 'chapter') {
+    return [{
+      type: CHAPTER_REF_PART_TYPE,
+      data: { id: segment.id, title: segment.title },
+    }]
+  }
+  return []
 }
 
 export function buildUserComposerMessage(
   raw: string,
   allChapters: Array<{ id: string, title: string, volume_id?: string | null }> = [],
   allCharacters: Array<{ id: string, name: string }> = [],
+  allWorldbookEntries: Array<{ id: string, title: string }> = [],
+  allOutlines: Array<{ id: string, title: string }> = [],
 ): UserComposerMessagePayload {
   const segments = parseComposerSegments(raw)
   const parts = segments.flatMap(segmentToParts)
@@ -90,13 +132,21 @@ export function buildUserComposerMessage(
     const full = allCharacters.find(c => c.id === ref.id)
     return full ? { id: full.id, name: full.name } : ref
   })
+  const worldbookEntries = extractContextWorldbookRefs(raw).map((ref) => {
+    const full = allWorldbookEntries.find(e => e.id === ref.id)
+    return full ? { id: full.id, title: full.title } : ref
+  })
+  const outlines = extractContextOutlineRefs(raw).map((ref) => {
+    const full = allOutlines.find(o => o.id === ref.id)
+    return full ? { id: full.id, title: full.title } : ref
+  })
   const plainText = stripRefMarkers(raw).trim()
   const apiText = buildComposerApiText(segments, plainText)
 
   // UI：chip 即 @，text part 仅保留纯正文；勿把 @名字 再写入 text（会重复显示）
   syncDisplayTextParts(parts, plainText)
 
-  return { parts, plainText, chapters, characters, apiText }
+  return { parts, plainText, chapters, characters, worldbookEntries, outlines, apiText }
 }
 
 /** @ 引用 + 正文合并为模型可见的一行（避免 sanitize 去掉 chip 后丢失 @） */
@@ -182,8 +232,26 @@ export function isCharacterRefPart(part: unknown): part is { type: typeof CHARAC
     && typeof (part as { data?: { id?: string } }).data?.id === 'string'
 }
 
+export function isWorldbookRefPart(part: unknown): part is { type: typeof WORLDBOOK_REF_PART_TYPE, data: WorldbookRefPartData } {
+  return typeof part === 'object'
+    && part !== null
+    && (part as { type?: string }).type === WORLDBOOK_REF_PART_TYPE
+    && typeof (part as { data?: { id?: string } }).data?.id === 'string'
+}
+
+export function isOutlineRefPart(part: unknown): part is { type: typeof OUTLINE_REF_PART_TYPE, data: OutlineRefPartData } {
+  return typeof part === 'object'
+    && part !== null
+    && (part as { type?: string }).type === OUTLINE_REF_PART_TYPE
+    && typeof (part as { data?: { id?: string } }).data?.id === 'string'
+}
+
 export function isInlineRefPart(part: unknown): boolean {
-  return isChapterRefPart(part) || isVolumeRefPart(part) || isCharacterRefPart(part)
+  return isChapterRefPart(part)
+    || isVolumeRefPart(part)
+    || isCharacterRefPart(part)
+    || isWorldbookRefPart(part)
+    || isOutlineRefPart(part)
 }
 
 function escapeRegExp(value: string): string {
@@ -218,6 +286,11 @@ export function extractApiTextFromUserMessage(parts: unknown[]): string {
       mentionNames.push(raw.data.name)
       continue
     }
+    if (isWorldbookRefPart(raw) || isOutlineRefPart(raw)) {
+      refChunks.push(`@${raw.data.title}`)
+      mentionNames.push(raw.data.title)
+      continue
+    }
     const part = raw as { type?: string, text?: string }
     if (part?.type === 'text' && part.text) {
       textChunks.push(part.text)
@@ -239,3 +312,5 @@ export function formatChapterRefsFallback(chapters: SerializedChapterRef[]): str
 }
 
 export { extractCharacterRefsFromMessageParts } from './character-composer'
+export { extractWorldbookRefsFromMessageParts } from './worldbook-composer'
+export { extractOutlineRefsFromMessageParts } from './outline-composer'

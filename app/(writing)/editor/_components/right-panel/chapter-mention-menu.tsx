@@ -2,7 +2,7 @@
 
 import type { Chapter } from '@/lib/supabase/sdk'
 import type { Volume } from '@/lib/supabase/sdk'
-import { BookOpen, Check, FileText, User } from 'lucide-react'
+import { BookOpen, Check, Globe2, ListTree, User } from 'lucide-react'
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
@@ -13,6 +13,8 @@ interface ChapterMentionMenuProps {
   volumes: Volume[]
   chapters: Chapter[]
   characters?: Array<{ id: string, name: string }>
+  worldbookEntries?: Array<{ id: string, title: string }>
+  outlines?: Array<{ id: string, title: string }>
   query: string
   activeIndex: number
   onSelect: (item: MentionListItem) => void
@@ -25,6 +27,8 @@ export function ChapterMentionMenu({
   volumes,
   chapters,
   characters = [],
+  worldbookEntries = [],
+  outlines = [],
   query,
   activeIndex,
   onSelect,
@@ -42,8 +46,8 @@ export function ChapterMentionMenu({
   }, [chapters])
 
   const items = useMemo(
-    () => filterMentionListItems(volumes, chapters, query, characters),
-    [volumes, chapters, query, characters],
+    () => filterMentionListItems(volumes, chapters, query, characters, worldbookEntries, outlines),
+    [volumes, chapters, query, characters, worldbookEntries, outlines],
   )
 
   const activeItemRef = useRef<HTMLButtonElement>(null)
@@ -74,6 +78,8 @@ export function ChapterMentionMenu({
   let volumeHeaderShown = false
   let chapterHeaderShown = false
   let characterHeaderShown = false
+  let worldbookHeaderShown = false
+  let outlineHeaderShown = false
 
   return (
     <div
@@ -92,9 +98,13 @@ export function ChapterMentionMenu({
         const showVolumeHeader = item.type === 'volume' && !volumeHeaderShown
         const showChapterHeader = item.type === 'chapter' && !chapterHeaderShown
         const showCharacterHeader = item.type === 'character' && !characterHeaderShown
+        const showWorldbookHeader = item.type === 'worldbook' && !worldbookHeaderShown
+        const showOutlineHeader = item.type === 'outline' && !outlineHeaderShown
         if (showVolumeHeader) volumeHeaderShown = true
         if (showChapterHeader) chapterHeaderShown = true
         if (showCharacterHeader) characterHeaderShown = true
+        if (showWorldbookHeader) worldbookHeaderShown = true
+        if (showOutlineHeader) outlineHeaderShown = true
 
         return (
           <div key={`${item.type}-${item.id}-${index}`}>
@@ -123,6 +133,24 @@ export function ChapterMentionMenu({
               )}
               >
                 {t('editor.rightPanel.chapterSelector.charactersSection')}
+              </div>
+            )}
+            {showWorldbookHeader && (
+              <div className={cn(
+                'py-1 text-[10px] font-medium uppercase text-muted-foreground/70',
+                isDrawer ? 'px-3' : 'px-2.5',
+              )}
+              >
+                {t('editor.rightPanel.chapterSelector.worldbookSection')}
+              </div>
+            )}
+            {showOutlineHeader && (
+              <div className={cn(
+                'py-1 text-[10px] font-medium uppercase text-muted-foreground/70',
+                isDrawer ? 'px-3' : 'px-2.5',
+              )}
+              >
+                {t('editor.rightPanel.chapterSelector.outlinesSection')}
               </div>
             )}
             <button
@@ -158,11 +186,19 @@ export function ChapterMentionMenu({
                   ? (
                       <User className="size-3 shrink-0 text-chart-2" aria-hidden />
                     )
-                  : (
-                      <span className="w-4 shrink-0 text-[10px] tabular-nums text-muted-foreground/70">
-                        {chapterOrder.get(item.id) || '·'}
-                      </span>
-                    )}
+                  : item.type === 'worldbook'
+                    ? (
+                        <Globe2 className="size-3 shrink-0 text-chart-3" aria-hidden />
+                      )
+                    : item.type === 'outline'
+                      ? (
+                          <ListTree className="size-3 shrink-0 text-chart-4" aria-hidden />
+                        )
+                      : (
+                          <span className="w-4 shrink-0 text-[10px] tabular-nums text-muted-foreground/70">
+                            {chapterOrder.get(item.id) || '·'}
+                          </span>
+                        )}
               <span className="min-w-0 flex-1 truncate">
                 {item.type === 'character' ? item.name : item.title}
               </span>

@@ -16,6 +16,8 @@ import { createClient } from '@/lib/supabase/server'
 import {
   extractApiTextFromUserMessage,
   extractCharacterRefsFromMessageParts,
+  extractOutlineRefsFromMessageParts,
+  extractWorldbookRefsFromMessageParts,
   isRefsOnlyUserMessage,
 } from '@/lib/editor/composer-message'
 import {
@@ -23,6 +25,10 @@ import {
   pickPrimaryCharacter,
   resolveCharacterRefsForRequest,
 } from '@/lib/editor/character-composer'
+import { buildOutlineContextBlock } from '@/lib/editor/outline-composer'
+import { buildWorldbookContextBlock } from '@/lib/editor/worldbook-composer'
+import { OutlinesService } from '@/lib/supabase/sdk/services/outlines.service'
+import { WorldbookEntriesService } from '@/lib/supabase/sdk/services/worldbook-entries.service'
 import type { SerializedCharacterRef } from '@/lib/editor/inline-composer'
 import { buildChapterContext } from '@/prompts'
 
@@ -125,6 +131,8 @@ export async function POST(req: NextRequest) {
   const conversationsService = new NovelConversationsService(supabase)
   const messagesService = new NovelMessagesService(supabase)
   const chaptersService = new ChaptersService(supabase)
+  const worldbookService = new WorldbookEntriesService(supabase)
+  const outlinesService = new OutlinesService(supabase)
 
   const body = (await req.json()) as ChatRequestBody
   const {
@@ -190,6 +198,52 @@ export async function POST(req: NextRequest) {
   })
   if (characterBlock) {
     contextMessage = `${contextMessage}${characterBlock}`
+  }
+
+  const worldbookRefs = extractWorldbookRefsFromMessageParts(
+    (lastUserMessage?.parts || []) as unknown[],
+  )
+  if (worldbookRefs.length > 0) {
+    try {
+      const entries = await Promise.all(
+        worldbookRefs.map(async (ref) => {
+          try {
+            return await worldbookService.getById(ref.id)
+          } catch {
+            return null
+          }
+        }),
+      )
+      const block = buildWorldbookContextBlock(
+        entries.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry)),
+      )
+      if (block) contextMessage = `${contextMessage}${block}`
+    } catch (error) {
+      console.warn('Failed to load @ worldbook entries:', error)
+    }
+  }
+
+  const outlineRefs = extractOutlineRefsFromMessageParts(
+    (lastUserMessage?.parts || []) as unknown[],
+  )
+  if (outlineRefs.length > 0) {
+    try {
+      const outlines = await Promise.all(
+        outlineRefs.map(async (ref) => {
+          try {
+            return await outlinesService.getById(ref.id)
+          } catch {
+            return null
+          }
+        }),
+      )
+      const block = buildOutlineContextBlock(
+        outlines.filter((outline): outline is NonNullable<typeof outline> => Boolean(outline)),
+      )
+      if (block) contextMessage = `${contextMessage}${block}`
+    } catch (error) {
+      console.warn('Failed to load @ outline nodes:', error)
+    }
   }
 
   // Router 决策：派给哪个 agent + 启用哪些 skill

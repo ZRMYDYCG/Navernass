@@ -1,9 +1,8 @@
 /** 内联引用块在 input 字符串中的序列化格式 */
-const REF_MARKER_RE = /\[\[(ch|vol|char):([^:\]]+):([^\]]+)\]\]/g
+const REF_MARKER_RE = /\[\[(ch|vol|char|wb|ol):([^:\]]+):([^\]]+)\]\]/g
 const CHAPTER_MARKER_RE = /\[\[ch:([^:\]]+):([^\]]+)\]\]/g
 const VOLUME_MARKER_RE = /\[\[vol:([^:\]]+):([^\]]+)\]\]/g
 const CHARACTER_MARKER_RE = /\[\[char:([^:\]]+):([^\]]+)\]\]/g
-
 export interface SerializedChapterRef {
   id: string
   title: string
@@ -19,6 +18,16 @@ export interface SerializedCharacterRef {
   name: string
 }
 
+export interface SerializedWorldbookRef {
+  id: string
+  title: string
+}
+
+export interface SerializedOutlineRef {
+  id: string
+  title: string
+}
+
 export function encodeChapterMarker(chapter: SerializedChapterRef): string {
   return `[[ch:${chapter.id}:${encodeURIComponent(chapter.title)}]]`
 }
@@ -29,6 +38,14 @@ export function encodeVolumeMarker(volume: SerializedVolumeRef): string {
 
 export function encodeCharacterMarker(character: SerializedCharacterRef): string {
   return `[[char:${character.id}:${encodeURIComponent(character.name)}]]`
+}
+
+export function encodeWorldbookMarker(entry: SerializedWorldbookRef): string {
+  return `[[wb:${entry.id}:${encodeURIComponent(entry.title)}]]`
+}
+
+export function encodeOutlineMarker(outline: SerializedOutlineRef): string {
+  return `[[ol:${outline.id}:${encodeURIComponent(outline.title)}]]`
 }
 
 /** 从序列化文本提取显式 @ 的章节（按出现顺序，允许同一章多次出现在正文） */
@@ -111,6 +128,32 @@ export function extractContextCharacterRefs(value: string): SerializedCharacterR
   return result
 }
 
+/** 从正文 @ 世界观标记提取条目（按出现顺序去重 id） */
+export function extractContextWorldbookRefs(value: string): SerializedWorldbookRef[] {
+  const result: SerializedWorldbookRef[] = []
+  const seen = new Set<string>()
+  for (const segment of parseComposerSegments(value)) {
+    if (segment.type !== 'worldbook') continue
+    if (seen.has(segment.id)) continue
+    seen.add(segment.id)
+    result.push({ id: segment.id, title: segment.title })
+  }
+  return result
+}
+
+/** 从正文 @ 大纲标记提取节点（按出现顺序去重 id） */
+export function extractContextOutlineRefs(value: string): SerializedOutlineRef[] {
+  const result: SerializedOutlineRef[] = []
+  const seen = new Set<string>()
+  for (const segment of parseComposerSegments(value)) {
+    if (segment.type !== 'outline') continue
+    if (seen.has(segment.id)) continue
+    seen.add(segment.id)
+    result.push({ id: segment.id, title: segment.title })
+  }
+  return result
+}
+
 /** @deprecated 使用 extractContextChapterRefs；保留兼容旧调用 */
 export function extractChaptersFromSerialized(value: string): SerializedChapterRef[] {
   const seen = new Set<string>()
@@ -137,6 +180,8 @@ export function hasComposerContent(value: string): boolean {
     || /\[\[ch:[^:\]]+:[^\]]+\]\]/.test(value)
     || /\[\[vol:[^:\]]+:[^\]]+\]\]/.test(value)
     || /\[\[char:[^:\]]+:[^\]]+\]\]/.test(value)
+    || /\[\[wb:[^:\]]+:[^\]]+\]\]/.test(value)
+    || /\[\[ol:[^:\]]+:[^\]]+\]\]/.test(value)
 }
 
 export function chapterRefsEqual(
@@ -166,6 +211,8 @@ export type ComposerSegment =
   | { type: 'chapter', id: string, title: string }
   | { type: 'volume', id: string, title: string }
   | { type: 'character', id: string, name: string }
+  | { type: 'worldbook', id: string, title: string }
+  | { type: 'outline', id: string, title: string }
 
 export function parseComposerSegments(value: string): ComposerSegment[] {
   if (!value) return [{ type: 'text', value: '' }]
@@ -185,8 +232,12 @@ export function parseComposerSegments(value: string): ComposerSegment[] {
       segments.push({ type: 'chapter', id, title })
     } else if (kind === 'vol') {
       segments.push({ type: 'volume', id, title })
-    } else {
+    } else if (kind === 'char') {
       segments.push({ type: 'character', id, name: title })
+    } else if (kind === 'wb') {
+      segments.push({ type: 'worldbook', id, title })
+    } else {
+      segments.push({ type: 'outline', id, title })
     }
     lastIndex = index + match[0].length
   }
@@ -212,7 +263,13 @@ export function serializeComposerSegments(segments: ComposerSegment[]): string {
       if (segment.type === 'volume') {
         return encodeVolumeMarker({ id: segment.id, title: segment.title })
       }
-      return encodeCharacterMarker({ id: segment.id, name: segment.name })
+      if (segment.type === 'character') {
+        return encodeCharacterMarker({ id: segment.id, name: segment.name })
+      }
+      if (segment.type === 'worldbook') {
+        return encodeWorldbookMarker({ id: segment.id, title: segment.title })
+      }
+      return encodeOutlineMarker({ id: segment.id, title: segment.title })
     })
     .join('')
 }
@@ -236,12 +293,16 @@ export type MentionListItem =
   | { type: 'volume', id: string, title: string }
   | { type: 'chapter', id: string, title: string }
   | { type: 'character', id: string, name: string }
+  | { type: 'worldbook', id: string, title: string }
+  | { type: 'outline', id: string, title: string }
 
 export function filterMentionListItems(
   volumes: Array<{ id: string, title: string }>,
   chapters: Array<{ id: string, title: string }>,
   query: string,
   characters: Array<{ id: string, name: string }> = [],
+  worldbookEntries: Array<{ id: string, title: string }> = [],
+  outlines: Array<{ id: string, title: string }> = [],
 ): MentionListItem[] {
   const q = query.trim().toLowerCase()
   const matchTitle = (title: string) => !q || title.toLowerCase().includes(q)
@@ -259,5 +320,13 @@ export function filterMentionListItems(
     .filter(c => matchName(c.name))
     .map(c => ({ type: 'character' as const, id: c.id, name: c.name }))
 
-  return [...volumeItems, ...chapterItems, ...characterItems]
+  const worldbookItems: MentionListItem[] = worldbookEntries
+    .filter(e => matchTitle(e.title))
+    .map(e => ({ type: 'worldbook' as const, id: e.id, title: e.title }))
+
+  const outlineItems: MentionListItem[] = outlines
+    .filter(o => matchTitle(o.title))
+    .map(o => ({ type: 'outline' as const, id: o.id, title: o.title }))
+
+  return [...volumeItems, ...chapterItems, ...characterItems, ...worldbookItems, ...outlineItems]
 }
