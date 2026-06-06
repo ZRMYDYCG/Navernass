@@ -24,7 +24,9 @@ import {
   extractContextCharacterRefs,
   getMentionQueryFromTextBefore,
   filterMentionListItems,
+  hasComposerContent,
   parseComposerSegments,
+  stripRefMarkers,
   type ComposerSegment,
   type MentionListItem,
   type SerializedChapterRef,
@@ -36,6 +38,42 @@ import { cn } from '@/lib/utils'
 import { ChapterMentionMenu } from './chapter-mention-menu'
 
 const CHIP_CLASS = 'inline-composer-chip'
+const INVISIBLE_CHAR_RE = /[\u200B\uFEFF]/g
+
+function shouldShowComposerPlaceholder(value: string): boolean {
+  if (hasComposerContent(value)) return false
+  const plain = stripRefMarkers(value).replace(INVISIBLE_CHAR_RE, '').trim()
+  return plain.length === 0
+}
+
+function resetEmptyEditorDom(root: HTMLElement): Text {
+  root.innerHTML = ''
+  const textNode = document.createTextNode('')
+  root.append(textNode)
+  return textNode
+}
+
+function placeCaretAtStart(root: HTMLElement) {
+  const selection = window.getSelection()
+  if (!selection) return
+  const textNode = root.firstChild?.nodeType === Node.TEXT_NODE
+    ? (root.firstChild as Text)
+    : resetEmptyEditorDom(root)
+  const range = document.createRange()
+  range.setStart(textNode, 0)
+  range.collapse(true)
+  selection.removeAllRanges()
+  selection.addRange(range)
+}
+
+function normalizeEmptyEditor(root: HTMLElement) {
+  const serialized = serializeFromEditor(root)
+  if (!shouldShowComposerPlaceholder(serialized)) return
+  resetEmptyEditorDom(root)
+  if (root === document.activeElement) {
+    placeCaretAtStart(root)
+  }
+}
 
 export interface InlineChapterComposerHandle {
   focus: () => void
@@ -307,6 +345,7 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
     ref,
   ) {
     const { t } = useI18n()
+    const placeholderText = placeholder ?? t('chat.input.placeholder')
     const editorRef = useRef<HTMLDivElement>(null)
     const lastSerializedRef = useRef(value)
     const lastChaptersRef = useRef<SerializedChapterRef[]>([])
@@ -317,11 +356,19 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
     const [mentionQuery, setMentionQuery] = useState('')
     const [mentionIndex, setMentionIndex] = useState(0)
     const [isDragOver, setIsDragOver] = useState(false)
+    const [showPlaceholder, setShowPlaceholder] = useState(() => shouldShowComposerPlaceholder(value))
+
+    const updatePlaceholderVisibility = useCallback(() => {
+      const root = editorRef.current
+      if (!root) return
+      setShowPlaceholder(shouldShowComposerPlaceholder(serializeFromEditor(root)))
+    }, [])
 
     const syncFromEditor = useCallback(() => {
       const root = editorRef.current
       if (!root) return
       const serialized = serializeFromEditor(root)
+      setShowPlaceholder(shouldShowComposerPlaceholder(serialized))
       if (serialized !== lastSerializedRef.current) {
         lastSerializedRef.current = serialized
         onChange(serialized)
@@ -380,7 +427,14 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
     }, [closeMentionMenu, syncFromEditor])
 
     useImperativeHandle(ref, () => ({
-      focus: () => editorRef.current?.focus(),
+      focus: () => {
+        const root = editorRef.current
+        if (!root) return
+        root.focus()
+        if (shouldShowComposerPlaceholder(serializeFromEditor(root))) {
+          placeCaretAtStart(root)
+        }
+      },
       insertAtChar: (char: string) => {
         const root = editorRef.current
         if (!root) return
@@ -411,17 +465,40 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
       lastSerializedRef.current = value
       lastChaptersRef.current = extractContextChapterRefs(value, chapters)
       renderSegmentsToEditor(root, parseComposerSegments(value))
+      const isEmpty = shouldShowComposerPlaceholder(value)
+      setShowPlaceholder(isEmpty)
+      if (isEmpty && root === document.activeElement) {
+        placeCaretAtStart(root)
+      }
     }, [value, chapters])
 
     const handleInput = () => {
+      updatePlaceholderVisibility()
       if (isComposingRef.current) return
       syncFromEditor()
       updateMentionMenu()
     }
 
+    const handleEditorActivate = () => {
+      const root = editorRef.current
+      if (!root) return
+      if (!shouldShowComposerPlaceholder(serializeFromEditor(root))) return
+      normalizeEmptyEditor(root)
+    }
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
       const root = editorRef.current
       if (!root) return
+
+      if (
+        !mentionOpen
+        && e.key.length === 1
+        && !e.ctrlKey
+        && !e.metaKey
+        && !e.altKey
+      ) {
+        setShowPlaceholder(false)
+      }
 
       if (mentionOpen) {
         const filtered = filterMentionListItems(volumes, chapters, mentionQuery, characters)
@@ -518,48 +595,74 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
           </div>
         ) : null}
 
-        <div
-          ref={editorRef}
-          contentEditable={!disabled}
-          suppressContentEditableWarning
-          role="textbox"
-          aria-multiline="true"
-          aria-label={placeholder ?? t('chat.input.placeholder')}
-          data-placeholder={placeholder ?? t('chat.input.placeholder')}
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
-          onCompositionStart={() => { isComposingRef.current = true }}
-          onCompositionEnd={() => {
-            isComposingRef.current = false
-            handleInput()
-          }}
-          onDragEnter={(e) => {
-            if (!hasChapterAttachmentDrag(e.dataTransfer)) return
-            e.preventDefault()
-            setIsDragOver(true)
-          }}
-          onDragOver={(e) => {
-            if (!hasChapterAttachmentDrag(e.dataTransfer)) return
-            e.preventDefault()
-            e.dataTransfer.dropEffect = 'copy'
-            setIsDragOver(true)
-          }}
-          onDragLeave={(e) => {
-            if (e.currentTarget.contains(e.relatedTarget as Node)) return
-            setIsDragOver(false)
-          }}
-          onDrop={handleDrop}
-          className={cn(
-            'input-area-scrollbar w-full outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/80',
-            'text-foreground leading-relaxed px-3',
-            mentionOpen ? 'pt-2' : 'pt-3',
-            isCompact ? 'min-h-[72px] text-sm' : 'min-h-[56px] text-base font-serif',
-            isDragOver && 'bg-accent/30 ring-1 ring-inset ring-ring/30 rounded-md',
-            disabled && 'cursor-not-allowed opacity-60',
-            className,
-          )}
-          style={{ maxHeight }}
-        />
+        <div className="relative">
+          {showPlaceholder ? (
+            <div
+              className={cn(
+                'pointer-events-none absolute inset-x-0 top-0 z-0 px-3 text-pretty text-muted-foreground/80 leading-relaxed',
+                mentionOpen ? 'pt-2' : 'pt-3',
+                isCompact ? 'text-sm' : 'text-base font-serif',
+              )}
+              aria-hidden
+            >
+              {placeholderText}
+            </div>
+          ) : null}
+
+          <div
+            ref={editorRef}
+            contentEditable={!disabled}
+            suppressContentEditableWarning
+            role="textbox"
+            aria-multiline="true"
+            aria-label={placeholderText}
+            onInput={handleInput}
+            onFocus={handleEditorActivate}
+            onClick={handleEditorActivate}
+            onBlur={() => {
+              const root = editorRef.current
+              if (!root) return
+              normalizeEmptyEditor(root)
+              syncFromEditor()
+            }}
+            onKeyDown={handleKeyDown}
+            onCompositionStart={() => {
+              isComposingRef.current = true
+              setShowPlaceholder(false)
+            }}
+            onCompositionUpdate={updatePlaceholderVisibility}
+            onCompositionEnd={() => {
+              isComposingRef.current = false
+              handleInput()
+            }}
+            onDragEnter={(e) => {
+              if (!hasChapterAttachmentDrag(e.dataTransfer)) return
+              e.preventDefault()
+              setIsDragOver(true)
+            }}
+            onDragOver={(e) => {
+              if (!hasChapterAttachmentDrag(e.dataTransfer)) return
+              e.preventDefault()
+              e.dataTransfer.dropEffect = 'copy'
+              setIsDragOver(true)
+            }}
+            onDragLeave={(e) => {
+              if (e.currentTarget.contains(e.relatedTarget as Node)) return
+              setIsDragOver(false)
+            }}
+            onDrop={handleDrop}
+            className={cn(
+              'input-area-scrollbar relative z-10 w-full bg-transparent outline-none',
+              'text-foreground leading-relaxed px-3',
+              mentionOpen ? 'pt-2' : 'pt-3',
+              isCompact ? 'min-h-[72px] text-sm' : 'min-h-[56px] text-base font-serif',
+              isDragOver && 'bg-accent/30 ring-1 ring-inset ring-ring/30 rounded-md',
+              disabled && 'cursor-not-allowed opacity-60',
+              className,
+            )}
+            style={{ maxHeight }}
+          />
+        </div>
       </div>
     )
   },
