@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.16.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.15.0...v0.16.0) (2026-06-06)
+
+
+### Features
+
+* 支持选角色 大纲 世界观 ([0bf9ccf](https://github.com/ZRMYDYCG/Navernass/commit/0bf9ccf1bdd68d45eb0aab6cedff1b4bf37ac55f))
+* **editor:** 编辑器自定义鼠标样式相关代码提交 ([b55f775](https://github.com/ZRMYDYCG/Navernass/commit/b55f775e0545fef4a3866713a07fa329d8945940))
+* subagent 相关代码提交 ([3ee4bd2](https://github.com/ZRMYDYCG/Navernass/commit/3ee4bd26e38f602c04f93b7d3b244e5e778a34a8))
+
+
+### Bug Fixes
+
+* 触底问题修复 ([62304cf](https://github.com/ZRMYDYCG/Navernass/commit/62304cfb805c4a3ae00eea3fcdb1a9500583e166))
+* 修复光标激活问题 ([9ada26c](https://github.com/ZRMYDYCG/Navernass/commit/9ada26c3b153d6d009b389ad8615b0247dc1cb50))
+* **novels:** 修复分页与右键菜单条件调用 Hook 导致的 React 内部错误 ([f17ec2c](https://github.com/ZRMYDYCG/Navernass/commit/f17ec2c9f25c5c1692ea55d3764af7f4d1477171))
+
 ## [0.15.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.14.0...v0.15.0) (2026-05-31)
 
 
