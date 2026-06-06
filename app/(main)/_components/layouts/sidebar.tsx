@@ -1,12 +1,14 @@
 'use client'
 
 import type { LucideIcon } from 'lucide-react'
-import { Bell, Book, Bot, LayoutDashboard, Menu, PencilLine, Search, Settings, Trash2, X } from 'lucide-react'
+import { Bell, Book, Bot, LayoutDashboard, Menu, PanelLeftClose, PencilLine, Search, Settings, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ChatHistoryPopover } from '@/app/(main)/chat/_components/chat-history-popover'
+import { Button } from '@/components/ui/button'
 import { Kbd, KbdGroup } from '@/components/ui/kbd'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useI18n } from '@/hooks/use-i18n'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
@@ -26,12 +28,12 @@ interface MenuItem {
 
 export function Sidebar({
   desktopWidth,
-  isResizing,
-  onResizeStart,
+  isHidden = false,
+  onToggleHidden,
 }: {
   desktopWidth: number
-  isResizing: boolean
-  onResizeStart: (clientX: number) => void
+  isHidden?: boolean
+  onToggleHidden?: () => void
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -98,11 +100,16 @@ export function Sidebar({
   }
 
   const sidebarWidth = isCollapsed ? 84 : desktopWidth
-  const translateClass = isMobile ? (isMobileOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
-  const sidebarStyle = isMobile ? undefined : { width: sidebarWidth }
+  // 桌面 + hidden：用 translate-x 把整个 aside 推出去，并 width 0 / overflow-hidden 防止残留点击区
+  const translateClass = isMobile
+    ? (isMobileOpen ? 'translate-x-0' : '-translate-x-full')
+    : (isHidden ? '-translate-x-full' : 'translate-x-0')
+  const desktopWidthStyle = isMobile
+    ? undefined
+    : (isHidden ? { width: 0 } : { width: sidebarWidth })
 
   return (
-    <>
+    <TooltipProvider>
       {isMobile && (
         <button
           type="button"
@@ -128,14 +135,16 @@ export function Sidebar({
 
       <aside
         className={cn(
-          'fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar z-[60] flex flex-col overflow-hidden',
-          !isResizing && 'transition-all duration-300',
+          'fixed left-0 top-0 h-screen bg-sidebar z-[60] flex flex-col overflow-hidden transition-all duration-300',
           translateClass,
+          // 移动端不显示桌面端的折叠按钮列；桌面端不显示移动端宽度
           isMobile && 'w-[80vw] max-w-[320px] shadow-2xl',
         )}
-        style={sidebarStyle}
+        style={desktopWidthStyle}
+        aria-hidden={isHidden}
       >
         <UserProfile compact isCollapsed={isCollapsed} isMobileOpen={isMobileOpen} onSettingsClick={() => setShowSettings(true)} />
+
         <nav className="px-2 flex flex-col gap-1 mt-2">
           {menuItems.map((item) => {
             const Icon = item.icon
@@ -202,7 +211,7 @@ export function Sidebar({
           <ChatHistoryPopover className="h-full" scrollAreaClassName="h-full min-h-0" />
         </div>
 
-        <div className="mt-auto">
+        <div className="mt-auto flex items-center">
           {(() => {
             const Icon = bottomItem.icon
             return (
@@ -212,7 +221,7 @@ export function Sidebar({
                   if (isMobile) setIsMobileOpen(false)
                 }}
                 className={cn(
-                  'group flex items-center rounded-sm px-3 py-1.5 w-full text-left text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
+                  'group flex items-center rounded-sm px-3 py-1.5 flex-1 min-w-0 text-left text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
                   isCollapsed && 'justify-center',
                 )}
               >
@@ -221,25 +230,29 @@ export function Sidebar({
               </Link>
             )
           })()}
-        </div>
 
-        {!isMobile && (
-          <div
-            className={cn(
-              'absolute right-0 top-0 h-full w-1',
-              isCollapsed ? 'hidden' : 'cursor-col-resize',
-            )}
-            onMouseDown={(e) => {
-              if (isCollapsed) return
-              onResizeStart(e.clientX)
-              e.preventDefault()
-            }}
-          />
-        )}
+          {!isMobile && !isHidden && onToggleHidden && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={onToggleHidden}
+                  aria-label={t('main.sidebar.closeSidebar')}
+                  className="shrink-0 mr-1 inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
+                >
+                  <PanelLeftClose className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{t('main.sidebar.closeSidebar')}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
 
         <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
         <SearchDialog open={showSearch} onOpenChange={setShowSearch} />
       </aside>
-    </>
+    </TooltipProvider>
   )
 }

@@ -129,8 +129,8 @@ export function ChatHistoryPopover({ className, scrollAreaClassName }: ChatHisto
   )
 
   return (
-    <div className={cn('flex flex-col', className)}>
-      <ScrollArea className={cn('h-[400px]', scrollAreaClassName)}>
+    <div className={cn('flex flex-col min-h-0', className)}>
+      <ScrollArea className={cn('flex-1 min-h-0', scrollAreaClassName)}>
         <div className="space-y-0.5">
           {isLoading
             ? (

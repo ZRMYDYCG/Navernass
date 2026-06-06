@@ -5,6 +5,7 @@ import type { Novel } from '@/lib/supabase/sdk'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { SidebarOpenButton } from '@/app/(main)/_components/layouts/sidebar-open-button'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
 import { useI18n } from '@/hooks/use-i18n'
 import { novelsApi } from '@/lib/supabase/sdk'
@@ -241,30 +242,33 @@ function NovelsContent() {
       <div className="flex-1 py-2 px-8 overflow-y-auto flex flex-col">
         {/* 筛选器和新建按钮 */}
         <div className="mb-6 flex items-center justify-between gap-4 shrink-0">
-          <SegmentedControl
-            value={filter}
-            onValueChange={value => setFilter(value as NovelFilterType)}
-            className="bg-muted/50 p-1 border border-border rounded-lg"
-          >
-            <SegmentedControlItem
-              value="all"
-              className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+          <div className="flex items-center gap-3">
+            <SidebarOpenButton />
+            <SegmentedControl
+              value={filter}
+              onValueChange={value => setFilter(value as NovelFilterType)}
+              className="bg-muted/50 p-1 border border-border rounded-lg"
             >
-              {t('novels.filters.all')}
-            </SegmentedControlItem>
-            <SegmentedControlItem
-              value="draft"
-              className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
-            >
-              {t('novels.filters.draft')}
-            </SegmentedControlItem>
-            <SegmentedControlItem
-              value="published"
-              className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
-            >
-              {t('novels.filters.published')}
-            </SegmentedControlItem>
-          </SegmentedControl>
+              <SegmentedControlItem
+                value="all"
+                className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+              >
+                {t('novels.filters.all')}
+              </SegmentedControlItem>
+              <SegmentedControlItem
+                value="draft"
+                className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+              >
+                {t('novels.filters.draft')}
+              </SegmentedControlItem>
+              <SegmentedControlItem
+                value="published"
+                className="rounded-md text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+              >
+                {t('novels.filters.published')}
+              </SegmentedControlItem>
+            </SegmentedControl>
+          </div>
           <button
             type="button"
             onClick={handleOpenCreateDialog}

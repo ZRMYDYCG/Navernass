@@ -1,7 +1,7 @@
 const chat = {
   page: {
-    hello: '안녕하세요,',
-    firstLine: '여기서 첫 문장을 써 보세요.',
+    heading: '오늘은 무엇을 쓸까요?',
+    subtitle: 'AI와 함께 새로운 대화를 시작하세요',
   },
   historyPopover: {
     title: '기록',
@@ -13,17 +13,6 @@ const chat = {
       recent: '최근',
     },
     viewMore: '더 보기',
-  },
-  welcome: {
-    greetings: {
-      morning: '좋은 아침',
-      afternoon: '좋은 오후',
-      evening: '좋은 저녁',
-      night: '늦은 시간이네요',
-    },
-    questionSuffix: ', 글을 쓸 준비됐나요?',
-    creating: '대화 생성 중...',
-    tip: 'AI가 멋진 이야기를 엮도록 도와드릴게요.',
   },
   input: {
     placeholder: 'AI와 함께 소설 세계를 공동 창작해 보세요...',
@@ -45,12 +34,6 @@ const chat = {
     cancel: '취소',
     save: '저장',
     saving: '저장 중...',
-  },
-  recentNovels: {
-    title: '최근',
-    createTitle: '새 소설',
-    createDescription: '첫 장을 시작하세요',
-    noDescription: '설명 없음...',
   },
   historyItem: {
     pin: '고정',

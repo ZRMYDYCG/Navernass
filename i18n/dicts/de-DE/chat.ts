@@ -1,7 +1,7 @@
 const chat = {
   page: {
-    hello: 'Hallo,',
-    firstLine: 'Schreiben Sie hier Ihre erste Zeile.',
+    heading: 'Was schreibst du heute?',
+    subtitle: 'Starte ein neues Gespräch mit der KI',
   },
   historyPopover: {
     title: 'Verlauf',
@@ -13,17 +13,6 @@ const chat = {
       recent: 'Zuletzt',
     },
     viewMore: 'Mehr anzeigen',
-  },
-  welcome: {
-    greetings: {
-      morning: 'Guten Morgen',
-      afternoon: 'Guten Tag',
-      evening: 'Guten Abend',
-      night: 'Es ist spät',
-    },
-    questionSuffix: ', bereit zu schreiben?',
-    creating: 'Gespräch wird erstellt...',
-    tip: 'Lassen Sie sich von KI helfen, eine großartige Geschichte zu weben.',
   },
   input: {
     placeholder: 'Schreiben Sie Ihre Romanwelt gemeinsam mit KI...',
@@ -45,12 +34,6 @@ const chat = {
     cancel: 'Abbrechen',
     save: 'Speichern',
     saving: 'Wird gespeichert...',
-  },
-  recentNovels: {
-    title: 'Zuletzt',
-    createTitle: 'Neuer Roman',
-    createDescription: 'Starten Sie Ihr erstes Kapitel',
-    noDescription: 'Keine Beschreibung...',
   },
   historyItem: {
     pin: 'Anheften',

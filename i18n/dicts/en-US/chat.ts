@@ -1,7 +1,7 @@
 const chat = {
   page: {
-    hello: 'Hello,',
-    firstLine: 'Write your first line here.',
+    heading: 'What are you writing today?',
+    subtitle: 'Start a new conversation with AI',
   },
   historyPopover: {
     title: 'History',
@@ -13,17 +13,6 @@ const chat = {
       recent: 'Recent',
     },
     viewMore: 'View more',
-  },
-  welcome: {
-    greetings: {
-      morning: 'Good morning',
-      afternoon: 'Good afternoon',
-      evening: 'Good evening',
-      night: 'It\'s late',
-    },
-    questionSuffix: ', ready to write?',
-    creating: 'Creating conversation...',
-    tip: 'Let AI help you weave a great story.',
   },
   input: {
     placeholder: 'Co-write your novel world with AI...',
@@ -45,12 +34,6 @@ const chat = {
     cancel: 'Cancel',
     save: 'Save',
     saving: 'Saving...',
-  },
-  recentNovels: {
-    title: 'Recent',
-    createTitle: 'New novel',
-    createDescription: 'Start your first chapter',
-    noDescription: 'No description...',
   },
   historyItem: {
     pin: 'Pin',

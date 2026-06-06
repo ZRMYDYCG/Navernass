@@ -1,5 +1,6 @@
 'use client'
 
+import { SidebarOpenButton } from '@/app/(main)/_components/layouts/sidebar-open-button'
 import { useI18n } from '@/hooks/use-i18n'
 import { useWorkspaceStats } from '@/hooks/use-workspace-stats'
 import { CharacterMap } from './_components/character-map'
@@ -18,9 +19,12 @@ export default function WorkspacePage() {
     <div className="flex flex-col gap-6 p-6">
       {/* 页面标题 */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('workspace.dashboard.title')}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('workspace.dashboard.subtitle')}</p>
+        <div className="flex items-center gap-3">
+          <SidebarOpenButton />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{t('workspace.dashboard.title')}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t('workspace.dashboard.subtitle')}</p>
+          </div>
         </div>
         <WeatherWidget />
       </div>

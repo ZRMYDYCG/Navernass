@@ -1,97 +1,71 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { Sidebar } from './sidebar'
+import { SidebarToggleContext } from './sidebar-toggle-context'
+
+const SIDEBAR_WIDTH = 320
+const HIDDEN_STORAGE_KEY = 'sidebar-hidden'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isMobile = useIsMobile()
 
-  const DEFAULT_DESKTOP_WIDTH = 260 // px
-  const MIN_DESKTOP_WIDTH = DEFAULT_DESKTOP_WIDTH
-  const MAX_DESKTOP_WIDTH = 420
-  const STORAGE_KEY = 'sidebar-width'
+  const [isSidebarHidden, setIsSidebarHidden] = useState(false)
 
-  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
-
-  const [desktopSidebarWidth, setDesktopSidebarWidth] = useState(DEFAULT_DESKTOP_WIDTH)
-  const [isResizingSidebar, setIsResizingSidebar] = useState(false)
-  const lastClientXRef = useRef<number | null>(null)
-
-  // 从 localStorage 恢复宽度
+  // 从 localStorage 恢复折叠状态
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        const parsed = Number(saved)
-        if (!isNaN(parsed)) {
-          setDesktopSidebarWidth(clamp(parsed, MIN_DESKTOP_WIDTH, MAX_DESKTOP_WIDTH))
-        }
+      const savedHidden = localStorage.getItem(HIDDEN_STORAGE_KEY)
+      if (savedHidden === '1') {
+        setIsSidebarHidden(true)
       }
     } catch {
       // localStorage 不可用时忽略
     }
   }, [])
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const isCompositionPage = pathname === '/composition'
 
+  // Ctrl/Cmd + B 切换侧边栏可见性
   useEffect(() => {
-    if (!isResizingSidebar) return
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (lastClientXRef.current == null) {
-        lastClientXRef.current = e.clientX
-        return
-      }
-      const deltaX = e.clientX - lastClientXRef.current
-      lastClientXRef.current = e.clientX
-
-      setDesktopSidebarWidth(prev => clamp(prev + deltaX, MIN_DESKTOP_WIDTH, MAX_DESKTOP_WIDTH))
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return
+      if (event.key.toLowerCase() !== 'b') return
+      event.preventDefault()
+      setIsSidebarHidden(prev => !prev)
     }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
-    const onMouseUp = (e: MouseEvent) => {
-      setIsResizingSidebar(false)
-      lastClientXRef.current = null
-      // 持久化宽度到 localStorage
+  const handleToggleSidebar = useCallback(() => {
+    setIsSidebarHidden(prev => {
+      const next = !prev
       try {
-        setDesktopSidebarWidth((prev) => {
-          localStorage.setItem(STORAGE_KEY, String(prev))
-          return prev
-        })
+        localStorage.setItem(HIDDEN_STORAGE_KEY, next ? '1' : '0')
       } catch {
         // localStorage 不可用时忽略
       }
-    }
+      return next
+    })
+  }, [])
 
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseup', onMouseUp)
-    const prevUserSelect = document.body.style.userSelect
-    document.body.style.userSelect = 'none'
-
-    return () => {
-      document.removeEventListener('mousemove', onMouseMove)
-      document.removeEventListener('mouseup', onMouseUp)
-      document.body.style.userSelect = prevUserSelect
-    }
-  }, [isResizingSidebar])
+  const effectiveMarginLeft = isMobile || isSidebarHidden ? 0 : SIDEBAR_WIDTH
 
   return (
     <div className="flex h-screen bg-background transition-colors">
       <Sidebar
-        desktopWidth={desktopSidebarWidth}
-        isResizing={isResizingSidebar}
-        onResizeStart={(clientX) => {
-          setIsResizingSidebar(true)
-          lastClientXRef.current = clientX
-        }}
+        desktopWidth={SIDEBAR_WIDTH}
+        isHidden={isSidebarHidden}
+        onToggleHidden={handleToggleSidebar}
       />
 
       <div
         className="flex flex-col flex-1 transition-all duration-300"
-        style={{ marginLeft: isMobile ? 0 : (sidebarCollapsed ? 64 : desktopSidebarWidth) }}
+        style={{ marginLeft: effectiveMarginLeft }}
       >
         <main
           className={`flex-1 h-auto ${
@@ -100,7 +74,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               : 'scrollbar-thin scrollbar-h-[10px] scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-50 dark:scrollbar-track-neutral-900 scrollbar-thumb-rounded-full scrollbar-track-rounded-full overflow-y-auto'
           }`}
         >
-          {children}
+          <SidebarToggleContext.Provider value={isSidebarHidden ? handleToggleSidebar : null}>
+            {children}
+          </SidebarToggleContext.Provider>
         </main>
       </div>
     </div>

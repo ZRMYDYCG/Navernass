@@ -1,7 +1,7 @@
 const chat = {
   page: {
-    hello: '你好，',
-    firstLine: '在這裡寫下你的第一句故事吧！',
+    heading: '想寫點什麼？',
+    subtitle: '和 AI 一起開始一次新的對話',
   },
   historyPopover: {
     title: '歷史對話',
@@ -13,17 +13,6 @@ const chat = {
       recent: '最近',
     },
     viewMore: '查看更多',
-  },
-  welcome: {
-    greetings: {
-      morning: '早上好',
-      afternoon: '下午好',
-      evening: '晚上好',
-      night: '夜深了',
-    },
-    questionSuffix: '，準備好開始創作了嗎？',
-    creating: '正在建立對話...',
-    tip: '讓 AI 助手陪你一起編織精彩的故事',
   },
   input: {
     placeholder: '和 AI 一起創作你的小說世界...',
@@ -45,12 +34,6 @@ const chat = {
     cancel: '取消',
     save: '儲存',
     saving: '儲存中...',
-  },
-  recentNovels: {
-    title: '最近開啟',
-    createTitle: '建立小說',
-    createDescription: '開始你的第一章',
-    noDescription: '暫無簡介...',
   },
   historyItem: {
     pin: '置頂',

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
+import { SidebarOpenButton } from '@/app/(main)/_components/layouts/sidebar-open-button'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -83,6 +84,8 @@ export function ChatWelcomeHeader(props: ChatWelcomeHeaderProps = {}) {
       <header className="h-16 flex items-center justify-between px-4 bg-background transition-colors">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
+            <SidebarOpenButton />
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

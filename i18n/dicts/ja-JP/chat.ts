@@ -1,7 +1,7 @@
 const chat = {
   page: {
-    hello: 'こんにちは、',
-    firstLine: 'ここに最初の一行を書きましょう。',
+    heading: '何を書きましょうか？',
+    subtitle: 'AI と新しい対話を始めましょう',
   },
   historyPopover: {
     title: '履歴',
@@ -13,17 +13,6 @@ const chat = {
       recent: '最近',
     },
     viewMore: 'もっと見る',
-  },
-  welcome: {
-    greetings: {
-      morning: 'おはようございます',
-      afternoon: 'こんにちは',
-      evening: 'こんばんは',
-      night: '遅い時間ですね',
-    },
-    questionSuffix: '、書き始めますか？',
-    creating: '会話を作成中...',
-    tip: 'AIと一緒に素敵な物語を紡ぎましょう。',
   },
   input: {
     placeholder: 'AIと一緒に小説世界を共作...',
@@ -45,12 +34,6 @@ const chat = {
     cancel: 'キャンセル',
     save: '保存',
     saving: '保存中...',
-  },
-  recentNovels: {
-    title: '最近',
-    createTitle: '新しい小説',
-    createDescription: '最初の章を始める',
-    noDescription: '説明なし...',
   },
   historyItem: {
     pin: 'ピン留め',
