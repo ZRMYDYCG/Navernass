@@ -3,7 +3,7 @@
 import type { Chapter } from '@/lib/supabase/sdk'
 import type { Volume } from '@/lib/supabase/sdk'
 import { BookOpen, Check, FileText, User } from 'lucide-react'
-import { useMemo } from 'react'
+import { useLayoutEffect, useMemo, useRef } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { setChapterAttachmentDragData, setVolumeAttachmentDragData } from '@/lib/editor/chapter-attachment-drag'
@@ -17,6 +17,7 @@ interface ChapterMentionMenuProps {
   activeIndex: number
   onSelect: (item: MentionListItem) => void
   onActiveIndexChange: (index: number) => void
+  variant?: 'popover' | 'drawer'
   className?: string
 }
 
@@ -28,9 +29,11 @@ export function ChapterMentionMenu({
   activeIndex,
   onSelect,
   onActiveIndexChange,
+  variant = 'popover',
   className,
 }: ChapterMentionMenuProps) {
   const { t } = useI18n()
+  const isDrawer = variant === 'drawer'
 
   const chapterOrder = useMemo(() => {
     const map = new Map<string, number>()
@@ -43,12 +46,21 @@ export function ChapterMentionMenu({
     [volumes, chapters, query, characters],
   )
 
+  const activeItemRef = useRef<HTMLButtonElement>(null)
+
+  useLayoutEffect(() => {
+    activeItemRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [activeIndex, items.length])
+
   if (items.length === 0) {
     return (
       <div
         data-chapter-mention-menu
         className={cn(
-          'z-50 w-56 rounded-lg border border-border bg-card py-3 text-center text-xs text-muted-foreground shadow-xl',
+          'text-center text-xs text-muted-foreground',
+          isDrawer
+            ? 'w-full px-3 py-4'
+            : 'z-50 w-56 rounded-lg border border-border bg-card py-3 shadow-xl',
           className,
         )}
       >
@@ -67,7 +79,10 @@ export function ChapterMentionMenu({
     <div
       data-chapter-mention-menu
       className={cn(
-        'z-50 max-h-52 w-56 overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-xl',
+        'overflow-y-auto py-1',
+        isDrawer
+          ? 'input-area-scrollbar max-h-44 w-full'
+          : 'z-50 max-h-52 w-56 rounded-lg border border-border bg-card shadow-xl',
         className,
       )}
       onMouseDown={e => e.preventDefault()}
@@ -84,21 +99,34 @@ export function ChapterMentionMenu({
         return (
           <div key={`${item.type}-${item.id}-${index}`}>
             {showVolumeHeader && (
-              <div className="px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/70">
+              <div className={cn(
+                'py-1 text-[10px] font-medium uppercase text-muted-foreground/70',
+                isDrawer ? 'px-3' : 'px-2.5',
+              )}
+              >
                 {t('editor.rightPanel.chapterSelector.volumesSection')}
               </div>
             )}
             {showChapterHeader && (
-              <div className="px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/70">
+              <div className={cn(
+                'py-1 text-[10px] font-medium uppercase text-muted-foreground/70',
+                isDrawer ? 'px-3' : 'px-2.5',
+              )}
+              >
                 {t('editor.rightPanel.chapterSelector.chaptersSection')}
               </div>
             )}
             {showCharacterHeader && (
-              <div className="px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/70">
+              <div className={cn(
+                'py-1 text-[10px] font-medium uppercase text-muted-foreground/70',
+                isDrawer ? 'px-3' : 'px-2.5',
+              )}
+              >
                 {t('editor.rightPanel.chapterSelector.charactersSection')}
               </div>
             )}
             <button
+              ref={isActive ? activeItemRef : undefined}
               type="button"
               draggable
               onMouseEnter={() => onActiveIndexChange(index)}
@@ -117,7 +145,8 @@ export function ChapterMentionMenu({
               }}
               onClick={() => onSelect(item)}
               className={cn(
-                'flex w-full cursor-pointer items-center gap-2 px-2.5 py-1.5 text-left text-xs transition-colors',
+                'flex w-full cursor-pointer items-center gap-2 py-1.5 text-left text-xs transition-colors',
+                isDrawer ? 'px-3' : 'px-2.5',
                 isActive ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
               )}
             >

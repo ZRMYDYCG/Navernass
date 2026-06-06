@@ -10,7 +10,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { createPortal } from 'react-dom'
 import {
   hasChapterAttachmentDrag,
   parseComposerAttachmentDragPayload,
@@ -288,21 +287,6 @@ function placeCaretAtEnd(root: HTMLElement) {
   selection.addRange(range)
 }
 
-function getCaretMenuPosition(root: HTMLElement) {
-  const selection = window.getSelection()
-  if (!selection?.rangeCount) return null
-  const range = selection.getRangeAt(0).cloneRange()
-  range.collapse(true)
-  const rect = range.getBoundingClientRect()
-  const anchor = rect.width > 0 || rect.height > 0
-    ? rect
-    : root.getBoundingClientRect()
-  return {
-    top: anchor.bottom + 4,
-    left: anchor.left,
-  }
-}
-
 export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, InlineChapterComposerProps>(
   function InlineChapterComposer(
     {
@@ -332,7 +316,6 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
     const [mentionOpen, setMentionOpen] = useState(false)
     const [mentionQuery, setMentionQuery] = useState('')
     const [mentionIndex, setMentionIndex] = useState(0)
-    const [menuPosition, setMenuPosition] = useState<{ top: number, left: number } | null>(null)
     const [isDragOver, setIsDragOver] = useState(false)
 
     const syncFromEditor = useCallback(() => {
@@ -359,7 +342,6 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
       setMentionOpen(false)
       setMentionQuery('')
       setMentionIndex(0)
-      setMenuPosition(null)
     }, [])
 
     const updateMentionMenu = useCallback(() => {
@@ -374,7 +356,6 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
       setMentionOpen(true)
       setMentionQuery(mention.query)
       setMentionIndex(0)
-      setMenuPosition(getCaretMenuPosition(root))
     }, [closeMentionMenu])
 
     const insertMentionItem = useCallback((item: MentionListItem) => {
@@ -516,7 +497,27 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
     }, [mentionOpen, closeMentionMenu])
 
     return (
-      <>
+      <div className="flex flex-col -mx-3 -mt-3">
+        {mentionOpen ? (
+          <div
+            className={cn(
+              'border-b border-border bg-muted/20',
+              'animate-in fade-in-0 slide-in-from-top-2 duration-200',
+            )}
+          >
+            <ChapterMentionMenu
+              variant="drawer"
+              volumes={volumes}
+              chapters={chapters}
+              characters={characters}
+              query={mentionQuery}
+              activeIndex={mentionIndex}
+              onActiveIndexChange={setMentionIndex}
+              onSelect={insertMentionItem}
+            />
+          </div>
+        ) : null}
+
         <div
           ref={editorRef}
           contentEditable={!disabled}
@@ -550,7 +551,8 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
           onDrop={handleDrop}
           className={cn(
             'input-area-scrollbar w-full outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/80',
-            'text-foreground leading-relaxed',
+            'text-foreground leading-relaxed px-3',
+            mentionOpen ? 'pt-2' : 'pt-3',
             isCompact ? 'min-h-[72px] text-sm' : 'min-h-[56px] text-base font-serif',
             isDragOver && 'bg-accent/30 ring-1 ring-inset ring-ring/30 rounded-md',
             disabled && 'cursor-not-allowed opacity-60',
@@ -558,28 +560,7 @@ export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, Inl
           )}
           style={{ maxHeight }}
         />
-
-        {mentionOpen && menuPosition && typeof document !== 'undefined'
-          ? createPortal(
-              <div
-                className="fixed z-[100]"
-                style={{ top: menuPosition.top, left: menuPosition.left }}
-              >
-            <ChapterMentionMenu
-              volumes={volumes}
-              chapters={chapters}
-              characters={characters}
-              query={mentionQuery}
-                  activeIndex={mentionIndex}
-                  onActiveIndexChange={setMentionIndex}
-                  onSelect={insertMentionItem}
-                />
-              </div>,
-              document.body,
-            )
-          : null}
-
-      </>
+      </div>
     )
   },
 )
