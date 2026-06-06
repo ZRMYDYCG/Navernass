@@ -11,8 +11,3 @@ export interface DateGroup {
   label: string
   chats: ChatItem[]
 }
-
-export interface ChatBatchAction {
-  type: 'delete' | 'pin' | 'share'
-  chatIds: string[]
-}

@@ -1,6 +1,7 @@
 'use client'
 
-import { Check, Edit3, Loader2, MoreHorizontal, Pin, PinOff, Trash2, X } from 'lucide-react'
+import type { MouseEvent } from 'react'
+import { Check, Edit3, Loader2, Pin, PinOff, Trash2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,13 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useI18n } from '@/hooks/use-i18n'
@@ -34,27 +28,26 @@ interface ChatHistoryItemProps {
   chat: ChatHistoryData
   isActive: boolean
   isStreaming?: boolean
-  isMenuOpen: boolean
   onChatClick: (chatId: string) => void
-  onMenuOpenChange: (isOpen: boolean) => void
   onDelete: (chatId: string) => void
   onTogglePin: (chatId: string, isPinned: boolean) => void
   onRename: (chatId: string, newTitle: string) => Promise<void>
 }
 
+/**
+ * 单条历史对话。hover（或 active）时右侧浮出 Pin / Edit / Trash 三个按钮，
+ * 模仿小说编辑器左侧世界观列表的"每项浮动操作"模式——避免每次操作都要打开 dropdown。
+ */
 export function ChatHistoryItem({
   chat,
   isActive,
   isStreaming = false,
-  isMenuOpen,
   onChatClick,
-  onMenuOpenChange,
   onDelete,
   onTogglePin,
   onRename,
 }: ChatHistoryItemProps) {
   const { t } = useI18n()
-  const [isHovered, setIsHovered] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -63,7 +56,6 @@ export function ChatHistoryItem({
   const [isTruncated, setIsTruncated] = useState(false)
   const titleRef = useRef<HTMLSpanElement>(null)
 
-  // 检测标题是否被截断
   useEffect(() => {
     const checkTruncation = () => {
       if (titleRef.current) {
@@ -72,10 +64,9 @@ export function ChatHistoryItem({
     }
 
     checkTruncation()
-    // 监听窗口大小变化
     window.addEventListener('resize', checkTruncation)
     return () => window.removeEventListener('resize', checkTruncation)
-  }, [chat.title])
+  }, [chat.title, isEditing])
 
   const handleClick = () => {
     if (!isEditing) {
@@ -83,8 +74,9 @@ export function ChatHistoryItem({
     }
   }
 
-  const handleDeleteClick = () => {
-    setShowDeleteDialog(true)
+  const handleActionClick = (e: MouseEvent, action: () => void) => {
+    e.stopPropagation()
+    action()
   }
 
   const handleConfirmDelete = async () => {
@@ -97,10 +89,6 @@ export function ChatHistoryItem({
     } finally {
       setIsDeleting(false)
     }
-  }
-
-  const handlePinClick = () => {
-    onTogglePin(chat.id, chat.isPinned)
   }
 
   const handleRenameClick = () => {
@@ -143,18 +131,17 @@ export function ChatHistoryItem({
     }
   }
 
-  // 「更多」按钮显示条件：hover 或菜单展开
-  const shouldShowMore = isHovered || isMenuOpen
-  // 置顶图标显示条件：被置顶且没有显示「更多」按钮
-  const shouldShowPin = chat.isPinned && !shouldShowMore
+  // active 状态下常驻可见；否则 hover/focus 时从右侧滑入浮出
+  const actionVisibility = cn(
+    'transition-all duration-200 ease-out',
+    isActive
+      ? 'translate-x-0 opacity-100'
+      : 'translate-x-2 opacity-0 group-hover/item:translate-x-0 group-hover/item:opacity-100 group-focus-within/item:translate-x-0 group-focus-within/item:opacity-100',
+  )
 
   return (
     <TooltipProvider>
-      <div
-        className="group relative w-full"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <div className="group/item relative w-full">
         {isEditing
           ? (
               <div className="flex items-center gap-1 px-3 py-2 relative">
@@ -191,14 +178,14 @@ export function ChatHistoryItem({
               <Button
                 variant="ghost"
                 className={cn(
-                  'w-full justify-start px-3 py-1.5 h-9 text-left relative transition-colors overflow-hidden cursor-pointer rounded-none pr-10',
+                  'w-full justify-start px-3 py-1.5 h-9 text-left relative overflow-hidden cursor-pointer rounded-none',
                   isActive
                     ? 'bg-sidebar-accent text-sidebar-foreground'
                     : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
                 )}
                 onClick={handleClick}
               >
-                <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[calc(100%-2.5rem)]">
+                <div className="flex items-center gap-2 flex-1 min-w-0 mr-1">
                   {isStreaming && (
                     <span
                       className={cn(
@@ -216,7 +203,7 @@ export function ChatHistoryItem({
                       <span
                         ref={titleRef}
                         className={cn(
-                          'text-sm truncate block transition-colors',
+                          'text-sm truncate block transition-colors flex-1 min-w-0',
                           isActive && 'font-medium',
                         )}
                       >
@@ -230,66 +217,62 @@ export function ChatHistoryItem({
                     )}
                   </Tooltip>
                 </div>
-                {shouldShowPin && (
-                  <Pin
-                    className={cn(
-                      'h-3 w-3 absolute right-2 top-1/2 -translate-y-1/2 rotate-45 transition-colors',
-                      isActive
-                        ? 'text-sidebar-foreground'
-                        : 'text-muted-foreground group-hover:text-sidebar-foreground',
-                    )}
-                  />
-                )}
+
+                {/* 浮动操作：pin / rename / delete（hover or active 可见） */}
+                <div className={cn('flex items-center gap-0.5 shrink-0', actionVisibility)}>
+                  <Tooltip delayDuration={300}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-accent"
+                        onClick={e => handleActionClick(e, () => onTogglePin(chat.id, chat.isPinned))}
+                        aria-label={chat.isPinned ? t('chat.historyItem.unpin') : t('chat.historyItem.pin')}
+                      >
+                        {chat.isPinned
+                          ? <PinOff className="h-3.5 w-3.5" />
+                          : <Pin className="h-3.5 w-3.5" />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="text-xs">
+                      {chat.isPinned ? t('chat.historyItem.unpin') : t('chat.historyItem.pin')}
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip delayDuration={300}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-accent"
+                        onClick={e => handleActionClick(e, handleRenameClick)}
+                        aria-label={t('chat.historyItem.rename')}
+                      >
+                        <Edit3 className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="text-xs">
+                      {t('chat.historyItem.rename')}
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip delayDuration={300}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        onClick={e => handleActionClick(e, () => setShowDeleteDialog(true))}
+                        aria-label={t('chat.historyItem.delete')}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="text-xs">
+                      {t('chat.historyItem.delete')}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               </Button>
             )}
-
-        {/* 更多按钮 - 编辑模式下隐藏 */}
-        {!isEditing && (
-          <DropdownMenu modal={false} onOpenChange={onMenuOpenChange}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className={cn(
-                  'absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:bg-accent transition-opacity duration-200 z-20 cursor-pointer h-7 w-7',
-                  shouldShowMore ? 'opacity-100' : 'opacity-0 pointer-events-none',
-                )}
-                onClick={e => e.stopPropagation()}
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40 bg-popover border border-border shadow-paper-md">
-              <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-accent" onClick={handlePinClick}>
-                {chat.isPinned
-                  ? (
-                      <>
-                        <PinOff className="w-4 h-4" />
-                        <span>{t('chat.historyItem.unpin')}</span>
-                      </>
-                    )
-                  : (
-                      <>
-                        <Pin className="w-4 h-4" />
-                        <span>{t('chat.historyItem.pin')}</span>
-                      </>
-                    )}
-              </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-accent" onClick={handleRenameClick}>
-                <Edit3 className="w-4 h-4" />
-                <span>{t('chat.historyItem.rename')}</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border" />
-              <DropdownMenuItem
-                className="gap-2 text-destructive cursor-pointer focus:bg-destructive/10"
-                onClick={handleDeleteClick}
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>{t('chat.historyItem.delete')}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
 
         {/* 删除确认对话框 */}
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

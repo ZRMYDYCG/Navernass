@@ -8,6 +8,11 @@ const chat = {
     viewAll: 'すべて表示',
     viewAllAria: '会話履歴をすべて表示',
     empty: 'まだ会話履歴がありません',
+    section: {
+      pinned: 'ピン留め',
+      recent: '最近',
+    },
+    viewMore: 'もっと見る',
   },
   welcome: {
     greetings: {
@@ -66,19 +71,7 @@ const chat = {
     title: 'すべての会話',
     back: '戻る',
     toolbar: {
-      selectChats: '選択',
-      viewPinned: 'ピン留め',
-      sortByDate: '日付順',
-      selectAll: 'すべて選択',
-      deselectAll: '選択解除',
-      selected: '選択中',
-      items: '件',
-      bulkPin: 'ピン留め',
-      bulkShare: '共有',
-      bulkDelete: '削除',
-      cancel: 'キャンセル',
       searchPlaceholder: '会話を検索...',
-      emptySelected: '0件選択中',
       notFound: '会話が見つかりません',
     },
     dateGroup: {

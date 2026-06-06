@@ -8,6 +8,11 @@ const chat = {
     viewAll: '查看全部',
     viewAllAria: '查看全部历史对话',
     empty: '还没有对话历史',
+    section: {
+      pinned: '置顶',
+      recent: '最近',
+    },
+    viewMore: '查看更多',
   },
   welcome: {
     greetings: {
@@ -66,19 +71,7 @@ const chat = {
     title: '全部对话',
     back: '返回',
     toolbar: {
-      selectChats: '选择对话',
-      viewPinned: '查看已置顶',
-      sortByDate: '按日期排序',
-      selectAll: '全选',
-      deselectAll: '取消全选',
-      selected: '已选择',
-      items: '项',
-      bulkPin: '批量置顶',
-      bulkShare: '批量分享',
-      bulkDelete: '批量删除',
-      cancel: '取消',
       searchPlaceholder: '搜索对话...',
-      emptySelected: '已选择 0 项',
       notFound: '没有找到对话',
     },
     dateGroup: {

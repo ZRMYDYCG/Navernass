@@ -8,6 +8,11 @@ const chat = {
     viewAll: 'Voir tout',
     viewAllAria: 'Voir tout l\'historique des conversations',
     empty: 'Pas encore d\'historique de conversation',
+    section: {
+      pinned: 'Épinglés',
+      recent: 'Récents',
+    },
+    viewMore: 'Voir plus',
   },
   welcome: {
     greetings: {
@@ -66,19 +71,7 @@ const chat = {
     title: 'Toutes les conversations',
     back: 'Retour',
     toolbar: {
-      selectChats: 'Sélectionner',
-      viewPinned: 'Épinglés',
-      sortByDate: 'Trier par date',
-      selectAll: 'Tout sélectionner',
-      deselectAll: 'Tout désélectionner',
-      selected: 'Sélectionné',
-      items: 'éléments',
-      bulkPin: 'Épingler',
-      bulkShare: 'Partager',
-      bulkDelete: 'Supprimer',
-      cancel: 'Annuler',
       searchPlaceholder: 'Rechercher des conversations...',
-      emptySelected: '0 éléments sélectionnés',
       notFound: 'Aucune conversation trouvée',
     },
     dateGroup: {

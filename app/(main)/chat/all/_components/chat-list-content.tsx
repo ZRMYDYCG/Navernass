@@ -7,39 +7,27 @@ import { ChatGroup } from './chat-group'
 
 interface ChatListContentProps {
   groupedChats: DateGroup[]
-  isSelectionMode: boolean
-  selectedChats: Set<string>
-  toggleChatSelection: (chatId: string) => void
   onChatClick: (chatId: string) => void
 }
 
-export function ChatListContent({
-  groupedChats,
-  isSelectionMode,
-  selectedChats,
-  toggleChatSelection,
-  onChatClick,
-}: ChatListContentProps) {
+export function ChatListContent({ groupedChats, onChatClick }: ChatListContentProps) {
   const { t } = useI18n()
 
   if (groupedChats.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-        <p>{t('chat.all.toolbar.notFound')}</p>
+      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground text-xs font-serif italic">
+        {t('chat.all.toolbar.notFound')}
       </div>
     )
   }
 
   return (
     <ScrollArea className="flex-1">
-      <div className="p-4 space-y-6">
+      <div className="p-2 space-y-3">
         {groupedChats.map(group => (
           <ChatGroup
             key={group.date}
             group={group}
-            isSelectionMode={isSelectionMode}
-            selectedChats={selectedChats}
-            onToggleSelect={toggleChatSelection}
             onChatClick={onChatClick}
           />
         ))}

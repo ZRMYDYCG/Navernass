@@ -1,10 +1,8 @@
 'use client'
 
 import type { ChatItem } from './types'
-import type { Conversation } from '@/lib/supabase/sdk/types'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { useEffect, useMemo, useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { conversationsApi } from '@/lib/supabase/sdk'
@@ -14,21 +12,26 @@ import { filterChats, groupChatsByDate } from './_utils'
 
 export default function AllChatsPage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedChats, setSelectedChats] = useState<Set<string>>(() => new Set())
-  const [isSelectionMode, setIsSelectionMode] = useState(false)
-  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [conversations, setConversations] = useState<ChatItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const { t } = useI18n()
   const { locale } = useLocale()
 
-  // 加载对话列表
   useEffect(() => {
     const loadConversations = async () => {
       try {
         setIsLoading(true)
         const data = await conversationsApi.getList()
-        setConversations(data)
+        setConversations(
+          data.map(conv => ({
+            id: conv.id,
+            title: conv.title,
+            createdAt: new Date(conv.created_at),
+            updatedAt: new Date(conv.updated_at),
+            isPinned: conv.is_pinned,
+          })),
+        )
       } catch (error) {
         console.error('Failed to load conversations:', error)
         setConversations([])
@@ -40,134 +43,51 @@ export default function AllChatsPage() {
     loadConversations()
   }, [])
 
-  // 转换Conversation为ChatItem
-  const chatItems: ChatItem[] = conversations.map(conv => ({
-    id: conv.id,
-    title: conv.title,
-    createdAt: new Date(conv.created_at),
-    updatedAt: new Date(conv.updated_at),
-  }))
-
-  const filteredChats = filterChats(chatItems, searchQuery)
-  const groupedChats = groupChatsByDate(filteredChats, {
-    locale: locale === 'zh-CN' ? 'zh-CN' : 'en-US',
-    todayLabel: t('chat.all.dateGroup.today'),
-    yesterdayLabel: t('chat.all.dateGroup.yesterday'),
-  })
-
-  const toggleChatSelection = useCallback((chatId: string) => {
-    setSelectedChats((prev) => {
-      const newSelected = new Set(prev)
-      if (newSelected.has(chatId)) {
-        newSelected.delete(chatId)
-      } else {
-        newSelected.add(chatId)
-      }
-      return newSelected
+  const groupedChats = useMemo(() => {
+    const filtered = filterChats(conversations, searchQuery)
+    return groupChatsByDate(filtered, {
+      locale: locale === 'zh-CN' ? 'zh-CN' : 'en-US',
+      todayLabel: t('chat.all.dateGroup.today'),
+      yesterdayLabel: t('chat.all.dateGroup.yesterday'),
     })
-  }, [])
+  }, [conversations, searchQuery, locale, t])
 
-  const toggleSelectAll = useCallback(() => {
-    if (selectedChats.size === filteredChats.length) {
-      setSelectedChats(new Set())
-    } else {
-      setSelectedChats(new Set(filteredChats.map((chat: ChatItem) => chat.id)))
-    }
-  }, [selectedChats.size, filteredChats])
-
-  const handleBatchDelete = useCallback(async () => {
-    try {
-      const selectedIds = Array.from(selectedChats)
-      // TODO: 实现批量删除API
-      console.warn('删除选中项:', selectedIds)
-
-      // 刷新列表
-      const data = await conversationsApi.getList()
-      setConversations(data)
-      setSelectedChats(new Set())
-      setIsSelectionMode(false)
-    } catch (error) {
-      console.error('Failed to delete chats:', error)
-    }
-  }, [selectedChats])
-
-  const handleBatchPin = useCallback(async () => {
-    try {
-      const selectedIds = Array.from(selectedChats)
-      // TODO: 实现批量置顶API
-      console.warn('置顶选中项:', selectedIds)
-      setSelectedChats(new Set())
-      setIsSelectionMode(false)
-    } catch (error) {
-      console.error('Failed to pin chats:', error)
-    }
-  }, [selectedChats])
-
-  const handleBatchShare = useCallback(async () => {
-    try {
-      const selectedIds = Array.from(selectedChats)
-      // TODO: 实现批量分享API
-      console.warn('分享选中项:', selectedIds)
-      setSelectedChats(new Set())
-      setIsSelectionMode(false)
-    } catch (error) {
-      console.error('Failed to share chats:', error)
-    }
-  }, [selectedChats])
-
-  // 处理对话点击
-  const handleChatClick = useCallback((chatId: string) => {
+  const handleChatClick = (chatId: string) => {
     router.push(`/chat/${chatId}`)
-  }, [router])
+  }
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* 头部 */}
       <ChatListHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        isSelectionMode={isSelectionMode}
-        setIsSelectionMode={setIsSelectionMode}
-        selectedChats={selectedChats}
-        toggleSelectAll={toggleSelectAll}
-        handleBatchDelete={handleBatchDelete}
-        handleBatchPin={handleBatchPin}
-        handleBatchShare={handleBatchShare}
-        isLoading={isLoading}
         chatCount={conversations.length}
       />
 
       {isLoading
         ? (
-            <ScrollArea className="flex-1">
-              <div className="p-4 space-y-6">
-                {Array.from({ length: 3 }).map((_, groupIndex) => (
-                  <div key={`skeleton-group-${groupIndex}`} className="space-y-3">
-                    <Skeleton className="h-6 w-24" />
-                    <div className="space-y-1">
-                      {Array.from({ length: groupIndex === 0 ? 6 : 3 }).map((_, itemIndex) => (
-                        <div
-                          key={`skeleton-item-${groupIndex}-${itemIndex}`}
-                          className="p-3 rounded border border-border"
-                        >
-                          <div className="space-y-2">
-                            <Skeleton className="h-5 w-3/4" />
-                            <Skeleton className="h-3 w-1/3" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+            <div className="flex-1 p-2 space-y-3">
+              {Array.from({ length: 3 }).map((_, groupIndex) => (
+                <div key={`skeleton-group-${groupIndex}`} className="space-y-1">
+                  <Skeleton className="h-4 w-16 mx-3" />
+                  <div className="space-y-0.5">
+                    {Array.from({ length: groupIndex === 0 ? 6 : 3 }).map((_, itemIndex) => (
+                      <div
+                        key={`skeleton-item-${groupIndex}-${itemIndex}`}
+                        className="flex items-center gap-3 px-3 py-2"
+                      >
+                        <Skeleton className="h-4 flex-1" />
+                        <Skeleton className="h-3 w-10" />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </ScrollArea>
+                </div>
+              ))}
+            </div>
           )
         : (
             <ChatListContent
               groupedChats={groupedChats}
-              isSelectionMode={isSelectionMode}
-              selectedChats={selectedChats}
-              toggleChatSelection={toggleChatSelection}
               onChatClick={handleChatClick}
             />
           )}

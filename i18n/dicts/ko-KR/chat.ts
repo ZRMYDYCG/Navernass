@@ -8,6 +8,11 @@ const chat = {
     viewAll: '전체 보기',
     viewAllAria: '대화 기록 전체 보기',
     empty: '아직 대화 기록이 없습니다',
+    section: {
+      pinned: '고정됨',
+      recent: '최근',
+    },
+    viewMore: '더 보기',
   },
   welcome: {
     greetings: {
@@ -66,19 +71,7 @@ const chat = {
     title: '모든 대화',
     back: '뒤로',
     toolbar: {
-      selectChats: '선택',
-      viewPinned: '고정됨',
-      sortByDate: '날짜순 정렬',
-      selectAll: '전체 선택',
-      deselectAll: '선택 해제',
-      selected: '선택됨',
-      items: '개 항목',
-      bulkPin: '고정',
-      bulkShare: '공유',
-      bulkDelete: '삭제',
-      cancel: '취소',
       searchPlaceholder: '대화 검색...',
-      emptySelected: '선택된 항목 0개',
       notFound: '대화를 찾을 수 없습니다',
     },
     dateGroup: {

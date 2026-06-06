@@ -8,6 +8,11 @@ const chat = {
     viewAll: 'View all',
     viewAllAria: 'View all conversation history',
     empty: 'No conversation history yet',
+    section: {
+      pinned: 'Pinned',
+      recent: 'Recent',
+    },
+    viewMore: 'View more',
   },
   welcome: {
     greetings: {
@@ -66,19 +71,7 @@ const chat = {
     title: 'All conversations',
     back: 'Back',
     toolbar: {
-      selectChats: 'Select',
-      viewPinned: 'Pinned',
-      sortByDate: 'Sort by date',
-      selectAll: 'Select all',
-      deselectAll: 'Deselect all',
-      selected: 'Selected',
-      items: 'items',
-      bulkPin: 'Pin',
-      bulkShare: 'Share',
-      bulkDelete: 'Delete',
-      cancel: 'Cancel',
       searchPlaceholder: 'Search conversations...',
-      emptySelected: 'Selected 0 items',
       notFound: 'No conversations found',
     },
     dateGroup: {
