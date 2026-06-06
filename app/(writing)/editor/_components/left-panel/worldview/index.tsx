@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
 import {
   selectOrderedOutlines,
   selectOrderedWorldbookEntries,
-  useWorldviewStore,
+  useAppStore,
 } from '@/store'
 
 const CATEGORIES: { value: WorldbookCategory, label: string }[] = [
@@ -43,14 +43,14 @@ type SubTab = 'worldbook' | 'outlines'
 /**
  * 左侧 worldview tab 主组件
  *
- * 数据来源：useWorldviewStore（zustand + immer）
+ * 数据来源：useAppStore（zustand + immer）
  *   - REST 操作（CRUD UI）→ 写 store
  *   - AI tool 落库 → AutoWriteToolPart 写 store
  *   - 因此任何路径建/改/删条目，UI 立即同步
  */
 export function WorldviewTab({ novelId }: WorldviewTabProps) {
   const [subTab, setSubTab] = useState<SubTab>('worldbook')
-  const resetForNovel = useWorldviewStore(s => s.resetForNovel)
+  const resetForNovel = useAppStore(s => s.worldviewActions.resetForNovel)
 
   // 切换小说时清空缓存
   useEffect(() => {
@@ -114,11 +114,11 @@ function SubTabButton({
 // ============== Worldbook ==============
 
 function WorldbookPanel({ novelId }: { novelId: string }) {
-  const entries = useWorldviewStore(useShallow(selectOrderedWorldbookEntries))
-  const hydrated = useWorldviewStore(s => s.worldbookHydrated)
-  const hydrate = useWorldviewStore(s => s.hydrateWorldbook)
-  const upsert = useWorldviewStore(s => s.upsertWorldbookEntry)
-  const remove = useWorldviewStore(s => s.removeWorldbookEntry)
+  const entries = useAppStore(useShallow(selectOrderedWorldbookEntries))
+  const hydrated = useAppStore(s => s.worldview.worldbookHydrated)
+  const hydrate = useAppStore(s => s.worldviewActions.hydrateWorldbook)
+  const upsert = useAppStore(s => s.worldviewActions.upsertWorldbookEntry)
+  const remove = useAppStore(s => s.worldviewActions.removeWorldbookEntry)
 
   const [loading, setLoading] = useState(!hydrated)
   const [filter, setFilter] = useState<WorldbookCategory | 'all'>('all')
@@ -385,11 +385,11 @@ function WorldbookEditor({
 // ============== Outlines ==============
 
 function OutlinesPanel({ novelId }: { novelId: string }) {
-  const outlines = useWorldviewStore(useShallow(selectOrderedOutlines))
-  const hydrated = useWorldviewStore(s => s.outlinesHydrated)
-  const hydrate = useWorldviewStore(s => s.hydrateOutlines)
-  const upsert = useWorldviewStore(s => s.upsertOutline)
-  const remove = useWorldviewStore(s => s.removeOutline)
+  const outlines = useAppStore(useShallow(selectOrderedOutlines))
+  const hydrated = useAppStore(s => s.worldview.outlinesHydrated)
+  const hydrate = useAppStore(s => s.worldviewActions.hydrateOutlines)
+  const upsert = useAppStore(s => s.worldviewActions.upsertOutline)
+  const remove = useAppStore(s => s.worldviewActions.removeOutline)
 
   const [loading, setLoading] = useState(!hydrated)
   const [editingId, setEditingId] = useState<string | null>(null)

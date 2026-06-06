@@ -17,7 +17,7 @@ import {
 import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { setChapterAttachmentDragData } from '@/lib/editor/chapter-attachment-drag'
 import { cn } from '@/lib/utils'
-import { useCharacterGraphStore } from '@/store'
+import { useAppStore } from '@/store'
 import { HoverActionBar, HoverActionButton } from './hover-action-button'
 
 export function ChapterItem({
@@ -39,8 +39,8 @@ export function ChapterItem({
   const [editingTitle, setEditingTitle] = useState(chapter.title)
   const [isRenaming, setIsRenaming] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
-  const chapterCharacterPreviewChapterId = useCharacterGraphStore(state => state.chapterCharacterPreviewChapterId)
-  const toggleChapterCharacterPreview = useCharacterGraphStore(state => state.toggleChapterCharacterPreview)
+  const chapterCharacterPreviewChapterId = useAppStore(state => state.characterGraph.chapterCharacterPreviewChapterId)
+  const toggleChapterCharacterPreview = useAppStore(state => state.characterGraphActions.toggleChapterCharacterPreview)
   const isCharacterPreviewActive = chapterCharacterPreviewChapterId === chapter.id
 
   const updatedAtLabel = useMemo(() => {

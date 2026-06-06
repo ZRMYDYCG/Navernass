@@ -21,7 +21,7 @@ import { useI18n } from '@/hooks/use-i18n'
 import { chaptersApi } from '@/lib/supabase/sdk/chapters'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { cn } from '@/lib/utils'
-import { useCharacterMaterialStore } from '@/store'
+import { useAppStore } from '@/store'
 
 interface CharacterFormValues {
   name: string
@@ -101,7 +101,9 @@ export function CharacterModal({
   const [deleting, setDeleting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const formId = useId()
-  const { upsertCharacter, removeCharacter, selectCharacter } = useCharacterMaterialStore()
+  const upsertCharacter = useAppStore(s => s.characterMaterialActions.upsertCharacter)
+  const removeCharacter = useAppStore(s => s.characterMaterialActions.removeCharacter)
+  const selectCharacter = useAppStore(s => s.characterMaterialActions.selectCharacter)
 
   const chapterTitleSet = useMemo(() => {
     return new Set(chapterOptions.map(c => c.title))

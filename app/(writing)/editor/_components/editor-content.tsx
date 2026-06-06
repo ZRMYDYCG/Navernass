@@ -18,7 +18,7 @@ import {
 import type { EditorCursorValue } from '@/lib/editor/cursor-options'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
-import { useChaptersStore, useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
+import { useAppStore } from '@/store'
 import { Breadcrumb } from './breadcrumb'
 import { ChapterCharacterPreviewGraph } from './chapter-character-preview-graph'
 import { EditorCursorPicker } from './editor-cursor-picker'
@@ -89,15 +89,15 @@ export default function EditorContent({
   const editorContentRef = useRef<string>('')
   const isSavingRef = useRef(false)
 
-  const characters = useCharacterMaterialStore(state => state.characters)
-  const chapterCharacterPreviewChapterId = useCharacterGraphStore(state => state.chapterCharacterPreviewChapterId)
+  const characters = useAppStore(state => state.characterMaterial.characters)
+  const chapterCharacterPreviewChapterId = useAppStore(state => state.characterGraph.chapterCharacterPreviewChapterId)
   const showCharacterPreview = chapterCharacterPreviewChapterId === chapterId
-  const cachedChapter = useChaptersStore(state => (chapterId ? state.chaptersById[chapterId] : undefined))
-  const chaptersStoreHydrated = useChaptersStore(state => state.hydrated)
-  const chapterListedInStore = useChaptersStore(state =>
-    chapterId ? state.chapterIdsOrdered.includes(chapterId) : false,
+  const cachedChapter = useAppStore(state => (chapterId ? state.chapters.chaptersById[chapterId] : undefined))
+  const chaptersStoreHydrated = useAppStore(state => state.chapters.hydrated)
+  const chapterListedInStore = useAppStore(state =>
+    chapterId ? state.chapters.chapterIdsOrdered.includes(chapterId) : false,
   )
-  const upsertChapterInStore = useChaptersStore(state => state.upsertChapter)
+  const upsertChapterInStore = useAppStore(state => state.chaptersActions.upsertChapter)
 
   // 找到当前章节所属的卷（优先使用传入的 chapters 数据，不等待加载）
   const currentVolume = useMemo(() => {

@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
 import { charactersApi } from '@/lib/supabase/sdk/characters'
 import { cn } from '@/lib/utils'
-import { formatRelationshipLabel, getCharacterColor, useCharacterMaterialStore } from '@/store'
+import { formatRelationshipLabel, getCharacterColor, useAppStore } from '@/store'
 import { AvatarPromptModal } from './avatar-prompt-modal'
 
 function debounce<Args extends unknown[]>(
@@ -262,7 +262,7 @@ export function CharacterOverviewGraph({
       const updated = await charactersApi.update(id, { novel_id: novelId, overview_x: x, overview_y: y })
       // 更新本地 store
       try {
-        useCharacterMaterialStore.getState().upsertCharacter(updated as any)
+        useAppStore.getState().characterMaterialActions.upsertCharacter(updated as any)
       } catch (err) {
         console.error('Failed to update character', err)
       }
@@ -1012,7 +1012,7 @@ export function CharacterOverviewGraph({
 
       const updated = await charactersApi.update(modal.characterId, { novel_id: novelId, avatar: url })
       try {
-        useCharacterMaterialStore.getState().upsertCharacter(updated as any)
+        useAppStore.getState().characterMaterialActions.upsertCharacter(updated as any)
       } catch (err) {
         console.error('Failed to update character', err)
       }

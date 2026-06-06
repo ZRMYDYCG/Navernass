@@ -4,7 +4,7 @@ import { Check, Loader2, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
-import { useChaptersStore, useNovelChatStore, usePlanStore, useTimelineStore, useWorldviewStore } from '@/store'
+import { useAppStore } from '@/store'
 import { translateToolLabel, translateToolSuccess } from './tool-i18n'
 
 export type AutoWriteToolName =
@@ -48,20 +48,20 @@ const processedKeys = new Set<string>()
 
 export function AutoWriteToolPart({ novelId, partKey, toolName, state, input, output, errorText }: AutoWriteToolPartProps) {
   const { t } = useI18n()
-  const activeNovelId = useNovelChatStore(s => s.activeNovelId)
-  const currentNovelId = useChaptersStore(s => s.currentNovelId)
-  const upsertVolume = useChaptersStore(s => s.upsertVolume)
-  const upsertChapter = useChaptersStore(s => s.upsertChapter)
-  const removeChapter = useChaptersStore(s => s.removeChapter)
-  const removeVolume = useChaptersStore(s => s.removeVolume)
-  const upsertWorldbookEntry = useWorldviewStore(s => s.upsertWorldbookEntry)
-  const removeWorldbookEntry = useWorldviewStore(s => s.removeWorldbookEntry)
-  const upsertOutline = useWorldviewStore(s => s.upsertOutline)
-  const removeOutline = useWorldviewStore(s => s.removeOutline)
-  const upsertPlanFile = usePlanStore(s => s.upsertPlanFile)
-  const removePlanFile = usePlanStore(s => s.removePlanFile)
-  const upsertEvent = useTimelineStore(s => s.upsertEvent)
-  const removeEvent = useTimelineStore(s => s.removeEvent)
+  const activeNovelId = useAppStore(s => s.novelChat.activeNovelId)
+  const currentNovelId = useAppStore(s => s.chapters.currentNovelId)
+  const upsertVolume = useAppStore(s => s.chaptersActions.upsertVolume)
+  const upsertChapter = useAppStore(s => s.chaptersActions.upsertChapter)
+  const removeChapter = useAppStore(s => s.chaptersActions.removeChapter)
+  const removeVolume = useAppStore(s => s.chaptersActions.removeVolume)
+  const upsertWorldbookEntry = useAppStore(s => s.worldviewActions.upsertWorldbookEntry)
+  const removeWorldbookEntry = useAppStore(s => s.worldviewActions.removeWorldbookEntry)
+  const upsertOutline = useAppStore(s => s.worldviewActions.upsertOutline)
+  const removeOutline = useAppStore(s => s.worldviewActions.removeOutline)
+  const upsertPlanFile = useAppStore(s => s.planActions.upsertPlanFile)
+  const removePlanFile = useAppStore(s => s.planActions.removePlanFile)
+  const upsertEvent = useAppStore(s => s.timelineActions.upsertEvent)
+  const removeEvent = useAppStore(s => s.timelineActions.removeEvent)
 
   const label = translateToolLabel(t, toolName)
 

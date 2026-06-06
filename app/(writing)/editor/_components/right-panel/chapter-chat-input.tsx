@@ -11,9 +11,7 @@ import {
   selectOrderedOutlines,
   selectOrderedVolumes,
   selectOrderedWorldbookEntries,
-  useChaptersStore,
-  useCharacterMaterialStore,
-  useWorldviewStore,
+  useAppStore,
 } from '@/store'
 import type { AiMode } from './types'
 import { InlineChapterComposer } from './inline-chapter-composer'
@@ -51,17 +49,17 @@ export function ChapterChatInput({
 }: ChapterChatInputProps) {
   const searchParams = useSearchParams()
   const novelId = searchParams.get('id') || ''
-  const allChapters = useChaptersStore(useShallow(selectOrderedChapters))
-  const allVolumes = useChaptersStore(useShallow(selectOrderedVolumes))
-  const allCharacters = useCharacterMaterialStore(
-    useShallow(s => s.characters.filter(c => !c.novel_id || c.novel_id === novelId)),
+  const allChapters = useAppStore(useShallow(selectOrderedChapters))
+  const allVolumes = useAppStore(useShallow(selectOrderedVolumes))
+  const allCharacters = useAppStore(
+    useShallow(s => s.characterMaterial.characters.filter(c => !c.novel_id || c.novel_id === novelId)),
   )
   const characterRefs = useMemo(
     () => allCharacters.map(c => ({ id: c.id, name: c.name })),
     [allCharacters],
   )
-  const allWorldbookEntries = useWorldviewStore(useShallow(selectOrderedWorldbookEntries))
-  const allOutlines = useWorldviewStore(useShallow(selectOrderedOutlines))
+  const allWorldbookEntries = useAppStore(useShallow(selectOrderedWorldbookEntries))
+  const allOutlines = useAppStore(useShallow(selectOrderedOutlines))
   const worldbookRefs = useMemo(
     () => allWorldbookEntries.map(e => ({ id: e.id, title: e.title })),
     [allWorldbookEntries],

@@ -7,7 +7,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { setChapterAttachmentDragData } from '@/lib/editor/chapter-attachment-drag'
-import { selectOrderedChapters, useChaptersStore } from '@/store'
+import { selectOrderedChapters, useAppStore } from '@/store'
 
 interface ChapterMentionPickerProps {
   selectedChapters: Chapter[]
@@ -24,8 +24,8 @@ export function ChapterMentionPicker({
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  const chapters = useChaptersStore(useShallow(selectOrderedChapters))
-  const hydrated = useChaptersStore(s => s.hydrated)
+  const chapters = useAppStore(useShallow(selectOrderedChapters))
+  const hydrated = useAppStore(s => s.chapters.hydrated)
 
   const chapterOrder = useMemo(() => {
     const map = new Map<string, number>()

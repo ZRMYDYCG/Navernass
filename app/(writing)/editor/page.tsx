@@ -21,7 +21,7 @@ import {
   readStoredEditorCursor,
   type EditorCursorValue,
 } from '@/lib/editor/cursor-options'
-import { selectOrderedChapters, selectOrderedVolumes, useAiEditsStore, useCharacterGraphStore, useCharacterMaterialStore, useChaptersStore, usePlanStore } from '@/store'
+import { selectOrderedChapters, selectOrderedVolumes, useAppStore } from '@/store'
 import { useShallow } from 'zustand/react/shallow'
 import { ChapterQuickSearchDialog } from './_components/chapter-quick-search-dialog'
 import { CharacterPanel } from './_components/character-panel'
@@ -51,16 +51,16 @@ function NovelsEditContent() {
   // chapters / volumes 直接从 store 派生，setChapters / setVolumes 是 store 的 action。
   // 选择器返回新数组（map+filter），必须用 useShallow 做浅比较，否则触发
   // 「The result of getServerSnapshot should be cached」无限循环。
-  const chapters = useChaptersStore(useShallow(selectOrderedChapters))
-  const volumes = useChaptersStore(useShallow(selectOrderedVolumes))
-  const setChapters = useChaptersStore(s => s.setChapters)
-  const setVolumes = useChaptersStore(s => s.setVolumes)
+  const chapters = useAppStore(useShallow(selectOrderedChapters))
+  const volumes = useAppStore(useShallow(selectOrderedVolumes))
+  const setChapters = useAppStore(s => s.chaptersActions.setChapters)
+  const setVolumes = useAppStore(s => s.chaptersActions.setVolumes)
   // eslint-disable-next-line unused-imports/no-unused-vars
   const [characters, setCharacters] = useState<NovelCharacter[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedChapter, setSelectedChapter] = useState<string | null>(null)
-  const selectedPlanFileId = usePlanStore(s => s.selectedPlanFileId)
-  const setSelectedPlanFileId = usePlanStore(s => s.setSelectedPlanFileId)
+  const selectedPlanFileId = useAppStore(s => s.plan.selectedPlanFileId)
+  const setSelectedPlanFileId = useAppStore(s => s.planActions.setSelectedPlanFileId)
   const [openTabs, setOpenTabs] = useState<Array<{ id: string, title: string }>>([])
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const isMobile = useIsMobile()
@@ -197,13 +197,13 @@ function NovelsEditContent() {
 
       // 一次性 hydrate chapters store —— page.tsx 的 chapters/volumes 直接从 store 派生
       // 后续切章节直接命中缓存，无需再请求；AI 写入也通过 store 自动反映到左侧
-      useChaptersStore.getState().hydrate(novelId, chaptersData, volumesData)
-      usePlanStore.getState().resetForNovel(novelId)
+      useAppStore.getState().chaptersActions.hydrate(novelId, chaptersData, volumesData)
+      useAppStore.getState().planActions.resetForNovel(novelId)
 
       // 存入角色素材 store
-      useCharacterMaterialStore.getState().setCharacters(charactersData)
+      useAppStore.getState().characterMaterialActions.setCharacters(charactersData)
       // 存入关系图 store，保证刷新后连线存在
-      useCharacterGraphStore.getState().setRelationships(novelId, relationshipsData)
+      useAppStore.getState().characterGraphActions.setRelationships(novelId, relationshipsData)
     } catch (error) {
       console.error('加载数据失败:', error)
       const message = error instanceof Error ? error.message : '加载数据失败'
@@ -242,7 +242,7 @@ function NovelsEditContent() {
           const charactersData = await charactersApi.getByNovelId(novelId)
           if (!cancelled) {
             setCharacters(charactersData)
-            useCharacterMaterialStore.getState().setCharacters(charactersData)
+            useAppStore.getState().characterMaterialActions.setCharacters(charactersData)
           }
         } catch (error) {
           if (!cancelled) {
@@ -293,9 +293,9 @@ function NovelsEditContent() {
     const chapter = chapters.find(c => c.id === chapterId)
     if (!chapter) return
 
-    const previewChapterId = useCharacterGraphStore.getState().chapterCharacterPreviewChapterId
+    const previewChapterId = useAppStore.getState().characterGraph.chapterCharacterPreviewChapterId
     if (previewChapterId && previewChapterId !== chapterId) {
-      useCharacterGraphStore.getState().setChapterCharacterPreview(null)
+      useAppStore.getState().characterGraphActions.setChapterCharacterPreview(null)
     }
 
     setSelectedPlanFileId(null)
@@ -316,7 +316,7 @@ function NovelsEditContent() {
   }
 
   const handleSelectPlanFile = (planFileId: string) => {
-    const file = usePlanStore.getState().planFilesById[planFileId]
+    const file = useAppStore.getState().plan.planFilesById[planFileId]
     if (!file) return
 
     const tabId = planTabId(planFileId)
@@ -385,8 +385,8 @@ function NovelsEditContent() {
     })
   }, [chapters, openTabs])
 
-  const focusEditId = useAiEditsStore(s => s.focusEditId)
-  const focusEdit = useAiEditsStore(s => (focusEditId ? s.edits[focusEditId] : undefined))
+  const focusEditId = useAppStore(s => s.aiEdits.focusEditId)
+  const focusEdit = useAppStore(s => (focusEditId ? s.aiEdits.edits[focusEditId] : undefined))
 
   // 用户点击手术刀卡片：切到对应章节并回到正文编辑区
   useEffect(() => {
@@ -950,7 +950,7 @@ function NovelsEditContent() {
       setIsDeletingChapter(true)
       await chaptersApi.delete(chapterToDelete.id)
       toast.success('章节删除成功！')
-      useChaptersStore.getState().removeChapter(chapterToDelete.id)
+      useAppStore.getState().chaptersActions.removeChapter(chapterToDelete.id)
 
       // 如果删除的是当前打开的章节，关闭它
       if (activeTab === chapterToDelete.id) {

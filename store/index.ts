@@ -1,57 +1,153 @@
-// Character Graph Store
-export {
-  type CharacterGraphCharacter,
-  type CharacterGraphRelationship,
-  type CharacterPanelViewMode,
-  formatRelationshipLabel,
-  getCharacterColor,
-  type RelationshipGraphViewMode,
-  useCharacterGraphStore,
-} from './modules/character-graph-store'
+// =============================================================================
+// AI edits
+// =============================================================================
 
-// Character Material Store
 export {
-  useCharacterMaterialStore,
-} from './modules/character-material-store'
+  selectAiEdits,
+  selectEditById,
+  selectFocusEditId,
+  selectFocusRequestSeq,
+  selectPendingEdits,
+  selectPendingEditsForChapter,
+} from './slices/ai-edits'
+export type { AiEditsActions, AiEditsSlice, AiEditsState, PendingEdit, PendingEditStatus } from './slices/ai-edits'
 
-// Chapters Store (zustand + immer)
+// =============================================================================
+// Chapters
+// =============================================================================
+
 export {
+  selectChapterById,
+  selectChapters,
+  selectChaptersCurrentNovelId,
+  selectChaptersHydrated,
   selectOrderedChapters,
   selectOrderedVolumes,
-  useChaptersStore,
-} from './modules/chapters-store'
+  selectVolumeById,
+} from './slices/chapters'
+export type { ChaptersActions, ChaptersSlice, ChaptersState } from './slices/chapters'
 
-// AI Pending Edits Store (zustand + immer)
+// =============================================================================
+// Character graph
+// =============================================================================
+
 export {
-  type PendingEdit,
-  selectPendingEditsForChapter,
-  useAiEditsStore,
-} from './modules/ai-edits-store'
+  selectChapterCharacterPreview,
+  selectCharacterGraph,
+  selectCharacterGraphViewMode,
+  selectCharacterModalOpen,
+  selectCharacterSearch,
+  selectEditingCharacterId,
+  selectEditingRelationshipId,
+  selectGraphSelectedCharacterId,
+  selectLinkingSourceId,
+  selectRelationshipGraphViewMode,
+  selectRelationshipModalOpen,
+  selectRelationshipsByNovel,
+  selectRelationshipsError,
+  selectRelationshipsForNovel,
+  selectRelationshipsLoading,
+  selectSelectedChapterId,
+  selectSelectedRelationshipId,
+} from './slices/character-graph'
+export type {
+  CharacterGraphActions,
+  CharacterGraphCharacter,
+  CharacterGraphRelationship,
+  CharacterGraphSlice,
+  CharacterGraphState,
+  CharacterPanelViewMode,
+  RelationshipGraphViewMode,
+} from './slices/character-graph'
 
-// Plan Store (zustand + immer)
+// =============================================================================
+// Character material
+// =============================================================================
+
+export {
+  selectCharacterChapterIds,
+  selectCharacterChapterMap,
+  selectCharacterMaterial,
+  selectCharacters,
+  selectMaterialSelectedCharacterId,
+} from './slices/character-material'
+export type {
+  CharacterMaterialActions,
+  CharacterMaterialSlice,
+  CharacterMaterialState,
+} from './slices/character-material'
+
+// =============================================================================
+// Novel chat
+// =============================================================================
+
+export {
+  selectActiveNovelId,
+  selectMountedSessionNovelIds,
+  selectNovelChat,
+  selectNovelChatUiSession,
+  selectUiSessionForNovel,
+} from './slices/novel-chat'
+export type {
+  NovelChatActions,
+  NovelChatSelectedChapter,
+  NovelChatSelectedCharacter,
+  NovelChatSlice,
+  NovelChatState,
+  NovelChatUiSession,
+} from './slices/novel-chat'
+
+// =============================================================================
+// Plan
+// =============================================================================
+
 export {
   selectOrderedPlanFiles,
-  usePlanStore,
-} from './modules/plan-store'
+  selectPlan,
+  selectPlanCurrentNovelId,
+  selectPlanFileById,
+  selectPlanHydrated,
+  selectSelectedPlanFileId,
+} from './slices/plan'
+export type { PlanActions, PlanSlice, PlanState } from './slices/plan'
 
-// Worldview Store (zustand + immer)
+// =============================================================================
+// Timeline
+// =============================================================================
+
+export {
+  selectEventById,
+  selectEventsForCharacter,
+  selectHydratedCharacters,
+  selectTimeline,
+} from './slices/timeline'
+export type { TimelineActions, TimelineSlice, TimelineState } from './slices/timeline'
+
+// =============================================================================
+// Worldview
+// =============================================================================
+
 export {
   selectOrderedOutlines,
   selectOrderedWorldbookEntries,
-  useWorldviewStore,
-} from './modules/worldview-store'
+  selectOutlineById,
+  selectOutlinesHydrated,
+  selectWorldbookEntryById,
+  selectWorldbookHydrated,
+  selectWorldview,
+  selectWorldviewCurrentNovelId,
+} from './slices/worldview'
+export type { WorldviewActions, WorldviewSlice, WorldviewState } from './slices/worldview'
 
-// Character Timeline Store (zustand + immer)
-export {
-  selectEventsForCharacter,
-  useTimelineStore,
-} from './modules/timeline-store'
+// =============================================================================
+// 主 store hook
+// =============================================================================
 
-// Novel Chat Store (zustand + immer) — per-novel AI session UI state
-export {
-  selectNovelChatUiSession,
-  useNovelChatStore,
-  type NovelChatSelectedChapter,
-  type NovelChatSelectedCharacter,
-  type NovelChatUiSession,
-} from './modules/novel-chat-store'
+export type { AppStore, StoreGet, StoreSet, StoreSlice } from './store.types'
+export { useAppStore } from './use-app-store'
+
+// =============================================================================
+// 工具函数
+// =============================================================================
+
+export { formatRelationshipLabel, getCharacterColor } from './utils'

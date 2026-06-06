@@ -4,7 +4,7 @@ import { Check, Loader2, MapPin, Pencil, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
-import { useAiEditsStore } from '@/store'
+import { useAppStore } from '@/store'
 import type { ProposeEditOutput } from './types'
 
 interface ProposeEditPartProps {
@@ -25,9 +25,9 @@ const enqueuedKeys = new Set<string>()
 
 export function ProposeEditPart({ partKey, state, input, output, errorText }: ProposeEditPartProps) {
   const { t } = useI18n()
-  const enqueue = useAiEditsStore(s => s.enqueue)
-  const requestFocusEdit = useAiEditsStore(s => s.requestFocusEdit)
-  const pendingEdit = useAiEditsStore(s => s.edits[partKey])
+  const enqueue = useAppStore(s => s.aiEditsActions.enqueue)
+  const requestFocusEdit = useAppStore(s => s.aiEditsActions.requestFocusEdit)
+  const pendingEdit = useAppStore(s => s.aiEdits.edits[partKey])
 
   useEffect(() => {
     if (state !== 'output-available') return

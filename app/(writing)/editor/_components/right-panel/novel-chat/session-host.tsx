@@ -4,7 +4,7 @@ import type { NovelChatRuntime } from './context'
 import type { Chapter } from '@/lib/supabase/sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
-import { useNovelChatStore } from '@/store'
+import { useAppStore } from '@/store'
 import { removeNovelChatInstance } from './chat-instances'
 import { NovelChatConversationHost } from './conversation-host'
 import { DRAFT_CONVERSATION_SLOT, makeConversationKey } from './conversation-keys'
@@ -15,8 +15,8 @@ interface NovelChatSessionHostProps {
 }
 
 export function NovelChatSessionHost({ novelId, registerRuntime }: NovelChatSessionHostProps) {
-  const patchUiSession = useNovelChatStore(s => s.patchUiSession)
-  const uiSession = useNovelChatStore(s => s.sessionsByNovelId[novelId])
+  const patchUiSession = useAppStore(s => s.novelChatActions.patchUiSession)
+  const uiSession = useAppStore(s => s.novelChat.sessionsByNovelId[novelId])
 
   const currentConversationId = uiSession?.currentConversationId ?? null
   const isDraftConversation = uiSession?.isDraftConversation ?? false

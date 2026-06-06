@@ -6,7 +6,7 @@ import * as d3 from 'd3'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { findCharactersInChapter, filterRelationshipsForCharacters } from '@/lib/editor/chapter-characters'
 import { cn } from '@/lib/utils'
-import { getCharacterColor, useCharacterGraphStore, useCharacterMaterialStore } from '@/store'
+import { getCharacterColor, useAppStore } from '@/store'
 
 interface ChapterCharacterPreviewGraphProps {
   novelId: string
@@ -89,8 +89,8 @@ export function ChapterCharacterPreviewGraph({
   const svgRef = useRef<SVGSVGElement | null>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
-  const characters = useCharacterMaterialStore(state => state.characters)
-  const relationshipsByNovel = useCharacterGraphStore(state => state.relationshipsByNovel)
+  const characters = useAppStore(state => state.characterMaterial.characters)
+  const relationshipsByNovel = useAppStore(state => state.characterGraph.relationshipsByNovel)
 
   const relationships = relationshipsByNovel[novelId] ?? []
 

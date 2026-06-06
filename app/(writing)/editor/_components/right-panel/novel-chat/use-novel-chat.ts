@@ -10,11 +10,8 @@ import {
   selectOrderedChapters,
   selectOrderedOutlines,
   selectOrderedWorldbookEntries,
-  useNovelChatStore,
   selectNovelChatUiSession,
-  useChaptersStore,
-  useCharacterMaterialStore,
-  useWorldviewStore,
+  useAppStore,
 } from '@/store'
 import { useNovelChatContext } from './context'
 import { useNovelChatRuntime } from './provider'
@@ -30,9 +27,9 @@ export function useNovelChat() {
   const novelId = searchParams.get('id') || ''
   const { ensureSession } = useNovelChatContext()
 
-  const setActiveNovelId = useNovelChatStore(s => s.setActiveNovelId)
-  const patchUiSession = useNovelChatStore(s => s.patchUiSession)
-  const uiSession = useNovelChatStore(s => selectNovelChatUiSession(s, novelId))
+  const setActiveNovelId = useAppStore(s => s.novelChatActions.setActiveNovelId)
+  const patchUiSession = useAppStore(s => s.novelChatActions.patchUiSession)
+  const uiSession = useAppStore(s => selectNovelChatUiSession(s, novelId))
 
   const runtime = useNovelChatRuntime(novelId)
 
@@ -94,7 +91,7 @@ export function useNovelChat() {
 
   const setInput = useCallback((value: string | ((prev: string) => string)) => {
     if (!novelId) return
-    const current = useNovelChatStore.getState().sessionsByNovelId[novelId]?.input ?? ''
+    const current = useAppStore.getState().novelChat.sessionsByNovelId[novelId]?.input ?? ''
     const next = typeof value === 'function' ? value(current) : value
     if (next === current) return
     patchUiSession(novelId, { input: next })
@@ -112,7 +109,7 @@ export function useNovelChat() {
 
   const setSelectedChapters = useCallback((chapters: Chapter[] | ((prev: Chapter[]) => Chapter[])) => {
     if (!novelId) return
-    const session = useNovelChatStore.getState().sessionsByNovelId[novelId]
+    const session = useAppStore.getState().novelChat.sessionsByNovelId[novelId]
     const current = toChapterRefs(session?.selectedChapters ?? [])
     const next = typeof chapters === 'function' ? chapters(current) : chapters
     const nextRefs = fromChapterRefs(next)
@@ -144,13 +141,13 @@ export function useNovelChat() {
     const raw = input
     if (!hasComposerContent(raw) || isLoading || !novelId || !sendMessage) return
 
-    const orderedChapters = selectOrderedChapters(useChaptersStore.getState())
-    const allCharacters = useCharacterMaterialStore.getState().characters
+    const orderedChapters = selectOrderedChapters(useAppStore.getState())
+    const allCharacters = useAppStore.getState().characterMaterial.characters
       .filter(c => !c.novel_id || c.novel_id === novelId)
       .map(c => ({ id: c.id, name: c.name }))
-    const allWorldbookEntries = selectOrderedWorldbookEntries(useWorldviewStore.getState())
+    const allWorldbookEntries = selectOrderedWorldbookEntries(useAppStore.getState())
       .map(e => ({ id: e.id, title: e.title }))
-    const allOutlines = selectOrderedOutlines(useWorldviewStore.getState())
+    const allOutlines = selectOrderedOutlines(useAppStore.getState())
       .map(o => ({ id: o.id, title: o.title }))
     const payload = buildUserComposerMessage(
       raw,
