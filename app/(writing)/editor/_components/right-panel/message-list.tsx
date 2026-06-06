@@ -1,8 +1,9 @@
 'use client'
 
 import type { UIMessage } from 'ai'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { MessageRenderer } from './parts/message-renderer'
+import { ScrollToBottomButton } from './scroll-to-bottom-button'
 import { TypingIndicator } from './typing-indicator'
 
 const SCROLL_THRESHOLD = 100
@@ -31,6 +32,7 @@ export function MessageList({
   const lastMessageCountRef = useRef(0)
   const lastStreamingLengthRef = useRef(0)
   const isNearBottomRef = useRef(true)
+  const [showScrollButton, setShowScrollButton] = useState(false)
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
     const container = scrollContainerRef.current
@@ -53,8 +55,16 @@ export function MessageList({
   }, [])
 
   const handleScroll = useCallback(() => {
-    isNearBottomRef.current = checkIfNearBottom()
+    const isNearBottom = checkIfNearBottom()
+    isNearBottomRef.current = isNearBottom
+    setShowScrollButton(!isNearBottom)
   }, [checkIfNearBottom])
+
+  const handleScrollToBottom = useCallback(() => {
+    isNearBottomRef.current = true
+    setShowScrollButton(false)
+    scrollToBottom('smooth')
+  }, [scrollToBottom])
 
   // 新消息到来时滚动
   useEffect(() => {
@@ -125,26 +135,29 @@ export function MessageList({
   if (messages.length === 0) return null
 
   return (
-    <div
-      ref={scrollContainerRef}
-      className="h-full w-full overflow-y-auto overflow-x-hidden scrollbar-none px-5"
-    >
-      <div className="agui-log space-y-1 pb-4">
-        {messages.map(message => (
-          <MessageRenderer
-            key={message.id}
-            novelId={novelId}
-            message={message}
-            isStreaming={streamingMessageId === message.id}
-          />
-        ))}
-        {isAwaitingConnection ? (
-          <div className="py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200 flex justify-start">
-            <TypingIndicator tone="connecting" />
-          </div>
-        ) : null}
-        <div ref={messagesEndRef} className="h-1" />
+    <div className="relative h-full w-full">
+      <div
+        ref={scrollContainerRef}
+        className="h-full w-full overflow-y-auto overflow-x-hidden scrollbar-none px-5"
+      >
+        <div className="agui-log space-y-1 pb-4">
+          {messages.map(message => (
+            <MessageRenderer
+              key={message.id}
+              novelId={novelId}
+              message={message}
+              isStreaming={streamingMessageId === message.id}
+            />
+          ))}
+          {isAwaitingConnection ? (
+            <div className="py-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-200 flex justify-start">
+              <TypingIndicator tone="connecting" />
+            </div>
+          ) : null}
+          <div ref={messagesEndRef} className="h-1" />
+        </div>
       </div>
+      <ScrollToBottomButton show={showScrollButton} onClick={handleScrollToBottom} />
     </div>
   )
 }
