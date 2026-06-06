@@ -52,6 +52,7 @@ const chat = {
     unpin: '取消置頂',
     rename: '重命名',
     delete: '刪除',
+    streaming: '思考中',
     deleteDialog: {
       title: '刪除對話',
       descriptionPrefix: '確定要刪除「',

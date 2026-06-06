@@ -4,6 +4,7 @@ import type { AiEditsSlice } from './slices/ai-edits'
 import type { ChaptersSlice } from './slices/chapters'
 import type { CharacterGraphSlice } from './slices/character-graph'
 import type { CharacterMaterialSlice } from './slices/character-material'
+import type { ChatSlice } from './slices/chat'
 import type { NovelChatSlice } from './slices/novel-chat'
 import type { PlanSlice } from './slices/plan'
 import type { TimelineSlice } from './slices/timeline'
@@ -24,6 +25,7 @@ export type AppStore =
   & WorldviewSlice
   & TimelineSlice
   & NovelChatSlice
+  & ChatSlice
 
 /**
  * 当前实际包裹的 middleware 顺序（外 → 内）：

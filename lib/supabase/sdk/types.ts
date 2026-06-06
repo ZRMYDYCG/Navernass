@@ -216,7 +216,8 @@ export interface Conversation {
 }
 
 export interface CreateConversationDto {
-  title: string
+  /** 标题可空：流式首响应后由 server async 覆盖。 */
+  title?: string
 }
 
 export interface UpdateConversationDto {
@@ -233,6 +234,9 @@ export interface Message {
   content: string
   model?: string
   tokens?: number
+  thinking?: string
+  /** AI SDK v6 UIMessage.parts 数组（含 text/reasoning/tool-* 等）。NULL 表示旧消息。 */
+  parts?: unknown[] | null
   created_at: string
 }
 
@@ -242,6 +246,8 @@ export interface CreateMessageDto {
   content: string
   model?: string
   tokens?: number
+  thinking?: string
+  parts?: unknown[]
 }
 
 // =============================================

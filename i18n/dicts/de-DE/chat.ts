@@ -52,6 +52,7 @@ const chat = {
     unpin: 'Lösen',
     rename: 'Umbenennen',
     delete: 'Löschen',
+    streaming: 'Denkt nach',
     deleteDialog: {
       title: 'Gespräch löschen',
       descriptionPrefix: '„',

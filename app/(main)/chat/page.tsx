@@ -1,58 +1,43 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useState } from 'react'
+import { AiChatInput } from '@/components/buss'
 import { useAuth } from '@/hooks/use-auth'
 import { useI18n } from '@/hooks/use-i18n'
-import { chatApi } from '@/lib/supabase/sdk'
-import { ChatInputBox } from './_components/chat-input-box'
+import { conversationsApi } from '@/lib/supabase/sdk'
+import { useAppStore } from '@/store'
 import { ChatWelcomeHeader } from './_components/chat-welcome-header'
 import { RecentNovels } from './_components/recent-novels'
 
-function ChatContent() {
+export default function ChatPage() {
   const { profile, user } = useAuth()
   const { t } = useI18n()
   const penName = profile?.username || user?.email?.split('@')[0]
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const [isSending, setIsSending] = useState(false)
-  const abortControllerRef = useRef<AbortController | null>(null)
 
-  const initialMessage = searchParams.get('message')
+  const welcomeInput = useAppStore(s => s.chat.welcomeInput)
+  const setWelcomeInput = useAppStore(s => s.chatActions.setWelcomeInput)
+  const setPendingDraftMessage = useAppStore(s => s.chatActions.setPendingDraftMessage)
 
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim() || isSending) return
+  const [isDispatching, setIsDispatching] = useState(false)
 
-    setIsSending(true)
-
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-    abortControllerRef.current = new AbortController()
-
+  // 发起对话：前端先在服务端建好空 conversation（拿到真实 id），再跳到会话页发送首条消息。
+  // 标题在 /api/chat/stream 流式返回后由 server 异步覆盖。
+  const handleSendMessage = useCallback(async (content: string) => {
+    const text = content.trim()
+    if (!text || isDispatching) return
+    setIsDispatching(true)
     try {
-      const conversation = await chatApi.createConversation(content.trim())
-      router.push(`/chat/${conversation.id}?message=${encodeURIComponent(content.trim())}`)
+      const conversation = await conversationsApi.create()
+      setPendingDraftMessage(text)
+      setWelcomeInput('')
+      router.push(`/chat/${conversation.id}`)
     } catch (error) {
       console.error('Failed to create conversation:', error)
-      setIsSending(false)
+      setIsDispatching(false)
     }
-  }
-
-  useEffect(() => {
-    if (initialMessage) {
-      handleSendMessage(initialMessage)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialMessage])
-
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [])
+  }, [isDispatching, router, setPendingDraftMessage, setWelcomeInput])
 
   return (
     <div className="min-h-screen">
@@ -68,19 +53,18 @@ function ChatContent() {
             <p className="text-muted-foreground">{t('chat.page.firstLine')}</p>
           </div>
           <div className="mt-8">
-            <ChatInputBox onSend={handleSendMessage} disabled={isSending} />
+            <AiChatInput
+              value={welcomeInput}
+              onChange={setWelcomeInput}
+              onSend={handleSendMessage}
+              isSending={isDispatching}
+              centered
+              showVoice
+            />
           </div>
           <RecentNovels maxItems={3} />
         </div>
       </div>
     </div>
-  )
-}
-
-export default function ChatPage() {
-  return (
-    <Suspense fallback={null}>
-      <ChatContent />
-    </Suspense>
   )
 }

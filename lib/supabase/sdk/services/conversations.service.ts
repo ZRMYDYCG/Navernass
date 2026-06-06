@@ -47,16 +47,17 @@ export class ConversationsService {
   }
 
   /**
-   * 创建对话
+   * 创建对话。title 留空时使用 '新对话' 占位，标题由 /api/chat/stream
+   * 在首条消息流式返回后异步覆盖。
    */
-  async create(conversationData: CreateConversationDto) {
+  async create(conversationData: CreateConversationDto = {}) {
     const { data: { user } } = await this.supabase.auth.getUser()
 
     const { data, error } = await this.supabase
       .from('conversations')
       .insert({
         user_id: user?.id,
-        title: conversationData.title,
+        title: conversationData.title?.trim() || '新对话',
       })
       .select()
       .single()

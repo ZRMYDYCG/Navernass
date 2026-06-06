@@ -1,20 +1,23 @@
 'use client'
 
-import type { Message } from '@/lib/supabase/sdk/types'
-import { CheckCircle2, Circle, Copy, Edit } from 'lucide-react'
+import type { UIMessage } from 'ai'
+import { CheckCircle2, Circle, Copy, Eye, EyeOff } from 'lucide-react'
 import { useTheme } from 'next-themes'
-
+import { useState } from 'react'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/hooks/use-i18n'
+import {
+  extractReasoningFromUIMessage,
+  extractTextFromUIMessage,
+} from '@/lib/chat/chat-messages'
 import { cn } from '@/lib/utils'
 import { MarkdownRenderer } from './markdown-renderer'
 
 interface MessageBubbleProps {
-  message: Message
-  onCopy?: (message: Message) => void
-  onShare?: (message: Message) => void
-  onEdit?: (message: Message) => void
+  message: UIMessage
+  onCopy?: (message: UIMessage) => void
+  onShare?: (message: UIMessage) => void
   isShareMode?: boolean
   isSelected?: boolean
   onToggleSelect?: (messageId: string) => void
@@ -25,7 +28,6 @@ interface MessageBubbleProps {
 export function MessageBubble({
   message,
   onCopy,
-  onEdit,
   isShareMode = false,
   isSelected = false,
   onToggleSelect,
@@ -37,13 +39,15 @@ export function MessageBubble({
   const isAssistant = message.role === 'assistant'
   const { theme } = useTheme()
 
-  const displayedContent = message.content
+  const [isReasoningExpanded, setIsReasoningExpanded] = useState(false)
 
+  const text = extractTextFromUIMessage(message)
+  const reasoning = extractReasoningFromUIMessage(message)
   const avatarSrc = theme === 'dark' ? '/assets/svg/logo-light.svg' : '/assets/svg/logo-dark.svg'
   const shouldAlwaysShowActions = alwaysShowActions || isShareMode
 
-  const showLoading = isAssistant && isStreaming && !message.content
-  const showContent = message.content || !isStreaming
+  const showLoading = isAssistant && isStreaming && !text && !reasoning
+  const showContent = Boolean(text) || !isStreaming
 
   return (
     <div className={`group/message flex gap-4 py-4 px-4 sm:px-6 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -79,6 +83,26 @@ export function MessageBubble({
               isUser ? 'items-end' : 'items-start',
             )}
           >
+            {isAssistant && reasoning && (
+              <div className="w-full rounded-xl border border-dashed border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                <button
+                  type="button"
+                  onClick={() => setIsReasoningExpanded(v => !v)}
+                  className="flex w-full items-center gap-1.5 text-left font-medium hover:text-foreground"
+                >
+                  {isReasoningExpanded
+                    ? <EyeOff className="h-3.5 w-3.5" />
+                    : <Eye className="h-3.5 w-3.5" />}
+                  <span>{t('chat.messageBubble.thinking')}</span>
+                </button>
+                {isReasoningExpanded && (
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground/80">
+                    {reasoning}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div
               className={cn(
                 'rounded-2xl px-4 py-3 border border-transparent transition-all w-fit max-w-full',
@@ -90,11 +114,11 @@ export function MessageBubble({
             >
               {isUser
                 ? (
-                    <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                    <p className="text-sm whitespace-pre-wrap break-words">{text}</p>
                   )
                 : (
                     <div className="text-sm relative">
-                      <MarkdownRenderer content={displayedContent} />
+                      <MarkdownRenderer content={text} />
                     </div>
                   )}
             </div>
@@ -130,18 +154,6 @@ export function MessageBubble({
                 <Copy className="w-4 h-4" />
                 <span>{t('chat.messageBubble.copy')}</span>
               </Button>
-
-              {isAssistant && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  onClick={() => onEdit?.(message)}
-                >
-                  <Edit className="w-4 h-4" />
-                  <span>{t('chat.messageBubble.edit')}</span>
-                </Button>
-              )}
             </div>
           </div>
         </div>

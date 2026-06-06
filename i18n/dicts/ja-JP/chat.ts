@@ -52,6 +52,7 @@ const chat = {
     unpin: 'ピンを外す',
     rename: '名前を変更',
     delete: '削除',
+    streaming: '考え中',
     deleteDialog: {
       title: '会話を削除',
       descriptionPrefix: '「',

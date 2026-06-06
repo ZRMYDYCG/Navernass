@@ -52,6 +52,7 @@ const chat = {
     unpin: '고정 해제',
     rename: '이름 변경',
     delete: '삭제',
+    streaming: '생각 중',
     deleteDialog: {
       title: '대화 삭제',
       descriptionPrefix: '“',

@@ -5,6 +5,7 @@ import { createAiEditsSlice } from './slices/ai-edits'
 import { createChaptersSlice } from './slices/chapters'
 import { createCharacterGraphSlice } from './slices/character-graph'
 import { createCharacterMaterialSlice } from './slices/character-material'
+import { createChatSlice } from './slices/chat'
 import { createNovelChatSlice } from './slices/novel-chat'
 import { createPlanSlice } from './slices/plan'
 import { createTimelineSlice } from './slices/timeline'
@@ -33,6 +34,7 @@ export const useAppStore = create<AppStore>()(
       ...createWorldviewSlice(...a),
       ...createTimelineSlice(...a),
       ...createNovelChatSlice(...a),
+      ...createChatSlice(...a),
     })),
     { name: APP_STORE_DEVTOOLS_NAME },
   ),

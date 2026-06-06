@@ -1,9 +1,7 @@
 'use client'
 
-import type { Message } from '@/lib/supabase/sdk/types'
-
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-
+import type { UIMessage } from 'ai'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CHAT_CONFIG } from '../config'
@@ -12,12 +10,11 @@ import { ScrollToBottomButton } from './scroll-to-bottom-button'
 import { TypingIndicator } from './typing-indicator'
 
 interface MessageListProps {
-  messages: Message[]
+  messages: UIMessage[]
   isLoading?: boolean
   streamingMessageId?: string | null
-  onCopyMessage?: (message: Message) => void
-  onShareMessage?: (message: Message) => void
-  onEditMessage?: (message: Message) => void
+  onCopyMessage?: (message: UIMessage) => void
+  onShareMessage?: (message: UIMessage) => void
   isShareMode?: boolean
   selectedMessageIds?: string[]
   onToggleSelectMessage?: (messageId: string) => void
@@ -29,7 +26,6 @@ export function MessageList({
   streamingMessageId = null,
   onCopyMessage,
   onShareMessage,
-  onEditMessage,
   isShareMode = false,
   selectedMessageIds: selectedMessageIdsProp,
   onToggleSelectMessage,
@@ -50,7 +46,6 @@ export function MessageList({
     }
   }
 
-  // 检查是否接近底部
   const checkIfNearBottom = useCallback((container?: HTMLElement | null) => {
     const scrollContainer
       = container ?? (scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null)
@@ -70,7 +65,6 @@ export function MessageList({
     const isNearBottom = checkIfNearBottom(scrollContainer)
     isNearBottomRef.current = isNearBottom
 
-    // 如果用户向上滚动且不在底部附近，显示"回到底部"按钮
     if (!isNearBottom) {
       setShowScrollButton(true)
       setIsUserScrolling(true)
@@ -80,14 +74,10 @@ export function MessageList({
     }
   }, [checkIfNearBottom])
 
-  // 当有新消息时，自动滚动到底部
-  // 规则：总是自动滚动到底部，因为用户发送消息后想看到最新内容
   useEffect(() => {
     if (messages.length > lastMessageCountRef.current && messages.length > 0) {
-      // 有新消息
       lastMessageCountRef.current = messages.length
 
-      // 总是滚动到底部
       const timer = setTimeout(() => {
         scrollToBottom('smooth')
       }, 100)
@@ -95,16 +85,13 @@ export function MessageList({
     }
   }, [messages.length])
 
-  // 当开始流式传输时，如果用户在底部附近，跟随内容
-  // 如果用户向上滚动查看历史，则停止跟随
   useEffect(() => {
     if (streamingMessageId) {
       const interval = setInterval(() => {
-        // 只有在用户接近底部时才跟随内容
         if (isNearBottomRef.current) {
           scrollToBottom('auto')
         }
-      }, 100) // 每100ms检查一次
+      }, 100)
 
       return () => clearInterval(interval)
     }
@@ -213,7 +200,6 @@ export function MessageList({
                     message={message}
                     onCopy={onCopyMessage}
                     onShare={onShareMessage}
-                    onEdit={onEditMessage}
                     isShareMode={isShareMode}
                     isSelected={selectedMessageIds.includes(message.id)}
                     onToggleSelect={onToggleSelectMessage}

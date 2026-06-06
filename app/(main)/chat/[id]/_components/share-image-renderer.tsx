@@ -1,15 +1,15 @@
 'use client'
 
+import type { UIMessage } from 'ai'
 import type { RefObject } from 'react'
-import type { Message } from '@/lib/supabase/sdk/types'
 import { useTheme } from 'next-themes'
 import { useMemo } from 'react'
-
 import { useI18n, useLocale } from '@/hooks/use-i18n'
+import { extractTextFromUIMessage } from '@/lib/chat/chat-messages'
 import { cn } from '@/lib/utils'
 
 interface ShareImageRendererProps {
-  messages: Message[]
+  messages: UIMessage[]
   title?: string
   containerRef: RefObject<HTMLDivElement | null>
 }
@@ -166,7 +166,7 @@ export function ShareImageRenderer({ messages, title, containerRef }: ShareImage
                       <span>{isUser ? t('chat.share.image.userLabel') : t('chat.share.image.aiLabel')}</span>
                       <span>{t('chat.share.image.messageIndex', { index: index + 1 })}</span>
                     </div>
-                    <div className="text-lg leading-8 whitespace-pre-wrap">{message.content}</div>
+                    <div className="text-lg leading-8 whitespace-pre-wrap">{extractTextFromUIMessage(message)}</div>
                   </div>
                 </div>
               )

@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Edit3, MoreHorizontal, Pin, PinOff, Trash2, X } from 'lucide-react'
+import { Check, Edit3, Loader2, MoreHorizontal, Pin, PinOff, Trash2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -33,6 +33,7 @@ export interface ChatHistoryData {
 interface ChatHistoryItemProps {
   chat: ChatHistoryData
   isActive: boolean
+  isStreaming?: boolean
   isMenuOpen: boolean
   onChatClick: (chatId: string) => void
   onMenuOpenChange: (isOpen: boolean) => void
@@ -44,6 +45,7 @@ interface ChatHistoryItemProps {
 export function ChatHistoryItem({
   chat,
   isActive,
+  isStreaming = false,
   isMenuOpen,
   onChatClick,
   onMenuOpenChange,
@@ -197,6 +199,18 @@ export function ChatHistoryItem({
                 onClick={handleClick}
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[calc(100%-2.5rem)]">
+                  {isStreaming && (
+                    <span
+                      className={cn(
+                        'shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary',
+                        isActive && 'bg-primary/20',
+                      )}
+                      aria-label={t('chat.historyItem.streaming')}
+                    >
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <span className="hidden sm:inline">{t('chat.historyItem.streaming')}</span>
+                    </span>
+                  )}
                   <Tooltip delayDuration={500}>
                     <TooltipTrigger asChild>
                       <span

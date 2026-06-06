@@ -78,6 +78,22 @@ export type {
 } from './slices/character-material'
 
 // =============================================================================
+// Chat (主聊天页)
+// =============================================================================
+
+export {
+  selectChat,
+  selectChatPendingDraftMessage,
+  selectChatStreamingConversationId,
+  selectChatWelcomeInput,
+} from './slices/chat'
+export type {
+  ChatActions,
+  ChatSlice,
+  ChatState,
+} from './slices/chat'
+
+// =============================================================================
 // Novel chat
 // =============================================================================
 

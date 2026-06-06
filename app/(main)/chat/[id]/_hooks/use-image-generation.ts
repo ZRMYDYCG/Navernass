@@ -1,14 +1,13 @@
 'use client'
 
-import type { Message } from '@/lib/supabase/sdk/types'
-
+import type { UIMessage } from 'ai'
 import { toPng } from 'html-to-image'
 import { useCallback, useRef, useState } from 'react'
-
 import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
+import { extractTextFromUIMessage } from '@/lib/chat/chat-messages'
 
-export function useImageGeneration(selectedMessages: Message[]) {
+export function useImageGeneration(selectedMessages: UIMessage[]) {
   const { t } = useI18n()
   const [isGeneratingImage, setIsGeneratingImage] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
@@ -98,4 +97,11 @@ export function useImageGeneration(selectedMessages: Message[]) {
     handleGenerateImage,
     handleDownloadPreview,
   }
+}
+
+/**
+ * 共享到 image renderer 时使用的纯文本提取（与 useShareMode 配合）
+ */
+export function getUIMessageText(message: UIMessage): string {
+  return extractTextFromUIMessage(message)
 }

@@ -1,22 +1,19 @@
 'use client'
 
-import type { Message } from '@/lib/supabase/sdk/types'
-
+import type { UIMessage } from 'ai'
 import { useCallback, useMemo, useState } from 'react'
-
 import { toast } from 'sonner'
-
 import { useI18n } from '@/hooks/use-i18n'
+import { extractTextFromUIMessage } from '@/lib/chat/chat-messages'
 import { copyTextToClipboard } from '@/lib/utils'
 
-export function useShareMode(messages: Message[], conversationId: string) {
+export function useShareMode(messages: UIMessage[], conversationId: string) {
   const { t } = useI18n()
   const [isShareMode, setIsShareMode] = useState(false)
   const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([])
 
   const validSelectedMessageIds = useMemo(() => {
     if (!isShareMode) return []
-
     const messageIdSet = new Set(messages.map(msg => msg.id))
     return selectedMessageIds.filter(id => messageIdSet.has(id))
   }, [isShareMode, messages, selectedMessageIds])
@@ -32,7 +29,6 @@ export function useShareMode(messages: Message[], conversationId: string) {
         setSelectedMessageIds([])
         return false
       }
-
       setSelectedMessageIds(messages.map(msg => msg.id))
       return true
     })
@@ -59,7 +55,11 @@ export function useShareMode(messages: Message[], conversationId: string) {
     }
 
     const formatted = selectedMessages
-      .map(msg => `${msg.role === 'user' ? t('chat.messages.roleUser') : t('chat.messages.roleAI')}${t('chat.messages.roleSeparator')}${msg.content}`)
+      .map((msg) => {
+        const role = msg.role === 'user' ? t('chat.messages.roleUser') : t('chat.messages.roleAI')
+        const text = extractTextFromUIMessage(msg)
+        return `${role}${t('chat.messages.roleSeparator')}${text}`
+      })
       .join('\n\n')
 
     try {
@@ -73,7 +73,6 @@ export function useShareMode(messages: Message[], conversationId: string) {
 
   const handleCopyConversationLink = useCallback(async () => {
     if (typeof window === 'undefined') return
-
     const shareUrl = `${window.location.origin}/chat/${conversationId}`
 
     try {

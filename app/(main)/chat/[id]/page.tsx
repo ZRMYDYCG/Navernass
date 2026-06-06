@@ -1,46 +1,46 @@
 'use client'
 
-import type { Message } from '@/lib/supabase/sdk/types'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
-
-import { Suspense, useCallback, useEffect, useMemo } from 'react'
+import { useParams } from 'next/navigation'
+import { useEffect, useRef } from 'react'
+import { useAppStore } from '@/store'
 import { ChatInputBox } from '../_components/chat-input-box'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
-import { DocumentEditorDialog } from './_components/document-editor-dialog'
 import { MessageList } from './_components/message-list'
 import { ShareActionBar } from './_components/share-action-bar'
 import { ShareImagePreviewDialog } from './_components/share-image-preview-dialog'
 import { ShareImageRenderer } from './_components/share-image-renderer'
-import { useConversationMessages } from './_hooks/use-conversation-messages'
-import { useDocumentEditor } from './_hooks/use-document-editor'
+import { useChatConversation } from './_hooks/use-chat-conversation'
 import { useImageGeneration } from './_hooks/use-image-generation'
 import { useShareMode } from './_hooks/use-share-mode'
 
-function ConversationContent() {
+export default function ConversationPage() {
   const params = useParams()
-  const searchParams = useSearchParams()
-  const router = useRouter()
   const conversationId = params.id as string
-  const initialMessage = searchParams.get('message') || undefined
-  const isNewConversation = !!initialMessage
+
+  const consumePendingDraftMessage = useAppStore(s => s.chatActions.consumePendingDraftMessage)
 
   const {
     messages,
-    setMessages,
     isLoading,
     streamingMessageId,
     conversationTitle,
-    latestAssistantMessage,
     handleSendMessage,
     handleCopyMessage,
     handleShareMessage,
-  } = useConversationMessages({ conversationId, initialMessage, isNewConversation })
+  } = useChatConversation({ conversationId })
+
+  // 欢迎页跳转过来时会预先把首条消息塞进 zustand；这里一次性消费并自动发送。
+  const consumedKeyRef = useRef<string | null>(null)
+  const handleSendMessageRef = useRef(handleSendMessage)
+  handleSendMessageRef.current = handleSendMessage
 
   useEffect(() => {
-    if (initialMessage && messages.length > 1) {
-      router.replace(`/chat/${conversationId}`, { scroll: false })
-    }
-  }, [initialMessage, messages, conversationId, router])
+    if (consumedKeyRef.current === conversationId) return
+    const pending = consumePendingDraftMessage()
+    if (!pending) return
+    consumedKeyRef.current = conversationId
+    void handleSendMessageRef.current(pending)
+  }, [conversationId, consumePendingDraftMessage])
 
   const {
     isShareMode,
@@ -63,31 +63,6 @@ function ConversationContent() {
     handleDownloadPreview,
   } = useImageGeneration(selectedMessages)
 
-  const handleMessageUpdate = useCallback((id: string, content: string) => {
-    setMessages(prev =>
-      prev.map(msg =>
-        msg.id === id ? { ...msg, content } : msg,
-      ),
-    )
-  }, [setMessages])
-
-  const {
-    editingMessage,
-    showDocumentEditor,
-    setShowDocumentEditor,
-    handleEditMessage: originalHandleEditMessage,
-    handleSaveDocument,
-  } = useDocumentEditor(handleMessageUpdate)
-
-  const handleEditMessage = useCallback((message: Message) => {
-    originalHandleEditMessage(message)
-  }, [originalHandleEditMessage])
-
-  const displayLatestAssistantMessage = useMemo(() => {
-    if (!showDocumentEditor) return null
-    return latestAssistantMessage
-  }, [latestAssistantMessage, showDocumentEditor])
-
   return (
     <div className="flex flex-col h-full">
       <ChatWelcomeHeader
@@ -104,7 +79,6 @@ function ConversationContent() {
               streamingMessageId={streamingMessageId}
               onCopyMessage={handleCopyMessage}
               onShareMessage={handleShareMessage}
-              onEditMessage={handleEditMessage}
               isShareMode={isShareMode}
               selectedMessageIds={selectedMessageIds}
               onToggleSelectMessage={handleToggleSelectMessage}
@@ -134,14 +108,6 @@ function ConversationContent() {
         </div>
       </div>
 
-      <DocumentEditorDialog
-        message={editingMessage}
-        latestAssistantMessage={displayLatestAssistantMessage}
-        open={showDocumentEditor}
-        onOpenChange={setShowDocumentEditor}
-        onSave={handleSaveDocument}
-      />
-
       <ShareImageRenderer
         containerRef={shareImageRef}
         messages={selectedMessages}
@@ -156,13 +122,5 @@ function ConversationContent() {
         onDownload={handleDownloadPreview}
       />
     </div>
-  )
-}
-
-export default function ConversationPage() {
-  return (
-    <Suspense fallback={null}>
-      <ConversationContent />
-    </Suspense>
   )
 }

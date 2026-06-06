@@ -17,9 +17,10 @@ export const conversationsApi = {
   },
 
   /**
-   * 创建对话
+   * 创建对话。body 可空：title 留空时 service 层默认 '新对话'，
+   * 标题会在 /api/chat/stream 流式首响应后由 server 异步覆盖。
    */
-  create: async (conversationData: CreateConversationDto): Promise<Conversation> => {
+  create: async (conversationData: CreateConversationDto = {}): Promise<Conversation> => {
     return apiClient.post<Conversation>('/api/conversations', conversationData)
   },
 
