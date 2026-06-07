@@ -2,6 +2,10 @@
 
 import type { UIMessage, UIMessagePart } from 'ai'
 import type { ReactNode } from 'react'
+import { isBookRefPart, isCharacterRefPart, isInlineRefPart } from '@/lib/editor/composer-message'
+import { BookPreviewPopover } from './book-preview-popover'
+import { BookRefPart } from './book-ref-part'
+import { CharacterRefPart } from './character-ref-part'
 import { ProposeCharacterPart } from './propose-character-part'
 import { ProposeNovelPart } from './propose-novel-part'
 import { ProposeOutlinePart } from './propose-outline-part'
@@ -14,11 +18,11 @@ import { ToolPartFallback } from './tool-part-fallback'
  *
  * 与编辑器版的区别：
  *   - 没有 novelId（Chat 页的桥接工具 novelId 来自 tool call input）
- *   - 不渲染 chapter/volume/character 等 ref part（Chat 不在编辑器场景下）
  *   - 工具集换成 ask_user + propose_novel/character/outline/summary
+ *   - book / character 引用仍保留：用户消息可以 @book（hover 弹预览卡）
  */
 
-export type RenderablePartType = 'text' | 'reasoning' | 'tool'
+export type RenderablePartType = 'text' | 'reasoning' | 'tool' | 'inlineRef'
 
 type AnyPart = UIMessagePart<any, any>
 
@@ -27,18 +31,24 @@ function isToolPart(part: AnyPart): boolean {
 }
 
 export function isRenderablePart(part: AnyPart): boolean {
-  return part.type === 'text' || part.type === 'reasoning' || isToolPart(part)
+  return part.type === 'text' || part.type === 'reasoning' || isToolPart(part) || isInlineRefPart(part)
 }
 
-/** text 进入气泡；reasoning / tool 独立成块 */
+/** text / 内联引用块进入同一气泡（与输入框内联顺序一致） */
 export function isBubblePart(part: AnyPart): boolean {
-  return part.type === 'text'
+  return part.type === 'text' || isInlineRefPart(part)
 }
 
 export function hasVisibleContent(
   part: AnyPart,
   ctx: { isStreaming: boolean, index: number, lastIdx: number },
 ): boolean {
+  if (isBookRefPart(part)) {
+    return Boolean(part.data?.title)
+  }
+  if (isCharacterRefPart(part)) {
+    return Boolean(part.data?.name)
+  }
   if (part.type === 'text') {
     const text = ((part as { text?: string }).text || '').trim()
     const isPartStreaming = ctx.isStreaming && ctx.index === ctx.lastIdx
@@ -61,6 +71,25 @@ export interface PartRenderContext {
 }
 
 export function renderPart(part: AnyPart, ctx: PartRenderContext): ReactNode {
+  if (isBookRefPart(part)) {
+    return (
+      <BookPreviewPopover
+        key={`book-${ctx.index}`}
+        bookId={part.data.id}
+        title={part.data.title}
+      >
+        <BookRefPart data={part.data} />
+      </BookPreviewPopover>
+    )
+  }
+  if (isCharacterRefPart(part)) {
+    return (
+      <CharacterRefPart
+        key={`char-${ctx.index}`}
+        data={part.data}
+      />
+    )
+  }
   if (part.type === 'text') {
     return (
       <TextPart

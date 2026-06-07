@@ -17,8 +17,16 @@ export interface ToolContext {
   userId: string
   novelId: string
   conversationId?: string
+  /** 当前对话已选中的书本（小说）id（主聊天页 @book 注入） */
+  selectedNovelIds?: string[]
   /** 当前对话已选中的章节 id（用户通过 @ 选择的） */
   selectedChapterIds?: string[]
+  /** 当前对话已选中的角色 id（主聊天页 @character 注入） */
+  selectedCharacterIds?: string[]
+  /** 当前对话已选中的世界观条目 id（保留位） */
+  selectedWorldbookIds?: string[]
+  /** 当前对话已选中的大纲节点 id（保留位） */
+  selectedOutlineIds?: string[]
   /** 角色剧本 / 时间线子 Agent 聚焦的角色 id */
   characterId?: string
   /** 主对话 @ 的首要角色（自动填入 delegate_character_timeline） */

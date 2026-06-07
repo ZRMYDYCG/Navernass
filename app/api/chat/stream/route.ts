@@ -8,6 +8,8 @@ import {
   routeChat,
   runChatSpecialistAgent,
 } from '@/lib/ai/agents'
+import { NovelsService } from '@/lib/supabase/sdk/services/novels.service'
+import { buildBookContext, buildCharacterContextBlock } from '@/prompts'
 import { DEFAULT_LLM_MODEL, getMinimaxModel, hasMinimaxApiKey } from '@/lib/ai/minimax'
 import { sanitizeUIMessagesForModel, stripToolPartsFromMessages } from '@/lib/ai/sanitize-ui-messages'
 import { ConversationsService } from '@/lib/supabase/sdk/services/conversations.service'
@@ -19,6 +21,10 @@ interface ChatRequestBody {
   messages: UIMessage[]
   mode?: string
   model?: string
+  /** 主聊天页 @book 选中的书本 id（getList 范围内） */
+  selectedBookIds?: string[]
+  /** 主聊天页 @char 选中的角色 id（来自 novels.characters jsonb） */
+  selectedCharacterIds?: string[]
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -67,9 +73,17 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient()
   const conversationsService = new ConversationsService(supabase)
   const messagesService = new MessagesService(supabase)
+  const novelsService = new NovelsService(supabase)
 
   const body = (await req.json()) as ChatRequestBody
-  const { conversationId, messages, mode: requestedMode, model } = body
+  const {
+    conversationId,
+    messages,
+    mode: requestedMode,
+    model,
+    selectedBookIds,
+    selectedCharacterIds,
+  } = body
 
   if (!messages || messages.length === 0) {
     return new Response('messages are required', { status: 400 })
@@ -125,6 +139,20 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.warn('[chat/stream] convertToModelMessages failed after sanitize, fallback to text-only:', error)
     modelMessages = await convertToModelMessages(stripToolPartsFromMessages(messages))
+  }
+
+  // 拉取 @ 选中的书本/角色详情，注入到 system/最后一条 user
+  const mentionContext = await loadMentionContext({
+    novelsService,
+    selectedBookIds,
+    selectedCharacterIds,
+  })
+
+  if (mentionContext) {
+    const last = modelMessages[modelMessages.length - 1]
+    if (last?.role === 'user') {
+      injectMentionContextIntoLastUserMessage(last, mentionContext, userInput)
+    }
   }
 
   // 先同步存"用户消息"
@@ -220,6 +248,9 @@ export async function POST(req: NextRequest) {
       // Chat 页没有"当前聚焦小说"——桥接工具的 novelId 来自 tool call input
       novelId: '',
       conversationId: conversation.id,
+      selectedNovelIds: selectedBookIds,
+      selectedCharacterIds: selectedCharacterIds,
+      focusCharacterId: selectedCharacterIds?.[0],
     },
     onStepFinish: ({ text, reasoningText }) => {
       if (reasoningText) {
@@ -297,6 +328,150 @@ function buildPartialParts(reasoning: string, text: string): unknown[] {
     parts.push({ type: 'text', text, state: 'done' })
   }
   return parts
+}
+
+interface MentionContext {
+  books: Array<{
+    id: string,
+    title: string,
+    description?: string | null,
+    category?: string | null,
+    tags?: string[] | null,
+    word_count?: number,
+    chapter_count?: number,
+    status?: string,
+  }>
+  characters: Array<{
+    id: string,
+    name: string,
+    role?: string | null,
+    description?: string | null,
+    traits?: string[] | null,
+    keywords?: string[] | null,
+  }>
+}
+
+interface RawNovelCharacter {
+  id?: string
+  name?: string
+  role?: string
+  description?: string
+  traits?: string[]
+  keywords?: string[]
+}
+
+async function loadMentionContext({
+  novelsService,
+  selectedBookIds,
+  selectedCharacterIds,
+}: {
+  novelsService: NovelsService
+  selectedBookIds?: string[]
+  selectedCharacterIds?: string[]
+}): Promise<MentionContext | null> {
+  if ((!selectedBookIds || selectedBookIds.length === 0) && (!selectedCharacterIds || selectedCharacterIds.length === 0)) {
+    return null
+  }
+
+  const books: MentionContext['books'] = []
+  const characters: MentionContext['characters'] = []
+  const characterSeen = new Set<string>()
+
+  if (selectedBookIds && selectedBookIds.length > 0) {
+    const results = await Promise.allSettled(selectedBookIds.map((id) => novelsService.getById(id)))
+    for (const result of results) {
+      if (result.status !== 'fulfilled' || !result.value) continue
+      const novel = result.value as { id: string, title: string, description?: string | null, category?: string | null, tags?: string[] | null, word_count?: number, chapter_count?: number, status?: string, characters?: unknown }
+      books.push({
+        id: novel.id,
+        title: novel.title,
+        description: novel.description ?? null,
+        category: novel.category ?? null,
+        tags: novel.tags ?? null,
+        word_count: novel.word_count ?? 0,
+        chapter_count: novel.chapter_count ?? 0,
+        status: novel.status ?? 'draft',
+      })
+      // 顺便把书本里所有角色加入备选池（解决 @book 后 @ 角色不在 selectedCharacterIds 也能补全）
+      if (Array.isArray(novel.characters)) {
+        for (const raw of novel.characters as RawNovelCharacter[]) {
+          if (!raw || typeof raw !== 'object') continue
+          const id = typeof raw.id === 'string' ? raw.id : ''
+          const name = typeof raw.name === 'string' ? raw.name : ''
+          if (!id || !name || characterSeen.has(id)) continue
+          characterSeen.add(id)
+          characters.push({
+            id,
+            name,
+            role: raw.role ?? null,
+            description: raw.description ?? null,
+            traits: raw.traits ?? null,
+            keywords: raw.keywords ?? null,
+          })
+        }
+      }
+    }
+  }
+
+  if (selectedCharacterIds && selectedCharacterIds.length > 0) {
+    const missingIds = selectedCharacterIds.filter((id) => !characterSeen.has(id))
+    if (missingIds.length > 0) {
+      // 角色跨书本去重：拉一次用户全部小说 characters 找
+      const list = await novelsService.getList({ page: 1, pageSize: 200 })
+      const novelList = list.data || []
+      for (const id of missingIds) {
+        for (const novel of novelList) {
+          const novelChars = (novel as { characters?: unknown }).characters
+          if (!Array.isArray(novelChars)) continue
+          const found = (novelChars as RawNovelCharacter[]).find((c) => c?.id === id)
+          if (found && typeof found.name === 'string') {
+            characterSeen.add(id)
+            characters.push({
+              id,
+              name: found.name,
+              role: found.role ?? null,
+              description: found.description ?? null,
+              traits: found.traits ?? null,
+              keywords: found.keywords ?? null,
+            })
+            break
+          }
+        }
+      }
+    }
+  }
+
+  if (books.length === 0 && characters.length === 0) return null
+  return { books, characters }
+}
+
+function injectMentionContextIntoLastUserMessage(
+  last: { role: string, content: string | Array<{ type: string, text?: string }> },
+  mentionContext: MentionContext,
+  userInput: string,
+) {
+  const parts: string[] = []
+  const bookBlock = buildBookContext(mentionContext.books)
+  if (bookBlock) parts.push(bookBlock)
+  const charBlock = buildCharacterContextBlock(mentionContext.characters)
+  if (charBlock) parts.push(charBlock)
+  if (parts.length === 0) return
+
+  const body = userInput.trim() || '（用户通过 @ 引用聚焦，请结合上文继续）'
+  const prefix = `${parts.join('')}用户问题：${body}`
+
+  if (typeof last.content === 'string') {
+    last.content = prefix
+    return
+  }
+  if (Array.isArray(last.content)) {
+    const textIdx = last.content.findIndex((p) => p.type === 'text')
+    if (textIdx >= 0) {
+      last.content[textIdx] = { type: 'text', text: prefix }
+    } else {
+      last.content.unshift({ type: 'text', text: prefix })
+    }
+  }
 }
 
 function extractTextFromParts(parts: unknown): string {

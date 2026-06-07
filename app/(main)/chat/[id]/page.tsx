@@ -1,7 +1,9 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { buildUserComposerMessage } from '@/lib/editor/composer-message'
+import { hasComposerContent } from '@/lib/editor/inline-composer'
 import { useAppStore } from '@/store'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
 import { ChatActionsWrapper } from './_components/chat-actions-wrapper'
@@ -13,6 +15,7 @@ import { ShareImagePreviewDialog } from './_components/share-image-preview-dialo
 import { ShareImageRenderer } from './_components/share-image-renderer'
 import { ChatAgentActionsProvider } from './_hooks/chat-agent-actions-context'
 import { useChatAgent } from './_hooks/use-chat-agent'
+import { useChatMentions } from './_hooks/use-chat-mentions'
 import { useImageGeneration } from './_hooks/use-image-generation'
 import { useShareMode } from './_hooks/use-share-mode'
 
@@ -22,7 +25,14 @@ export default function ConversationPage() {
 
   const consumePendingDraftMessage = useAppStore(s => s.chatActions.consumePendingDraftMessage)
 
-  const agent = useChatAgent({ conversationId })
+  // 拉全部书本 + 角色，提供给 picker；mentionsRef 桥接 sendMessage 时的选中 id
+  const mentions = useChatMentions()
+  const mentionsRef = useRef({ bookIds: [] as string[], characterIds: [] as string[] })
+  const setMentionsRef = useCallback((next: { bookIds: string[], characterIds: string[] }) => {
+    mentionsRef.current = next
+  }, [])
+
+  const agent = useChatAgent({ conversationId, mentionsRef })
   const { handleSendMessage } = agent
 
   // 欢迎页跳转过来时会预先把首条消息塞进 zustand；这里一次性消费并自动发送。
@@ -63,19 +73,55 @@ export default function ConversationPage() {
   const [input, setInput] = useState('')
   const handleInputChange = (value: string) => setInput(value)
   const handleSend = async () => {
-    const text = input.trim()
-    if (!text) return
+    if (!hasComposerContent(input)) return
+    // 解析 composer 序列化为 parts（含 data-book-ref / data-character-ref chip part）
+    // 用 mentions.books/characters 补全 title（chip 的 title/id 已就绪）
+    const payload = buildUserComposerMessage(
+      input,
+      [],
+      mentions.characters,
+      [],
+      [],
+    )
+    // 用 page 持有的最新 book list 补全 title（bookId 可能只来自 ref）
+    const enrichedBooks = payload.books.map((b) => {
+      const found = mentions.books.find(mb => mb.id === b.id)
+      return found ? { id: found.id, title: found.title } : b
+    })
+    setMentionsRef({
+      bookIds: enrichedBooks.map(b => b.id),
+      characterIds: payload.characters.map(c => c.id),
+    })
     setInput('')
-    await agent.handleSendMessage(text)
+    // transport 在 sendMessage 期间同步读取 mentionsRef；send 完成后清空
+    await agent.handleSendMessage({
+      text: payload.plainText,
+      parts: payload.parts,
+    })
+    setMentionsRef({ bookIds: [], characterIds: [] })
   }
 
-  const agentActionsValue = {
+  // 同步 ref：内联 composer 通过回调更新 selection（仅在 send 前保持 fallback 一致）
+  const handleBooksChange = useCallback((next: { id: string, title: string }[]) => {
+    setMentionsRef({
+      bookIds: next.map(b => b.id),
+      characterIds: mentionsRef.current.characterIds,
+    })
+  }, [setMentionsRef])
+  const handleCharactersChange = useCallback((next: { id: string, name: string }[]) => {
+    setMentionsRef({
+      bookIds: mentionsRef.current.bookIds,
+      characterIds: next.map(c => c.id),
+    })
+  }, [setMentionsRef])
+
+  const agentActionsValue = useMemo(() => ({
     acceptNovelProposal: agent.acceptNovelProposal,
     acceptCharacterProposal: agent.acceptCharacterProposal,
     acceptOutlineProposal: agent.acceptOutlineProposal,
     rejectProposal: agent.rejectProposal,
     markFormSubmitted: agent.markFormSubmitted,
-  }
+  }), [agent])
 
   return (
     <div className="flex flex-col h-full">
@@ -144,6 +190,10 @@ export default function ConversationPage() {
                     disabled={agent.isLoading}
                     isSending={agent.isLoading}
                     centered
+                    books={mentions.books}
+                    characters={mentions.characters}
+                    onBooksChange={handleBooksChange}
+                    onCharactersChange={handleCharactersChange}
                   />
                 </div>
               )}

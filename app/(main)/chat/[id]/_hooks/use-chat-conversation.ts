@@ -32,6 +32,8 @@ const chatInstancesByKey = new Map<string, Chat<UIMessage>>()
 const streamControllersByKey = new Map<string, AbortController>()
 const conversationIdOverridesByKey = new Map<string, string>()
 const transportOptionsByKey = new Map<string, { mode: ChatAiMode, model: AiModel }>()
+/** sendMessage 时从 ref 读取当前选中的书本/角色 id，写入请求体。 */
+const mentionsRefsByKey = new Map<string, { current: { bookIds: string[], characterIds: string[] } }>()
 
 function resolveConversationId(key: string): string | undefined {
   return conversationIdOverridesByKey.get(key)
@@ -56,6 +58,8 @@ function createChatInstance(key: string): Chat<UIMessage> {
     },
     prepareSendMessagesRequest: ({ messages, body }) => {
       const opts = transportOptionsByKey.get(key) || { mode: 'ask' as ChatAiMode, model: 'MiniMax-M3' as AiModel }
+      const mentionsRef = mentionsRefsByKey.get(key)
+      const mentions = mentionsRef?.current
       return {
         body: {
           ...body,
@@ -63,6 +67,8 @@ function createChatInstance(key: string): Chat<UIMessage> {
           conversationId: resolveConversationId(key),
           mode: opts.mode,
           model: opts.model,
+          selectedBookIds: mentions?.bookIds,
+          selectedCharacterIds: mentions?.characterIds,
         },
       }
     },
@@ -95,9 +101,14 @@ interface UseChatConversationProps {
   mode: ChatAiMode
   /** 当前 model id（由 useChatAgent 提供） */
   model: AiModel
+  /**
+   * 桥接当前选中的书本/角色 ref，sendMessage 时由 transport 读取写入请求体。
+   * 不传则不携带 selectedBookIds / selectedCharacterIds。
+   */
+  mentionsRef?: { current: { bookIds: string[], characterIds: string[] } }
 }
 
-export function useChatConversation({ conversationId, mode, model }: UseChatConversationProps) {
+export function useChatConversation({ conversationId, mode, model, mentionsRef }: UseChatConversationProps) {
   const { t } = useI18n()
   const chat = useMemo(() => getOrCreateChatInstance(conversationId), [conversationId])
 
@@ -105,6 +116,17 @@ export function useChatConversation({ conversationId, mode, model }: UseChatConv
   useEffect(() => {
     transportOptionsByKey.set(conversationId, { mode, model })
   }, [conversationId, mode, model])
+
+  // 把 mentions ref 注册到 transport；卸载时清空
+  useEffect(() => {
+    if (!mentionsRef) return
+    mentionsRefsByKey.set(conversationId, mentionsRef)
+    return () => {
+      if (mentionsRefsByKey.get(conversationId) === mentionsRef) {
+        mentionsRefsByKey.delete(conversationId)
+      }
+    }
+  }, [conversationId, mentionsRef])
 
   const { messages, sendMessage, setMessages, status, stop, error } = useChat({
     chat,
@@ -206,10 +228,22 @@ export function useChatConversation({ conversationId, mode, model }: UseChatConv
     return null
   }, [messages])
 
-  const handleSendMessage = useCallback(async (content: string) => {
-    const text = content.trim()
-    if (!text || isStreaming) return
-    await sendMessage({ text })
+  const handleSendMessage = useCallback(async (input: { text?: string, parts?: unknown[] } | string) => {
+    if (isStreaming) return
+    if (typeof input === 'string') {
+      const text = input.trim()
+      if (!text) return
+      await sendMessage({ text })
+      return
+    }
+    const parts = Array.isArray(input.parts) ? input.parts : []
+    if (parts.length === 0) {
+      const text = (input.text || '').trim()
+      if (!text) return
+      await sendMessage({ text })
+      return
+    }
+    await sendMessage({ parts: parts as UIMessage['parts'] })
   }, [isStreaming, sendMessage])
 
   return {

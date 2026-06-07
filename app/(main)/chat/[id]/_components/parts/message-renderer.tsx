@@ -88,7 +88,7 @@ function MessageRendererInner({ message, isStreaming = false }: MessageRendererP
                   className={cn(
                     'text-[13px] text-foreground transition-all duration-200',
                     isUser
-                      ? 'rounded-lg px-3 py-2 bg-secondary w-fit max-w-full flex flex-wrap items-center gap-x-0.5 gap-y-1'
+                      ? 'rounded-lg px-3 py-2 bg-secondary ring-1 ring-transparent hover:bg-secondary/80 hover:ring-primary/40 hover:shadow-sm w-fit max-w-full flex flex-wrap items-center gap-x-0.5 gap-y-1 cursor-default'
                       : 'px-0.5 py-0.5 agui-assistant-stream',
                   )}
                 >

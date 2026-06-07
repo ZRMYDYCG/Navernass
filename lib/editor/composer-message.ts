@@ -1,4 +1,5 @@
 import {
+  extractContextBookRefs,
   extractContextChapterRefs,
   extractContextCharacterRefs,
   parseComposerSegments,
@@ -6,17 +7,24 @@ import {
   type ComposerSegment,
   extractContextOutlineRefs,
   extractContextWorldbookRefs,
+  type SerializedBookRef,
   type SerializedChapterRef,
   type SerializedCharacterRef,
   type SerializedOutlineRef,
   type SerializedWorldbookRef,
 } from './inline-composer'
 
+export const BOOK_REF_PART_TYPE = 'data-book-ref' as const
 export const CHAPTER_REF_PART_TYPE = 'data-chapter-ref' as const
 export const VOLUME_REF_PART_TYPE = 'data-volume-ref' as const
 export const CHARACTER_REF_PART_TYPE = 'data-character-ref' as const
 export const WORLDBOOK_REF_PART_TYPE = 'data-worldbook-ref' as const
 export const OUTLINE_REF_PART_TYPE = 'data-outline-ref' as const
+
+export interface BookRefPartData {
+  id: string
+  title: string
+}
 
 export interface ChapterRefPartData {
   id: string
@@ -45,6 +53,7 @@ export interface OutlineRefPartData {
 
 export type UserComposerPart =
   | { type: 'text', text: string, state?: 'done' }
+  | { type: typeof BOOK_REF_PART_TYPE, data: BookRefPartData }
   | { type: typeof CHAPTER_REF_PART_TYPE, data: ChapterRefPartData }
   | { type: typeof VOLUME_REF_PART_TYPE, data: VolumeRefPartData }
   | { type: typeof CHARACTER_REF_PART_TYPE, data: CharacterRefPartData }
@@ -54,6 +63,7 @@ export type UserComposerPart =
 export interface UserComposerMessagePayload {
   parts: UserComposerPart[]
   plainText: string
+  books: SerializedBookRef[]
   chapters: SerializedChapterRef[]
   characters: SerializedCharacterRef[]
   worldbookEntries: SerializedWorldbookRef[]
@@ -68,7 +78,8 @@ export function formatRefsFallback(
   const chunks: string[] = []
   for (const segment of segments) {
     if (
-      segment.type === 'chapter'
+      segment.type === 'book'
+      || segment.type === 'chapter'
       || segment.type === 'volume'
       || segment.type === 'worldbook'
       || segment.type === 'outline'
@@ -84,6 +95,12 @@ export function formatRefsFallback(
 function segmentToParts(segment: ComposerSegment): UserComposerPart[] {
   if (segment.type === 'text') {
     return segment.value ? [{ type: 'text', text: segment.value, state: 'done' }] : []
+  }
+  if (segment.type === 'book') {
+    return [{
+      type: BOOK_REF_PART_TYPE,
+      data: { id: segment.id, title: segment.title },
+    }]
   }
   if (segment.type === 'volume') {
     return [{
@@ -127,6 +144,7 @@ export function buildUserComposerMessage(
 ): UserComposerMessagePayload {
   const segments = parseComposerSegments(raw)
   const parts = segments.flatMap(segmentToParts)
+  const books = extractContextBookRefs(raw)
   const chapters = extractContextChapterRefs(raw, allChapters)
   const characters = extractContextCharacterRefs(raw).map((ref) => {
     const full = allCharacters.find(c => c.id === ref.id)
@@ -146,7 +164,7 @@ export function buildUserComposerMessage(
   // UI：chip 即 @，text part 仅保留纯正文；勿把 @名字 再写入 text（会重复显示）
   syncDisplayTextParts(parts, plainText)
 
-  return { parts, plainText, chapters, characters, worldbookEntries, outlines, apiText }
+  return { parts, plainText, books, chapters, characters, worldbookEntries, outlines, apiText }
 }
 
 /** @ 引用 + 正文合并为模型可见的一行（避免 sanitize 去掉 chip 后丢失 @） */
@@ -211,6 +229,13 @@ export function isRefsOnlyUserMessage(parts: unknown[]): boolean {
   return /^@[^\s@]+(\s+@[^\s@]+)*$/.test(apiText)
 }
 
+export function isBookRefPart(part: unknown): part is { type: typeof BOOK_REF_PART_TYPE, data: BookRefPartData } {
+  return typeof part === 'object'
+    && part !== null
+    && (part as { type?: string }).type === BOOK_REF_PART_TYPE
+    && typeof (part as { data?: { id?: string } }).data?.id === 'string'
+}
+
 export function isChapterRefPart(part: unknown): part is { type: typeof CHAPTER_REF_PART_TYPE, data: ChapterRefPartData } {
   return typeof part === 'object'
     && part !== null
@@ -247,7 +272,8 @@ export function isOutlineRefPart(part: unknown): part is { type: typeof OUTLINE_
 }
 
 export function isInlineRefPart(part: unknown): boolean {
-  return isChapterRefPart(part)
+  return isBookRefPart(part)
+    || isChapterRefPart(part)
     || isVolumeRefPart(part)
     || isCharacterRefPart(part)
     || isWorldbookRefPart(part)
@@ -276,7 +302,7 @@ export function extractApiTextFromUserMessage(parts: unknown[]): string {
   const textChunks: string[] = []
 
   for (const raw of parts) {
-    if (isChapterRefPart(raw) || isVolumeRefPart(raw)) {
+    if (isBookRefPart(raw) || isChapterRefPart(raw) || isVolumeRefPart(raw)) {
       refChunks.push(`@${raw.data.title}`)
       mentionNames.push(raw.data.title)
       continue

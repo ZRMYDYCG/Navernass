@@ -24,7 +24,13 @@ import { useChatConversation } from './use-chat-conversation'
  *   4) 暴露 propose_* accept 处理器：调 SDK → 更新 part.output → toast
  *   5) rejectProposal：把 part.output 标记为 rejected
  */
-export function useChatAgent({ conversationId }: { conversationId: string }) {
+export function useChatAgent({
+  conversationId,
+  mentionsRef,
+}: {
+  conversationId: string
+  mentionsRef?: { current: { bookIds: string[], characterIds: string[] } }
+}) {
   const { t } = useI18n()
   const consumeWelcomeAgent = useAppStore(s => s.chatActions.consumeWelcomeAgent)
 
@@ -93,7 +99,7 @@ export function useChatAgent({ conversationId }: { conversationId: string }) {
     }
   }, [conversationId, model, t])
 
-  const chat = useChatConversation({ conversationId, mode, model })
+  const chat = useChatConversation({ conversationId, mode, model, mentionsRef })
 
   // 工具：根据 toolCallId 找到对应 part 的 index（不依赖 toolCallId 唯一性，仅匹配类型 + 第一个未 done 的）
   // 实际我们用 toolCallId 即可，因为每个 tool call 都有唯一 id

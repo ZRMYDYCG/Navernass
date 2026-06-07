@@ -1,8 +1,14 @@
 /** 内联引用块在 input 字符串中的序列化格式 */
-const REF_MARKER_RE = /\[\[(ch|vol|char|wb|ol):([^:\]]+):([^\]]+)\]\]/g
+const REF_MARKER_RE = /\[\[(book|ch|vol|char|wb|ol):([^:\]]+):([^\]]+)\]\]/g
+const BOOK_MARKER_RE = /\[\[book:([^:\]]+):([^\]]+)\]\]/g
 const CHAPTER_MARKER_RE = /\[\[ch:([^:\]]+):([^\]]+)\]\]/g
 const VOLUME_MARKER_RE = /\[\[vol:([^:\]]+):([^\]]+)\]\]/g
 const CHARACTER_MARKER_RE = /\[\[char:([^:\]]+):([^\]]+)\]\]/g
+export interface SerializedBookRef {
+  id: string
+  title: string
+}
+
 export interface SerializedChapterRef {
   id: string
   title: string
@@ -28,6 +34,10 @@ export interface SerializedOutlineRef {
   title: string
 }
 
+export function encodeBookMarker(book: SerializedBookRef): string {
+  return `[[book:${book.id}:${encodeURIComponent(book.title)}]]`
+}
+
 export function encodeChapterMarker(chapter: SerializedChapterRef): string {
   return `[[ch:${chapter.id}:${encodeURIComponent(chapter.title)}]]`
 }
@@ -46,6 +56,18 @@ export function encodeWorldbookMarker(entry: SerializedWorldbookRef): string {
 
 export function encodeOutlineMarker(outline: SerializedOutlineRef): string {
   return `[[ol:${outline.id}:${encodeURIComponent(outline.title)}]]`
+}
+
+/** 从序列化文本提取显式 @ 的书本（按出现顺序，允许同一书多次出现） */
+export function extractBookMarkersFromSerialized(value: string): SerializedBookRef[] {
+  const books: SerializedBookRef[] = []
+  for (const match of value.matchAll(BOOK_MARKER_RE)) {
+    books.push({
+      id: match[1],
+      title: decodeURIComponent(match[2]),
+    })
+  }
+  return books
 }
 
 /** 从序列化文本提取显式 @ 的章节（按出现顺序，允许同一章多次出现在正文） */
@@ -81,6 +103,19 @@ export function extractVolumeMarkersFromSerialized(value: string): SerializedVol
     })
   }
   return volumes
+}
+
+/** 从正文 @ 书本标记提取书本（按出现顺序去重 id） */
+export function extractContextBookRefs(value: string): SerializedBookRef[] {
+  const result: SerializedBookRef[] = []
+  const seen = new Set<string>()
+  for (const segment of parseComposerSegments(value)) {
+    if (segment.type !== 'book') continue
+    if (seen.has(segment.id)) continue
+    seen.add(segment.id)
+    result.push({ id: segment.id, title: segment.title })
+  }
+  return result
 }
 
 /**
@@ -177,6 +212,7 @@ export function stripChapterMarkers(value: string): string {
 
 export function hasComposerContent(value: string): boolean {
   return stripRefMarkers(value).trim().length > 0
+    || /\[\[book:[^:\]]+:[^\]]+\]\]/.test(value)
     || /\[\[ch:[^:\]]+:[^\]]+\]\]/.test(value)
     || /\[\[vol:[^:\]]+:[^\]]+\]\]/.test(value)
     || /\[\[char:[^:\]]+:[^\]]+\]\]/.test(value)
@@ -208,6 +244,7 @@ export function characterRefsEqual(
 
 export type ComposerSegment =
   | { type: 'text', value: string }
+  | { type: 'book', id: string, title: string }
   | { type: 'chapter', id: string, title: string }
   | { type: 'volume', id: string, title: string }
   | { type: 'character', id: string, name: string }
@@ -228,7 +265,9 @@ export function parseComposerSegments(value: string): ComposerSegment[] {
     const kind = match[1]
     const id = match[2]
     const title = decodeURIComponent(match[3])
-    if (kind === 'ch') {
+    if (kind === 'book') {
+      segments.push({ type: 'book', id, title })
+    } else if (kind === 'ch') {
       segments.push({ type: 'chapter', id, title })
     } else if (kind === 'vol') {
       segments.push({ type: 'volume', id, title })
@@ -257,6 +296,9 @@ export function serializeComposerSegments(segments: ComposerSegment[]): string {
   return segments
     .map((segment) => {
       if (segment.type === 'text') return segment.value
+      if (segment.type === 'book') {
+        return encodeBookMarker({ id: segment.id, title: segment.title })
+      }
       if (segment.type === 'chapter') {
         return encodeChapterMarker({ id: segment.id, title: segment.title })
       }
@@ -290,6 +332,7 @@ export function getMentionQueryFromTextBefore(textBefore: string): MentionQueryM
 }
 
 export type MentionListItem =
+  | { type: 'book', id: string, title: string }
   | { type: 'volume', id: string, title: string }
   | { type: 'chapter', id: string, title: string }
   | { type: 'character', id: string, name: string }
@@ -303,10 +346,15 @@ export function filterMentionListItems(
   characters: Array<{ id: string, name: string }> = [],
   worldbookEntries: Array<{ id: string, title: string }> = [],
   outlines: Array<{ id: string, title: string }> = [],
+  books: Array<{ id: string, title: string }> = [],
 ): MentionListItem[] {
   const q = query.trim().toLowerCase()
   const matchTitle = (title: string) => !q || title.toLowerCase().includes(q)
   const matchName = (name: string) => !q || name.toLowerCase().includes(q)
+
+  const bookItems: MentionListItem[] = books
+    .filter(b => matchTitle(b.title))
+    .map(b => ({ type: 'book' as const, id: b.id, title: b.title }))
 
   const volumeItems: MentionListItem[] = volumes
     .filter(v => matchTitle(v.title))
@@ -328,5 +376,5 @@ export function filterMentionListItems(
     .filter(o => matchTitle(o.title))
     .map(o => ({ type: 'outline' as const, id: o.id, title: o.title }))
 
-  return [...volumeItems, ...chapterItems, ...characterItems, ...worldbookItems, ...outlineItems]
+  return [...bookItems, ...volumeItems, ...chapterItems, ...characterItems, ...worldbookItems, ...outlineItems]
 }

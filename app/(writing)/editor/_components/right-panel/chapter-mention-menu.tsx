@@ -2,7 +2,7 @@
 
 import type { Chapter } from '@/lib/supabase/sdk'
 import type { Volume } from '@/lib/supabase/sdk'
-import { BookOpen, Check, Globe2, ListTree, User } from 'lucide-react'
+import { BookMarked, BookOpen, Check, Globe2, ListTree, User } from 'lucide-react'
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
@@ -15,6 +15,7 @@ interface ChapterMentionMenuProps {
   characters?: Array<{ id: string, name: string }>
   worldbookEntries?: Array<{ id: string, title: string }>
   outlines?: Array<{ id: string, title: string }>
+  books?: Array<{ id: string, title: string }>
   query: string
   activeIndex: number
   onSelect: (item: MentionListItem) => void
@@ -29,6 +30,7 @@ export function ChapterMentionMenu({
   characters = [],
   worldbookEntries = [],
   outlines = [],
+  books = [],
   query,
   activeIndex,
   onSelect,
@@ -46,8 +48,8 @@ export function ChapterMentionMenu({
   }, [chapters])
 
   const items = useMemo(
-    () => filterMentionListItems(volumes, chapters, query, characters, worldbookEntries, outlines),
-    [volumes, chapters, query, characters, worldbookEntries, outlines],
+    () => filterMentionListItems(volumes, chapters, query, characters, worldbookEntries, outlines, books),
+    [volumes, chapters, query, characters, worldbookEntries, outlines, books],
   )
 
   const activeItemRef = useRef<HTMLButtonElement>(null)
@@ -75,6 +77,7 @@ export function ChapterMentionMenu({
     )
   }
 
+  let bookHeaderShown = false
   let volumeHeaderShown = false
   let chapterHeaderShown = false
   let characterHeaderShown = false
@@ -95,11 +98,13 @@ export function ChapterMentionMenu({
     >
       {items.map((item, index) => {
         const isActive = index === activeIndex
+        const showBookHeader = item.type === 'book' && !bookHeaderShown
         const showVolumeHeader = item.type === 'volume' && !volumeHeaderShown
         const showChapterHeader = item.type === 'chapter' && !chapterHeaderShown
         const showCharacterHeader = item.type === 'character' && !characterHeaderShown
         const showWorldbookHeader = item.type === 'worldbook' && !worldbookHeaderShown
         const showOutlineHeader = item.type === 'outline' && !outlineHeaderShown
+        if (showBookHeader) bookHeaderShown = true
         if (showVolumeHeader) volumeHeaderShown = true
         if (showChapterHeader) chapterHeaderShown = true
         if (showCharacterHeader) characterHeaderShown = true
@@ -108,6 +113,15 @@ export function ChapterMentionMenu({
 
         return (
           <div key={`${item.type}-${item.id}-${index}`}>
+            {showBookHeader && (
+              <div className={cn(
+                'py-1 text-[10px] font-medium uppercase text-muted-foreground/70',
+                isDrawer ? 'px-3' : 'px-2.5',
+              )}
+              >
+                {t('editor.rightPanel.chapterSelector.booksSection', '书本')}
+              </div>
+            )}
             {showVolumeHeader && (
               <div className={cn(
                 'py-1 text-[10px] font-medium uppercase text-muted-foreground/70',
@@ -178,27 +192,31 @@ export function ChapterMentionMenu({
                 isActive ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
               )}
             >
-              {item.type === 'volume'
+              {item.type === 'book'
                 ? (
-                    <BookOpen className="size-3 shrink-0 text-primary/80" aria-hidden />
+                    <BookMarked className="size-3 shrink-0 text-amber-500" aria-hidden />
                   )
-                : item.type === 'character'
+                : item.type === 'volume'
                   ? (
-                      <User className="size-3 shrink-0 text-chart-2" aria-hidden />
+                      <BookOpen className="size-3 shrink-0 text-primary/80" aria-hidden />
                     )
-                  : item.type === 'worldbook'
+                  : item.type === 'character'
                     ? (
-                        <Globe2 className="size-3 shrink-0 text-chart-3" aria-hidden />
+                        <User className="size-3 shrink-0 text-chart-2" aria-hidden />
                       )
-                    : item.type === 'outline'
+                    : item.type === 'worldbook'
                       ? (
-                          <ListTree className="size-3 shrink-0 text-chart-4" aria-hidden />
+                          <Globe2 className="size-3 shrink-0 text-chart-3" aria-hidden />
                         )
-                      : (
-                          <span className="w-4 shrink-0 text-[10px] tabular-nums text-muted-foreground/70">
-                            {chapterOrder.get(item.id) || '·'}
-                          </span>
-                        )}
+                      : item.type === 'outline'
+                        ? (
+                            <ListTree className="size-3 shrink-0 text-chart-4" aria-hidden />
+                          )
+                        : (
+                            <span className="w-4 shrink-0 text-[10px] tabular-nums text-muted-foreground/70">
+                              {chapterOrder.get(item.id) || '·'}
+                            </span>
+                          )}
               <span className="min-w-0 flex-1 truncate">
                 {item.type === 'character' ? item.name : item.title}
               </span>

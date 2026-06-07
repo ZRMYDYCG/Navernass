@@ -1,8 +1,8 @@
 'use client'
 
+import type { ComposerSegment, MentionListItem, SerializedBookRef, SerializedChapterRef, SerializedCharacterRef, SerializedOutlineRef, SerializedVolumeRef, SerializedWorldbookRef } from '@/lib/editor/inline-composer'
 import type { Chapter, Volume } from '@/lib/supabase/sdk'
 import {
-  forwardRef,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -10,34 +10,32 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import {
   hasChapterAttachmentDrag,
   parseComposerAttachmentDragPayload,
 } from '@/lib/editor/chapter-attachment-drag'
 import {
+  chapterRefsEqual,
+  characterRefsEqual,
+
+  encodeBookMarker,
   encodeChapterMarker,
   encodeCharacterMarker,
   encodeOutlineMarker,
   encodeVolumeMarker,
   encodeWorldbookMarker,
-  chapterRefsEqual,
-  characterRefsEqual,
+  extractContextBookRefs,
   extractContextChapterRefs,
   extractContextCharacterRefs,
-  getMentionQueryFromTextBefore,
   filterMentionListItems,
+  getMentionQueryFromTextBefore,
   hasComposerContent,
+
   parseComposerSegments,
+
   stripRefMarkers,
-  type ComposerSegment,
-  type MentionListItem,
-  type SerializedChapterRef,
-  type SerializedCharacterRef,
-  type SerializedOutlineRef,
-  type SerializedVolumeRef,
-  type SerializedWorldbookRef,
 } from '@/lib/editor/inline-composer'
-import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
 import { ChapterMentionMenu } from './chapter-mention-menu'
 
@@ -89,11 +87,13 @@ interface InlineChapterComposerProps {
   onChange: (value: string) => void
   onChaptersChange: (chapters: SerializedChapterRef[]) => void
   onCharactersChange?: (characters: SerializedCharacterRef[]) => void
+  onBooksChange?: (books: SerializedBookRef[]) => void
   chapters: Chapter[]
   volumes?: Volume[]
   characters?: Array<{ id: string, name: string }>
   worldbookEntries?: Array<{ id: string, title: string }>
   outlines?: Array<{ id: string, title: string }>
+  books?: Array<{ id: string, title: string }>
   placeholder?: string
   disabled?: boolean
   isCompact?: boolean
@@ -105,12 +105,33 @@ interface InlineChapterComposerProps {
 function isComposerChipElement(node: HTMLElement): boolean {
   return node.classList.contains(CHIP_CLASS)
     && (
-      Boolean(node.dataset.chapterId)
+      Boolean(node.dataset.bookId)
+      || Boolean(node.dataset.chapterId)
       || Boolean(node.dataset.volumeId)
       || Boolean(node.dataset.characterId)
       || Boolean(node.dataset.worldbookId)
       || Boolean(node.dataset.outlineId)
     )
+}
+
+function createBookChipElement(book: SerializedBookRef): HTMLSpanElement {
+  const chip = document.createElement('span')
+  chip.dataset.bookId = book.id
+  chip.dataset.bookTitle = book.title
+  chip.contentEditable = 'false'
+  chip.className = cn(
+    CHIP_CLASS,
+    'mx-0.5 inline-flex max-w-[200px] align-middle items-center gap-0.5 rounded-md border border-amber-500/30',
+    'bg-amber-500/10 px-1.5 py-0.5 text-xs font-medium text-foreground select-none',
+  )
+  chip.setAttribute('aria-label', book.title)
+
+  const label = document.createElement('span')
+  label.className = 'truncate max-w-[180px]'
+  label.textContent = book.title
+
+  chip.append(label)
+  return chip
 }
 
 function createChapterChipElement(chapter: SerializedChapterRef): HTMLSpanElement {
@@ -215,6 +236,8 @@ function createCharacterChipElement(character: SerializedCharacterRef): HTMLSpan
 
 function createMentionChipElement(item: MentionListItem): HTMLSpanElement {
   switch (item.type) {
+    case 'book':
+      return createBookChipElement({ id: item.id, title: item.title })
     case 'volume':
       return createVolumeChipElement({ id: item.id, title: item.title })
     case 'character':
@@ -238,6 +261,8 @@ function renderSegmentsToEditor(root: HTMLElement, segments: ComposerSegment[]) 
   for (const segment of segments) {
     if (segment.type === 'text') {
       appendTextNode(root, segment.value)
+    } else if (segment.type === 'book') {
+      root.append(createBookChipElement(segment))
     } else if (segment.type === 'volume') {
       root.append(createVolumeChipElement(segment))
     } else if (segment.type === 'character') {
@@ -264,7 +289,12 @@ function serializeFromEditor(root: HTMLElement): string {
     }
     if (!(node instanceof HTMLElement)) return
     if (isComposerChipElement(node)) {
-      if (node.dataset.volumeId) {
+      if (node.dataset.bookId) {
+        result += encodeBookMarker({
+          id: node.dataset.bookId,
+          title: node.dataset.bookTitle ?? '',
+        })
+      } else if (node.dataset.volumeId) {
         result += encodeVolumeMarker({
           id: node.dataset.volumeId,
           title: node.dataset.volumeTitle ?? '',
@@ -406,351 +436,347 @@ function placeCaretAtEnd(root: HTMLElement) {
   selection.addRange(range)
 }
 
-export const InlineChapterComposer = forwardRef<InlineChapterComposerHandle, InlineChapterComposerProps>(
-  function InlineChapterComposer(
-    {
-      value,
-      onChange,
-      onChaptersChange,
-      onCharactersChange,
-      chapters,
-      volumes = [],
-      characters = [],
-      worldbookEntries = [],
-      outlines = [],
-      placeholder,
-      disabled,
-      isCompact = true,
-      maxHeight = 168,
-      onSend,
-      className,
-    },
-    ref,
-  ) {
-    const { t } = useI18n()
-    const placeholderText = placeholder ?? t('chat.input.placeholder')
-    const editorRef = useRef<HTMLDivElement>(null)
-    const lastSerializedRef = useRef(value)
-    const lastChaptersRef = useRef<SerializedChapterRef[]>([])
-    const lastCharactersRef = useRef<SerializedCharacterRef[]>([])
-    const isComposingRef = useRef(false)
+export function InlineChapterComposer({ ref, value, onChange, onChaptersChange, onCharactersChange, onBooksChange, chapters, volumes = [], characters = [], worldbookEntries = [], outlines = [], books = [], placeholder, disabled, isCompact = true, maxHeight = 168, onSend, className }: InlineChapterComposerProps & { ref?: React.RefObject<InlineChapterComposerHandle | null> }) {
+  const { t } = useI18n()
+  const placeholderText = placeholder ?? t('chat.input.placeholder')
+  const editorRef = useRef<HTMLDivElement>(null)
+  const lastSerializedRef = useRef(value)
+  const lastChaptersRef = useRef<SerializedChapterRef[]>([])
+  const lastCharactersRef = useRef<SerializedCharacterRef[]>([])
+  const lastBooksRef = useRef<SerializedBookRef[]>([])
+  const isComposingRef = useRef(false)
 
-    const [mentionOpen, setMentionOpen] = useState(false)
-    const [mentionQuery, setMentionQuery] = useState('')
-    const [mentionIndex, setMentionIndex] = useState(0)
-    const [isDragOver, setIsDragOver] = useState(false)
-    const [showPlaceholder, setShowPlaceholder] = useState(() => shouldShowComposerPlaceholder(value))
+  const [mentionOpen, setMentionOpen] = useState(false)
+  const [mentionQuery, setMentionQuery] = useState('')
+  const [mentionIndex, setMentionIndex] = useState(0)
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [showPlaceholder, setShowPlaceholder] = useState(() => shouldShowComposerPlaceholder(value))
 
-    const updatePlaceholderVisibility = useCallback(() => {
-      const root = editorRef.current
-      if (!root) return
-      setShowPlaceholder(shouldShowComposerPlaceholder(serializeFromEditor(root)))
-    }, [])
+  const updatePlaceholderVisibility = useCallback(() => {
+    const root = editorRef.current
+    if (!root) return
+    setShowPlaceholder(shouldShowComposerPlaceholder(serializeFromEditor(root)))
+  }, [])
 
-    const syncFromEditor = useCallback(() => {
-      const root = editorRef.current
-      if (!root) return
-      const serialized = serializeFromEditor(root)
-      setShowPlaceholder(shouldShowComposerPlaceholder(serialized))
-      if (serialized !== lastSerializedRef.current) {
-        lastSerializedRef.current = serialized
-        onChange(serialized)
+  const syncFromEditor = useCallback(() => {
+    const root = editorRef.current
+    if (!root) return
+    const serialized = serializeFromEditor(root)
+    setShowPlaceholder(shouldShowComposerPlaceholder(serialized))
+    if (serialized !== lastSerializedRef.current) {
+      lastSerializedRef.current = serialized
+      onChange(serialized)
+    }
+    if (onBooksChange) {
+      const contextBooks = extractContextBookRefs(serialized)
+      const prev = lastBooksRef.current
+      const changed = contextBooks.length !== prev.length
+        || contextBooks.some((b, i) => b.id !== prev[i]?.id || b.title !== prev[i]?.title)
+      if (changed) {
+        lastBooksRef.current = contextBooks
+        onBooksChange(contextBooks)
       }
-      const contextChapters = extractContextChapterRefs(serialized, chapters)
-      if (!chapterRefsEqual(contextChapters, lastChaptersRef.current)) {
-        lastChaptersRef.current = contextChapters
-        onChaptersChange(contextChapters)
-      }
-      const contextCharacters = extractContextCharacterRefs(serialized)
-      if (onCharactersChange && !characterRefsEqual(contextCharacters, lastCharactersRef.current)) {
-        lastCharactersRef.current = contextCharacters
-        onCharactersChange(contextCharacters)
-      }
-    }, [onChange, onChaptersChange, onCharactersChange, chapters])
+    }
+    const contextChapters = extractContextChapterRefs(serialized, chapters)
+    if (!chapterRefsEqual(contextChapters, lastChaptersRef.current)) {
+      lastChaptersRef.current = contextChapters
+      onChaptersChange(contextChapters)
+    }
+    const contextCharacters = extractContextCharacterRefs(serialized)
+    if (onCharactersChange && !characterRefsEqual(contextCharacters, lastCharactersRef.current)) {
+      lastCharactersRef.current = contextCharacters
+      onCharactersChange(contextCharacters)
+    }
+  }, [onChange, onChaptersChange, onCharactersChange, onBooksChange, chapters])
 
-    const closeMentionMenu = useCallback(() => {
-      setMentionOpen(false)
-      setMentionQuery('')
-      setMentionIndex(0)
-    }, [])
+  const closeMentionMenu = useCallback(() => {
+    setMentionOpen(false)
+    setMentionQuery('')
+    setMentionIndex(0)
+  }, [])
 
-    const updateMentionMenu = useCallback(() => {
-      const root = editorRef.current
-      if (!root) return
-      const textBefore = getTextBeforeCaret(root)
-      const mention = getMentionQueryFromTextBefore(textBefore)
-      if (!mention) {
-        closeMentionMenu()
-        return
-      }
-      setMentionOpen(true)
-      setMentionQuery(mention.query)
-      setMentionIndex(0)
-    }, [closeMentionMenu])
-
-    const insertMentionItem = useCallback((item: MentionListItem) => {
-      const root = editorRef.current
-      if (!root) return
-
-      const textBefore = getTextBeforeCaret(root)
-      const mention = getMentionQueryFromTextBefore(textBefore)
-      if (mention) {
-        deleteCharsBeforeCaret(root, textBefore.length - mention.startOffset)
-      }
-
-      insertChipAtCaret(root, createMentionChipElement(item))
+  const updateMentionMenu = useCallback(() => {
+    const root = editorRef.current
+    if (!root) return
+    const textBefore = getTextBeforeCaret(root)
+    const mention = getMentionQueryFromTextBefore(textBefore)
+    if (!mention) {
       closeMentionMenu()
-      syncFromEditor()
-      root.focus()
-    }, [closeMentionMenu, syncFromEditor])
+      return
+    }
+    setMentionOpen(true)
+    setMentionQuery(mention.query)
+    setMentionIndex(0)
+  }, [closeMentionMenu])
 
-    useImperativeHandle(ref, () => ({
-      focus: () => {
-        const root = editorRef.current
-        if (!root) return
-        root.focus()
-        if (shouldShowComposerPlaceholder(serializeFromEditor(root))) {
-          placeCaretAtStart(root)
-        }
-      },
-      insertAtChar: (char: string) => {
-        const root = editorRef.current
-        if (!root) return
-        root.focus()
-        const selection = window.getSelection()
-        if (selection?.rangeCount) {
-          const range = selection.getRangeAt(0)
-          range.deleteContents()
-          const node = document.createTextNode(char)
-          range.insertNode(node)
-          range.setStartAfter(node)
-          range.collapse(true)
-          selection.removeAllRanges()
-          selection.addRange(range)
-        } else {
-          appendTextNode(root, char)
-          placeCaretAtEnd(root)
-        }
-        syncFromEditor()
-        updateMentionMenu()
-      },
-    }), [syncFromEditor, updateMentionMenu])
+  const insertMentionItem = useCallback((item: MentionListItem) => {
+    const root = editorRef.current
+    if (!root) return
 
-    useLayoutEffect(() => {
+    const textBefore = getTextBeforeCaret(root)
+    const mention = getMentionQueryFromTextBefore(textBefore)
+    if (mention) {
+      deleteCharsBeforeCaret(root, textBefore.length - mention.startOffset)
+    }
+
+    insertChipAtCaret(root, createMentionChipElement(item))
+    closeMentionMenu()
+    syncFromEditor()
+    root.focus()
+  }, [closeMentionMenu, syncFromEditor])
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
       const root = editorRef.current
       if (!root) return
-      if (value === lastSerializedRef.current) return
-      lastSerializedRef.current = value
-      lastChaptersRef.current = extractContextChapterRefs(value, chapters)
-      renderSegmentsToEditor(root, parseComposerSegments(value))
-      const isEmpty = shouldShowComposerPlaceholder(value)
-      setShowPlaceholder(isEmpty)
-      if (isEmpty && root === document.activeElement) {
+      root.focus()
+      if (shouldShowComposerPlaceholder(serializeFromEditor(root))) {
         placeCaretAtStart(root)
       }
-    }, [value, chapters])
-
-    const handleInput = () => {
-      updatePlaceholderVisibility()
-      if (isComposingRef.current) return
+    },
+    insertAtChar: (char: string) => {
+      const root = editorRef.current
+      if (!root) return
+      root.focus()
+      const selection = window.getSelection()
+      if (selection?.rangeCount) {
+        const range = selection.getRangeAt(0)
+        range.deleteContents()
+        const node = document.createTextNode(char)
+        range.insertNode(node)
+        range.setStartAfter(node)
+        range.collapse(true)
+        selection.removeAllRanges()
+        selection.addRange(range)
+      } else {
+        appendTextNode(root, char)
+        placeCaretAtEnd(root)
+      }
       syncFromEditor()
       updateMentionMenu()
+    },
+  }), [syncFromEditor, updateMentionMenu])
+
+  useLayoutEffect(() => {
+    const root = editorRef.current
+    if (!root) return
+    if (value === lastSerializedRef.current) return
+    lastSerializedRef.current = value
+    lastChaptersRef.current = extractContextChapterRefs(value, chapters)
+    renderSegmentsToEditor(root, parseComposerSegments(value))
+    const isEmpty = shouldShowComposerPlaceholder(value)
+    setShowPlaceholder(isEmpty)
+    if (isEmpty && root === document.activeElement) {
+      placeCaretAtStart(root)
+    }
+  }, [value, chapters])
+
+  const handleInput = () => {
+    updatePlaceholderVisibility()
+    if (isComposingRef.current) return
+    syncFromEditor()
+    updateMentionMenu()
+  }
+
+  const handleEditorActivate = () => {
+    const root = editorRef.current
+    if (!root) return
+    if (!shouldShowComposerPlaceholder(serializeFromEditor(root))) return
+    normalizeEmptyEditor(root)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const root = editorRef.current
+    if (!root) return
+
+    if (
+      !mentionOpen
+      && e.key.length === 1
+      && !e.ctrlKey
+      && !e.metaKey
+      && !e.altKey
+    ) {
+      setShowPlaceholder(false)
     }
 
-    const handleEditorActivate = () => {
-      const root = editorRef.current
-      if (!root) return
-      if (!shouldShowComposerPlaceholder(serializeFromEditor(root))) return
-      normalizeEmptyEditor(root)
-    }
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-      const root = editorRef.current
-      if (!root) return
-
-      if (
-        !mentionOpen
-        && e.key.length === 1
-        && !e.ctrlKey
-        && !e.metaKey
-        && !e.altKey
-      ) {
-        setShowPlaceholder(false)
-      }
-
-      if (mentionOpen) {
-        const filtered = filterMentionListItems(
-          volumes,
-          chapters,
-          mentionQuery,
-          characters,
-          worldbookEntries,
-          outlines,
-        )
-        if (e.key === 'ArrowDown') {
-          e.preventDefault()
-          setMentionIndex(i => (i + 1) % Math.max(filtered.length, 1))
-          return
-        }
-        if (e.key === 'ArrowUp') {
-          e.preventDefault()
-          setMentionIndex(i => (i - 1 + Math.max(filtered.length, 1)) % Math.max(filtered.length, 1))
-          return
-        }
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault()
-          const item = filtered[mentionIndex]
-          if (item) insertMentionItem(item)
-          return
-        }
-        if (e.key === 'Escape') {
-          e.preventDefault()
-          closeMentionMenu()
-          return
-        }
-      }
-
-      if (e.key === 'Enter' && !e.shiftKey) {
+    if (mentionOpen) {
+      const filtered = filterMentionListItems(
+        volumes,
+        chapters,
+        mentionQuery,
+        characters,
+        worldbookEntries,
+        outlines,
+        books,
+      )
+      if (e.key === 'ArrowDown') {
         e.preventDefault()
-        onSend?.()
+        setMentionIndex(i => (i + 1) % Math.max(filtered.length, 1))
         return
       }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setMentionIndex(i => (i - 1 + Math.max(filtered.length, 1)) % Math.max(filtered.length, 1))
+        return
+      }
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        const item = filtered[mentionIndex]
+        if (item) insertMentionItem(item)
+        return
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        closeMentionMenu()
+        return
+      }
+    }
 
-      if (e.key === 'Backspace') {
-        const selection = window.getSelection()
-        if (!selection?.rangeCount || !selection.isCollapsed) return
-        const { anchorNode, anchorOffset } = selection
-        if (anchorOffset === 0 && anchorNode?.previousSibling instanceof HTMLElement) {
-          const prev = anchorNode.previousSibling
-          if (prev.classList.contains(CHIP_CLASS)) {
-            e.preventDefault()
-            prev.remove()
-            syncFromEditor()
-          }
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      onSend?.()
+      return
+    }
+
+    if (e.key === 'Backspace') {
+      const selection = window.getSelection()
+      if (!selection?.rangeCount || !selection.isCollapsed) return
+      const { anchorNode, anchorOffset } = selection
+      if (anchorOffset === 0 && anchorNode?.previousSibling instanceof HTMLElement) {
+        const prev = anchorNode.previousSibling
+        if (prev.classList.contains(CHIP_CLASS)) {
+          e.preventDefault()
+          prev.remove()
+          syncFromEditor()
         }
       }
     }
+  }
 
-    const handleDrop = (e: React.DragEvent) => {
-      if (!hasChapterAttachmentDrag(e.dataTransfer)) return
-      e.preventDefault()
-      setIsDragOver(false)
-      const payload = parseComposerAttachmentDragPayload(e.dataTransfer)
-      if (!payload) return
-      editorRef.current?.focus()
-      insertMentionItem(
-        payload.kind === 'volume'
-          ? { type: 'volume', id: payload.id, title: payload.title }
-          : { type: 'chapter', id: payload.id, title: payload.title },
-      )
+  const handleDrop = (e: React.DragEvent) => {
+    if (!hasChapterAttachmentDrag(e.dataTransfer)) return
+    e.preventDefault()
+    setIsDragOver(false)
+    const payload = parseComposerAttachmentDragPayload(e.dataTransfer)
+    if (!payload) return
+    editorRef.current?.focus()
+    insertMentionItem(
+      payload.kind === 'volume'
+        ? { type: 'volume', id: payload.id, title: payload.title }
+        : { type: 'chapter', id: payload.id, title: payload.title },
+    )
+  }
+
+  useEffect(() => {
+    if (!mentionOpen) return
+    const onPointerDown = (event: MouseEvent) => {
+      const root = editorRef.current
+      const target = event.target as Node
+      if (root?.contains(target)) return
+      if (target instanceof Element && target.closest('[data-chapter-mention-menu]')) return
+      closeMentionMenu()
     }
+    document.addEventListener('mousedown', onPointerDown)
+    return () => document.removeEventListener('mousedown', onPointerDown)
+  }, [mentionOpen, closeMentionMenu])
 
-    useEffect(() => {
-      if (!mentionOpen) return
-      const onPointerDown = (event: MouseEvent) => {
-        const root = editorRef.current
-        const target = event.target as Node
-        if (root?.contains(target)) return
-        if (target instanceof Element && target.closest('[data-chapter-mention-menu]')) return
-        closeMentionMenu()
-      }
-      document.addEventListener('mousedown', onPointerDown)
-      return () => document.removeEventListener('mousedown', onPointerDown)
-    }, [mentionOpen, closeMentionMenu])
-
-    return (
-      <div className="flex flex-col -mx-3 -mt-3">
-        {mentionOpen ? (
-          <div
-            className={cn(
-              'border-b border-border bg-muted/20',
-              'animate-in fade-in-0 slide-in-from-top-2 duration-200',
-            )}
-          >
-            <ChapterMentionMenu
-              variant="drawer"
-              volumes={volumes}
-              chapters={chapters}
-              characters={characters}
-              worldbookEntries={worldbookEntries}
-              outlines={outlines}
-              query={mentionQuery}
-              activeIndex={mentionIndex}
-              onActiveIndexChange={setMentionIndex}
-              onSelect={insertMentionItem}
-            />
-          </div>
-        ) : null}
-
-        <div className="relative">
-          {showPlaceholder ? (
+  return (
+    <div className="flex flex-col -mx-3 -mt-3">
+      {mentionOpen
+        ? (
             <div
               className={cn(
-                'pointer-events-none absolute inset-x-0 top-0 z-0 px-3 text-pretty text-muted-foreground/80 leading-relaxed',
-                mentionOpen ? 'pt-2' : 'pt-3',
-                isCompact ? 'text-sm' : 'text-base font-serif',
+                'border-b border-border bg-muted/20',
+                'animate-in fade-in-0 slide-in-from-top-2 duration-200',
               )}
-              aria-hidden
             >
-              {placeholderText}
+              <ChapterMentionMenu
+                variant="drawer"
+                volumes={volumes}
+                chapters={chapters}
+                characters={characters}
+                worldbookEntries={worldbookEntries}
+                outlines={outlines}
+                books={books}
+                query={mentionQuery}
+                activeIndex={mentionIndex}
+                onActiveIndexChange={setMentionIndex}
+                onSelect={insertMentionItem}
+              />
             </div>
-          ) : null}
+          )
+        : null}
 
-          <div
-            ref={editorRef}
-            contentEditable={!disabled}
-            suppressContentEditableWarning
-            role="textbox"
-            aria-multiline="true"
-            aria-label={placeholderText}
-            onInput={handleInput}
-            onFocus={handleEditorActivate}
-            onClick={handleEditorActivate}
-            onBlur={() => {
-              const root = editorRef.current
-              if (!root) return
-              normalizeEmptyEditor(root)
-              syncFromEditor()
-            }}
-            onKeyDown={handleKeyDown}
-            onCompositionStart={() => {
-              isComposingRef.current = true
-              setShowPlaceholder(false)
-            }}
-            onCompositionUpdate={updatePlaceholderVisibility}
-            onCompositionEnd={() => {
-              isComposingRef.current = false
-              handleInput()
-            }}
-            onDragEnter={(e) => {
-              if (!hasChapterAttachmentDrag(e.dataTransfer)) return
-              e.preventDefault()
-              setIsDragOver(true)
-            }}
-            onDragOver={(e) => {
-              if (!hasChapterAttachmentDrag(e.dataTransfer)) return
-              e.preventDefault()
-              e.dataTransfer.dropEffect = 'copy'
-              setIsDragOver(true)
-            }}
-            onDragLeave={(e) => {
-              if (e.currentTarget.contains(e.relatedTarget as Node)) return
-              setIsDragOver(false)
-            }}
-            onDrop={handleDrop}
-            className={cn(
-              'input-area-scrollbar relative z-10 w-full bg-transparent outline-none',
-              'text-foreground leading-relaxed px-3',
-              mentionOpen ? 'pt-2' : 'pt-3',
-              isCompact ? 'min-h-[72px] text-sm' : 'min-h-[56px] text-base font-serif',
-              isDragOver && 'bg-accent/30 ring-1 ring-inset ring-ring/30 rounded-md',
-              disabled && 'cursor-not-allowed opacity-60',
-              className,
-            )}
-            style={{ maxHeight }}
-          />
-        </div>
+      <div className="relative">
+        {showPlaceholder
+          ? (
+              <div
+                className={cn(
+                  'pointer-events-none absolute inset-x-0 top-0 z-0 px-3 text-pretty text-muted-foreground/80 leading-relaxed',
+                  mentionOpen ? 'pt-2' : 'pt-3',
+                  isCompact ? 'text-sm' : 'text-base font-serif',
+                )}
+                aria-hidden
+              >
+                {placeholderText}
+              </div>
+            )
+          : null}
+
+        <div
+          ref={editorRef}
+          contentEditable={!disabled}
+          suppressContentEditableWarning
+          role="textbox"
+          aria-multiline="true"
+          aria-label={placeholderText}
+          onInput={handleInput}
+          onFocus={handleEditorActivate}
+          onClick={handleEditorActivate}
+          onBlur={() => {
+            const root = editorRef.current
+            if (!root) return
+            normalizeEmptyEditor(root)
+            syncFromEditor()
+          }}
+          onKeyDown={handleKeyDown}
+          onCompositionStart={() => {
+            isComposingRef.current = true
+            setShowPlaceholder(false)
+          }}
+          onCompositionUpdate={updatePlaceholderVisibility}
+          onCompositionEnd={() => {
+            isComposingRef.current = false
+            handleInput()
+          }}
+          onDragEnter={(e) => {
+            if (!hasChapterAttachmentDrag(e.dataTransfer)) return
+            e.preventDefault()
+            setIsDragOver(true)
+          }}
+          onDragOver={(e) => {
+            if (!hasChapterAttachmentDrag(e.dataTransfer)) return
+            e.preventDefault()
+            e.dataTransfer.dropEffect = 'copy'
+            setIsDragOver(true)
+          }}
+          onDragLeave={(e) => {
+            if (e.currentTarget.contains(e.relatedTarget as Node)) return
+            setIsDragOver(false)
+          }}
+          onDrop={handleDrop}
+          className={cn(
+            'input-area-scrollbar relative z-10 w-full bg-transparent outline-none',
+            'text-foreground leading-relaxed px-3',
+            mentionOpen ? 'pt-2' : 'pt-3',
+            isCompact ? 'min-h-[72px] text-sm' : 'min-h-[56px] text-base font-serif',
+            isDragOver && 'bg-accent/30 ring-1 ring-inset ring-ring/30 rounded-md',
+            disabled && 'cursor-not-allowed opacity-60',
+            className,
+          )}
+          style={{ maxHeight }}
+        />
       </div>
-    )
-  },
-)
+    </div>
+  )
+}

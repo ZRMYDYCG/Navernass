@@ -55,6 +55,19 @@ export interface Novel {
   created_at: string
   updated_at: string
   published_at?: string
+  /** 书本内的角色列表（JSONB 字段） */
+  characters?: NovelCharacterEntry[]
+}
+
+export interface NovelCharacterEntry {
+  id: string
+  name: string
+  role?: string
+  description?: string
+  traits?: string[]
+  keywords?: string[]
+  /** 角色头像 URL（可选） */
+  avatar?: string
 }
 
 export interface CreateNovelDto {
