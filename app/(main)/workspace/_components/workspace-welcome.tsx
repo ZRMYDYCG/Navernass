@@ -35,7 +35,7 @@ export function WorkspaceWelcome() {
           <p className="mt-2 max-w-xl text-sm text-pretty text-muted-foreground leading-relaxed">
             {t(`workspace.welcome.timeConfig.${slot}.message`)}
           </p>
-          <blockquote className="mt-4 border-l-2 border-border pl-3 text-sm italic text-muted-foreground/80">
+          <blockquote className="mt-4 text-sm italic text-muted-foreground/80">
             {t('workspace.page.quote')}
             <footer className="mt-1 text-xs not-italic text-muted-foreground/60">
               —
@@ -48,13 +48,13 @@ export function WorkspaceWelcome() {
 
       <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
         <LocaleContext />
-        <Button asChild size="sm" className="font-sans shadow-paper-sm">
+        <Button asChild size="sm" className="font-sans">
           <Link href="/novels?action=create">
             <Plus />
             {t('workspace.projectList.createNew')}
           </Link>
         </Button>
-        <Button asChild variant="outline" size="sm" className="font-sans">
+        <Button asChild variant="ghost" size="sm" className="font-sans">
           <Link href="/novels">
             <PenLine />
             {t('workspace.allNovels')}

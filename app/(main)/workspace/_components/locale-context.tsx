@@ -48,7 +48,7 @@ export function LocaleContext() {
 
   return (
     <div
-      className="flex items-center gap-2.5 rounded-lg border border-border/80 bg-card/80 px-3 py-2 shadow-paper-sm backdrop-blur-[2px]"
+      className="flex items-center gap-2.5 rounded-lg px-3 py-2"
       title={timeZone}
     >
       <MapPin className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />

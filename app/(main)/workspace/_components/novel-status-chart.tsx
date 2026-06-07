@@ -63,7 +63,7 @@ export function NovelStatusChart({ data, isLoading }: NovelStatusChartProps) {
                   <ChartLegend content={<ChartLegendContent nameKey="status" />} />
                 </PieChart>
               </ChartContainer>
-              <div className="mt-3 grid grid-cols-3 gap-2 border-t border-border/60 pt-3 text-center">
+              <div className="mt-3 grid grid-cols-3 gap-2 pt-1 text-center">
                 {data.map(item => (
                   <div key={item.status} className="flex flex-col">
                     <span className="text-lg font-serif tabular-nums text-foreground">{item.value}</span>

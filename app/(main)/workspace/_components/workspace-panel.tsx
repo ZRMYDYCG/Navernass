@@ -20,7 +20,7 @@ export function WorkspacePanel({
   headerExtra,
 }: WorkspacePanelProps) {
   return (
-    <PaperCard className={cn('bg-paper-texture', className)}>
+    <PaperCard flat className={cn('bg-paper-texture', className)}>
       <div className="p-5">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">

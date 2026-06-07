@@ -34,7 +34,7 @@ export function StatsCards({ data, isLoading }: StatsCardsProps) {
       {statDefs.map((stat) => {
         const Icon = statIcons[stat.key]
         return (
-          <PaperCard key={stat.key} className="bg-paper-texture">
+          <PaperCard flat className="bg-paper-texture">
             <div className="p-4">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-muted-foreground">{stat.title}</span>

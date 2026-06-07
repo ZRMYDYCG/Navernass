@@ -124,7 +124,7 @@ export function WritingCalendar({ data, isLoading }: WritingCalendarProps) {
                     key={di}
                     title={cell ? `${cell.date}: ${cell.count ? `${cell.count} ${t('workspace.dashboard.writingCalendar.updatesTip')}` : t('workspace.dashboard.writingCalendar.noActivity')}` : ''}
                     className={cn(
-                      'aspect-square w-full rounded-[2px] border border-transparent',
+                      'aspect-square w-full rounded-[2px]',
                       cell ? colorMap[countToLevel(cell.count)] : 'bg-transparent',
                     )}
                   />
@@ -138,7 +138,7 @@ export function WritingCalendar({ data, isLoading }: WritingCalendarProps) {
       <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-muted-foreground/60">
         <span>{t('workspace.contributionGraph.less')}</span>
         {colorMap.map((cls, i) => (
-          <div key={i} className={cn('size-3 rounded-[2px] border border-border/40', cls)} />
+          <div key={i} className={cn('size-3 rounded-[2px]', cls)} />
         ))}
         <span>{t('workspace.contributionGraph.more')}</span>
       </div>

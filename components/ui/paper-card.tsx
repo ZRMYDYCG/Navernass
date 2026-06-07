@@ -3,12 +3,14 @@ import { cn } from '@/lib/utils'
 
 interface PaperCardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'stack' | 'floating' | 'book'
+  /** 无阴影、无边框、无 hover 上浮，适合仪表盘等扁平布局 */
+  flat?: boolean
   isMenuActive?: boolean
   /** book 变体左侧色带颜色，默认使用 primary */
   accentColor?: string
 }
 
-function PaperCard({ ref, className, variant = 'default', isMenuActive, accentColor, ...props }: PaperCardProps & { ref?: React.RefObject<HTMLDivElement | null> }) {
+function PaperCard({ ref, className, variant = 'default', flat, isMenuActive, accentColor, ...props }: PaperCardProps & { ref?: React.RefObject<HTMLDivElement | null> }) {
   // book 变体：立体书脊效果
   if (variant === 'book') {
     return (
@@ -41,8 +43,9 @@ function PaperCard({ ref, className, variant = 'default', isMenuActive, accentCo
         {/* 主卡片体 */}
         <div
           className={cn(
-            'relative z-[2] bg-card rounded-lg border border-border overflow-hidden w-full h-full',
-            {
+            'relative z-[2] bg-card rounded-lg overflow-hidden w-full h-full',
+            !flat && 'border border-border',
+            !flat && {
               'shadow-paper-sm hover:shadow-paper-md': !isMenuActive,
               'shadow-paper-md': isMenuActive,
             },
@@ -65,16 +68,17 @@ function PaperCard({ ref, className, variant = 'default', isMenuActive, accentCo
     <div
       ref={ref}
       className={cn(
-        'relative bg-card rounded-lg border border-border',
-        'transition-all duration-300',
-        'overflow-hidden',
-        {
-          'hover:shadow-paper-md hover:-translate-y-0.5 shadow-paper-sm': variant === 'default' && !isMenuActive,
-          'shadow-paper-md -translate-y-0.5': variant === 'default' && isMenuActive,
-          'shadow-paper-md rotate-1 after:absolute after:inset-0 after:bg-card after:rounded-lg after:border after:border-border after:-z-10 after:-rotate-2 after:shadow-paper-sm': variant === 'stack',
-          'hover:shadow-paper-lg hover:-translate-y-0.5 shadow-paper-sm': variant === 'floating' && !isMenuActive,
-          'shadow-paper-lg -translate-y-0.5': variant === 'floating' && isMenuActive,
-        },
+        'relative bg-card rounded-lg overflow-hidden',
+        !flat && 'border border-border transition-all duration-300',
+        flat
+          ? undefined
+          : {
+              'hover:shadow-paper-md hover:-translate-y-0.5 shadow-paper-sm': variant === 'default' && !isMenuActive,
+              'shadow-paper-md -translate-y-0.5': variant === 'default' && isMenuActive,
+              'shadow-paper-md rotate-1 after:absolute after:inset-0 after:bg-card after:rounded-lg after:border after:border-border after:-z-10 after:-rotate-2 after:shadow-paper-sm': variant === 'stack',
+              'hover:shadow-paper-lg hover:-translate-y-0.5 shadow-paper-sm': variant === 'floating' && !isMenuActive,
+              'shadow-paper-lg -translate-y-0.5': variant === 'floating' && isMenuActive,
+            },
         className,
       )}
       {...props}
