@@ -6,6 +6,8 @@ import { DefaultChatTransport } from 'ai'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
+import type { ChatAiMode } from '@/lib/ai/agents'
+import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
 import { extractTextFromUIMessage, toUIMessages } from '@/lib/chat/chat-messages'
 import { chatApi, conversationsApi } from '@/lib/supabase/sdk'
 import { useAppStore } from '@/store'
@@ -18,6 +20,7 @@ import { copyTextToClipboard } from '@/lib/utils'
  *   - 单一 page、单 conversation key，不需要 draft/active 状态机
  *   - Chat 实例按 conversationId 持久化在 chatInstancesByKey Map 中，
  *     防止同一会话内 React 重渲染清空 messages
+ *   - mode / model 由 useChatAgent 透传写入 prepareSendMessagesRequest body
  *
  * 后端契约：POST /api/chat/stream 消费 AI SDK v6 UIMessageStreamResponse。
  * 入口对 conversationId 的合法性无要求——server 端 ensureConversation
@@ -28,6 +31,7 @@ import { copyTextToClipboard } from '@/lib/utils'
 const chatInstancesByKey = new Map<string, Chat<UIMessage>>()
 const streamControllersByKey = new Map<string, AbortController>()
 const conversationIdOverridesByKey = new Map<string, string>()
+const transportOptionsByKey = new Map<string, { mode: ChatAiMode, model: AiModel }>()
 
 function resolveConversationId(key: string): string | undefined {
   return conversationIdOverridesByKey.get(key)
@@ -50,13 +54,18 @@ function createChatInstance(key: string): Chat<UIMessage> {
       if (serverId) conversationIdOverridesByKey.set(key, serverId)
       return res
     },
-    prepareSendMessagesRequest: ({ messages, body }) => ({
-      body: {
-        ...body,
-        messages,
-        conversationId: resolveConversationId(key),
-      },
-    }),
+    prepareSendMessagesRequest: ({ messages, body }) => {
+      const opts = transportOptionsByKey.get(key) || { mode: 'ask' as ChatAiMode, model: 'MiniMax-M3' as AiModel }
+      return {
+        body: {
+          ...body,
+          messages,
+          conversationId: resolveConversationId(key),
+          mode: opts.mode,
+          model: opts.model,
+        },
+      }
+    },
   })
 
   return new Chat<UIMessage>({
@@ -82,11 +91,20 @@ function getOrCreateChatInstance(key: string): Chat<UIMessage> {
 
 interface UseChatConversationProps {
   conversationId: string
+  /** 当前 mode（由 useChatAgent 提供） */
+  mode: ChatAiMode
+  /** 当前 model id（由 useChatAgent 提供） */
+  model: AiModel
 }
 
-export function useChatConversation({ conversationId }: UseChatConversationProps) {
+export function useChatConversation({ conversationId, mode, model }: UseChatConversationProps) {
   const { t } = useI18n()
   const chat = useMemo(() => getOrCreateChatInstance(conversationId), [conversationId])
+
+  // 把 mode/model 写入 transport 的 body（最新值在 sendMessage 时取）
+  useEffect(() => {
+    transportOptionsByKey.set(conversationId, { mode, model })
+  }, [conversationId, mode, model])
 
   const { messages, sendMessage, setMessages, status, stop, error } = useChat({
     chat,
@@ -162,8 +180,9 @@ export function useChatConversation({ conversationId }: UseChatConversationProps
         const conversation = await conversationsApi.getById(conversationId)
         if (!cancelled && conversation?.title) setConversationTitle(conversation.title)
       } catch (err) {
-        if (cancelled) return
-        console.error('Failed to load conversation title:', err)
+        if (!cancelled) {
+          console.error('Failed to load conversation title:', err)
+        }
       }
     }
     void fetchTitle()

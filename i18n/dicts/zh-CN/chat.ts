@@ -199,6 +199,126 @@ const chat = {
       },
     ],
   },
+  agent: {
+    modes: {
+      ask: {
+        label: '通用问答',
+        description: '写作技法、结构分析、灵感讨论等通用问题',
+        placeholder: '想问点什么呢？比如「如何构造反派人物？」',
+      },
+      brainstorm: {
+        label: '创意脑暴',
+        description: '批量生成情节点子、人物设定、世界观钩子',
+        placeholder: '想围绕什么主题脑暴？',
+      },
+      craft: {
+        label: '写作技法',
+        description: 'POV、节奏、对话、人物弧光等深度讨论',
+        placeholder: '聊聊你正在打磨的技法问题…',
+      },
+      polish: {
+        label: '润色改写',
+        description: '润色、翻译、改写粘贴的文本片段',
+        placeholder: '把要润色/翻译/改写的文字粘贴在这里…',
+      },
+      agent: {
+        label: '全量 Agent',
+        description: '可创建小说、人物、大纲，把对话长成作品',
+        placeholder: '告诉 AI 你想做什么，比如「帮我创建一本悬疑小说」',
+      },
+    },
+    welcome: {
+      ask: {
+        heading: '想写点什么？',
+        subtitle: '和 AI 一起开始一次新的对话',
+        suggestions: [
+          '如何构造一个让人印象深刻的反派？',
+          '写第一人称还是第三人称更好？',
+          '如何设计有效的伏笔？',
+        ],
+      },
+      brainstorm: {
+        heading: '一起开脑洞',
+        subtitle: '让 AI 帮你铺开情节点子，再挑一个深挖',
+        suggestions: [
+          '帮我想 5 个校园悬疑的钩子',
+          '科幻小说的"非典型"世界观设定',
+          '情感线的转折点子',
+        ],
+      },
+      craft: {
+        heading: '聊聊写作技法',
+        subtitle: 'POV、节奏、对话、人物弧光等深度讨论',
+        suggestions: [
+          'POV 选第一人称和第三人称的区别',
+          '怎样写出可信的内心独白',
+          '如何把对话写得自然又有张力',
+        ],
+      },
+      polish: {
+        heading: '润色、翻译、改写',
+        subtitle: '把粘贴的文本交给 AI 优化',
+        suggestions: [
+          '把这段润色得更简洁',
+          '翻译成英文并保留术语一致',
+          '改写得更口语化',
+        ],
+      },
+      agent: {
+        heading: '把想法长成作品',
+        subtitle: '告诉 AI 你想做什么，确认后即可创建小说、人物、大纲',
+        suggestions: [
+          '帮我创建一本校园悬疑小说',
+          '给《星潮》写一个核心反派',
+          '列一份三幕结构的大纲',
+        ],
+      },
+    },
+    tools: {
+      state: {
+        running: '执行中…',
+        done: '完成',
+        error: '执行出错',
+        thinking: '思考中…',
+      },
+      common: {
+        accept: '接受',
+        reject: '拒绝',
+        acceptFailed: '操作失败，请稍后再试',
+        accepted: '已接受',
+        rejected: '已拒绝',
+        open: '打开《{{title}}》',
+      },
+      proposeNovel: {
+        title: '提议创建小说',
+        category: '类型',
+        summary: '简介',
+        acceptedHint: '已创建小说',
+      },
+      proposeCharacter: {
+        title: '提议创建人物',
+        acceptedHint: '已创建人物',
+      },
+      proposeOutline: {
+        title: '提议创建大纲',
+        acceptedHint: '已创建大纲',
+      },
+      proposeSummary: {
+        title: '摘要草稿',
+        copy: '复制',
+        copied: '已复制到剪贴板',
+        copyFailed: '复制失败，请重试',
+      },
+      askUser: {
+        replyHeader: '我的回复',
+      },
+    },
+    errors: {
+      loadModeFailed: '加载对话模式失败',
+      persistModeFailed: '保存模式失败',
+      persistModelFailed: '保存模型失败',
+    },
+  },
 } as const
 
 export default chat

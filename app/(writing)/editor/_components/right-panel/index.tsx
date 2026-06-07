@@ -41,6 +41,7 @@ export default function RightPanel() {
     setSelectedChapters,
     addSubmittedFormKey,
     removeSubmittedFormKey,
+    markFormSubmitted,
     handleSend,
     handleNewChat,
     handleSelectConversation,
@@ -70,19 +71,56 @@ export default function RightPanel() {
       .join('\n')
     if (!lines) return
     addSubmittedFormKey(payload.formKey)
+    // 反查 formKey → toolCallId，把 submitted 状态落库
+    // formKey = `${messageId}:${partIndex}`，这里只解析 part 部分；
+    // toolCallId 来自 part 本身
+    const sepIdx = payload.formKey.lastIndexOf('-')
+    if (sepIdx > 0) {
+      const messageId = payload.formKey.slice(0, sepIdx)
+      const partIndexStr = payload.formKey.slice(sepIdx + 1)
+      const partIndex = Number.parseInt(partIndexStr, 10)
+      if (Number.isFinite(partIndex)) {
+        const target = messages.find(m => m.id === messageId)
+        const part = (target?.parts || [])[partIndex] as
+          | { type?: string, toolCallId?: string }
+          | undefined
+        if (part?.type?.startsWith('tool-') && part.toolCallId) {
+          markFormSubmitted(part.toolCallId, payload.values)
+        }
+      }
+    }
     try {
       await sendMessage({ text: `[${header}]\n${lines}` })
     } catch (e) {
       removeSubmittedFormKey(payload.formKey)
       console.error('Failed to submit form:', e)
     }
-  }, [isLoading, submittedFormKeys, sendMessage, addSubmittedFormKey, removeSubmittedFormKey, t])
+  }, [isLoading, submittedFormKeys, sendMessage, addSubmittedFormKey, removeSubmittedFormKey, markFormSubmitted, messages, t])
+
+  /**
+   * 表单是否已提交：权威是 part.output.submitted（刷新后从 messages 派生），
+   * 辅助是 zustand 内的 submittedFormKeys（同一会话内快速反馈）。
+   */
+  const isFormSubmitted = useCallback((formKey: string) => {
+    if (submittedFormKeys.has(formKey)) return true
+    const sepIdx = formKey.lastIndexOf('-')
+    if (sepIdx <= 0) return false
+    const messageId = formKey.slice(0, sepIdx)
+    const partIndexStr = formKey.slice(sepIdx + 1)
+    const partIndex = Number.parseInt(partIndexStr, 10)
+    if (!Number.isFinite(partIndex)) return false
+    const target = messages.find(m => m.id === messageId)
+    const part = (target?.parts || [])[partIndex] as
+      | { type?: string, output?: { submitted?: boolean } }
+      | undefined
+    return Boolean(part?.output?.submitted)
+  }, [submittedFormKeys, messages])
 
   const chatActions = useMemo(() => ({
     submitFormResponse,
-    isFormSubmitted: (formKey: string) => submittedFormKeys.has(formKey),
+    isFormSubmitted,
     isChatLoading: isLoading,
-  }), [submitFormResponse, submittedFormKeys, isLoading])
+  }), [submitFormResponse, isFormSubmitted, isLoading])
 
   return (
     <div className="h-full w-full bg-transparent relative">

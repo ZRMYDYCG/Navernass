@@ -48,6 +48,7 @@ export function useNovelChat() {
   const stop = runtime?.stop
   const loadMessages = runtime?.loadMessages
   const loadConversations = runtime?.loadConversations
+  const setMessages = runtime?.setMessages
 
   const isLoading = status === 'submitted' || status === 'streaming'
   const hasMessages = messages.length > 0
@@ -136,6 +137,59 @@ export function useNovelChat() {
       submittedFormKeys: (uiSession?.submittedFormKeys ?? []).filter(k => k !== formKey),
     })
   }, [novelId, patchUiSession, uiSession?.submittedFormKeys])
+
+  /**
+   * 把 part.output 同步落库到 novel_messages.parts（按 toolCallId 定位）。
+   *
+   * 静默失败即可——本地状态已经更新，DB 落库是 best-effort。
+   * 与 chat 侧 useChatAgent.persistPartOutput 行为一致。
+   */
+  const persistPartOutput = useCallback(async (
+    conversationId: string,
+    toolCallId: string,
+    nextOutput: Record<string, unknown>,
+  ) => {
+    try {
+      await novelConversationsApi.updatePartOutput({
+        conversationId,
+        toolCallId,
+        output: nextOutput,
+      })
+    } catch (err) {
+      console.warn('[useNovelChat] failed to persist part output:', err)
+    }
+  }, [])
+
+  /**
+   * ask_user 表单提交后：把 part.output 标记为 submitted=true 并落库。
+   * 仍然保留本地 zustand 标记（快速 UI 反馈），但**权威**是 part.output.submitted
+   * ——刷新后从 messages 派生状态，submittedFormKeys 视为辅助。
+   */
+  const markFormSubmitted = useCallback((
+    toolCallId: string,
+    submittedValues: Record<string, string>,
+  ) => {
+    if (!setMessages) return
+    let nextOutput: Record<string, unknown> | null = null
+    setMessages((prev: UIMessage[]) => prev.map((m) => {
+      if (m.role !== 'assistant') return m
+      const parts = (m.parts || []) as any[]
+      const idx = parts.findIndex(p => p?.type?.startsWith('tool-') && p?.toolCallId === toolCallId)
+      if (idx < 0) return m
+      nextOutput = {
+        ...(parts[idx].output || {}),
+        submitted: true,
+        submittedAt: new Date().toISOString(),
+        submittedValues,
+      }
+      const newParts = [...parts]
+      newParts[idx] = { ...parts[idx], output: nextOutput }
+      return { ...m, parts: newParts }
+    }))
+    if (nextOutput && currentConversationId) {
+      void persistPartOutput(currentConversationId, toolCallId, nextOutput)
+    }
+  }, [setMessages, persistPartOutput, currentConversationId])
 
   const handleSend = useCallback(async () => {
     const raw = input
@@ -246,6 +300,7 @@ export function useNovelChat() {
     setSelectedChapters,
     addSubmittedFormKey,
     removeSubmittedFormKey,
+    markFormSubmitted,
     handleSend,
     handleNewChat,
     handleSelectConversation,

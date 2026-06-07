@@ -199,6 +199,126 @@ const chat = {
       },
     ],
   },
+  agent: {
+    modes: {
+      ask: {
+        label: 'Question',
+        description: 'Questions générales sur la technique, la structure, l\'inspiration',
+        placeholder: 'Posez n\'importe quelle question d\'écriture, p. ex. « Comment créer un méchant mémorable ? »',
+      },
+      brainstorm: {
+        label: 'Brainstorm',
+        description: 'Génère en masse des accroches, personnages, worldbuilding',
+        placeholder: 'Sur quel sujet voulez-vous brainstormer ?',
+      },
+      craft: {
+        label: 'Technique',
+        description: 'Discussions approfondies sur POV, rythme, dialogues, arcs',
+        placeholder: 'Parlez-moi d\'un problème de technique sur lequel vous travaillez…',
+      },
+      polish: {
+        label: 'Réécriture',
+        description: 'Peaufiner, traduire ou réécrire un texte collé',
+        placeholder: 'Collez ici le texte à peaufiner / traduire / réécrire…',
+      },
+      agent: {
+        label: 'Agent',
+        description: 'Peut créer des romans, personnages, plans, résumés',
+        placeholder: 'Dites à l\'IA quoi faire, p. ex. « Aide-moi à créer un roman policier »',
+      },
+    },
+    welcome: {
+      ask: {
+        heading: 'Qu\'allez-vous écrire aujourd\'hui ?',
+        subtitle: 'Commencez une nouvelle conversation avec l\'IA',
+        suggestions: [
+          'Comment créer un méchant mémorable ?',
+          'Écrire à la première ou troisième personne ?',
+          'Comment planter une bonne intrigue ?',
+        ],
+      },
+      brainstorm: {
+        heading: 'Brainstormons ensemble',
+        subtitle: 'Laissez l\'IA déployer des idées, puis creusez-en une',
+        suggestions: [
+          '5 accroches pour un mystère de campus',
+          'Worldbuilding non-typique pour la SF',
+          'Tournants pour une sous-intrigue romantique',
+        ],
+      },
+      craft: {
+        heading: 'Parlons technique',
+        subtitle: 'Discussions approfondies sur POV, rythme, dialogues, arcs',
+        suggestions: [
+          'POV à la 1re personne vs 3e personne',
+          'Écrire un monologue intérieur crédible',
+          'Dialogues naturels et tendus',
+        ],
+      },
+      polish: {
+        heading: 'Peaufiner, traduire, réécrire',
+        subtitle: 'Confiez votre texte collé à l\'IA pour le raffiner',
+        suggestions: [
+          'Rendre ce passage plus concis',
+          'Traduire en anglais en gardant les termes cohérents',
+          'Réécrire de façon plus conversationnelle',
+        ],
+      },
+      agent: {
+        heading: 'Faire grandir les idées',
+        subtitle: 'Indiquez à l\'IA quoi faire et créez sur confirmation',
+        suggestions: [
+          'Aide-moi à créer un roman de campus',
+          'Écris l\'antagoniste principal pour "Marée d\'étoiles"',
+          'Plan en trois actes',
+        ],
+      },
+    },
+    tools: {
+      state: {
+        running: 'En cours…',
+        done: 'Terminé',
+        error: 'Erreur',
+        thinking: 'Réflexion…',
+      },
+      common: {
+        accept: 'Accepter',
+        reject: 'Refuser',
+        acceptFailed: 'Échec de l\'action',
+        accepted: 'Accepté',
+        rejected: 'Refusé',
+        open: 'Ouvrir « {{title}} »',
+      },
+      proposeNovel: {
+        title: 'Proposer un nouveau roman',
+        category: 'Catégorie',
+        summary: 'Résumé',
+        acceptedHint: 'Roman créé',
+      },
+      proposeCharacter: {
+        title: 'Proposer un nouveau personnage',
+        acceptedHint: 'Personnage créé',
+      },
+      proposeOutline: {
+        title: 'Proposer un nouveau plan',
+        acceptedHint: 'Plan créé',
+      },
+      proposeSummary: {
+        title: 'Brouillon de résumé',
+        copy: 'Copier',
+        copied: 'Copié dans le presse-papier',
+        copyFailed: 'Échec de la copie',
+      },
+      askUser: {
+        replyHeader: 'Ma réponse',
+      },
+    },
+    errors: {
+      loadModeFailed: 'Échec du chargement du mode',
+      persistModeFailed: 'Échec de la sauvegarde du mode',
+      persistModelFailed: 'Échec de la sauvegarde du modèle',
+    },
+  },
 } as const
 
 export default chat

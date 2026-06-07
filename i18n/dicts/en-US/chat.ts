@@ -199,6 +199,126 @@ const chat = {
       },
     ],
   },
+  agent: {
+    modes: {
+      ask: {
+        label: 'Ask',
+        description: 'General Q&A on craft, structure, and inspiration',
+        placeholder: 'Ask anything about writing, e.g. "How to craft a memorable villain?"',
+      },
+      brainstorm: {
+        label: 'Brainstorm',
+        description: 'Generate plot hooks, characters, worldbuilding ideas in bulk',
+        placeholder: 'What topic should we brainstorm?',
+      },
+      craft: {
+        label: 'Craft',
+        description: 'Deep dives on POV, pacing, dialogue, character arcs',
+        placeholder: 'Tell me what craft issue you are working on…',
+      },
+      polish: {
+        label: 'Polish',
+        description: 'Polish, translate, or rewrite pasted text snippets',
+        placeholder: 'Paste the text you want to polish / translate / rewrite…',
+      },
+      agent: {
+        label: 'Agent',
+        description: 'Can create novels, characters, outlines, summaries',
+        placeholder: 'Tell the AI what to do, e.g. "Help me create a mystery novel"',
+      },
+    },
+    welcome: {
+      ask: {
+        heading: 'What are you writing today?',
+        subtitle: 'Start a new conversation with AI',
+        suggestions: [
+          'How do I craft a memorable villain?',
+          'Should I write in first or third person?',
+          'How do I plant a satisfying foreshadow?',
+        ],
+      },
+      brainstorm: {
+        heading: 'Let us brainstorm',
+        subtitle: 'Let AI lay out plot hooks, then pick one to dig into',
+        suggestions: [
+          'Give me 5 campus-mystery hooks',
+          'Non-typical worldbuilding for sci-fi',
+          'Turning points for a romance subplot',
+        ],
+      },
+      craft: {
+        heading: 'Talk craft',
+        subtitle: 'Deep dives on POV, pacing, dialogue, character arcs',
+        suggestions: [
+          'First-person vs. third-person POV',
+          'How to write believable inner monologue',
+          'Making dialogue feel natural and tense',
+        ],
+      },
+      polish: {
+        heading: 'Polish, translate, rewrite',
+        subtitle: 'Hand your pasted text to the AI to refine',
+        suggestions: [
+          'Make this passage more concise',
+          'Translate to English and keep terms consistent',
+          'Rewrite in a more conversational tone',
+        ],
+      },
+      agent: {
+        heading: 'Grow ideas into works',
+        subtitle: 'Tell the AI what to do, and create novels / characters / outlines on confirm',
+        suggestions: [
+          'Help me create a campus mystery novel',
+          'Write a core antagonist for "Star Tide"',
+          'Outline a three-act structure',
+        ],
+      },
+    },
+    tools: {
+      state: {
+        running: 'Running…',
+        done: 'Done',
+        error: 'Error',
+        thinking: 'Thinking…',
+      },
+      common: {
+        accept: 'Accept',
+        reject: 'Reject',
+        acceptFailed: 'Action failed. Please try again.',
+        accepted: 'Accepted',
+        rejected: 'Rejected',
+        open: 'Open "{{title}}"',
+      },
+      proposeNovel: {
+        title: 'Propose a new novel',
+        category: 'Category',
+        summary: 'Summary',
+        acceptedHint: 'Novel created',
+      },
+      proposeCharacter: {
+        title: 'Propose a new character',
+        acceptedHint: 'Character created',
+      },
+      proposeOutline: {
+        title: 'Propose a new outline',
+        acceptedHint: 'Outline created',
+      },
+      proposeSummary: {
+        title: 'Summary draft',
+        copy: 'Copy',
+        copied: 'Copied to clipboard',
+        copyFailed: 'Copy failed. Please try again.',
+      },
+      askUser: {
+        replyHeader: 'My reply',
+      },
+    },
+    errors: {
+      loadModeFailed: 'Failed to load conversation mode',
+      persistModeFailed: 'Failed to save mode',
+      persistModelFailed: 'Failed to save model',
+    },
+  },
 } as const
 
 export default chat

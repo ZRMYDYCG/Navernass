@@ -199,6 +199,126 @@ const chat = {
       },
     ],
   },
+  agent: {
+    modes: {
+      ask: {
+        label: '질문',
+        description: '기법·구조·영감에 대한 일반적인 대화',
+        placeholder: '글쓰기에 대해 무엇이든 물어보세요(예: "강렬한 악당은 어떻게 쓰나요?")',
+      },
+      brainstorm: {
+        label: '브레인스토밍',
+        description: '플롯 훅·캐릭터·세계관을 대량 생성',
+        placeholder: '어떤 주제로 브레인스토밍할까요?',
+      },
+      craft: {
+        label: '기법',
+        description: 'POV·페이싱·대사·캐릭터 아크 깊이 논의',
+        placeholder: '갖고 있는 기법 고민을 알려주세요…',
+      },
+      polish: {
+        label: '윤문',
+        description: '붙여넣은 텍스트를 윤문·번역·재작성',
+        placeholder: '윤문/번역/재작성할 텍스트를 여기에 붙여넣기…',
+      },
+      agent: {
+        label: 'Agent',
+        description: '소설·캐릭터·아웃라인을 생성할 수 있음',
+        placeholder: 'AI에게 무엇을 할지 알려주세요(예: "미스터리 소설을 만들어줘")',
+      },
+    },
+    welcome: {
+      ask: {
+        heading: '오늘은 무엇을 쓰실 건가요?',
+        subtitle: 'AI와 함께 새로운 대화를 시작하세요',
+        suggestions: [
+          '강렬한 악당은 어떻게 만드나요?',
+          '1인칭과 3인칭 중 어느 쪽이 좋을까요?',
+          '효과적인 복선은 어떻게 깔까요?',
+        ],
+      },
+      brainstorm: {
+        heading: '함께 브레인스토밍',
+        subtitle: 'AI가 플롯을 펼치게 한 뒤 하나를 골라 파고들기',
+        suggestions: [
+          '캠퍼스 미스터리 훅 5개',
+          'SF를 위한 비전형 세계관',
+          '로맨스 서브플롯의 전환점',
+        ],
+      },
+      craft: {
+        heading: '기법을 이야기하자',
+        subtitle: 'POV·페이싱·대사·캐릭터 아크 깊이 논의',
+        suggestions: [
+          '1인칭 POV vs 3인칭 POV',
+          '믿을 수 있는 내면 독백 쓰는 법',
+          '자연스럽고 긴장감 있는 대사',
+        ],
+      },
+      polish: {
+        heading: '윤문·번역·재작성',
+        subtitle: '붙여넣은 텍스트를 AI에게 다듬기 맡기세요',
+        suggestions: [
+          '이 문장을 더 간결하게',
+          '영어로 번역하되 용어를 통일',
+          '구어체로 다시 쓰기',
+        ],
+      },
+      agent: {
+        heading: '아이디어를 작품으로',
+        subtitle: 'AI에게 시키고, 확인 후 소설·캐릭터·아웃라인 생성',
+        suggestions: [
+          '캠퍼스 미스터리 소설을 만들어줘',
+          '"성조"의 핵심 악역을 써줘',
+          '3막 구성의 아웃라인',
+        ],
+      },
+    },
+    tools: {
+      state: {
+        running: '실행 중…',
+        done: '완료',
+        error: '오류',
+        thinking: '생각 중…',
+      },
+      common: {
+        accept: '수락',
+        reject: '거절',
+        acceptFailed: '작업에 실패했습니다',
+        accepted: '수락됨',
+        rejected: '거절됨',
+        open: '"{{title}}"(으)로 열기',
+      },
+      proposeNovel: {
+        title: '새 소설 제안',
+        category: '장르',
+        summary: '줄거리',
+        acceptedHint: '소설이 생성됨',
+      },
+      proposeCharacter: {
+        title: '새 캐릭터 제안',
+        acceptedHint: '캐릭터가 생성됨',
+      },
+      proposeOutline: {
+        title: '새 아웃라인 제안',
+        acceptedHint: '아웃라인이 생성됨',
+      },
+      proposeSummary: {
+        title: '요약 초안',
+        copy: '복사',
+        copied: '클립보드에 복사됨',
+        copyFailed: '복사 실패',
+      },
+      askUser: {
+        replyHeader: '내 회신',
+      },
+    },
+    errors: {
+      loadModeFailed: '대화 모드를 불러오지 못했습니다',
+      persistModeFailed: '모드 저장 실패',
+      persistModelFailed: '모델 저장 실패',
+    },
+  },
 } as const
 
 export default chat

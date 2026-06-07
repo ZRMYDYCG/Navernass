@@ -199,6 +199,126 @@ const chat = {
       },
     ],
   },
+  agent: {
+    modes: {
+      ask: {
+        label: '通用問答',
+        description: '寫作技法、結構分析、靈感討論等通用問題',
+        placeholder: '想問點什麼呢？比如「如何構造反派人物？」',
+      },
+      brainstorm: {
+        label: '創意腦暴',
+        description: '批次生成情節點子、人物設定、世界觀鉤子',
+        placeholder: '想圍繞什麼主題腦暴？',
+      },
+      craft: {
+        label: '寫作技法',
+        description: 'POV、節奏、對話、人物弧光等深度討論',
+        placeholder: '聊聊你正在打磨的技法問題…',
+      },
+      polish: {
+        label: '潤飾改寫',
+        description: '潤飾、翻譯、改寫貼上的文字片段',
+        placeholder: '把要潤飾/翻譯/改寫的文字貼在這裡…',
+      },
+      agent: {
+        label: '全量 Agent',
+        description: '可建立小說、人物、大綱，把對話長成作品',
+        placeholder: '告訴 AI 你想做什麼，比如「幫我建立一本懸疑小說」',
+      },
+    },
+    welcome: {
+      ask: {
+        heading: '想寫點什麼？',
+        subtitle: '和 AI 一起開始一次新的對話',
+        suggestions: [
+          '如何構造一個讓人印象深刻的反派？',
+          '寫第一人稱還是第三人稱更好？',
+          '如何設計有效的伏筆？',
+        ],
+      },
+      brainstorm: {
+        heading: '一起開腦洞',
+        subtitle: '讓 AI 幫你鋪開情節點子，再挑一個深挖',
+        suggestions: [
+          '幫我想 5 個校園懸疑的鉤子',
+          '科幻小說的「非典型」世界觀設定',
+          '感情線的轉折點子',
+        ],
+      },
+      craft: {
+        heading: '聊聊寫作技法',
+        subtitle: 'POV、節奏、對話、人物弧光等深度討論',
+        suggestions: [
+          'POV 選第一人稱和第三人稱的區別',
+          '怎樣寫出可信的內心獨白',
+          '如何把對話寫得自然又有張力',
+        ],
+      },
+      polish: {
+        heading: '潤飾、翻譯、改寫',
+        subtitle: '把貼上的文字交給 AI 優化',
+        suggestions: [
+          '把這段潤飾得更簡潔',
+          '翻譯成英文並保留術語一致',
+          '改寫得更口語化',
+        ],
+      },
+      agent: {
+        heading: '把想法長成作品',
+        subtitle: '告訴 AI 你想做什麼，確認後即可建立小說、人物、大綱',
+        suggestions: [
+          '幫我建立一本校園懸疑小說',
+          '給《星潮》寫一個核心反派',
+          '列一份三幕結構的大綱',
+        ],
+      },
+    },
+    tools: {
+      state: {
+        running: '執行中…',
+        done: '完成',
+        error: '執行出錯',
+        thinking: '思考中…',
+      },
+      common: {
+        accept: '接受',
+        reject: '拒絕',
+        acceptFailed: '操作失敗，請稍後再試',
+        accepted: '已接受',
+        rejected: '已拒絕',
+        open: '開啟《{{title}}》',
+      },
+      proposeNovel: {
+        title: '提議建立小說',
+        category: '類型',
+        summary: '簡介',
+        acceptedHint: '已建立小說',
+      },
+      proposeCharacter: {
+        title: '提議建立人物',
+        acceptedHint: '已建立人物',
+      },
+      proposeOutline: {
+        title: '提議建立大綱',
+        acceptedHint: '已建立大綱',
+      },
+      proposeSummary: {
+        title: '摘要草稿',
+        copy: '複製',
+        copied: '已複製到剪貼簿',
+        copyFailed: '複製失敗，請重試',
+      },
+      askUser: {
+        replyHeader: '我的回覆',
+      },
+    },
+    errors: {
+      loadModeFailed: '載入對話模式失敗',
+      persistModeFailed: '儲存模式失敗',
+      persistModelFailed: '儲存模型失敗',
+    },
+  },
 } as const
 
 export default chat

@@ -158,7 +158,7 @@ export function AskUserPart({ formKey, state, input, output, errorText }: AskUse
 
         {isSubmitted
           ? (
-              <SubmittedSummary fields={fields} values={values} />
+              <SubmittedSummary fields={fields} values={values} submittedValues={output?.submittedValues} />
             )
           : isReady && !hasError && fields.length > 0 && (
             <div className="flex justify-end pt-0.5">
@@ -346,11 +346,15 @@ function FormField({
 function SubmittedSummary({
   fields,
   values,
+  submittedValues,
 }: {
   fields: AskUserField[]
   values: Record<string, string>
+  submittedValues?: Record<string, string>
 }) {
   const { t } = useI18n()
+  // 优先用本地 values（正在编辑/刚提交），本地为空时回退到持久化的 submittedValues
+  const display = (id: string) => values[id] || submittedValues?.[id] || '—'
   return (
     <div className="rounded-md bg-muted/50 border border-border px-2 py-1.5 space-y-1">
       <div className="text-[10px] text-emerald-600 flex items-center gap-1">
@@ -360,7 +364,7 @@ function SubmittedSummary({
       {fields.map(f => (
         <div key={f.id} className="min-w-0 text-[10.5px]">
           <span className="text-muted-foreground">{f.label}: </span>
-          <span className="break-words text-foreground">{values[f.id] || '—'}</span>
+          <span className="break-words text-foreground">{display(f.id)}</span>
         </div>
       ))}
     </div>

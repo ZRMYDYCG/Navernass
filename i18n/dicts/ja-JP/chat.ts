@@ -199,6 +199,126 @@ const chat = {
       },
     ],
   },
+  agent: {
+    modes: {
+      ask: {
+        label: '質問',
+        description: '技法・構造・ひらめきなどの一般的な相談',
+        placeholder: '執筆について何でも聞いてください(例:「印象に残る悪役の書き方」)',
+      },
+      brainstorm: {
+        label: 'ブレスト',
+        description: 'プロットフック・キャラクター設定・世界観をまとめて生成',
+        placeholder: 'どんなテーマでブレストしますか?',
+      },
+      craft: {
+        label: '技法',
+        description: 'POV・テンポ・会話・キャラクターアークを深く議論',
+        placeholder: '磨いている技法の悩みを教えてください…',
+      },
+      polish: {
+        label: '推敲',
+        description: '貼り付けたテキストを推敲・翻訳・書き換え',
+        placeholder: '推敲・翻訳・書き換えしたいテキストをここに貼り付け…',
+      },
+      agent: {
+        label: 'Agent',
+        description: '小説・キャラクター・アウトラインの作成が可能',
+        placeholder: 'AI にやってほしいことを伝えてください(例:「ミステリー小説を作って」)',
+      },
+    },
+    welcome: {
+      ask: {
+        heading: '今日は何を書きますか?',
+        subtitle: 'AI との新しい対話を始めましょう',
+        suggestions: [
+          '印象に残る悪役をどう作るか?',
+          '一人称と三人称どちらで書くべき?',
+          '効果的な伏線の張り方は?',
+        ],
+      },
+      brainstorm: {
+        heading: '一緒にブレスト',
+        subtitle: 'AI にプロットを広げさせてから 1 つを掘り下げよう',
+        suggestions: [
+          '学園ミステリーのフックを 5 つ',
+          'SF 向けの変わり種世界観',
+          '恋愛サブプロットの転機',
+        ],
+      },
+      craft: {
+        heading: '技法を語ろう',
+        subtitle: 'POV・テンポ・会話・キャラクターアークを深く議論',
+        suggestions: [
+          '一人称 POV vs. 三人称 POV',
+          '信じられる内的モノローグの書き方',
+          '自然で張りのある会話の書き方',
+        ],
+      },
+      polish: {
+        heading: '推敲・翻訳・書き換え',
+        subtitle: '貼り付けたテキストを AI に磨いてもらおう',
+        suggestions: [
+          'この文章をもっと簡潔に',
+          '英語に訳し、用語を統一',
+          'より会話的に書き換え',
+        ],
+      },
+      agent: {
+        heading: 'アイデアを作品に',
+        subtitle: 'AI に指示を出し、確認後に小説・キャラクター・アウトラインを作成',
+        suggestions: [
+          '学園ミステリー小説を作成',
+          '「星潮」の核心的アンチヒーローを書いて',
+          '三幕構成のアウトライン',
+        ],
+      },
+    },
+    tools: {
+      state: {
+        running: '実行中…',
+        done: '完了',
+        error: 'エラー',
+        thinking: '考え中…',
+      },
+      common: {
+        accept: '承認',
+        reject: '却下',
+        acceptFailed: '操作に失敗しました',
+        accepted: '承認済み',
+        rejected: '却下済み',
+        open: '「{{title}}」を開く',
+      },
+      proposeNovel: {
+        title: '新しい小説を提案',
+        category: 'ジャンル',
+        summary: 'あらすじ',
+        acceptedHint: '小説を作成しました',
+      },
+      proposeCharacter: {
+        title: '新しいキャラクターを提案',
+        acceptedHint: 'キャラクターを作成しました',
+      },
+      proposeOutline: {
+        title: '新しいアウトラインを提案',
+        acceptedHint: 'アウトラインを作成しました',
+      },
+      proposeSummary: {
+        title: 'あらすじの下書き',
+        copy: 'コピー',
+        copied: 'クリップボードにコピーしました',
+        copyFailed: 'コピーに失敗しました',
+      },
+      askUser: {
+        replyHeader: '私の返信',
+      },
+    },
+    errors: {
+      loadModeFailed: '会話モードの読み込みに失敗しました',
+      persistModeFailed: 'モードの保存に失敗しました',
+      persistModelFailed: 'モデルの保存に失敗しました',
+    },
+  },
 } as const
 
 export default chat

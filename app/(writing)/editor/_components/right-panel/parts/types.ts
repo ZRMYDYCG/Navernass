@@ -31,6 +31,10 @@ export interface AskUserOutput {
   description?: string
   fields?: AskUserField[]
   error?: string
+  /** 该表单是否已由用户提交过（持久化标记） */
+  submitted?: boolean
+  /** 用户在表单里填写的最终值（持久化，刷新后可恢复显示） */
+  submittedValues?: Record<string, string>
 }
 
 /** 编辑器联动事件：从 right-panel 触发，由 editor-content 监听 */

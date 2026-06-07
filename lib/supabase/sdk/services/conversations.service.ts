@@ -49,6 +49,9 @@ export class ConversationsService {
   /**
    * 创建对话。title 留空时使用 '新对话' 占位，标题由 /api/chat/stream
    * 在首条消息流式返回后异步覆盖。
+   *
+   * mode 不传时落 'ask'（与 DB DEFAULT 保持一致）；
+   * model 不传时为 null（后端按 DEFAULT_LLM_MODEL 处理）。
    */
   async create(conversationData: CreateConversationDto = {}) {
     const { data: { user } } = await this.supabase.auth.getUser()
@@ -58,6 +61,8 @@ export class ConversationsService {
       .insert({
         user_id: user?.id,
         title: conversationData.title?.trim() || '新对话',
+        mode: conversationData.mode || 'ask',
+        model: conversationData.model ?? null,
       })
       .select()
       .single()

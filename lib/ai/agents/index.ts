@@ -1,14 +1,20 @@
 import { registerBuiltinSkills } from '../skills'
 import { registerBuiltinTools } from '../tools'
+import { registerChatBridgeTools } from '../tools/chat-bridge'
 import { registerCharacterImportAnalyzerAgent } from './character-import-analyzer'
 import { registerCharacterScriptwriterAgent } from './character-scriptwriter'
+import { registerChatSpecialistAgents } from './chat-specialists'
 import { registerNovelSpecialistAgents } from './novel-specialists'
 import { registerSelectionEditorAgent } from './selection-editor'
 import { registerWriterAgent } from './writer'
 
 export * from './character-import-analyzer'
 export * from './character-scriptwriter'
+export * from './chat-modes'
+export * from './chat-router'
+export * from './chat-specialists'
 export * from './novel-specialists'
+export * from './run-chat-specialist'
 export * from './selection-editor'
 export * from './modes'
 export * from './registry'
@@ -33,8 +39,10 @@ export function bootstrapAgents() {
   if (bootstrapped) return
   bootstrapped = true
   registerBuiltinTools()
+  registerChatBridgeTools()
   registerBuiltinSkills()
   registerNovelSpecialistAgents()
+  registerChatSpecialistAgents()
   registerWriterAgent()
   registerCharacterScriptwriterAgent()
   registerCharacterImportAnalyzerAgent()

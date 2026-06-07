@@ -1,6 +1,6 @@
 'use client'
 
-import type { MouseEvent } from 'react'
+import type { KeyboardEvent, MouseEvent } from 'react'
 import { Check, Edit3, Loader2, Pin, PinOff, Trash2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -71,6 +71,13 @@ export function ChatHistoryItem({
   const handleClick = () => {
     if (!isEditing) {
       onChatClick(chat.id)
+    }
+  }
+
+  const handleRowKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleClick()
     }
   }
 
@@ -175,15 +182,18 @@ export function ChatHistoryItem({
               </div>
             )
           : (
-              <Button
-                variant="ghost"
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={handleClick}
+                onKeyDown={handleRowKeyDown}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'w-full justify-start px-3 py-1.5 h-9 text-left relative overflow-hidden cursor-pointer rounded-none',
+                  'w-full flex justify-start items-center px-3 py-1.5 h-9 text-left relative overflow-hidden cursor-pointer rounded-none focus:outline-none focus-visible:ring-1 focus-visible:ring-ring',
                   isActive
                     ? 'bg-sidebar-accent text-sidebar-foreground'
                     : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
                 )}
-                onClick={handleClick}
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0 mr-1">
                   {isStreaming && (
@@ -271,7 +281,7 @@ export function ChatHistoryItem({
                     </TooltipContent>
                   </Tooltip>
                 </div>
-              </Button>
+              </div>
             )}
 
         {/* 删除确认对话框 */}

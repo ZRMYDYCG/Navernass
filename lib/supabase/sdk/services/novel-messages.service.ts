@@ -88,6 +88,62 @@ export class NovelMessagesService {
   }
 
   /**
+   * 更新消息 parts
+   *
+   * 用于：
+   *   - 桥接工具 (propose_*) 的 accept / reject
+   *   - ask_user 表单提交后把 submitted 状态落到 part.output
+   *
+   * 客户端不需要先查 messageId —— 由调用方（路由层）按
+   * (conversationId, toolCallId) 找到 messageId 后再调本方法。
+   */
+  async update(id: string, updates: Partial<Pick<CreateNovelMessageDto, 'content' | 'parts' | 'thinking'>>) {
+    const buildPayload = (includeParts: boolean) => {
+      const payload: Record<string, unknown> = { ...updates }
+      if (!includeParts) delete payload.parts
+      return payload
+    }
+
+    const exec = async (includeParts: boolean) => {
+      const { data, error } = await this.supabase
+        .from('novel_messages')
+        .update(buildPayload(includeParts))
+        .eq('id', id)
+        .select()
+        .single()
+      if (error) throw error
+      return data
+    }
+
+    let data: any
+    try {
+      data = await exec(true)
+    } catch (err: any) {
+      const msg = String(err?.message || '')
+      const code = String(err?.code || '')
+      const isMissingPartsColumn =
+        msg.includes('parts') && (msg.includes('column') || msg.includes('schema'))
+        || code === 'PGRST204'
+        || code === '42703'
+
+      if (isMissingPartsColumn) {
+        data = await exec(false)
+      } else {
+        throw err
+      }
+    }
+
+    if (data?.conversation_id) {
+      await this.supabase
+        .from('novel_conversations')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', data.conversation_id)
+    }
+
+    return data
+  }
+
+  /**
    * 按 id upsert 消息（适合 stream onFinish 回写完整 parts）
    *
    * 关键兼容性：ai-sdk v6 的 useChat 自动生成的 message id 是短随机字符串（如

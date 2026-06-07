@@ -45,6 +45,22 @@ export const novelConversationsApi = {
   },
 
   /**
+   * 持久化某条消息里某个 part 的 output（按 toolCallId 定位）
+   *
+   * 与 chatApi.updatePartOutput 对称，作用于编辑器侧 novel_messages。
+   */
+  updatePartOutput: async (params: {
+    conversationId: string
+    toolCallId: string
+    output: unknown
+  }): Promise<{ messageId: string, partIndex: number }> => {
+    return apiClient.patch<{ messageId: string, partIndex: number }>(
+      '/api/editor/novel-messages/update-part',
+      params,
+    )
+  },
+
+  /**
    * 流式发送消息并获取AI回复
    */
   sendMessageStream: async (

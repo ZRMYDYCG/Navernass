@@ -211,6 +211,10 @@ export interface Conversation {
   title: string
   is_pinned?: boolean
   pinned_at?: string
+  /** Chat Agent 模式：ask | brainstorm | craft | polish | agent */
+  mode: string
+  /** 当前对话选用的 LLM id；null 走后端默认 */
+  model?: string | null
   created_at: string
   updated_at: string
 }
@@ -218,12 +222,18 @@ export interface Conversation {
 export interface CreateConversationDto {
   /** 标题可空：流式首响应后由 server async 覆盖。 */
   title?: string
+  /** Chat Agent 模式；不传默认 'ask' */
+  mode?: string
+  /** Chat Agent 模型 id；不传走后端默认 */
+  model?: string
 }
 
 export interface UpdateConversationDto {
   id: string
   title?: string
   is_pinned?: boolean
+  mode?: string
+  model?: string
 }
 
 export interface Message {

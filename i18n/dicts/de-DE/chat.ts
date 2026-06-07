@@ -199,6 +199,126 @@ const chat = {
       },
     ],
   },
+  agent: {
+    modes: {
+      ask: {
+        label: 'Frage',
+        description: 'Allgemeine Fragen zu Technik, Struktur, Inspiration',
+        placeholder: 'Stell eine Schreibfrage, z. B. „Wie schreibt man einen einprägsamen Antagonisten?"',
+      },
+      brainstorm: {
+        label: 'Brainstorm',
+        description: 'Viele Plot-Hooks, Figuren, Worldbuilding-Ideen auf einmal',
+        placeholder: 'Zu welchem Thema brainstormen wir?',
+      },
+      craft: {
+        label: 'Technik',
+        description: 'Tiefe Diskussionen zu POV, Tempo, Dialog, Figurenbogen',
+        placeholder: 'Erzähl mir, an welchem Technik-Problem du arbeitest…',
+      },
+      polish: {
+        label: 'Überarbeiten',
+        description: 'Eingefügten Text überarbeiten, übersetzen oder umschreiben',
+        placeholder: 'Füge hier den zu überarbeitenden / zu übersetzenden Text ein…',
+      },
+      agent: {
+        label: 'Agent',
+        description: 'Kann Romane, Figuren, Gliederungen und Zusammenfassungen erstellen',
+        placeholder: 'Sag der KI, was sie tun soll, z. B. „Hilf mir, einen Mystery-Roman zu erstellen"',
+      },
+    },
+    welcome: {
+      ask: {
+        heading: 'Was schreibst du heute?',
+        subtitle: 'Starte ein neues Gespräch mit der KI',
+        suggestions: [
+          'Wie erschaffe ich einen einprägsamen Antagonisten?',
+          'Erste oder dritte Person — was passt besser?',
+          'Wie lege ich ein gutes Foreshadowing?',
+        ],
+      },
+      brainstorm: {
+        heading: 'Lasst uns brainstormen',
+        subtitle: 'Lass die KI Hooks ausspielen, dann wähle einen zum Vertiefen',
+        suggestions: [
+          '5 Campus-Mystery-Hooks',
+          'Untypisches Worldbuilding für Sci-Fi',
+          'Wendepunkte für eine Romanzen-Subplot',
+        ],
+      },
+      craft: {
+        heading: 'Reden wir über Technik',
+        subtitle: 'Tiefe Diskussionen zu POV, Tempo, Dialog, Figurenbogen',
+        suggestions: [
+          'Ich-Perspektive vs. Er/Sie-Perspektive',
+          'Glaubwürdige innere Monologe schreiben',
+          'Dialoge natürlich und spannungsreich',
+        ],
+      },
+      polish: {
+        heading: 'Überarbeiten, übersetzen, umschreiben',
+        subtitle: 'Übergib deinen eingefügten Text der KI zum Feinschliff',
+        suggestions: [
+          'Diese Passage knapper formulieren',
+          'Ins Englische übersetzen und Begriffe vereinheitlichen',
+          'Umgangssprachlicher umschreiben',
+        ],
+      },
+      agent: {
+        heading: 'Aus Ideen Werke schaffen',
+        subtitle: 'Sag der KI, was zu tun ist, und erstelle nach Bestätigung',
+        suggestions: [
+          'Hilf mir, einen Campus-Mystery-Roman zu erstellen',
+          'Schreib den Hauptantagonisten für „Sternenflut"',
+          'Drei-Akt-Gliederung',
+        ],
+      },
+    },
+    tools: {
+      state: {
+        running: 'Läuft…',
+        done: 'Fertig',
+        error: 'Fehler',
+        thinking: 'Denkt nach…',
+      },
+      common: {
+        accept: 'Annehmen',
+        reject: 'Ablehnen',
+        acceptFailed: 'Aktion fehlgeschlagen',
+        accepted: 'Angenommen',
+        rejected: 'Abgelehnt',
+        open: '„{{title}}" öffnen',
+      },
+      proposeNovel: {
+        title: 'Neuen Roman vorschlagen',
+        category: 'Kategorie',
+        summary: 'Zusammenfassung',
+        acceptedHint: 'Roman erstellt',
+      },
+      proposeCharacter: {
+        title: 'Neue Figur vorschlagen',
+        acceptedHint: 'Figur erstellt',
+      },
+      proposeOutline: {
+        title: 'Neue Gliederung vorschlagen',
+        acceptedHint: 'Gliederung erstellt',
+      },
+      proposeSummary: {
+        title: 'Zusammenfassungs-Entwurf',
+        copy: 'Kopieren',
+        copied: 'In die Zwischenablage kopiert',
+        copyFailed: 'Kopieren fehlgeschlagen',
+      },
+      askUser: {
+        replyHeader: 'Meine Antwort',
+      },
+    },
+    errors: {
+      loadModeFailed: 'Modus konnte nicht geladen werden',
+      persistModeFailed: 'Modus konnte nicht gespeichert werden',
+      persistModelFailed: 'Modell konnte nicht gespeichert werden',
+    },
+  },
 } as const
 
 export default chat

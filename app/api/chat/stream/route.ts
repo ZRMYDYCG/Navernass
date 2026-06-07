@@ -1,21 +1,29 @@
 import type { UIMessage } from 'ai'
 import type { NextRequest } from 'next/server'
 import { after } from 'next/server'
-import { convertToModelMessages, streamText } from 'ai'
+import { convertToModelMessages } from 'ai'
+import {
+  bootstrapAgents,
+  getAgent,
+  routeChat,
+  runChatSpecialistAgent,
+} from '@/lib/ai/agents'
 import { DEFAULT_LLM_MODEL, getMinimaxModel, hasMinimaxApiKey } from '@/lib/ai/minimax'
 import { sanitizeUIMessagesForModel, stripToolPartsFromMessages } from '@/lib/ai/sanitize-ui-messages'
 import { ConversationsService } from '@/lib/supabase/sdk/services/conversations.service'
 import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
 import { createClient } from '@/lib/supabase/server'
-import { getChatPrompt } from '@/prompts'
 
 interface ChatRequestBody {
   conversationId?: string
   messages: UIMessage[]
+  mode?: string
   model?: string
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+bootstrapAgents()
 
 function pickLastUserText(messages: UIMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i--) {
@@ -35,6 +43,8 @@ async function ensureConversation(
   service: ConversationsService,
   conversationId: string | undefined,
   firstMessage: string,
+  initialMode: string,
+  initialModel: string,
 ) {
   const valid = conversationId && UUID_RE.test(conversationId)
   if (valid) {
@@ -46,7 +56,7 @@ async function ensureConversation(
   }
 
   const title = firstMessage.length > 20 ? `${firstMessage.slice(0, 20)}...` : (firstMessage || '新对话')
-  return service.create({ title })
+  return service.create({ title, mode: initialMode, model: initialModel })
 }
 
 export async function POST(req: NextRequest) {
@@ -59,7 +69,7 @@ export async function POST(req: NextRequest) {
   const messagesService = new MessagesService(supabase)
 
   const body = (await req.json()) as ChatRequestBody
-  const { conversationId, messages, model } = body
+  const { conversationId, messages, mode: requestedMode, model } = body
 
   if (!messages || messages.length === 0) {
     return new Response('messages are required', { status: 400 })
@@ -75,11 +85,37 @@ export async function POST(req: NextRequest) {
     return new Response('Unauthorized', { status: 401 })
   }
 
+  // 决定 mode：优先用请求里的 mode（可能是用户在前端刚切换的），
+  // 否则用 conversation 行已存的 mode，最后兜底 ask。
+  let resolvedMode = requestedMode || 'ask'
+  if (!requestedMode && conversationId && UUID_RE.test(conversationId)) {
+    try {
+      const existing = await conversationsService.getById(conversationId)
+      if (existing?.mode) resolvedMode = existing.mode
+    } catch {
+      /* fall through */
+    }
+  }
+
   const conversation = await ensureConversation(
     conversationsService,
     conversationId,
     userInput,
+    resolvedMode,
+    model || DEFAULT_LLM_MODEL,
   )
+
+  // 首次创建会话时：异步生成标题 + 把请求里的 mode/model 落库（ensureConversation 已写入，
+  // 但若 conversationId 命中已有 row 且 mode 不一致则覆盖一次）
+  if (requestedMode && conversation.mode !== requestedMode) {
+    try {
+      await conversationsService.update(conversation.id, { mode: requestedMode, model: model || DEFAULT_LLM_MODEL })
+      conversation.mode = requestedMode
+      if (model) conversation.model = model
+    } catch (err) {
+      console.warn('[chat/stream] failed to persist mode on update:', err)
+    }
+  }
 
   // 构建 model messages
   let modelMessages
@@ -91,9 +127,10 @@ export async function POST(req: NextRequest) {
     modelMessages = await convertToModelMessages(stripToolPartsFromMessages(messages))
   }
 
-  // 先同步存"用户消息"（不依赖 onFinish；和编辑器侧保持一致以避免 onFinish 早于流关闭被收束）
-  const lastInputUser = [...messages].reverse().find(m => m.role === 'user')
+  // 先同步存"用户消息"
+  let lastInputUser: UIMessage | undefined
   try {
+    lastInputUser = [...messages].reverse().find(m => m.role === 'user')
     await messagesService.upsert({
       id: lastInputUser?.id || crypto.randomUUID(),
       conversation_id: conversation.id,
@@ -161,10 +198,29 @@ export async function POST(req: NextRequest) {
     console.error('[chat/stream] FAILED to create assistant placeholder:', error)
   }
 
-  const result = streamText({
-    model: getMinimaxModel(model),
-    system: getChatPrompt('default'),
-    messages: modelMessages,
+  // Router 决策：按 chat mode 派发到 chat 专用 specialist
+  const decision = routeChat({ text: userInput, mode: resolvedMode })
+  const agent = getAgent(decision.agentId)
+  if (!agent) {
+    return new Response(`Unknown chat agent: ${decision.agentId}`, { status: 500 })
+  }
+
+  // 按 router 派发到 chat specialist
+  const result = runChatSpecialistAgent({
+    uiMessages: messages,
+    modelMessages,
+    modelId: model,
+    mode: resolvedMode,
+    agentId: decision.agentId,
+    userText: userInput,
+    decision,
+    toolContext: {
+      supabase,
+      userId: user.id,
+      // Chat 页没有"当前聚焦小说"——桥接工具的 novelId 来自 tool call input
+      novelId: '',
+      conversationId: conversation.id,
+    },
     onStepFinish: ({ text, reasoningText }) => {
       if (reasoningText) {
         accumulatedReasoning = accumulatedReasoning
@@ -225,6 +281,9 @@ export async function POST(req: NextRequest) {
     },
     headers: {
       'X-Conversation-Id': conversation.id,
+      'X-Chat-Agent-Id': decision.agentId,
+      'X-Chat-Mode': resolvedMode,
+      'X-Skill-Ids': decision.skillIds.join(','),
     },
   })
 }
@@ -257,7 +316,7 @@ function extractReasoningFromParts(parts: unknown): string {
 }
 
 /**
- * 异步生成对话标题（与旧 SiliconFlowService.generateTitle 行为对齐，但走 AI SDK 兼容层）。
+ * 异步生成对话标题。
  * 失败时返回 null，由调用方决定是否回退默认标题。
  */
 async function generateTitle(firstMessage: string): Promise<string | null> {
