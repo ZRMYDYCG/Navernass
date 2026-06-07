@@ -2,14 +2,12 @@
 
 import type { UIMessage, UIMessagePart } from 'ai'
 import type { ReactNode } from 'react'
-import { AskUserPart } from './re-exports'
-import { TextPart } from './re-exports'
-import { ReasoningPart } from './re-exports'
-import { ToolPartFallback } from './tool-part-fallback'
 import { ProposeCharacterPart } from './propose-character-part'
 import { ProposeNovelPart } from './propose-novel-part'
 import { ProposeOutlinePart } from './propose-outline-part'
 import { ProposeSummaryPart } from './propose-summary-part'
+import { AskUserPart, ReasoningPart, TextPart } from './re-exports'
+import { ToolPartFallback } from './tool-part-fallback'
 
 /**
  * Chat 页 AG-UI part 注册表

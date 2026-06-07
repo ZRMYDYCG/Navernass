@@ -2,10 +2,10 @@
 
 import { Check, ClipboardList, Copy, Loader2, X } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/hooks/use-i18n'
 import { copyTextToClipboard } from '@/lib/utils'
-import { toast } from 'sonner'
 
 interface ProposeSummaryInput {
   title: string
@@ -60,19 +60,21 @@ export function ProposeSummaryPart({ state, input, output, errorText }: ProposeS
       </div>
 
       <div className="min-w-0 space-y-2 px-3 py-2">
-        {hasInput ? (
-          <div className="space-y-1.5">
-            <div className="text-[13px] font-semibold text-foreground">{input.title}</div>
-            <div className="text-[11.5px] text-foreground/90 leading-relaxed whitespace-pre-wrap">
-              {input.content}
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            {t('chat.agent.tools.state.thinking')}
-          </div>
-        )}
+        {hasInput
+          ? (
+              <div className="space-y-1.5">
+                <div className="text-[13px] font-semibold text-foreground">{input.title}</div>
+                <div className="text-[11.5px] text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                  {input.content}
+                </div>
+              </div>
+            )
+          : (
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                {t('chat.agent.tools.state.thinking')}
+              </div>
+            )}
 
         {(errorText || output?.error) && (
           <div className="text-[10.5px] text-destructive">

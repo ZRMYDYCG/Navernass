@@ -23,19 +23,18 @@ export default function ConversationPage() {
   const consumePendingDraftMessage = useAppStore(s => s.chatActions.consumePendingDraftMessage)
 
   const agent = useChatAgent({ conversationId })
+  const { handleSendMessage } = agent
 
   // 欢迎页跳转过来时会预先把首条消息塞进 zustand；这里一次性消费并自动发送。
   const consumedKeyRef = useRef<string | null>(null)
-  const handleSendMessageRef = useRef(agent.handleSendMessage)
-  handleSendMessageRef.current = agent.handleSendMessage
 
   useEffect(() => {
     if (consumedKeyRef.current === conversationId) return
     const pending = consumePendingDraftMessage()
     if (!pending) return
     consumedKeyRef.current = conversationId
-    void handleSendMessageRef.current(pending)
-  }, [conversationId, consumePendingDraftMessage])
+    void handleSendMessage(pending)
+  }, [conversationId, consumePendingDraftMessage, handleSendMessage])
 
   // 分享模式（独立 useChatConversation 视图片段选择）— 维持原 useShareMode + useImageGeneration 逻辑
   // 这里从 agent.messages 派生 selectedMessages 列表

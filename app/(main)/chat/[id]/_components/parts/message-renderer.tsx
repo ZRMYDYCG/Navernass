@@ -4,10 +4,8 @@ import type { UIMessage, UIMessagePart } from 'ai'
 import { memo } from 'react'
 import { cn } from '@/lib/utils'
 import { TypingIndicator } from '../typing-indicator'
+import { getMessageStreamFingerprint, shouldShowStreamTailActivity, StreamLoading, useStreamStale } from './re-exports'
 import { findLastRenderableIndex, hasVisibleContent, isBubblePart, isRenderablePart, renderPart } from './registry'
-import { getMessageStreamFingerprint, shouldShowStreamTailActivity } from './re-exports'
-import { StreamLoading } from './re-exports'
-import { useStreamStale } from './re-exports'
 
 interface MessageRendererProps {
   message: UIMessage
@@ -30,9 +28,9 @@ function MessageRendererInner({ message, isStreaming = false }: MessageRendererP
   const parts = (message.parts || []) as AnyPart[]
   const lastIdx = findLastRenderableIndex(parts)
 
-  type Group =
-    | { kind: 'bubble', items: { part: AnyPart, index: number }[] }
-    | { kind: 'standalone', part: AnyPart, index: number }
+  type Group
+    = | { kind: 'bubble', items: { part: AnyPart, index: number }[] }
+      | { kind: 'standalone', part: AnyPart, index: number }
   const groups: Group[] = []
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i]
@@ -118,11 +116,13 @@ function MessageRendererInner({ message, isStreaming = false }: MessageRendererP
               </div>
             )
           })}
-          {showTailActivity ? (
-            <div className="pt-1 pl-0.5">
-              <StreamLoading variant="card" tone={tailTone} />
-            </div>
-          ) : null}
+          {showTailActivity
+            ? (
+                <div className="pt-1 pl-0.5">
+                  <StreamLoading variant="card" tone={tailTone} />
+                </div>
+              )
+            : null}
         </div>
       </div>
     </div>

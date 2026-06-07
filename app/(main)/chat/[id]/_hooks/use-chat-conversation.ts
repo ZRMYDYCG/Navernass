@@ -1,17 +1,17 @@
 'use client'
 
 import type { UIMessage } from 'ai'
+import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
+import type { ChatAiMode } from '@/lib/ai/agents'
 import { Chat, useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
-import type { ChatAiMode } from '@/lib/ai/agents'
-import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
 import { extractTextFromUIMessage, toUIMessages } from '@/lib/chat/chat-messages'
 import { chatApi, conversationsApi } from '@/lib/supabase/sdk'
-import { useAppStore } from '@/store'
 import { copyTextToClipboard } from '@/lib/utils'
+import { useAppStore } from '@/store'
 
 /**
  * 主聊天页 useChat 包装。
@@ -186,6 +186,9 @@ export function useChatConversation({ conversationId, mode, model }: UseChatConv
       }
     }
     void fetchTitle()
+    return () => {
+      cancelled = true
+    }
   }, [conversationId])
 
   // 卸载时取消正在进行的 stream
@@ -237,8 +240,7 @@ export function useChatConversation({ conversationId, mode, model }: UseChatConv
       try {
         if ('share' in navigator && typeof navigator.share === 'function') {
           await navigator.share(sharePayload)
-        }
-        else {
+        } else {
           await copyTextToClipboard(text)
           toast.success(t('chat.messages.copiedForShare'))
         }

@@ -1,8 +1,7 @@
 'use client'
 
 import type { ChatAiMode } from '@/lib/ai/agents'
-import { Bot, Lightbulb, MessageSquare, Palette, Wrench } from 'lucide-react'
-import { ChevronDown } from 'lucide-react'
+import { Bot, ChevronDown, Lightbulb, MessageSquare, Palette, Wrench } from 'lucide-react'
 import { useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useI18n } from '@/hooks/use-i18n'

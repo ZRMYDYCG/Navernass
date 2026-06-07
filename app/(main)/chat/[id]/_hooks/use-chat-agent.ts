@@ -1,14 +1,15 @@
 'use client'
 
 import type { UIMessage } from 'ai'
+import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
+import type { ChatAiMode } from '@/lib/ai/agents'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { useI18n } from '@/hooks/use-i18n'
 import {
-  type ChatAiMode,
+
   normalizeChatMode,
 } from '@/lib/ai/agents'
-import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
-import { useI18n } from '@/hooks/use-i18n'
 import { charactersApi, chatApi, conversationsApi, novelsApi, outlinesApi } from '@/lib/supabase/sdk'
 import { useAppStore } from '@/store'
 import { useChatConversation } from './use-chat-conversation'
@@ -155,7 +156,7 @@ export function useChatAgent({ conversationId }: { conversationId: string }) {
         entityTitle: novel.title,
         jumpUrl: `/editor?id=${novel.id}`,
       }
-      updatePartOutput(chat.messages, chat.setMessages, toolCallId, (part) => ({
+      updatePartOutput(chat.messages, chat.setMessages, toolCallId, part => ({
         ...part,
         output: acceptedOutput,
       }))
@@ -169,7 +170,7 @@ export function useChatAgent({ conversationId }: { conversationId: string }) {
         status: 'error',
         error: err instanceof Error ? err.message : 'Unknown error',
       }
-      updatePartOutput(chat.messages, chat.setMessages, toolCallId, (part) => ({
+      updatePartOutput(chat.messages, chat.setMessages, toolCallId, part => ({
         ...part,
         output: errorOutput,
       }))
@@ -200,7 +201,7 @@ export function useChatAgent({ conversationId }: { conversationId: string }) {
         entityTitle: character.name,
         jumpUrl: `/editor?id=${payload.novelId}&characterId=${character.id}`,
       }
-      updatePartOutput(chat.messages, chat.setMessages, toolCallId, (part) => ({
+      updatePartOutput(chat.messages, chat.setMessages, toolCallId, part => ({
         ...part,
         output: acceptedOutput,
       }))
@@ -214,7 +215,7 @@ export function useChatAgent({ conversationId }: { conversationId: string }) {
         status: 'error',
         error: err instanceof Error ? err.message : 'Unknown error',
       }
-      updatePartOutput(chat.messages, chat.setMessages, toolCallId, (part) => ({
+      updatePartOutput(chat.messages, chat.setMessages, toolCallId, part => ({
         ...part,
         output: errorOutput,
       }))
@@ -245,7 +246,7 @@ export function useChatAgent({ conversationId }: { conversationId: string }) {
         entityTitle: outline.title,
         jumpUrl: `/editor?id=${payload.novelId}`,
       }
-      updatePartOutput(chat.messages, chat.setMessages, toolCallId, (part) => ({
+      updatePartOutput(chat.messages, chat.setMessages, toolCallId, part => ({
         ...part,
         output: acceptedOutput,
       }))
@@ -259,7 +260,7 @@ export function useChatAgent({ conversationId }: { conversationId: string }) {
         status: 'error',
         error: err instanceof Error ? err.message : 'Unknown error',
       }
-      updatePartOutput(chat.messages, chat.setMessages, toolCallId, (part) => ({
+      updatePartOutput(chat.messages, chat.setMessages, toolCallId, part => ({
         ...part,
         output: errorOutput,
       }))
@@ -325,8 +326,16 @@ export function useChatAgent({ conversationId }: { conversationId: string }) {
     rejectProposal,
     markFormSubmitted,
   }), [
-    chat, mode, model, setMode, setModel, isAgentStateReady,
-    acceptNovelProposal, acceptCharacterProposal, acceptOutlineProposal, rejectProposal,
+    chat,
+    mode,
+    model,
+    setMode,
+    setModel,
+    isAgentStateReady,
+    acceptNovelProposal,
+    acceptCharacterProposal,
+    acceptOutlineProposal,
+    rejectProposal,
     markFormSubmitted,
   ])
 }
