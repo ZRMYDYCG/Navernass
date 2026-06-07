@@ -138,12 +138,19 @@ export function ChatHistoryItem({
     }
   }
 
-  // active 状态下常驻可见；否则 hover/focus 时从右侧滑入浮出
-  const actionVisibility = cn(
-    'transition-all duration-200 ease-out',
+  const actionButtonReveal = cn(
+    'translate-x-4 opacity-0 transition-all duration-200 ease-out',
     isActive
       ? 'translate-x-0 opacity-100'
-      : 'translate-x-2 opacity-0 group-hover/item:translate-x-0 group-hover/item:opacity-100 group-focus-within/item:translate-x-0 group-focus-within/item:opacity-100',
+      : 'group-hover/item:translate-x-0 group-hover/item:opacity-100 group-focus-within/item:translate-x-0 group-focus-within/item:opacity-100',
+  )
+
+  const actionBarReveal = cn(
+    'pointer-events-none absolute inset-y-0 right-0 flex items-center gap-0.5 pl-6 pr-2.5',
+    'opacity-0 transition-opacity duration-200 ease-out',
+    isActive
+      ? 'pointer-events-auto opacity-100 bg-gradient-to-l from-sidebar-accent via-sidebar-accent/95 to-transparent'
+      : 'group-hover/item:pointer-events-auto group-hover/item:opacity-100 group-focus-within/item:pointer-events-auto group-focus-within/item:opacity-100 bg-gradient-to-l from-sidebar-accent via-sidebar-accent/95 to-transparent',
   )
 
   return (
@@ -189,13 +196,13 @@ export function ChatHistoryItem({
                 onKeyDown={handleRowKeyDown}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'w-full flex justify-start items-center px-3 py-1.5 h-9 text-left relative overflow-hidden cursor-pointer rounded-none focus:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+                  'relative w-full flex items-center px-3 py-1.5 h-9 text-left cursor-pointer rounded-none focus:outline-none focus-visible:ring-1 focus-visible:ring-ring',
                   isActive
                     ? 'bg-sidebar-accent text-sidebar-foreground'
                     : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
                 )}
               >
-                <div className="flex items-center gap-2 flex-1 min-w-0 mr-1">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   {isStreaming && (
                     <span
                       className={cn(
@@ -228,14 +235,18 @@ export function ChatHistoryItem({
                   </Tooltip>
                 </div>
 
-                {/* 浮动操作：pin / rename / delete（hover or active 可见） */}
-                <div className={cn('flex items-center gap-0.5 shrink-0', actionVisibility)}>
+                {/* 浮动操作：pin / rename / delete（hover or active 时从右侧滑入） */}
+                <div className={actionBarReveal}>
                   <Tooltip delayDuration={300}>
                     <TooltipTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-accent"
+                        style={{ transitionDelay: '0ms' }}
+                        className={cn(
+                          'h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-accent',
+                          actionButtonReveal,
+                        )}
                         onClick={e => handleActionClick(e, () => onTogglePin(chat.id, chat.isPinned))}
                         aria-label={chat.isPinned ? t('chat.historyItem.unpin') : t('chat.historyItem.pin')}
                       >
@@ -253,7 +264,11 @@ export function ChatHistoryItem({
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-accent"
+                        style={{ transitionDelay: '45ms' }}
+                        className={cn(
+                          'h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-accent',
+                          actionButtonReveal,
+                        )}
                         onClick={e => handleActionClick(e, handleRenameClick)}
                         aria-label={t('chat.historyItem.rename')}
                       >
@@ -269,7 +284,11 @@ export function ChatHistoryItem({
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        style={{ transitionDelay: '90ms' }}
+                        className={cn(
+                          'h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10',
+                          actionButtonReveal,
+                        )}
                         onClick={e => handleActionClick(e, () => setShowDeleteDialog(true))}
                         aria-label={t('chat.historyItem.delete')}
                       >
