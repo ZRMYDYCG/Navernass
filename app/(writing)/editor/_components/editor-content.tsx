@@ -5,25 +5,17 @@ import { ChapterEditor } from '@/components/tiptap'
 import { Spinner } from '@/components/ui/spinner'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
-import {
-  DEFAULT_EDITOR_SURFACE,
-  EDITOR_SURFACE_OPTIONS,
-  getEditorSurfaceStorageKey,
-} from '@/lib/editor/surface-options'
-import {
-  DEFAULT_EDITOR_FONT_SIZE,
-  getEditorFontSizeStorageKey,
-  parseStoredEditorFontSize,
-} from '@/lib/editor/font-size-options'
 import type { EditorCursorValue } from '@/lib/editor/cursor-options'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 import { useCharacterMaterialStore, useCharacterGraphStore, useChaptersStore } from '@/store'
+import { useEditorSurfacePreferences } from '../_hooks/use-editor-surface-preferences'
 import { Breadcrumb } from './breadcrumb'
 import { ChapterCharacterPreviewGraph } from './chapter-character-preview-graph'
 import { EditorCursorPicker } from './editor-cursor-picker'
 import { EditorSurfaceArcPicker } from './editor-surface-arc-picker'
 import { EditorSurfaceScrollArea } from './editor-surface-scroll-area'
+import { EditorSurfaceTypographyPicker } from './editor-surface-typography-picker'
 import { SmartTabs } from './smart-tabs'
 
 interface Tab {
@@ -84,8 +76,14 @@ export default function EditorContent({
   const [charCount, setCharCount] = useState(0)
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [loading, setLoading] = useState(true)
-  const [editorSurface, setEditorSurface] = useState<(typeof EDITOR_SURFACE_OPTIONS)[number]['value']>(DEFAULT_EDITOR_SURFACE)
-  const [editorFontSize, setEditorFontSize] = useState(DEFAULT_EDITOR_FONT_SIZE)
+  const {
+    editorSurface,
+    editorFontSize,
+    typography,
+    handleEditorSurfaceChange,
+    handleEditorFontSizeChange,
+    handleTypographyChange,
+  } = useEditorSurfacePreferences(novelId)
   const editorContentRef = useRef<string>('')
   const isSavingRef = useRef(false)
 
@@ -109,26 +107,6 @@ export default function EditorContent({
   }, [chapterId, chapters, chapter?.volume_id, volumes])
 
   const loadingChapterIdRef = useRef<string | null>(null)
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(getEditorSurfaceStorageKey(novelId))
-    const matched = EDITOR_SURFACE_OPTIONS.find(option => option.value === stored)
-    setEditorSurface(matched?.value || DEFAULT_EDITOR_SURFACE)
-    setEditorFontSize(parseStoredEditorFontSize(window.localStorage.getItem(getEditorFontSizeStorageKey(novelId))))
-  }, [novelId])
-
-  const handleEditorSurfaceChange = (value: typeof editorSurface) => {
-    const matched = EDITOR_SURFACE_OPTIONS.find(option => option.value === value)
-    if (!matched) return
-
-    setEditorSurface(matched.value)
-    window.localStorage.setItem(getEditorSurfaceStorageKey(novelId), matched.value)
-  }
-
-  const handleEditorFontSizeChange = (value: number) => {
-    setEditorFontSize(value)
-    window.localStorage.setItem(getEditorFontSizeStorageKey(novelId), String(value))
-  }
 
   // 加载章节内容：优先命中 store 缓存，未命中再请求
   useEffect(() => {
@@ -354,6 +332,7 @@ export default function EditorContent({
                   <EditorSurfaceScrollArea
                     editorSurface={editorSurface}
                     fontSize={editorFontSize}
+                    typography={typography}
                     onFontSizeChange={handleEditorFontSizeChange}
                     className="h-full"
                   >
@@ -366,6 +345,7 @@ export default function EditorContent({
               <EditorSurfaceScrollArea
                 editorSurface={editorSurface}
                 fontSize={editorFontSize}
+                typography={typography}
                 onFontSizeChange={handleEditorFontSizeChange}
                 className="flex-1 min-h-0"
               >
@@ -380,6 +360,10 @@ export default function EditorContent({
           <EditorSurfaceArcPicker
             value={editorSurface}
             onChange={handleEditorSurfaceChange}
+          />
+          <EditorSurfaceTypographyPicker
+            value={typography}
+            onChange={handleTypographyChange}
           />
           {editorCursor && onEditorCursorChange && (
             <EditorCursorPicker

@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { EDITOR_SURFACE_OPTIONS, type EditorSurfaceValue } from '@/lib/editor/surface-options'
+import {
+  EDITOR_COLUMN_WIDTH_MAP,
+  EDITOR_LINE_HEIGHT_MAP,
+  type EditorTypographySettings,
+} from '@/lib/editor/typography-options'
 import { cn } from '@/lib/utils'
 
 import { EditorSurfaceFontSizeControl } from './editor-surface-font-size-control'
@@ -10,6 +15,7 @@ import { EditorSurfaceFontSizeControl } from './editor-surface-font-size-control
 interface EditorSurfaceScrollAreaProps {
   editorSurface: EditorSurfaceValue
   fontSize: number
+  typography: EditorTypographySettings
   onFontSizeChange: (fontSize: number) => void
   className?: string
   children: ReactNode
@@ -18,6 +24,7 @@ interface EditorSurfaceScrollAreaProps {
 export function EditorSurfaceScrollArea({
   editorSurface,
   fontSize,
+  typography,
   onFontSizeChange,
   className,
   children,
@@ -152,8 +159,15 @@ export function EditorSurfaceScrollArea({
   return (
     <div
       data-editor-surface={editorSurface}
+      data-first-line-indent={typography.firstLineIndent ? 'true' : 'false'}
+      data-underline-paper={typography.underlinePaper ? 'true' : 'false'}
+      data-prose-focus={typography.proseFocus ? 'true' : 'false'}
       className={cn('relative min-h-0', className)}
-      style={{ '--editor-surface-font-size': `${fontSize}px` } as React.CSSProperties}
+      style={{
+        '--editor-surface-font-size': `${fontSize}px`,
+        '--editor-surface-line-height': EDITOR_LINE_HEIGHT_MAP[typography.lineHeight],
+        '--editor-surface-max-width': EDITOR_COLUMN_WIDTH_MAP[typography.columnWidth],
+      } as React.CSSProperties}
     >
       <div
         ref={scrollRef}

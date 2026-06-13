@@ -107,17 +107,7 @@
     background-color: var(--editor-bg);
   }
 
-  /* 聚焦写作模式：非当前段落轻微降低不透明度 */
-  .prose-focus .ProseMirror:focus-within p {
-    opacity: 0.5;
-    filter: blur(0.2px);
-    transition: opacity 0.3s ease, filter 0.3s ease;
-  }
-  .prose-focus .ProseMirror:focus-within p:has(> .ProseMirror-trailingBreak),
-  .prose-focus .ProseMirror:focus-within p:focus-within {
-    opacity: 1;
-    filter: none;
-  }
+  /* 聚焦写作模式：见 editor-surface.css [data-prose-focus] + paragraph-focus 扩展 */
 
   /* 侧边栏分组标题样式 */
   .sidebar-group-label {

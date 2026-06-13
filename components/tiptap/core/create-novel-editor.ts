@@ -1,4 +1,5 @@
 import type { Extensions } from '@tiptap/core'
+import type { NovelEditorMode } from './types'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
 import Image from '@tiptap/extension-image'
@@ -12,9 +13,10 @@ import { SuggestionAdd, SuggestionDel } from '@/components/tiptap/extensions/ai/
 import { CharacterHighlight } from '@/components/tiptap/extensions/character/character-highlight'
 import { CharacterNameSuggest } from '@/components/tiptap/extensions/character/character-name-suggest'
 import { EditorSearch } from '@/components/tiptap/extensions/novel/editor-search'
+import { ParagraphFocus } from '@/components/tiptap/extensions/novel/paragraph-focus'
+import { SceneBreak } from '@/components/tiptap/extensions/novel/scene-break'
 import { SearchHighlight } from '@/components/tiptap/extensions/novel/search-highlight'
 import { SlashCommand } from '@/components/tiptap/extensions/novel/slash-command'
-import type { NovelEditorMode } from './types'
 
 type TFunctionLike = (key: string, options?: Record<string, unknown>) => string
 
@@ -58,6 +60,8 @@ export function createNovelEditorExtensions({
     TextAlign.configure({ types: ['heading', 'paragraph'] }),
     TextStyle,
     Color,
+    SceneBreak,
+    ParagraphFocus,
     SearchHighlight,
     EditorSearch,
     SlashCommand.configure({ t }),

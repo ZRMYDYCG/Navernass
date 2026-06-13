@@ -11,6 +11,8 @@
   --editor-surface-border: oklch(0.82 0.012 75);
   --editor-surface-underline: oklch(0.72 0.012 70);
   --editor-surface-font-size: 17px;
+  --editor-surface-line-height: 1.8;
+  --editor-surface-max-width: 42rem;
 
   background-color: var(--editor-surface-bg);
   color: var(--editor-surface-fg);
@@ -247,6 +249,8 @@
 
 [data-editor-surface] .ProseMirror.prose,
 [data-editor-surface] .ProseMirror {
+  max-width: var(--editor-surface-max-width);
+  line-height: var(--editor-surface-line-height);
   font-size: var(--editor-surface-font-size);
 }
 
@@ -254,8 +258,57 @@
 [data-editor-surface] .ProseMirror p,
 [data-editor-surface] .prose p {
   font-size: 1em;
-  line-height: 1.9;
+  line-height: var(--editor-surface-line-height);
   color: var(--editor-surface-fg);
+}
+
+[data-editor-surface][data-first-line-indent='true'] .ProseMirror > p:not(:first-child):not(.is-editor-empty) {
+  text-indent: 2em;
+}
+
+[data-editor-surface][data-underline-paper='true'] .ProseMirror p {
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(var(--editor-surface-line-height) * 1em - 1px),
+    var(--editor-surface-underline) calc(var(--editor-surface-line-height) * 1em - 1px),
+    var(--editor-surface-underline) calc(var(--editor-surface-line-height) * 1em),
+    transparent calc(var(--editor-surface-line-height) * 1em)
+  );
+}
+
+[data-editor-surface][data-prose-focus='true'] .ProseMirror:focus-within :is(
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  li,
+  blockquote,
+  pre,
+  .scene-break
+) {
+  opacity: 0.38;
+  filter: blur(0.3px);
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
+[data-editor-surface][data-prose-focus='true'] .ProseMirror:focus-within :is(
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  li,
+  blockquote,
+  pre,
+  .scene-break
+).has-paragraph-focus {
+  opacity: 1;
+  filter: none;
 }
 
 [data-editor-surface] .ProseMirror.prose h1,

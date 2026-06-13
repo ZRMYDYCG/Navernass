@@ -8,6 +8,10 @@ import { useI18n } from '@/hooks/use-i18n'
 import { toVirtualPlanPath } from '@/lib/editor/plan-path'
 import { planFilesApi } from '@/lib/supabase/sdk'
 import { usePlanStore } from '@/store'
+import { useEditorSurfacePreferences } from '../_hooks/use-editor-surface-preferences'
+import { EditorSurfaceArcPicker } from './editor-surface-arc-picker'
+import { EditorSurfaceScrollArea } from './editor-surface-scroll-area'
+import { EditorSurfaceTypographyPicker } from './editor-surface-typography-picker'
 import { SmartTabs } from './smart-tabs'
 
 interface Tab {
@@ -45,6 +49,14 @@ export function PlanFileEditor({
   const { t } = useI18n()
   const cachedPlanFile = usePlanStore(s => s.plan.planFilesById[planFileId])
   const upsertPlanFile = usePlanStore(s => s.planActions.upsertPlanFile)
+  const {
+    editorSurface,
+    editorFontSize,
+    typography,
+    handleEditorSurfaceChange,
+    handleEditorFontSizeChange,
+    handleTypographyChange,
+  } = useEditorSurfacePreferences(novelId)
 
   const [planFile, setPlanFile] = useState(cachedPlanFile ?? null)
   const [loading, setLoading] = useState(!cachedPlanFile)
@@ -173,7 +185,13 @@ export function PlanFileEditor({
               </div>
             )
           : (
-              <div className="h-full overflow-y-auto">
+              <EditorSurfaceScrollArea
+                editorSurface={editorSurface}
+                fontSize={editorFontSize}
+                typography={typography}
+                onFontSizeChange={handleEditorFontSizeChange}
+                className="h-full"
+              >
                 <div className="px-8 sm:px-12 min-h-full py-6">
                   <PlanEditor
                     key={planFileId}
@@ -187,8 +205,21 @@ export function PlanFileEditor({
                     editable={true}
                   />
                 </div>
-              </div>
+              </EditorSurfaceScrollArea>
             )}
+      </div>
+
+      <div className="h-10 px-6 flex items-center justify-between border-t border-border bg-transparent backdrop-blur-sm shrink-0">
+        <div className="flex min-w-0 items-center gap-1">
+          <EditorSurfaceArcPicker
+            value={editorSurface}
+            onChange={handleEditorSurfaceChange}
+          />
+          <EditorSurfaceTypographyPicker
+            value={typography}
+            onChange={handleTypographyChange}
+          />
+        </div>
       </div>
     </div>
   )

@@ -91,6 +91,10 @@ const tiptap = {
         title: 'Codeblock',
         description: 'Code einfügen',
       },
+      sceneBreak: {
+        title: 'Szenenwechsel',
+        description: '* * * Szenentrenner einfügen',
+      },
       divider: {
         title: 'Trennlinie',
         description: 'Horizontale Linie',

@@ -91,6 +91,10 @@ const tiptap = {
         title: 'コードブロック',
         description: 'コードを挿入',
       },
+      sceneBreak: {
+        title: 'シーン区切り',
+        description: '* * * のシーン切り替えを挿入',
+      },
       divider: {
         title: '区切り線',
         description: '横罫線',

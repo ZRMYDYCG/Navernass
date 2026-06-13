@@ -57,11 +57,11 @@
 /* 编辑器内容区域 */
 .ProseMirror {
   padding: 2rem 0;
-  max-width: 42rem;
+  max-width: var(--editor-surface-max-width, 42rem);
   margin: 0 auto;
   font-family: var(--font-editor, 'Georgia', serif);
-  font-size: 1.0625rem;
-  line-height: 1.9;
+  font-size: var(--editor-surface-font-size, 1.0625rem);
+  line-height: var(--editor-surface-line-height, 1.9);
   letter-spacing: 0.025em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -74,7 +74,7 @@
 }
 
 .ProseMirror p {
-  line-height: 1.9;
+  line-height: inherit;
   margin-bottom: 0;
   color: var(--foreground);
   position: relative;
@@ -244,6 +244,26 @@
 .ai-menu-submenu-enter {
   animation: slideRightAndFade 0.15s ease-out both;
 }
+
+.ProseMirror .scene-break {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2.5em 0;
+  user-select: none;
+}
+
+.ProseMirror .scene-break-mark {
+  color: var(--muted-foreground);
+  font-size: 0.875em;
+  letter-spacing: 0.35em;
+  font-family: var(--font-editor, 'Georgia', serif);
+}
+
+[data-editor-surface] .ProseMirror .scene-break-mark {
+  color: var(--editor-surface-fg-muted);
+}
+
 .ProseMirror.underline-solid p {
   background-image: linear-gradient(
     to bottom,

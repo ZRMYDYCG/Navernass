@@ -91,6 +91,10 @@ const tiptap = {
         title: 'Bloc de code',
         description: 'Insérer du code',
       },
+      sceneBreak: {
+        title: 'Séparation de scène',
+        description: 'Insérer un séparateur * * *',
+      },
       divider: {
         title: 'Séparateur',
         description: 'Règle horizontale',

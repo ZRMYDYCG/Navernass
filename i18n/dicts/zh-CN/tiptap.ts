@@ -91,6 +91,10 @@ const tiptap = {
         title: '代码块',
         description: '插入代码',
       },
+      sceneBreak: {
+        title: '场景分隔',
+        description: '插入 * * * 场景切换符',
+      },
       divider: {
         title: '分隔线',
         description: '水平分隔线',

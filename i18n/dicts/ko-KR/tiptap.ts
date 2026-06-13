@@ -91,6 +91,10 @@ const tiptap = {
         title: '코드 블록',
         description: '코드를 삽입합니다',
       },
+      sceneBreak: {
+        title: '장면 구분',
+        description: '* * * 장면 전환 구분자 삽입',
+      },
       divider: {
         title: '구분선',
         description: '가로 구분선',

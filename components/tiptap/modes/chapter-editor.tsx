@@ -1,9 +1,9 @@
 'use client'
 
+import type { ChapterEditorProps } from '@/components/tiptap/core/types'
 import { useEffect } from 'react'
 import { EditorBridgeProvider } from '@/components/tiptap/core/editor-context'
 import { EditorShell } from '@/components/tiptap/core/editor-shell'
-import type { ChapterEditorProps } from '@/components/tiptap/core/types'
 import { useNovelEditor } from '@/components/tiptap/hooks/use-novel-editor'
 import { DialogProvider, setGlobalDialog, useDialog } from '@/components/tiptap/ui/dialog-manager'
 import 'tippy.js/dist/tippy.css'

@@ -1,4 +1,6 @@
 export { EditorSearch } from './editor-search'
 export { parseMarkdownContent } from './markdown-parser'
+export { PARAGRAPH_FOCUS_CLASS, ParagraphFocus } from './paragraph-focus'
+export { SceneBreak } from './scene-break'
 export { SearchHighlight, updateSearchHighlight } from './search-highlight'
 export { SlashCommand } from './slash-command'

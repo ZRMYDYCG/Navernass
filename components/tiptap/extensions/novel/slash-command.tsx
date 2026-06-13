@@ -4,6 +4,7 @@ import { Extension } from '@tiptap/core'
 import { ReactRenderer } from '@tiptap/react'
 import Suggestion from '@tiptap/suggestion'
 import {
+  Asterisk,
   Code,
   FileText,
   Heading1,
@@ -218,6 +219,15 @@ export const SlashCommand = Extension.create<SlashCommandOptions>({
               category: 'format',
               command: ({ editor, range }) => {
                 editor.chain().focus().deleteRange(range).toggleCodeBlock().run()
+              },
+            },
+            {
+              title: t('tiptap.slashCommand.items.sceneBreak.title'),
+              description: t('tiptap.slashCommand.items.sceneBreak.description'),
+              icon: Asterisk,
+              category: 'basic',
+              command: ({ editor, range }) => {
+                editor.chain().focus().deleteRange(range).setSceneBreak().run()
               },
             },
             {
