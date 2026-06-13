@@ -264,15 +264,17 @@
   color: var(--editor-surface-fg-muted);
 }
 
-.ProseMirror.underline-solid p {
-  background-image: linear-gradient(
+.ProseMirror.underline-solid :is(p, li, h1, h2, h3, h4, h5, h6) {
+  line-height: var(--editor-surface-line-height, 1.9);
+  background-image: repeating-linear-gradient(
     to bottom,
-    transparent calc(2.2em - 1px),
-    var(--underline-color, #a8a29e) calc(2.2em - 1px),
-    var(--underline-color, #a8a29e) 2.2em,
-    transparent 2.2em
+    transparent 0,
+    transparent calc(1lh - 1px),
+    var(--underline-color, #a8a29e) calc(1lh - 1px),
+    var(--underline-color, #a8a29e) 1lh
   );
 }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

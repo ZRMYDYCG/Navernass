@@ -266,16 +266,6 @@
   text-indent: 2em;
 }
 
-[data-editor-surface][data-underline-paper='true'] .ProseMirror p {
-  background-image: linear-gradient(
-    to bottom,
-    transparent calc(var(--editor-surface-line-height) * 1em - 1px),
-    var(--editor-surface-underline) calc(var(--editor-surface-line-height) * 1em - 1px),
-    var(--editor-surface-underline) calc(var(--editor-surface-line-height) * 1em),
-    transparent calc(var(--editor-surface-line-height) * 1em)
-  );
-}
-
 [data-editor-surface][data-prose-focus='true'] .ProseMirror:focus-within :is(
   p,
   h1,
@@ -348,20 +338,22 @@
   border-left-color: var(--editor-surface-border);
 }
 
+/* 横线稿纸：按块内实际行数绘制，1lh = 一行字高，横线落在每行底部 */
+[data-editor-surface][data-underline-paper='true'] .ProseMirror :is(p, li, h1, h2, h3, h4, h5, h6) {
+  line-height: var(--editor-surface-line-height);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1lh - 1px),
+    var(--editor-surface-underline) calc(1lh - 1px),
+    var(--editor-surface-underline) 1lh
+  );
+}
+
 [data-editor-surface] .ProseMirror::selection,
 [data-editor-surface] .ProseMirror *::selection {
   background-color: color-mix(in oklab, var(--editor-surface-fg) 18%, transparent);
   color: var(--editor-surface-fg);
-}
-
-[data-editor-surface] .ProseMirror.underline-solid p {
-  background-image: linear-gradient(
-    to bottom,
-    transparent calc(2.2em - 1px),
-    var(--editor-surface-underline) calc(2.2em - 1px),
-    var(--editor-surface-underline) 2.2em,
-    transparent 2.2em
-  );
 }
 
 [data-editor-surface] .ProseMirror p.is-editor-empty:first-child::before,
