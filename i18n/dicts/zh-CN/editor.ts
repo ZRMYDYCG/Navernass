@@ -685,6 +685,16 @@ const editor = {
           error: '并行执行失败',
           taskLabel: '任务 {{index}} · {{kind}}',
         },
+        structured: {
+          overview: '总览',
+          contradictions: '矛盾点',
+          citations: '引用位置',
+          suggestions: '建议',
+          timelineUpdates: '时间线变更',
+          priorityHigh: '高',
+          priorityMedium: '中',
+          priorityLow: '低',
+        },
       },
       labels: {
         read_chapter: '读取章节',

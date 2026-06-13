@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { createStreamingSubagentTool } from './create-streaming-subagent-tool'
 import type { StreamingSubagentToolConfig } from './run-subagent-stream'
 import { SUBAGENT_PREFETCH_SYSTEM_HINT } from './subagent-prefetch'
+import { SUBAGENT_RESEARCH_SUMMARY_PROMPT } from './subagent-summary-schema'
 
 export const DEEP_RESEARCH_TOOL_NAMES = [
   'read_chapter',
@@ -23,11 +24,11 @@ const RESEARCH_SYSTEM_PROMPT = `你是小说调研子助手，由主写作 Agent
 
 【规则】
 - 只使用只读工具，不要尝试创建或修改任何数据
-- 完成后用中文输出结构化摘要（关键事实、矛盾点、可引用片段位置）
 - 摘要将返回给主 Agent，务必信息密度高、可直接用于续写或改稿决策
-- 除工具调用外不使用 markdown
 
-${SUBAGENT_PREFETCH_SYSTEM_HINT}`
+${SUBAGENT_PREFETCH_SYSTEM_HINT}
+
+${SUBAGENT_RESEARCH_SUMMARY_PROMPT}`
 
 export const deepResearchInputSchema = z.object({
   task: z

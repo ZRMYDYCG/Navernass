@@ -680,6 +680,16 @@ const editor = {
           error: 'Échec parallèle',
           taskLabel: 'Tâche {{index}} · {{kind}}',
         },
+        structured: {
+          overview: 'Vue d’ensemble',
+          contradictions: 'Contradictions',
+          citations: 'Citations',
+          suggestions: 'Suggestions',
+          timelineUpdates: 'Mises à jour chronologie',
+          priorityHigh: 'Haute',
+          priorityMedium: 'Moyenne',
+          priorityLow: 'Basse',
+        },
       },
       labels: {
         read_chapter: 'Lire le chapitre',

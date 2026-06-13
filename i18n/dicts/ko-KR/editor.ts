@@ -680,6 +680,16 @@ const editor = {
           error: '병렬 실행 실패',
           taskLabel: '작업 {{index}} · {{kind}}',
         },
+        structured: {
+          overview: '개요',
+          contradictions: '모순',
+          citations: '인용 위치',
+          suggestions: '제안',
+          timelineUpdates: '타임라인 변경',
+          priorityHigh: '높음',
+          priorityMedium: '중간',
+          priorityLow: '낮음',
+        },
       },
       labels: {
         read_chapter: '챕터 읽기',

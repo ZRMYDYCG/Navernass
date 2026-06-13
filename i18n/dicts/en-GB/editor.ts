@@ -680,6 +680,16 @@ const editor = {
           error: 'Parallel run failed',
           taskLabel: 'Task {{index}} · {{kind}}',
         },
+        structured: {
+          overview: 'Overview',
+          contradictions: 'Contradictions',
+          citations: 'Citations',
+          suggestions: 'Suggestions',
+          timelineUpdates: 'Timeline updates',
+          priorityHigh: 'High',
+          priorityMedium: 'Medium',
+          priorityLow: 'Low',
+        },
       },
       labels: {
         read_chapter: 'Read chapter',

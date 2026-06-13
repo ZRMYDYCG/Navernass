@@ -12,6 +12,7 @@ import {
 } from '@/lib/ai/agents/subagents/types'
 import { cn } from '@/lib/utils'
 import { AguiExpandableContent } from './agui-expandable'
+import { SubagentStructuredSummaryView } from './subagent-structured-summary'
 import { translateToolLabel } from './tool-i18n'
 
 /**
@@ -228,9 +229,13 @@ export function SubagentToolPart({
                   </button>
                 ) : null}
               </div>
-              <p className="whitespace-pre-wrap break-words text-foreground/90">
-                {parsed.summary}
-              </p>
+              {parsed.structuredSummary ? (
+                <SubagentStructuredSummaryView summary={parsed.structuredSummary} />
+              ) : (
+                <p className="whitespace-pre-wrap break-words text-foreground/90">
+                  {parsed.summary}
+                </p>
+              )}
             </div>
           ) : null}
           {errorText || parsed?.error ? (

@@ -4,6 +4,7 @@ import { characterScriptwriterAgent } from '../character-scriptwriter'
 import { createStreamingSubagentTool } from './create-streaming-subagent-tool'
 import type { StreamingSubagentToolConfig } from './run-subagent-stream'
 import { SUBAGENT_PREFETCH_SYSTEM_HINT } from './subagent-prefetch'
+import { SUBAGENT_TIMELINE_SUMMARY_PROMPT } from './subagent-summary-schema'
 
 const SCRIPTWRITER_TOOL_NAMES = characterScriptwriterAgent.defaultToolNames ?? []
 
@@ -45,7 +46,7 @@ export function getCharacterTimelineSubagentConfig(
       const focus = characterName
         ? `**当前服务的角色**：${characterName}（id: ${characterId}）`
         : `**当前服务的角色 id**：${characterId}`
-      return `${focus}\n\n${characterScriptwriterAgent.systemPrompt}\n\n所有需要 characterId 的工具调用请使用上面的 id。\n\n${SUBAGENT_PREFETCH_SYSTEM_HINT}`
+      return `${focus}\n\n${characterScriptwriterAgent.systemPrompt}\n\n所有需要 characterId 的工具调用请使用上面的 id。\n\n${SUBAGENT_PREFETCH_SYSTEM_HINT}\n\n${SUBAGENT_TIMELINE_SUMMARY_PROMPT}`
     },
     userMessage: ({ task }) => task,
     toolNames: SCRIPTWRITER_TOOL_NAMES,

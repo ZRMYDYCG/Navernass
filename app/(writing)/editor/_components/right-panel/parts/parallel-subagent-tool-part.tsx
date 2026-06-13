@@ -13,6 +13,7 @@ import {
 } from '@/lib/ai/agents/subagents/types'
 import { cn } from '@/lib/utils'
 import { AguiExpandableContent } from './agui-expandable'
+import { SubagentStructuredSummaryView } from './subagent-structured-summary'
 import { translateToolLabel } from './tool-i18n'
 
 type ToolState
@@ -113,7 +114,11 @@ function ParallelTaskCard({ task }: { task: ParallelSubagentTaskOutput }) {
         </p>
       ) : null}
       {task.summary && task.status !== 'running' ? (
-        <p className="whitespace-pre-wrap break-words text-foreground/90">{task.summary}</p>
+        task.structuredSummary ? (
+          <SubagentStructuredSummaryView summary={task.structuredSummary} />
+        ) : (
+          <p className="whitespace-pre-wrap break-words text-foreground/90">{task.summary}</p>
+        )
       ) : null}
       {task.error ? (
         <p className="text-destructive">{task.error}</p>

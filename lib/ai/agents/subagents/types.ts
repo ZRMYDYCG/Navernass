@@ -1,4 +1,6 @@
 /** 单个子 Agent 工具名（writer 委派用的 subagent-as-tool）。 */
+import type { SubagentStructuredSummary } from './subagent-summary-schema'
+
 export const SUBAGENT_TOOL_NAMES = [
   'deep_research',
   'delegate_character_timeline',
@@ -48,6 +50,14 @@ export const SUBAGENT_STEP_PREVIEW_MAX_CHARS = 120
 /** UI 截断常量：实时预览面板最大高度（行数） */
 export const SUBAGENT_LIVE_PREVIEW_MAX_LINES = 8
 
+export type {
+  SubagentCitation,
+  SubagentContradiction,
+  SubagentStructuredSummary,
+  SubagentSuggestion,
+  SubagentTimelineUpdate,
+} from './subagent-summary-schema'
+
 /** 子 Agent 工具返回给主模型与 UI 的结构化结果 */
 export interface SubagentStepLog {
   stepNumber: number
@@ -63,7 +73,11 @@ export interface SubagentToolOutput {
   status: SubagentRunStatus
   /** 流式预览（子 agent 正在生成的摘要草稿） */
   preview?: string
-  /** 完成后返回给主 Agent 的摘要 */
+  /** 模型原始最终输出（多为 JSON 字符串） */
+  summaryRaw?: string
+  /** 解析后的结构化摘要 */
+  structuredSummary?: SubagentStructuredSummary
+  /** 格式化后返回给主 Agent / UI 展示的摘要 */
   summary?: string
   steps?: SubagentStepLog[]
   error?: string
@@ -82,12 +96,12 @@ export interface ParallelSubagentTaskOutput {
   input: Record<string, unknown>
   status: SubagentRunStatus
   preview?: string
+  summaryRaw?: string
+  structuredSummary?: SubagentStructuredSummary
   summary?: string
   steps?: SubagentStepLog[]
   error?: string
 }
-
-/** 并行委派工具的结构化输出 */
 export interface ParallelSubagentToolOutput {
   status: SubagentRunStatus
   tasks: ParallelSubagentTaskOutput[]

@@ -680,6 +680,16 @@ const editor = {
           error: '並列実行失敗',
           taskLabel: 'タスク {{index}} · {{kind}}',
         },
+        structured: {
+          overview: '概要',
+          contradictions: '矛盾点',
+          citations: '引用位置',
+          suggestions: '提案',
+          timelineUpdates: 'タイムライン更新',
+          priorityHigh: '高',
+          priorityMedium: '中',
+          priorityLow: '低',
+        },
       },
       labels: {
         read_chapter: '章を読む',

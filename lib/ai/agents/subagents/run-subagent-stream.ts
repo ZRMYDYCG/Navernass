@@ -5,6 +5,7 @@ import { stepCountIs, streamText } from 'ai'
 import { getMinimaxModel } from '@/lib/ai/minimax'
 import { buildTools } from '../../tools/registry'
 import { enrichSubagentUserMessage } from './subagent-prefetch'
+import { finalizeSubagentSummary } from './subagent-summary-schema'
 
 export interface StreamingSubagentToolConfig<TInput extends Record<string, unknown>> {
   toolName: string
@@ -115,15 +116,18 @@ export async function* runSubagentStream<TInput extends Record<string, unknown>>
       yield yieldProgress({ preview })
     }
 
-    const summary = (await result.text).trim() || preview.trim()
+    const rawSummary = (await result.text).trim() || preview.trim()
+    const finalized = finalizeSubagentSummary(rawSummary)
     const done: SubagentToolOutput = {
       status: 'done',
-      summary,
-      preview: summary,
+      summaryRaw: finalized.summaryRaw,
+      structuredSummary: finalized.structuredSummary ?? undefined,
+      summary: finalized.summary,
+      preview: finalized.summary,
       steps,
     }
     yield done
-    return summary
+    return finalized.summary
   } catch (e) {
     if (isAbortError(e)) {
       const aborted: SubagentToolOutput = {

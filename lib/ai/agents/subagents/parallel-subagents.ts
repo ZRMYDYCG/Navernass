@@ -62,6 +62,8 @@ function mergeTaskProgress(
     ...slot,
     status: output.status,
     preview: output.preview,
+    summaryRaw: output.summaryRaw,
+    structuredSummary: output.structuredSummary,
     summary: output.summary,
     steps: output.steps,
     error: output.error,

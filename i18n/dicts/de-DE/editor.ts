@@ -680,6 +680,16 @@ const editor = {
           error: 'Parallel fehlgeschlagen',
           taskLabel: 'Aufgabe {{index}} · {{kind}}',
         },
+        structured: {
+          overview: 'Überblick',
+          contradictions: 'Widersprüche',
+          citations: 'Zitate',
+          suggestions: 'Vorschläge',
+          timelineUpdates: 'Zeitstrahl-Updates',
+          priorityHigh: 'Hoch',
+          priorityMedium: 'Mittel',
+          priorityLow: 'Niedrig',
+        },
       },
       labels: {
         read_chapter: 'Kapitel lesen',

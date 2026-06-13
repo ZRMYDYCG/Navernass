@@ -680,6 +680,16 @@ const editor = {
           error: '並行執行失敗',
           taskLabel: '任務 {{index}} · {{kind}}',
         },
+        structured: {
+          overview: '總覽',
+          contradictions: '矛盾點',
+          citations: '引用位置',
+          suggestions: '建議',
+          timelineUpdates: '時間線變更',
+          priorityHigh: '高',
+          priorityMedium: '中',
+          priorityLow: '低',
+        },
       },
       labels: {
         read_chapter: '讀取章節',
