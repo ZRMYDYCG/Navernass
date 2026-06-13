@@ -1,13 +1,16 @@
 /**
- * 中间件常量与说明。
+ * 各独立 store 的 devtools 命名约定。
  *
- * 实际的 middleware 组合在 use-app-store.ts 中通过 create 直接完成。
- *
- * 中间件规则（见 docs/zustand.md）：
- * - 中间件只允许在 use-app-store.ts 中组合，禁止在单个 slice 内单独包
- * - 顺序：devtools 在最外层，immer 在内层
- * - devtools 必须配置 name
- * - 当前项目不需要 persist：业务数据是会话级服务端缓存，不写入 localStorage
+ * middleware 在 createBoundStore 中统一组合（devtools 外层 + immer 内层）。
+ * 禁止在单个 store 模块内再包一层 middleware。
  */
 
-export const APP_STORE_DEVTOOLS_NAME = 'app-store'
+export const CHAPTERS_STORE_DEVTOOLS_NAME = 'chapters-store'
+export const CHARACTER_GRAPH_STORE_DEVTOOLS_NAME = 'character-graph-store'
+export const CHARACTER_MATERIAL_STORE_DEVTOOLS_NAME = 'character-material-store'
+export const AI_EDITS_STORE_DEVTOOLS_NAME = 'ai-edits-store'
+export const PLAN_STORE_DEVTOOLS_NAME = 'plan-store'
+export const WORLDVIEW_STORE_DEVTOOLS_NAME = 'worldview-store'
+export const TIMELINE_STORE_DEVTOOLS_NAME = 'timeline-store'
+export const NOVEL_CHAT_STORE_DEVTOOLS_NAME = 'novel-chat-store'
+export const CHAT_STORE_DEVTOOLS_NAME = 'chat-store'

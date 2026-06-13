@@ -7,7 +7,7 @@ import { useI18n } from '@/hooks/use-i18n'
 import type { ChatAiMode } from '@/lib/ai/agents'
 import { conversationsApi } from '@/lib/supabase/sdk'
 import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
-import { useAppStore } from '@/store'
+import { useChatStore } from '@/store'
 import { ChatWelcomeHeader } from './_components/chat-welcome-header'
 import { ChatModeSelector } from './[id]/_components/chat-mode-selector'
 import { ChatModelSelector } from './[id]/_components/chat-model-selector'
@@ -16,13 +16,13 @@ export default function ChatPage() {
   const { t } = useI18n()
   const router = useRouter()
 
-  const welcomeInput = useAppStore(s => s.chat.welcomeInput)
-  const setWelcomeInput = useAppStore(s => s.chatActions.setWelcomeInput)
-  const setPendingDraftMessage = useAppStore(s => s.chatActions.setPendingDraftMessage)
-  const welcomeMode = useAppStore(s => s.chat.welcomeMode)
-  const welcomeModel = useAppStore(s => s.chat.welcomeModel)
-  const setWelcomeMode = useAppStore(s => s.chatActions.setWelcomeMode)
-  const setWelcomeModel = useAppStore(s => s.chatActions.setWelcomeModel)
+  const welcomeInput = useChatStore(s => s.chat.welcomeInput)
+  const setWelcomeInput = useChatStore(s => s.chatActions.setWelcomeInput)
+  const setPendingDraftMessage = useChatStore(s => s.chatActions.setPendingDraftMessage)
+  const welcomeMode = useChatStore(s => s.chat.welcomeMode)
+  const welcomeModel = useChatStore(s => s.chat.welcomeModel)
+  const setWelcomeMode = useChatStore(s => s.chatActions.setWelcomeMode)
+  const setWelcomeModel = useChatStore(s => s.chatActions.setWelcomeModel)
 
   const [isDispatching, setIsDispatching] = useState(false)
 

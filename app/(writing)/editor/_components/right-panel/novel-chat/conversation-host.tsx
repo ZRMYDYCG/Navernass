@@ -5,7 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { toUIMessages } from '@/lib/editor/novel-chat-messages'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
-import { useAppStore } from '@/store'
+import { useNovelChatStore } from '@/store'
 import type { NovelChatRuntime } from './context'
 import {
   abortNovelChatStream,
@@ -41,8 +41,8 @@ export function NovelChatConversationHost({
   const { t } = useI18n()
   const loadedConversationIdRef = useRef<string | null>(null)
 
-  const patchUiSession = useAppStore(s => s.novelChatActions.patchUiSession)
-  const uiSession = useAppStore(s => s.novelChat.sessionsByNovelId[novelId])
+  const patchUiSession = useNovelChatStore(s => s.novelChatActions.patchUiSession)
+  const uiSession = useNovelChatStore(s => s.novelChat.sessionsByNovelId[novelId])
 
   const mode = uiSession?.mode ?? 'agent'
   const model = uiSession?.model ?? 'MiniMax-M3'

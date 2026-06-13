@@ -29,7 +29,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { characterTimelineApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
-import { selectEventsForCharacter, useAppStore } from '@/store'
+import { selectEventsForCharacter, useTimelineStore } from '@/store'
 
 const EVENT_META: Record<CharacterEventType, { label: string, icon: React.ComponentType<{ className?: string }>, color: string }> = {
   appearance: { label: '登场', icon: Sparkles, color: 'text-sky-500' },
@@ -51,17 +51,17 @@ interface TimelinePanelProps {
 /**
  * 角色时间线面板（角色面板的右侧抽屉）
  *
- * 数据：useAppStore（timeline slice，按 characterId 索引），CRUD 同步 store。
+ * 数据：useTimelineStore（按 characterId 索引），CRUD 同步 store。
  * 角色剧本 Agent 通过 AutoWriteToolPart 也写入此 store，AI 改完事件 UI 立刻同步。
  */
 export function TimelinePanel({ novelId, character, onClose, onOpenScriptChat }: TimelinePanelProps) {
-  const events = useAppStore(
+  const events = useTimelineStore(
     useShallow(character ? selectEventsForCharacter(character.id) : () => []),
   )
-  const hydratedCharacters = useAppStore(s => s.timeline.hydratedCharacters)
-  const hydrate = useAppStore(s => s.timelineActions.hydrateForCharacter)
-  const upsert = useAppStore(s => s.timelineActions.upsertEvent)
-  const remove = useAppStore(s => s.timelineActions.removeEvent)
+  const hydratedCharacters = useTimelineStore(s => s.timeline.hydratedCharacters)
+  const hydrate = useTimelineStore(s => s.timelineActions.hydrateForCharacter)
+  const upsert = useTimelineStore(s => s.timelineActions.upsertEvent)
+  const remove = useTimelineStore(s => s.timelineActions.removeEvent)
 
   const [loading, setLoading] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)

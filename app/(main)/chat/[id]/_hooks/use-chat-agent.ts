@@ -11,7 +11,7 @@ import {
   normalizeChatMode,
 } from '@/lib/ai/agents'
 import { charactersApi, chatApi, conversationsApi, novelsApi, outlinesApi } from '@/lib/supabase/sdk'
-import { useAppStore } from '@/store'
+import { useChatStore } from '@/store'
 import { useChatConversation } from './use-chat-conversation'
 
 /**
@@ -32,7 +32,7 @@ export function useChatAgent({
   mentionsRef?: { current: { bookIds: string[], characterIds: string[] } }
 }) {
   const { t } = useI18n()
-  const consumeWelcomeAgent = useAppStore(s => s.chatActions.consumeWelcomeAgent)
+  const consumeWelcomeAgent = useChatStore(s => s.chatActions.consumeWelcomeAgent)
 
   const [mode, setModeState] = useState<ChatAiMode>('ask')
   const [model, setModelState] = useState<AiModel>('MiniMax-M3')

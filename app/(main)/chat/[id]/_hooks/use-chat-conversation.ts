@@ -11,7 +11,7 @@ import { useI18n } from '@/hooks/use-i18n'
 import { extractTextFromUIMessage, toUIMessages } from '@/lib/chat/chat-messages'
 import { chatApi, conversationsApi } from '@/lib/supabase/sdk'
 import { copyTextToClipboard } from '@/lib/utils'
-import { useAppStore } from '@/store'
+import { useChatStore } from '@/store'
 
 /**
  * 主聊天页 useChat 包装。
@@ -136,7 +136,7 @@ export function useChatConversation({ conversationId, mode, model, mentionsRef }
   const isStreaming = status === 'submitted' || status === 'streaming'
 
   // 同步流式状态到 zustand，左侧抽屉可以据此渲染 loading 指示器
-  const setStreamingConversationId = useAppStore(s => s.chatActions.setStreamingConversationId)
+  const setStreamingConversationId = useChatStore(s => s.chatActions.setStreamingConversationId)
   useEffect(() => {
     setStreamingConversationId(isStreaming ? conversationId : null)
   }, [isStreaming, conversationId, setStreamingConversationId])

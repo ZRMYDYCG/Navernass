@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
-import { useAppStore } from '@/store'
+import { useCharacterMaterialStore, useCharacterGraphStore } from '@/store'
 
 import { CastingPool } from './casting-pool'
 import { CharacterModal } from './character-modal'
@@ -21,38 +21,38 @@ interface CharacterPanelProps {
 }
 
 export function CharacterPanel({ novelId, novelTitle }: CharacterPanelProps) {
-  const characters = useAppStore(s => s.characterMaterial.characters)
-  const materialSelectedCharacterId = useAppStore(s => s.characterMaterial.selectedCharacterId)
-  const characterChapterMap = useAppStore(s => s.characterMaterial.characterChapterMap)
-  const selectMaterialCharacter = useAppStore(s => s.characterMaterialActions.selectCharacter)
+  const characters = useCharacterMaterialStore(s => s.characterMaterial.characters)
+  const materialSelectedCharacterId = useCharacterMaterialStore(s => s.characterMaterial.selectedCharacterId)
+  const characterChapterMap = useCharacterMaterialStore(s => s.characterMaterial.characterChapterMap)
+  const selectMaterialCharacter = useCharacterMaterialStore(s => s.characterMaterialActions.selectCharacter)
 
-  const viewMode = useAppStore(s => s.characterGraph.viewMode)
-  const relationshipGraphViewMode = useAppStore(s => s.characterGraph.relationshipGraphViewMode)
-  const selectedCharacterId = useAppStore(s => s.characterGraph.selectedCharacterId)
-  const selectedRelationshipId = useAppStore(s => s.characterGraph.selectedRelationshipId)
-  const characterModalOpen = useAppStore(s => s.characterGraph.characterModalOpen)
-  const editingCharacterId = useAppStore(s => s.characterGraph.editingCharacterId)
-  const relationshipModalOpen = useAppStore(s => s.characterGraph.relationshipModalOpen)
-  const editingRelationshipId = useAppStore(s => s.characterGraph.editingRelationshipId)
-  const defaultRelationshipSourceId = useAppStore(s => s.characterGraph.defaultRelationshipSourceId)
-  const defaultRelationshipTargetId = useAppStore(s => s.characterGraph.defaultRelationshipTargetId)
-  const linkingSourceId = useAppStore(s => s.characterGraph.linkingSourceId)
-  const relationshipsByNovel = useAppStore(s => s.characterGraph.relationshipsByNovel)
+  const viewMode = useCharacterGraphStore(s => s.characterGraph.viewMode)
+  const relationshipGraphViewMode = useCharacterGraphStore(s => s.characterGraph.relationshipGraphViewMode)
+  const selectedCharacterId = useCharacterGraphStore(s => s.characterGraph.selectedCharacterId)
+  const selectedRelationshipId = useCharacterGraphStore(s => s.characterGraph.selectedRelationshipId)
+  const characterModalOpen = useCharacterGraphStore(s => s.characterGraph.characterModalOpen)
+  const editingCharacterId = useCharacterGraphStore(s => s.characterGraph.editingCharacterId)
+  const relationshipModalOpen = useCharacterGraphStore(s => s.characterGraph.relationshipModalOpen)
+  const editingRelationshipId = useCharacterGraphStore(s => s.characterGraph.editingRelationshipId)
+  const defaultRelationshipSourceId = useCharacterGraphStore(s => s.characterGraph.defaultRelationshipSourceId)
+  const defaultRelationshipTargetId = useCharacterGraphStore(s => s.characterGraph.defaultRelationshipTargetId)
+  const linkingSourceId = useCharacterGraphStore(s => s.characterGraph.linkingSourceId)
+  const relationshipsByNovel = useCharacterGraphStore(s => s.characterGraph.relationshipsByNovel)
 
-  const setViewMode = useAppStore(s => s.characterGraphActions.setViewMode)
-  const setRelationshipGraphViewMode = useAppStore(s => s.characterGraphActions.setRelationshipGraphViewMode)
-  const selectCharacter = useAppStore(s => s.characterGraphActions.selectCharacter)
-  const selectRelationship = useAppStore(s => s.characterGraphActions.selectRelationship)
-  const openCreateCharacter = useAppStore(s => s.characterGraphActions.openCreateCharacter)
-  const openEditCharacter = useAppStore(s => s.characterGraphActions.openEditCharacter)
-  const closeCharacterModal = useAppStore(s => s.characterGraphActions.closeCharacterModal)
-  const openCreateRelationship = useAppStore(s => s.characterGraphActions.openCreateRelationship)
-  const openEditRelationship = useAppStore(s => s.characterGraphActions.openEditRelationship)
-  const closeRelationshipModal = useAppStore(s => s.characterGraphActions.closeRelationshipModal)
-  const startLink = useAppStore(s => s.characterGraphActions.startLink)
-  const cancelLink = useAppStore(s => s.characterGraphActions.cancelLink)
-  const createRelationship = useAppStore(s => s.characterGraphActions.createRelationship)
-  const updateRelationship = useAppStore(s => s.characterGraphActions.updateRelationship)
+  const setViewMode = useCharacterGraphStore(s => s.characterGraphActions.setViewMode)
+  const setRelationshipGraphViewMode = useCharacterGraphStore(s => s.characterGraphActions.setRelationshipGraphViewMode)
+  const selectCharacter = useCharacterGraphStore(s => s.characterGraphActions.selectCharacter)
+  const selectRelationship = useCharacterGraphStore(s => s.characterGraphActions.selectRelationship)
+  const openCreateCharacter = useCharacterGraphStore(s => s.characterGraphActions.openCreateCharacter)
+  const openEditCharacter = useCharacterGraphStore(s => s.characterGraphActions.openEditCharacter)
+  const closeCharacterModal = useCharacterGraphStore(s => s.characterGraphActions.closeCharacterModal)
+  const openCreateRelationship = useCharacterGraphStore(s => s.characterGraphActions.openCreateRelationship)
+  const openEditRelationship = useCharacterGraphStore(s => s.characterGraphActions.openEditRelationship)
+  const closeRelationshipModal = useCharacterGraphStore(s => s.characterGraphActions.closeRelationshipModal)
+  const startLink = useCharacterGraphStore(s => s.characterGraphActions.startLink)
+  const cancelLink = useCharacterGraphStore(s => s.characterGraphActions.cancelLink)
+  const createRelationship = useCharacterGraphStore(s => s.characterGraphActions.createRelationship)
+  const updateRelationship = useCharacterGraphStore(s => s.characterGraphActions.updateRelationship)
 
   const effectiveSelectedCharacterId = selectedCharacterId ?? materialSelectedCharacterId ?? null
 

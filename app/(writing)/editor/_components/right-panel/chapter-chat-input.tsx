@@ -6,13 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { useShallow } from 'zustand/react/shallow'
 import { AiChatInput, type AiChatInputProps } from '@/components/buss'
 import { hasComposerContent } from '@/lib/editor/inline-composer'
-import {
-  selectOrderedChapters,
-  selectOrderedOutlines,
-  selectOrderedVolumes,
-  selectOrderedWorldbookEntries,
-  useAppStore,
-} from '@/store'
+import { selectOrderedChapters, selectOrderedOutlines, selectOrderedVolumes, selectOrderedWorldbookEntries, useChaptersStore, useCharacterMaterialStore, useWorldviewStore } from '@/store'
 import type { AiMode } from './types'
 import { InlineChapterComposer } from './inline-chapter-composer'
 import { ModeSelector } from './mode-selector'
@@ -49,17 +43,17 @@ export function ChapterChatInput({
 }: ChapterChatInputProps) {
   const searchParams = useSearchParams()
   const novelId = searchParams.get('id') || ''
-  const allChapters = useAppStore(useShallow(selectOrderedChapters))
-  const allVolumes = useAppStore(useShallow(selectOrderedVolumes))
-  const allCharacters = useAppStore(
+  const allChapters = useChaptersStore(useShallow(selectOrderedChapters))
+  const allVolumes = useChaptersStore(useShallow(selectOrderedVolumes))
+  const allCharacters = useCharacterMaterialStore(
     useShallow(s => s.characterMaterial.characters.filter(c => !c.novel_id || c.novel_id === novelId)),
   )
   const characterRefs = useMemo(
     () => allCharacters.map(c => ({ id: c.id, name: c.name })),
     [allCharacters],
   )
-  const allWorldbookEntries = useAppStore(useShallow(selectOrderedWorldbookEntries))
-  const allOutlines = useAppStore(useShallow(selectOrderedOutlines))
+  const allWorldbookEntries = useWorldviewStore(useShallow(selectOrderedWorldbookEntries))
+  const allOutlines = useWorldviewStore(useShallow(selectOrderedOutlines))
   const worldbookRefs = useMemo(
     () => allWorldbookEntries.map(e => ({ id: e.id, title: e.title })),
     [allWorldbookEntries],

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { useAppStore } from '@/store'
+import { useCharacterMaterialStore, useCharacterGraphStore } from '@/store'
 
 export type ImportAnalysisToolName =
   | 'report_analysis_step'
@@ -55,8 +55,8 @@ export function ImportAnalysisToolPart({
   errorText,
   variant = 'terminal',
 }: ImportAnalysisToolPartProps) {
-  const upsertCharacter = useAppStore(s => s.characterMaterialActions.upsertCharacter)
-  const createRelationship = useAppStore(s => s.characterGraphActions.createRelationship)
+  const upsertCharacter = useCharacterMaterialStore(s => s.characterMaterialActions.upsertCharacter)
+  const createRelationship = useCharacterGraphStore(s => s.characterGraphActions.createRelationship)
 
   useEffect(() => {
     if (state !== 'output-available') return

@@ -6,13 +6,7 @@ import type { UIMessage } from 'ai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { novelConversationsApi } from '@/lib/supabase/sdk'
-import {
-  selectOrderedChapters,
-  selectOrderedOutlines,
-  selectOrderedWorldbookEntries,
-  selectNovelChatUiSession,
-  useAppStore,
-} from '@/store'
+import { selectOrderedChapters, selectOrderedOutlines, selectOrderedWorldbookEntries, selectNovelChatUiSession, useNovelChatStore, useCharacterMaterialStore, useWorldviewStore, useChaptersStore } from '@/store'
 import { useNovelChatContext } from './context'
 import { useNovelChatRuntime } from './provider'
 import { makeConversationKey } from './conversation-keys'
@@ -27,9 +21,9 @@ export function useNovelChat() {
   const novelId = searchParams.get('id') || ''
   const { ensureSession } = useNovelChatContext()
 
-  const setActiveNovelId = useAppStore(s => s.novelChatActions.setActiveNovelId)
-  const patchUiSession = useAppStore(s => s.novelChatActions.patchUiSession)
-  const uiSession = useAppStore(s => selectNovelChatUiSession(s, novelId))
+  const setActiveNovelId = useNovelChatStore(s => s.novelChatActions.setActiveNovelId)
+  const patchUiSession = useNovelChatStore(s => s.novelChatActions.patchUiSession)
+  const uiSession = useNovelChatStore(s => selectNovelChatUiSession(s, novelId))
 
   const runtime = useNovelChatRuntime(novelId)
 
@@ -92,7 +86,7 @@ export function useNovelChat() {
 
   const setInput = useCallback((value: string | ((prev: string) => string)) => {
     if (!novelId) return
-    const current = useAppStore.getState().novelChat.sessionsByNovelId[novelId]?.input ?? ''
+    const current = useNovelChatStore.getState().novelChat.sessionsByNovelId[novelId]?.input ?? ''
     const next = typeof value === 'function' ? value(current) : value
     if (next === current) return
     patchUiSession(novelId, { input: next })
@@ -110,7 +104,7 @@ export function useNovelChat() {
 
   const setSelectedChapters = useCallback((chapters: Chapter[] | ((prev: Chapter[]) => Chapter[])) => {
     if (!novelId) return
-    const session = useAppStore.getState().novelChat.sessionsByNovelId[novelId]
+    const session = useNovelChatStore.getState().novelChat.sessionsByNovelId[novelId]
     const current = toChapterRefs(session?.selectedChapters ?? [])
     const next = typeof chapters === 'function' ? chapters(current) : chapters
     const nextRefs = fromChapterRefs(next)
@@ -195,13 +189,13 @@ export function useNovelChat() {
     const raw = input
     if (!hasComposerContent(raw) || isLoading || !novelId || !sendMessage) return
 
-    const orderedChapters = selectOrderedChapters(useAppStore.getState())
-    const allCharacters = useAppStore.getState().characterMaterial.characters
+    const orderedChapters = selectOrderedChapters(useCharacterMaterialStore.getState())
+    const allCharacters = useCharacterMaterialStore.getState().characterMaterial.characters
       .filter(c => !c.novel_id || c.novel_id === novelId)
       .map(c => ({ id: c.id, name: c.name }))
-    const allWorldbookEntries = selectOrderedWorldbookEntries(useAppStore.getState())
+    const allWorldbookEntries = selectOrderedWorldbookEntries(useWorldviewStore.getState())
       .map(e => ({ id: e.id, title: e.title }))
-    const allOutlines = selectOrderedOutlines(useAppStore.getState())
+    const allOutlines = selectOrderedOutlines(useChaptersStore.getState())
       .map(o => ({ id: o.id, title: o.title }))
     const payload = buildUserComposerMessage(
       raw,

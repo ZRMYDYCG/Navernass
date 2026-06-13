@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
 import { locateTextInEditor, scrollEditorToRange } from '@/lib/editor/locate-text-in-editor'
 import type { PendingEdit } from '@/store'
-import { useAppStore } from '@/store'
+import { useAiEditsStore } from '@/store'
 import {
   applySuggestionDiff,
   documentHasSuggestions,
@@ -21,11 +21,11 @@ export function useProposeEditBridge(
   options: UseProposeEditBridgeOptions = {},
 ) {
   const { isReady = true, chapterHtml } = options
-  const editsMap = useAppStore(s => s.aiEdits.edits)
-  const focusEditId = useAppStore(s => s.aiEdits.focusEditId)
-  const focusRequestSeq = useAppStore(s => s.aiEdits.focusRequestSeq)
-  const markAnnotated = useAppStore(s => s.aiEditsActions.markAnnotated)
-  const clearFocusEdit = useAppStore(s => s.aiEditsActions.clearFocusEdit)
+  const editsMap = useAiEditsStore(s => s.aiEdits.edits)
+  const focusEditId = useAiEditsStore(s => s.aiEdits.focusEditId)
+  const focusRequestSeq = useAiEditsStore(s => s.aiEdits.focusRequestSeq)
+  const markAnnotated = useAiEditsStore(s => s.aiEditsActions.markAnnotated)
+  const clearFocusEdit = useAiEditsStore(s => s.aiEditsActions.clearFocusEdit)
 
   const pendingEdits = useMemo(() => {
     if (!chapterId) return []

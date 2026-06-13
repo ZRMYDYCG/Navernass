@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useI18n } from '@/hooks/use-i18n'
 import { conversationsApi } from '@/lib/supabase/sdk'
-import { useAppStore } from '@/store'
+import { useChatStore } from '@/store'
 import { cn } from '@/lib/utils'
 import { ChatHistoryItem } from './chat-history-item'
 
@@ -31,7 +31,7 @@ export function ChatHistoryPopover({ className, scrollAreaClassName }: ChatHisto
   const [isPinnedSectionOpen, setIsPinnedSectionOpen] = useState(true)
   const [chatHistory, setChatHistory] = useState<ChatHistoryData[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const streamingConversationId = useAppStore(s => s.chat.streamingConversationId)
+  const streamingConversationId = useChatStore(s => s.chat.streamingConversationId)
 
   const loadChatHistory = async () => {
     try {

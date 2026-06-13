@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildUserComposerMessage } from '@/lib/editor/composer-message'
 import { hasComposerContent } from '@/lib/editor/inline-composer'
-import { useAppStore } from '@/store'
+import { useChatStore } from '@/store'
 import { ChatWelcomeHeader } from '../_components/chat-welcome-header'
 import { ChatActionsWrapper } from './_components/chat-actions-wrapper'
 import { ChatAgentInput } from './_components/chat-agent-input'
@@ -23,7 +23,7 @@ export default function ConversationPage() {
   const params = useParams()
   const conversationId = params.id as string
 
-  const consumePendingDraftMessage = useAppStore(s => s.chatActions.consumePendingDraftMessage)
+  const consumePendingDraftMessage = useChatStore(s => s.chatActions.consumePendingDraftMessage)
 
   // 拉全部书本 + 角色，提供给 picker；mentionsRef 桥接 sendMessage 时的选中 id
   const mentions = useChatMentions()

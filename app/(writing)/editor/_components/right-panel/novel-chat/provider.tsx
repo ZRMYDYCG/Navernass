@@ -4,20 +4,20 @@ import type { ReactNode } from 'react'
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react'
 import { NovelChatContext, useNovelChatContext, type NovelChatRuntime } from './context'
 import { NovelChatSessionHost } from './session-host'
-import { useAppStore } from '@/store'
+import { useNovelChatStore } from '@/store'
 
 interface NovelChatProviderProps {
   children: ReactNode
 }
 
 export function NovelChatProvider({ children }: NovelChatProviderProps) {
-  const mountedNovelIds = useAppStore(s => s.novelChat.mountedSessionNovelIds)
-  const mountSession = useAppStore(s => s.novelChatActions.mountSession)
+  const mountedNovelIds = useNovelChatStore(s => s.novelChat.mountedSessionNovelIds)
+  const mountSession = useNovelChatStore(s => s.novelChatActions.mountSession)
   const runtimeMapRef = useRef<Map<string, NovelChatRuntime>>(new Map())
   const runtimeVersionRef = useRef<Record<string, number>>({})
   const novelListenersRef = useRef<Map<string, Set<() => void>>>(new Map())
 
-  const ensureUiSession = useAppStore(s => s.novelChatActions.ensureUiSession)
+  const ensureUiSession = useNovelChatStore(s => s.novelChatActions.ensureUiSession)
 
   const notifyNovel = useCallback((novelId: string) => {
     runtimeVersionRef.current[novelId] = (runtimeVersionRef.current[novelId] ?? 0) + 1

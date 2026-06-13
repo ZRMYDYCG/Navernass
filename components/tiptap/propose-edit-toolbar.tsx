@@ -5,7 +5,7 @@ import { Check, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
-import { useAppStore } from '@/store'
+import { useAiEditsStore } from '@/store'
 import { acceptSuggestions, documentHasSuggestions, rejectSuggestions } from './extensions/suggestion-track'
 
 interface ProposeEditToolbarProps {
@@ -15,7 +15,7 @@ interface ProposeEditToolbarProps {
 
 export function ProposeEditToolbar({ editor, chapterId }: ProposeEditToolbarProps) {
   const { t } = useI18n()
-  const resolveChapterEdits = useAppStore(s => s.aiEditsActions.resolveChapterEdits)
+  const resolveChapterEdits = useAiEditsStore(s => s.aiEditsActions.resolveChapterEdits)
   const [hasSuggestions, setHasSuggestions] = useState(false)
 
   useEffect(() => {

@@ -9,8 +9,9 @@ export {
   selectFocusRequestSeq,
   selectPendingEdits,
   selectPendingEditsForChapter,
-} from './slices/ai-edits'
-export type { AiEditsActions, AiEditsSlice, AiEditsState, PendingEdit, PendingEditStatus } from './slices/ai-edits'
+  useAiEditsStore,
+} from './stores/ai-edits'
+export type { AiEditsActions, AiEditsState, AiEditsStore, PendingEdit, PendingEditStatus } from './stores/ai-edits'
 
 // =============================================================================
 // Chapters
@@ -24,8 +25,9 @@ export {
   selectOrderedChapters,
   selectOrderedVolumes,
   selectVolumeById,
-} from './slices/chapters'
-export type { ChaptersActions, ChaptersSlice, ChaptersState } from './slices/chapters'
+  useChaptersStore,
+} from './stores/chapters'
+export type { ChaptersActions, ChaptersState, ChaptersStore } from './stores/chapters'
 
 // =============================================================================
 // Character graph
@@ -49,16 +51,17 @@ export {
   selectRelationshipsLoading,
   selectSelectedChapterId,
   selectSelectedRelationshipId,
-} from './slices/character-graph'
+  useCharacterGraphStore,
+} from './stores/character-graph'
 export type {
   CharacterGraphActions,
   CharacterGraphCharacter,
   CharacterGraphRelationship,
-  CharacterGraphSlice,
   CharacterGraphState,
+  CharacterGraphStore,
   CharacterPanelViewMode,
   RelationshipGraphViewMode,
-} from './slices/character-graph'
+} from './stores/character-graph'
 
 // =============================================================================
 // Character material
@@ -70,12 +73,13 @@ export {
   selectCharacterMaterial,
   selectCharacters,
   selectMaterialSelectedCharacterId,
-} from './slices/character-material'
+  useCharacterMaterialStore,
+} from './stores/character-material'
 export type {
   CharacterMaterialActions,
-  CharacterMaterialSlice,
   CharacterMaterialState,
-} from './slices/character-material'
+  CharacterMaterialStore,
+} from './stores/character-material'
 
 // =============================================================================
 // Chat (主聊天页)
@@ -86,12 +90,13 @@ export {
   selectChatPendingDraftMessage,
   selectChatStreamingConversationId,
   selectChatWelcomeInput,
-} from './slices/chat'
+  useChatStore,
+} from './stores/chat'
 export type {
   ChatActions,
-  ChatSlice,
   ChatState,
-} from './slices/chat'
+  ChatStore,
+} from './stores/chat'
 
 // =============================================================================
 // Novel chat
@@ -103,15 +108,16 @@ export {
   selectNovelChat,
   selectNovelChatUiSession,
   selectUiSessionForNovel,
-} from './slices/novel-chat'
+  useNovelChatStore,
+} from './stores/novel-chat'
 export type {
   NovelChatActions,
   NovelChatSelectedChapter,
   NovelChatSelectedCharacter,
-  NovelChatSlice,
   NovelChatState,
+  NovelChatStore,
   NovelChatUiSession,
-} from './slices/novel-chat'
+} from './stores/novel-chat'
 
 // =============================================================================
 // Plan
@@ -124,8 +130,9 @@ export {
   selectPlanFileById,
   selectPlanHydrated,
   selectSelectedPlanFileId,
-} from './slices/plan'
-export type { PlanActions, PlanSlice, PlanState } from './slices/plan'
+  usePlanStore,
+} from './stores/plan'
+export type { PlanActions, PlanState, PlanStore } from './stores/plan'
 
 // =============================================================================
 // Timeline
@@ -136,8 +143,9 @@ export {
   selectEventsForCharacter,
   selectHydratedCharacters,
   selectTimeline,
-} from './slices/timeline'
-export type { TimelineActions, TimelineSlice, TimelineState } from './slices/timeline'
+  useTimelineStore,
+} from './stores/timeline'
+export type { TimelineActions, TimelineState, TimelineStore } from './stores/timeline'
 
 // =============================================================================
 // Worldview
@@ -152,15 +160,17 @@ export {
   selectWorldbookHydrated,
   selectWorldview,
   selectWorldviewCurrentNovelId,
-} from './slices/worldview'
-export type { WorldviewActions, WorldviewSlice, WorldviewState } from './slices/worldview'
+  useWorldviewStore,
+} from './stores/worldview'
+export type { WorldviewActions, WorldviewState, WorldviewStore } from './stores/worldview'
 
 // =============================================================================
-// 主 store hook
+// Store 基础设施
 // =============================================================================
 
-export type { AppStore, StoreGet, StoreSet, StoreSlice } from './store.types'
-export { useAppStore } from './use-app-store'
+export { createBoundStore } from './create-store'
+export type { BoundStoreCreator } from './create-store'
+export type { StoreGet, StoreMutators, StoreSet } from './store.types'
 
 // =============================================================================
 // 工具函数

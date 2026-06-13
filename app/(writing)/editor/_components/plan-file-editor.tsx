@@ -7,7 +7,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
 import { toVirtualPlanPath } from '@/lib/editor/plan-path'
 import { planFilesApi } from '@/lib/supabase/sdk'
-import { useAppStore } from '@/store'
+import { usePlanStore } from '@/store'
 import { SmartTabs } from './smart-tabs'
 
 interface Tab {
@@ -43,8 +43,8 @@ export function PlanFileEditor({
   planFileId,
 }: PlanFileEditorProps) {
   const { t } = useI18n()
-  const cachedPlanFile = useAppStore(s => s.plan.planFilesById[planFileId])
-  const upsertPlanFile = useAppStore(s => s.planActions.upsertPlanFile)
+  const cachedPlanFile = usePlanStore(s => s.plan.planFilesById[planFileId])
+  const upsertPlanFile = usePlanStore(s => s.planActions.upsertPlanFile)
 
   const [planFile, setPlanFile] = useState(cachedPlanFile ?? null)
   const [loading, setLoading] = useState(!cachedPlanFile)

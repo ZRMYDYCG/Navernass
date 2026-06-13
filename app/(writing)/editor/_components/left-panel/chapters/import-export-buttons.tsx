@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/tooltip'
 import { useI18n } from '@/hooks/use-i18n'
 import { chaptersApi } from '@/lib/supabase/sdk'
-import { useAppStore } from '@/store'
+import { useCharacterGraphStore } from '@/store'
 import { ExportChapterDialog } from '../../export-chapter-dialog'
 import { htmlToPlainText, ImportChapterDialog } from '../../import-chapter-dialog'
 
@@ -163,7 +163,7 @@ export function ImportExportButtons({
 
   const handleAnalysisComplete = () => {
     window.dispatchEvent(new CustomEvent('novel-characters-changed', { detail: { novelId } }))
-    useAppStore.getState().characterGraphActions.loadRelationships(novelId, { force: true })
+    useCharacterGraphStore.getState().characterGraphActions.loadRelationships(novelId, { force: true })
     onChaptersImported?.()
   }
 

@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useI18n } from '@/hooks/use-i18n'
 import { planFilesApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
-import { selectOrderedPlanFiles, useAppStore } from '@/store'
+import { selectOrderedPlanFiles, usePlanStore } from '@/store'
 
 interface PlanDrawerProps {
   novelId: string
@@ -81,8 +81,8 @@ export function PlanDrawer({
 }: PlanDrawerProps) {
   const { t } = useI18n()
   const comingSoon = t('editor.leftPanel.planDrawer.comingSoon')
-  const planFiles = useAppStore(useShallow(selectOrderedPlanFiles))
-  const hydrated = useAppStore(s => s.plan.hydrated)
+  const planFiles = usePlanStore(useShallow(selectOrderedPlanFiles))
+  const hydrated = usePlanStore(s => s.plan.hydrated)
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     plan: true,
@@ -92,13 +92,13 @@ export function PlanDrawer({
   })
 
   useEffect(() => {
-    useAppStore.getState().planActions.resetForNovel(novelId)
+    usePlanStore.getState().planActions.resetForNovel(novelId)
     let cancelled = false
 
     const load = async () => {
       try {
         const files = await planFilesApi.list(novelId)
-        if (!cancelled) useAppStore.getState().planActions.hydrate(novelId, files)
+        if (!cancelled) usePlanStore.getState().planActions.hydrate(novelId, files)
       } catch (error) {
         console.error('Failed to load plan files:', error)
       }
