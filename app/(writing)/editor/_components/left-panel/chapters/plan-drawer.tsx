@@ -7,6 +7,7 @@ import { useI18n } from '@/hooks/use-i18n'
 import { planFilesApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 import { selectOrderedPlanFiles, usePlanStore } from '@/store'
+import { SkillsPanel } from './skills-panel'
 
 interface PlanDrawerProps {
   novelId: string
@@ -21,6 +22,7 @@ interface PlanAccordionSectionProps {
   onToggle: () => void
   badge?: string
   muted?: boolean
+  scrollClassName?: string
   children?: ReactNode
 }
 
@@ -31,6 +33,7 @@ function PlanAccordionSection({
   onToggle,
   badge,
   muted = false,
+  scrollClassName,
   children,
 }: PlanAccordionSectionProps) {
   return (
@@ -65,7 +68,10 @@ function PlanAccordionSection({
         )}
       >
         <div className="overflow-hidden">
-          <div className="max-h-[min(28vh,200px)] overflow-y-auto px-2 pb-2 pt-0 scrollbar-none">
+          <div className={cn(
+            'max-h-[min(28vh,200px)] overflow-y-auto px-2 pb-2 pt-0 scrollbar-none',
+            scrollClassName,
+          )}>
             {children}
           </div>
         </div>
@@ -167,12 +173,9 @@ export function PlanDrawer({
         icon={Sparkles}
         open={openSections.skills}
         onToggle={() => toggleSection('skills')}
-        badge={comingSoon}
-        muted
+        scrollClassName="max-h-[min(40vh,280px)]"
       >
-        <p className="px-2 py-1.5 text-[11px] text-muted-foreground">
-          {comingSoon}
-        </p>
+        <SkillsPanel active={openSections.skills} />
       </PlanAccordionSection>
 
       <PlanAccordionSection

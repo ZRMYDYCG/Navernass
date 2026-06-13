@@ -1,0 +1,35 @@
+{
+  "name": "@narraverse/skills",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Narraverse official Agent Skills catalog for AI writing assistants",
+  "license": "MIT",
+  "keywords": [
+    "agent-skill",
+    "narraverse",
+    "ai-writing",
+    "skills"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./catalog": "./skills/*"
+  },
+  "bin": {
+    "narraverse-skills": "./bin/narraverse-skills.mjs"
+  },
+  "files": [
+    "bin",
+    "skills",
+    "src"
+  ],
+  "scripts": {
+    "validate": "tsx ../../scripts/validate-skills.ts"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.22.4"
+  }
+}

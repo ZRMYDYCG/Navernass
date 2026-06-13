@@ -574,6 +574,7 @@ const editor = {
     remove: '削除',
     referenceChapter: '参照章',
     newChat: '新しいチャット',
+    skillsButton: 'スキルマーケット',
     newChatAlreadyActive: 'すでに新しいチャットです',
     historyButton: '履歴',
     deepThinking: '深く考える',

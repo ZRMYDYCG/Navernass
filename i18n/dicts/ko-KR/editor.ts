@@ -574,6 +574,7 @@ const editor = {
     remove: '제거',
     referenceChapter: '참고 장',
     newChat: '새 채팅',
+    skillsButton: '스킬 마켓',
     newChatAlreadyActive: '이미 새 채팅 상태입니다',
     historyButton: '기록',
     deepThinking: '심층 사고',

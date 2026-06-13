@@ -574,6 +574,7 @@ const editor = {
     remove: 'Supprimer',
     referenceChapter: 'Chapitre de référence',
     newChat: 'Nouvelle conversation',
+    skillsButton: 'Marketplace de compétences',
     newChatAlreadyActive: 'Déjà une nouvelle conversation',
     historyButton: 'Historique',
     deepThinking: 'Réflexion approfondie',

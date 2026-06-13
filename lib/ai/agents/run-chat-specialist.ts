@@ -2,7 +2,9 @@ import type { StreamTextOnFinishCallback, StreamTextOnStepFinishCallback, ToolSe
 import type { AgentDefinition, AgentRunInput } from './types'
 import { stepCountIs, streamText } from 'ai'
 import { getMinimaxModel } from '@/lib/ai/minimax'
-import { getSkill } from '../skills/types'
+import type { Skill } from './types'
+import { pickSkillsByIds, buildSkillLookup } from '@/lib/skills/router-utils'
+import { listSkills } from '../skills/types'
 import { buildTools } from '../tools/registry'
 import {
   getChatModeConfig,
@@ -19,6 +21,7 @@ export interface RunChatSpecialistOptions extends AgentRunInput {
   agentId: string
   /** 本回合用户输入（用于 router 决策日志） */
   userText?: string
+  skillLookup?: Map<string, Skill>
   onFinish?: StreamTextOnFinishCallback<ToolSet>
   onStepFinish?: StreamTextOnStepFinishCallback<ToolSet>
 }
@@ -36,12 +39,12 @@ export function buildChatSpecialistSystemPrompt(
   agent: AgentDefinition,
   mode: ChatAiMode | string,
   skillIds: string[],
+  skillLookup?: Map<string, Skill>,
 ): string {
   const modeId = normalizeChatMode(mode)
   const modeConfig = getChatModeConfig(modeId)
-  const skills = skillIds
-    .map(id => getSkill(id))
-    .filter((s): s is NonNullable<typeof s> => Boolean(s))
+  const lookup = skillLookup ?? buildSkillLookup(listSkills())
+  const skills = pickSkillsByIds(skillIds, lookup)
 
   return [
     agent.systemPrompt,
@@ -69,20 +72,21 @@ export function runChatSpecialistAgent(input: RunChatSpecialistOptions) {
     toolContext,
     onFinish,
     onStepFinish,
+    skillLookup,
   } = input
 
   const agent = resolveAgent(agentId)
   const modeConfig = getChatModeConfig(mode)
+  const lookup = skillLookup ?? buildSkillLookup(listSkills())
   const systemPrompt = buildChatSpecialistSystemPrompt(
     agent,
     modeConfig.id,
     decision.skillIds,
+    lookup,
   )
 
   const toolNameSet = new Set<string>(modeConfig.toolNames)
-  const skills = decision.skillIds
-    .map(id => getSkill(id))
-    .filter((s): s is NonNullable<typeof s> => Boolean(s))
+  const skills = pickSkillsByIds(decision.skillIds, lookup)
   skills.forEach(s => s.toolNames?.forEach(n => toolNameSet.add(n)))
 
   const allowedToolNames = Array.from(toolNameSet).filter(name =>

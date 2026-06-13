@@ -1,5 +1,7 @@
 import type { RouteDecision } from './types'
+import type { Skill } from './types'
 import { listSkills } from '../skills/types'
+import { selectEnabledSkillIds } from '@/lib/skills/select-skills'
 import { getChatModeConfig, normalizeChatMode } from './chat-modes'
 import { getAgent, listAgents } from './registry'
 
@@ -17,7 +19,7 @@ export interface ChatRouterInput {
   mode: 'ask' | 'brainstorm' | 'craft' | 'polish' | 'agent' | string
 }
 
-export function routeChat(input: ChatRouterInput): RouteDecision {
+export function routeChat(input: ChatRouterInput, skills: Skill[] = listSkills()): RouteDecision {
   const { text } = input
   const mode = normalizeChatMode(input.mode)
   const modeConfig = getChatModeConfig(mode)
@@ -26,20 +28,13 @@ export function routeChat(input: ChatRouterInput): RouteDecision {
   const agentId = agent?.id || modeConfig.agentId
   const agentSkillWhitelist = new Set(agent?.compatibleSkillIds || modeConfig.compatibleSkillIds)
 
-  const skills = listSkills()
-  const enabledSkillIds: string[] = []
-  const reasons: string[] = []
-
-  for (const skill of skills) {
-    if (!modeConfig.compatibleSkillIds.includes(skill.id)) continue
-    if (!agentSkillWhitelist.has(skill.id)) continue
-
-    const triggered = skill.triggers ? skill.triggers({ text, mode }) : true
-    if (triggered) {
-      enabledSkillIds.push(skill.id)
-      reasons.push(skill.id)
-    }
-  }
+  const { skillIds: enabledSkillIds, reasons } = selectEnabledSkillIds({
+    text,
+    mode,
+    modeCompatibleSkillIds: modeConfig.compatibleSkillIds,
+    agentSkillWhitelist,
+    skills,
+  })
 
   const agentLabel = agent?.name || agentId
 

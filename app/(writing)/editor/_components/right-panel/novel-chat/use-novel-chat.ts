@@ -189,13 +189,13 @@ export function useNovelChat() {
     const raw = input
     if (!hasComposerContent(raw) || isLoading || !novelId || !sendMessage) return
 
-    const orderedChapters = selectOrderedChapters(useCharacterMaterialStore.getState())
+    const orderedChapters = selectOrderedChapters(useChaptersStore.getState())
     const allCharacters = useCharacterMaterialStore.getState().characterMaterial.characters
       .filter(c => !c.novel_id || c.novel_id === novelId)
       .map(c => ({ id: c.id, name: c.name }))
     const allWorldbookEntries = selectOrderedWorldbookEntries(useWorldviewStore.getState())
       .map(e => ({ id: e.id, title: e.title }))
-    const allOutlines = selectOrderedOutlines(useChaptersStore.getState())
+    const allOutlines = selectOrderedOutlines(useWorldviewStore.getState())
       .map(o => ({ id: o.id, title: o.title }))
     const payload = buildUserComposerMessage(
       raw,

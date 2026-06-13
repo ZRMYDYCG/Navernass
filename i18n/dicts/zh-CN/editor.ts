@@ -574,6 +574,7 @@ const editor = {
     remove: '移除',
     referenceChapter: '引用章节内容',
     newChat: '新建对话',
+    skillsButton: '技能市场',
     newChatAlreadyActive: '当前已是新对话',
     historyButton: '历史记录',
     deepThinking: '深度思考',

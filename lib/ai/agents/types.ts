@@ -49,6 +49,9 @@ export interface Skill {
   toolNames?: string[]
   /** 可选的硬触发：返回 true 时 router 强制启用该 skill */
   triggers?: (input: { text: string, mode: string }) => boolean
+  /** 用户 skill：限定可用 mode，绕过 agent 白名单 */
+  compatibleModes?: string[]
+  isUserSkill?: boolean
 }
 
 /** Agent 元信息（构建时不依赖运行时） */

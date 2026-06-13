@@ -3,7 +3,9 @@ import type { AiChatMode } from './modes'
 import type { AgentDefinition, AgentRunInput } from './types'
 import { stepCountIs, streamText } from 'ai'
 import { getMinimaxModel } from '@/lib/ai/minimax'
-import { getSkill } from '../skills/types'
+import type { Skill } from './types'
+import { pickSkillsByIds, buildSkillLookup } from '@/lib/skills/router-utils'
+import { listSkills } from '../skills/types'
 import { buildTools } from '../tools/registry'
 import { buildModeMismatchHint } from './mode-hints'
 import { getModeConfig, isToolAllowedInMode, normalizeMode } from './modes'
@@ -19,6 +21,7 @@ export interface RunNovelSpecialistOptions extends AgentRunInput {
   userText?: string
   /** 额外工具（如 subagent 委派），须已通过 mode 白名单或仅 writer 注入 */
   extraTools?: ToolSet
+  skillLookup?: Map<string, Skill>
   onFinish?: StreamTextOnFinishCallback<ToolSet>
   onStepFinish?: StreamTextOnStepFinishCallback<ToolSet>
 }
@@ -37,12 +40,12 @@ export function buildNovelSpecialistSystemPrompt(
   skillIds: string[],
   userText?: string,
   subagentOptions?: { hasFocusCharacter?: boolean, focusCharacterName?: string },
+  skillLookup?: Map<string, Skill>,
 ): string {
   const modeId = normalizeMode(mode)
   const modeConfig = getModeConfig(modeId)
-  const skills = skillIds
-    .map(id => getSkill(id))
-    .filter((s): s is NonNullable<typeof s> => Boolean(s))
+  const lookup = skillLookup ?? buildSkillLookup(listSkills())
+  const skills = pickSkillsByIds(skillIds, lookup)
 
   const mismatchHint = userText ? buildModeMismatchHint(userText, modeId) : null
   const subagentHint = userText && agent.id === 'writer'
@@ -71,10 +74,12 @@ export function runNovelSpecialistAgent(input: RunNovelSpecialistOptions) {
     userText,
     onFinish,
     onStepFinish,
+    skillLookup,
   } = input
 
   const agent = resolveAgent(agentId)
   const modeConfig = getModeConfig(mode)
+  const lookup = skillLookup ?? buildSkillLookup(listSkills())
   const systemPrompt = buildNovelSpecialistSystemPrompt(
     agent,
     modeConfig.id,
@@ -84,12 +89,11 @@ export function runNovelSpecialistAgent(input: RunNovelSpecialistOptions) {
       hasFocusCharacter: Boolean(toolContext.focusCharacterId || toolContext.characterId),
       focusCharacterName: toolContext.focusCharacterName,
     },
+    lookup,
   )
 
   const toolNameSet = new Set<string>(modeConfig.toolNames)
-  const skills = decision.skillIds
-    .map(id => getSkill(id))
-    .filter((s): s is NonNullable<typeof s> => Boolean(s))
+  const skills = pickSkillsByIds(decision.skillIds, lookup)
   skills.forEach(s => s.toolNames?.forEach(n => toolNameSet.add(n)))
 
   const allowedToolNames = Array.from(toolNameSet).filter(name =>

@@ -10,6 +10,7 @@ import nav from './nav'
 import novels from './novels'
 import publish from './publish'
 import settings from './settings'
+import skills from './skills'
 import survey from './survey'
 import tiptap from './tiptap'
 import trash from './trash'
@@ -28,6 +29,7 @@ const koKR = {
   editor,
   marketing,
   settings,
+  skills,
   survey,
   tiptap,
   trash,
