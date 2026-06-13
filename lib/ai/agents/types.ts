@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { ModelMessage, Tool, UIMessage } from 'ai'
+import type { SubagentPrefetchContext } from './subagents/types'
 
 /**
  * 多 agent 架构的核心类型定义
@@ -32,6 +33,8 @@ export interface ToolContext {
   /** 主对话 @ 的首要角色（自动填入 delegate_character_timeline） */
   focusCharacterId?: string
   focusCharacterName?: string
+  /** 本回合 @ 引用已预加载的正文，委派 subagent 时注入 task 以减少重复 IO */
+  subagentPrefetch?: SubagentPrefetchContext
 }
 
 /** Skill：可挂载到 agent 上的能力包 */

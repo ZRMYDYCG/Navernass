@@ -28,6 +28,21 @@ export function isWriterSubagentToolName(name: string): name is WriterSubagentTo
   return isSubagentToolName(name) || isParallelSubagentToolName(name)
 }
 
+/** 主对话 @ 引用已预加载、可注入 subagent task 的上下文 */
+export interface SubagentPrefetchContext {
+  chapterIds: string[]
+  worldbookEntryIds: string[]
+  outlineIds: string[]
+  block: string
+}
+
+export interface SubagentPrefetchInput {
+  chapters?: Array<{ id: string, title: string, content: string }>
+  characterBlock?: string
+  worldbookEntries?: Array<{ id: string, title: string, content: string }>
+  outlines?: Array<{ id: string, title: string, content: string }>
+}
+
 /** UI 截断常量：步骤文本预览最大字符数 */
 export const SUBAGENT_STEP_PREVIEW_MAX_CHARS = 120
 /** UI 截断常量：实时预览面板最大高度（行数） */

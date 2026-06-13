@@ -2,6 +2,7 @@ import type { ToolContext } from '../types'
 import { z } from 'zod'
 import { createStreamingSubagentTool } from './create-streaming-subagent-tool'
 import type { StreamingSubagentToolConfig } from './run-subagent-stream'
+import { SUBAGENT_PREFETCH_SYSTEM_HINT } from './subagent-prefetch'
 
 export const DEEP_RESEARCH_TOOL_NAMES = [
   'read_chapter',
@@ -24,7 +25,9 @@ const RESEARCH_SYSTEM_PROMPT = `你是小说调研子助手，由主写作 Agent
 - 只使用只读工具，不要尝试创建或修改任何数据
 - 完成后用中文输出结构化摘要（关键事实、矛盾点、可引用片段位置）
 - 摘要将返回给主 Agent，务必信息密度高、可直接用于续写或改稿决策
-- 除工具调用外不使用 markdown`
+- 除工具调用外不使用 markdown
+
+${SUBAGENT_PREFETCH_SYSTEM_HINT}`
 
 export const deepResearchInputSchema = z.object({
   task: z
@@ -42,7 +45,8 @@ export function getDeepResearchSubagentConfig(
     toolName: 'deep_research',
     description:
       '委派调研子助手：深入阅读章节、世界观、大纲、Plan 等与任务相关的资料，返回结构化摘要。'
-      + '在用户要求续写/改稿前需核对多处设定，或问题涉及多章多设定时使用。',
+      + '在用户要求续写/改稿前需核对多处设定，或问题涉及多章多设定时使用。'
+      + '若用户已 @ 章节/设定，主对话预加载内容会自动注入 task，子助手应优先使用、减少 read 调用。',
     inputSchema: deepResearchInputSchema,
     systemPrompt: RESEARCH_SYSTEM_PROMPT,
     userMessage: ({ task }) => task,

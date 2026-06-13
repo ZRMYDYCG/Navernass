@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { characterScriptwriterAgent } from '../character-scriptwriter'
 import { createStreamingSubagentTool } from './create-streaming-subagent-tool'
 import type { StreamingSubagentToolConfig } from './run-subagent-stream'
+import { SUBAGENT_PREFETCH_SYSTEM_HINT } from './subagent-prefetch'
 
 const SCRIPTWRITER_TOOL_NAMES = characterScriptwriterAgent.defaultToolNames ?? []
 
@@ -30,7 +31,8 @@ export function getCharacterTimelineSubagentConfig(
     toolName: 'delegate_character_timeline',
     description:
       `委派角色剧本子助手：为指定角色梳理/维护时间线事件（create/update/delete_character_event），`
-      + `并参考章节与设定。用户 @ 了角色或讨论某角色成长弧/关系/里程碑时使用。${
+      + `并参考章节与设定。用户 @ 了角色或讨论某角色成长弧/关系/里程碑时使用。`
+      + `若用户已 @ 章节/设定，预加载正文会注入 task，优先使用、减少 read_chapter。${
         hasFocus
           ? `当前对话已聚焦角色 id=${ctx.focusCharacterId || ctx.characterId}，可省略 characterId。`
           : '调用前需 characterId；可让用户在输入框 @ 角色或先 list_characters 查询。'}`,
@@ -43,7 +45,7 @@ export function getCharacterTimelineSubagentConfig(
       const focus = characterName
         ? `**当前服务的角色**：${characterName}（id: ${characterId}）`
         : `**当前服务的角色 id**：${characterId}`
-      return `${focus}\n\n${characterScriptwriterAgent.systemPrompt}\n\n所有需要 characterId 的工具调用请使用上面的 id。`
+      return `${focus}\n\n${characterScriptwriterAgent.systemPrompt}\n\n所有需要 characterId 的工具调用请使用上面的 id。\n\n${SUBAGENT_PREFETCH_SYSTEM_HINT}`
     },
     userMessage: ({ task }) => task,
     toolNames: SCRIPTWRITER_TOOL_NAMES,

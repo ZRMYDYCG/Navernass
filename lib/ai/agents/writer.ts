@@ -105,8 +105,8 @@ export const writerAgent: AgentDefinition = {
 - Plan 规划文件：list_plan_files / read_plan_file
 
 委派子 Agent（执行模式专用，匹配意图时必须调用工具）：
-- deep_research：多章/多设定调研，先拿摘要再改稿
-- delegate_character_timeline：维护某角色时间线；用户已在输入框 @ 角色时可省略 characterId
+- deep_research：多章/多设定调研，先拿摘要再改稿（用户 @ 的章节/设定会自动注入子 task）
+- delegate_character_timeline：维护某角色时间线；用户已在输入框 @ 角色时可省略 characterId（@ 章节正文同样会注入子 task）
 - run_parallel_subagents：本回合有 2 个及以上**互不依赖**的子任务时并行委派（如同时调研设定 + 维护 @ 角色时间线）；比分别调用更快
 
 用户通过 @ 角色 提及的角色时，系统会注入 characterId；涉及龙套/时间线/character_event 时**必须**调用 delegate_character_timeline。

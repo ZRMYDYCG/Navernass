@@ -4,6 +4,7 @@ import type { SubagentStepLog, SubagentToolOutput } from './types'
 import { stepCountIs, streamText } from 'ai'
 import { getMinimaxModel } from '@/lib/ai/minimax'
 import { buildTools } from '../../tools/registry'
+import { enrichSubagentUserMessage } from './subagent-prefetch'
 
 export interface StreamingSubagentToolConfig<TInput extends Record<string, unknown>> {
   toolName: string
@@ -93,11 +94,12 @@ export async function* runSubagentStream<TInput extends Record<string, unknown>>
     const system = typeof systemPrompt === 'function'
       ? systemPrompt(input)
       : systemPrompt
+    const userContent = enrichSubagentUserMessage(userMessage(input), runtimeCtx)
 
     const result = streamText({
       model: getMinimaxModel(modelId),
       system,
-      messages: [{ role: 'user', content: userMessage(input) }],
+      messages: [{ role: 'user', content: userContent }],
       tools,
       temperature,
       stopWhen: stepCountIs(maxSteps),

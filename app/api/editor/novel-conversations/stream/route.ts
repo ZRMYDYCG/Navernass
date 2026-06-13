@@ -31,6 +31,7 @@ import { OutlinesService } from '@/lib/supabase/sdk/services/outlines.service'
 import { WorldbookEntriesService } from '@/lib/supabase/sdk/services/worldbook-entries.service'
 import type { SerializedCharacterRef } from '@/lib/editor/inline-composer'
 import { buildChapterContext } from '@/prompts'
+import { assembleSubagentPrefetch } from '@/lib/ai/agents/subagents/subagent-prefetch'
 
 interface ChatRequestBody {
   novelId: string
@@ -179,12 +180,18 @@ export async function POST(req: NextRequest) {
 
   // 章节 + @ 角色上下文
   let contextMessage = ''
+  let loadedChapters: Array<{ id: string, title: string, content: string }> = []
   if (selectedChapterIds && selectedChapterIds.length > 0) {
     try {
       const chapters = await Promise.all(
         selectedChapterIds.map(id => chaptersService.getById(id)),
       )
-      contextMessage = buildChapterContext(chapters)
+      loadedChapters = chapters.map(ch => ({
+        id: ch.id,
+        title: ch.title,
+        content: ch.content,
+      }))
+      contextMessage = buildChapterContext(loadedChapters)
     } catch (error) {
       console.warn('Failed to load selected chapters:', error)
     }
@@ -203,6 +210,7 @@ export async function POST(req: NextRequest) {
   const worldbookRefs = extractWorldbookRefsFromMessageParts(
     (lastUserMessage?.parts || []) as unknown[],
   )
+  let loadedWorldbookEntries: Array<{ id: string, title: string, content: string }> = []
   if (worldbookRefs.length > 0) {
     try {
       const entries = await Promise.all(
@@ -214,9 +222,14 @@ export async function POST(req: NextRequest) {
           }
         }),
       )
-      const block = buildWorldbookContextBlock(
-        entries.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry)),
-      )
+      loadedWorldbookEntries = entries
+        .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+        .map(entry => ({
+          id: entry.id,
+          title: entry.title,
+          content: entry.content,
+        }))
+      const block = buildWorldbookContextBlock(loadedWorldbookEntries)
       if (block) contextMessage = `${contextMessage}${block}`
     } catch (error) {
       console.warn('Failed to load @ worldbook entries:', error)
@@ -226,6 +239,7 @@ export async function POST(req: NextRequest) {
   const outlineRefs = extractOutlineRefsFromMessageParts(
     (lastUserMessage?.parts || []) as unknown[],
   )
+  let loadedOutlines: Array<{ id: string, title: string, content: string }> = []
   if (outlineRefs.length > 0) {
     try {
       const outlines = await Promise.all(
@@ -237,14 +251,26 @@ export async function POST(req: NextRequest) {
           }
         }),
       )
-      const block = buildOutlineContextBlock(
-        outlines.filter((outline): outline is NonNullable<typeof outline> => Boolean(outline)),
-      )
+      loadedOutlines = outlines
+        .filter((outline): outline is NonNullable<typeof outline> => Boolean(outline))
+        .map(outline => ({
+          id: outline.id,
+          title: outline.title,
+          content: outline.content,
+        }))
+      const block = buildOutlineContextBlock(loadedOutlines)
       if (block) contextMessage = `${contextMessage}${block}`
     } catch (error) {
       console.warn('Failed to load @ outline nodes:', error)
     }
   }
+
+  const subagentPrefetch = assembleSubagentPrefetch({
+    chapters: loadedChapters,
+    characterBlock: characterBlock || undefined,
+    worldbookEntries: loadedWorldbookEntries,
+    outlines: loadedOutlines,
+  })
 
   // Router 决策：派给哪个 agent + 启用哪些 skill
   const decision = route({ text: userInput, mode: mode || 'ask' })
@@ -357,6 +383,7 @@ export async function POST(req: NextRequest) {
       selectedChapterIds,
       focusCharacterId: focusCharacter?.id,
       focusCharacterName: focusCharacter?.name,
+      subagentPrefetch,
     },
     onStepFinish: ({ text, reasoningText }) => {
       if (reasoningText) {
