@@ -1,5 +1,5 @@
-import type { NovelMessage } from '@/lib/supabase/sdk'
 import type { UIMessage } from 'ai'
+import type { NovelMessage } from '@/lib/supabase/sdk'
 import { sanitizeUIMessagePartsForDisplay } from '@/lib/ai/sanitize-ui-messages'
 
 function safeParseParts(raw: unknown): unknown[] | null {

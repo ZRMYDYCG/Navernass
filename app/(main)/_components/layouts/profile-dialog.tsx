@@ -158,7 +158,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-popover border border-border">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t('main.profile.title')}</DialogTitle>
         </DialogHeader>

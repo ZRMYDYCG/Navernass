@@ -1,5 +1,8 @@
+@import './styles/fonts.css';
 @import './styles/tokens.css';
 @import './styles/animations.css';
+@import './styles/dialog.css';
+@import './styles/table.css';
 @import './styles/scrollbar.css';
 @import './styles/editor.css';
 @import './styles/editor-surface.css';

@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
-import { Caveat, Inter, Lora, Noto_Serif_SC } from 'next/font/google'
+import { Caveat, Inter, Lora, Noto_Sans_SC, Noto_Serif_SC } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { Toaster as RadixToaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/context/auth-provider'
 import { ColorProvider } from '@/context/color-provider'
+import { FontProvider } from '@/context/font-provider'
 import { I18nProvider } from '@/context/i18n-provider'
 import { ThemeProvider } from '@/context/theme-provider'
 import {
@@ -38,6 +39,13 @@ const notoSerifSC = Noto_Serif_SC({
   weight: ['400', '500', '700'],
   subsets: ['latin'],
   variable: '--font-serif-sc',
+  display: 'swap',
+})
+
+const notoSansSC = Noto_Sans_SC({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-sans-sc',
   display: 'swap',
 })
 
@@ -128,7 +136,11 @@ export default async function RootLayout({
       : DEFAULT_LOCALE
 
   return (
-    <html lang={initialLocale} suppressHydrationWarning className="h-full">
+    <html
+      lang={initialLocale}
+      suppressHydrationWarning
+      className={`h-full ${inter.variable} ${lora.variable} ${notoSerifSC.variable} ${notoSansSC.variable} ${caveat.variable}`}
+    >
       <head>
         <link
           rel="icon"
@@ -137,17 +149,24 @@ export default async function RootLayout({
         />
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var k='font-preset',v=localStorage.getItem(k),d='classic',p=['classic','modern','literary','paper','elegant','ink','wenkai','handwriting'];if(!v||p.indexOf(v)<0)v=d;document.documentElement.setAttribute('data-font-preset',v)}catch(e){}})();`,
+          }}
+        />
       </head>
-      <body className={`${inter.variable} ${lora.variable} ${notoSerifSC.variable} ${caveat.variable} antialiased h-full font-sans`} suppressHydrationWarning>
+      <body className="antialiased h-full font-sans" suppressHydrationWarning>
         <ThemeProvider>
           <ColorProvider>
-            <I18nProvider initialLocale={initialLocale}>
-              <AuthProvider>
-                {children}
-                <Toaster position="top-right" richColors />
-                <RadixToaster />
-              </AuthProvider>
-            </I18nProvider>
+            <FontProvider>
+              <I18nProvider initialLocale={initialLocale}>
+                <AuthProvider>
+                  {children}
+                  <Toaster position="top-right" richColors />
+                  <RadixToaster />
+                </AuthProvider>
+              </I18nProvider>
+            </FontProvider>
           </ColorProvider>
         </ThemeProvider>
       </body>

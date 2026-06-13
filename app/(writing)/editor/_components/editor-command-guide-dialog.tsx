@@ -88,8 +88,8 @@ export function EditorCommandGuideDialog({ open, onOpenChange }: EditorCommandGu
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+      <DialogContent variant="flush" className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle>{t('commandGuide.title')}</DialogTitle>
           <DialogDescription className="mt-1.5">
             {t('commandGuide.description')}

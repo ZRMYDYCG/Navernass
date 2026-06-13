@@ -84,8 +84,9 @@ export function ChapterQuickSearchDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
+        variant="palette"
         showCloseButton={false}
-        className="top-[20%] translate-y-0 max-w-xl p-0 gap-0 overflow-hidden shadow-2xl"
+        className="top-[20%] max-w-xl overflow-hidden"
       >
         <DialogTitle className="sr-only">{t('editor.chapterQuickSearch.title')}</DialogTitle>
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/20">

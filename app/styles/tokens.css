@@ -65,9 +65,9 @@
   --reading-bg-green: oklch(0.93 0.03 145);
   --reading-bg-sepia: oklch(0.93 0.03 70);
 
-  /* 编辑器字体：Lora 英文 + Noto Serif SC 中文级联 */
-  --font-editor: var(--font-serif), var(--font-serif-sc), 'Georgia', serif;
-  --font-display: var(--font-serif), var(--font-serif-sc), 'Georgia', serif;
+  /* 全站字体栈（由 FontProvider 写入 --app-font-*） */
+  --font-editor: var(--app-font-editor);
+  --font-display: var(--app-font-display);
 }
 
 .dark {
@@ -610,10 +610,8 @@
 }
 
 @theme {
-  --font-sans:
-    'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-    'Noto Color Emoji';
-  --font-serif: 'Merriweather', 'Georgia', serif;
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
   --font-mono: 'JetBrains Mono', monospace;
 
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);

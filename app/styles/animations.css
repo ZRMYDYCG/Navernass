@@ -151,3 +151,326 @@
 .animate-panel-close {
   animation: panel-close 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
+
+/* 墨线旋转 — Spinner（平面兜底） */
+@keyframes ink-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-ink-spin {
+  animation: ink-spin 1.15s var(--ease-paper) infinite;
+}
+
+/* 3D 墨韵轨道 Spinner */
+.nv-spinner-3d {
+  --nv-spinner-speed: 1.15s;
+  container-type: size;
+  perspective: 280cqmin;
+  transform-style: preserve-3d;
+}
+
+.nv-spinner-3d__stage {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: nv-spinner-tumble 4.8s var(--ease-slow-breath) infinite;
+}
+
+.nv-spinner-3d__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transform-style: preserve-3d;
+}
+
+.nv-spinner-3d__ring--a {
+  border-top-color: currentColor;
+  border-right-color: color-mix(in oklab, currentColor 45%, transparent);
+  opacity: 0.95;
+  animation: nv-spinner-orbit-a var(--nv-spinner-speed) linear infinite;
+}
+
+.nv-spinner-3d__ring--b {
+  border-top-color: color-mix(in oklab, currentColor 75%, transparent);
+  border-left-color: color-mix(in oklab, currentColor 30%, transparent);
+  opacity: 0.7;
+  animation: nv-spinner-orbit-b calc(var(--nv-spinner-speed) * 1.35) linear infinite reverse;
+}
+
+.nv-spinner-3d__ring--c {
+  border-bottom-color: color-mix(in oklab, currentColor 55%, transparent);
+  border-right-color: color-mix(in oklab, currentColor 25%, transparent);
+  opacity: 0.45;
+  animation: nv-spinner-orbit-c calc(var(--nv-spinner-speed) * 1.7) linear infinite;
+}
+
+.nv-spinner-3d__core {
+  position: absolute;
+  inset: 32%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 28%,
+    color-mix(in oklab, var(--primary-foreground) 35%, var(--primary)),
+    var(--primary) 52%,
+    color-mix(in oklab, var(--primary) 55%, var(--foreground)) 100%
+  );
+  box-shadow:
+    0 0.12em 0.28em color-mix(in oklab, var(--foreground) 18%, transparent),
+    inset 0 -0.1em 0.22em color-mix(in oklab, var(--foreground) 28%, transparent),
+    inset 0 0.08em 0.16em color-mix(in oklab, var(--primary-foreground) 45%, transparent);
+  animation: nv-spinner-core-pulse 1.6s var(--ease-slow-breath) infinite;
+}
+
+.nv-spinner-3d__satellite {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: nv-spinner-satellite var(--nv-spinner-speed) linear infinite;
+}
+
+.nv-spinner-3d__satellite--b {
+  animation-duration: calc(var(--nv-spinner-speed) * 1.5);
+  animation-direction: reverse;
+}
+
+.nv-spinner-3d__satellite--c {
+  animation-duration: calc(var(--nv-spinner-speed) * 2);
+}
+
+.nv-spinner-3d__dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 22%;
+  height: 22%;
+  margin-left: -11%;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px color-mix(in oklab, currentColor 55%, transparent);
+}
+
+.nv-spinner-3d__dot--trail {
+  width: 14%;
+  height: 14%;
+  margin-left: -7%;
+  opacity: 0.55;
+}
+
+@keyframes nv-spinner-orbit-a {
+  from {
+    transform: rotateX(68deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(68deg) rotateY(360deg);
+  }
+}
+
+@keyframes nv-spinner-orbit-b {
+  from {
+    transform: rotateX(68deg) rotateY(120deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateX(68deg) rotateY(120deg) rotateZ(360deg);
+  }
+}
+
+@keyframes nv-spinner-orbit-c {
+  from {
+    transform: rotateX(68deg) rotateY(240deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateX(68deg) rotateY(240deg) rotateZ(360deg);
+  }
+}
+
+@keyframes nv-spinner-tumble {
+  0%,
+  100% {
+    transform: rotateX(8deg) rotateY(-12deg);
+  }
+  50% {
+    transform: rotateX(-10deg) rotateY(18deg);
+  }
+}
+
+@keyframes nv-spinner-core-pulse {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.88;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes nv-spinner-satellite {
+  from {
+    transform: rotateX(72deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(72deg) rotateY(360deg);
+  }
+}
+
+@keyframes nv-spinner-satellite-b {
+  from {
+    transform: rotateX(52deg) rotateY(60deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateX(52deg) rotateY(60deg) rotateZ(360deg);
+  }
+}
+
+@keyframes nv-spinner-satellite-c {
+  from {
+    transform: rotateX(82deg) rotateY(200deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateX(82deg) rotateY(200deg) rotateZ(360deg);
+  }
+}
+
+.nv-spinner-3d__satellite--a {
+  animation-name: nv-spinner-satellite;
+}
+
+.nv-spinner-3d__satellite--b {
+  animation-name: nv-spinner-satellite-b;
+}
+
+.nv-spinner-3d__satellite--c {
+  animation-name: nv-spinner-satellite-c;
+}
+
+/* 3D 墨滴三角 */
+.nv-spinner-dots-3d {
+  --nv-dots-orbit: 72%;
+  container-type: size;
+  perspective: 320cqmin;
+  transform-style: preserve-3d;
+}
+
+.nv-spinner-dots-3d__orbit {
+  position: relative;
+  width: var(--nv-dots-orbit);
+  height: var(--nv-dots-orbit);
+  margin: auto;
+  transform-style: preserve-3d;
+  animation: nv-spinner-dots-spin 1.4s var(--ease-paper) infinite;
+}
+
+.nv-spinner-dots-3d__dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 26%;
+  height: 26%;
+  margin-left: -13%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 28%,
+    color-mix(in oklab, currentColor 40%, white),
+    currentColor 70%
+  );
+  box-shadow: 0 2px 5px color-mix(in oklab, currentColor 35%, transparent);
+}
+
+@keyframes nv-spinner-dots-spin {
+  from {
+    transform: rotateX(55deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateX(55deg) rotateZ(360deg);
+  }
+}
+
+/* 钢笔 3D 光晕托盘 */
+.nv-spinner-pen-3d {
+  perspective: 3em;
+}
+
+.nv-spinner-pen-3d__halo {
+  position: absolute;
+  inset: -0.35em;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  animation: nv-spinner-pen-halo 2.2s var(--ease-slow-breath) infinite;
+}
+
+.nv-spinner-pen-3d__halo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 0.08em solid color-mix(in oklab, currentColor 35%, transparent);
+  transform: rotateX(75deg);
+  animation: nv-spinner-orbit-a 2s linear infinite;
+}
+
+@keyframes nv-spinner-pen-halo {
+  0%,
+  100% {
+    transform: rotateY(-18deg) scale(0.95);
+    opacity: 0.55;
+  }
+  50% {
+    transform: rotateY(22deg) scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+/* 纸面呼吸 — Skeleton */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-skeleton-shimmer {
+  animation: skeleton-shimmer 2s var(--ease-slow-breath) infinite;
+}
+
+@keyframes skeleton-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-skeleton-breathe {
+  animation: skeleton-breathe 1.8s var(--ease-slow-breath) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ink-spin,
+  .animate-skeleton-shimmer,
+  .animate-skeleton-breathe,
+  .nv-spinner-3d__stage,
+  .nv-spinner-3d__ring,
+  .nv-spinner-3d__core,
+  .nv-spinner-3d__satellite,
+  .nv-spinner-dots-3d__orbit,
+  .nv-spinner-pen-3d__halo,
+  .nv-spinner-pen-3d__halo-ring {
+    animation: none;
+  }
+
+  .nv-spinner-3d__stage {
+    transform: rotateX(12deg) rotateY(-8deg);
+  }
+}

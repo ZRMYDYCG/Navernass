@@ -27,13 +27,18 @@ function DialogOverlay({
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
-      className={cn(
-        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-[110] bg-background/70 backdrop-blur-[3px]',
-        className,
-      )}
+      className={cn('fixed inset-0 z-[110]', className)}
       {...props}
     />
   )
+}
+
+export type DialogVariant = 'default' | 'flush' | 'palette'
+
+const dialogLayoutByVariant: Record<DialogVariant, string> = {
+  default: 'fixed top-1/2 left-1/2 z-[110] grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2',
+  flush: 'fixed top-1/2 left-1/2 z-[110] grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2',
+  palette: 'fixed left-1/2 z-[110] grid w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2',
 }
 
 const DialogContent = React.forwardRef<
@@ -41,26 +46,22 @@ const DialogContent = React.forwardRef<
   React.ComponentProps<typeof DialogPrimitive.Content> & {
     showCloseButton?: boolean
     showOverlay?: boolean
+    variant?: DialogVariant
   }
->(({ className, children, showCloseButton = true, showOverlay = true, ...props }, ref) => {
+>(({ className, children, showCloseButton = true, showOverlay = true, variant = 'default', ...props }, ref) => {
   return (
     <DialogPortal data-slot="dialog-portal">
       {showOverlay && <DialogOverlay />}
       <DialogPrimitive.Content
         ref={ref}
         data-slot="dialog-content"
-        className={cn(
-          'bg-card data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-[110] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl border border-border/60 p-6 shadow-paper-lg duration-200 sm:max-w-lg',
-          className,
-        )}
+        data-dialog-variant={variant}
+        className={cn(dialogLayoutByVariant[variant], className)}
         {...props}
       >
         {children}
         {showCloseButton && (
-          <DialogPrimitive.Close
-            data-slot="dialog-close"
-            className="ring-offset-background focus-visible:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus:outline-none cursor-pointer disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
-          >
+          <DialogPrimitive.Close data-slot="dialog-close">
             <XIcon />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
@@ -75,7 +76,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn('flex flex-col gap-2 text-center sm:text-left', className)}
+      className={cn(className)}
       {...props}
     />
   )
@@ -85,7 +86,7 @@ function DialogFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="dialog-footer"
-      className={cn('flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)}
+      className={cn(className)}
       {...props}
     />
   )
@@ -95,7 +96,7 @@ function DialogTitle({ className, ...props }: React.ComponentProps<typeof Dialog
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn('text-lg leading-none font-semibold', className)}
+      className={cn(className)}
       {...props}
     />
   )
@@ -108,7 +109,7 @@ function DialogDescription({
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn('text-muted-foreground text-sm', className)}
+      className={cn(className)}
       {...props}
     />
   )

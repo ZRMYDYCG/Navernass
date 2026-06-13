@@ -159,7 +159,7 @@ export function PublishDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border border-border text-foreground">
+      <DialogContent className="sm:max-w-md">
         <div className="flex flex-col items-center gap-4 py-6">
           {isCheckingStatus
             ? (

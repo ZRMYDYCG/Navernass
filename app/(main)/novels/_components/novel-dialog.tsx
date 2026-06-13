@@ -135,7 +135,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border border-border">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{novel ? t('novels.dialog.editTitle') : t('novels.dialog.createTitle')}</DialogTitle>
         </DialogHeader>
@@ -284,7 +284,7 @@ export function NovelDialog({ open, novel, onOpenChange, onSave }: NovelDialogPr
       </DialogContent>
       {previewUrl && (
         <Dialog open={showCropper} onOpenChange={setShowCropper}>
-          <DialogContent className="sm:max-w-md bg-card border border-border">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>{t('novels.dialog.cropTitle')}</DialogTitle>
             </DialogHeader>

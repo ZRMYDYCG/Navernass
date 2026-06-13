@@ -138,8 +138,7 @@ export function ResourceTableView({ resourceId }: ResourceTableViewProps) {
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="rounded-[var(--radius)] border border-border">
-              <Table>
+            <Table variant="ledger">
                 <TableHeader>
                   <TableRow>
                     {columns.map(column => (
@@ -193,8 +192,7 @@ export function ResourceTableView({ resourceId }: ResourceTableViewProps) {
                           )
                         })}
                 </TableBody>
-              </Table>
-            </div>
+            </Table>
 
             <AdminPagination
               page={page}

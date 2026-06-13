@@ -1,0 +1,60 @@
+/* Global font stacks — synced with lib/fonts/font-presets.ts for first-paint (before FontProvider) */
+
+:root {
+  --app-font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --app-font-serif: var(--font-serif), var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-editor: var(--app-font-serif);
+  --app-font-display: var(--app-font-serif);
+  --app-font-handwriting: var(--font-handwriting), cursive;
+}
+
+[data-font-preset='modern'] {
+  --app-font-sans: var(--font-sans), var(--font-sans-sc), ui-sans-serif, system-ui, sans-serif;
+  --app-font-serif: var(--font-sans), var(--font-sans-sc), ui-sans-serif, system-ui, sans-serif;
+  --app-font-editor: var(--font-sans), var(--font-sans-sc), ui-sans-serif, system-ui, sans-serif;
+  --app-font-display: var(--font-sans), var(--font-sans-sc), ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-font-preset='literary'] {
+  --app-font-sans: 'Literata', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-serif: 'Literata', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-editor: 'Literata', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-display: 'Literata', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+}
+
+[data-font-preset='paper'] {
+  --app-font-sans: 'Source Serif 4', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-serif: 'Source Serif 4', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-editor: 'Source Serif 4', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-display: 'Source Serif 4', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+}
+
+[data-font-preset='elegant'] {
+  --app-font-sans: 'Crimson Pro', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-serif: 'Crimson Pro', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-editor: 'Crimson Pro', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-display: 'Crimson Pro', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+}
+
+[data-font-preset='ink'] {
+  --app-font-sans: 'Merriweather', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-serif: 'Merriweather', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-editor: 'Merriweather', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-display: 'Merriweather', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+}
+
+[data-font-preset='wenkai'] {
+  --app-font-sans: 'LXGW WenKai', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-serif: 'LXGW WenKai', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-editor: 'LXGW WenKai', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-display: 'LXGW WenKai', var(--font-serif-sc), Georgia, 'Times New Roman', serif;
+  --app-font-handwriting: 'LXGW WenKai', var(--font-serif-sc), Georgia, serif;
+}
+
+[data-font-preset='handwriting'] {
+  --app-font-sans: var(--font-handwriting), 'Ma Shan Zheng', var(--font-serif-sc), cursive;
+  --app-font-serif: var(--font-handwriting), 'Ma Shan Zheng', var(--font-serif-sc), cursive;
+  --app-font-editor: var(--font-handwriting), 'Ma Shan Zheng', var(--font-serif-sc), cursive;
+  --app-font-display: 'Ma Shan Zheng', var(--font-handwriting), var(--font-serif-sc), cursive;
+  --app-font-handwriting: var(--font-handwriting), 'Ma Shan Zheng', cursive;
+}

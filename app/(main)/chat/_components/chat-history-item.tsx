@@ -305,7 +305,7 @@ export function ChatHistoryItem({
 
         {/* 删除确认对话框 */}
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <DialogContent className="bg-popover border-border">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>{t('chat.historyItem.deleteDialog.title')}</DialogTitle>
               <DialogDescription>

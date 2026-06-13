@@ -10,8 +10,10 @@ import {
   SelectTrigger,
 } from '@/components/ui/select'
 import { useColorTheme } from '@/hooks/use-color-theme'
+import { useFontPreset } from '@/hooks/use-font-preset'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
 import { LOCALE_OPTIONS, type Locale } from '@/i18n/config'
+import { FONT_PRESET_LIST, type FontPresetId } from '@/lib/fonts/font-presets'
 import { useThemeTransition } from '@/hooks/use-theme-transition'
 import { clearApiKey, getApiKey, saveApiKey } from '@/lib/api-key'
 
@@ -25,6 +27,7 @@ interface SettingsDialogProps {
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { theme, setTheme } = useThemeTransition()
   const { colorTheme, setColorTheme } = useColorTheme()
+  const { fontPreset, setFontPreset, isFontLoading } = useFontPreset()
   const [apiKey, setApiKey] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -99,11 +102,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   ]
 
   const selectedColorTheme = colorThemes.find(item => item.name === colorTheme) || colorThemes[0]
+  const selectedFontPreset = FONT_PRESET_LIST.find(item => item.id === fontPreset) || FONT_PRESET_LIST[0]
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-md bg-popover border-border"
+        className="sm:max-w-md"
         onOpenAutoFocus={e => e.preventDefault()}
       >
         <DialogHeader>
@@ -233,6 +237,47 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-foreground">{t('settings.font')}</h3>
+            <Select
+              value={fontPreset}
+              onValueChange={(value: string) => setFontPreset(value as FontPresetId)}
+              disabled={isFontLoading}
+            >
+              <SelectTrigger className="h-12 rounded-xl bg-card">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <div className="min-w-0 text-left">
+                    <div
+                      className="text-sm font-medium text-foreground"
+                      style={{ fontFamily: selectedFontPreset.stacks.preview }}
+                    >
+                      {t(selectedFontPreset.labelKey)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {isFontLoading ? t('common.loading') : t(selectedFontPreset.noteKey)}
+                    </div>
+                  </div>
+                </div>
+              </SelectTrigger>
+              <SelectContent className="z-[200] rounded-xl">
+                {FONT_PRESET_LIST.map(preset => (
+                  <SelectItem key={preset.id} value={preset.id} className="py-2.5">
+                    <div className="flex flex-col gap-0.5 text-left">
+                      <span
+                        className="text-sm font-medium text-foreground"
+                        style={{ fontFamily: preset.stacks.preview }}
+                      >
+                        {t(preset.labelKey)}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{t(preset.noteKey)}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">{t('settings.fontHint')}</p>
           </div>
 
           <div className="space-y-3">

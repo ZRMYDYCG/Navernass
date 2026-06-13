@@ -126,8 +126,9 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
+        variant="palette"
         showCloseButton={false}
-        className="top-[18%] translate-y-0 max-w-2xl p-0 gap-0 overflow-hidden shadow-2xl"
+        className="top-[18%] max-w-2xl overflow-hidden"
       >
         <DialogTitle className="sr-only">{t('main.search.title')}</DialogTitle>
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/20">

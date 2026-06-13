@@ -29,6 +29,27 @@ importers:
       '@floating-ui/react':
         specifier: ^0.27.16
         version: 0.27.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@fontsource/crimson-pro':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/literata':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/ma-shan-zheng':
+        specifier: ^5.2.9
+        version: 5.2.9
+      '@fontsource/merriweather':
+        specifier: ^5.2.11
+        version: 5.2.11
+      '@fontsource/noto-sans-sc':
+        specifier: ^5.2.9
+        version: 5.2.9
+      '@fontsource/source-serif-4':
+        specifier: ^5.2.9
+        version: 5.2.9
+      '@fontsource/zcool-xiaowei':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.69.0(react@19.1.0))
@@ -173,6 +194,9 @@ importers:
       lucide-react:
         specifier: ^0.554.0
         version: 0.554.0(react@19.1.0)
+      lxgw-wenkai-webfont:
+        specifier: ^1.7.0
+        version: 1.7.0
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -327,6 +351,9 @@ importers:
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
+      baseline-browser-mapping:
+        specifier: ^2.10.37
+        version: 2.10.37
       code-inspector-plugin:
         specifier: ^1.3.4
         version: 1.3.4
@@ -1276,6 +1303,27 @@ packages:
 
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
+
+  '@fontsource/crimson-pro@5.2.8':
+    resolution: {integrity: sha512-t+cAoAswUKEReDPqDNWWSyAp7baZkKrtF6Ry0KrDZQHJCldS9pIbRH0n2hm1u4+SbIUI7c+nUS9yfK6rEhycTw==}
+
+  '@fontsource/literata@5.2.8':
+    resolution: {integrity: sha512-Rj3eEQeu7+yBw9ZjXxcRiKDDrhbhpCyb0b79VJVCjDF1fdgJ8gDr9C1SRFLwfi+VaHEkhJDnRGm25fq1Yk+wNg==}
+
+  '@fontsource/ma-shan-zheng@5.2.9':
+    resolution: {integrity: sha512-5Pvpb5q6sq00/g+yLLE8iYWcsAqnoIqCloBsjN0bphkGWU3Wp3EfT0CgTsKOiLsPM8GN3AUP0ZaFM2/JR33C/g==}
+
+  '@fontsource/merriweather@5.2.11':
+    resolution: {integrity: sha512-ZiIMeUh5iT8d73o6xlSF8GKgjV5pgiFrufYc5jZTVAfExtWKqM2vQHnsqXSFMv4ELhAcjt6Vf+5T3oVGXhAizQ==}
+
+  '@fontsource/noto-sans-sc@5.2.9':
+    resolution: {integrity: sha512-bTUIWGBgJDpwi5qAr+x0/lcgv80IHTB9vl6s2f6EymZEa7qYV99yNRBZuKFT+SYDKVunZrjCEhWtpxqmbXWl5Q==}
+
+  '@fontsource/source-serif-4@5.2.9':
+    resolution: {integrity: sha512-er/Pym9emsEVJNf947umJ4kXarXfsiN6CN7kTYinefKRaHLwiquiiHOZvKvxWgkV8JMCf3pV3g0NcsPFpVCH9w==}
+
+  '@fontsource/zcool-xiaowei@5.2.8':
+    resolution: {integrity: sha512-HppFdc8Y0djYbSpK6FbMFhEaZJwfGE5yIKLN3d5q5V239NQxm3sULJjfbMYyAMKswhG6hNTtXQkt8lOl4OmoLA==}
 
   '@hookform/resolvers@5.2.2':
     resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
@@ -3130,8 +3178,9 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.9.11:
-    resolution: {integrity: sha512-Sg0xJUNDU1sJNGdfGWhVHX0kkZ+HWcvmVymJbj6NSgZZmW/8S9Y2HQ5euytnIgakgxN6papOAWiwDo1ctFDcoQ==}
+  baseline-browser-mapping@2.10.37:
+    resolution: {integrity: sha512-girxaJ7WZssDOFhzCGZTDKoTa1gk6A1TbflaYTpykLJ4UU9Fz9kx1aREM8JCuoVHbL8X8T/mJg7w2oYSq72Oig==}
+    engines: {node: '>=6.0.0'}
     hasBin: true
 
   basic-ftp@5.0.5:
@@ -5368,6 +5417,9 @@ packages:
     resolution: {integrity: sha512-St+z29uthEJVx0Is7ellNkgTEhaeSoA42I7JjOCBCrc5X6LYMGSv0P/2uS5HDLTExP5tpiqRD2PyUEOS6s9UXA==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  lxgw-wenkai-webfont@1.7.0:
+    resolution: {integrity: sha512-kVJmT4xMAyOLhG6q0w63wJkVU7RP8UMQRGoAWj9tnpzL7sWFFYiEHBdUQyW9myqBQFa5SQfWfa2VLYF4IJBL5g==}
 
   macos-release@3.4.0:
     resolution: {integrity: sha512-wpGPwyg/xrSp4H4Db4xYSeAr6+cFQGHfspHzDUdYxswDnUW0L5Ov63UuJiSr8NMSpyaChO4u1n0MXUvVPtrN6A==}
@@ -8569,6 +8621,20 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
+  '@fontsource/crimson-pro@5.2.8': {}
+
+  '@fontsource/literata@5.2.8': {}
+
+  '@fontsource/ma-shan-zheng@5.2.9': {}
+
+  '@fontsource/merriweather@5.2.11': {}
+
+  '@fontsource/noto-sans-sc@5.2.9': {}
+
+  '@fontsource/source-serif-4@5.2.9': {}
+
+  '@fontsource/zcool-xiaowei@5.2.8': {}
+
   '@hookform/resolvers@5.2.2(react-hook-form@7.69.0(react@19.1.0))':
     dependencies:
       '@standard-schema/utils': 0.3.0
@@ -10488,7 +10554,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.9.11: {}
+  baseline-browser-mapping@2.10.37: {}
 
   basic-ftp@5.0.5: {}
 
@@ -10530,7 +10596,7 @@ snapshots:
 
   browserslist@4.28.1:
     dependencies:
-      baseline-browser-mapping: 2.9.11
+      baseline-browser-mapping: 2.10.37
       caniuse-lite: 1.0.30001761
       electron-to-chromium: 1.5.267
       node-releases: 2.0.27
@@ -12904,6 +12970,8 @@ snapshots:
   lucide-react@0.554.0(react@19.1.0):
     dependencies:
       react: 19.1.0
+
+  lxgw-wenkai-webfont@1.7.0: {}
 
   macos-release@3.4.0: {}
 

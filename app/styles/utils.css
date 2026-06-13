@@ -62,7 +62,7 @@
   }
 
   .font-handwriting {
-    font-family: 'Caveat', 'Kalam', 'Patrick Hand', cursive;
+    font-family: var(--app-font-handwriting);
   }
 
   /* 字体渲染优化，适合长文阅读 */

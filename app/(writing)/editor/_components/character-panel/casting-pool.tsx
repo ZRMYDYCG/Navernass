@@ -76,8 +76,8 @@ export function CastingPool({
         </Button>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border/60">
-        <Table>
+      <div className="flex-1 min-h-0 overflow-auto">
+        <Table density="compact" variant="ledger">
           <TableHeader>
             <TableRow>
               <TableHead className="w-[84px]">{t('editor.charactersPanel.castingPool.table.avatar')}</TableHead>
