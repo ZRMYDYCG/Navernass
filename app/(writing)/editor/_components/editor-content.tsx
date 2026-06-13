@@ -1,7 +1,7 @@
 import type { Chapter, Volume } from '@/lib/supabase/sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { TiptapEditor } from '@/components/tiptap'
+import { ChapterEditor } from '@/components/tiptap'
 import { Spinner } from '@/components/ui/spinner'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
@@ -291,7 +291,7 @@ export default function EditorContent({
       )
     : (
         <div className="px-8 sm:px-12 min-h-full">
-          <TiptapEditor
+          <ChapterEditor
             key={chapterId}
             content={chapter?.content || `<h1>${chapterTitle}</h1>`}
             placeholder={t('editor.editor.placeholder')}

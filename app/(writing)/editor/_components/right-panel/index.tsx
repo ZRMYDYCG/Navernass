@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
+import { subscribeGlobalAiInsert } from '@/components/tiptap'
 import { EmptyState } from './empty-state'
 import { Header } from './header'
 import { MessageList } from './message-list'
@@ -52,14 +53,10 @@ export default function RightPanel() {
   } = useNovelChat()
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const handler = (event: Event) => {
-      const text = (event as CustomEvent<{ text?: string }>).detail?.text
+    return subscribeGlobalAiInsert(({ text }) => {
       if (!text) return
       setInput(prev => (prev.trim() ? `${prev.trim()}\n\n${text}` : text))
-    }
-    window.addEventListener('novel-ai-insert-from-editor', handler)
-    return () => window.removeEventListener('novel-ai-insert-from-editor', handler)
+    })
   }, [setInput])
 
   const submitFormResponse = useCallback(async (payload: FormSubmitPayload) => {

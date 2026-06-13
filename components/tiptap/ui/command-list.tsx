@@ -1,4 +1,4 @@
-import type { CommandItem } from './extensions/slash-command'
+import type { CommandItem } from '@/components/tiptap/extensions/novel/slash-command'
 import { useEffect, useImperativeHandle, useState } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 

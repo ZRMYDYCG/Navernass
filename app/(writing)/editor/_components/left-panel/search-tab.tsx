@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
+import { emitGlobalEditorHighlight } from '@/components/tiptap'
 
 interface SearchResult {
   chapter: {
@@ -124,13 +125,7 @@ export function SearchTab({ novelId, volumes, selectedChapter, onSelectChapter }
 
   // 发送高亮信息的辅助函数
   const sendHighlightEvent = useCallback((chapterId: string | null, keyword: string | null, matches: Array<{ start: number, end: number, type: 'title' | 'content' }>) => {
-    window.dispatchEvent(new CustomEvent('editor-highlight', {
-      detail: {
-        chapterId,
-        keyword,
-        matches,
-      },
-    }))
+    emitGlobalEditorHighlight({ chapterId, keyword, matches })
   }, [])
 
   // 当选中章节变化时，将搜索关键字和匹配信息传递给编辑器

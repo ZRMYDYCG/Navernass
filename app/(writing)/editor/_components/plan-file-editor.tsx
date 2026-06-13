@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { TiptapEditor } from '@/components/tiptap'
+import { PlanEditor } from '@/components/tiptap'
 import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/hooks/use-i18n'
 import { toVirtualPlanPath } from '@/lib/editor/plan-path'
@@ -175,8 +175,9 @@ export function PlanFileEditor({
           : (
               <div className="h-full overflow-y-auto">
                 <div className="px-8 sm:px-12 min-h-full py-6">
-                  <TiptapEditor
+                  <PlanEditor
                     key={planFileId}
+                    planFileId={planFileId}
                     content={planFile?.content || ''}
                     placeholder={t('editor.planFile.placeholder')}
                     onUpdate={handleUpdate}

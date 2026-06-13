@@ -4,6 +4,7 @@ import type { Editor } from '@tiptap/react'
 import { Bold, Italic, MessageCircle, Sparkles, Underline as UnderlineIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
+import { emitGlobalAiInsert } from '@/components/tiptap/core/editor-context'
 
 interface FormatToolbarProps {
   editor: Editor
@@ -70,11 +71,7 @@ export function FormatToolbar({ editor, onAIClick, isAIActive, isAILoading }: Fo
               if (!selectedText) return
 
               if (typeof window !== 'undefined') {
-                window.dispatchEvent(
-                  new CustomEvent('novel-ai-insert-from-editor', {
-                    detail: { text: selectedText },
-                  }),
-                )
+                emitGlobalAiInsert({ text: selectedText })
               }
             }}
             className="p-1 rounded hover:bg-accent transition-colors text-muted-foreground"

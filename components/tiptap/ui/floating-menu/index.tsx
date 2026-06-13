@@ -6,14 +6,15 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useI18n } from '@/hooks/use-i18n'
 import { AIFloatingMenu } from './ai-floating-menu'
-import { acceptSuggestions, rejectSuggestions, selectionHasSuggestions } from './extensions/suggestion-track'
+import { acceptSuggestions, rejectSuggestions, selectionHasSuggestions } from '@/components/tiptap/extensions/ai/suggestion-track'
 import { FormatToolbar } from './format-toolbar'
 
 interface FloatingMenuProps {
   editor: Editor | null
+  enableAi?: boolean
 }
 
-export function FloatingMenu({ editor }: FloatingMenuProps) {
+export function FloatingMenu({ editor, enableAi = true }: FloatingMenuProps) {
   const { t } = useI18n()
   const [show, setShow] = useState(false)
   const [position, setPosition] = useState({ top: 0, left: 0 })
@@ -188,33 +189,31 @@ export function FloatingMenu({ editor }: FloatingMenuProps) {
       {!showAI && !hasSuggestions && (
         <FormatToolbar
           editor={editor}
-          onAIClick={() => {
-            // 保存当前选中状态
-            if (editor) {
-              const { from, to } = editor.state.selection
-              if (from !== to) {
-                lastSelectionRef.current = { from, to }
-              }
-            }
-            // 切换 AI 显示状态
-            const newShowAI = !showAI
-            setShowAI(newShowAI)
-            // 在下一个事件循环中恢复选中状态，确保 AI 菜单显示后选中状态保持
-            if (newShowAI && lastSelectionRef.current) {
-              requestAnimationFrame(() => {
-                if (editor && lastSelectionRef.current) {
-                  const { from, to } = lastSelectionRef.current
-                  editor.chain().focus().setTextSelection({ from, to }).run()
+          onAIClick={enableAi
+            ? () => {
+                if (editor) {
+                  const { from, to } = editor.state.selection
+                  if (from !== to) {
+                    lastSelectionRef.current = { from, to }
+                  }
                 }
-              })
-            }
-          }}
+                const newShowAI = !showAI
+                setShowAI(newShowAI)
+                if (newShowAI && lastSelectionRef.current) {
+                  requestAnimationFrame(() => {
+                    if (editor && lastSelectionRef.current) {
+                      const { from, to } = lastSelectionRef.current
+                      editor.chain().focus().setTextSelection({ from, to }).run()
+                    }
+                  })
+                }
+              }
+            : undefined}
           isAIActive={showAI}
         />
       )}
 
-      {/* AI 浮动菜单 - 显示在工具栏下方 */}
-      {showAI && (
+      {enableAi && showAI && (
         <AIFloatingMenu
           editor={editor}
           showAI={showAI}

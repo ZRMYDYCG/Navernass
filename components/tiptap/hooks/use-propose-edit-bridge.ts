@@ -8,7 +8,7 @@ import {
   applySuggestionDiff,
   documentHasSuggestions,
   findDocumentSuggestionRange,
-} from './extensions/suggestion-track'
+} from '@/components/tiptap/extensions/ai/suggestion-track'
 
 interface UseProposeEditBridgeOptions {
   isReady?: boolean

@@ -19,8 +19,9 @@ import {
 } from 'lucide-react'
 import tippy from 'tippy.js'
 import { streamSelectionAI, type SelectionAIStreamRequest } from '@/lib/editor/selection-ai-stream'
-import { CommandList } from '../command-list'
-import { showGlobalImageGenerationDialog, showGlobalInputDialog } from '../dialog-manager'
+import { emitGlobalInsertImage } from '@/components/tiptap/core/editor-context'
+import { CommandList } from '@/components/tiptap/ui/command-list'
+import { showGlobalImageGenerationDialog, showGlobalInputDialog } from '@/components/tiptap/ui/dialog-manager'
 
 type TFunctionLike = (key: string, options?: Record<string, any>) => string
 
@@ -394,10 +395,7 @@ async function triggerAIImageGeneration(editor: any, t: TFunctionLike) {
             .deleteRange({ from: currentPos - loadingText.length, to: currentPos })
             .run()
 
-          const editorEvent = new CustomEvent('novel-insert-image-to-editor', {
-            detail: { imageUrl },
-          })
-          window.dispatchEvent(editorEvent)
+          emitGlobalInsertImage({ imageUrl })
         } else {
           throw new Error(t('tiptap.slashCommand.ai.image.noImageReturned'))
         }

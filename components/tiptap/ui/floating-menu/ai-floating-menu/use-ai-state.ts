@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { extractTextFromUIMessage } from '@/lib/editor/selection-ai-stream'
 import type { EditorAction } from '@/prompts/editor'
-import { applySuggestionDiff } from '../extensions/suggestion-track'
+import { applySuggestionDiff } from '@/components/tiptap/extensions/ai/suggestion-track'
 
 function stripMarkdown(text: string): string {
   return text

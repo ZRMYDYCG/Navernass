@@ -5,7 +5,7 @@ import { BookPlus, Copy, Download, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { TiptapEditor } from '@/components/tiptap/index'
+import { LiteEditor } from '@/components/tiptap/index'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/hooks/use-i18n'
 import { copyTextToClipboard } from '@/lib/utils'
@@ -95,7 +95,7 @@ export function DocumentEditor({ message, latestAssistantMessage, isOpen, onClos
 
       <div className="flex-1 overflow-y-auto">
         <div className="min-h-full px-[40px] py-4">
-          <TiptapEditor
+          <LiteEditor
             key={editorKey}
             content={editorContent}
             onUpdate={setContent}

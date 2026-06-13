@@ -13,8 +13,8 @@ import { useAuth } from '@/hooks/use-auth'
 import { useI18n } from '@/hooks/use-i18n'
 import { novelsApi } from '@/lib/supabase/sdk'
 
-const LazyTiptapEditor = dynamic(
-  () => import('@/components/tiptap').then(mod => mod.TiptapEditor),
+const LazyLiteEditor = dynamic(
+  () => import('@/components/tiptap').then(mod => mod.LiteEditor),
   {
     ssr: false,
     loading: () => <HeroEditorSkeleton />,
@@ -50,7 +50,7 @@ function HeroEditor({
       <div className="h-[400px] w-full rounded-lg border border-border bg-background p-2 sm:h-[500px]">
         {shouldRenderEditor
           ? (
-              <LazyTiptapEditor
+              <LazyLiteEditor
                 key={sampleContent}
                 placeholder={placeholder}
                 content={sampleContent}

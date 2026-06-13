@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
 import { useAiEditsStore } from '@/store'
-import { acceptSuggestions, documentHasSuggestions, rejectSuggestions } from './extensions/suggestion-track'
+import { acceptSuggestions, documentHasSuggestions, rejectSuggestions } from '@/components/tiptap/extensions/ai/suggestion-track'
 
 interface ProposeEditToolbarProps {
   editor: Editor | null
