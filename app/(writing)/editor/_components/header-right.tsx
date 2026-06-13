@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  CircleHelp,
   Eye,
   EyeOff,
   Globe,
@@ -31,6 +32,7 @@ interface HeaderRightProps {
   onToggleTerminal?: () => void
   onLock?: () => void
   onClose?: () => void
+  onOpenCommandGuide?: () => void
   novelId?: string
   chapterIds?: string[]
 }
@@ -42,6 +44,7 @@ export function HeaderRight({
   onToggleImmersiveMode,
   onLock,
   onClose,
+  onOpenCommandGuide,
   novelId,
   chapterIds = DEFAULT_CHAPTER_IDS,
 }: HeaderRightProps) {
@@ -67,6 +70,23 @@ export function HeaderRight({
           </TooltipTrigger>
           <TooltipContent>
             <p>{t('editor.header.publish')}</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* 指令与快捷键 */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={onOpenCommandGuide}
+              className={buttonClass}
+            >
+              <CircleHelp {...iconProps} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{t('commandGuide.openButton')}</p>
+            <p className="text-xs opacity-80 mt-0.5">Ctrl+/</p>
           </TooltipContent>
         </Tooltip>
 

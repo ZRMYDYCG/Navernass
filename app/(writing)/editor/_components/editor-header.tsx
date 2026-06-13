@@ -22,6 +22,7 @@ interface EditorHeaderProps {
   novelId?: string
   chapterIds?: string[]
   onOpenChapterSearch?: () => void
+  onOpenCommandGuide?: () => void
 }
 
 export default function EditorHeader({
@@ -40,6 +41,7 @@ export default function EditorHeader({
   novelId,
   chapterIds,
   onOpenChapterSearch,
+  onOpenCommandGuide,
 }: EditorHeaderProps) {
   const router = useRouter()
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -209,6 +211,7 @@ export default function EditorHeader({
         onToggleTerminal={onToggleTerminal}
         onLock={handleLock}
         onClose={handleClose}
+        onOpenCommandGuide={onOpenCommandGuide}
         isImmersiveMode={isImmersiveMode}
         onToggleImmersiveMode={onToggleImmersiveMode}
         novelId={novelId}

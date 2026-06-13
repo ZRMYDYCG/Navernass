@@ -28,6 +28,7 @@ import { CharacterPanel } from './_components/character-panel'
 import { CreateChapterDialog } from './_components/create-chapter-dialog'
 import { CreateVolumeDialog } from './_components/create-volume-dialog'
 import { DeleteConfirmDialog } from './_components/delete-confirm-dialog'
+import { EditorCommandGuideHost, openEditorCommandGuide } from './_components/editor-command-guide-host'
 import { EditorCursorOverlay } from './_components/editor-cursor-overlay'
 import EditorContent from './_components/editor-content'
 import { PlanFileEditor } from './_components/plan-file-editor'
@@ -1169,6 +1170,7 @@ function NovelsEditContent() {
               novelId={novelId || undefined}
               chapterIds={chapters.map(c => c.id)}
               onOpenChapterSearch={() => setQuickSearchOpen(true)}
+              onOpenCommandGuide={openEditorCommandGuide}
             />
           </ImmersiveRegion>
 
@@ -1429,6 +1431,8 @@ function NovelsEditContent() {
         currentChapterId={activeTab}
         onSelectChapter={handleSelectChapter}
       />
+
+      <EditorCommandGuideHost />
 
       {characterPanelOpen && (
         <div

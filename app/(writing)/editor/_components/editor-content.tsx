@@ -1,11 +1,15 @@
 import type { Chapter, Volume } from '@/lib/supabase/sdk'
+import { Keyboard } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ChapterEditor } from '@/components/tiptap'
+import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { useI18n, useLocale } from '@/hooks/use-i18n'
 import type { EditorCursorValue } from '@/lib/editor/cursor-options'
+import { openEditorCommandGuide } from '@/lib/editor/command-guide-bus'
 import { chaptersApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 import { useCharacterMaterialStore, useCharacterGraphStore, useChaptersStore } from '@/store'
@@ -373,6 +377,26 @@ export default function EditorContent({
           )}
         </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground font-light tracking-wide">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground"
+                  onClick={openEditorCommandGuide}
+                  aria-label={t('commandGuide.openButton')}
+                >
+                  <Keyboard className="w-3.5 h-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p>{t('commandGuide.openButton')}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <span className="opacity-30">|</span>
           <span>
             {t('editor.wordCount')}
             {' '}

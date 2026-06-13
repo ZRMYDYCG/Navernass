@@ -11,6 +11,7 @@ import {
   Heading2,
   Heading3,
   Image as ImageIcon,
+  Keyboard,
   Lightbulb,
   List,
   ListOrdered,
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react'
 import tippy from 'tippy.js'
 import { streamSelectionAI, type SelectionAIStreamRequest } from '@/lib/editor/selection-ai-stream'
+import { openEditorCommandGuide } from '@/lib/editor/command-guide-bus'
 import { emitGlobalInsertImage } from '@/components/tiptap/core/editor-context'
 import { CommandList } from '@/components/tiptap/ui/command-list'
 import { showGlobalImageGenerationDialog, showGlobalInputDialog } from '@/components/tiptap/ui/dialog-manager'
@@ -237,6 +239,16 @@ export const SlashCommand = Extension.create<SlashCommandOptions>({
               category: 'basic',
               command: ({ editor, range }) => {
                 editor.chain().focus().deleteRange(range).setHorizontalRule().run()
+              },
+            },
+            {
+              title: t('commandGuide.slashCommand.openGuide.title'),
+              description: t('commandGuide.slashCommand.openGuide.description'),
+              icon: Keyboard,
+              category: 'basic',
+              command: ({ editor, range }) => {
+                editor.chain().focus().deleteRange(range).run()
+                openEditorCommandGuide()
               },
             },
           ]

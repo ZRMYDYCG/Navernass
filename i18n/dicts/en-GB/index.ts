@@ -1,6 +1,7 @@
 import admin from './admin'
 import auth from './auth'
 import chat from './chat'
+import commandGuide from './command-guide'
 import common from './common'
 import editor from './editor'
 import main from './main'
@@ -23,6 +24,7 @@ const enGB = {
   publish,
   main,
   chat,
+  commandGuide,
   editor,
   marketing,
   settings,
