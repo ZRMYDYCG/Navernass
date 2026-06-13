@@ -666,11 +666,20 @@ const editor = {
       subagent: {
         running: 'Sub-Agent arbeitet',
         done: 'Sub-Agent fertig',
+        error: 'Sub-Agent fehlgeschlagen',
         task: 'Aufgabe',
         character: 'Figur: {{name}}',
         steps: 'Schritte',
         preview: 'Live-Vorschau',
         summary: 'Zusammenfassung',
+        copy: 'Kopieren',
+        copied: 'Kopiert',
+        parallel: {
+          running: 'Parallel ausführen ({{count}} Aufgaben)',
+          done: 'Parallel abgeschlossen ({{count}} Aufgaben)',
+          error: 'Parallel fehlgeschlagen',
+          taskLabel: 'Aufgabe {{index}} · {{kind}}',
+        },
       },
       labels: {
         read_chapter: 'Kapitel lesen',
@@ -707,6 +716,7 @@ const editor = {
         delete_character_event: 'Zeitstrahl-Ereignis löschen',
         deep_research: 'Delegieren · Recherche',
         delegate_character_timeline: 'Delegieren · Charakter-Zeitstrahl',
+        run_parallel_subagents: 'Delegieren · Parallele Sub-Agenten',
       },
       success: {
         create_volume: 'Band „{{title}}“ erstellt',

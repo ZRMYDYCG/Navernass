@@ -1,6 +1,11 @@
 import type { AiChatMode } from './modes'
 
-export type SubagentTriggerKind = 'deep_research' | 'delegate_character_timeline'
+export type SubagentTriggerKind
+  = | 'deep_research'
+    | 'delegate_character_timeline'
+    | 'run_parallel_subagents'
+
+const PARALLEL_CUE_RE = /同时|并且|以及|顺便|一并|并行|还要|还要把/
 
 export interface SubagentTriggerOptions {
   hasFocusCharacter?: boolean
@@ -31,8 +36,13 @@ export function detectSubagentTrigger(
   if (!t) return null
 
   const wantsTimeline = TIMELINE_RE.test(t)
+    || (Boolean(options?.hasFocusCharacter) && TIMELINE_WITH_FOCUS_RE.test(t))
   const wantsResearch = RESEARCH_RE.test(t)
     || (RESEARCH_WRITE_RE.test(t) && MULTI_SCOPE_RE.test(t))
+
+  if (wantsTimeline && wantsResearch && (PARALLEL_CUE_RE.test(t) || options?.hasFocusCharacter)) {
+    return 'run_parallel_subagents'
+  }
 
   if (options?.hasFocusCharacter) {
     if (/^@[^\s@]+(\s+@[^\s@]+)*$/.test(t)) {
@@ -64,6 +74,20 @@ export function buildSubagentTriggerHint(
 
   const kind = detectSubagentTrigger(text, options)
   if (!kind) return null
+
+  if (kind === 'run_parallel_subagents') {
+    const who = options?.focusCharacterName
+      ? `characterName="${options.focusCharacterName}"，`
+      : ''
+    return [
+      '【子 Agent 并行委派 — 本回合必做】',
+      '用户同时需要跨设定调研与角色时间线维护，且任务互不依赖。',
+      '你必须调用 run_parallel_subagents，tasks 至少含：',
+      '1) kind=deep_research 的调研 task；',
+      `2) kind=delegate_character_timeline 的时间线 task（${who}写清章节与事件）。`,
+      '禁止拆成先后两步或只在对话里口头完成。',
+    ].join('')
+  }
 
   if (kind === 'delegate_character_timeline') {
     const who = options?.focusCharacterName
@@ -102,4 +126,5 @@ export const SUBAGENT_USER_PROMPT_EXAMPLES = [
   '@苏晚 梳理她登场以来的关系变化与关键里程碑，更新 character_event。',
   '核对第三卷至今的主角行动与「雾港」世界观是否矛盾，先 deep_research 再建议改稿。',
   '通读第二卷各章，整理与「学院」设定相关的矛盾点，返回摘要。',
+  '核对第三卷设定是否矛盾，同时把 @林渊 第三章龙套写入时间线。',
 ] as const

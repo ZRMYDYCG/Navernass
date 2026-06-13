@@ -8,6 +8,8 @@ import { ProposeEditPart } from './propose-edit-part'
 import { ReasoningPart } from './reasoning-part'
 import { TextPart } from './text-part'
 import { isSubagentToolName, SubagentToolPart } from './subagent-tool-part'
+import { ParallelSubagentToolPart } from './parallel-subagent-tool-part'
+import { isParallelSubagentToolName } from '@/lib/ai/agents/subagents/types'
 import { ToolPartFallback } from './tool-part-fallback'
 import { ChapterRefPart } from './chapter-ref-part'
 import { VolumeRefPart } from './volume-ref-part'
@@ -208,6 +210,18 @@ function renderToolPart(part: any, ctx: PartRenderContext): ReactNode {
         />
       )
     default:
+      if (isParallelSubagentToolName(toolName)) {
+        return (
+          <ParallelSubagentToolPart
+            key={`tool-${ctx.index}`}
+            novelId={ctx.novelId}
+            partKey={`${ctx.message.id}:${ctx.index}`}
+            state={part.state}
+            output={part.output}
+            errorText={part.errorText}
+          />
+        )
+      }
       if (isSubagentToolName(toolName)) {
         return (
           <SubagentToolPart

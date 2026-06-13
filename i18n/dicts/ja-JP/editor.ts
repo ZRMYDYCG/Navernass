@@ -666,11 +666,20 @@ const editor = {
       subagent: {
         running: 'サブエージェント実行中',
         done: 'サブエージェント完了',
+        error: 'サブエージェント失敗',
         task: 'タスク',
         character: 'キャラクター：{{name}}',
         steps: '実行ステップ',
         preview: 'プレビュー',
         summary: 'メインへ返す要約',
+        copy: 'コピー',
+        copied: 'コピー済み',
+        parallel: {
+          running: '並列実行中（{{count}} 件）',
+          done: '並列完了（{{count}} 件）',
+          error: '並列実行失敗',
+          taskLabel: 'タスク {{index}} · {{kind}}',
+        },
       },
       labels: {
         read_chapter: '章を読む',
@@ -707,6 +716,7 @@ const editor = {
         delete_character_event: 'タイムラインイベントを削除',
         deep_research: '委任 · 深度調査',
         delegate_character_timeline: '委任 · キャラクター年表',
+        run_parallel_subagents: '委任 · 並列サブエージェント',
       },
       success: {
         create_volume: '巻「{{title}}」を作成しました',

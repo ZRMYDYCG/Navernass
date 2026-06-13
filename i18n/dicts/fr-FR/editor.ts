@@ -666,11 +666,20 @@ const editor = {
       subagent: {
         running: 'Sous-agent en cours',
         done: 'Sous-agent terminé',
+        error: 'Échec du sous-agent',
         task: 'Tâche',
         character: 'Personnage : {{name}}',
         steps: 'Étapes',
         preview: 'Aperçu',
         summary: 'Résumé',
+        copy: 'Copier',
+        copied: 'Copié',
+        parallel: {
+          running: 'Exécution parallèle ({{count}} tâches)',
+          done: 'Parallèle terminé ({{count}} tâches)',
+          error: 'Échec parallèle',
+          taskLabel: 'Tâche {{index}} · {{kind}}',
+        },
       },
       labels: {
         read_chapter: 'Lire le chapitre',
@@ -707,6 +716,7 @@ const editor = {
         delete_character_event: 'Supprimer l’événement',
         deep_research: 'Déléguer · Recherche approfondie',
         delegate_character_timeline: 'Déléguer · Chronologie du personnage',
+        run_parallel_subagents: 'Déléguer · Sous-agents parallèles',
       },
       success: {
         create_volume: 'Volume « {{title}} » créé',

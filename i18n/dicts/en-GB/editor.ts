@@ -666,11 +666,20 @@ const editor = {
       subagent: {
         running: 'Sub-agent working',
         done: 'Sub-agent finished',
+        error: 'Sub-agent failed',
         task: 'Task',
         character: 'Character: {{name}}',
         steps: 'Steps',
         preview: 'Live preview',
         summary: 'Summary for main agent',
+        copy: 'Copy',
+        copied: 'Copied',
+        parallel: {
+          running: 'Running in parallel ({{count}} tasks)',
+          done: 'Parallel run complete ({{count}} tasks)',
+          error: 'Parallel run failed',
+          taskLabel: 'Task {{index}} · {{kind}}',
+        },
       },
       labels: {
         read_chapter: 'Read chapter',
@@ -707,6 +716,7 @@ const editor = {
         delete_character_event: 'Delete timeline event',
         deep_research: 'Delegate · Deep research',
         delegate_character_timeline: 'Delegate · Character timeline',
+        run_parallel_subagents: 'Delegate · Parallel sub-agents',
       },
       success: {
         create_volume: 'Volume "{{title}}" created',

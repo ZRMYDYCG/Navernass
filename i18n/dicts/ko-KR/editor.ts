@@ -666,11 +666,20 @@ const editor = {
       subagent: {
         running: '하위 에이전트 실행 중',
         done: '하위 에이전트 완료',
+        error: '하위 에이전트 실패',
         task: '작업',
         character: '캐릭터: {{name}}',
         steps: '실행 단계',
         preview: '미리보기',
         summary: '메인 에이전트용 요약',
+        copy: '복사',
+        copied: '복사됨',
+        parallel: {
+          running: '병렬 실행 중 ({{count}}개)',
+          done: '병렬 완료 ({{count}}개)',
+          error: '병렬 실행 실패',
+          taskLabel: '작업 {{index}} · {{kind}}',
+        },
       },
       labels: {
         read_chapter: '챕터 읽기',
@@ -707,6 +716,7 @@ const editor = {
         delete_character_event: '타임라인 이벤트 삭제',
         deep_research: '위임 · 심층 조사',
         delegate_character_timeline: '위임 · 캐릭터 타임라인',
+        run_parallel_subagents: '위임 · 병렬 하위 에이전트',
       },
       success: {
         create_volume: '권 "{{title}}" 생성됨',

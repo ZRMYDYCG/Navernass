@@ -1,6 +1,7 @@
 import type { ToolContext } from '../types'
 import { z } from 'zod'
 import { createStreamingSubagentTool } from './create-streaming-subagent-tool'
+import type { StreamingSubagentToolConfig } from './run-subagent-stream'
 
 export const DEEP_RESEARCH_TOOL_NAMES = [
   'read_chapter',
@@ -25,17 +26,24 @@ const RESEARCH_SYSTEM_PROMPT = `你是小说调研子助手，由主写作 Agent
 - 摘要将返回给主 Agent，务必信息密度高、可直接用于续写或改稿决策
 - 除工具调用外不使用 markdown`
 
-export function createDeepResearchSubagentTool(ctx: ToolContext, modelId?: string) {
-  return createStreamingSubagentTool({
+export const deepResearchInputSchema = z.object({
+  task: z
+    .string()
+    .describe('调研任务说明，例如：核对第三卷主角与「雾港」设定是否矛盾'),
+})
+
+export type DeepResearchInput = z.infer<typeof deepResearchInputSchema>
+
+export function getDeepResearchSubagentConfig(
+  ctx: ToolContext,
+  modelId?: string,
+): StreamingSubagentToolConfig<DeepResearchInput> {
+  return {
     toolName: 'deep_research',
     description:
       '委派调研子助手：深入阅读章节、世界观、大纲、Plan 等与任务相关的资料，返回结构化摘要。'
       + '在用户要求续写/改稿前需核对多处设定，或问题涉及多章多设定时使用。',
-    inputSchema: z.object({
-      task: z
-        .string()
-        .describe('调研任务说明，例如：核对第三卷主角与「雾港」设定是否矛盾'),
-    }),
+    inputSchema: deepResearchInputSchema,
     systemPrompt: RESEARCH_SYSTEM_PROMPT,
     userMessage: ({ task }) => task,
     toolNames: DEEP_RESEARCH_TOOL_NAMES,
@@ -43,5 +51,9 @@ export function createDeepResearchSubagentTool(ctx: ToolContext, modelId?: strin
     temperature: 0.4,
     ctx,
     modelId,
-  })
+  }
+}
+
+export function createDeepResearchSubagentTool(ctx: ToolContext, modelId?: string) {
+  return createStreamingSubagentTool(getDeepResearchSubagentConfig(ctx, modelId))
 }

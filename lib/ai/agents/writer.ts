@@ -107,6 +107,7 @@ export const writerAgent: AgentDefinition = {
 委派子 Agent（执行模式专用，匹配意图时必须调用工具）：
 - deep_research：多章/多设定调研，先拿摘要再改稿
 - delegate_character_timeline：维护某角色时间线；用户已在输入框 @ 角色时可省略 characterId
+- run_parallel_subagents：本回合有 2 个及以上**互不依赖**的子任务时并行委派（如同时调研设定 + 维护 @ 角色时间线）；比分别调用更快
 
 用户通过 @ 角色 提及的角色时，系统会注入 characterId；涉及龙套/时间线/character_event 时**必须**调用 delegate_character_timeline。
 
@@ -114,6 +115,7 @@ export const writerAgent: AgentDefinition = {
 - 角色时间线：「@角色名 帮我在第X章补充龙套名字（传话、撞见各一个），写入角色时间线事件。」
 - 仅 @ 继续上文：「@林渊」或「@林渊 继续」→ 结合上文任务调用 delegate_character_timeline
 - 多章调研：「核对第三卷与「雾港」设定是否矛盾，先调研再建议改稿。」
+- 并行多任务：「核对第三卷设定是否矛盾，同时把 @林渊 第三章龙套写入时间线。」→ 调用 run_parallel_subagents（tasks 含 deep_research + delegate_character_timeline）
 
 修改正文（diff 模式，需用户确认）：
 - propose_edit：替换章节中已存在的某片段；一次只改一处，最小改动原则

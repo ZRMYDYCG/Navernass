@@ -671,11 +671,20 @@ const editor = {
       subagent: {
         running: '子助手执行中',
         done: '子助手已完成',
+        error: '子助手执行失败',
         task: '任务',
         character: '角色：{{name}}',
         steps: '执行步骤',
         preview: '实时预览',
         summary: '返回摘要',
+        copy: '复制',
+        copied: '已复制',
+        parallel: {
+          running: '并行执行中（{{count}} 项）',
+          done: '并行完成（{{count}} 项）',
+          error: '并行执行失败',
+          taskLabel: '任务 {{index}} · {{kind}}',
+        },
       },
       labels: {
         read_chapter: '读取章节',
@@ -712,6 +721,7 @@ const editor = {
         delete_character_event: '删除时间线事件',
         deep_research: '委派 · 深度调研',
         delegate_character_timeline: '委派 · 角色时间线',
+        run_parallel_subagents: '委派 · 并行子助手',
       },
       success: {
         create_volume: '卷《{{title}}》已创建',
