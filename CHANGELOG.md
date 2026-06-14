@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.17.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.16.0...v0.17.0) (2026-06-14)
+
+
+### Features
+
+* 全站字体与 UI 体验优化相关代码提交 ([c0ccefb](https://github.com/ZRMYDYCG/Navernass/commit/c0ccefbee436491f0260628ebc356ccf59109823))
+* **chat:** enhance chat functionality with book ([f991364](https://github.com/ZRMYDYCG/Navernass/commit/f991364f774050bf6de9bf918e3e6391320317e9))
+* **editor:** 编辑器卷面 P0 体验相关代码提交 ([2081962](https://github.com/ZRMYDYCG/Navernass/commit/20819628c471e4c29074c47f673352d3a9b01139))
+* **editor:** 编辑器快捷键参考体系相关代码提交 ([775e6cc](https://github.com/ZRMYDYCG/Navernass/commit/775e6cc8195fd29efae26f4a770d0bc82ccb8d77))
+* **skills:** 技能市场与运行时注入相关代码提交 ([ad91bd8](https://github.com/ZRMYDYCG/Navernass/commit/ad91bd8a4f8073264bc38eb757b3444f7835713e))
+* **subagent:** 主 Agent 一次委派多个独立 task 时，在 tool 层用 Promise.all 跑多个 subagent ([a396c3a](https://github.com/ZRMYDYCG/Navernass/commit/a396c3af19226082984132d55a3f030651bac425))
+* **subagent:** summary 用 JSON schema 结构化，主 Agent 解析更稳 ([3545eda](https://github.com/ZRMYDYCG/Navernass/commit/3545edab2244149d20998d4f7887dc3d1673a57b))
+* **subagent:** task 传递增强：把主 Agent 已从 @章节 读到的关键信息塞进 task，减少子 Agent 重复 IO ([c9e0d0f](https://github.com/ZRMYDYCG/Navernass/commit/c9e0d0fc33fe79a99fa5ec3e620c64140e3619c5))
+* **workspace:** 工作台仪表盘 UI 重构相关代码提交 ([d44ac21](https://github.com/ZRMYDYCG/Navernass/commit/d44ac21fb2a7d1bd922376d03498a4cfd2907c28))
+
+
+### Bug Fixes
+
+* **build:** 拆分 skills 服务端模块，修复客户端打包 node:fs 错误 ([4c4984a](https://github.com/ZRMYDYCG/Navernass/commit/4c4984a3ff87340567dc55c90ab283a43be2d7b4))
+* **chat:** 修复对话历史侧边栏 item hover 操作按钮被右侧遮挡 ([37bb409](https://github.com/ZRMYDYCG/Navernass/commit/37bb409395cccdbb8f61e9d9ffcb059db4862194))
+* **editor:** 横线稿纸绘制修复 ([ac8bb47](https://github.com/ZRMYDYCG/Navernass/commit/ac8bb472ebe4a5c0cabb8e7a25521663c43eadb5))
+
 ## [0.16.0](https://github.com/ZRMYDYCG/Navernass/compare/v0.15.0...v0.16.0) (2026-06-06)
 
 
