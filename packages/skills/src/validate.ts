@@ -1,7 +1,7 @@
 import type { ParsedSkillFile } from './manifest'
 import { discoverCatalogSkillDirs, loadSkillsFromCatalogDirs } from './load-catalog'
 import { isValidSkillName } from './manifest'
-import { parseSkillFileFromDisk } from './parse-skill-md'
+import { parseSkillFileFromDisk } from './parse-skill-disk'
 
 export interface SkillValidationIssue {
   skillId: string

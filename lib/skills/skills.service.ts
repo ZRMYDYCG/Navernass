@@ -1,16 +1,21 @@
+import 'server-only'
+
 import type { Skill } from '@/lib/ai/agents/types'
 import {
   BUILTIN_SKILL_IDS,
   getSkillCategory,
-  loadBuiltinSkillsFromCatalog,
   parseSkillMarkdownFromString,
   toAppSkill,
   toRuntimeSkill,
   type RuntimeSkill,
 } from '@/lib/skills'
+import { loadBuiltinSkillsFromCatalog } from '@/lib/skills/server'
 import { createServiceRoleClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { CUSTOM_SKILL_TEMPLATE } from '@/lib/skills/custom-skill-template'
+import type { SkillMarketplaceItem, UserCustomSkillRow } from '@/lib/skills/types'
+
+export type { SkillMarketplaceItem, UserCustomSkillRow } from '@/lib/skills/types'
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>
 
@@ -79,30 +84,6 @@ export function normalizeCustomSkillInput(input: {
     || String(parsed.frontmatter.description).trim()
 
   return { name, displayName, description, skillMd }
-}
-
-export interface UserCustomSkillRow {
-  id: string
-  user_id: string
-  name: string
-  display_name: string
-  description: string
-  skill_md: string
-  enabled: boolean
-}
-
-export interface SkillMarketplaceItem {
-  id: string
-  name: string
-  displayName: string
-  description: string
-  category: string
-  license: 'official' | 'community' | 'user'
-  version: string
-  isBuiltin: boolean
-  installed: boolean
-  enabled: boolean
-  isCustom: boolean
 }
 
 const DEFAULT_USER_SKILL_MODES = [

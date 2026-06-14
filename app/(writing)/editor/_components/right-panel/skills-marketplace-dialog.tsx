@@ -16,7 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import { useI18n } from '@/hooks/use-i18n'
 import { cn } from '@/lib/utils'
-import type { SkillMarketplaceItem } from '@/lib/skills/skills.service'
+import type { SkillMarketplaceItem } from '@/lib/skills/types'
 import { CUSTOM_SKILL_TEMPLATE } from '@/lib/skills/custom-skill-template'
 
 interface SkillsMarketplaceDialogProps {

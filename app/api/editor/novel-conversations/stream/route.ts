@@ -2,7 +2,8 @@ import type { UIMessage } from 'ai'
 import type { NextRequest } from 'next/server'
 import { after } from 'next/server'
 import { consumeStream, convertToModelMessages } from 'ai'
-import { bootstrapAgents, runRoutedAgent, route, getAgent } from '@/lib/ai/agents'
+import { runRoutedAgent, route, getAgent } from '@/lib/ai/agents'
+import { bootstrapAgents } from '@/lib/ai/agents/bootstrap'
 import { DEFAULT_LLM_MODEL } from '@/lib/ai/minimax'
 import {
   sanitizeUIMessagePartsForDisplay,

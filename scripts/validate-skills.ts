@@ -1,4 +1,4 @@
-import { validateCatalogSkills, discoverCatalogSkillDirs } from '@narraverse/skills'
+import { validateCatalogSkills, discoverCatalogSkillDirs } from '@narraverse/skills/server'
 
 const dirs = discoverCatalogSkillDirs()
 const issues = validateCatalogSkills()

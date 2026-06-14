@@ -1,4 +1,4 @@
-import { syncAllCatalogSkills } from '@narraverse/skills'
+import { syncAllCatalogSkills } from '@narraverse/skills/server'
 
 const result = syncAllCatalogSkills(process.cwd())
 

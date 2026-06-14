@@ -2,14 +2,11 @@
 
 import type { UIMessage } from 'ai'
 import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
-import type { ChatAiMode } from '@/lib/ai/agents'
+import type { ChatAiMode } from '@/lib/ai/agents/chat-modes'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/hooks/use-i18n'
-import {
-
-  normalizeChatMode,
-} from '@/lib/ai/agents'
+import { normalizeChatMode } from '@/lib/ai/agents/chat-modes'
 import { charactersApi, chatApi, conversationsApi, novelsApi, outlinesApi } from '@/lib/supabase/sdk'
 import { useChatStore } from '@/store'
 import { useChatConversation } from './use-chat-conversation'

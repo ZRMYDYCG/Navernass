@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { BUILTIN_SKILL_IDS, getSkillCategory, getSkillsCatalogDir } from '@narraverse/skills'
-import { parseSkillFileFromDisk } from '@narraverse/skills'
+import { BUILTIN_SKILL_IDS, getSkillCategory } from '@narraverse/skills'
+import { getSkillsCatalogDir, parseSkillFileFromDisk } from '@narraverse/skills/server'
 
 function sqlLiteral(value: string): string {
   return `'${value.replace(/'/g, "''")}'`

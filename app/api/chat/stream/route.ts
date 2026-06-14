@@ -3,11 +3,11 @@ import type { NextRequest } from 'next/server'
 import { after } from 'next/server'
 import { convertToModelMessages } from 'ai'
 import {
-  bootstrapAgents,
   getAgent,
   routeChat,
   runChatSpecialistAgent,
 } from '@/lib/ai/agents'
+import { bootstrapAgents } from '@/lib/ai/agents/bootstrap'
 import { NovelsService } from '@/lib/supabase/sdk/services/novels.service'
 import { buildBookContext, buildCharacterContextBlock } from '@/prompts'
 import { DEFAULT_LLM_MODEL, getMinimaxModel, hasMinimaxApiKey } from '@/lib/ai/minimax'

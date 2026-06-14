@@ -1,5 +1,8 @@
+import 'server-only'
+
+import { loadBuiltinSkillsFromCatalog } from '@/lib/skills/server'
+import { toAppSkill } from '@/lib/skills'
 import { registerSkill } from './types'
-import { loadBuiltinSkillsFromCatalog, toAppSkill } from '@/lib/skills'
 
 export * from './types'
 

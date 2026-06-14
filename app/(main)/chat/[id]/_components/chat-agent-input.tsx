@@ -1,7 +1,7 @@
 'use client'
 
 import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
-import type { ChatAiMode } from '@/lib/ai/agents'
+import type { ChatAiMode } from '@/lib/ai/agents/chat-modes'
 import type {
   SerializedBookRef,
   SerializedCharacterRef,

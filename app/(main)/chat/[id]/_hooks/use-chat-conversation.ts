@@ -2,7 +2,7 @@
 
 import type { UIMessage } from 'ai'
 import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
-import type { ChatAiMode } from '@/lib/ai/agents'
+import type { ChatAiMode } from '@/lib/ai/agents/chat-modes'
 import { Chat, useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'

@@ -1,7 +1,7 @@
 import type { UIMessage } from 'ai'
 import type { NextRequest } from 'next/server'
 import { convertToModelMessages } from 'ai'
-import { bootstrapAgents } from '@/lib/ai/agents'
+import { bootstrapAgents } from '@/lib/ai/agents/bootstrap'
 import { runCharacterImportAnalyzerAgent } from '@/lib/ai/agents/character-import-analyzer'
 import { createClient } from '@/lib/supabase/server'
 

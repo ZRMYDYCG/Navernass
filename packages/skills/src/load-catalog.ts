@@ -2,7 +2,8 @@ import type { RuntimeSkill } from './manifest'
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { BUILTIN_SKILL_IDS } from './manifest'
-import { parseSkillFileFromDisk, toRuntimeSkill } from './parse-skill-md'
+import { parseSkillFileFromDisk } from './parse-skill-disk'
+import { toRuntimeSkill } from './parse-skill-md'
 import { getSkillsCatalogDir } from './paths'
 
 let cachedBuiltinSkills: RuntimeSkill[] | null = null

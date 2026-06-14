@@ -1,4 +1,4 @@
-import type { ChatAiMode } from '@/lib/ai/agents'
+import type { ChatAiMode } from '@/lib/ai/agents/chat-modes'
 import type { AiModel } from '@/app/(writing)/editor/_components/right-panel/types'
 
 export type { ChatAiMode }

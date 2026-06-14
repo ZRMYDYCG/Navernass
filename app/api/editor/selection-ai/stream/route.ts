@@ -1,6 +1,7 @@
 import type { UIMessage } from 'ai'
 import type { NextRequest } from 'next/server'
-import { bootstrapAgents, runSelectionEditorAgent } from '@/lib/ai/agents'
+import { runSelectionEditorAgent } from '@/lib/ai/agents'
+import { bootstrapAgents } from '@/lib/ai/agents/bootstrap'
 import { hasMinimaxApiKey } from '@/lib/ai/minimax'
 import { createClient } from '@/lib/supabase/server'
 import type { EditorAction } from '@/prompts/editor'

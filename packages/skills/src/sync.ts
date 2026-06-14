@@ -1,7 +1,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { discoverCatalogSkillDirs } from './load-catalog'
-import { parseSkillFileFromDisk } from './parse-skill-md'
+import { parseSkillFileFromDisk } from './parse-skill-disk'
 import { getSkillsCatalogDir } from './paths'
 
 export interface SyncSkillsResult {

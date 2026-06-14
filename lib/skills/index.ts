@@ -7,31 +7,21 @@ export type {
   SkillCategory,
   SkillManifestFrontmatter,
   SkillTriggerType,
-  SkillValidationIssue,
 } from '@narraverse/skills'
 
 export {
   BUILTIN_SKILL_IDS,
   SKILL_CATEGORIES,
-  discoverCatalogSkillDirs,
-  getDefaultCatalogDir,
   getSkillCategory,
-  getSkillsCatalogDir,
   isValidSkillName,
-  listCatalogSkillSummaries,
-  loadBuiltinSkillsFromCatalog,
-  loadSkillsFromCatalogDirs,
-  parseSkillFileFromDisk,
   parseSkillMarkdown,
   parseSkillMarkdownFromString,
   parseSkillMarkdownToRuntime,
-  resetCatalogSkillCache,
   splitSkillMarkdown,
-  syncAllCatalogSkills,
   toRuntimeSkill,
-  validateCatalogSkills,
-  validateParsedSkill,
 } from '@narraverse/skills'
+
+export type { SkillMarketplaceItem, UserCustomSkillRow } from './types'
 
 import type { RuntimeSkill } from '@narraverse/skills'
 import type { Skill } from '@/lib/ai/agents/types'
