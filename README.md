@@ -16,7 +16,7 @@
 
 ---
 
-## What is Narraverse?
+## What is Narraverse
 
 Narraverse is a writing home built for novelists — a quiet corner where your story, your characters, and your world can grow together. Whether you are drafting your first chapter or managing a long-running series, Narraverse keeps structure, lore, and prose in one place so you can focus on the work that only you can write.
 
