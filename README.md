@@ -4,11 +4,14 @@
 
 # Narraverse
 
-**Bring writing back to purity and freedom.**
+**将写作回归纯净与自由**
 
-*Next-generation intelligent novel writing platform*
+*新一代智能小说创作平台*
 
-[中文说明](./README.zh-CN.md)
+[English](./README.md) | [中文说明](./README.zh-CN.md)
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Made with love](https://img.shields.io/badge/made%20with-love-ff69b4.svg)]()
 
 </div>
 
@@ -16,112 +19,131 @@
 
 ---
 
-## What is Narraverse
+## 关于 Narraverse
 
-Narraverse is a writing home built for novelists — a quiet corner where your story, your characters, and your world can grow together. Whether you are drafting your first chapter or managing a long-running series, Narraverse keeps structure, lore, and prose in one place so you can focus on the work that only you can write.
+Narraverse 是专为小说作者打造的创作之家——为你的故事、角色和世界观提供一个安静的成长空间。无论你正在创作第一章，还是管理一部长篇连载作品，Narraverse 都能让结构、设定和文本统一在一处，让你专注于只有你才能完成的创意工作。
 
-We believe good tools should stay out of the way. Every feature is designed to feel like a small instrument on your desk: gentle, unobtrusive, and there when you need it.
+我们相信好的工具应该保持隐形。每个功能的设计都像是放在你桌上的一件小乐器：温和、不打扰、在你需要时出现。
 
 ---
 
-## Four pillars of your creative workflow
+## 核心功能
 
-| Outline Planning | Character Relationships | Intelligent Assistance | Immersive Creation |
+| 🎯 大纲规划 | 👥 人物关系 | 🤖 智能辅助 | ✍️ 沉浸创作 |
 | --- | --- | --- | --- |
-| Organize volumes, chapters, and story beats | See who appears in each scene and how they connect | Get thoughtful suggestions without losing your voice | Write in a calm, distraction-free space |
+| 组织卷、章节和故事节拍 | 查看场景中的人物及其联系 | 获得有见地的建议而不失个性 | 在宁静无干扰的空间中写作 |
 
 ---
 
-## Write with clarity
+## ✨ 创作的四个支柱
 
-**Structured manuscript management**  
-Organize your work by volume and chapter. Track drafts, jump between scenes, and keep your project tidy as the story grows.
+### 📖 清晰而有序的写作
 
-**Immersive writing mode**  
-Strip away everything except your manuscript and your thoughts. When you are in flow, the interface steps back.
+- **结构化稿件管理**：按卷、章节组织你的作品。追踪草稿，在场景间跳转，让你的项目随故事成长而保持整洁
+- **沉浸写作模式**：隐去一切，只保留你的稿件和思想。当你处于创作状态时，界面完全退隐
+- **日与夜，你的选择**：在浅色和深色主题间切换，选择符合心情的强调色。无论正午还是凌晨 2 点都舒适
+- **精美导出**：一键将草稿导出为精致的 Markdown 或纯文本，随时准备分享或存档
 
-**Day and night, your way**  
-Switch between light and dark themes — and pick accent colors that match your mood. Comfortable at noon or at 2 a.m.
+### 👥 认识你的角色
 
-**Beautiful exports**  
-Turn drafts into polished Markdown or plain text with one click, ready to share or archive.
+- **人物关系总览**：构建故事卡司的可视化地图——身份、性格、目标和彼此的纽带
+- **场景级关系预览**：写章节时，实时看到哪些角色出现以及他们的互动
+- **导入与分析**：粘贴已有稿件，让 Narraverse 自动识别章节分割。可选地运行角色分析，从既有文本填充关系地图
 
----
+### 🎬 计划与调整
 
-## Know your cast
+- **大纲树**：将小说分解为卷和章节。随情节演进调整结构
+- **规划文件**：记录故事弧、转折点、铺垫回收——你的长篇笔记，始终与项目关联
+- **世界观档案**：在一份统一的设定圣经中保存背景、派系、规则和设定。重要细节只需一瞥即得
+- **时间线管理**：追踪故事中的关键事件，确保时间线保持一致
 
-**Character relationship overview**  
-Build a visual map of your story’s cast — identity, personality, goals, and the ties between them.
-
-**Scene-level relationship preview**  
-While you write a chapter, see which characters are present and how their relationships play out in that moment.
-
-**Import and analyze**  
-Paste an existing manuscript and let Narraverse recognize chapter breaks for you. Optionally run character analysis to populate your relationship map from the text you already have.
+### 🤖 你的 AI 合作伙伴——编辑，而非代笔
 
 ---
 
-## Plan the story before and while you write
+## AI 助手的五种工作模式
 
-**Outline tree**  
-Break your novel into volumes and chapters. Adjust structure as the plot evolves.
-
-**Planning files**  
-Capture story arcs, turning points, and foreshadowing payoffs — your long-form notes, always tied to the project.
-
-**Worldbook**  
-Keep settings, factions, rules, and lore in one consistent bible. When details matter, they are never more than a glance away.
-
-**Timeline management**  
-Track key events across your story so chronology stays coherent.
-
----
-
-## Your AI partner — editor, not ghostwriter
-
-Narraverse includes an all-in-one novel authoring Agent with five modes, each with a clear role in your workflow:
-
-| Mode | What it does |
+| 模式 | 功能描述 |
 | --- | --- |
-| **Agent** | Continue, polish, and edit your manuscript — with your approval on every change |
-| **Ask** | Read-only advice on plot, dialogue, and craft — it never touches your files |
-| **Plan** | Shape story arcs and beats into planning documents |
-| **Outline** | Build and refine your volume/chapter structure |
-| **Worldbook** | Organize and cross-link lore so continuity holds |
+| **Agent 续写** | 继续、润色和编辑稿件——每项改动都需你批准 |
+| **Ask 咨询** | 关于情节、对话和写作技法的建议，只读模式 |
+| **Plan 规划** | 将故事弧和节拍塑造成规划文档 |
+| **Outline 大纲** | 构建和优化卷/章节结构 |
+| **Worldbook 设定** | 组织和交叉链接设定以保持连贯性 |
 
-**You approve every edit.**  
-Suggested changes appear as diffs. Accept or reject line by line — the story stays yours.
+### 🔒 你拥有完全的控制权
 
-**Memory lives in your project.**  
-Plans, outlines, worldbook entries, and chapters share one source of truth. Before continuing a scene, the Agent reads what you have already written.
-
-**Suggestions with context.**  
-Plot, scene, and line-level feedback draw on your manuscript and lore — so advice fits your story, not a generic template.
+- **每项编辑都需你批准**：建议的改动以 diff 形式呈现，逐行接受或拒绝——故事始终属于你
+- **记忆存储在项目中**：规划、大纲、设定条目和章节共用一个信息源。在继续场景前，AI 助手会读取你已有的内容
+- **有上下文的建议**：情节、场景和行级反馈基于你的稿件和设定——建议紧贴你的故事，而非通用模板
 
 ---
 
-## Publish when you are ready
+## 📤 何时发布取决于你
 
-Manage draft and published states, preview your work, and share finished chapters when the time is right.
-
----
-
-## Free for every creator
-
-Narraverse is **completely free** at this stage. Drafting, AI assistance, character tools, outline and worldbook management — all open to every writer.
+- 管理草稿和已发布状态
+- 预览你的作品
+- 当时机合适时分享完成的章节
 
 ---
 
-## Grow with us
+## 💝 免费为每一位创作者
 
-Narraverse is built in the open with creators, not just for them. We listen to feedback, iterate quickly, and invite you to shape what comes next.
+Narraverse 在此阶段**完全免费**。草稿编写、AI 辅助、角色工具、大纲和世界观管理——全部向每位写作者开放。
 
-> *"Nothing is more painful than an untold story inside you."*
+---
+
+## 快速开始
+
+### 安装
+
+```bash
+# 使用 npm
+npm install
+
+# 或使用 pnpm
+pnpm install
+```
+
+### 开发
+
+```bash
+npm run dev
+```
+
+打开 [http://localhost:3000](http://localhost:3000) 查看效果。
+
+### 构建
+
+```bash
+npm run build
+npm run start
+```
+
+---
+
+## 🌱 与我们一起成长
+
+Narraverse 是与创作者共同构建的开源项目，而不是为他们构建的。我们听取反馈，快速迭代，邀请你塑造接下来会发生什么。
+
+> *"没有什么比心中未诉说的故事更痛苦。"*
+
+---
+
+## 📖 文档与资源
+
+- [贡献指南](./CONTRIBUTING.md)
+- [更新日志](./CHANGELOG.md)
+- [许可证](./LICENSE)
 
 ---
 
 <div align="center">
 
-Questions or ideas? Join our community and tell us what would make your writing life better.
+有问题或想法？[加入我们的社区](https://community.narraverse.com)，告诉我们什么能改善你的写作生活。
+
+**[立即开始写作](https://app.narraverse.com)** ·
+**[文档](./docs)** ·
+**[社区](https://community.narraverse.com)**
 
 </div>
