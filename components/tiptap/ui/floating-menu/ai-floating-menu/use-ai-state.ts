@@ -5,6 +5,7 @@ import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
+import { getSelectionAiStreamUrl } from '@/lib/api/backend'
 import { extractTextFromUIMessage } from '@/lib/editor/selection-ai-stream'
 import type { EditorAction } from '@/prompts/editor'
 import { applySuggestionDiff } from '@/components/tiptap/extensions/ai/suggestion-track'
@@ -50,7 +51,7 @@ export function useAIState(editor: Editor | null, onActionComplete?: () => void)
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
-        api: '/api/editor/selection-ai/stream',
+        api: getSelectionAiStreamUrl(),
         prepareSendMessagesRequest: ({ messages, body }) => ({
           body: {
             ...body,

@@ -1,2 +1,11 @@
 packages:
+  - 'backend'
   - 'packages/*'
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - esbuild
+  - lefthook
+  - prisma
+  - sharp
+ignoredBuiltDependencies:
+  - '@scarf/scarf'

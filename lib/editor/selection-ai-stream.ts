@@ -1,5 +1,6 @@
 import type { UIMessage, UIMessageChunk } from 'ai'
 import { readUIMessageStream } from 'ai'
+import { getSelectionAiStreamUrl } from '@/lib/api/backend'
 import type { EditorAction } from '@/prompts/editor'
 
 export interface SelectionAIStreamRequest {
@@ -43,7 +44,7 @@ export async function streamSelectionAI(
   request: SelectionAIStreamRequest,
   callbacks: SelectionAIStreamCallbacks = {},
 ): Promise<string> {
-  const response = await fetch('/api/editor/selection-ai/stream', {
+  const response = await fetch(getSelectionAiStreamUrl(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

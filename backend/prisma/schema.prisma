@@ -1,0 +1,362 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  user
+  super_admin
+}
+
+enum NovelStatus {
+  draft
+  published
+  archived
+}
+
+enum ChapterStatus {
+  draft
+  published
+}
+
+enum NewsType {
+  feature
+  update
+  announcement
+  community
+}
+
+enum NewsStatus {
+  draft
+  published
+  archived
+}
+
+enum TodoPriority {
+  low
+  medium
+  high
+}
+
+enum WorldCategory {
+  setting
+  location
+  item
+  faction
+  event
+  rule
+  character_lore
+  other
+}
+
+enum TimelineType {
+  appearance
+  milestone
+  relation
+  conflict
+  growth
+  death
+  other
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.VarChar(36)
+  name          String    @db.VarChar(191)
+  email         String    @unique @db.VarChar(191)
+  emailVerified Boolean   @default(false)
+  image         String?   @db.Text
+  createdAt     DateTime  @default(now()) @db.DateTime(3)
+  updatedAt     DateTime  @updatedAt @db.DateTime(3)
+  sessions      Session[]
+  accounts      Account[]
+  profile       Profile?
+  novels        Novel[]
+  surveys       Survey[]
+  todos         WriterTodo[]
+
+  @@map("auth_users")
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  expiresAt DateTime @db.DateTime(3)
+  token     String   @unique @db.VarChar(191)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  ipAddress String?  @db.VarChar(191)
+  userAgent String?  @db.Text
+  userId    String   @db.VarChar(36)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_sessions")
+}
+
+model Account {
+  id                    String    @id @default(uuid()) @db.VarChar(36)
+  accountId             String    @db.VarChar(191)
+  providerId            String    @db.VarChar(191)
+  userId                String    @db.VarChar(36)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime? @db.DateTime(3)
+  refreshTokenExpiresAt DateTime? @db.DateTime(3)
+  scope                  String?   @db.Text
+  password               String?   @db.Text
+  createdAt              DateTime  @default(now()) @db.DateTime(3)
+  updatedAt              DateTime  @updatedAt @db.DateTime(3)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("auth_accounts")
+}
+
+model Verification {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  identifier String   @db.VarChar(191)
+  value      String   @db.Text
+  expiresAt  DateTime @db.DateTime(3)
+  createdAt  DateTime @default(now()) @db.DateTime(3)
+  updatedAt  DateTime @updatedAt @db.DateTime(3)
+
+  @@index([identifier])
+  @@map("auth_verifications")
+}
+
+model Profile {
+  id                   String   @id @db.VarChar(36)
+  username             String?  @unique @db.VarChar(64)
+  full_name            String?  @db.VarChar(191)
+  avatar_url           String?  @db.Text
+  website              String?  @db.Text
+  legacy_password_hash String?  @db.Text
+  role                 UserRole @default(user)
+  is_protected         Boolean  @default(false)
+  created_at           DateTime @default(now()) @db.DateTime(3)
+  updated_at           DateTime @updatedAt @db.DateTime(3)
+  user                 User     @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@index([role])
+  @@map("profiles")
+}
+
+model Novel {
+  id              String      @id @default(uuid()) @db.VarChar(36)
+  user_id         String      @db.VarChar(36)
+  title           String      @db.VarChar(255)
+  description     String?     @db.Text
+  cover           String?     @db.Text
+  category        String?     @db.VarChar(100)
+  tags            Json
+  word_count      Int         @default(0)
+  chapter_count   Int         @default(0)
+  status          NovelStatus @default(draft)
+  characters      Json
+  relationships   Json
+  order_index     Int         @default(0)
+  created_at      DateTime    @default(now()) @db.DateTime(3)
+  updated_at      DateTime    @updatedAt @db.DateTime(3)
+  published_at    DateTime?   @db.DateTime(3)
+  user            User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  volumes         Volume[]
+  chapters        Chapter[]
+  worldbook       WorldbookEntry[]
+  outlines        Outline[]
+  plan_files      PlanFile[]
+  timeline_events TimelineEvent[]
+
+  @@index([user_id, status, order_index])
+  @@map("novels")
+}
+
+model Volume {
+  id          String    @id @default(uuid()) @db.VarChar(36)
+  novel_id    String    @db.VarChar(36)
+  user_id     String    @db.VarChar(36)
+  title       String    @db.VarChar(255)
+  description String?   @db.Text
+  order_index Int
+  created_at  DateTime  @default(now()) @db.DateTime(3)
+  updated_at  DateTime  @updatedAt @db.DateTime(3)
+  deleted_at  DateTime? @db.DateTime(3)
+  novel       Novel     @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  chapters    Chapter[]
+  outlines    Outline[]
+
+  @@index([novel_id, deleted_at, order_index])
+  @@index([user_id])
+  @@map("volumes")
+}
+
+model Chapter {
+  id              String          @id @default(uuid()) @db.VarChar(36)
+  novel_id        String          @db.VarChar(36)
+  volume_id       String?         @db.VarChar(36)
+  user_id         String          @db.VarChar(36)
+  title           String          @db.VarChar(255)
+  content         String          @db.LongText
+  summary         String?         @db.Text
+  order_index     Int
+  word_count      Int             @default(0)
+  status          ChapterStatus   @default(draft)
+  created_at      DateTime        @default(now()) @db.DateTime(3)
+  updated_at      DateTime        @updatedAt @db.DateTime(3)
+  deleted_at      DateTime?       @db.DateTime(3)
+  novel           Novel           @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  volume          Volume?         @relation(fields: [volume_id], references: [id], onDelete: SetNull)
+  timeline_events TimelineEvent[]
+
+  @@index([novel_id, deleted_at, order_index])
+  @@index([volume_id, deleted_at, order_index])
+  @@index([user_id])
+  @@map("chapters")
+}
+
+model WorldbookEntry {
+  id          String        @id @default(uuid()) @db.VarChar(36)
+  user_id     String        @db.VarChar(36)
+  novel_id    String        @db.VarChar(36)
+  category    WorldCategory @default(other)
+  title       String        @db.VarChar(255)
+  content     String        @db.LongText
+  keywords    Json
+  order_index Int           @default(0)
+  created_at  DateTime      @default(now()) @db.DateTime(3)
+  updated_at  DateTime      @updatedAt @db.DateTime(3)
+  deleted_at  DateTime?     @db.DateTime(3)
+  novel       Novel         @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+
+  @@index([novel_id, deleted_at, order_index])
+  @@index([user_id])
+  @@map("worldbook_entries")
+}
+
+model Outline {
+  id          String    @id @default(uuid()) @db.VarChar(36)
+  user_id     String    @db.VarChar(36)
+  novel_id    String    @db.VarChar(36)
+  volume_id   String?   @db.VarChar(36)
+  parent_id   String?   @db.VarChar(36)
+  title       String    @db.VarChar(255)
+  content     String    @db.LongText
+  order_index Int       @default(0)
+  created_at  DateTime  @default(now()) @db.DateTime(3)
+  updated_at  DateTime  @updatedAt @db.DateTime(3)
+  deleted_at  DateTime? @db.DateTime(3)
+  novel       Novel     @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  volume      Volume?   @relation(fields: [volume_id], references: [id], onDelete: SetNull)
+  parent      Outline?  @relation("OutlineTree", fields: [parent_id], references: [id], onDelete: Cascade)
+  children    Outline[] @relation("OutlineTree")
+
+  @@index([novel_id, deleted_at, order_index])
+  @@index([volume_id, deleted_at])
+  @@index([parent_id])
+  @@map("outlines")
+}
+
+model PlanFile {
+  id          String    @id @default(uuid()) @db.VarChar(36)
+  user_id     String    @db.VarChar(36)
+  novel_id    String    @db.VarChar(36)
+  path        String    @db.VarChar(255)
+  name        String    @db.VarChar(255)
+  content     String    @db.LongText
+  order_index Int       @default(0)
+  created_at  DateTime  @default(now()) @db.DateTime(3)
+  updated_at  DateTime  @updatedAt @db.DateTime(3)
+  deleted_at  DateTime? @db.DateTime(3)
+  novel       Novel     @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+
+  @@unique([novel_id, path])
+  @@index([novel_id, deleted_at, order_index])
+  @@index([user_id])
+  @@map("plan_files")
+}
+
+model TimelineEvent {
+  id                String       @id @default(uuid()) @db.VarChar(36)
+  user_id           String       @db.VarChar(36)
+  novel_id          String       @db.VarChar(36)
+  character_id      String       @db.VarChar(36)
+  chapter_id        String?      @db.VarChar(36)
+  event_type        TimelineType @default(other)
+  title             String       @db.VarChar(255)
+  description       String       @db.Text
+  timeline_position Int          @default(0)
+  occurred_at_label String?      @db.VarChar(191)
+  created_at        DateTime     @default(now()) @db.DateTime(3)
+  updated_at        DateTime     @updatedAt @db.DateTime(3)
+  deleted_at        DateTime?    @db.DateTime(3)
+  novel             Novel        @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  chapter           Chapter?     @relation(fields: [chapter_id], references: [id], onDelete: SetNull)
+
+  @@index([character_id, deleted_at, timeline_position])
+  @@index([novel_id, deleted_at])
+  @@map("character_timeline_events")
+}
+
+model News {
+  id         String     @id @default(uuid()) @db.VarChar(36)
+  type       NewsType
+  title      String     @db.VarChar(255)
+  content    String     @db.LongText
+  image      String?    @db.Text
+  link       String?    @db.Text
+  author     String?    @db.VarChar(191)
+  status     NewsStatus @default(published)
+  priority   Int        @default(0)
+  read_count Int        @default(0)
+  created_at DateTime   @default(now()) @db.DateTime(3)
+  updated_at DateTime   @updatedAt @db.DateTime(3)
+
+  @@index([status, priority, created_at])
+  @@map("news")
+}
+
+model Survey {
+  id              String   @id @default(uuid()) @db.VarChar(36)
+  user_id         String?  @db.VarChar(36)
+  experience      String   @db.VarChar(191)
+  genres          Json
+  pain_points     Json
+  tools           Json
+  ai_expectations Json
+  ai_concerns     String?  @db.Text
+  contact         String?  @db.VarChar(255)
+  created_at      DateTime @default(now()) @db.DateTime(3)
+  user            User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id])
+  @@map("surveys")
+}
+
+model WriterTodo {
+  id         String       @id @default(uuid()) @db.VarChar(36)
+  user_id    String       @db.VarChar(36)
+  content    String       @db.Text
+  completed  Boolean      @default(false)
+  priority   TodoPriority @default(medium)
+  created_at DateTime     @default(now()) @db.DateTime(3)
+  updated_at DateTime     @updatedAt @db.DateTime(3)
+  user       User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, completed, created_at])
+  @@map("writer_todos")
+}
+
+model MessageWallEntry {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  nickname   String?  @db.VarChar(64)
+  message    String   @db.VarChar(180)
+  created_at DateTime @default(now()) @db.DateTime(3)
+
+  @@index([created_at])
+  @@map("message_wall_entries")
+}
