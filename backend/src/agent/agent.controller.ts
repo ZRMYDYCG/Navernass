@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import type { AuthUser } from '../common/current-user.js'
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Patch, Post, Query, Req, Res } from '@nestjs/common'
 import { ApiProduces, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { pipeUIMessageStreamToResponse } from 'ai'
 import { z } from 'zod'
 import { ApiResult } from '../common/api-result.js'
 import { AppError } from '../common/app-error.js'
@@ -47,7 +48,7 @@ export class AgentController {
     return {
       protocolVersion: '1.0',
       runtime: 'Vercel AI SDK 7',
-      transports: ['rest', 'sse'],
+      transports: ['rest', 'ai-sdk-ui-message-stream-v1'],
       roles: schema.agentRole.options,
       tools: ['getNovelSnapshot', 'getChapter', 'searchMemory', 'saveMemory', 'validateContinuity', 'delegateSubagent'],
       outputs: ['text', 'chapterPlan', 'characterProfile', 'continuityReview'],
@@ -109,7 +110,10 @@ export class AgentController {
   @LongTask()
   @RawResponse()
   @ApiProduces('text/event-stream')
-  @ApiStreamDoc('流式执行主 Agent 或指定 Subagent', '连接建立后依次推送执行标识、文本增量、步骤和完成事件。')
+  @ApiStreamDoc(
+    '流式执行主 Agent 或指定 Subagent',
+    '原样返回 Vercel AI SDK UI Message Stream v1，可直接由 AI SDK UI 客户端消费，包含文本、步骤、工具参数与工具结果。',
+  )
   @ApiZodBody(RunAgentDto)
   async stream(
     @CurrentUser() user: AuthUser,
@@ -117,23 +121,11 @@ export class AgentController {
     @Res() response: Response,
     @Body(new ZodPipe(schema.runAgent)) body: schema.RunAgent,
   ) {
-    response.status(200)
-    response.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
-    response.setHeader('Cache-Control', 'no-cache, no-transform')
-    response.setHeader('Connection', 'keep-alive')
-    response.setHeader('X-Accel-Buffering', 'no')
-    response.flushHeaders()
     const controller = new AbortController()
     request.once('aborted', () => controller.abort())
     response.once('close', () => controller.abort())
-    const emit = (event: string, data: unknown) => response.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
-    const heartbeat = setInterval(() => response.write(': heartbeat\n\n'), 15_000)
-    try {
-      await this.runtime.stream(user.id, body, emit, controller.signal)
-    } finally {
-      clearInterval(heartbeat)
-      response.end()
-    }
+    const result = await this.runtime.stream(user.id, body, controller.signal)
+    await pipeUIMessageStreamToResponse({ response, stream: result.stream })
   }
 
   @Post('runs/structured')

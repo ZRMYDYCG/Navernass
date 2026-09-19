@@ -36,7 +36,7 @@ Compose 默认把 MySQL 暴露到宿主机 `3307`，避免与开发机已有的 
 - 模型层：OpenAI、Anthropic、Google，以及 DeepSeek、通义千问、智谱和任意 OpenAI-compatible 服务；每个用户可以动态配置 `baseUrl`、`apiKey`、模型和嵌入模型。
 - Agent 层：主 Agent 负责任务拆分与结果统筹，角色、剧情、世界观、文风、审核五类 Subagent 负责专业任务。
 - Tool 层：小说快照、章节正文、混合记忆检索、长期记忆写入、一致性审核和 Subagent 委派全部工具化。
-- 生成层：同步文本、SSE 流式文本、Zod 强校验结构化输出。
+- 生成层：同步文本、Vercel AI SDK UI Message Stream v1、Zod 强校验结构化输出。
 - 记忆层：MySQL 保存可审计原文和元数据，Qdrant 保存语义向量；集合按向量维度隔离。
 - RAG 层：向量相似度与 MySQL 关键词命中混合召回，按用户和小说强制隔离。
 - 可观测层：每次执行保存 run、step、tool call、token usage、耗时、结束原因和错误。
@@ -46,7 +46,7 @@ Compose 默认把 MySQL 暴露到宿主机 `3307`，避免与开发机已有的 
 - `GET /api/v1/agent/manifest`：Agent-native 能力清单
 - `POST /api/v1/agent/providers`：创建加密 Provider 配置
 - `POST /api/v1/agent/runs`：多步 Agent 执行
-- `POST /api/v1/agent/runs/stream`：SSE 流式执行
+- `POST /api/v1/agent/runs/stream`：原生 AI SDK UI Message Stream v1，可直接消费文本与 Tool Parts
 - `POST /api/v1/agent/runs/structured`：结构化生成
 - `POST /api/v1/agent/memories/sync`：结构化小说数据向量化
 - `POST /api/v1/agent/memories/search`：混合 RAG 检索

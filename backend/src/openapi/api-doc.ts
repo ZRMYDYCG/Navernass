@@ -95,10 +95,30 @@ export function ApiStreamDoc(summary: string, description?: string) {
     ApiExtraModels(ErrorResult),
     ApiResponse({
       status: 200,
-      description: 'SSE 事件流：run、text、step、done、error',
+      description: [
+        'Vercel AI SDK UI Message Stream v1。',
+        '响应包含 `x-vercel-ai-ui-message-stream: v1`，数据帧使用官方 `UIMessageChunk`，并以 `data: [DONE]` 结束。',
+        '工具生命周期依次为 `tool-input-start`、`tool-input-delta`、`tool-input-available`、',
+        '`tool-output-available` 或 `tool-output-error`。',
+      ].join(' '),
+      headers: {
+        'x-vercel-ai-ui-message-stream': {
+          description: 'Vercel AI SDK UI 流协议版本',
+          schema: { type: 'string', example: 'v1' },
+        },
+      },
       content: {
         'text/event-stream': {
-          schema: { type: 'string', example: 'event: text\ndata: {"delta":"..."}\n\n' },
+          schema: {
+            type: 'string',
+            example: [
+              'data: {"type":"tool-input-start","toolCallId":"call_1","toolName":"searchMemory"}',
+              'data: {"type":"tool-input-delta","toolCallId":"call_1","inputTextDelta":"{\\"query\\":\\"人物关系\\"}"}',
+              'data: {"type":"tool-input-available","toolCallId":"call_1","toolName":"searchMemory","input":{"query":"人物关系"}}',
+              'data: {"type":"tool-output-available","toolCallId":"call_1","output":[]}',
+              'data: [DONE]',
+            ].join('\n'),
+          },
         },
       },
     }),

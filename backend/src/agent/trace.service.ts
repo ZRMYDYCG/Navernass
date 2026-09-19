@@ -55,6 +55,13 @@ export class TraceService {
     })
   }
 
+  cancelRun(id: string, latencyMs: number) {
+    return this.prisma.agentRun.update({
+      where: { id },
+      data: { status: 'cancelled', latency_ms: latencyMs, completed_at: new Date() },
+    })
+  }
+
   saveStep(runId: string, index: number, event: {
     finishReason?: string
     usage?: { inputTokens?: number, outputTokens?: number }

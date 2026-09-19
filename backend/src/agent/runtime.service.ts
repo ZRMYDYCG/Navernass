@@ -3,7 +3,7 @@ import type { Prisma } from '../generated/prisma/client.js'
 import type { RunAgent, StructuredAgent } from './agent.schema.js'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { generateText, Output, stepCountIs, ToolLoopAgent } from 'ai'
+import { generateText, Output, stepCountIs, ToolLoopAgent, toUIMessageStream } from 'ai'
 import { z } from 'zod'
 import { AppError } from '../common/app-error.js'
 import { PrismaService } from '../database/prisma.service.js'
@@ -114,42 +114,49 @@ export class RuntimeService {
     }
   }
 
-  async stream(userId: string, input: RunAgent, emit: (event: string, data: unknown) => void, signal?: AbortSignal) {
+  async stream(userId: string, input: RunAgent, signal?: AbortSignal) {
     const execution = await this.prepare(userId, input)
     const started = Date.now()
     await this.traces.startRun(execution.run.id)
-    emit('run', { runId: execution.run.id, sessionId: execution.session.id })
     let stepIndex = 0
     try {
       const result = await execution.agent.stream({
         prompt: input.prompt,
         abortSignal: this.signal(signal),
         onStepFinish: async (event) => {
-          await this.traces.saveStep(execution.run.id, stepIndex, event)
-          emit('step', { index: stepIndex, finishReason: event.finishReason, toolCalls: event.toolCalls.length })
-          stepIndex += 1
+          await this.traces.saveStep(execution.run.id, stepIndex++, event)
         },
       })
-      let text = ''
-      for await (const chunk of result.textStream) {
-        text += chunk
-        emit('text', { delta: chunk })
-      }
-      const [usage, finishReason] = await Promise.all([result.totalUsage, result.finishReason])
-      await this.traces.finishRun(execution.run.id, {
-        output: text,
-        inputTokens: usage.inputTokens ?? 0,
-        outputTokens: usage.outputTokens ?? 0,
-        totalTokens: usage.totalTokens ?? 0,
-        finishReason,
-        latencyMs: Date.now() - started,
+      const stream = toUIMessageStream({
+        stream: result.fullStream,
+        tools: execution.tools,
+        sendReasoning: false,
+        sendSources: true,
+        messageMetadata: () => ({ runId: execution.run.id, sessionId: execution.session.id }),
+        onError: () => 'Agent 执行失败，请使用 runId 查询服务端执行日志。',
+        onEnd: async ({ outcome, finishReason }) => {
+          if (outcome.status === 'aborted') {
+            await this.traces.cancelRun(execution.run.id, Date.now() - started)
+            return
+          }
+          if (outcome.status === 'failed') {
+            await this.traces.failRun(execution.run.id, outcome.error, Date.now() - started)
+            return
+          }
+          const [usage, text] = await Promise.all([result.totalUsage, result.text])
+          await this.traces.finishRun(execution.run.id, {
+            output: text,
+            inputTokens: usage.inputTokens ?? 0,
+            outputTokens: usage.outputTokens ?? 0,
+            totalTokens: usage.totalTokens ?? 0,
+            finishReason,
+            latencyMs: Date.now() - started,
+          })
+        },
       })
-      const completed = { runId: execution.run.id, usage, finishReason, steps: stepIndex }
-      emit('done', completed)
-      return completed
+      return { stream, runId: execution.run.id, sessionId: execution.session.id }
     } catch (error) {
       await this.traces.failRun(execution.run.id, error, Date.now() - started)
-      emit('error', { runId: execution.run.id, message: error instanceof Error ? error.message : String(error) })
       throw error
     }
   }
@@ -239,6 +246,7 @@ export class RuntimeService {
     })
     return {
       agent,
+      tools,
       run,
       session,
       structuredOptions: {
