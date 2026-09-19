@@ -1,9 +1,9 @@
+import type { ErrorCodeName } from './error-codes.js'
 import { HttpStatus } from '@nestjs/common'
-import type { ErrorCode } from './error-codes.js'
 
 export class AppError extends Error {
   constructor(
-    public readonly code: ErrorCode,
+    public readonly code: ErrorCodeName,
     message: string,
     public readonly status: number = HttpStatus.BAD_REQUEST,
     public readonly details?: unknown,
@@ -12,7 +12,7 @@ export class AppError extends Error {
     this.name = 'AppError'
   }
 
-  static notFound(code: ErrorCode, resource: string) {
+  static notFound(code: ErrorCodeName, resource: string) {
     return new AppError(code, `${resource}不存在`, HttpStatus.NOT_FOUND)
   }
 

@@ -5,11 +5,12 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { LoggerModule } from 'nestjs-pino'
 import { AccountModule } from './account/account.module.js'
 import { AdminModule } from './admin/admin.module.js'
+import { AgentModule } from './agent/agent.module.js'
 import { AuthCoreModule } from './auth/auth.module.js'
-import { RoleGuard } from './common/role.guard.js'
-import { ResponseInterceptor } from './common/response.interceptor.js'
-import { TimeoutInterceptor } from './common/timeout.interceptor.js'
 import { ErrorFilter } from './common/error.filter.js'
+import { ResponseInterceptor } from './common/response.interceptor.js'
+import { RoleGuard } from './common/role.guard.js'
+import { TimeoutInterceptor } from './common/timeout.interceptor.js'
 import { validateEnv } from './config/env-schema.js'
 import { ContentModule } from './content/content.module.js'
 import { DatabaseModule } from './database/database.module.js'
@@ -23,7 +24,18 @@ import { PlanningModule } from './planning/planning.module.js'
     LoggerModule.forRoot({
       pinoHttp: {
         level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-        redact: ['req.headers.authorization', 'req.headers.cookie', 'res.headers.set-cookie', 'body.password'],
+        redact: {
+          paths: [
+            'req.headers.authorization',
+            'req.headers.cookie',
+            'res.headers.set-cookie',
+            'req.body.password',
+            'req.body.apiKey',
+            'body.password',
+            'body.apiKey',
+          ],
+          censor: '[已脱敏]',
+        },
         transport: process.env.NODE_ENV === 'development' ? { target: 'pino-pretty', options: { colorize: true, singleLine: true } } : undefined,
       },
     }),
@@ -36,6 +48,7 @@ import { PlanningModule } from './planning/planning.module.js'
     PlanningModule,
     ContentModule,
     AdminModule,
+    AgentModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

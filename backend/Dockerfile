@@ -5,7 +5,10 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY backend/package.json backend/package.json
-RUN pnpm install --filter @narraverse/backend... --frozen-lockfile
+COPY backend/prisma backend/prisma
+COPY backend/prisma7.config.ts backend/prisma7.config.ts
+# 仅安装后端工作区，避免把 Next.js 前端和 Supabase CLI 打进 API 镜像。
+RUN pnpm install --filter @narraverse/backend --frozen-lockfile
 
 FROM deps AS build
 COPY backend backend

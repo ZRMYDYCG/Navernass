@@ -1,11 +1,20 @@
-import { CallHandler, ExecutionContext, Injectable, type NestInterceptor } from '@nestjs/common'
-import { map, type Observable } from 'rxjs'
-import { ApiResult } from './api-result.js'
+import type { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common'
+import type { Observable } from 'rxjs'
 import type { AuthRequest } from './current-user.js'
+import { Inject, Injectable } from '@nestjs/common'
+import { Reflector } from '@nestjs/core'
+import { map } from 'rxjs'
+import { ApiResult } from './api-result.js'
+import { RAW_RESPONSE_KEY } from './raw-response.js'
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
+  constructor(@Inject(Reflector) private readonly reflector: Reflector) {}
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    if (this.reflector.getAllAndOverride<boolean>(RAW_RESPONSE_KEY, [context.getHandler(), context.getClass()])) {
+      return next.handle()
+    }
     const request = context.switchToHttp().getRequest<AuthRequest>()
     return next.handle().pipe(map((value: unknown) => {
       if (value === undefined || value === null) return value

@@ -20,6 +20,15 @@ services:
       timeout: 5s
       retries: 20
 
+  qdrant:
+    image: qdrant/qdrant:v1.19.1
+    restart: unless-stopped
+    ports:
+      - "${QDRANT_HTTP_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
   api:
     build:
       context: ..
@@ -32,11 +41,18 @@ services:
       DATABASE_HOST: mysql
       DATABASE_PORT: 3306
       DATABASE_URL: mysql://narraverse:narraverse@mysql:3306/narraverse
+      QDRANT_URL: http://qdrant:6333
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-local-development-auth-secret-32-chars}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      AI_CONFIG_SECRET: ${AI_CONFIG_SECRET:-local-development-ai-config-secret-32-chars}
     ports:
       - "3001:3001"
     depends_on:
       mysql:
         condition: service_healthy
+      qdrant:
+        condition: service_started
     command: ["sh", "-c", "cd /app/backend && node_modules/.bin/prisma migrate deploy && node dist/main.js"]
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/v1/health"]
@@ -46,3 +62,4 @@ services:
 
 volumes:
   mysql_data:
+  qdrant_data:

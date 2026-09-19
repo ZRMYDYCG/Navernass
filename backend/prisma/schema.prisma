@@ -64,6 +64,44 @@ enum TimelineType {
   other
 }
 
+enum AiProviderKind {
+  openai
+  anthropic
+  google
+  deepseek
+  qwen
+  glm
+  compatible
+}
+
+enum AgentRole {
+  main
+  character
+  plot
+  world
+  style
+  reviewer
+}
+
+enum AgentRunStatus {
+  queued
+  running
+  completed
+  failed
+  cancelled
+}
+
+enum MemoryKind {
+  chapter
+  character
+  worldbook
+  outline
+  timeline
+  summary
+  conversation
+  custom
+}
+
 model User {
   id            String    @id @default(uuid()) @db.VarChar(36)
   name          String    @db.VarChar(191)
@@ -78,6 +116,10 @@ model User {
   novels        Novel[]
   surveys       Survey[]
   todos         WriterTodo[]
+  ai_providers  AiProviderConfig[]
+  agent_sessions AgentSession[]
+  agent_runs    AgentRun[]
+  semantic_memories SemanticMemory[]
 
   @@map("auth_users")
 }
@@ -171,6 +213,9 @@ model Novel {
   outlines        Outline[]
   plan_files      PlanFile[]
   timeline_events TimelineEvent[]
+  agent_sessions AgentSession[]
+  agent_runs     AgentRun[]
+  semantic_memories SemanticMemory[]
 
   @@index([user_id, status, order_index])
   @@map("novels")
@@ -359,4 +404,146 @@ model MessageWallEntry {
 
   @@index([created_at])
   @@map("message_wall_entries")
+}
+
+model AiProviderConfig {
+  id                String         @id @default(uuid()) @db.VarChar(36)
+  user_id           String         @db.VarChar(36)
+  name              String         @db.VarChar(100)
+  kind              AiProviderKind
+  base_url          String?        @db.VarChar(500)
+  api_key_cipher    String         @db.LongText
+  model             String         @db.VarChar(191)
+  embedding_model   String?        @db.VarChar(191)
+  supports_tools    Boolean        @default(true)
+  supports_structured Boolean      @default(true)
+  is_default        Boolean        @default(false)
+  is_enabled        Boolean        @default(true)
+  settings          Json
+  created_at        DateTime       @default(now()) @db.DateTime(3)
+  updated_at        DateTime       @updatedAt @db.DateTime(3)
+  user              User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  sessions          AgentSession[]
+  runs              AgentRun[]
+
+  @@unique([user_id, name])
+  @@index([user_id, is_default, is_enabled])
+  @@map("ai_provider_configs")
+}
+
+model AgentSession {
+  id                String           @id @default(uuid()) @db.VarChar(36)
+  user_id           String           @db.VarChar(36)
+  novel_id          String           @db.VarChar(36)
+  chapter_id        String?          @db.VarChar(36)
+  provider_id       String           @db.VarChar(36)
+  title             String?          @db.VarChar(255)
+  context           Json
+  created_at        DateTime         @default(now()) @db.DateTime(3)
+  updated_at        DateTime         @updatedAt @db.DateTime(3)
+  user              User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel             Novel            @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  provider          AiProviderConfig @relation(fields: [provider_id], references: [id], onDelete: Restrict)
+  runs              AgentRun[]
+
+  @@index([user_id, updated_at])
+  @@index([novel_id, chapter_id])
+  @@map("agent_sessions")
+}
+
+model AgentRun {
+  id                String           @id @default(uuid()) @db.VarChar(36)
+  session_id        String?          @db.VarChar(36)
+  user_id           String           @db.VarChar(36)
+  novel_id          String           @db.VarChar(36)
+  chapter_id        String?          @db.VarChar(36)
+  provider_id       String           @db.VarChar(36)
+  role              AgentRole        @default(main)
+  status            AgentRunStatus   @default(queued)
+  prompt            String           @db.LongText
+  output            String?          @db.LongText
+  context_snapshot  Json
+  input_tokens      Int              @default(0)
+  output_tokens     Int              @default(0)
+  total_tokens      Int              @default(0)
+  finish_reason     String?          @db.VarChar(100)
+  error_code        String?          @db.VarChar(100)
+  error_message     String?          @db.Text
+  latency_ms        Int?
+  started_at        DateTime?        @db.DateTime(3)
+  completed_at      DateTime?        @db.DateTime(3)
+  created_at        DateTime         @default(now()) @db.DateTime(3)
+  user              User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel             Novel            @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  provider          AiProviderConfig @relation(fields: [provider_id], references: [id], onDelete: Restrict)
+  session           AgentSession?    @relation(fields: [session_id], references: [id], onDelete: SetNull)
+  steps             AgentStep[]
+  tool_calls        AgentToolCall[]
+
+  @@index([user_id, created_at])
+  @@index([novel_id, chapter_id, created_at])
+  @@index([session_id, created_at])
+  @@index([status, created_at])
+  @@map("agent_runs")
+}
+
+model AgentStep {
+  id                String      @id @default(uuid()) @db.VarChar(36)
+  run_id            String      @db.VarChar(36)
+  step_index        Int
+  role              AgentRole
+  finish_reason     String?     @db.VarChar(100)
+  input_tokens      Int         @default(0)
+  output_tokens     Int         @default(0)
+  tool_call_count   Int         @default(0)
+  metadata          Json
+  created_at        DateTime    @default(now()) @db.DateTime(3)
+  run               AgentRun    @relation(fields: [run_id], references: [id], onDelete: Cascade)
+  tool_calls        AgentToolCall[]
+
+  @@unique([run_id, step_index])
+  @@map("agent_steps")
+}
+
+model AgentToolCall {
+  id                String      @id @default(uuid()) @db.VarChar(36)
+  run_id            String      @db.VarChar(36)
+  step_id           String?     @db.VarChar(36)
+  tool_call_id      String      @db.VarChar(191)
+  tool_name         String      @db.VarChar(100)
+  input             Json
+  output            Json?
+  status            String      @db.VarChar(32)
+  duration_ms       Int?
+  error_message     String?     @db.Text
+  created_at        DateTime    @default(now()) @db.DateTime(3)
+  run               AgentRun    @relation(fields: [run_id], references: [id], onDelete: Cascade)
+  step              AgentStep?  @relation(fields: [step_id], references: [id], onDelete: SetNull)
+
+  @@unique([run_id, tool_call_id])
+  @@index([run_id, tool_name])
+  @@map("agent_tool_calls")
+}
+
+model SemanticMemory {
+  id                String      @id @default(uuid()) @db.VarChar(36)
+  user_id           String      @db.VarChar(36)
+  novel_id          String      @db.VarChar(36)
+  chapter_id        String?     @db.VarChar(36)
+  source_id         String?     @db.VarChar(36)
+  vector_id         String      @unique @db.VarChar(36)
+  kind              MemoryKind
+  title             String?     @db.VarChar(255)
+  content           String      @db.LongText
+  content_hash      String      @db.Char(64)
+  metadata          Json
+  created_at        DateTime    @default(now()) @db.DateTime(3)
+  updated_at        DateTime    @updatedAt @db.DateTime(3)
+  user              User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel             Novel       @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+
+  @@unique([novel_id, kind, source_id])
+  @@index([user_id, novel_id, kind])
+  @@index([chapter_id])
+  @@map("semantic_memories")
 }

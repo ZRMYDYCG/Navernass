@@ -1,8 +1,9 @@
-import { betterAuth } from 'better-auth/minimal'
-import { prismaAdapter } from 'better-auth/adapters/prisma'
 import type { ConfigService } from '@nestjs/config'
 import type { EnvConfig } from '../config/env-schema.js'
 import type { PrismaService } from '../database/prisma.service.js'
+import { prismaAdapter } from 'better-auth/adapters/prisma'
+import { betterAuth } from 'better-auth/minimal'
+import { bearer } from 'better-auth/plugins'
 
 export function createAuth(prisma: PrismaService, config: ConfigService<EnvConfig, true>) {
   const adminEmail = config.get('SUPER_ADMIN_EMAIL', { infer: true })?.toLowerCase()
@@ -11,6 +12,7 @@ export function createAuth(prisma: PrismaService, config: ConfigService<EnvConfi
     basePath: '/api/auth',
     secret: config.get('BETTER_AUTH_SECRET', { infer: true }),
     trustedOrigins: [config.get('APP_URL', { infer: true })],
+    plugins: [bearer()],
     database: prismaAdapter(prisma, { provider: 'mysql' }),
     emailAndPassword: {
       enabled: true,
@@ -29,7 +31,7 @@ export function createAuth(prisma: PrismaService, config: ConfigService<EnvConfi
     databaseHooks: {
       user: {
         create: {
-          after: async user => {
+          after: async (user) => {
             const protectedAdmin = Boolean(adminEmail && user.email.toLowerCase() === adminEmail)
             await prisma.profile.upsert({
               where: { id: user.id },

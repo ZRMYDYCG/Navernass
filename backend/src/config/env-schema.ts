@@ -21,6 +21,12 @@ export const envSchema = z.object({
   BETTER_AUTH_URL: z.url(),
   APP_URL: z.url(),
   SUPER_ADMIN_EMAIL: z.email().optional(),
+  AI_CONFIG_SECRET: z.string().min(32),
+  AGENT_MAX_STEPS: z.coerce.number().int().min(1).max(50).default(12),
+  AGENT_TIMEOUT_MS: z.coerce.number().int().min(10_000).max(600_000).default(180_000),
+  QDRANT_URL: z.url().default('http://localhost:6333'),
+  QDRANT_API_KEY: z.string().optional(),
+  QDRANT_COLLECTION: z.string().min(1).default('narraverse_memory'),
 })
 
 export type EnvConfig = z.infer<typeof envSchema>

@@ -28,6 +28,35 @@ Compose 默认把 MySQL 暴露到宿主机 `3307`，避免与开发机已有的 
 接口文档默认开启，可通过 `DOCS_ENABLED=false` 关闭。生产部署建议仅在受信网络中开启。
 文档中的请求体直接复用 Zod 校验模型，登录接口成功后 Scalar 会保留 Better Auth Cookie，
 可以继续调试需要登录态的业务接口。
+
+## 小说创作 Agent 基础设施
+
+`agent` 模块不是单一的文本生成接口，而是一套可扩展的创作运行时：
+
+- 模型层：OpenAI、Anthropic、Google，以及 DeepSeek、通义千问、智谱和任意 OpenAI-compatible 服务；每个用户可以动态配置 `baseUrl`、`apiKey`、模型和嵌入模型。
+- Agent 层：主 Agent 负责任务拆分与结果统筹，角色、剧情、世界观、文风、审核五类 Subagent 负责专业任务。
+- Tool 层：小说快照、章节正文、混合记忆检索、长期记忆写入、一致性审核和 Subagent 委派全部工具化。
+- 生成层：同步文本、SSE 流式文本、Zod 强校验结构化输出。
+- 记忆层：MySQL 保存可审计原文和元数据，Qdrant 保存语义向量；集合按向量维度隔离。
+- RAG 层：向量相似度与 MySQL 关键词命中混合召回，按用户和小说强制隔离。
+- 可观测层：每次执行保存 run、step、tool call、token usage、耗时、结束原因和错误。
+
+核心接口：
+
+- `GET /api/v1/agent/manifest`：Agent-native 能力清单
+- `POST /api/v1/agent/providers`：创建加密 Provider 配置
+- `POST /api/v1/agent/runs`：多步 Agent 执行
+- `POST /api/v1/agent/runs/stream`：SSE 流式执行
+- `POST /api/v1/agent/runs/structured`：结构化生成
+- `POST /api/v1/agent/memories/sync`：结构化小说数据向量化
+- `POST /api/v1/agent/memories/search`：混合 RAG 检索
+- `GET /api/v1/agent/runs/:id`：完整 Trace、步骤和工具调用
+
+浏览器可以使用 HttpOnly Cookie；SDK 和其他 Agent 可以读取登录响应的 `set-auth-token`
+响应头，并通过 `Authorization: Bearer <token>` 调用同一组受保护接口。
+
+Provider API Key 使用 `AI_CONFIG_SECRET` 派生的 AES-256-GCM 密钥加密，接口和日志均不会返回明文。
+生产环境必须替换 Compose 中的本地开发密钥，并限制 Qdrant 端口的公网访问。
 - Better Auth：`/api/auth/*`（认证路由保持行业默认路径，业务 API 使用 `/api/v1/*`）
 
 ## Supabase 数据迁移

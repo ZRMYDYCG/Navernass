@@ -37,7 +37,7 @@ async function bootstrap() {
   app.enableCors({
     origin: config.get('CORS_ORIGINS', { infer: true }).split(',').map(item => item.trim()),
     credentials: true,
-    exposedHeaders: ['x-request-id'],
+    exposedHeaders: ['x-request-id', 'set-auth-token'],
   })
   app.getHttpAdapter().getInstance().set('trust proxy', config.get('TRUST_PROXY', { infer: true }))
   app.enableShutdownHooks()
@@ -53,12 +53,17 @@ async function bootstrap() {
         { type: 'apiKey', in: 'cookie', description: 'Better Auth 会话 Cookie；生产环境可能带 __Secure- 前缀。' },
         'better-auth',
       )
+      .addBearerAuth(
+        { type: 'http', scheme: 'bearer', description: '面向 SDK 和其他 Agent 的 Better Auth 会话令牌。' },
+        'agent-bearer',
+      )
       .addTag('身份认证', 'Better Auth 注册、登录、会话与退出接口')
       .addTag('账号与工作台', '个人资料及工作台聚合数据')
       .addTag('作品资料库', '小说、卷、章节、角色及关系')
       .addTag('写作规划', '世界观、大纲、规划文件及时间线')
       .addTag('内容与社区', '新闻、调研、待办与留言墙')
       .addTag('后台管理', '仅超级管理员可访问的资源管理接口')
+      .addTag('Agent 基础设施', '模型配置、主/子 Agent、工具循环、RAG、语义记忆和执行追踪')
       .addTag('系统状态', '服务健康检查')
       .build()
     const rawDocument = SwaggerModule.createDocument(app, configDocument, {

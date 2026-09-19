@@ -1,6 +1,7 @@
 import type { Type } from '@nestjs/common'
 import { applyDecorators, HttpStatus } from '@nestjs/common'
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCookieAuth,
   ApiExtraModels,
@@ -56,6 +57,7 @@ export function ApiDoc(options: ApiDocOptions) {
   if (!options.public) {
     decorators.push(
       ApiCookieAuth('better-auth'),
+      ApiBearerAuth('agent-bearer'),
       ApiResponse({ status: 401, description: '未登录或会话已失效', type: ErrorResult }),
       ApiResponse({ status: 403, description: '当前账号无权执行此操作', type: ErrorResult }),
     )
@@ -81,5 +83,27 @@ export function ApiPageQuery() {
   return applyDecorators(
     ApiQuery({ name: 'page', required: false, type: Number, example: 1, description: '页码，默认 1' }),
     ApiQuery({ name: 'pageSize', required: false, type: Number, example: 20, description: '每页数量，最大 100' }),
+  )
+}
+
+/** SSE 长连接文档，不套用 JSON 成功响应外壳。 */
+export function ApiStreamDoc(summary: string, description?: string) {
+  return applyDecorators(
+    ApiOperation({ summary, description }),
+    ApiCookieAuth('better-auth'),
+    ApiBearerAuth('agent-bearer'),
+    ApiExtraModels(ErrorResult),
+    ApiResponse({
+      status: 200,
+      description: 'SSE 事件流：run、text、step、done、error',
+      content: {
+        'text/event-stream': {
+          schema: { type: 'string', example: 'event: text\ndata: {"delta":"..."}\n\n' },
+        },
+      },
+    }),
+    ApiResponse({ status: 400, description: '请求参数校验失败', type: ErrorResult }),
+    ApiResponse({ status: 401, description: '未登录或会话已失效', type: ErrorResult }),
+    ApiResponse({ status: 500, description: 'Agent 执行失败', type: ErrorResult }),
   )
 }

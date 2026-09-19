@@ -46,7 +46,13 @@ export function appendAuthDocs(document: OpenAPIObject) {
         password: { type: 'string', format: 'password', minLength: 8, maxLength: 128 },
         rememberMe: { type: 'boolean', default: true },
       } }),
-      responses: { 200: response('登录成功并写入会话 Cookie', user), 401: response('邮箱或密码错误') },
+      responses: {
+        200: {
+          ...response('登录成功并写入会话 Cookie', user),
+          headers: { 'set-auth-token': { description: '供 SDK 或其他 Agent 使用的 Bearer 会话令牌', schema: { type: 'string' } } },
+        },
+        401: response('邮箱或密码错误'),
+      },
     },
   }
   document.paths['/api/auth/get-session'] = {
