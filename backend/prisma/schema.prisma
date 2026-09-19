@@ -120,6 +120,7 @@ model User {
   agent_sessions AgentSession[]
   agent_runs    AgentRun[]
   semantic_memories SemanticMemory[]
+  a2a_tasks     A2aTask[]
 
   @@map("auth_users")
 }
@@ -546,4 +547,21 @@ model SemanticMemory {
   @@index([user_id, novel_id, kind])
   @@index([chapter_id])
   @@map("semantic_memories")
+}
+
+/// A2A v1 任务快照。协议对象完整保存在 payload 中，索引字段用于租户隔离与游标分页。
+model A2aTask {
+  id          String   @id @db.VarChar(191)
+  user_id     String   @db.VarChar(36)
+  context_id  String   @db.VarChar(191)
+  state       String   @db.VarChar(64)
+  payload     Json
+  created_at  DateTime @default(now()) @db.DateTime(3)
+  updated_at  DateTime @updatedAt @db.DateTime(3)
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, updated_at, id])
+  @@index([user_id, context_id, updated_at])
+  @@index([user_id, state, updated_at])
+  @@map("a2a_tasks")
 }

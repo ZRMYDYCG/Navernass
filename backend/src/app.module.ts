@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { LoggerModule } from 'nestjs-pino'
+import { A2aModule } from './a2a/a2a.module.js'
 import { AccountModule } from './account/account.module.js'
 import { AdminModule } from './admin/admin.module.js'
 import { AgentModule } from './agent/agent.module.js'
@@ -49,6 +50,7 @@ import { PlanningModule } from './planning/planning.module.js'
     ContentModule,
     AdminModule,
     AgentModule,
+    A2aModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

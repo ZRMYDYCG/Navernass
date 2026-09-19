@@ -411,6 +411,9 @@ importers:
 
   backend:
     dependencies:
+      '@a2a-js/sdk':
+        specifier: ^1.2.0
+        version: 1.2.0(express@5.2.1)
       '@ai-sdk/anthropic':
         specifier: ^4.0.58
         version: 4.0.58(zod@4.6.5)
@@ -550,6 +553,21 @@ importers:
         version: 4.22.4
 
 packages:
+
+  '@a2a-js/sdk@1.2.0':
+    resolution: {integrity: sha512-zxjvBrxhPV4J/RN8QTbsYaUIu9Y9RvmR06IP5o42UdJX42A9I0m1StGVvqrcCQ3bdu3SzWHPm5CeC2FNHARvkw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@bufbuild/protobuf': ^2.10.2
+      '@grpc/grpc-js': ^1.11.0
+      express: ^4.21.2 || ^5.1.0
+    peerDependenciesMeta:
+      '@bufbuild/protobuf':
+        optional: true
+      '@grpc/grpc-js':
+        optional: true
+      express:
+        optional: true
 
   '@ai-sdk/anthropic@4.0.58':
     resolution: {integrity: sha512-vhXKBz7jnIhBlOoj2d0joyHicWISuIxDNha65SLrAnagAkVgulLoZBRLZRazstxlO/BtXU+cDERe1opVKte2OQ==}
@@ -9788,6 +9806,12 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
+
+  '@a2a-js/sdk@1.2.0(express@5.2.1)':
+    dependencies:
+      jose: 6.2.12
+    optionalDependencies:
+      express: 5.2.1
 
   '@ai-sdk/anthropic@4.0.58(zod@4.6.5)':
     dependencies:

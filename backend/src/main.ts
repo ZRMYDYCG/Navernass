@@ -7,6 +7,7 @@ import compression from 'compression'
 import helmet from 'helmet'
 import { Logger } from 'nestjs-pino'
 import { cleanupOpenApiDoc } from 'nestjs-zod'
+import { A2aGateway } from './a2a/a2a.gateway.js'
 import { AppModule } from './app.module.js'
 import { requestIdMiddleware } from './common/request-id.js'
 import { appendAuthDocs } from './openapi/auth-doc.js'
@@ -33,12 +34,16 @@ async function bootstrap() {
       },
     },
   }))
-  app.use(compression())
   app.enableCors({
     origin: config.get('CORS_ORIGINS', { infer: true }).split(',').map(item => item.trim()),
     credentials: true,
     exposedHeaders: ['x-request-id', 'set-auth-token'],
   })
+  const a2a = app.get(A2aGateway)
+  const express = app.getHttpAdapter().getInstance()
+  express.use('/.well-known/agent-card.json', a2a.cardMiddleware)
+  express.use(`/${config.get('API_PREFIX', { infer: true })}/a2a`, a2a.restMiddleware)
+  app.use(compression())
   app.getHttpAdapter().getInstance().set('trust proxy', config.get('TRUST_PROXY', { infer: true }))
   app.enableShutdownHooks()
 
