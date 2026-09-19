@@ -22,7 +22,12 @@ pnpm --dir backend dev
 Compose 默认把 MySQL 暴露到宿主机 `3307`，避免与开发机已有的 MySQL `3306` 冲突；容器内部仍使用 `3306`。
 
 - 健康检查：`GET http://localhost:3001/api/v1/health`
-- 开发文档：`http://localhost:3001/api/v1/docs`
+- Scalar 交互文档：`http://localhost:3001/api/v1/docs`
+- OpenAPI JSON：`http://localhost:3001/api/v1/openapi.json`
+
+接口文档默认开启，可通过 `DOCS_ENABLED=false` 关闭。生产部署建议仅在受信网络中开启。
+文档中的请求体直接复用 Zod 校验模型，登录接口成功后 Scalar 会保留 Better Auth Cookie，
+可以继续调试需要登录态的业务接口。
 - Better Auth：`/api/auth/*`（认证路由保持行业默认路径，业务 API 使用 `/api/v1/*`）
 
 ## Supabase 数据迁移

@@ -1,11 +1,13 @@
 import { z } from 'zod'
 
 const booleanText = z.string().default('false').transform(value => value === 'true')
+const docsEnabled = z.string().default('true').transform(value => value === 'true')
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   API_PREFIX: z.string().default('api/v1'),
+  DOCS_ENABLED: docsEnabled,
   CORS_ORIGINS: z.string().default('http://localhost:3000'),
   TRUST_PROXY: booleanText,
   DATABASE_URL: z.url({ protocol: /^mysql$/ }),
