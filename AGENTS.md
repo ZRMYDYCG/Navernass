@@ -169,7 +169,3 @@ Focus on the diff. Skip anything oxlint/oxfmt already enforces.
 - Feature envy / data clumps / primitive obsession → move or elevate types.
 - Speculative generality → delete until needed.
 - Shotgun surgery / divergent change → consolidate or split by responsibility.
-
----
-
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
