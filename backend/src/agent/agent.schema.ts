@@ -45,6 +45,21 @@ export const runQuery = z.object({
   status: z.enum(['queued', 'running', 'completed', 'failed', 'cancelled']).optional(),
 })
 
+export const sessionQuery = z.object({
+  novelId: z.uuid(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+})
+
+export const messageQuery = z.object({
+  cursor: z.string().trim().min(1).max(500).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+})
+
+export const updateSession = z.object({
+  title: z.string().trim().min(1).max(255),
+})
+
 export const saveMemory = z.object({
   novelId: z.uuid(),
   chapterId: z.uuid().nullable().optional(),
@@ -76,6 +91,9 @@ export type CreateProvider = z.infer<typeof createProvider>
 export type UpdateProvider = z.infer<typeof updateProvider>
 export type RunAgent = z.infer<typeof runAgent>
 export type StructuredAgent = z.infer<typeof structuredAgent>
+export type SessionQuery = z.infer<typeof sessionQuery>
+export type MessageQuery = z.infer<typeof messageQuery>
+export type UpdateSession = z.infer<typeof updateSession>
 export type SaveMemory = z.infer<typeof saveMemory>
 export type SearchMemory = z.infer<typeof searchMemory>
 export type SyncMemory = z.infer<typeof syncMemory>

@@ -19,8 +19,10 @@ import {
   StructuredAgentDto,
   SyncMemoryDto,
   UpdateProviderDto,
+  UpdateSessionDto,
 } from './agent.dto.js'
 import * as schema from './agent.schema.js'
+import { ChatService } from './chat.service.js'
 import { MemoryService } from './memory.service.js'
 import { ModelService } from './model.service.js'
 import { ProviderService } from './provider.service.js'
@@ -38,6 +40,7 @@ export class AgentController {
     @Inject(ModelService) private readonly models: ModelService,
     @Inject(RuntimeService) private readonly runtime: RuntimeService,
     @Inject(MemoryService) private readonly memories: MemoryService,
+    @Inject(ChatService) private readonly chats: ChatService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(VectorService) private readonly vectors: VectorService,
   ) {}
@@ -147,6 +150,48 @@ export class AgentController {
   async listRuns(@CurrentUser() user: AuthUser, @Query(new ZodPipe(schema.runQuery)) query: z.infer<typeof schema.runQuery>) {
     const result = await this.traces.listRuns(user.id, query)
     return ApiResult.page(result.data, { page: query.page, pageSize: query.pageSize, total: result.total })
+  }
+
+  @Get('sessions')
+  @ApiDoc({ summary: '按小说分页查询聊天会话', description: '每个会话返回消息数量和最后一条消息摘要。', type: ResourceResult, array: true, paged: true })
+  @ApiPageQuery()
+  @ApiQuery({ name: 'novelId', required: true, type: String, format: 'uuid', description: '小说 UUID' })
+  async listSessions(@CurrentUser() user: AuthUser, @Query(new ZodPipe(schema.sessionQuery)) query: schema.SessionQuery) {
+    const result = await this.chats.listSessions(user.id, query)
+    return ApiResult.page(result.data, { page: query.page, pageSize: query.pageSize, total: result.total })
+  }
+
+  @Get('sessions/:id/messages')
+  @ApiDoc({ summary: '游标分页查询会话消息', description: '消息按时间正序返回，parts 保留 Vercel AI SDK UIMessage 的文本、工具调用和工具结果结构。', type: ResourceResult })
+  @ApiUuidParam('id', '聊天会话 UUID')
+  @ApiQuery({ name: 'cursor', required: false, type: String, description: '上一页返回的 nextCursor' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 50 })
+  listMessages(
+    @CurrentUser() user: AuthUser,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+    @Query(new ZodPipe(schema.messageQuery)) query: schema.MessageQuery,
+  ) {
+    return this.chats.listMessages(user.id, params.id, query)
+  }
+
+  @Patch('sessions/:id')
+  @ApiDoc({ summary: '重命名聊天会话', type: ResourceResult })
+  @ApiUuidParam('id', '聊天会话 UUID')
+  @ApiZodBody(UpdateSessionDto)
+  updateSession(
+    @CurrentUser() user: AuthUser,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+    @Body(new ZodPipe(schema.updateSession)) body: schema.UpdateSession,
+  ) {
+    return this.chats.updateSession(user.id, params.id, body.title)
+  }
+
+  @Delete('sessions/:id')
+  @ApiDoc({ summary: '删除聊天会话及其全部消息', type: MutationResult })
+  @ApiUuidParam('id', '聊天会话 UUID')
+  async deleteSession(@CurrentUser() user: AuthUser, @Param(new ZodPipe(idParam)) params: { id: string }) {
+    await this.chats.removeSession(user.id, params.id)
+    return { deleted: true }
   }
 
   @Get('runs/:id')

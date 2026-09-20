@@ -7,6 +7,7 @@ import { generateText, Output, stepCountIs, ToolLoopAgent, toUIMessageStream } f
 import { z } from 'zod'
 import { AppError } from '../common/app-error.js'
 import { PrismaService } from '../database/prisma.service.js'
+import { ChatService } from './chat.service.js'
 import { ContextService } from './context.service.js'
 import { ModelService } from './model.service.js'
 import { rolePrompts } from './prompt.js'
@@ -71,6 +72,7 @@ export class RuntimeService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(ModelService) private readonly models: ModelService,
     @Inject(ContextService) private readonly contexts: ContextService,
+    @Inject(ChatService) private readonly chats: ChatService,
     @Inject(ToolService) private readonly tools: ToolService,
     @Inject(TraceService) private readonly traces: TraceService,
   ) {
@@ -90,6 +92,12 @@ export class RuntimeService {
         onStepFinish: async (event) => {
           await this.traces.saveStep(execution.run.id, stepIndex++, event)
         },
+      })
+      await this.chats.saveAssistant({
+        ...execution.messageContext,
+        content: result.text,
+        parts: [{ type: 'text', text: result.text }],
+        metadata: { finishReason: result.finishReason, usage: result.totalUsage },
       })
       await this.traces.finishRun(execution.run.id, {
         output: result.text,
@@ -134,7 +142,7 @@ export class RuntimeService {
         sendSources: true,
         messageMetadata: () => ({ runId: execution.run.id, sessionId: execution.session.id }),
         onError: () => 'Agent 执行失败，请使用 runId 查询服务端执行日志。',
-        onEnd: async ({ outcome, finishReason }) => {
+        onEnd: async ({ outcome, finishReason, responseMessage }) => {
           if (outcome.status === 'aborted') {
             await this.traces.cancelRun(execution.run.id, Date.now() - started)
             return
@@ -144,6 +152,13 @@ export class RuntimeService {
             return
           }
           const [usage, text] = await Promise.all([result.totalUsage, result.text])
+          await this.chats.saveAssistant({
+            ...execution.messageContext,
+            remoteId: responseMessage.id,
+            content: text,
+            parts: responseMessage.parts,
+            metadata: { finishReason, usage, aiSdkMessageId: responseMessage.id },
+          })
           await this.traces.finishRun(execution.run.id, {
             output: text,
             inputTokens: usage.inputTokens ?? 0,
@@ -179,8 +194,15 @@ export class RuntimeService {
         : input.outputType === 'characterProfile'
           ? await generateText({ ...execution.structuredOptions, ...options, output: Output.object({ schema: outputSchemas.characterProfile, name: 'characterProfile' }) })
           : await generateText({ ...execution.structuredOptions, ...options, output: Output.object({ schema: outputSchemas.continuityReview, name: 'continuityReview' }) })
+      const outputText = JSON.stringify(result.output)
+      await this.chats.saveAssistant({
+        ...execution.messageContext,
+        content: outputText,
+        parts: [{ type: 'data-structured', data: result.output }],
+        metadata: { outputType: input.outputType, finishReason: result.finishReason, usage: result.totalUsage },
+      })
       await this.traces.finishRun(execution.run.id, {
-        output: JSON.stringify(result.output),
+        output: outputText,
         inputTokens: result.totalUsage.inputTokens ?? 0,
         outputTokens: result.totalUsage.outputTokens ?? 0,
         totalTokens: result.totalUsage.totalTokens ?? 0,
@@ -196,11 +218,12 @@ export class RuntimeService {
 
   private async prepare(userId: string, input: RunAgent) {
     const { model, provider } = await this.models.language(userId, input.providerId)
-    const context = await this.contexts.build(userId, { ...input, providerId: provider.id })
     const currentSession = input.sessionId
       ? await this.prisma.agentSession.findFirst({ where: { id: input.sessionId, user_id: userId, novel_id: input.novelId } })
       : null
     if (input.sessionId && !currentSession) throw AppError.notFound('AGENT_SESSION_NOT_FOUND', 'Agent 会话')
+    const history = currentSession ? await this.chats.promptHistory(userId, currentSession.id) : ''
+    const context = await this.contexts.build(userId, { ...input, providerId: provider.id })
     const session = currentSession
       ? await this.prisma.agentSession.update({
           where: { id: currentSession.id },
@@ -230,9 +253,25 @@ export class RuntimeService {
       prompt: input.prompt,
       context_snapshot: context as unknown as Prisma.InputJsonValue,
     })
+    const messageContext = {
+      sessionId: session.id,
+      runId: run.id,
+      userId,
+      novelId: input.novelId,
+      chapterId: input.chapterId,
+    }
+    await this.chats.saveUser({
+      ...messageContext,
+      content: input.prompt,
+      parts: [{ type: 'text', text: input.prompt }],
+      metadata: { role: input.role, providerId: provider.id },
+    })
     const contextText = this.contexts.toPrompt(context)
     const tools = this.tools.build({ runId: run.id, userId, input: { ...input, providerId: provider.id }, model, contextText })
-    const instructions = `${rolePrompts[input.role]}\n\n${contextText}`
+    const historyText = history
+      ? `\n\n以下是同一本小说当前会话的最近聊天记录，请延续其中的目标、约定和上下文：\n${history}`
+      : ''
+    const instructions = `${rolePrompts[input.role]}\n\n${contextText}${historyText}`
     const stopWhen = stepCountIs(input.maxSteps ?? this.maxSteps)
     const settings = this.generationSettings(provider.settings)
     const agent = new ToolLoopAgent({
@@ -249,6 +288,7 @@ export class RuntimeService {
       tools,
       run,
       session,
+      messageContext,
       structuredOptions: {
         model,
         instructions,

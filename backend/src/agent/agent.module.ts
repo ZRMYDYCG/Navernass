@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { AgentController } from './agent.controller.js'
+import { ChatService } from './chat.service.js'
 import { ContextService } from './context.service.js'
 import { MemoryService } from './memory.service.js'
 import { ModelService } from './model.service.js'
@@ -19,6 +20,7 @@ import { VectorService } from './vector.service.js'
     VectorService,
     MemoryService,
     ContextService,
+    ChatService,
     TraceService,
     ToolService,
     RuntimeService,

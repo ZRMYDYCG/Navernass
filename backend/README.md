@@ -1,12 +1,12 @@
 # Narraverse Backend
 
-独立的 NestJS 12 后端，负责 Narraverse 的非 AI 业务。认证使用 Better Auth，数据层使用 Prisma 7 + MySQL 8.4，输入校验使用 Zod 4。
+独立的 NestJS 12 后端，负责 Narraverse 业务数据与小说创作 Agent 基础设施。认证使用 Better Auth，数据层使用 Prisma 7 + MySQL 8.4，输入校验使用 Zod 4。
 
 ## 领域边界
 
 已迁移：用户资料、小说、卷、章节、角色与关系、世界观、大纲、规划文件、角色时间线、产品动态、调研、写作待办、留言墙与后台管理。
 
-明确排除：普通/小说 AI 对话与消息、模型/API Key 配置、Agent、AI SDK、生成接口及 Skill 系统。
+Skill 系统仍保持排除；模型配置、Agent、AI SDK、聊天记录、语义记忆与 A2A 已由独立基础设施模块承载。
 
 ## 本地启动
 
@@ -40,6 +40,8 @@ Compose 默认把 MySQL 暴露到宿主机 `3307`，避免与开发机已有的 
 - 记忆层：MySQL 保存可审计原文和元数据，Qdrant 保存语义向量；集合按向量维度隔离。
 - RAG 层：向量相似度与 MySQL 关键词命中混合召回，按用户和小说强制隔离。
 - 可观测层：每次执行保存 run、step、tool call、token usage、耗时、结束原因和错误。
+- 会话层：聊天记录按小说和会话持久化，保存 AI SDK `parts`，支持历史上下文、游标翻页、重命名和删除。
+- A2A 层：使用官方 A2A v1 HTTP+JSON 与 SSE 协议，支持 Agent Card、Task 查询、取消和重订阅。
 
 核心接口：
 
@@ -51,6 +53,12 @@ Compose 默认把 MySQL 暴露到宿主机 `3307`，避免与开发机已有的 
 - `POST /api/v1/agent/memories/sync`：结构化小说数据向量化
 - `POST /api/v1/agent/memories/search`：混合 RAG 检索
 - `GET /api/v1/agent/runs/:id`：完整 Trace、步骤和工具调用
+- `GET /api/v1/agent/sessions?novelId=...`：按小说查询聊天会话
+- `GET /api/v1/agent/sessions/:id/messages`：游标分页查询完整聊天消息
+- `PATCH /api/v1/agent/sessions/:id`：重命名聊天会话
+- `DELETE /api/v1/agent/sessions/:id`：删除会话和消息
+- `GET /.well-known/agent-card.json`：A2A Agent Card
+- `POST /api/v1/a2a/v1/message:stream`：官方 A2A SSE 任务流
 
 浏览器可以使用 HttpOnly Cookie；SDK 和其他 Agent 可以读取登录响应的 `set-auth-token`
 响应头，并通过 `Authorization: Bearer <token>` 调用同一组受保护接口。

@@ -102,25 +102,33 @@ enum MemoryKind {
   custom
 }
 
+enum AgentMessageRole {
+  user
+  assistant
+  system
+  tool
+}
+
 model User {
-  id            String    @id @default(uuid()) @db.VarChar(36)
-  name          String    @db.VarChar(191)
-  email         String    @unique @db.VarChar(191)
-  emailVerified Boolean   @default(false)
-  image         String?   @db.Text
-  createdAt     DateTime  @default(now()) @db.DateTime(3)
-  updatedAt     DateTime  @updatedAt @db.DateTime(3)
-  sessions      Session[]
-  accounts      Account[]
-  profile       Profile?
-  novels        Novel[]
-  surveys       Survey[]
-  todos         WriterTodo[]
-  ai_providers  AiProviderConfig[]
-  agent_sessions AgentSession[]
-  agent_runs    AgentRun[]
+  id                String             @id @default(uuid()) @db.VarChar(36)
+  name              String             @db.VarChar(191)
+  email             String             @unique @db.VarChar(191)
+  emailVerified     Boolean            @default(false)
+  image             String?            @db.Text
+  createdAt         DateTime           @default(now()) @db.DateTime(3)
+  updatedAt         DateTime           @updatedAt @db.DateTime(3)
+  sessions          Session[]
+  accounts          Account[]
+  profile           Profile?
+  novels            Novel[]
+  surveys           Survey[]
+  todos             WriterTodo[]
+  ai_providers      AiProviderConfig[]
+  agent_sessions    AgentSession[]
+  agent_runs        AgentRun[]
   semantic_memories SemanticMemory[]
-  a2a_tasks     A2aTask[]
+  a2a_tasks         A2aTask[]
+  agent_messages    AgentMessage[]
 
   @@map("auth_users")
 }
@@ -151,10 +159,10 @@ model Account {
   idToken               String?   @db.Text
   accessTokenExpiresAt  DateTime? @db.DateTime(3)
   refreshTokenExpiresAt DateTime? @db.DateTime(3)
-  scope                  String?   @db.Text
-  password               String?   @db.Text
-  createdAt              DateTime  @default(now()) @db.DateTime(3)
-  updatedAt              DateTime  @updatedAt @db.DateTime(3)
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now()) @db.DateTime(3)
+  updatedAt             DateTime  @updatedAt @db.DateTime(3)
 
   @@unique([providerId, accountId])
   @@index([userId])
@@ -191,32 +199,33 @@ model Profile {
 }
 
 model Novel {
-  id              String      @id @default(uuid()) @db.VarChar(36)
-  user_id         String      @db.VarChar(36)
-  title           String      @db.VarChar(255)
-  description     String?     @db.Text
-  cover           String?     @db.Text
-  category        String?     @db.VarChar(100)
-  tags            Json
-  word_count      Int         @default(0)
-  chapter_count   Int         @default(0)
-  status          NovelStatus @default(draft)
-  characters      Json
-  relationships   Json
-  order_index     Int         @default(0)
-  created_at      DateTime    @default(now()) @db.DateTime(3)
-  updated_at      DateTime    @updatedAt @db.DateTime(3)
-  published_at    DateTime?   @db.DateTime(3)
-  user            User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  volumes         Volume[]
-  chapters        Chapter[]
-  worldbook       WorldbookEntry[]
-  outlines        Outline[]
-  plan_files      PlanFile[]
-  timeline_events TimelineEvent[]
-  agent_sessions AgentSession[]
-  agent_runs     AgentRun[]
+  id                String           @id @default(uuid()) @db.VarChar(36)
+  user_id           String           @db.VarChar(36)
+  title             String           @db.VarChar(255)
+  description       String?          @db.Text
+  cover             String?          @db.Text
+  category          String?          @db.VarChar(100)
+  tags              Json
+  word_count        Int              @default(0)
+  chapter_count     Int              @default(0)
+  status            NovelStatus      @default(draft)
+  characters        Json
+  relationships     Json
+  order_index       Int              @default(0)
+  created_at        DateTime         @default(now()) @db.DateTime(3)
+  updated_at        DateTime         @updatedAt @db.DateTime(3)
+  published_at      DateTime?        @db.DateTime(3)
+  user              User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  volumes           Volume[]
+  chapters          Chapter[]
+  worldbook         WorldbookEntry[]
+  outlines          Outline[]
+  plan_files        PlanFile[]
+  timeline_events   TimelineEvent[]
+  agent_sessions    AgentSession[]
+  agent_runs        AgentRun[]
   semantic_memories SemanticMemory[]
+  agent_messages    AgentMessage[]
 
   @@index([user_id, status, order_index])
   @@map("novels")
@@ -408,24 +417,24 @@ model MessageWallEntry {
 }
 
 model AiProviderConfig {
-  id                String         @id @default(uuid()) @db.VarChar(36)
-  user_id           String         @db.VarChar(36)
-  name              String         @db.VarChar(100)
-  kind              AiProviderKind
-  base_url          String?        @db.VarChar(500)
-  api_key_cipher    String         @db.LongText
-  model             String         @db.VarChar(191)
-  embedding_model   String?        @db.VarChar(191)
-  supports_tools    Boolean        @default(true)
-  supports_structured Boolean      @default(true)
-  is_default        Boolean        @default(false)
-  is_enabled        Boolean        @default(true)
-  settings          Json
-  created_at        DateTime       @default(now()) @db.DateTime(3)
-  updated_at        DateTime       @updatedAt @db.DateTime(3)
-  user              User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  sessions          AgentSession[]
-  runs              AgentRun[]
+  id                  String         @id @default(uuid()) @db.VarChar(36)
+  user_id             String         @db.VarChar(36)
+  name                String         @db.VarChar(100)
+  kind                AiProviderKind
+  base_url            String?        @db.VarChar(500)
+  api_key_cipher      String         @db.LongText
+  model               String         @db.VarChar(191)
+  embedding_model     String?        @db.VarChar(191)
+  supports_tools      Boolean        @default(true)
+  supports_structured Boolean        @default(true)
+  is_default          Boolean        @default(false)
+  is_enabled          Boolean        @default(true)
+  settings            Json
+  created_at          DateTime       @default(now()) @db.DateTime(3)
+  updated_at          DateTime       @updatedAt @db.DateTime(3)
+  user                User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  sessions            AgentSession[]
+  runs                AgentRun[]
 
   @@unique([user_id, name])
   @@index([user_id, is_default, is_enabled])
@@ -433,19 +442,20 @@ model AiProviderConfig {
 }
 
 model AgentSession {
-  id                String           @id @default(uuid()) @db.VarChar(36)
-  user_id           String           @db.VarChar(36)
-  novel_id          String           @db.VarChar(36)
-  chapter_id        String?          @db.VarChar(36)
-  provider_id       String           @db.VarChar(36)
-  title             String?          @db.VarChar(255)
-  context           Json
-  created_at        DateTime         @default(now()) @db.DateTime(3)
-  updated_at        DateTime         @updatedAt @db.DateTime(3)
-  user              User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  novel             Novel            @relation(fields: [novel_id], references: [id], onDelete: Cascade)
-  provider          AiProviderConfig @relation(fields: [provider_id], references: [id], onDelete: Restrict)
-  runs              AgentRun[]
+  id          String           @id @default(uuid()) @db.VarChar(36)
+  user_id     String           @db.VarChar(36)
+  novel_id    String           @db.VarChar(36)
+  chapter_id  String?          @db.VarChar(36)
+  provider_id String           @db.VarChar(36)
+  title       String?          @db.VarChar(255)
+  context     Json
+  created_at  DateTime         @default(now()) @db.DateTime(3)
+  updated_at  DateTime         @updatedAt @db.DateTime(3)
+  user        User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel       Novel            @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  provider    AiProviderConfig @relation(fields: [provider_id], references: [id], onDelete: Restrict)
+  runs        AgentRun[]
+  messages    AgentMessage[]
 
   @@index([user_id, updated_at])
   @@index([novel_id, chapter_id])
@@ -453,33 +463,34 @@ model AgentSession {
 }
 
 model AgentRun {
-  id                String           @id @default(uuid()) @db.VarChar(36)
-  session_id        String?          @db.VarChar(36)
-  user_id           String           @db.VarChar(36)
-  novel_id          String           @db.VarChar(36)
-  chapter_id        String?          @db.VarChar(36)
-  provider_id       String           @db.VarChar(36)
-  role              AgentRole        @default(main)
-  status            AgentRunStatus   @default(queued)
-  prompt            String           @db.LongText
-  output            String?          @db.LongText
-  context_snapshot  Json
-  input_tokens      Int              @default(0)
-  output_tokens     Int              @default(0)
-  total_tokens      Int              @default(0)
-  finish_reason     String?          @db.VarChar(100)
-  error_code        String?          @db.VarChar(100)
-  error_message     String?          @db.Text
-  latency_ms        Int?
-  started_at        DateTime?        @db.DateTime(3)
-  completed_at      DateTime?        @db.DateTime(3)
-  created_at        DateTime         @default(now()) @db.DateTime(3)
-  user              User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  novel             Novel            @relation(fields: [novel_id], references: [id], onDelete: Cascade)
-  provider          AiProviderConfig @relation(fields: [provider_id], references: [id], onDelete: Restrict)
-  session           AgentSession?    @relation(fields: [session_id], references: [id], onDelete: SetNull)
-  steps             AgentStep[]
-  tool_calls        AgentToolCall[]
+  id               String           @id @default(uuid()) @db.VarChar(36)
+  session_id       String?          @db.VarChar(36)
+  user_id          String           @db.VarChar(36)
+  novel_id         String           @db.VarChar(36)
+  chapter_id       String?          @db.VarChar(36)
+  provider_id      String           @db.VarChar(36)
+  role             AgentRole        @default(main)
+  status           AgentRunStatus   @default(queued)
+  prompt           String           @db.LongText
+  output           String?          @db.LongText
+  context_snapshot Json
+  input_tokens     Int              @default(0)
+  output_tokens    Int              @default(0)
+  total_tokens     Int              @default(0)
+  finish_reason    String?          @db.VarChar(100)
+  error_code       String?          @db.VarChar(100)
+  error_message    String?          @db.Text
+  latency_ms       Int?
+  started_at       DateTime?        @db.DateTime(3)
+  completed_at     DateTime?        @db.DateTime(3)
+  created_at       DateTime         @default(now()) @db.DateTime(3)
+  user             User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel            Novel            @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  provider         AiProviderConfig @relation(fields: [provider_id], references: [id], onDelete: Restrict)
+  session          AgentSession?    @relation(fields: [session_id], references: [id], onDelete: SetNull)
+  steps            AgentStep[]
+  tool_calls       AgentToolCall[]
+  messages         AgentMessage[]
 
   @@index([user_id, created_at])
   @@index([novel_id, chapter_id, created_at])
@@ -488,38 +499,64 @@ model AgentRun {
   @@map("agent_runs")
 }
 
+/// 按小说和会话保存的完整聊天消息，parts 保留 AI SDK UIMessagePart 原始结构。
+model AgentMessage {
+  id         String           @id @default(uuid()) @db.VarChar(36)
+  session_id String           @db.VarChar(36)
+  run_id     String?          @db.VarChar(36)
+  user_id    String           @db.VarChar(36)
+  novel_id   String           @db.VarChar(36)
+  chapter_id String?          @db.VarChar(36)
+  remote_id  String?          @db.VarChar(191)
+  role       AgentMessageRole
+  content    String           @db.LongText
+  parts      Json
+  metadata   Json
+  created_at DateTime         @default(now()) @db.DateTime(3)
+  session    AgentSession     @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  run        AgentRun?        @relation(fields: [run_id], references: [id], onDelete: SetNull)
+  user       User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel      Novel            @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+
+  @@index([session_id, created_at, id])
+  @@index([user_id, novel_id, created_at])
+  @@index([run_id])
+  @@index([remote_id])
+  @@map("agent_messages")
+}
+
 model AgentStep {
-  id                String      @id @default(uuid()) @db.VarChar(36)
-  run_id            String      @db.VarChar(36)
-  step_index        Int
-  role              AgentRole
-  finish_reason     String?     @db.VarChar(100)
-  input_tokens      Int         @default(0)
-  output_tokens     Int         @default(0)
-  tool_call_count   Int         @default(0)
-  metadata          Json
-  created_at        DateTime    @default(now()) @db.DateTime(3)
-  run               AgentRun    @relation(fields: [run_id], references: [id], onDelete: Cascade)
-  tool_calls        AgentToolCall[]
+  id              String          @id @default(uuid()) @db.VarChar(36)
+  run_id          String          @db.VarChar(36)
+  step_index      Int
+  role            AgentRole
+  finish_reason   String?         @db.VarChar(100)
+  input_tokens    Int             @default(0)
+  output_tokens   Int             @default(0)
+  tool_call_count Int             @default(0)
+  metadata        Json
+  created_at      DateTime        @default(now()) @db.DateTime(3)
+  run             AgentRun        @relation(fields: [run_id], references: [id], onDelete: Cascade)
+  tool_calls      AgentToolCall[]
 
   @@unique([run_id, step_index])
   @@map("agent_steps")
 }
 
 model AgentToolCall {
-  id                String      @id @default(uuid()) @db.VarChar(36)
-  run_id            String      @db.VarChar(36)
-  step_id           String?     @db.VarChar(36)
-  tool_call_id      String      @db.VarChar(191)
-  tool_name         String      @db.VarChar(100)
-  input             Json
-  output            Json?
-  status            String      @db.VarChar(32)
-  duration_ms       Int?
-  error_message     String?     @db.Text
-  created_at        DateTime    @default(now()) @db.DateTime(3)
-  run               AgentRun    @relation(fields: [run_id], references: [id], onDelete: Cascade)
-  step              AgentStep?  @relation(fields: [step_id], references: [id], onDelete: SetNull)
+  id            String     @id @default(uuid()) @db.VarChar(36)
+  run_id        String     @db.VarChar(36)
+  step_id       String?    @db.VarChar(36)
+  tool_call_id  String     @db.VarChar(191)
+  tool_name     String     @db.VarChar(100)
+  input         Json
+  output        Json?
+  status        String     @db.VarChar(32)
+  duration_ms   Int?
+  error_message String?    @db.Text
+  created_at    DateTime   @default(now()) @db.DateTime(3)
+  run           AgentRun   @relation(fields: [run_id], references: [id], onDelete: Cascade)
+  step          AgentStep? @relation(fields: [step_id], references: [id], onDelete: SetNull)
 
   @@unique([run_id, tool_call_id])
   @@index([run_id, tool_name])
@@ -527,21 +564,21 @@ model AgentToolCall {
 }
 
 model SemanticMemory {
-  id                String      @id @default(uuid()) @db.VarChar(36)
-  user_id           String      @db.VarChar(36)
-  novel_id          String      @db.VarChar(36)
-  chapter_id        String?     @db.VarChar(36)
-  source_id         String?     @db.VarChar(36)
-  vector_id         String      @unique @db.VarChar(36)
-  kind              MemoryKind
-  title             String?     @db.VarChar(255)
-  content           String      @db.LongText
-  content_hash      String      @db.Char(64)
-  metadata          Json
-  created_at        DateTime    @default(now()) @db.DateTime(3)
-  updated_at        DateTime    @updatedAt @db.DateTime(3)
-  user              User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  novel             Novel       @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  id           String     @id @default(uuid()) @db.VarChar(36)
+  user_id      String     @db.VarChar(36)
+  novel_id     String     @db.VarChar(36)
+  chapter_id   String?    @db.VarChar(36)
+  source_id    String?    @db.VarChar(36)
+  vector_id    String     @unique @db.VarChar(36)
+  kind         MemoryKind
+  title        String?    @db.VarChar(255)
+  content      String     @db.LongText
+  content_hash String     @db.Char(64)
+  metadata     Json
+  created_at   DateTime   @default(now()) @db.DateTime(3)
+  updated_at   DateTime   @updatedAt @db.DateTime(3)
+  user         User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel        Novel      @relation(fields: [novel_id], references: [id], onDelete: Cascade)
 
   @@unique([novel_id, kind, source_id])
   @@index([user_id, novel_id, kind])
@@ -551,14 +588,14 @@ model SemanticMemory {
 
 /// A2A v1 任务快照。协议对象完整保存在 payload 中，索引字段用于租户隔离与游标分页。
 model A2aTask {
-  id          String   @id @db.VarChar(191)
-  user_id     String   @db.VarChar(36)
-  context_id  String   @db.VarChar(191)
-  state       String   @db.VarChar(64)
-  payload     Json
-  created_at  DateTime @default(now()) @db.DateTime(3)
-  updated_at  DateTime @updatedAt @db.DateTime(3)
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id         String   @id @db.VarChar(191)
+  user_id    String   @db.VarChar(36)
+  context_id String   @db.VarChar(191)
+  state      String   @db.VarChar(64)
+  payload    Json
+  created_at DateTime @default(now()) @db.DateTime(3)
+  updated_at DateTime @updatedAt @db.DateTime(3)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, updated_at, id])
   @@index([user_id, context_id, updated_at])

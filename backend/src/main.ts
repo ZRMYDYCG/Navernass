@@ -10,6 +10,7 @@ import { cleanupOpenApiDoc } from 'nestjs-zod'
 import { A2aGateway } from './a2a/a2a.gateway.js'
 import { AppModule } from './app.module.js'
 import { requestIdMiddleware } from './common/request-id.js'
+import { appendA2aDocs } from './openapi/a2a-doc.js'
 import { appendAuthDocs } from './openapi/auth-doc.js'
 import 'reflect-metadata'
 
@@ -51,7 +52,7 @@ async function bootstrap() {
     const apiPrefix = config.get('API_PREFIX', { infer: true })
     const configDocument = new DocumentBuilder()
       .setTitle('Narraverse API')
-      .setDescription('Narraverse 非 AI 业务后端接口。所有业务响应均使用统一 success/data/error/requestId 结构。')
+      .setDescription('Narraverse 业务后端与小说创作 Agent 基础设施。业务接口使用统一响应结构；AI SDK 与 A2A 流式接口遵循各自官方协议。')
       .setVersion('1.0.0')
       .addCookieAuth(
         'better-auth.session_token',
@@ -69,12 +70,13 @@ async function bootstrap() {
       .addTag('内容与社区', '新闻、调研、待办与留言墙')
       .addTag('后台管理', '仅超级管理员可访问的资源管理接口')
       .addTag('Agent 基础设施', '模型配置、主/子 Agent、工具循环、RAG、语义记忆和执行追踪')
+      .addTag('A2A Agent2Agent', '官方 A2A v1 Agent Card、消息、流式任务与生命周期接口')
       .addTag('系统状态', '服务健康检查')
       .build()
     const rawDocument = SwaggerModule.createDocument(app, configDocument, {
       operationIdFactory: (controller, method) => `${controller.replace(/Controller$/, '')}_${method}`,
     })
-    const document = appendAuthDocs(cleanupOpenApiDoc(rawDocument))
+    const document = appendA2aDocs(appendAuthDocs(cleanupOpenApiDoc(rawDocument)))
     const jsonPath = `/${apiPrefix}/openapi.json`
     const docsPath = `/${apiPrefix}/docs`
 
