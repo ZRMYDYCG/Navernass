@@ -1,6 +1,6 @@
-import { createZodDto } from 'nestjs-zod'
-import { z } from 'zod'
-import * as schema from './content.schema.js'
+import { createZodDto } from "nestjs-zod";
+import { z } from "zod";
+import * as schema from "./content.schema.js";
 
 export class PageQueryDto extends createZodDto(schema.pageQuery) {}
 export class NewsQueryDto extends createZodDto(schema.newsQuery) {}

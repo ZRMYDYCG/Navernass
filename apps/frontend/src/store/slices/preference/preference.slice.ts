@@ -1,10 +1,10 @@
-import type { StateCreator } from "zustand"
+import type { StateCreator } from "zustand";
 
-import type { AppStore } from "@/store/store.types"
+import type { AppStore } from "@/store/store.types";
 
-import { updateDensity } from "./preference.actions"
-import { preferenceInitialState } from "./preference.state"
-import type { PreferenceSlice } from "./preference.types"
+import { updateDensity } from "./preference.actions";
+import { preferenceInitialState } from "./preference.state";
+import type { PreferenceSlice } from "./preference.types";
 
 export const createPreferenceSlice: StateCreator<
   AppStore,
@@ -14,4 +14,4 @@ export const createPreferenceSlice: StateCreator<
 > = (set) => ({
   ...preferenceInitialState,
   setDensity: (density) => set((state) => updateDensity(state, density)),
-})
+});

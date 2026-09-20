@@ -1,0 +1,47 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "nextjs", "unicorn", "oxc", "node"],
+  "jsPlugins": ["@shadcn/lint"],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": [
+    "apps/web/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/out/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/generated/**",
+    "**/next-env.d.ts",
+    "pnpm-lock.yaml"
+  ],
+  "settings": {
+    "shadcn": {
+      "ui": "@/components/ui"
+    }
+  },
+  "rules": {
+    "shadcn/no-restyle": [
+      "error",
+      {
+        "allow": ["layout"]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["apps/backend/**"],
+      "rules": {
+        "shadcn/no-restyle": "off"
+      }
+    },
+    {
+      "files": ["apps/frontend/src/components/ui/**"],
+      "rules": {
+        "shadcn/no-restyle": "off"
+      }
+    }
+  ]
+}

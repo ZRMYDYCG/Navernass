@@ -1,11 +1,11 @@
-export type InterfaceDensity = "comfortable" | "compact"
+export type InterfaceDensity = "comfortable" | "compact";
 
 export interface PreferenceState {
-  density: InterfaceDensity
+  density: InterfaceDensity;
 }
 
 export interface PreferenceActions {
-  setDensity: (density: InterfaceDensity) => void
+  setDensity: (density: InterfaceDensity) => void;
 }
 
-export type PreferenceSlice = PreferenceState & PreferenceActions
+export type PreferenceSlice = PreferenceState & PreferenceActions;

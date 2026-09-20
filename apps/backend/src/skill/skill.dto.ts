@@ -1,5 +1,11 @@
-import { createZodDto } from 'nestjs-zod'
-import { bindNovelSkills, customSkill, installSkill, skillQuery, updateCustomSkill } from './skill.schema.js'
+import { createZodDto } from "nestjs-zod";
+import {
+  bindNovelSkills,
+  customSkill,
+  installSkill,
+  skillQuery,
+  updateCustomSkill,
+} from "./skill.schema.js";
 
 export class SkillQueryDto extends createZodDto(skillQuery) {}
 export class InstallSkillDto extends createZodDto(installSkill) {}

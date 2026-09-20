@@ -1,7 +1,7 @@
 export interface PageMeta {
-  page: number
-  pageSize: number
-  total: number
+  page: number;
+  pageSize: number;
+  total: number;
 }
 
 export class ApiResult<T> {
@@ -11,6 +11,6 @@ export class ApiResult<T> {
   ) {}
 
   static page<T>(data: T[], meta: PageMeta) {
-    return new ApiResult(data, meta)
+    return new ApiResult(data, meta);
   }
 }

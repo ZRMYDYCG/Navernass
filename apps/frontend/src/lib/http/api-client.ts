@@ -1,9 +1,9 @@
-import ky, { HTTPError } from "ky"
+import ky, { HTTPError } from "ky";
 
-import { ApiError } from "./api-error"
-import { apiErrorSchema } from "@/schemas/api.schema"
+import { ApiError } from "./api-error";
+import { apiErrorSchema } from "@/schemas/api.schema";
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api"
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api";
 
 export const apiClient = ky.create({
   prefix: apiBaseUrl,
@@ -17,19 +17,22 @@ export const apiClient = ky.create({
     beforeError: [
       async ({ error }) => {
         if (!(error instanceof HTTPError)) {
-          return error
+          return error;
         }
 
         const payload = apiErrorSchema.safeParse(
-          await error.response.clone().json().catch(() => null)
-        )
+          await error.response
+            .clone()
+            .json()
+            .catch(() => null),
+        );
 
         if (payload.success) {
-          return new ApiError(error.response.status, payload.data)
+          return new ApiError(error.response.status, payload.data);
         }
 
-        return error
+        return error;
       },
     ],
   },
-})
+});

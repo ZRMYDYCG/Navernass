@@ -1,19 +1,19 @@
-import type { EnvConfig } from '../config/env-schema.js'
-import type { Prisma } from '../generated/prisma/client.js'
-import type { RunAgent, StructuredAgent } from './agent.schema.js'
-import { Inject, Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
-import { generateText, Output, stepCountIs, ToolLoopAgent, toUIMessageStream } from 'ai'
-import { z } from 'zod'
-import { AppError } from '../common/app-error.js'
-import { PrismaService } from '../database/prisma.service.js'
-import { SkillResolver } from '../skill/skill.resolver.js'
-import { ChatService } from './chat.service.js'
-import { ContextService } from './context.service.js'
-import { ModelService } from './model.service.js'
-import { rolePrompts } from './prompt.js'
-import { ToolService } from './tool.service.js'
-import { TraceService } from './trace.service.js'
+import type { EnvConfig } from "../config/env-schema.js";
+import type { Prisma } from "../generated/prisma/client.js";
+import type { RunAgent, StructuredAgent } from "./agent.schema.js";
+import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { generateText, Output, stepCountIs, ToolLoopAgent, toUIMessageStream } from "ai";
+import { z } from "zod";
+import { AppError } from "../common/app-error.js";
+import { PrismaService } from "../database/prisma.service.js";
+import { SkillResolver } from "../skill/skill.resolver.js";
+import { ChatService } from "./chat.service.js";
+import { ContextService } from "./context.service.js";
+import { ModelService } from "./model.service.js";
+import { rolePrompts } from "./prompt.js";
+import { ToolService } from "./tool.service.js";
+import { TraceService } from "./trace.service.js";
 
 const outputSchemas = {
   chapterPlan: z.object({
@@ -21,7 +21,9 @@ const outputSchemas = {
     goal: z.string(),
     pov: z.string(),
     estimatedWords: z.number().int().positive(),
-    beats: z.array(z.object({ order: z.number().int().positive(), event: z.string(), purpose: z.string() })),
+    beats: z.array(
+      z.object({ order: z.number().int().positive(), event: z.string(), purpose: z.string() }),
+    ),
     continuityNotes: z.array(z.string()),
   }),
   characterProfile: z.object({
@@ -31,44 +33,48 @@ const outputSchemas = {
     fear: z.string(),
     flaw: z.string(),
     arc: z.array(z.string()),
-    relationships: z.array(z.object({ character: z.string(), relation: z.string(), tension: z.string() })),
+    relationships: z.array(
+      z.object({ character: z.string(), relation: z.string(), tension: z.string() }),
+    ),
     speechStyle: z.array(z.string()),
   }),
   continuityReview: z.object({
     score: z.number().min(0).max(100),
     summary: z.string(),
-    issues: z.array(z.object({
-      severity: z.enum(['info', 'warning', 'error']),
-      category: z.enum(['plot', 'character', 'world', 'timeline', 'fact', 'style']),
-      evidence: z.string(),
-      suggestion: z.string(),
-    })),
+    issues: z.array(
+      z.object({
+        severity: z.enum(["info", "warning", "error"]),
+        category: z.enum(["plot", "character", "world", "timeline", "fact", "style"]),
+        evidence: z.string(),
+        suggestion: z.string(),
+      }),
+    ),
   }),
-} as const
+} as const;
 
 export interface AgentResult {
-  runId: string
-  sessionId: string
-  text: string
-  usage: { inputTokens?: number, outputTokens?: number, totalTokens?: number }
-  finishReason: string
-  steps: number
-  warnings: string[]
-  skillIds: string[]
+  runId: string;
+  sessionId: string;
+  text: string;
+  usage: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
+  finishReason: string;
+  steps: number;
+  warnings: string[];
+  skillIds: string[];
 }
 
 export interface StructuredResult {
-  runId: string
-  sessionId: string
-  output: unknown
-  usage: { inputTokens?: number, outputTokens?: number, totalTokens?: number }
-  skillIds: string[]
+  runId: string;
+  sessionId: string;
+  output: unknown;
+  usage: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
+  skillIds: string[];
 }
 
 @Injectable()
 export class RuntimeService {
-  private readonly maxSteps: number
-  private readonly timeoutMs: number
+  private readonly maxSteps: number;
+  private readonly timeoutMs: number;
 
   constructor(
     @Inject(ConfigService) config: ConfigService<EnvConfig, true>,
@@ -80,29 +86,29 @@ export class RuntimeService {
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(SkillResolver) private readonly skills: SkillResolver,
   ) {
-    this.maxSteps = config.get('AGENT_MAX_STEPS', { infer: true })
-    this.timeoutMs = config.get('AGENT_TIMEOUT_MS', { infer: true })
+    this.maxSteps = config.get("AGENT_MAX_STEPS", { infer: true });
+    this.timeoutMs = config.get("AGENT_TIMEOUT_MS", { infer: true });
   }
 
   async generate(userId: string, input: RunAgent, signal?: AbortSignal): Promise<AgentResult> {
-    const execution = await this.prepare(userId, input)
-    const started = Date.now()
-    await this.traces.startRun(execution.run.id)
-    let stepIndex = 0
+    const execution = await this.prepare(userId, input);
+    const started = Date.now();
+    await this.traces.startRun(execution.run.id);
+    let stepIndex = 0;
     try {
       const result = await execution.agent.generate({
         prompt: input.prompt,
         abortSignal: this.signal(signal),
         onStepFinish: async (event) => {
-          await this.traces.saveStep(execution.run.id, stepIndex++, event)
+          await this.traces.saveStep(execution.run.id, stepIndex++, event);
         },
-      })
+      });
       await this.chats.saveAssistant({
         ...execution.messageContext,
         content: result.text,
-        parts: [{ type: 'text', text: result.text }],
+        parts: [{ type: "text", text: result.text }],
         metadata: { finishReason: result.finishReason, usage: result.totalUsage },
-      })
+      });
       await this.traces.finishRun(execution.run.id, {
         output: result.text,
         inputTokens: result.totalUsage.inputTokens ?? 0,
@@ -110,7 +116,7 @@ export class RuntimeService {
         totalTokens: result.totalUsage.totalTokens ?? 0,
         finishReason: result.finishReason,
         latencyMs: Date.now() - started,
-      })
+      });
       return {
         runId: execution.run.id,
         sessionId: execution.session.id,
@@ -118,52 +124,56 @@ export class RuntimeService {
         usage: result.totalUsage,
         finishReason: result.finishReason,
         steps: result.steps.length,
-        warnings: (result.warnings ?? []).map(warning => JSON.stringify(warning)),
+        warnings: (result.warnings ?? []).map((warning) => JSON.stringify(warning)),
         skillIds: execution.skillSet.ids,
-      }
+      };
     } catch (error) {
-      await this.traces.failRun(execution.run.id, error, Date.now() - started)
-      throw error
+      await this.traces.failRun(execution.run.id, error, Date.now() - started);
+      throw error;
     }
   }
 
   async stream(userId: string, input: RunAgent, signal?: AbortSignal) {
-    const execution = await this.prepare(userId, input)
-    const started = Date.now()
-    await this.traces.startRun(execution.run.id)
-    let stepIndex = 0
+    const execution = await this.prepare(userId, input);
+    const started = Date.now();
+    await this.traces.startRun(execution.run.id);
+    let stepIndex = 0;
     try {
       const result = await execution.agent.stream({
         prompt: input.prompt,
         abortSignal: this.signal(signal),
         onStepFinish: async (event) => {
-          await this.traces.saveStep(execution.run.id, stepIndex++, event)
+          await this.traces.saveStep(execution.run.id, stepIndex++, event);
         },
-      })
+      });
       const stream = toUIMessageStream({
         stream: result.fullStream,
         tools: execution.tools,
         sendReasoning: false,
         sendSources: true,
-        messageMetadata: () => ({ runId: execution.run.id, sessionId: execution.session.id, skillIds: execution.skillSet.ids }),
-        onError: () => 'Agent 执行失败，请使用 runId 查询服务端执行日志。',
+        messageMetadata: () => ({
+          runId: execution.run.id,
+          sessionId: execution.session.id,
+          skillIds: execution.skillSet.ids,
+        }),
+        onError: () => "Agent 执行失败，请使用 runId 查询服务端执行日志。",
         onEnd: async ({ outcome, finishReason, responseMessage }) => {
-          if (outcome.status === 'aborted') {
-            await this.traces.cancelRun(execution.run.id, Date.now() - started)
-            return
+          if (outcome.status === "aborted") {
+            await this.traces.cancelRun(execution.run.id, Date.now() - started);
+            return;
           }
-          if (outcome.status === 'failed') {
-            await this.traces.failRun(execution.run.id, outcome.error, Date.now() - started)
-            return
+          if (outcome.status === "failed") {
+            await this.traces.failRun(execution.run.id, outcome.error, Date.now() - started);
+            return;
           }
-          const [usage, text] = await Promise.all([result.totalUsage, result.text])
+          const [usage, text] = await Promise.all([result.totalUsage, result.text]);
           await this.chats.saveAssistant({
             ...execution.messageContext,
             remoteId: responseMessage.id,
             content: text,
             parts: responseMessage.parts,
             metadata: { finishReason, usage, aiSdkMessageId: responseMessage.id },
-          })
+          });
           await this.traces.finishRun(execution.run.id, {
             output: text,
             inputTokens: usage.inputTokens ?? 0,
@@ -171,41 +181,72 @@ export class RuntimeService {
             totalTokens: usage.totalTokens ?? 0,
             finishReason,
             latencyMs: Date.now() - started,
-          })
+          });
         },
-      })
-      return { stream, runId: execution.run.id, sessionId: execution.session.id }
+      });
+      return { stream, runId: execution.run.id, sessionId: execution.session.id };
     } catch (error) {
-      await this.traces.failRun(execution.run.id, error, Date.now() - started)
-      throw error
+      await this.traces.failRun(execution.run.id, error, Date.now() - started);
+      throw error;
     }
   }
 
-  async structured(userId: string, input: StructuredAgent, signal?: AbortSignal): Promise<StructuredResult> {
-    const execution = await this.prepare(userId, input)
-    const started = Date.now()
-    await this.traces.startRun(execution.run.id)
-    let stepIndex = 0
+  async structured(
+    userId: string,
+    input: StructuredAgent,
+    signal?: AbortSignal,
+  ): Promise<StructuredResult> {
+    const execution = await this.prepare(userId, input);
+    const started = Date.now();
+    await this.traces.startRun(execution.run.id);
+    let stepIndex = 0;
     try {
       const options = {
         prompt: input.prompt,
         abortSignal: this.signal(signal),
-        onStepFinish: async (event: Parameters<NonNullable<Parameters<typeof execution.agent.generate>[0]['onStepFinish']>>[0]) => {
-          await this.traces.saveStep(execution.run.id, stepIndex++, event)
+        onStepFinish: async (
+          event: Parameters<
+            NonNullable<Parameters<typeof execution.agent.generate>[0]["onStepFinish"]>
+          >[0],
+        ) => {
+          await this.traces.saveStep(execution.run.id, stepIndex++, event);
         },
-      }
-      const result = input.outputType === 'chapterPlan'
-        ? await generateText({ ...execution.structuredOptions, ...options, output: Output.object({ schema: outputSchemas.chapterPlan, name: 'chapterPlan' }) })
-        : input.outputType === 'characterProfile'
-          ? await generateText({ ...execution.structuredOptions, ...options, output: Output.object({ schema: outputSchemas.characterProfile, name: 'characterProfile' }) })
-          : await generateText({ ...execution.structuredOptions, ...options, output: Output.object({ schema: outputSchemas.continuityReview, name: 'continuityReview' }) })
-      const outputText = JSON.stringify(result.output)
+      };
+      const result =
+        input.outputType === "chapterPlan"
+          ? await generateText({
+              ...execution.structuredOptions,
+              ...options,
+              output: Output.object({ schema: outputSchemas.chapterPlan, name: "chapterPlan" }),
+            })
+          : input.outputType === "characterProfile"
+            ? await generateText({
+                ...execution.structuredOptions,
+                ...options,
+                output: Output.object({
+                  schema: outputSchemas.characterProfile,
+                  name: "characterProfile",
+                }),
+              })
+            : await generateText({
+                ...execution.structuredOptions,
+                ...options,
+                output: Output.object({
+                  schema: outputSchemas.continuityReview,
+                  name: "continuityReview",
+                }),
+              });
+      const outputText = JSON.stringify(result.output);
       await this.chats.saveAssistant({
         ...execution.messageContext,
         content: outputText,
-        parts: [{ type: 'data-structured', data: result.output }],
-        metadata: { outputType: input.outputType, finishReason: result.finishReason, usage: result.totalUsage },
-      })
+        parts: [{ type: "data-structured", data: result.output }],
+        metadata: {
+          outputType: input.outputType,
+          finishReason: result.finishReason,
+          usage: result.totalUsage,
+        },
+      });
       await this.traces.finishRun(execution.run.id, {
         output: outputText,
         inputTokens: result.totalUsage.inputTokens ?? 0,
@@ -213,29 +254,38 @@ export class RuntimeService {
         totalTokens: result.totalUsage.totalTokens ?? 0,
         finishReason: result.finishReason,
         latencyMs: Date.now() - started,
-      })
-      return { runId: execution.run.id, sessionId: execution.session.id, output: result.output, usage: result.totalUsage, skillIds: execution.skillSet.ids }
+      });
+      return {
+        runId: execution.run.id,
+        sessionId: execution.session.id,
+        output: result.output,
+        usage: result.totalUsage,
+        skillIds: execution.skillSet.ids,
+      };
     } catch (error) {
-      await this.traces.failRun(execution.run.id, error, Date.now() - started)
-      throw error
+      await this.traces.failRun(execution.run.id, error, Date.now() - started);
+      throw error;
     }
   }
 
   private async prepare(userId: string, input: RunAgent) {
-    const { model, provider } = await this.models.language(userId, input.providerId)
+    const { model, provider } = await this.models.language(userId, input.providerId);
     const currentSession = input.sessionId
-      ? await this.prisma.agentSession.findFirst({ where: { id: input.sessionId, user_id: userId, novel_id: input.novelId } })
-      : null
-    if (input.sessionId && !currentSession) throw AppError.notFound('AGENT_SESSION_NOT_FOUND', 'Agent 会话')
-    const history = currentSession ? await this.chats.promptHistory(userId, currentSession.id) : ''
+      ? await this.prisma.agentSession.findFirst({
+          where: { id: input.sessionId, user_id: userId, novel_id: input.novelId },
+        })
+      : null;
+    if (input.sessionId && !currentSession)
+      throw AppError.notFound("AGENT_SESSION_NOT_FOUND", "Agent 会话");
+    const history = currentSession ? await this.chats.promptHistory(userId, currentSession.id) : "";
     const skillSet = await this.skills.resolve({
       userId,
       novelId: input.novelId,
       mode: input.mode,
       text: input.prompt,
       skillIds: input.skillIds,
-    })
-    const context = await this.contexts.build(userId, { ...input, providerId: provider.id })
+    });
+    const context = await this.contexts.build(userId, { ...input, providerId: provider.id });
     const session = currentSession
       ? await this.prisma.agentSession.update({
           where: { id: currentSession.id },
@@ -254,7 +304,7 @@ export class RuntimeService {
             title: input.prompt.slice(0, 100),
             context: input.context as Prisma.InputJsonValue,
           },
-        })
+        });
     const run = await this.traces.createRun({
       session_id: session.id,
       user_id: userId,
@@ -266,29 +316,37 @@ export class RuntimeService {
       context_snapshot: context as unknown as Prisma.InputJsonValue,
       skill_ids: skillSet.ids as Prisma.InputJsonValue,
       skill_snapshot: skillSet.snapshot,
-    })
+    });
     const messageContext = {
       sessionId: session.id,
       runId: run.id,
       userId,
       novelId: input.novelId,
       chapterId: input.chapterId,
-    }
+    };
     await this.chats.saveUser({
       ...messageContext,
       content: input.prompt,
-      parts: [{ type: 'text', text: input.prompt }],
-      metadata: { role: input.role, mode: input.mode, providerId: provider.id, skillIds: skillSet.ids },
-    })
-    const contextText = this.contexts.toPrompt(context)
-    const tools = this.tools.build({ runId: run.id, userId, input: { ...input, providerId: provider.id }, model, contextText }, input.mode)
+      parts: [{ type: "text", text: input.prompt }],
+      metadata: {
+        role: input.role,
+        mode: input.mode,
+        providerId: provider.id,
+        skillIds: skillSet.ids,
+      },
+    });
+    const contextText = this.contexts.toPrompt(context);
+    const tools = this.tools.build(
+      { runId: run.id, userId, input: { ...input, providerId: provider.id }, model, contextText },
+      input.mode,
+    );
     const historyText = history
       ? `\n\n以下是同一本小说当前会话的最近聊天记录，请延续其中的目标、约定和上下文：\n${history}`
-      : ''
-    const skillText = skillSet.prompt ? `\n\n${skillSet.prompt}` : ''
-    const instructions = `${rolePrompts[input.role]}${skillText}\n\n${contextText}${historyText}`
-    const stopWhen = stepCountIs(input.maxSteps ?? this.maxSteps)
-    const settings = this.generationSettings(provider.settings)
+      : "";
+    const skillText = skillSet.prompt ? `\n\n${skillSet.prompt}` : "";
+    const instructions = `${rolePrompts[input.role]}${skillText}\n\n${contextText}${historyText}`;
+    const stopWhen = stepCountIs(input.maxSteps ?? this.maxSteps);
+    const settings = this.generationSettings(provider.settings);
     const agent = new ToolLoopAgent({
       id: `narraverse-${input.role}`,
       model,
@@ -297,7 +355,7 @@ export class RuntimeService {
       stopWhen,
       ...settings,
       temperature: input.temperature ?? settings.temperature,
-    })
+    });
     return {
       agent,
       tools,
@@ -313,26 +371,26 @@ export class RuntimeService {
         ...settings,
         temperature: input.temperature ?? settings.temperature,
       },
-    }
+    };
   }
 
   private signal(signal?: AbortSignal) {
-    const timeout = AbortSignal.timeout(this.timeoutMs)
-    return signal ? AbortSignal.any([signal, timeout]) : timeout
+    const timeout = AbortSignal.timeout(this.timeoutMs);
+    return signal ? AbortSignal.any([signal, timeout]) : timeout;
   }
 
   private generationSettings(value: Prisma.JsonValue) {
-    const settings = typeof value === 'object' && value && !Array.isArray(value) ? value : {}
+    const settings = typeof value === "object" && value && !Array.isArray(value) ? value : {};
     const number = (key: string, min: number, max: number) => {
-      const current = key in settings ? settings[key] : undefined
-      return typeof current === 'number' && current >= min && current <= max ? current : undefined
-    }
+      const current = key in settings ? settings[key] : undefined;
+      return typeof current === "number" && current >= min && current <= max ? current : undefined;
+    };
     return {
-      temperature: number('temperature', 0, 2),
-      topP: number('topP', 0, 1),
-      presencePenalty: number('presencePenalty', -2, 2),
-      frequencyPenalty: number('frequencyPenalty', -2, 2),
-      maxOutputTokens: number('maxOutputTokens', 1, 200_000),
-    }
+      temperature: number("temperature", 0, 2),
+      topP: number("topP", 0, 1),
+      presencePenalty: number("presencePenalty", -2, 2),
+      frequencyPenalty: number("frequencyPenalty", -2, 2),
+      maxOutputTokens: number("maxOutputTokens", 1, 200_000),
+    };
   }
 }

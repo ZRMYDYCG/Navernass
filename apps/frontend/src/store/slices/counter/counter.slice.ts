@@ -1,14 +1,10 @@
-import type { StateCreator } from "zustand"
+import type { StateCreator } from "zustand";
 
-import type { AppStore } from "@/store/store.types"
+import type { AppStore } from "@/store/store.types";
 
-import {
-  decrementCounter,
-  incrementCounter,
-  resetCounter,
-} from "./counter.actions"
-import { counterInitialState } from "./counter.state"
-import type { CounterSlice } from "./counter.types"
+import { decrementCounter, incrementCounter, resetCounter } from "./counter.actions";
+import { counterInitialState } from "./counter.state";
+import type { CounterSlice } from "./counter.types";
 
 export const createCounterSlice: StateCreator<
   AppStore,
@@ -20,4 +16,4 @@ export const createCounterSlice: StateCreator<
   increment: () => set(incrementCounter),
   decrement: () => set(decrementCounter),
   reset: () => set(resetCounter),
-})
+});

@@ -1,6 +1,6 @@
 export default {
-    // TypeScript/JavaScript 文件
-    '*.{js,jsx,ts,tsx}': [
-      'eslint --fix',
-    ]
-  }
+  'apps/{frontend,backend}/**/*.{js,jsx,ts,tsx,mjs,cjs}': [
+    'oxlint --fix',
+    'oxfmt',
+  ],
+}

@@ -1,9 +1,9 @@
-import type { Prisma } from '../generated/prisma/client.js'
-import type { CreateProvider, UpdateProvider } from './agent.schema.js'
-import { HttpStatus, Inject, Injectable } from '@nestjs/common'
-import { AppError } from '../common/app-error.js'
-import { PrismaService } from '../database/prisma.service.js'
-import { SecretService } from './secret.service.js'
+import type { Prisma } from "../generated/prisma/client.js";
+import type { CreateProvider, UpdateProvider } from "./agent.schema.js";
+import { HttpStatus, Inject, Injectable } from "@nestjs/common";
+import { AppError } from "../common/app-error.js";
+import { PrismaService } from "../database/prisma.service.js";
+import { SecretService } from "./secret.service.js";
 
 @Injectable()
 export class ProviderService {
@@ -15,15 +15,18 @@ export class ProviderService {
   list(userId: string) {
     return this.prisma.aiProviderConfig.findMany({
       where: { user_id: userId },
-      orderBy: [{ is_default: 'desc' }, { created_at: 'desc' }],
+      orderBy: [{ is_default: "desc" }, { created_at: "desc" }],
       select: this.publicFields(),
-    })
+    });
   }
 
   async create(userId: string, input: CreateProvider) {
     return this.prisma.$transaction(async (tx) => {
       if (input.isDefault) {
-        await tx.aiProviderConfig.updateMany({ where: { user_id: userId }, data: { is_default: false } })
+        await tx.aiProviderConfig.updateMany({
+          where: { user_id: userId },
+          data: { is_default: false },
+        });
       }
       return tx.aiProviderConfig.create({
         data: {
@@ -40,15 +43,18 @@ export class ProviderService {
           settings: input.settings as Prisma.InputJsonValue,
         },
         select: this.publicFields(),
-      })
-    })
+      });
+    });
   }
 
   async update(userId: string, id: string, input: UpdateProvider) {
-    await this.getOwned(userId, id)
+    await this.getOwned(userId, id);
     return this.prisma.$transaction(async (tx) => {
       if (input.isDefault) {
-        await tx.aiProviderConfig.updateMany({ where: { user_id: userId }, data: { is_default: false } })
+        await tx.aiProviderConfig.updateMany({
+          where: { user_id: userId },
+          data: { is_default: false },
+        });
       }
       return tx.aiProviderConfig.update({
         where: { id },
@@ -66,40 +72,52 @@ export class ProviderService {
           ...(input.settings && { settings: input.settings as Prisma.InputJsonValue }),
         },
         select: this.publicFields(),
-      })
-    })
+      });
+    });
   }
 
   async remove(userId: string, id: string) {
-    await this.getOwned(userId, id)
-    const used = await this.prisma.agentRun.count({ where: { provider_id: id } })
+    await this.getOwned(userId, id);
+    const used = await this.prisma.agentRun.count({ where: { provider_id: id } });
     if (used) {
-      throw new AppError('CONFLICT', '该模型配置已有执行记录，请停用而不是删除', HttpStatus.CONFLICT)
+      throw new AppError(
+        "CONFLICT",
+        "该模型配置已有执行记录，请停用而不是删除",
+        HttpStatus.CONFLICT,
+      );
     }
-    await this.prisma.aiProviderConfig.delete({ where: { id } })
+    await this.prisma.aiProviderConfig.delete({ where: { id } });
   }
 
   async resolve(userId: string, id?: string) {
-    const provider = await this.prisma.aiProviderConfig.findFirst({
-      where: id
-        ? { id, user_id: userId, is_enabled: true }
-        : { user_id: userId, is_enabled: true, is_default: true },
-    }) ?? (!id
-      ? await this.prisma.aiProviderConfig.findFirst({
-          where: { user_id: userId, is_enabled: true },
-          orderBy: { created_at: 'asc' },
-        })
-      : null)
+    const provider =
+      (await this.prisma.aiProviderConfig.findFirst({
+        where: id
+          ? { id, user_id: userId, is_enabled: true }
+          : { user_id: userId, is_enabled: true, is_default: true },
+      })) ??
+      (!id
+        ? await this.prisma.aiProviderConfig.findFirst({
+            where: { user_id: userId, is_enabled: true },
+            orderBy: { created_at: "asc" },
+          })
+        : null);
     if (!provider) {
-      throw new AppError('AI_PROVIDER_NOT_FOUND', '未找到可用模型配置，请先配置 Provider', HttpStatus.NOT_FOUND)
+      throw new AppError(
+        "AI_PROVIDER_NOT_FOUND",
+        "未找到可用模型配置，请先配置 Provider",
+        HttpStatus.NOT_FOUND,
+      );
     }
-    return { ...provider, apiKey: this.secrets.decrypt(provider.api_key_cipher) }
+    return { ...provider, apiKey: this.secrets.decrypt(provider.api_key_cipher) };
   }
 
   private async getOwned(userId: string, id: string) {
-    const provider = await this.prisma.aiProviderConfig.findFirst({ where: { id, user_id: userId } })
-    if (!provider) throw AppError.notFound('AI_PROVIDER_NOT_FOUND', '模型配置')
-    return provider
+    const provider = await this.prisma.aiProviderConfig.findFirst({
+      where: { id, user_id: userId },
+    });
+    if (!provider) throw AppError.notFound("AI_PROVIDER_NOT_FOUND", "模型配置");
+    return provider;
   }
 
   private publicFields() {
@@ -117,6 +135,6 @@ export class ProviderService {
       settings: true,
       created_at: true,
       updated_at: true,
-    } as const
+    } as const;
   }
 }

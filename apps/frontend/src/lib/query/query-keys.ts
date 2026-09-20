@@ -3,4 +3,4 @@ export const queryKeys = {
     all: ["starter"] as const,
     status: () => [...queryKeys.starter.all, "status"] as const,
   },
-} as const
+} as const;

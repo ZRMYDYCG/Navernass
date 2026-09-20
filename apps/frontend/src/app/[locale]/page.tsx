@@ -1,5 +1,5 @@
-import { StarterScreen } from "@/components/app/starter-screen"
+import { StarterScreen } from "@/components/app/starter-screen";
 
 export default function HomePage() {
-  return <StarterScreen />
+  return <StarterScreen />;
 }

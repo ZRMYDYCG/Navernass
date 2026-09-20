@@ -1,4 +1,4 @@
-import { createZodDto } from 'nestjs-zod'
+import { createZodDto } from "nestjs-zod";
 import {
   createProvider,
   messageQuery,
@@ -11,7 +11,7 @@ import {
   syncMemory,
   updateProvider,
   updateSession,
-} from './agent.schema.js'
+} from "./agent.schema.js";
 
 export class CreateProviderDto extends createZodDto(createProvider) {}
 export class UpdateProviderDto extends createZodDto(updateProvider) {}

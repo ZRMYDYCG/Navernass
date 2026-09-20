@@ -1,19 +1,19 @@
-import type { ConfigService } from '@nestjs/config'
-import type { EnvConfig } from '../config/env-schema.js'
-import type { PrismaService } from '../database/prisma.service.js'
-import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { betterAuth } from 'better-auth/minimal'
-import { bearer } from 'better-auth/plugins'
+import type { ConfigService } from "@nestjs/config";
+import type { EnvConfig } from "../config/env-schema.js";
+import type { PrismaService } from "../database/prisma.service.js";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { betterAuth } from "better-auth/minimal";
+import { bearer } from "better-auth/plugins";
 
 export function createAuth(prisma: PrismaService, config: ConfigService<EnvConfig, true>) {
-  const adminEmail = config.get('SUPER_ADMIN_EMAIL', { infer: true })?.toLowerCase()
+  const adminEmail = config.get("SUPER_ADMIN_EMAIL", { infer: true })?.toLowerCase();
   return betterAuth({
-    baseURL: config.get('BETTER_AUTH_URL', { infer: true }),
-    basePath: '/api/auth',
-    secret: config.get('BETTER_AUTH_SECRET', { infer: true }),
-    trustedOrigins: [config.get('APP_URL', { infer: true })],
+    baseURL: config.get("BETTER_AUTH_URL", { infer: true }),
+    basePath: "/api/auth",
+    secret: config.get("BETTER_AUTH_SECRET", { infer: true }),
+    trustedOrigins: [config.get("APP_URL", { infer: true })],
     plugins: [bearer()],
-    database: prismaAdapter(prisma, { provider: 'mysql' }),
+    database: prismaAdapter(prisma, { provider: "mysql" }),
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,
@@ -26,29 +26,29 @@ export function createAuth(prisma: PrismaService, config: ConfigService<EnvConfi
     },
     advanced: {
       database: { joins: true },
-      useSecureCookies: config.get('NODE_ENV', { infer: true }) === 'production',
+      useSecureCookies: config.get("NODE_ENV", { infer: true }) === "production",
     },
     databaseHooks: {
       user: {
         create: {
           after: async (user) => {
-            const protectedAdmin = Boolean(adminEmail && user.email.toLowerCase() === adminEmail)
+            const protectedAdmin = Boolean(adminEmail && user.email.toLowerCase() === adminEmail);
             await prisma.profile.upsert({
               where: { id: user.id },
               create: {
                 id: user.id,
                 full_name: user.name,
                 avatar_url: user.image,
-                role: protectedAdmin ? 'super_admin' : 'user',
+                role: protectedAdmin ? "super_admin" : "user",
                 is_protected: protectedAdmin,
               },
               update: {},
-            })
+            });
           },
         },
       },
     },
-  })
+  });
 }
 
-export type AppAuth = ReturnType<typeof createAuth>
+export type AppAuth = ReturnType<typeof createAuth>;

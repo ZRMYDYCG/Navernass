@@ -1,5 +1,5 @@
-import { createZodDto } from 'nestjs-zod'
-import * as schema from './library.schema.js'
+import { createZodDto } from "nestjs-zod";
+import * as schema from "./library.schema.js";
 
 export class LibraryPageDto extends createZodDto(schema.pageQuery) {}
 export class CreateNovelDto extends createZodDto(schema.createNovel) {}
