@@ -33,8 +33,6 @@ import { WorldbookEntriesService } from '@/lib/supabase/sdk/services/worldbook-e
 import type { SerializedCharacterRef } from '@/lib/editor/inline-composer'
 import { buildChapterContext } from '@/prompts'
 import { assembleSubagentPrefetch } from '@/lib/ai/agents/subagents/subagent-prefetch'
-import { buildSkillLookup } from '@/lib/skills/router-utils'
-import { resolveActiveSkillsForUser } from '@/lib/skills/skills.service'
 
 interface ChatRequestBody {
   novelId: string
@@ -275,10 +273,8 @@ export async function POST(req: NextRequest) {
     outlines: loadedOutlines,
   })
 
-  // Router 决策：派给哪个 agent + 启用哪些 skill（含用户自定义 skill）
-  const activeSkills = await resolveActiveSkillsForUser(user.id)
-  const skillLookup = buildSkillLookup(activeSkills)
-  const decision = route({ text: userInput, mode: mode || 'ask' }, activeSkills)
+  // Router 决策：派给哪个 agent
+  const decision = route({ text: userInput, mode: mode || 'ask' })
   const agent = getAgent(decision.agentId)
   if (!agent) {
     return new Response(`Unknown agent: ${decision.agentId}`, { status: 500 })
@@ -380,7 +376,6 @@ export async function POST(req: NextRequest) {
     mode: mode || 'ask',
     userText: userInput,
     decision,
-    skillLookup,
     toolContext: {
       supabase,
       userId: user.id,
@@ -468,7 +463,6 @@ export async function POST(req: NextRequest) {
       'X-Conversation-Id': conversation.id,
       'X-Agent-Id': decision.agentId,
       'X-Ai-Mode': mode || 'ask',
-      'X-Skill-Ids': decision.skillIds.join(','),
     },
   })
 }

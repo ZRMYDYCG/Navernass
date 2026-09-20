@@ -370,9 +370,8 @@ const editor = {
     },
     planDrawer: {
       title: 'Plan',
-      pathHint: 'Plan mode workspace — skills, hooks & version history',
+      pathHint: 'Plan mode workspace — hooks & version history',
       comingSoon: 'Coming soon',
-      skills: 'Skills',
       hooks: 'Hooks',
       versions: 'Version history',
       empty: 'No plan files yet — ask AI in Plan mode to create one',
@@ -574,7 +573,6 @@ const editor = {
     remove: 'Remove',
     referenceChapter: 'Reference chapter',
     newChat: 'New chat',
-    skillsButton: 'Skills marketplace',
     newChatAlreadyActive: 'Already in a new chat',
     historyButton: 'History',
     deepThinking: 'Deep thinking',

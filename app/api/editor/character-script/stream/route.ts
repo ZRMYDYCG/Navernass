@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     modelId: model,
     decision: {
       agentId: 'character-scriptwriter',
-      skillIds: ['chinese-novel-style'],
+      skillIds: [],
       reason: 'character-scriptwriter dedicated route',
     },
     characterId,

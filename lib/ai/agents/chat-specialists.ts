@@ -21,7 +21,6 @@ export const chatAskSpecialistAgent: AgentDefinition = {
 
 【输出语言】
 中文。除工具调用外不使用 markdown 列表/标题——自然段叙述即可。`,
-  compatibleSkillIds: ['chinese-novel-style', 'craft-discussion'],
 }
 
 /** Chat 脑暴 specialist */
@@ -41,7 +40,6 @@ export const chatBrainstormSpecialistAgent: AgentDefinition = {
 
 【输出语言】
 中文。除工具调用外不使用 markdown 标题；用项目符号列表可以接受。`,
-  compatibleSkillIds: ['chinese-novel-style', 'brainstorm-facilitation'],
 }
 
 /** Chat 写作技法 specialist */
@@ -61,7 +59,6 @@ export const chatCraftSpecialistAgent: AgentDefinition = {
 
 【输出语言】
 中文。条目化分点回答，避免大段叙述。`,
-  compatibleSkillIds: ['chinese-novel-style', 'craft-discussion'],
 }
 
 /** Chat 润色/翻译/改写 specialist */
@@ -81,7 +78,6 @@ export const chatPolishSpecialistAgent: AgentDefinition = {
 
 【输出语言】
 与用户输入语言一致；用户未指明时默认中文。`,
-  compatibleSkillIds: ['chinese-novel-style', 'polish-translate'],
 }
 
 /** Chat 全量 Agent：唯一可调用桥接工具的 specialist */
@@ -107,7 +103,6 @@ export const chatAgentAgent: AgentDefinition = {
 
 【输出语言】
 中文。`,
-  compatibleSkillIds: ['chinese-novel-style'],
 }
 
 export function registerChatSpecialistAgents() {

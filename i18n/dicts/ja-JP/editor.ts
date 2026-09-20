@@ -370,9 +370,8 @@ const editor = {
     },
     planDrawer: {
       title: '計画',
-      pathHint: 'Plan モード作業スペース — スキル、フック、履歴',
+      pathHint: 'Plan モード作業スペース — フック、履歴',
       comingSoon: '近日公開',
-      skills: 'Skills',
       hooks: 'Hooks',
       versions: '履歴',
       empty: '計画ファイルがありません。Plan モードで AI に作成を依頼してください',
@@ -574,7 +573,6 @@ const editor = {
     remove: '削除',
     referenceChapter: '参照章',
     newChat: '新しいチャット',
-    skillsButton: 'スキルマーケット',
     newChatAlreadyActive: 'すでに新しいチャットです',
     historyButton: '履歴',
     deepThinking: '深く考える',

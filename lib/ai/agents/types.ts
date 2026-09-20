@@ -7,9 +7,8 @@ import type { SubagentPrefetchContext } from './subagents/types'
  *
  * 设计原则：
  * - Tool: 具体可执行的函数（ai-sdk 原生）
- * - Skill: 系统提示片段 + 工具子集（自造抽象，类似 Anthropic Skills）
  * - Agent: 一个独立的 LLM 调用单元（system + tools + 模型选择）
- * - Router: 决定派给哪个 agent + 加载哪些 skill 的轻量分类器
+ * - Router: 决定派给哪个 agent 的轻量分类器
  */
 
 /** 调用任意工具时共享的运行时上下文 */
@@ -37,7 +36,7 @@ export interface ToolContext {
   subagentPrefetch?: SubagentPrefetchContext
 }
 
-/** Skill：可挂载到 agent 上的能力包 */
+/** Skill：历史兼容字段（前端已下线 skill 注入，通常为空） */
 export interface Skill {
   id: string
   name: string
@@ -59,17 +58,16 @@ export interface AgentDefinition {
   id: string
   name: string
   description: string
-  /** 默认 system prompt（会与 skill systemPrompt 拼接） */
+  /** 默认 system prompt */
   systemPrompt: string
-  /** 该 agent 默认就拥有的工具名（不依赖 skill） */
+  /** 该 agent 默认就拥有的工具名 */
   defaultToolNames?: string[]
-  /** 该 agent 兼容的 skill id 白名单（router 只能从中选） */
-  compatibleSkillIds?: string[]
 }
 
 /** Router 输出 */
 export interface RouteDecision {
   agentId: string
+  /** 前端已下线 skill 注入，固定为空数组 */
   skillIds: string[]
   /** 决策原因（用于日志/调试，前端可显示） */
   reason: string

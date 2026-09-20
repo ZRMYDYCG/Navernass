@@ -2,9 +2,6 @@ import type { StreamTextOnFinishCallback, StreamTextOnStepFinishCallback, ToolSe
 import type { AgentDefinition, AgentRunInput } from './types'
 import { stepCountIs, streamText } from 'ai'
 import { getMinimaxModel } from '@/lib/ai/minimax'
-import type { Skill } from './types'
-import { pickSkillsByIds, buildSkillLookup } from '@/lib/skills/router-utils'
-import { listSkills } from '../skills/types'
 import { buildTools } from '../tools/registry'
 import {
   getChatModeConfig,
@@ -21,7 +18,6 @@ export interface RunChatSpecialistOptions extends AgentRunInput {
   agentId: string
   /** 本回合用户输入（用于 router 决策日志） */
   userText?: string
-  skillLookup?: Map<string, Skill>
   onFinish?: StreamTextOnFinishCallback<ToolSet>
   onStepFinish?: StreamTextOnStepFinishCallback<ToolSet>
 }
@@ -34,23 +30,18 @@ function resolveAgent(agentId: string): AgentDefinition {
   return agent
 }
 
-/** 拼接 agent 系统 prompt：agent 默认 + mode overlay + 选中 skill */
+/** 拼接 agent 系统 prompt：agent 默认 + mode overlay */
 export function buildChatSpecialistSystemPrompt(
   agent: AgentDefinition,
   mode: ChatAiMode | string,
-  skillIds: string[],
-  skillLookup?: Map<string, Skill>,
 ): string {
   const modeId = normalizeChatMode(mode)
   const modeConfig = getChatModeConfig(modeId)
-  const lookup = skillLookup ?? buildSkillLookup(listSkills())
-  const skills = pickSkillsByIds(skillIds, lookup)
 
   return [
     agent.systemPrompt,
     `【模式优先级】用户可在对话中途切换 mode；务必以本回合「当前 mode」指令为准执行，勿根据历史消息里的旧 mode 说明拒绝操作或重复提示切换 mode。`,
     modeConfig.systemPromptOverlay,
-    ...skills.map(s => s.systemPrompt),
   ].filter(Boolean).join('\n\n')
 }
 
@@ -66,33 +57,21 @@ export function runChatSpecialistAgent(input: RunChatSpecialistOptions) {
   const {
     agentId,
     mode,
-    decision,
     modelMessages,
     modelId,
     toolContext,
     onFinish,
     onStepFinish,
-    skillLookup,
   } = input
 
   const agent = resolveAgent(agentId)
   const modeConfig = getChatModeConfig(mode)
-  const lookup = skillLookup ?? buildSkillLookup(listSkills())
-  const systemPrompt = buildChatSpecialistSystemPrompt(
-    agent,
-    modeConfig.id,
-    decision.skillIds,
-    lookup,
-  )
+  const systemPrompt = buildChatSpecialistSystemPrompt(agent, modeConfig.id)
 
-  const toolNameSet = new Set<string>(modeConfig.toolNames)
-  const skills = pickSkillsByIds(decision.skillIds, lookup)
-  skills.forEach(s => s.toolNames?.forEach(n => toolNameSet.add(n)))
-
-  const allowedToolNames = Array.from(toolNameSet).filter(name =>
+  const allowedToolNames = modeConfig.toolNames.filter(name =>
     isToolAllowedInChatMode(name, modeConfig.id),
   )
-  const tools: ToolSet = buildTools(allowedToolNames, toolContext)
+  const tools: ToolSet = buildTools([...allowedToolNames], toolContext)
 
   return streamText({
     model: getMinimaxModel(modelId),

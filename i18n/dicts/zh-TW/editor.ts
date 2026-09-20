@@ -370,9 +370,8 @@ const editor = {
     },
     planDrawer: {
       title: '規劃',
-      pathHint: 'Plan 模式工作區 — 技能、鉤子與歷史版本',
+      pathHint: 'Plan 模式工作區 — 鉤子與歷史版本',
       comingSoon: '即將推出',
-      skills: 'Skills',
       hooks: 'Hooks',
       versions: '歷史版本',
       empty: '暫無規劃文件，可在 Plan 模式中讓 AI 建立',
@@ -574,7 +573,6 @@ const editor = {
     remove: '移除',
     referenceChapter: '引用章節內容',
     newChat: '新建對話',
-    skillsButton: '技能市場',
     newChatAlreadyActive: '目前已是新對話',
     historyButton: '歷史記錄',
     deepThinking: '深度思考',

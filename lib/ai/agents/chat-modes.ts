@@ -36,8 +36,6 @@ export interface ChatModeConfig {
   id: ChatAiMode
   /** 注册表中的 specialist agent id */
   agentId: string
-  /** 模式兼容的 skill id 白名单（router 只从中选） */
-  compatibleSkillIds: string[]
   /** 模式允许的工具名 */
   toolNames: readonly string[]
   /** 注入到 system prompt 的模式说明 */
@@ -51,7 +49,6 @@ const CHAT_MODE_CONFIGS: Record<ChatAiMode, ChatModeConfig> = {
   ask: {
     id: 'ask',
     agentId: 'chat-ask-specialist',
-    compatibleSkillIds: ['chinese-novel-style'],
     toolNames: ASK_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：通用问答 Ask】
 - 你是创作顾问，回答写作技法、结构分析、灵感讨论等通用问题
@@ -64,7 +61,6 @@ const CHAT_MODE_CONFIGS: Record<ChatAiMode, ChatModeConfig> = {
   brainstorm: {
     id: 'brainstorm',
     agentId: 'chat-brainstorm-specialist',
-    compatibleSkillIds: ['chinese-novel-style', 'brainstorm-facilitation'],
     toolNames: BRAINSTORM_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：脑暴 Brainstorm】
 - 大批量生成创意：情节点子、人物设定、世界观、钩子、转折
@@ -76,7 +72,6 @@ const CHAT_MODE_CONFIGS: Record<ChatAiMode, ChatModeConfig> = {
   craft: {
     id: 'craft',
     agentId: 'chat-craft-specialist',
-    compatibleSkillIds: ['chinese-novel-style', 'craft-discussion'],
     toolNames: CRAFT_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：写作技法 Craft】
 - 深入讨论 POV、节奏、对话、人物弧光、伏笔、冲突、主题等专业话题
@@ -88,7 +83,6 @@ const CHAT_MODE_CONFIGS: Record<ChatAiMode, ChatModeConfig> = {
   polish: {
     id: 'polish',
     agentId: 'chat-polish-specialist',
-    compatibleSkillIds: ['chinese-novel-style', 'polish-translate'],
     toolNames: POLISH_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：润色/翻译/改写 Polish】
 - 用户粘贴文本片段时直接出改写结果
@@ -101,7 +95,6 @@ const CHAT_MODE_CONFIGS: Record<ChatAiMode, ChatModeConfig> = {
   agent: {
     id: 'agent',
     agentId: 'chat-agent',
-    compatibleSkillIds: ['chinese-novel-style'],
     toolNames: AGENT_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：全量 Agent】
 - 可调用 propose_novel / propose_character / propose_outline / propose_summary 桥接工具

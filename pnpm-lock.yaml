@@ -53,9 +53,6 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.69.0(react@19.1.0))
-      '@narraverse/skills':
-        specifier: workspace:*
-        version: link:packages/skills
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
         version: 1.1.11(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -538,16 +535,6 @@ importers:
       vitest:
         specifier: ^5.0.1
         version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@24.13.5)(vite@8.3.0(@types/node@24.13.5)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))
-
-  packages/skills:
-    dependencies:
-      yaml:
-        specifier: ^2.9.0
-        version: 2.9.0
-    devDependencies:
-      tsx:
-        specifier: ^4.22.4
-        version: 4.22.4
 
 packages:
 

@@ -15,8 +15,6 @@ import { sanitizeUIMessagesForModel, stripToolPartsFromMessages } from '@/lib/ai
 import { ConversationsService } from '@/lib/supabase/sdk/services/conversations.service'
 import { MessagesService } from '@/lib/supabase/sdk/services/messages.service'
 import { createClient } from '@/lib/supabase/server'
-import { buildSkillLookup } from '@/lib/skills/router-utils'
-import { resolveActiveSkillsForUser } from '@/lib/skills/skills.service'
 
 interface ChatRequestBody {
   conversationId?: string
@@ -228,10 +226,8 @@ export async function POST(req: NextRequest) {
     console.error('[chat/stream] FAILED to create assistant placeholder:', error)
   }
 
-  // Router 决策：按 chat mode 派发到 chat 专用 specialist（含用户自定义 skill）
-  const activeSkills = await resolveActiveSkillsForUser(user.id)
-  const skillLookup = buildSkillLookup(activeSkills)
-  const decision = routeChat({ text: userInput, mode: resolvedMode }, activeSkills)
+  // Router 决策：按 chat mode 派发到 chat 专用 specialist
+  const decision = routeChat({ text: userInput, mode: resolvedMode })
   const agent = getAgent(decision.agentId)
   if (!agent) {
     return new Response(`Unknown chat agent: ${decision.agentId}`, { status: 500 })
@@ -246,7 +242,6 @@ export async function POST(req: NextRequest) {
     agentId: decision.agentId,
     userText: userInput,
     decision,
-    skillLookup,
     toolContext: {
       supabase,
       userId: user.id,
@@ -319,7 +314,6 @@ export async function POST(req: NextRequest) {
       'X-Conversation-Id': conversation.id,
       'X-Chat-Agent-Id': decision.agentId,
       'X-Chat-Mode': resolvedMode,
-      'X-Skill-Ids': decision.skillIds.join(','),
     },
   })
 }

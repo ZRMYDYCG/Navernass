@@ -1,13 +1,12 @@
 'use client'
 
-import { ChevronDown, ClipboardList, History, Sparkles, Zap, type LucideIcon } from 'lucide-react'
+import { ChevronDown, ClipboardList, History, Zap, type LucideIcon } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useI18n } from '@/hooks/use-i18n'
 import { planFilesApi } from '@/lib/supabase/sdk'
 import { cn } from '@/lib/utils'
 import { selectOrderedPlanFiles, usePlanStore } from '@/store'
-import { SkillsPanel } from './skills-panel'
 
 interface PlanDrawerProps {
   novelId: string
@@ -92,7 +91,6 @@ export function PlanDrawer({
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     plan: true,
-    skills: false,
     hooks: false,
     versions: false,
   })
@@ -166,16 +164,6 @@ export function PlanDrawer({
             )
           })}
         </div>
-      </PlanAccordionSection>
-
-      <PlanAccordionSection
-        title={t('editor.leftPanel.planDrawer.skills')}
-        icon={Sparkles}
-        open={openSections.skills}
-        onToggle={() => toggleSection('skills')}
-        scrollClassName="max-h-[min(40vh,280px)]"
-      >
-        <SkillsPanel active={openSections.skills} />
       </PlanAccordionSection>
 
       <PlanAccordionSection

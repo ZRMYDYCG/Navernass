@@ -22,7 +22,6 @@ export const askSpecialistAgent: AgentDefinition = {
 
 【输出语言】
 中文。除工具调用外不使用 markdown。`,
-  compatibleSkillIds: ['chinese-novel-style'],
 }
 
 export const planSpecialistAgent: AgentDefinition = {
@@ -30,7 +29,6 @@ export const planSpecialistAgent: AgentDefinition = {
   name: '规划专员',
   description: '梳理故事弧线与章节节拍，写入 Plan 规划文件',
   systemPrompt: writerPlanModeSystemPrompt,
-  compatibleSkillIds: ['chinese-novel-style', 'story-planning'],
 }
 
 export const outlineSpecialistAgent: AgentDefinition = {
@@ -38,7 +36,6 @@ export const outlineSpecialistAgent: AgentDefinition = {
   name: '大纲专员',
   description: '维护卷/章/场景大纲树',
   systemPrompt: writerOutlineModeSystemPrompt,
-  compatibleSkillIds: ['chinese-novel-style', 'outline-editing'],
 }
 
 export const worldbookSpecialistAgent: AgentDefinition = {
@@ -46,7 +43,6 @@ export const worldbookSpecialistAgent: AgentDefinition = {
   name: '世界观专员',
   description: '整理设定库条目，保持 lore 一致',
   systemPrompt: writerWorldbookModeSystemPrompt,
-  compatibleSkillIds: ['chinese-novel-style', 'worldbook-editing'],
 }
 
 export function registerNovelSpecialistAgents() {

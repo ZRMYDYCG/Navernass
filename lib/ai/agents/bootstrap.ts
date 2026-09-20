@@ -1,6 +1,5 @@
 import 'server-only'
 
-import { registerBuiltinSkills } from '../skills'
 import { registerBuiltinTools } from '../tools'
 import { registerChatBridgeTools } from '../tools/chat-bridge'
 import { registerCharacterImportAnalyzerAgent } from './character-import-analyzer'
@@ -18,7 +17,6 @@ export function bootstrapAgents() {
   bootstrapped = true
   registerBuiltinTools()
   registerChatBridgeTools()
-  registerBuiltinSkills()
   registerNovelSpecialistAgents()
   registerChatSpecialistAgents()
   registerWriterAgent()

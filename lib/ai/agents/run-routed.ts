@@ -1,5 +1,4 @@
 import type { StreamTextOnFinishCallback, StreamTextOnStepFinishCallback, ToolSet } from 'ai'
-import type { Skill } from './types'
 import type { AgentRunInput } from './types'
 import { getAgent } from './registry'
 import { normalizeMode, type AiChatMode } from './modes'
@@ -9,7 +8,6 @@ import { runWriterAgent } from './writer'
 export interface RunRoutedAgentOptions extends AgentRunInput {
   mode?: string
   userText?: string
-  skillLookup?: Map<string, Skill>
   onFinish?: StreamTextOnFinishCallback<ToolSet>
   onStepFinish?: StreamTextOnStepFinishCallback<ToolSet>
 }

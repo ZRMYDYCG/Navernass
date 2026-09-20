@@ -147,7 +147,6 @@ export const writerAgent: AgentDefinition = {
 【输出语言】
 中文。除工具调用外不使用 markdown。`,
   defaultToolNames: [...WRITER_DEFAULT_TOOL_NAMES],
-  compatibleSkillIds: ['editor-surgical', 'chinese-novel-style'],
 }
 
 export interface RunWriterAgentOptions extends AgentRunInput {

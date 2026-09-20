@@ -72,8 +72,6 @@ export const WRITER_DEFAULT_TOOL_NAMES = [
 export interface ModeConfig {
   id: AiChatMode
   agentId: string
-  /** skill 白名单（router 只从中选） */
-  compatibleSkillIds: string[]
   toolNames: readonly string[]
   systemPromptOverlay: string
   maxSteps: number
@@ -83,7 +81,6 @@ const MODE_CONFIGS: Record<AiChatMode, ModeConfig> = {
   ask: {
     id: 'ask',
     agentId: 'ask-specialist',
-    compatibleSkillIds: ['chinese-novel-style'],
     toolNames: ASK_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：提问 Ask】
 - 你是咨询顾问，只回答、分析、给建议，**不**修改任何数据
@@ -96,7 +93,6 @@ const MODE_CONFIGS: Record<AiChatMode, ModeConfig> = {
   plan: {
     id: 'plan',
     agentId: 'plan-specialist',
-    compatibleSkillIds: ['chinese-novel-style', 'story-planning'],
     toolNames: PLAN_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：规划 Plan】
 - **唯一落库目标**：左侧「规划」手风琴中的 Plan 文件（create_plan_file / update_plan_file）
@@ -110,7 +106,6 @@ const MODE_CONFIGS: Record<AiChatMode, ModeConfig> = {
   outline: {
     id: 'outline',
     agentId: 'outline-specialist',
-    compatibleSkillIds: ['chinese-novel-style', 'outline-editing'],
     toolNames: OUTLINE_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：大纲 Outline】
 - **唯一落库目标**：左侧「世界观」Tab →「大纲」子页的大纲树节点
@@ -123,7 +118,6 @@ const MODE_CONFIGS: Record<AiChatMode, ModeConfig> = {
   worldbook: {
     id: 'worldbook',
     agentId: 'worldbook-specialist',
-    compatibleSkillIds: ['chinese-novel-style', 'worldbook-editing'],
     toolNames: WORLDBOOK_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：世界观 Worldbook】
 - **唯一落库目标**：左侧「世界观」Tab →「世界观」子页的设定条目
@@ -136,7 +130,6 @@ const MODE_CONFIGS: Record<AiChatMode, ModeConfig> = {
   agent: {
     id: 'agent',
     agentId: 'writer',
-    compatibleSkillIds: ['chinese-novel-style', 'editor-surgical'],
     toolNames: WRITER_DEFAULT_TOOL_NAMES,
     systemPromptOverlay: `【当前模式：执行 Agent】
 - 可自主读档、续写、润色、改稿，并管理卷/章节/设定/大纲

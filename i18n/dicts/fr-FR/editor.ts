@@ -370,9 +370,8 @@ const editor = {
     },
     planDrawer: {
       title: 'Plan',
-      pathHint: 'Espace Plan — skills, hooks et historique des versions',
+      pathHint: 'Espace Plan — hooks et historique des versions',
       comingSoon: 'Bientôt',
-      skills: 'Skills',
       hooks: 'Hooks',
       versions: 'Historique',
       empty: 'Aucun fichier de plan — demandez à l’IA en mode Plan',
@@ -574,7 +573,6 @@ const editor = {
     remove: 'Supprimer',
     referenceChapter: 'Chapitre de référence',
     newChat: 'Nouvelle conversation',
-    skillsButton: 'Marketplace de compétences',
     newChatAlreadyActive: 'Déjà une nouvelle conversation',
     historyButton: 'Historique',
     deepThinking: 'Réflexion approfondie',

@@ -370,9 +370,8 @@ const editor = {
     },
     planDrawer: {
       title: '계획',
-      pathHint: 'Plan 모드 작업 공간 — 스킬, 훅, 버전 기록',
+      pathHint: 'Plan 모드 작업 공간 — 훅, 버전 기록',
       comingSoon: '곧 제공',
-      skills: 'Skills',
       hooks: 'Hooks',
       versions: '버전 기록',
       empty: '계획 파일이 없습니다. Plan 모드에서 AI에게 생성을 요청하세요',
@@ -574,7 +573,6 @@ const editor = {
     remove: '제거',
     referenceChapter: '참고 장',
     newChat: '새 채팅',
-    skillsButton: '스킬 마켓',
     newChatAlreadyActive: '이미 새 채팅 상태입니다',
     historyButton: '기록',
     deepThinking: '심층 사고',

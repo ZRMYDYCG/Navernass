@@ -68,7 +68,6 @@ export const characterScriptwriterAgent: AgentDefinition = {
     'read_worldbook_entry',
     'list_outlines',
   ],
-  compatibleSkillIds: ['chinese-novel-style'],
 }
 
 export interface RunCharacterScriptwriterOptions extends AgentRunInput {

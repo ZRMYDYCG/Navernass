@@ -370,9 +370,8 @@ const editor = {
     },
     planDrawer: {
       title: 'Plan',
-      pathHint: 'Plan-Modus — Skills, Hooks und Versionsverlauf',
+      pathHint: 'Plan-Modus — Hooks und Versionsverlauf',
       comingSoon: 'Demnächst',
-      skills: 'Skills',
       hooks: 'Hooks',
       versions: 'Versionsverlauf',
       empty: 'Noch keine Plan-Dateien — im Plan-Modus per KI anlegen',
@@ -574,7 +573,6 @@ const editor = {
     remove: 'Entfernen',
     referenceChapter: 'Referenzkapitel',
     newChat: 'Neuer Chat',
-    skillsButton: 'Skill-Marktplatz',
     newChatAlreadyActive: 'Bereits ein neuer Chat',
     historyButton: 'Verlauf',
     deepThinking: 'Tiefes Nachdenken',

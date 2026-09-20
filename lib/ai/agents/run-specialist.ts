@@ -3,9 +3,6 @@ import type { AiChatMode } from './modes'
 import type { AgentDefinition, AgentRunInput } from './types'
 import { stepCountIs, streamText } from 'ai'
 import { getMinimaxModel } from '@/lib/ai/minimax'
-import type { Skill } from './types'
-import { pickSkillsByIds, buildSkillLookup } from '@/lib/skills/router-utils'
-import { listSkills } from '../skills/types'
 import { buildTools } from '../tools/registry'
 import { buildModeMismatchHint } from './mode-hints'
 import { getModeConfig, isToolAllowedInMode, normalizeMode } from './modes'
@@ -21,7 +18,6 @@ export interface RunNovelSpecialistOptions extends AgentRunInput {
   userText?: string
   /** 额外工具（如 subagent 委派），须已通过 mode 白名单或仅 writer 注入 */
   extraTools?: ToolSet
-  skillLookup?: Map<string, Skill>
   onFinish?: StreamTextOnFinishCallback<ToolSet>
   onStepFinish?: StreamTextOnStepFinishCallback<ToolSet>
 }
@@ -37,15 +33,11 @@ function resolveAgent(agentId: string): AgentDefinition {
 export function buildNovelSpecialistSystemPrompt(
   agent: AgentDefinition,
   mode: AiChatMode | string,
-  skillIds: string[],
   userText?: string,
   subagentOptions?: { hasFocusCharacter?: boolean, focusCharacterName?: string },
-  skillLookup?: Map<string, Skill>,
 ): string {
   const modeId = normalizeMode(mode)
   const modeConfig = getModeConfig(modeId)
-  const lookup = skillLookup ?? buildSkillLookup(listSkills())
-  const skills = pickSkillsByIds(skillIds, lookup)
 
   const mismatchHint = userText ? buildModeMismatchHint(userText, modeId) : null
   const subagentHint = userText && agent.id === 'writer'
@@ -58,7 +50,6 @@ export function buildNovelSpecialistSystemPrompt(
     modeConfig.systemPromptOverlay,
     mismatchHint,
     subagentHint,
-    ...skills.map(s => s.systemPrompt),
   ].filter(Boolean).join('\n\n')
 }
 
@@ -66,7 +57,6 @@ export function runNovelSpecialistAgent(input: RunNovelSpecialistOptions) {
   const {
     agentId,
     mode,
-    decision,
     modelMessages,
     modelId,
     toolContext,
@@ -74,33 +64,25 @@ export function runNovelSpecialistAgent(input: RunNovelSpecialistOptions) {
     userText,
     onFinish,
     onStepFinish,
-    skillLookup,
   } = input
 
   const agent = resolveAgent(agentId)
   const modeConfig = getModeConfig(mode)
-  const lookup = skillLookup ?? buildSkillLookup(listSkills())
   const systemPrompt = buildNovelSpecialistSystemPrompt(
     agent,
     modeConfig.id,
-    decision.skillIds,
     userText,
     {
       hasFocusCharacter: Boolean(toolContext.focusCharacterId || toolContext.characterId),
       focusCharacterName: toolContext.focusCharacterName,
     },
-    lookup,
   )
 
-  const toolNameSet = new Set<string>(modeConfig.toolNames)
-  const skills = pickSkillsByIds(decision.skillIds, lookup)
-  skills.forEach(s => s.toolNames?.forEach(n => toolNameSet.add(n)))
-
-  const allowedToolNames = Array.from(toolNameSet).filter(name =>
+  const allowedToolNames = modeConfig.toolNames.filter(name =>
     isToolAllowedInMode(name, modeConfig.id),
   )
   const tools: ToolSet = {
-    ...buildTools(allowedToolNames, toolContext),
+    ...buildTools([...allowedToolNames], toolContext),
     ...extraTools,
   }
 

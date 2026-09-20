@@ -17,7 +17,6 @@ export const selectionEditorAgent: AgentDefinition = {
   name: '选区编辑',
   description: '对编辑器选中文本进行润色、修正、续写等 inline 变换',
   systemPrompt: '',
-  compatibleSkillIds: ['editor-surgical', 'chinese-novel-style'],
 }
 
 export interface RunSelectionEditorOptions {
