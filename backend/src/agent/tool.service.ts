@@ -4,6 +4,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { generateText, tool } from 'ai'
 import { z } from 'zod'
 import { PrismaService } from '../database/prisma.service.js'
+import { SkillResolver } from '../skill/skill.resolver.js'
 import { MemoryService } from './memory.service.js'
 import { TraceService } from './trace.service.js'
 
@@ -29,9 +30,10 @@ export class ToolService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(MemoryService) private readonly memories: MemoryService,
     @Inject(TraceService) private readonly traces: TraceService,
+    @Inject(SkillResolver) private readonly skills: SkillResolver,
   ) {}
 
-  build(context: ToolContext): ToolSet {
+  build(context: ToolContext, mode: RunAgent['mode'] = 'agent'): ToolSet {
     const observed = async <T>(toolCallId: string, name: string, input: unknown, execute: () => Promise<T>) => {
       const started = Date.now()
       try {
@@ -58,7 +60,28 @@ export class ToolService {
       }
     }
 
-    return {
+    const available: ToolSet = {
+      loadSkill: tool({
+        description: '按需加载一个可用 Skill 的完整 SKILL.md 指令。只有任务确实需要该专业流程时才调用。',
+        inputSchema: z.object({ skillId: z.string().min(1).max(64) }),
+        execute: (input, options) => observed(options.toolCallId, 'loadSkill', input, () => this.skills.load(
+          context.userId,
+          context.input.novelId,
+          context.runId,
+          input.skillId,
+        )),
+      }),
+      readSkillResource: tool({
+        description: '读取已加载内置 Skill 声明的 references、assets 或其他文本资源。禁止路径穿越。',
+        inputSchema: z.object({ skillId: z.string().min(1).max(64), path: z.string().min(1).max(500) }),
+        execute: (input, options) => observed(options.toolCallId, 'readSkillResource', input, () => this.skills.readResource(
+          context.userId,
+          context.input.novelId,
+          context.runId,
+          input.skillId,
+          input.path,
+        )),
+      }),
       getNovelSnapshot: tool({
         description: '读取当前小说、章节目录、卷、角色、关系、世界观和大纲的结构化快照。',
         inputSchema: z.object({ includeChapterContent: z.boolean().default(false) }),
@@ -155,5 +178,13 @@ export class ToolService {
         }),
       }),
     }
+    const policies: Record<RunAgent['mode'], Set<string>> = {
+      ask: new Set(['loadSkill', 'readSkillResource', 'getNovelSnapshot', 'getChapter', 'searchMemory']),
+      plan: new Set(['loadSkill', 'readSkillResource', 'getNovelSnapshot', 'getChapter', 'searchMemory', 'saveMemory', 'validateContinuity', 'delegateSubagent']),
+      outline: new Set(['loadSkill', 'readSkillResource', 'getNovelSnapshot', 'getChapter', 'searchMemory', 'saveMemory', 'validateContinuity', 'delegateSubagent']),
+      worldbook: new Set(['loadSkill', 'readSkillResource', 'getNovelSnapshot', 'getChapter', 'searchMemory', 'saveMemory', 'validateContinuity', 'delegateSubagent']),
+      agent: new Set(Object.keys(available)),
+    }
+    return Object.fromEntries(Object.entries(available).filter(([name]) => policies[mode].has(name))) as ToolSet
   }
 }

@@ -55,7 +55,8 @@ export class AgentController {
       roles: schema.agentRole.options,
       tools: ['getNovelSnapshot', 'getChapter', 'searchMemory', 'saveMemory', 'validateContinuity', 'delegateSubagent'],
       outputs: ['text', 'chapterPlan', 'characterProfile', 'continuityReview'],
-      context: ['userId', 'novelId', 'chapterId', 'sessionId', 'providerId'],
+      context: ['userId', 'novelId', 'chapterId', 'sessionId', 'providerId', 'mode', 'skillIds'],
+      skills: { format: 'backend/skills/<name>/SKILL.md', loading: 'progressive-disclosure', tools: ['loadSkill', 'readSkillResource'], runSnapshot: true },
     }
   }
 

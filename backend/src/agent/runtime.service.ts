@@ -7,6 +7,7 @@ import { generateText, Output, stepCountIs, ToolLoopAgent, toUIMessageStream } f
 import { z } from 'zod'
 import { AppError } from '../common/app-error.js'
 import { PrismaService } from '../database/prisma.service.js'
+import { SkillResolver } from '../skill/skill.resolver.js'
 import { ChatService } from './chat.service.js'
 import { ContextService } from './context.service.js'
 import { ModelService } from './model.service.js'
@@ -53,6 +54,7 @@ export interface AgentResult {
   finishReason: string
   steps: number
   warnings: string[]
+  skillIds: string[]
 }
 
 export interface StructuredResult {
@@ -60,6 +62,7 @@ export interface StructuredResult {
   sessionId: string
   output: unknown
   usage: { inputTokens?: number, outputTokens?: number, totalTokens?: number }
+  skillIds: string[]
 }
 
 @Injectable()
@@ -75,6 +78,7 @@ export class RuntimeService {
     @Inject(ChatService) private readonly chats: ChatService,
     @Inject(ToolService) private readonly tools: ToolService,
     @Inject(TraceService) private readonly traces: TraceService,
+    @Inject(SkillResolver) private readonly skills: SkillResolver,
   ) {
     this.maxSteps = config.get('AGENT_MAX_STEPS', { infer: true })
     this.timeoutMs = config.get('AGENT_TIMEOUT_MS', { infer: true })
@@ -115,6 +119,7 @@ export class RuntimeService {
         finishReason: result.finishReason,
         steps: result.steps.length,
         warnings: (result.warnings ?? []).map(warning => JSON.stringify(warning)),
+        skillIds: execution.skillSet.ids,
       }
     } catch (error) {
       await this.traces.failRun(execution.run.id, error, Date.now() - started)
@@ -140,7 +145,7 @@ export class RuntimeService {
         tools: execution.tools,
         sendReasoning: false,
         sendSources: true,
-        messageMetadata: () => ({ runId: execution.run.id, sessionId: execution.session.id }),
+        messageMetadata: () => ({ runId: execution.run.id, sessionId: execution.session.id, skillIds: execution.skillSet.ids }),
         onError: () => 'Agent 执行失败，请使用 runId 查询服务端执行日志。',
         onEnd: async ({ outcome, finishReason, responseMessage }) => {
           if (outcome.status === 'aborted') {
@@ -209,7 +214,7 @@ export class RuntimeService {
         finishReason: result.finishReason,
         latencyMs: Date.now() - started,
       })
-      return { runId: execution.run.id, sessionId: execution.session.id, output: result.output, usage: result.totalUsage }
+      return { runId: execution.run.id, sessionId: execution.session.id, output: result.output, usage: result.totalUsage, skillIds: execution.skillSet.ids }
     } catch (error) {
       await this.traces.failRun(execution.run.id, error, Date.now() - started)
       throw error
@@ -223,6 +228,13 @@ export class RuntimeService {
       : null
     if (input.sessionId && !currentSession) throw AppError.notFound('AGENT_SESSION_NOT_FOUND', 'Agent 会话')
     const history = currentSession ? await this.chats.promptHistory(userId, currentSession.id) : ''
+    const skillSet = await this.skills.resolve({
+      userId,
+      novelId: input.novelId,
+      mode: input.mode,
+      text: input.prompt,
+      skillIds: input.skillIds,
+    })
     const context = await this.contexts.build(userId, { ...input, providerId: provider.id })
     const session = currentSession
       ? await this.prisma.agentSession.update({
@@ -252,6 +264,8 @@ export class RuntimeService {
       role: input.role,
       prompt: input.prompt,
       context_snapshot: context as unknown as Prisma.InputJsonValue,
+      skill_ids: skillSet.ids as Prisma.InputJsonValue,
+      skill_snapshot: skillSet.snapshot,
     })
     const messageContext = {
       sessionId: session.id,
@@ -264,14 +278,15 @@ export class RuntimeService {
       ...messageContext,
       content: input.prompt,
       parts: [{ type: 'text', text: input.prompt }],
-      metadata: { role: input.role, providerId: provider.id },
+      metadata: { role: input.role, mode: input.mode, providerId: provider.id, skillIds: skillSet.ids },
     })
     const contextText = this.contexts.toPrompt(context)
-    const tools = this.tools.build({ runId: run.id, userId, input: { ...input, providerId: provider.id }, model, contextText })
+    const tools = this.tools.build({ runId: run.id, userId, input: { ...input, providerId: provider.id }, model, contextText }, input.mode)
     const historyText = history
       ? `\n\n以下是同一本小说当前会话的最近聊天记录，请延续其中的目标、约定和上下文：\n${history}`
       : ''
-    const instructions = `${rolePrompts[input.role]}\n\n${contextText}${historyText}`
+    const skillText = skillSet.prompt ? `\n\n${skillSet.prompt}` : ''
+    const instructions = `${rolePrompts[input.role]}${skillText}\n\n${contextText}${historyText}`
     const stopWhen = stepCountIs(input.maxSteps ?? this.maxSteps)
     const settings = this.generationSettings(provider.settings)
     const agent = new ToolLoopAgent({
@@ -289,6 +304,7 @@ export class RuntimeService {
       run,
       session,
       messageContext,
+      skillSet,
       structuredOptions: {
         model,
         instructions,

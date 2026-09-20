@@ -70,6 +70,7 @@ async function bootstrap() {
       .addTag('内容与社区', '新闻、调研、待办与留言墙')
       .addTag('后台管理', '仅超级管理员可访问的资源管理接口')
       .addTag('Agent 基础设施', '模型配置、主/子 Agent、工具循环、RAG、语义记忆和执行追踪')
+      .addTag('Skill 技能', 'Skill 市场、安装、自定义 SKILL.md、小说绑定与运行时装配')
       .addTag('A2A Agent2Agent', '官方 A2A v1 Agent Card、消息、流式任务与生命周期接口')
       .addTag('系统状态', '服务健康检查')
       .build()

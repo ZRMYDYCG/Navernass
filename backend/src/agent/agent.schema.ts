@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { skillMode } from '../skill/skill.schema.js'
 
 export const providerKind = z.enum(['openai', 'anthropic', 'google', 'deepseek', 'qwen', 'glm', 'compatible'])
 export const agentRole = z.enum(['main', 'character', 'plot', 'world', 'style', 'reviewer'])
@@ -28,6 +29,8 @@ export const runAgent = z.object({
   providerId: z.uuid().optional(),
   sessionId: z.uuid().optional(),
   role: agentRole.default('main'),
+  mode: skillMode.default('agent'),
+  skillIds: z.array(z.string().trim().min(1).max(64)).max(20).refine(ids => new Set(ids).size === ids.length, 'skillIds 不能重复').optional(),
   prompt: z.string().trim().min(1).max(100_000),
   maxSteps: z.number().int().min(1).max(50).optional(),
   temperature: z.number().min(0).max(2).optional(),

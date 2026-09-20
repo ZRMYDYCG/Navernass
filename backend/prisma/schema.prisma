@@ -109,6 +109,18 @@ enum AgentMessageRole {
   tool
 }
 
+enum SkillSource {
+  builtin
+  community
+  custom
+}
+
+enum SkillStatus {
+  draft
+  published
+  disabled
+}
+
 model User {
   id                String             @id @default(uuid()) @db.VarChar(36)
   name              String             @db.VarChar(191)
@@ -129,6 +141,9 @@ model User {
   semantic_memories SemanticMemory[]
   a2a_tasks         A2aTask[]
   agent_messages    AgentMessage[]
+  skill_defs        SkillDef[]
+  skill_installs    SkillInstall[]
+  novel_skills      NovelSkill[]
 
   @@map("auth_users")
 }
@@ -226,6 +241,7 @@ model Novel {
   agent_runs        AgentRun[]
   semantic_memories SemanticMemory[]
   agent_messages    AgentMessage[]
+  novel_skills      NovelSkill[]
 
   @@index([user_id, status, order_index])
   @@map("novels")
@@ -474,6 +490,8 @@ model AgentRun {
   prompt           String           @db.LongText
   output           String?          @db.LongText
   context_snapshot Json
+  skill_ids        Json?
+  skill_snapshot   Json?
   input_tokens     Int              @default(0)
   output_tokens    Int              @default(0)
   total_tokens     Int              @default(0)
@@ -523,6 +541,68 @@ model AgentMessage {
   @@index([run_id])
   @@index([remote_id])
   @@map("agent_messages")
+}
+
+/// Skill 定义只保存声明式 SKILL.md，不允许持久化或执行任意代码。
+model SkillDef {
+  id           String         @id @db.VarChar(64)
+  slug         String         @db.VarChar(64)
+  owner_id     String?        @db.VarChar(36)
+  display_name String         @db.VarChar(100)
+  description  String         @db.VarChar(1024)
+  category     String         @default("writing-style") @db.VarChar(64)
+  source       SkillSource    @default(custom)
+  license      String         @default("user") @db.VarChar(32)
+  skill_md     String         @db.LongText
+  manifest     Json
+  version      String         @default("1.0.0") @db.VarChar(32)
+  checksum     String         @db.Char(64)
+  is_builtin   Boolean        @default(false)
+  status       SkillStatus    @default(draft)
+  created_at   DateTime       @default(now()) @db.DateTime(3)
+  updated_at   DateTime       @updatedAt @db.DateTime(3)
+  owner        User?          @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  installs     SkillInstall[]
+  novels       NovelSkill[]
+
+  @@unique([owner_id, slug])
+  @@index([source, status, is_builtin])
+  @@map("skill_defs")
+}
+
+model SkillInstall {
+  id           String   @id @default(uuid()) @db.VarChar(36)
+  user_id      String   @db.VarChar(36)
+  skill_id     String   @db.VarChar(64)
+  enabled      Boolean  @default(true)
+  config       Json
+  installed_at DateTime @default(now()) @db.DateTime(3)
+  updated_at   DateTime @updatedAt @db.DateTime(3)
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  skill        SkillDef @relation(fields: [skill_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, skill_id])
+  @@index([user_id, enabled])
+  @@map("skill_installs")
+}
+
+model NovelSkill {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  user_id    String   @db.VarChar(36)
+  novel_id   String   @db.VarChar(36)
+  skill_id   String   @db.VarChar(64)
+  enabled    Boolean  @default(true)
+  priority   Int      @default(0)
+  config     Json
+  created_at DateTime @default(now()) @db.DateTime(3)
+  updated_at DateTime @updatedAt @db.DateTime(3)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel      Novel    @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  skill      SkillDef @relation(fields: [skill_id], references: [id], onDelete: Cascade)
+
+  @@unique([novel_id, skill_id])
+  @@index([user_id, novel_id, enabled, priority])
+  @@map("novel_skills")
 }
 
 model AgentStep {

@@ -25,6 +25,7 @@ COPY --from=build /app/backend/src/generated ./backend/src/generated
 COPY --from=build /app/backend/prisma ./backend/prisma
 COPY --from=build /app/backend/prisma7.config.ts ./backend/prisma7.config.ts
 COPY --from=build /app/backend/package.json ./backend/package.json
+COPY --from=build /app/backend/skills ./backend/skills
 USER node
 EXPOSE 3001
 ENTRYPOINT ["/sbin/tini", "--"]

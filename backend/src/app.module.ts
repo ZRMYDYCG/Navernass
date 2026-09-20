@@ -18,6 +18,7 @@ import { DatabaseModule } from './database/database.module.js'
 import { HealthModule } from './health/health.module.js'
 import { LibraryModule } from './library/library.module.js'
 import { PlanningModule } from './planning/planning.module.js'
+import { SkillModule } from './skill/skill.module.js'
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { PlanningModule } from './planning/planning.module.js'
     PlanningModule,
     ContentModule,
     AdminModule,
+    SkillModule,
     AgentModule,
     A2aModule,
   ],

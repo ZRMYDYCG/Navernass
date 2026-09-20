@@ -20,6 +20,6 @@
     "noUncheckedIndexedAccess": true,
     "useDefineForClassFields": false
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "prisma/**/*.ts", "scripts/**/*.ts", "prisma7.config.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts", "prisma/**/*.ts", "prisma7.config.ts"],
   "exclude": ["node_modules", "dist", "src/generated"]
 }
