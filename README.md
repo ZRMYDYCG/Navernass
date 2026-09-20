@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./public/logo.png" alt="Narraverse" width="120" />
+<img src="./apps/web/public/logo.png" alt="Narraverse" width="120" />
 
 # Narraverse
 
@@ -12,7 +12,7 @@
 
 </div>
 
-![Narraverse v0.14.0 feature showcase](./public/v0.14.0-night.png)
+![Narraverse v0.14.0 feature showcase](./apps/web/public/v0.14.0-night.png)
 
 ---
 

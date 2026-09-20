@@ -1,5 +1,6 @@
 packages:
-  - 'backend'
+  - 'apps/*'
+  - 'packages/*'
 onlyBuiltDependencies:
   - '@prisma/engines'
   - esbuild
@@ -8,6 +9,13 @@ onlyBuiltDependencies:
   - sharp
 ignoredBuiltDependencies:
   - '@scarf/scarf'
+allowBuilds:
+  '@prisma/engines': true
+  '@scarf/scarf': false
+  esbuild: true
+  lefthook: true
+  prisma: true
+  sharp: true
 minimumReleaseAgeExclude:
   - '@ai-sdk/anthropic@4.0.58'
   - '@ai-sdk/gateway@4.0.87'

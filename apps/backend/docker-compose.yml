@@ -31,8 +31,8 @@ services:
 
   api:
     build:
-      context: ..
-      dockerfile: backend/Dockerfile
+      context: ../..
+      dockerfile: apps/backend/Dockerfile
     restart: unless-stopped
     env_file:
       - path: .env
@@ -53,7 +53,7 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_started
-    command: ["sh", "-c", "cd /app/backend && node_modules/.bin/prisma migrate deploy && node dist/main.js"]
+    command: ["sh", "-c", "cd /app/apps/backend && node_modules/.bin/prisma migrate deploy && node dist/main.js"]
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/v1/health"]
       interval: 10s
