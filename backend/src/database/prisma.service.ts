@@ -1,12 +1,13 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import type { OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import type { EnvConfig } from '../config/env-schema.js'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
-import type { EnvConfig } from '../config/env-schema.js'
 import { PrismaClient } from '../generated/prisma/client.js'
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-  constructor(config: ConfigService<EnvConfig, true>) {
+  constructor(@Inject(ConfigService) config: ConfigService<EnvConfig, true>) {
     const adapter = new PrismaMariaDb({
       host: config.get('DATABASE_HOST', { infer: true }),
       port: config.get('DATABASE_PORT', { infer: true }),
