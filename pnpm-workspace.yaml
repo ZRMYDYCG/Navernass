@@ -2,7 +2,9 @@ packages:
   - 'apps/*'
   - 'packages/*'
 onlyBuiltDependencies:
+  - '@parcel/watcher'
   - '@prisma/engines'
+  - '@swc/core'
   - esbuild
   - lefthook
   - prisma
@@ -10,7 +12,9 @@ onlyBuiltDependencies:
 ignoredBuiltDependencies:
   - '@scarf/scarf'
 allowBuilds:
+  '@parcel/watcher': true
   '@prisma/engines': true
+  '@swc/core': true
   '@scarf/scarf': false
   esbuild: true
   lefthook: true
