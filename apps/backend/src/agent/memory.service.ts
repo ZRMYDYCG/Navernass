@@ -1,7 +1,9 @@
 import type { Prisma } from "../generated/prisma/client.js";
+import type { EnvConfig } from "../config/env-schema.js";
 import type { SaveMemory, SearchMemory, SyncMemory } from "./agent.schema.js";
 import { createHash, randomUUID } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { embed } from "ai";
 import { AppError } from "../common/app-error.js";
 import { PrismaService } from "../database/prisma.service.js";
@@ -10,16 +12,25 @@ import { VectorService } from "./vector.service.js";
 
 @Injectable()
 export class MemoryService {
+  private readonly maxRetries: number;
+
   constructor(
+    @Inject(ConfigService) config: ConfigService<EnvConfig, true>,
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(ModelService) private readonly models: ModelService,
     @Inject(VectorService) private readonly vectors: VectorService,
-  ) {}
+  ) {
+    this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
+  }
 
   async save(userId: string, input: SaveMemory) {
     await this.assertNovel(userId, input.novelId);
     const { model } = await this.models.embedding(userId, input.providerId);
-    const { embedding } = await embed({ model, value: input.content });
+    const { embedding } = await embed({
+      model,
+      value: input.content,
+      maxRetries: this.maxRetries,
+    });
     const current = input.sourceId
       ? await this.prisma.semanticMemory.findFirst({
           where: {
@@ -60,7 +71,11 @@ export class MemoryService {
   async search(userId: string, input: SearchMemory) {
     await this.assertNovel(userId, input.novelId);
     const { model } = await this.models.embedding(userId, input.providerId);
-    const { embedding } = await embed({ model, value: input.query });
+    const { embedding } = await embed({
+      model,
+      value: input.query,
+      maxRetries: this.maxRetries,
+    });
     const vectorHits = await this.vectors.search(
       embedding,
       { userId, novelId: input.novelId, chapterId: input.chapterId, kind: "search" },

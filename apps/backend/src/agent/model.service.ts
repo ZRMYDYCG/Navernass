@@ -1,12 +1,15 @@
 import type { EmbeddingModel, LanguageModel } from "ai";
+import type { EnvConfig } from "../config/env-schema.js";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { HttpStatus, Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { generateText } from "ai";
 import { AppError } from "../common/app-error.js";
 import { ProviderService } from "./provider.service.js";
+import { AgentErrorService } from "./error.service.js";
 
 const compatibleBaseUrls = {
   deepseek: "https://api.deepseek.com",
@@ -16,7 +19,15 @@ const compatibleBaseUrls = {
 
 @Injectable()
 export class ModelService {
-  constructor(@Inject(ProviderService) private readonly providers: ProviderService) {}
+  private readonly maxRetries: number;
+
+  constructor(
+    @Inject(ConfigService) config: ConfigService<EnvConfig, true>,
+    @Inject(ProviderService) private readonly providers: ProviderService,
+    @Inject(AgentErrorService) private readonly errors: AgentErrorService,
+  ) {
+    this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
+  }
 
   async language(
     userId: string,
@@ -113,18 +124,23 @@ export class ModelService {
   async test(userId: string, providerId: string) {
     const { model, provider } = await this.language(userId, providerId);
     const started = Date.now();
-    const result = await generateText({
-      model,
-      prompt: "仅回复“Narraverse 模型连接正常”。",
-      maxOutputTokens: 30,
-      temperature: 0,
-    });
-    return {
-      providerId: provider.id,
-      model: provider.model,
-      response: result.text,
-      usage: result.totalUsage,
-      latencyMs: Date.now() - started,
-    };
+    try {
+      const result = await generateText({
+        model,
+        prompt: "仅回复“Narraverse 模型连接正常”。",
+        maxOutputTokens: 30,
+        temperature: 0,
+        maxRetries: this.maxRetries,
+      });
+      return {
+        providerId: provider.id,
+        model: provider.model,
+        response: result.text,
+        usage: result.totalUsage,
+        latencyMs: Date.now() - started,
+      };
+    } catch (error) {
+      throw this.errors.toAppError(error);
+    }
   }
 }

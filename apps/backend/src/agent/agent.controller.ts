@@ -75,6 +75,9 @@ export class AgentController {
       tools: [
         "getNovelSnapshot",
         "getChapter",
+        "readArticle",
+        "searchArticle",
+        "proposeArticleEdit",
         "searchMemory",
         "saveMemory",
         "validateContinuity",
@@ -87,6 +90,12 @@ export class AgentController {
         loading: "progressive-disclosure",
         tools: ["loadSkill", "readSkillResource"],
         runSnapshot: true,
+      },
+      reliability: {
+        providerRetries: "exponential-backoff-with-retry-after",
+        toolRetries: "idempotent-read-tools-only",
+        writeToolRetries: false,
+        errorEnvelope: true,
       },
     };
   }

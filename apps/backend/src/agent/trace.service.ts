@@ -59,12 +59,25 @@ export class TraceService {
 
   failRun(id: string, error: unknown, latencyMs: number) {
     const value = error instanceof Error ? error : new Error(String(error));
+    const details =
+      error instanceof Error && "details" in error
+        ? (error as Error & { details?: unknown }).details
+        : undefined;
+    const retryCount =
+      details && typeof details === "object" && "retryCount" in details
+        ? Number((details as { retryCount?: unknown }).retryCount) || 0
+        : 0;
     return this.prisma.agentRun.update({
       where: { id },
       data: {
         status: "failed",
-        error_code: value.name,
+        error_code:
+          error && typeof error === "object" && "code" in error
+            ? String((error as { code: unknown }).code)
+            : value.name,
         error_message: value.message.slice(0, 10_000),
+        error_details: details as Prisma.InputJsonValue | undefined,
+        retry_count: retryCount,
         latency_ms: latencyMs,
         completed_at: new Date(),
       },
@@ -111,6 +124,8 @@ export class TraceService {
       output?: unknown;
       status: string;
       durationMs: number;
+      retryCount?: number;
+      retryLog?: unknown[];
       error?: string;
     },
   ) {
@@ -124,12 +139,16 @@ export class TraceService {
         output: data.output as Prisma.InputJsonValue | undefined,
         status: data.status,
         duration_ms: data.durationMs,
+        attempt_count: (data.retryCount ?? 0) + 1,
+        retry_log: data.retryLog as Prisma.InputJsonValue | undefined,
         error_message: data.error,
       },
       update: {
         output: data.output as Prisma.InputJsonValue | undefined,
         status: data.status,
         duration_ms: data.durationMs,
+        attempt_count: (data.retryCount ?? 0) + 1,
+        retry_log: data.retryLog as Prisma.InputJsonValue | undefined,
         error_message: data.error,
       },
     });

@@ -1,6 +1,8 @@
 import type { LanguageModel, ToolSet } from "ai";
+import type { EnvConfig } from "../config/env-schema.js";
 import type { RunAgent } from "./agent.schema.js";
 import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { generateText, tool } from "ai";
 import { z } from "zod";
 import { PrismaService } from "../database/prisma.service.js";
@@ -8,6 +10,8 @@ import { EditorService } from "../editor/editor.service.js";
 import { proposeEdit } from "../editor/editor.schema.js";
 import { SkillResolver } from "../skill/skill.resolver.js";
 import { MemoryService } from "./memory.service.js";
+import { AgentErrorService } from "./error.service.js";
+import { RetryService, type RetryEvent } from "./retry.service.js";
 import { TraceService } from "./trace.service.js";
 
 interface ToolContext {
@@ -28,13 +32,20 @@ const subagentPrompts = {
 
 @Injectable()
 export class ToolService {
+  private readonly maxRetries: number;
+
   constructor(
+    @Inject(ConfigService) config: ConfigService<EnvConfig, true>,
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(MemoryService) private readonly memories: MemoryService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(SkillResolver) private readonly skills: SkillResolver,
     @Inject(EditorService) private readonly editor: EditorService,
-  ) {}
+    @Inject(AgentErrorService) private readonly errors: AgentErrorService,
+    @Inject(RetryService) private readonly retries: RetryService,
+  ) {
+    this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
+  }
 
   build(context: ToolContext, mode: RunAgent["mode"] = "agent"): ToolSet {
     const observed = async <T>(
@@ -42,10 +53,18 @@ export class ToolService {
       name: string,
       input: unknown,
       execute: () => Promise<T>,
+      policy: { retryable?: boolean; abortSignal?: AbortSignal } = {},
     ) => {
       const started = Date.now();
+      const retryLog: RetryEvent[] = [];
       try {
-        const output = await execute();
+        const output = await this.retries.execute(execute, {
+          maxRetries: policy.retryable ? undefined : 0,
+          abortSignal: policy.abortSignal,
+          onRetry: (event) => {
+            retryLog.push(event);
+          },
+        });
         await this.traces.saveTool(context.runId, {
           id: toolCallId,
           name,
@@ -53,6 +72,8 @@ export class ToolService {
           output,
           status: "completed",
           durationMs: Date.now() - started,
+          retryCount: retryLog.length,
+          retryLog,
         });
         return output;
       } catch (error) {
@@ -62,9 +83,11 @@ export class ToolService {
           input,
           status: "failed",
           durationMs: Date.now() - started,
+          retryCount: retryLog.length,
+          retryLog,
           error: error instanceof Error ? error.message : String(error),
         });
-        throw error;
+        throw this.errors.toAppError(error, retryLog.length);
       }
     };
 
@@ -74,8 +97,13 @@ export class ToolService {
           "按需加载一个可用 Skill 的完整 SKILL.md 指令。只有任务确实需要该专业流程时才调用。",
         inputSchema: z.object({ skillId: z.string().min(1).max(64) }),
         execute: (input, options) =>
-          observed(options.toolCallId, "loadSkill", input, () =>
-            this.skills.load(context.userId, context.input.novelId, context.runId, input.skillId),
+          observed(
+            options.toolCallId,
+            "loadSkill",
+            input,
+            () =>
+              this.skills.load(context.userId, context.input.novelId, context.runId, input.skillId),
+            { retryable: true, abortSignal: options.abortSignal },
           ),
       }),
       readSkillResource: tool({
@@ -86,57 +114,73 @@ export class ToolService {
           path: z.string().min(1).max(500),
         }),
         execute: (input, options) =>
-          observed(options.toolCallId, "readSkillResource", input, () =>
-            this.skills.readResource(
-              context.userId,
-              context.input.novelId,
-              context.runId,
-              input.skillId,
-              input.path,
-            ),
+          observed(
+            options.toolCallId,
+            "readSkillResource",
+            input,
+            () =>
+              this.skills.readResource(
+                context.userId,
+                context.input.novelId,
+                context.runId,
+                input.skillId,
+                input.path,
+              ),
+            { retryable: true, abortSignal: options.abortSignal },
           ),
       }),
       getNovelSnapshot: tool({
         description: "读取当前小说、章节目录、卷、角色、关系、世界观和大纲的结构化快照。",
         inputSchema: z.object({ includeChapterContent: z.boolean().default(false) }),
         execute: (input, options) =>
-          observed(options.toolCallId, "getNovelSnapshot", input, async () => {
-            const novel = await this.prisma.novel.findFirstOrThrow({
-              where: { id: context.input.novelId, user_id: context.userId },
-              include: {
-                chapters: { where: { deleted_at: null }, orderBy: { order_index: "asc" } },
-                volumes: { where: { deleted_at: null }, orderBy: { order_index: "asc" } },
-                worldbook: { where: { deleted_at: null }, orderBy: { order_index: "asc" } },
-                outlines: { where: { deleted_at: null }, orderBy: { order_index: "asc" } },
-                timeline_events: {
-                  where: { deleted_at: null },
-                  orderBy: { timeline_position: "asc" },
+          observed(
+            options.toolCallId,
+            "getNovelSnapshot",
+            input,
+            async () => {
+              const novel = await this.prisma.novel.findFirstOrThrow({
+                where: { id: context.input.novelId, user_id: context.userId },
+                include: {
+                  chapters: { where: { deleted_at: null }, orderBy: { order_index: "asc" } },
+                  volumes: { where: { deleted_at: null }, orderBy: { order_index: "asc" } },
+                  worldbook: { where: { deleted_at: null }, orderBy: { order_index: "asc" } },
+                  outlines: { where: { deleted_at: null }, orderBy: { order_index: "asc" } },
+                  timeline_events: {
+                    where: { deleted_at: null },
+                    orderBy: { timeline_position: "asc" },
+                  },
                 },
-              },
-            });
-            return {
-              ...novel,
-              chapters: novel.chapters.map((chapter) => ({
-                ...chapter,
-                content: input.includeChapterContent ? chapter.content : undefined,
-              })),
-            };
-          }),
+              });
+              return {
+                ...novel,
+                chapters: novel.chapters.map((chapter) => ({
+                  ...chapter,
+                  content: input.includeChapterContent ? chapter.content : undefined,
+                })),
+              };
+            },
+            { retryable: true, abortSignal: options.abortSignal },
+          ),
       }),
       getChapter: tool({
         description:
           "兼容用的章节读取工具。编辑正文时优先使用 readArticle，它支持分段读取并返回 revision 和内容哈希。",
         inputSchema: z.object({ chapterId: z.uuid() }),
         execute: (input, options) =>
-          observed(options.toolCallId, "getChapter", input, () =>
-            this.prisma.chapter.findFirstOrThrow({
-              where: {
-                id: input.chapterId,
-                novel_id: context.input.novelId,
-                user_id: context.userId,
-                deleted_at: null,
-              },
-            }),
+          observed(
+            options.toolCallId,
+            "getChapter",
+            input,
+            () =>
+              this.prisma.chapter.findFirstOrThrow({
+                where: {
+                  id: input.chapterId,
+                  novel_id: context.input.novelId,
+                  user_id: context.userId,
+                  deleted_at: null,
+                },
+              }),
+            { retryable: true, abortSignal: options.abortSignal },
           ),
       }),
       readArticle: tool({
@@ -151,8 +195,12 @@ export class ToolService {
           limit: z.number().int().min(1).max(50_000).default(20_000),
         }),
         execute: (input, options) =>
-          observed(options.toolCallId, "readArticle", input, () =>
-            this.editor.read(context.userId, context.input.novelId, input.chapterId, input),
+          observed(
+            options.toolCallId,
+            "readArticle",
+            input,
+            () => this.editor.read(context.userId, context.input.novelId, input.chapterId, input),
+            { retryable: true, abortSignal: options.abortSignal },
           ),
       }),
       searchArticle: tool({
@@ -166,8 +214,12 @@ export class ToolService {
           contextChars: z.number().int().min(0).max(1_000).default(160),
         }),
         execute: (input, options) =>
-          observed(options.toolCallId, "searchArticle", input, () =>
-            this.editor.search(context.userId, context.input.novelId, input.chapterId, input),
+          observed(
+            options.toolCallId,
+            "searchArticle",
+            input,
+            () => this.editor.search(context.userId, context.input.novelId, input.chapterId, input),
+            { retryable: true, abortSignal: options.abortSignal },
           ),
       }),
       proposeArticleEdit: tool({
@@ -205,16 +257,21 @@ export class ToolService {
           limit: z.number().int().min(1).max(20).default(8),
         }),
         execute: (input, options) =>
-          observed(options.toolCallId, "searchMemory", input, () =>
-            this.memories.search(context.userId, {
-              novelId: context.input.novelId,
-              chapterId: context.input.chapterId,
-              providerId: context.input.providerId,
-              query: input.query,
-              kinds: input.kinds,
-              limit: input.limit,
-              minScore: 0.2,
-            }),
+          observed(
+            options.toolCallId,
+            "searchMemory",
+            input,
+            () =>
+              this.memories.search(context.userId, {
+                novelId: context.input.novelId,
+                chapterId: context.input.chapterId,
+                providerId: context.input.providerId,
+                query: input.query,
+                kinds: input.kinds,
+                limit: input.limit,
+                minScore: 0.2,
+              }),
+            { abortSignal: options.abortSignal },
           ),
       }),
       saveMemory: tool({
@@ -250,6 +307,8 @@ export class ToolService {
               instructions: subagentPrompts.reviewer,
               prompt: `${context.contextText}\n\n待审核文本：\n${input.text}\n\n审核重点：${input.focus ?? "全部一致性维度"}`,
               temperature: 0.1,
+              maxRetries: this.maxRetries,
+              abortSignal: options.abortSignal,
             });
             await this.traces.addUsage(context.runId, result.totalUsage);
             return { report: result.text, usage: result.totalUsage };
@@ -268,6 +327,8 @@ export class ToolService {
               instructions: `${subagentPrompts[input.role]} 只处理被委派任务，输出可供主 Agent 合并的明确结果。`,
               prompt: `${context.contextText}\n\n委派任务：${input.task}`,
               temperature: context.input.temperature,
+              maxRetries: this.maxRetries,
+              abortSignal: options.abortSignal,
             });
             await this.traces.addUsage(context.runId, result.totalUsage);
             return { role: input.role, result: result.text, usage: result.totalUsage };

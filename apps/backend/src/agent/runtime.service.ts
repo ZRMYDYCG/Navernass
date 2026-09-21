@@ -10,6 +10,7 @@ import { PrismaService } from "../database/prisma.service.js";
 import { SkillResolver } from "../skill/skill.resolver.js";
 import { ChatService } from "./chat.service.js";
 import { ContextService } from "./context.service.js";
+import { AgentErrorService } from "./error.service.js";
 import { ModelService } from "./model.service.js";
 import { rolePrompts } from "./prompt.js";
 import { ToolService } from "./tool.service.js";
@@ -75,6 +76,7 @@ export interface StructuredResult {
 export class RuntimeService {
   private readonly maxSteps: number;
   private readonly timeoutMs: number;
+  private readonly maxRetries: number;
 
   constructor(
     @Inject(ConfigService) config: ConfigService<EnvConfig, true>,
@@ -85,9 +87,11 @@ export class RuntimeService {
     @Inject(ToolService) private readonly tools: ToolService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(SkillResolver) private readonly skills: SkillResolver,
+    @Inject(AgentErrorService) private readonly errors: AgentErrorService,
   ) {
     this.maxSteps = config.get("AGENT_MAX_STEPS", { infer: true });
     this.timeoutMs = config.get("AGENT_TIMEOUT_MS", { infer: true });
+    this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
   }
 
   async generate(userId: string, input: RunAgent, signal?: AbortSignal): Promise<AgentResult> {
@@ -128,8 +132,9 @@ export class RuntimeService {
         skillIds: execution.skillSet.ids,
       };
     } catch (error) {
-      await this.traces.failRun(execution.run.id, error, Date.now() - started);
-      throw error;
+      const failure = this.errors.toAppError(error);
+      await this.traces.failRun(execution.run.id, failure, Date.now() - started);
+      throw failure;
     }
   }
 
@@ -156,14 +161,21 @@ export class RuntimeService {
           sessionId: execution.session.id,
           skillIds: execution.skillSet.ids,
         }),
-        onError: () => "Agent 执行失败，请使用 runId 查询服务端执行日志。",
+        onError: (error) => {
+          const failure = this.errors.classify(error);
+          return `${failure.code}: ${failure.message}（runId: ${execution.run.id}）`;
+        },
         onEnd: async ({ outcome, finishReason, responseMessage }) => {
           if (outcome.status === "aborted") {
             await this.traces.cancelRun(execution.run.id, Date.now() - started);
             return;
           }
           if (outcome.status === "failed") {
-            await this.traces.failRun(execution.run.id, outcome.error, Date.now() - started);
+            await this.traces.failRun(
+              execution.run.id,
+              this.errors.toAppError(outcome.error),
+              Date.now() - started,
+            );
             return;
           }
           const [usage, text] = await Promise.all([result.totalUsage, result.text]);
@@ -186,8 +198,9 @@ export class RuntimeService {
       });
       return { stream, runId: execution.run.id, sessionId: execution.session.id };
     } catch (error) {
-      await this.traces.failRun(execution.run.id, error, Date.now() - started);
-      throw error;
+      const failure = this.errors.toAppError(error);
+      await this.traces.failRun(execution.run.id, failure, Date.now() - started);
+      throw failure;
     }
   }
 
@@ -263,8 +276,9 @@ export class RuntimeService {
         skillIds: execution.skillSet.ids,
       };
     } catch (error) {
-      await this.traces.failRun(execution.run.id, error, Date.now() - started);
-      throw error;
+      const failure = this.errors.toAppError(error);
+      await this.traces.failRun(execution.run.id, failure, Date.now() - started);
+      throw failure;
     }
   }
 
@@ -353,6 +367,7 @@ export class RuntimeService {
       instructions,
       tools,
       stopWhen,
+      maxRetries: this.maxRetries,
       ...settings,
       temperature: input.temperature ?? settings.temperature,
     });
@@ -368,6 +383,7 @@ export class RuntimeService {
         instructions,
         tools,
         stopWhen,
+        maxRetries: this.maxRetries,
         ...settings,
         temperature: input.temperature ?? settings.temperature,
       },

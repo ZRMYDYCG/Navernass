@@ -27,6 +27,11 @@ export class ErrorFilter implements ExceptionFilter {
       this.logger.warn({ code: normalized.code, requestId: request.requestId }, normalized.message);
     }
 
+    const retryAfterMs = retryDelay(normalized.details);
+    if (retryAfterMs !== undefined) {
+      response.setHeader("Retry-After", String(Math.max(1, Math.ceil(retryAfterMs / 1_000))));
+    }
+
     response.status(normalized.status).json({
       success: false,
       error: {
@@ -104,4 +109,10 @@ function safeMeta(meta: unknown) {
   if (!meta || typeof meta !== "object") return undefined;
   const target = (meta as { target?: unknown }).target;
   return target ? { target } : undefined;
+}
+
+function retryDelay(details: unknown) {
+  if (!details || typeof details !== "object" || !("retryAfterMs" in details)) return undefined;
+  const value = Number((details as { retryAfterMs?: unknown }).retryAfterMs);
+  return Number.isFinite(value) && value >= 0 ? value : undefined;
 }
