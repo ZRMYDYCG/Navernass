@@ -193,6 +193,7 @@ export const updateProvider = createProvider.partial().extend({
 });
 
 export const runAgent = z.object({
+  requestId: z.uuid().optional(),
   novelId: z.uuid(),
   chapterId: z.uuid().optional(),
   providerId: z.uuid().optional(),
@@ -235,6 +236,14 @@ export const runQuery = z.object({
   status: z
     .enum(["queued", "running", "waiting_input", "completed", "failed", "cancelled"])
     .optional(),
+});
+
+export const replayStream = z.object({
+  after: z.coerce.number().int().min(0).default(0),
+});
+
+export const retryRun = z.object({
+  requestId: z.uuid().optional(),
 });
 
 export const sessionQuery = z.object({
@@ -293,6 +302,8 @@ export type ContextTrust = z.infer<typeof contextTrust>;
 export type AskUserInput = z.infer<typeof askUserInput>;
 export type AnswerQuestion = z.infer<typeof answerQuestion>;
 export type DismissQuestion = z.infer<typeof dismissQuestion>;
+export type ReplayStream = z.infer<typeof replayStream>;
+export type RetryRun = z.infer<typeof retryRun>;
 export type StructuredAgent = z.infer<typeof structuredAgent>;
 export type SessionQuery = z.infer<typeof sessionQuery>;
 export type MessageQuery = z.infer<typeof messageQuery>;

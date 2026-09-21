@@ -526,6 +526,9 @@ model AgentRun {
   error_message    String?          @db.Text
   error_details    Json?
   retry_count      Int              @default(0)
+  client_request_id String?          @db.VarChar(36)
+  request_snapshot Json?
+  retry_of_id      String?          @db.VarChar(36)
   latency_ms       Int?
   started_at       DateTime?        @db.DateTime(3)
   completed_at     DateTime?        @db.DateTime(3)
@@ -539,11 +542,16 @@ model AgentRun {
   messages         AgentMessage[]
   chapter_edits    ChapterEdit[]
   questions        AgentQuestion[]
+  stream_events    AgentStreamEvent[]
+  retry_of         AgentRun?         @relation("AgentRunRetries", fields: [retry_of_id], references: [id], onDelete: SetNull)
+  retries          AgentRun[]        @relation("AgentRunRetries")
 
+  @@unique([user_id, client_request_id])
   @@index([user_id, created_at])
   @@index([novel_id, chapter_id, created_at])
   @@index([session_id, created_at])
   @@index([status, created_at])
+  @@index([retry_of_id])
   @@map("agent_runs")
 }
 
@@ -600,6 +608,20 @@ model AgentQuestion {
   @@index([user_id, session_id, status, created_at])
   @@index([run_id, status])
   @@map("agent_questions")
+}
+
+/// 官方 AI SDK UIMessageChunk 的可重放事件，用于刷新后恢复流式内容。
+model AgentStreamEvent {
+  id         BigInt   @id @default(autoincrement())
+  run_id     String   @db.VarChar(36)
+  sequence   Int
+  chunk      Json
+  created_at DateTime @default(now()) @db.DateTime(3)
+  run        AgentRun @relation(fields: [run_id], references: [id], onDelete: Cascade)
+
+  @@unique([run_id, sequence])
+  @@index([run_id, created_at])
+  @@map("agent_stream_events")
 }
 
 /// Skill 定义只保存声明式 SKILL.md，不允许持久化或执行任意代码。

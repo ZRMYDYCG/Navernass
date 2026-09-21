@@ -5,6 +5,8 @@ import {
   dismissQuestion,
   messageQuery,
   previewContext,
+  replayStream,
+  retryRun,
   runAgent,
   runQuery,
   saveMemory,
@@ -22,6 +24,8 @@ export class DismissQuestionDto extends createZodDto(dismissQuestion) {}
 export class UpdateProviderDto extends createZodDto(updateProvider) {}
 export class RunAgentDto extends createZodDto(runAgent) {}
 export class PreviewContextDto extends createZodDto(previewContext) {}
+export class ReplayStreamDto extends createZodDto(replayStream) {}
+export class RetryRunDto extends createZodDto(retryRun) {}
 export class StructuredAgentDto extends createZodDto(structuredAgent) {}
 export class RunQueryDto extends createZodDto(runQuery) {}
 export class SessionQueryDto extends createZodDto(sessionQuery) {}

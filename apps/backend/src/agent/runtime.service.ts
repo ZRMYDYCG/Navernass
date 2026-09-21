@@ -1,8 +1,14 @@
 import type { EnvConfig } from "../config/env-schema.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import type { ModelMessage } from "ai";
-import type { AnswerQuestion, RunAgent, StructuredAgent } from "./agent.schema.js";
+import {
+  runAgent,
+  type AnswerQuestion,
+  type RunAgent,
+  type StructuredAgent,
+} from "./agent.schema.js";
 import type { ContextSnapshot } from "./context.service.js";
+import { randomUUID } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { generateText, Output, stepCountIs, ToolLoopAgent, toUIMessageStream } from "ai";
@@ -16,6 +22,7 @@ import { AgentErrorService } from "./error.service.js";
 import { ModelService } from "./model.service.js";
 import { interactionPrompt, rolePrompts } from "./prompt.js";
 import { QuestionService } from "./question.service.js";
+import { StreamService } from "./stream.service.js";
 import { ToolService } from "./tool.service.js";
 import { TraceService } from "./trace.service.js";
 
@@ -92,6 +99,7 @@ export class RuntimeService {
     @Inject(ToolService) private readonly tools: ToolService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(QuestionService) private readonly questions: QuestionService,
+    @Inject(StreamService) private readonly streams: StreamService,
     @Inject(SkillResolver) private readonly skills: SkillResolver,
     @Inject(AgentErrorService) private readonly errors: AgentErrorService,
   ) {
@@ -147,23 +155,91 @@ export class RuntimeService {
     }
   }
 
-  async stream(userId: string, input: RunAgent, signal?: AbortSignal) {
-    const execution = await this.prepare(userId, input, true);
+  async stream(userId: string, input: RunAgent) {
+    if (input.requestId) {
+      const existing = await this.findByRequestId(userId, input.requestId);
+      if (existing?.session_id) return this.toReplayResult(userId, existing.id);
+    }
+    try {
+      return await this.startStream(userId, input);
+    } catch (error) {
+      // 并发同 requestId 时后到的请求重放已创建的 Run，保持幂等。
+      if (input.requestId && this.isRequestIdConflict(error)) {
+        const existing = await this.findByRequestId(userId, input.requestId);
+        if (existing?.session_id) return this.toReplayResult(userId, existing.id);
+      }
+      throw error;
+    }
+  }
+
+  async retryStream(userId: string, runId: string, requestId?: string) {
+    const previous = await this.prisma.agentRun.findFirst({
+      where: { id: runId, user_id: userId },
+    });
+    if (!previous) throw AppError.notFound("AGENT_RUN_NOT_FOUND", "Agent 执行记录");
+    if (!(["failed", "cancelled"] as string[]).includes(previous.status)) {
+      throw new AppError("CONFLICT", "只有失败或已取消的执行可以重试", 409, {
+        status: previous.status,
+      });
+    }
+    if (!previous.request_snapshot)
+      throw new AppError("CONFLICT", "该历史执行缺少请求快照，无法安全重试", 409);
+    const snapshot = previous.request_snapshot;
+    if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot))
+      throw new AppError("CONFLICT", "该历史执行的请求快照无效，无法安全重试", 409);
+    const input = runAgent.parse({
+      ...snapshot,
+      requestId: requestId ?? randomUUID(),
+      sessionId: previous.session_id ?? undefined,
+    });
+    return this.startStream(userId, input, previous.id);
+  }
+
+  async replayStream(userId: string, runId: string, after = 0) {
+    return this.toReplayResult(userId, runId, after);
+  }
+
+  private async startStream(userId: string, input: RunAgent, retryOfId?: string) {
+    const execution = await this.prepare(userId, input, true, retryOfId);
     await this.traces.startRun(execution.run.id);
-    return this.streamExecution(
-      execution,
-      { prompt: input.prompt },
-      [{ role: "user", content: input.prompt }],
-      signal,
+    // 可恢复流不因浏览器刷新中止；只保留服务端超时。
+    return this.streamExecution(execution, { prompt: input.prompt }, [
+      { role: "user", content: input.prompt },
+    ]);
+  }
+
+  private async toReplayResult(userId: string, runId: string, after = 0) {
+    const replay = await this.streams.replay(userId, runId, after);
+    return {
+      stream: replay.stream,
+      runId: replay.runId,
+      sessionId: replay.sessionId,
+      replayed: true,
+    };
+  }
+
+  private findByRequestId(userId: string, requestId: string) {
+    return this.prisma.agentRun.findUnique({
+      where: {
+        user_id_client_request_id: {
+          user_id: userId,
+          client_request_id: requestId,
+        },
+      },
+      select: { id: true, session_id: true },
+    });
+  }
+
+  private isRequestIdConflict(error: unknown) {
+    return (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code: unknown }).code === "P2002"
     );
   }
 
-  async answerStream(
-    userId: string,
-    questionId: string,
-    answer: AnswerQuestion,
-    signal?: AbortSignal,
-  ) {
+  async answerStream(userId: string, questionId: string, answer: AnswerQuestion) {
     const claimed = await this.questions.claim(userId, questionId, answer);
     try {
       const execution = await this.resumeExecution(userId, claimed);
@@ -182,7 +258,7 @@ export class RuntimeService {
           ],
         },
       ];
-      return await this.streamExecution(execution, { messages }, messages, signal, {
+      return await this.streamExecution(execution, { messages }, messages, undefined, {
         id: claimed.id,
         answers: answer.answers,
       });
@@ -381,7 +457,12 @@ export class RuntimeService {
           }
         },
       });
-      return { stream, runId: execution.run.id, sessionId: execution.session.id };
+      return {
+        stream: this.streams.attach(execution.run.id, stream),
+        runId: execution.run.id,
+        sessionId: execution.session.id,
+        replayed: false,
+      };
     } catch (error) {
       if (answering) {
         await this.questions.release(answering.id);
@@ -444,7 +525,11 @@ export class RuntimeService {
     claimed: Awaited<ReturnType<QuestionService["claim"]>>,
   ): Promise<Awaited<ReturnType<RuntimeService["prepare"]>>> {
     const { model, provider } = await this.models.language(userId, claimed.run.provider_id);
-    const input = { ...claimed.config, providerId: provider.id };
+    const input = {
+      ...claimed.config,
+      providerId: provider.id,
+      sessionId: claimed.session.id,
+    };
     const context = claimed.run.context_snapshot as unknown as ContextSnapshot;
     const contextText = this.contexts.toPrompt(context);
     const tools = this.tools.build(
@@ -500,7 +585,12 @@ export class RuntimeService {
     };
   }
 
-  private async prepare(userId: string, input: RunAgent, allowAskUser: boolean) {
+  private async prepare(
+    userId: string,
+    input: RunAgent,
+    allowAskUser: boolean,
+    retryOfId?: string,
+  ) {
     const currentSession = input.sessionId
       ? await this.prisma.agentSession.findFirst({
           where: { id: input.sessionId, user_id: userId, novel_id: input.novelId },
@@ -543,6 +633,7 @@ export class RuntimeService {
             context: sessionContext,
           },
         });
+    const finalInput = { ...resolvedInput, sessionId: session.id };
     const run = await this.traces.createRun({
       session_id: session.id,
       user_id: userId,
@@ -554,6 +645,9 @@ export class RuntimeService {
       context_snapshot: context as unknown as Prisma.InputJsonValue,
       skill_ids: skillSet.ids as Prisma.InputJsonValue,
       skill_snapshot: skillSet.snapshot,
+      client_request_id: input.requestId,
+      request_snapshot: finalInput as unknown as Prisma.InputJsonValue,
+      retry_of_id: retryOfId,
     });
     const messageContext = {
       sessionId: session.id,
@@ -562,20 +656,24 @@ export class RuntimeService {
       novelId: input.novelId,
       chapterId: input.chapterId,
     };
-    await this.chats.saveUser({
-      ...messageContext,
-      content: input.prompt,
-      parts: [{ type: "text", text: input.prompt }],
-      metadata: {
-        role: input.role,
-        mode: input.mode,
-        providerId: provider.id,
-        skillIds: skillSet.ids,
-      },
-    });
+    // 重试沿用原会话历史里的用户消息，避免同提示词重复入库。
+    if (!retryOfId) {
+      await this.chats.saveUser({
+        ...messageContext,
+        content: input.prompt,
+        parts: [{ type: "text", text: input.prompt }],
+        metadata: {
+          role: input.role,
+          mode: input.mode,
+          providerId: provider.id,
+          requestId: input.requestId,
+          skillIds: skillSet.ids,
+        },
+      });
+    }
     const contextText = this.contexts.toPrompt(context);
     const tools = this.tools.build(
-      { runId: run.id, userId, input: resolvedInput, model, contextText },
+      { runId: run.id, userId, input: finalInput, model, contextText },
       input.mode,
       { allowAskUser },
     );
@@ -602,7 +700,7 @@ export class RuntimeService {
       messageContext,
       skillSet,
       context,
-      input: resolvedInput,
+      input: finalInput,
       instructions,
       structuredOptions: {
         model,

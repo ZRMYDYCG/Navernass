@@ -60,27 +60,20 @@ export class A2aExecutor implements AgentExecutor {
           .slice(-20) ?? [];
       const userId = requestContext.context.user!.userName;
       const result = config.askAnswer
-        ? await this.runtime.answerStream(
-            userId,
-            config.askAnswer.questionId,
-            { answers: config.askAnswer.answers },
-            controller.signal,
-          )
-        : await this.runtime.stream(
-            userId,
-            {
-              ...config,
-              prompt,
-              sessionId: config.sessionId,
-              context: {
-                ...config.context,
-                a2aContextId: contextId,
-                a2aTaskId: taskId,
-                a2aHistory: history,
-              },
+        ? await this.runtime.answerStream(userId, config.askAnswer.questionId, {
+            answers: config.askAnswer.answers,
+          })
+        : await this.runtime.stream(userId, {
+            ...config,
+            prompt,
+            sessionId: config.sessionId,
+            context: {
+              ...config.context,
+              a2aContextId: contextId,
+              a2aTaskId: taskId,
+              a2aHistory: history,
             },
-            controller.signal,
-          );
+          });
       const { askAnswer: _, ...storedConfig } = config;
       const metadata = {
         ...requestContext.task?.metadata,

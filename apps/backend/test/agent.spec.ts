@@ -68,4 +68,13 @@ describe("agent 基础设施", () => {
     expect(parsed.contextOptions.chapter.selection).toEqual({ start: 120, end: 260 });
     expect(parsed.contextOptions.blocks[0]?.priority).toBe(70);
   });
+
+  it("接受可选 requestId 用于幂等流", () => {
+    const parsed = runAgent.parse({
+      novelId: "00000000-0000-4000-8000-000000000001",
+      prompt: "继续创作下一幕",
+      requestId: "00000000-0000-4000-8000-000000000099",
+    });
+    expect(parsed.requestId).toBe("00000000-0000-4000-8000-000000000099");
+  });
 });

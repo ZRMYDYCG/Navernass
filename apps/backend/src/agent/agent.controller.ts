@@ -35,6 +35,7 @@ import {
   CreateProviderDto,
   DismissQuestionDto,
   PreviewContextDto,
+  RetryRunDto,
   RunAgentDto,
   SaveMemoryDto,
   SearchMemoryDto,
@@ -51,10 +52,18 @@ import { ModelService } from "./model.service.js";
 import { ProviderService } from "./provider.service.js";
 import { QuestionService } from "./question.service.js";
 import { RuntimeService } from "./runtime.service.js";
+import { StreamService } from "./stream.service.js";
 import { TraceService } from "./trace.service.js";
 import { VectorService } from "./vector.service.js";
 
 const idParam = z.object({ id: z.uuid() });
+
+type AgentStreamResult = {
+  stream: ReadableStream;
+  runId: string;
+  sessionId: string;
+  replayed?: boolean;
+};
 
 @Controller("agent")
 @ApiTags("Agent 基础设施")
@@ -67,6 +76,7 @@ export class AgentController {
     @Inject(ChatService) private readonly chats: ChatService,
     @Inject(ContextService) private readonly contexts: ContextService,
     @Inject(QuestionService) private readonly questions: QuestionService,
+    @Inject(StreamService) private readonly streams: StreamService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(VectorService) private readonly vectors: VectorService,
   ) {}
@@ -104,6 +114,13 @@ export class AgentController {
         toolRetries: "idempotent-read-tools-only",
         writeToolRetries: false,
         errorEnvelope: true,
+        resumableStreams: {
+          requestId: true,
+          persist: "agent_stream_events",
+          replay: "GET /agent/runs/:id/stream?after=",
+          retry: "POST /agent/runs/:id/retry/stream",
+          headers: ["x-run-id", "x-session-id", "x-stream-replayed", "x-stream-sequence"],
+        },
       },
       contextInjection: {
         version: "2.0",
@@ -142,22 +159,18 @@ export class AgentController {
   @ApiProduces("text/event-stream")
   @ApiStreamDoc(
     "回答 AskUser 并恢复 Agent",
-    "答案作为官方 tool-result 注入原执行断点，继续返回 Vercel AI SDK UI Message Stream；答案不会写成普通用户聊天消息。",
+    "答案作为官方 tool-result 注入原执行断点，继续返回 Vercel AI SDK UI Message Stream；答案不会写成普通用户聊天消息。刷新后可用同一 runId 重放。",
   )
   @ApiUuidParam("id", "Agent 提问 UUID")
   @ApiZodBody(AnswerQuestionDto)
   async answerQuestion(
     @CurrentUser() user: AuthUser,
-    @Req() request: Request,
     @Res() response: Response,
     @Param(new ZodPipe(idParam)) params: { id: string },
     @Body(new ZodPipe(schema.answerQuestion)) body: schema.AnswerQuestion,
   ) {
-    const controller = new AbortController();
-    request.once("aborted", () => controller.abort());
-    response.once("close", () => controller.abort());
-    const result = await this.runtime.answerStream(user.id, params.id, body, controller.signal);
-    await pipeUIMessageStreamToResponse({ response, stream: result.stream });
+    const result = await this.runtime.answerStream(user.id, params.id, body);
+    await this.pipeAgentStream(response, result);
   }
 
   @Post("questions/:id/dismiss")
@@ -278,20 +291,62 @@ export class AgentController {
   @ApiProduces("text/event-stream")
   @ApiStreamDoc(
     "流式执行主 Agent 或指定 Subagent",
-    "原样返回 Vercel AI SDK UI Message Stream v1，可直接由 AI SDK UI 客户端消费，包含文本、步骤、工具参数与工具结果。",
+    "原样返回 Vercel AI SDK UI Message Stream v1；事件会持久化。传入 requestId 可幂等重放；刷新后用 GET /agent/runs/:id/stream?after= 续读。",
   )
   @ApiZodBody(RunAgentDto)
   async stream(
     @CurrentUser() user: AuthUser,
-    @Req() request: Request,
     @Res() response: Response,
     @Body(new ZodPipe(schema.runAgent)) body: schema.RunAgent,
   ) {
-    const controller = new AbortController();
-    request.once("aborted", () => controller.abort());
-    response.once("close", () => controller.abort());
-    const result = await this.runtime.stream(user.id, body, controller.signal);
-    await pipeUIMessageStreamToResponse({ response, stream: result.stream });
+    const result = await this.runtime.stream(user.id, body);
+    await this.pipeAgentStream(response, result);
+  }
+
+  @Get("runs/:id/stream")
+  @LongTask()
+  @RawResponse()
+  @ApiProduces("text/event-stream")
+  @ApiStreamDoc(
+    "重放或续读可恢复流",
+    "按 sequence 游标 after 重放已持久化的 UIMessageChunk；Run 仍在 running 时会继续等待新事件。",
+  )
+  @ApiUuidParam("id", "执行记录 UUID")
+  @ApiQuery({
+    name: "after",
+    required: false,
+    type: Number,
+    description: "已消费的最大 sequence，默认 0 表示从头重放",
+  })
+  async replayStream(
+    @CurrentUser() user: AuthUser,
+    @Res() response: Response,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+    @Query(new ZodPipe(schema.replayStream)) query: schema.ReplayStream,
+  ) {
+    const result = await this.runtime.replayStream(user.id, params.id, query.after);
+    await this.pipeAgentStream(response, result);
+  }
+
+  @Post("runs/:id/retry/stream")
+  @HttpCode(200)
+  @LongTask()
+  @RawResponse()
+  @ApiProduces("text/event-stream")
+  @ApiStreamDoc(
+    "从失败或已取消的 Run 创建可追踪重试",
+    "使用原 request_snapshot 新建 Run（retry_of_id 指向原执行），不会重复写入用户消息；可传新的 requestId 做幂等。",
+  )
+  @ApiUuidParam("id", "原执行记录 UUID")
+  @ApiZodBody(RetryRunDto)
+  async retryStream(
+    @CurrentUser() user: AuthUser,
+    @Res() response: Response,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+    @Body(new ZodPipe(schema.retryRun)) body: schema.RetryRun,
+  ) {
+    const result = await this.runtime.retryStream(user.id, params.id, body.requestId);
+    await this.pipeAgentStream(response, result);
   }
 
   @Post("runs/structured")
@@ -414,7 +469,8 @@ export class AgentController {
   async getRun(@CurrentUser() user: AuthUser, @Param(new ZodPipe(idParam)) params: { id: string }) {
     const run = await this.traces.getRun(user.id, params.id);
     if (!run) throw AppError.notFound("AGENT_RUN_NOT_FOUND", "Agent 执行记录");
-    return run;
+    const streamSequence = await this.streams.latestSequence(run.id);
+    return { ...run, streamSequence };
   }
 
   @Post("memories")
@@ -459,5 +515,19 @@ export class AgentController {
   @ApiDoc({ summary: "检查当前向量库连接", type: ResourceResult })
   vectorHealth() {
     return this.vectors.health();
+  }
+
+  private async pipeAgentStream(response: Response, result: AgentStreamResult) {
+    const streamSequence = await this.streams.latestSequence(result.runId);
+    await pipeUIMessageStreamToResponse({
+      response,
+      stream: result.stream,
+      headers: {
+        "x-run-id": result.runId,
+        "x-session-id": result.sessionId,
+        "x-stream-replayed": result.replayed ? "1" : "0",
+        "x-stream-sequence": String(streamSequence),
+      },
+    });
   }
 }
