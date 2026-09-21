@@ -33,6 +33,7 @@ export const envSchema = z.object({
   AGENT_MAX_RETRIES: z.coerce.number().int().min(0).max(10).default(2),
   AGENT_RETRY_BASE_MS: z.coerce.number().int().min(50).max(10_000).default(500),
   AGENT_RETRY_MAX_MS: z.coerce.number().int().min(500).max(60_000).default(10_000),
+  AGENT_CONTEXT_MAX_CHARS: z.coerce.number().int().min(2_000).max(500_000).default(120_000),
   QDRANT_URL: z.url().default("http://localhost:6333"),
   QDRANT_API_KEY: z.string().optional(),
   QDRANT_COLLECTION: z.string().min(1).default("narraverse_memory"),

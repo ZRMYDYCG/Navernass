@@ -31,7 +31,10 @@ import {
 } from "../openapi/api-doc.js";
 import { MutationResult, ResourceResult } from "../openapi/api-model.js";
 import {
+  AnswerQuestionDto,
   CreateProviderDto,
+  DismissQuestionDto,
+  PreviewContextDto,
   RunAgentDto,
   SaveMemoryDto,
   SearchMemoryDto,
@@ -42,9 +45,11 @@ import {
 } from "./agent.dto.js";
 import * as schema from "./agent.schema.js";
 import { ChatService } from "./chat.service.js";
+import { ContextService } from "./context.service.js";
 import { MemoryService } from "./memory.service.js";
 import { ModelService } from "./model.service.js";
 import { ProviderService } from "./provider.service.js";
+import { QuestionService } from "./question.service.js";
 import { RuntimeService } from "./runtime.service.js";
 import { TraceService } from "./trace.service.js";
 import { VectorService } from "./vector.service.js";
@@ -60,6 +65,8 @@ export class AgentController {
     @Inject(RuntimeService) private readonly runtime: RuntimeService,
     @Inject(MemoryService) private readonly memories: MemoryService,
     @Inject(ChatService) private readonly chats: ChatService,
+    @Inject(ContextService) private readonly contexts: ContextService,
+    @Inject(QuestionService) private readonly questions: QuestionService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(VectorService) private readonly vectors: VectorService,
   ) {}
@@ -73,6 +80,7 @@ export class AgentController {
       transports: ["rest", "ai-sdk-ui-message-stream-v1"],
       roles: schema.agentRole.options,
       tools: [
+        "askUser",
         "getNovelSnapshot",
         "getChapter",
         "readArticle",
@@ -97,6 +105,97 @@ export class AgentController {
         writeToolRetries: false,
         errorEnvelope: true,
       },
+      contextInjection: {
+        version: "2.0",
+        sources: schema.contextSource.options,
+        strategies: ["priority", "balanced"],
+        features: ["budget", "deduplication", "role-scope", "trust-level", "editor-selection"],
+      },
+      humanInTheLoop: {
+        tool: "askUser",
+        runState: "waiting_input",
+        placement: "composer-overlay",
+        visibleInChatHistory: false,
+        resumeTransport: "ai-sdk-ui-message-stream-v1",
+      },
+    };
+  }
+
+  @Get("sessions/:id/question")
+  @ApiDoc({
+    summary: "查询会话当前待回答问题",
+    description: "用于页面刷新后恢复输入框上方的 AskUser 面板；没有待回答问题时返回 null。",
+    type: ResourceResult,
+  })
+  @ApiUuidParam("id", "聊天会话 UUID")
+  pendingQuestion(
+    @CurrentUser() user: AuthUser,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+  ) {
+    return this.questions.pending(user.id, params.id);
+  }
+
+  @Post("questions/:id/answer/stream")
+  @HttpCode(200)
+  @LongTask()
+  @RawResponse()
+  @ApiProduces("text/event-stream")
+  @ApiStreamDoc(
+    "回答 AskUser 并恢复 Agent",
+    "答案作为官方 tool-result 注入原执行断点，继续返回 Vercel AI SDK UI Message Stream；答案不会写成普通用户聊天消息。",
+  )
+  @ApiUuidParam("id", "Agent 提问 UUID")
+  @ApiZodBody(AnswerQuestionDto)
+  async answerQuestion(
+    @CurrentUser() user: AuthUser,
+    @Req() request: Request,
+    @Res() response: Response,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+    @Body(new ZodPipe(schema.answerQuestion)) body: schema.AnswerQuestion,
+  ) {
+    const controller = new AbortController();
+    request.once("aborted", () => controller.abort());
+    response.once("close", () => controller.abort());
+    const result = await this.runtime.answerStream(user.id, params.id, body, controller.signal);
+    await pipeUIMessageStreamToResponse({ response, stream: result.stream });
+  }
+
+  @Post("questions/:id/dismiss")
+  @HttpCode(200)
+  @ApiDoc({
+    summary: "取消待回答问题并结束当前执行",
+    type: MutationResult,
+  })
+  @ApiUuidParam("id", "Agent 提问 UUID")
+  @ApiZodBody(DismissQuestionDto)
+  dismissQuestion(
+    @CurrentUser() user: AuthUser,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+    @Body(new ZodPipe(schema.dismissQuestion)) body: schema.DismissQuestion,
+  ) {
+    return this.questions.dismiss(user.id, params.id, body);
+  }
+
+  @Post("context/preview")
+  @HttpCode(200)
+  @ApiDoc({
+    summary: "预览本次 Agent 上下文注入结果",
+    description:
+      "只装配上下文而不调用模型。返回实际入选的上下文块、优先级、信任级别、字符预算、截断与丢弃统计；可选返回最终提示词。",
+    type: ResourceResult,
+  })
+  @ApiZodBody(PreviewContextDto)
+  async previewContext(
+    @CurrentUser() user: AuthUser,
+    @Body(new ZodPipe(schema.previewContext)) body: schema.PreviewContext,
+  ) {
+    const history = body.sessionId
+      ? await this.chats.promptHistory(user.id, body.sessionId, 20, body.novelId)
+      : "";
+    const snapshot = await this.contexts.build(user.id, body, { history });
+    return {
+      snapshot,
+      rendered: body.includeRendered ? this.contexts.toPrompt(snapshot) : undefined,
     };
   }
 
@@ -221,7 +320,7 @@ export class AgentController {
   @ApiQuery({
     name: "status",
     required: false,
-    enum: ["queued", "running", "completed", "failed", "cancelled"],
+    enum: ["queued", "running", "waiting_input", "completed", "failed", "cancelled"],
   })
   async listRuns(
     @CurrentUser() user: AuthUser,

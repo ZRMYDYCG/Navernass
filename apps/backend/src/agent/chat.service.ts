@@ -34,16 +34,42 @@ export class ChatService {
     return this.save("assistant", input);
   }
 
-  async promptHistory(userId: string, sessionId: string, limit = 20) {
-    const messages = await this.prisma.agentMessage.findMany({
-      where: { session_id: sessionId, user_id: userId },
-      orderBy: [{ created_at: "desc" }, { id: "desc" }],
-      take: limit,
-      select: { role: true, content: true },
-    });
-    return messages
-      .reverse()
-      .map((message) => `${this.roleLabel(message.role)}：${message.content}`)
+  async promptHistory(userId: string, sessionId: string, limit = 20, novelId?: string) {
+    if (novelId) {
+      const session = await this.requireSession(userId, sessionId);
+      if (session.novel_id !== novelId)
+        throw AppError.notFound("AGENT_SESSION_NOT_FOUND", "Agent 会话");
+    }
+    const [messages, questions] = await Promise.all([
+      this.prisma.agentMessage.findMany({
+        where: { session_id: sessionId, user_id: userId },
+        orderBy: [{ created_at: "desc" }, { id: "desc" }],
+        take: limit,
+        select: { role: true, content: true, created_at: true },
+      }),
+      this.prisma.agentQuestion.findMany({
+        where: { session_id: sessionId, user_id: userId, status: "answered" },
+        orderBy: { answered_at: "desc" },
+        take: limit,
+        select: { question: true, answer: true, created_at: true, answered_at: true },
+      }),
+    ]);
+    return [
+      ...messages.map((message) => ({
+        at: message.created_at,
+        text: `${this.roleLabel(message.role)}：${message.content}`,
+      })),
+      ...questions.map((question) => ({
+        at: question.answered_at ?? question.created_at,
+        text: `用户对 Agent 主动提问的决定：${JSON.stringify({
+          question: question.question,
+          answer: question.answer,
+        })}`,
+      })),
+    ]
+      .sort((left, right) => left.at.getTime() - right.at.getTime())
+      .slice(-limit)
+      .map((event) => event.text)
       .join("\n\n");
   }
 

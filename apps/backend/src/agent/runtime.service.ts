@@ -1,6 +1,8 @@
 import type { EnvConfig } from "../config/env-schema.js";
 import type { Prisma } from "../generated/prisma/client.js";
-import type { RunAgent, StructuredAgent } from "./agent.schema.js";
+import type { ModelMessage } from "ai";
+import type { AnswerQuestion, RunAgent, StructuredAgent } from "./agent.schema.js";
+import type { ContextSnapshot } from "./context.service.js";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { generateText, Output, stepCountIs, ToolLoopAgent, toUIMessageStream } from "ai";
@@ -12,7 +14,8 @@ import { ChatService } from "./chat.service.js";
 import { ContextService } from "./context.service.js";
 import { AgentErrorService } from "./error.service.js";
 import { ModelService } from "./model.service.js";
-import { rolePrompts } from "./prompt.js";
+import { interactionPrompt, rolePrompts } from "./prompt.js";
+import { QuestionService } from "./question.service.js";
 import { ToolService } from "./tool.service.js";
 import { TraceService } from "./trace.service.js";
 
@@ -70,6 +73,8 @@ export interface StructuredResult {
   output: unknown;
   usage: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
   skillIds: string[];
+  contextBudget: Awaited<ReturnType<ContextService["build"]>>["budget"];
+  contextWarnings: string[];
 }
 
 @Injectable()
@@ -86,6 +91,7 @@ export class RuntimeService {
     @Inject(ChatService) private readonly chats: ChatService,
     @Inject(ToolService) private readonly tools: ToolService,
     @Inject(TraceService) private readonly traces: TraceService,
+    @Inject(QuestionService) private readonly questions: QuestionService,
     @Inject(SkillResolver) private readonly skills: SkillResolver,
     @Inject(AgentErrorService) private readonly errors: AgentErrorService,
   ) {
@@ -95,7 +101,7 @@ export class RuntimeService {
   }
 
   async generate(userId: string, input: RunAgent, signal?: AbortSignal): Promise<AgentResult> {
-    const execution = await this.prepare(userId, input);
+    const execution = await this.prepare(userId, input, false);
     const started = Date.now();
     await this.traces.startRun(execution.run.id);
     let stepIndex = 0;
@@ -128,7 +134,10 @@ export class RuntimeService {
         usage: result.totalUsage,
         finishReason: result.finishReason,
         steps: result.steps.length,
-        warnings: (result.warnings ?? []).map((warning) => JSON.stringify(warning)),
+        warnings: [
+          ...execution.context.warnings,
+          ...(result.warnings ?? []).map((warning) => JSON.stringify(warning)),
+        ],
         skillIds: execution.skillSet.ids,
       };
     } catch (error) {
@@ -139,68 +148,48 @@ export class RuntimeService {
   }
 
   async stream(userId: string, input: RunAgent, signal?: AbortSignal) {
-    const execution = await this.prepare(userId, input);
-    const started = Date.now();
+    const execution = await this.prepare(userId, input, true);
     await this.traces.startRun(execution.run.id);
-    let stepIndex = 0;
+    return this.streamExecution(
+      execution,
+      { prompt: input.prompt },
+      [{ role: "user", content: input.prompt }],
+      signal,
+    );
+  }
+
+  async answerStream(
+    userId: string,
+    questionId: string,
+    answer: AnswerQuestion,
+    signal?: AbortSignal,
+  ) {
+    const claimed = await this.questions.claim(userId, questionId, answer);
     try {
-      const result = await execution.agent.stream({
-        prompt: input.prompt,
-        abortSignal: this.signal(signal),
-        onStepFinish: async (event) => {
-          await this.traces.saveStep(execution.run.id, stepIndex++, event);
+      const execution = await this.resumeExecution(userId, claimed);
+      await this.traces.resumeRun(execution.run.id);
+      const messages = [
+        ...(claimed.model_messages as unknown as ModelMessage[]),
+        {
+          role: "tool" as const,
+          content: [
+            {
+              type: "tool-result" as const,
+              toolCallId: claimed.tool_call_id,
+              toolName: "askUser",
+              output: { type: "json" as const, value: { answers: answer.answers } },
+            },
+          ],
         },
+      ];
+      return await this.streamExecution(execution, { messages }, messages, signal, {
+        id: claimed.id,
+        answers: answer.answers,
       });
-      const stream = toUIMessageStream({
-        stream: result.fullStream,
-        tools: execution.tools,
-        sendReasoning: false,
-        sendSources: true,
-        messageMetadata: () => ({
-          runId: execution.run.id,
-          sessionId: execution.session.id,
-          skillIds: execution.skillSet.ids,
-        }),
-        onError: (error) => {
-          const failure = this.errors.classify(error);
-          return `${failure.code}: ${failure.message}（runId: ${execution.run.id}）`;
-        },
-        onEnd: async ({ outcome, finishReason, responseMessage }) => {
-          if (outcome.status === "aborted") {
-            await this.traces.cancelRun(execution.run.id, Date.now() - started);
-            return;
-          }
-          if (outcome.status === "failed") {
-            await this.traces.failRun(
-              execution.run.id,
-              this.errors.toAppError(outcome.error),
-              Date.now() - started,
-            );
-            return;
-          }
-          const [usage, text] = await Promise.all([result.totalUsage, result.text]);
-          await this.chats.saveAssistant({
-            ...execution.messageContext,
-            remoteId: responseMessage.id,
-            content: text,
-            parts: responseMessage.parts,
-            metadata: { finishReason, usage, aiSdkMessageId: responseMessage.id },
-          });
-          await this.traces.finishRun(execution.run.id, {
-            output: text,
-            inputTokens: usage.inputTokens ?? 0,
-            outputTokens: usage.outputTokens ?? 0,
-            totalTokens: usage.totalTokens ?? 0,
-            finishReason,
-            latencyMs: Date.now() - started,
-          });
-        },
-      });
-      return { stream, runId: execution.run.id, sessionId: execution.session.id };
     } catch (error) {
-      const failure = this.errors.toAppError(error);
-      await this.traces.failRun(execution.run.id, failure, Date.now() - started);
-      throw failure;
+      await this.questions.release(questionId);
+      await this.questions.rollbackNewQuestions(claimed.run_id, questionId);
+      throw error;
     }
   }
 
@@ -209,7 +198,7 @@ export class RuntimeService {
     input: StructuredAgent,
     signal?: AbortSignal,
   ): Promise<StructuredResult> {
-    const execution = await this.prepare(userId, input);
+    const execution = await this.prepare(userId, input, false);
     const started = Date.now();
     await this.traces.startRun(execution.run.id);
     let stepIndex = 0;
@@ -274,6 +263,8 @@ export class RuntimeService {
         output: result.output,
         usage: result.totalUsage,
         skillIds: execution.skillSet.ids,
+        contextBudget: execution.context.budget,
+        contextWarnings: execution.context.warnings,
       };
     } catch (error) {
       const failure = this.errors.toAppError(error);
@@ -282,8 +273,234 @@ export class RuntimeService {
     }
   }
 
-  private async prepare(userId: string, input: RunAgent) {
-    const { model, provider } = await this.models.language(userId, input.providerId);
+  private async streamExecution(
+    execution: Awaited<ReturnType<RuntimeService["prepare"]>>,
+    call: { prompt: string } | { messages: ModelMessage[] },
+    prefixMessages: ModelMessage[],
+    signal?: AbortSignal,
+    answering?: { id: string; answers: AnswerQuestion["answers"] },
+  ) {
+    const started = Date.now();
+    let stepIndex = await this.traces.nextStepIndex(execution.run.id);
+    const onStepFinish: NonNullable<
+      Parameters<typeof execution.agent.stream>[0]["onStepFinish"]
+    > = async (event) => {
+      await this.traces.saveStep(execution.run.id, stepIndex++, event);
+      await this.captureQuestion(execution, event.toolCalls);
+    };
+    try {
+      const result =
+        "messages" in call
+          ? await execution.agent.stream({
+              messages: call.messages,
+              abortSignal: this.signal(signal),
+              onStepFinish,
+            })
+          : await execution.agent.stream({
+              prompt: call.prompt,
+              abortSignal: this.signal(signal),
+              onStepFinish,
+            });
+      const stream = toUIMessageStream({
+        stream: result.fullStream,
+        tools: execution.tools,
+        sendReasoning: false,
+        sendSources: true,
+        messageMetadata: () => ({
+          runId: execution.run.id,
+          sessionId: execution.session.id,
+          skillIds: execution.skillSet.ids,
+          contextBudget: execution.context.budget,
+          contextWarnings: execution.context.warnings,
+        }),
+        onError: (error) => {
+          const failure = this.errors.classify(error);
+          return `${failure.code}: ${failure.message}（runId: ${execution.run.id}）`;
+        },
+        onEnd: async ({ outcome, finishReason, responseMessage }) => {
+          if (outcome.status === "aborted") {
+            if (answering) {
+              await this.questions.release(answering.id);
+              await this.questions.rollbackNewQuestions(execution.run.id, answering.id);
+            }
+            await this.traces.cancelRun(execution.run.id, Date.now() - started);
+            return;
+          }
+          if (outcome.status === "failed") {
+            if (answering) {
+              await this.questions.release(answering.id);
+              await this.questions.rollbackNewQuestions(execution.run.id, answering.id);
+            }
+            await this.traces.failRun(
+              execution.run.id,
+              this.errors.toAppError(outcome.error),
+              Date.now() - started,
+            );
+            return;
+          }
+          const [usage, text, responseMessages, toolCalls] = await Promise.all([
+            result.totalUsage,
+            result.text,
+            result.responseMessages,
+            result.toolCalls,
+          ]);
+          const askCall = this.findAskCall(toolCalls);
+          if (askCall) await this.captureQuestion(execution, [askCall]);
+          const modelMessages = [...prefixMessages, ...responseMessages] as ModelMessage[];
+          if (askCall) await this.questions.checkpoint(execution.run.id, modelMessages);
+
+          const visibleParts = responseMessage.parts.filter((part) => part.type !== "tool-askUser");
+          if (text.trim() || visibleParts.some((part) => part.type !== "step-start")) {
+            await this.chats.saveAssistant({
+              ...execution.messageContext,
+              remoteId: responseMessage.id,
+              content: text,
+              parts: visibleParts,
+              metadata: { finishReason, usage, aiSdkMessageId: responseMessage.id },
+            });
+          }
+          if (answering) await this.questions.complete(answering.id, answering.answers);
+          const output = [execution.run.output, text].filter(Boolean).join("\n\n");
+          if (askCall) {
+            await this.traces.waitForInput(execution.run.id, {
+              output,
+              inputTokens: usage.inputTokens ?? 0,
+              outputTokens: usage.outputTokens ?? 0,
+              totalTokens: usage.totalTokens ?? 0,
+              latencyMs: Date.now() - started,
+            });
+          } else {
+            await this.traces.finishRun(execution.run.id, {
+              output,
+              inputTokens: usage.inputTokens ?? 0,
+              outputTokens: usage.outputTokens ?? 0,
+              totalTokens: usage.totalTokens ?? 0,
+              finishReason,
+              latencyMs: Date.now() - started,
+            });
+          }
+        },
+      });
+      return { stream, runId: execution.run.id, sessionId: execution.session.id };
+    } catch (error) {
+      if (answering) {
+        await this.questions.release(answering.id);
+        await this.questions.rollbackNewQuestions(execution.run.id, answering.id);
+      }
+      const failure = this.errors.toAppError(error);
+      await this.traces.failRun(execution.run.id, failure, Date.now() - started);
+      throw failure;
+    }
+  }
+
+  private async captureQuestion(
+    execution: Awaited<ReturnType<RuntimeService["prepare"]>>,
+    calls: readonly unknown[] | undefined,
+  ) {
+    const call = this.findAskCall(calls ?? []);
+    if (!call) return;
+    await this.questions.capture({
+      userId: execution.messageContext.userId,
+      sessionId: execution.session.id,
+      runId: execution.run.id,
+      novelId: execution.input.novelId,
+      chapterId: execution.input.chapterId,
+      toolCallId: call.toolCallId,
+      question: call.input,
+      resumeConfig: execution.input,
+      instructions: execution.instructions,
+    });
+    await this.traces.saveTool(execution.run.id, {
+      id: call.toolCallId,
+      name: "askUser",
+      input: call.input,
+      status: "waiting_input",
+      durationMs: 0,
+    });
+  }
+
+  private findAskCall(calls: readonly unknown[]) {
+    for (const value of calls) {
+      if (
+        value &&
+        typeof value === "object" &&
+        "toolName" in value &&
+        value.toolName === "askUser" &&
+        "toolCallId" in value &&
+        typeof value.toolCallId === "string" &&
+        "input" in value
+      ) {
+        return {
+          toolCallId: value.toolCallId,
+          input: value.input,
+        };
+      }
+    }
+    return undefined;
+  }
+
+  private async resumeExecution(
+    userId: string,
+    claimed: Awaited<ReturnType<QuestionService["claim"]>>,
+  ): Promise<Awaited<ReturnType<RuntimeService["prepare"]>>> {
+    const { model, provider } = await this.models.language(userId, claimed.run.provider_id);
+    const input = { ...claimed.config, providerId: provider.id };
+    const context = claimed.run.context_snapshot as unknown as ContextSnapshot;
+    const contextText = this.contexts.toPrompt(context);
+    const tools = this.tools.build(
+      { runId: claimed.run.id, userId, input, model, contextText },
+      input.mode,
+      { allowAskUser: true },
+    );
+    const settings = this.generationSettings(provider.settings);
+    const stopWhen = stepCountIs(input.maxSteps ?? this.maxSteps);
+    const agent = new ToolLoopAgent({
+      id: `narraverse-${input.role}`,
+      model,
+      instructions: claimed.instructions,
+      tools,
+      stopWhen,
+      maxRetries: this.maxRetries,
+      ...settings,
+      temperature: input.temperature ?? settings.temperature,
+    });
+    const skillIds = Array.isArray(claimed.run.skill_ids)
+      ? claimed.run.skill_ids.filter((id): id is string => typeof id === "string")
+      : [];
+    return {
+      agent,
+      tools,
+      run: claimed.run,
+      session: claimed.session,
+      messageContext: {
+        sessionId: claimed.session.id,
+        runId: claimed.run.id,
+        userId,
+        novelId: claimed.run.novel_id,
+        chapterId: claimed.run.chapter_id ?? undefined,
+      },
+      skillSet: {
+        ids: skillIds,
+        prompt: "",
+        requestedTools: [],
+        snapshot: claimed.run.skill_snapshot ?? [],
+      },
+      context,
+      input,
+      instructions: claimed.instructions,
+      structuredOptions: {
+        model,
+        instructions: claimed.instructions,
+        tools,
+        stopWhen,
+        maxRetries: this.maxRetries,
+        ...settings,
+        temperature: input.temperature ?? settings.temperature,
+      },
+    };
+  }
+
+  private async prepare(userId: string, input: RunAgent, allowAskUser: boolean) {
     const currentSession = input.sessionId
       ? await this.prisma.agentSession.findFirst({
           where: { id: input.sessionId, user_id: userId, novel_id: input.novelId },
@@ -291,6 +508,9 @@ export class RuntimeService {
       : null;
     if (input.sessionId && !currentSession)
       throw AppError.notFound("AGENT_SESSION_NOT_FOUND", "Agent 会话");
+    if (currentSession) await this.questions.assertNoPending(userId, currentSession.id);
+    const { model, provider } = await this.models.language(userId, input.providerId);
+    const resolvedInput = { ...input, providerId: provider.id };
     const history = currentSession ? await this.chats.promptHistory(userId, currentSession.id) : "";
     const skillSet = await this.skills.resolve({
       userId,
@@ -299,14 +519,18 @@ export class RuntimeService {
       text: input.prompt,
       skillIds: input.skillIds,
     });
-    const context = await this.contexts.build(userId, { ...input, providerId: provider.id });
+    const context = await this.contexts.build(userId, resolvedInput, { history });
+    const sessionContext = {
+      values: input.context,
+      options: input.contextOptions,
+    } as Prisma.InputJsonValue;
     const session = currentSession
       ? await this.prisma.agentSession.update({
           where: { id: currentSession.id },
           data: {
             chapter_id: input.chapterId,
             provider_id: provider.id,
-            context: input.context as Prisma.InputJsonValue,
+            context: sessionContext,
           },
         })
       : await this.prisma.agentSession.create({
@@ -316,7 +540,7 @@ export class RuntimeService {
             chapter_id: input.chapterId,
             provider_id: provider.id,
             title: input.prompt.slice(0, 100),
-            context: input.context as Prisma.InputJsonValue,
+            context: sessionContext,
           },
         });
     const run = await this.traces.createRun({
@@ -351,14 +575,13 @@ export class RuntimeService {
     });
     const contextText = this.contexts.toPrompt(context);
     const tools = this.tools.build(
-      { runId: run.id, userId, input: { ...input, providerId: provider.id }, model, contextText },
+      { runId: run.id, userId, input: resolvedInput, model, contextText },
       input.mode,
+      { allowAskUser },
     );
-    const historyText = history
-      ? `\n\n以下是同一本小说当前会话的最近聊天记录，请延续其中的目标、约定和上下文：\n${history}`
-      : "";
     const skillText = skillSet.prompt ? `\n\n${skillSet.prompt}` : "";
-    const instructions = `${rolePrompts[input.role]}${skillText}\n\n${contextText}${historyText}`;
+    const interactionText = allowAskUser ? `\n\n${interactionPrompt}` : "";
+    const instructions = `${rolePrompts[input.role]}${interactionText}${skillText}\n\n${contextText}`;
     const stopWhen = stepCountIs(input.maxSteps ?? this.maxSteps);
     const settings = this.generationSettings(provider.settings);
     const agent = new ToolLoopAgent({
@@ -378,6 +601,9 @@ export class RuntimeService {
       session,
       messageContext,
       skillSet,
+      context,
+      input: resolvedInput,
+      instructions,
       structuredOptions: {
         model,
         instructions,

@@ -17,6 +17,42 @@ export class TraceService {
     });
   }
 
+  waitForInput(
+    id: string,
+    data: {
+      output: string;
+      inputTokens: number;
+      outputTokens: number;
+      totalTokens: number;
+      latencyMs: number;
+    },
+  ) {
+    return this.prisma.agentRun.update({
+      where: { id },
+      data: {
+        status: "waiting_input",
+        output: data.output,
+        input_tokens: { increment: data.inputTokens },
+        output_tokens: { increment: data.outputTokens },
+        total_tokens: { increment: data.totalTokens },
+        finish_reason: "input-required",
+        latency_ms: data.latencyMs,
+        completed_at: null,
+      },
+    });
+  }
+
+  resumeRun(id: string) {
+    return this.prisma.agentRun.update({
+      where: { id },
+      data: { status: "running", finish_reason: null, completed_at: null },
+    });
+  }
+
+  nextStepIndex(runId: string) {
+    return this.prisma.agentStep.count({ where: { run_id: runId } });
+  }
+
   finishRun(
     id: string,
     data: {

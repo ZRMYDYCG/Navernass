@@ -12,17 +12,17 @@ Narraverse 业务后端与小说创作 **Agent 基础设施**。
 
 设计目标：**开放、可扩展、可观测** — 让 AI 有记忆、懂世界、能持续创作。
 
-| 层级 | 职责 |
-| --- | --- |
-| 用户层 | Web、App/小程序、开发者、其他 Agent；HTTPS / WebSocket |
-| Agent-native 接口层 | REST（人机）、SSE/WebSocket（流式）、Agent Protocol / A2A（机机） |
-| 模型层 | OpenAI / Anthropic / Google / DeepSeek / 通义 / 智谱 / 自定义 baseURL；多模型路由与降级 |
-| Agent 运行时 | 主 Agent（规划 / 路由 / 编排）+ 角色 / 剧情 / 世界观 / 润色 / 校验等子 Agent |
-| Skill 运行时 | 三级渐进加载：索引常驻 → 命中加载 `SKILL.md` → 按需加载资源 |
-| 能力工具层 | 角色、设定、剧情、记忆、检索、校验等原子工具 |
-| 生成与 RAG | `generateText` / `streamText` / 结构化输出；章节 / 角色 / 剧情检索与重排 |
-| 记忆层 | MySQL 结构记忆 + Qdrant 语义记忆 |
-| 上下文 / 可观测 | 业务与运行时上下文；链路追踪、Token、工具调用与错误日志 |
+| 层级                | 职责                                                                                    |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| 用户层              | Web、App/小程序、开发者、其他 Agent；HTTPS / WebSocket                                  |
+| Agent-native 接口层 | REST（人机）、SSE/WebSocket（流式）、Agent Protocol / A2A（机机）                       |
+| 模型层              | OpenAI / Anthropic / Google / DeepSeek / 通义 / 智谱 / 自定义 baseURL；多模型路由与降级 |
+| Agent 运行时        | 主 Agent（规划 / 路由 / 编排）+ 角色 / 剧情 / 世界观 / 润色 / 校验等子 Agent            |
+| Skill 运行时        | 三级渐进加载：索引常驻 → 命中加载 `SKILL.md` → 按需加载资源                             |
+| 能力工具层          | 角色、设定、剧情、记忆、检索、校验等原子工具                                            |
+| 生成与 RAG          | `generateText` / `streamText` / 结构化输出；章节 / 角色 / 剧情检索与重排                |
+| 记忆层              | MySQL 结构记忆 + Qdrant 语义记忆                                                        |
+| 上下文 / 可观测     | 业务与运行时上下文；链路追踪、Token、工具调用与错误日志                                 |
 
 ## 技术栈
 
@@ -97,13 +97,13 @@ pnpm --filter @narraverse/backend dev
 
 默认监听 `http://localhost:3001`，API 前缀 `api/v1`。
 
-| 入口 | 地址 |
-| --- | --- |
-| API 文档 | http://localhost:3001/api/v1/docs |
-| OpenAPI JSON | http://localhost:3001/api/v1/openapi.json |
-| Agent Card | http://localhost:3001/.well-known/agent-card.json |
-| A2A | http://localhost:3001/api/v1/a2a |
-| Health | 见 `/api/v1` 下 health 模块路由 |
+| 入口         | 地址                                              |
+| ------------ | ------------------------------------------------- |
+| API 文档     | http://localhost:3001/api/v1/docs                 |
+| OpenAPI JSON | http://localhost:3001/api/v1/openapi.json         |
+| Agent Card   | http://localhost:3001/.well-known/agent-card.json |
+| A2A          | http://localhost:3001/api/v1/a2a                  |
+| Health       | 见 `/api/v1` 下 health 模块路由                   |
 
 ## 常用命令
 
@@ -121,17 +121,17 @@ pnpm format
 
 ## 业务模块
 
-| 模块 | 说明 |
-| --- | --- |
-| 身份认证 | Better Auth 注册 / 登录 / 会话 |
-| 账号与工作台 | 资料与聚合数据 |
-| 作品资料库 | 小说、卷、章节、角色与关系 |
-| 写作规划 | 世界观、大纲、规划文件、时间线 |
-| 内容与社区 | 新闻、调研、待办、留言墙 |
-| 后台管理 | 超管资源管理 |
+| 模块           | 说明                                                          |
+| -------------- | ------------------------------------------------------------- |
+| 身份认证       | Better Auth 注册 / 登录 / 会话                                |
+| 账号与工作台   | 资料与聚合数据                                                |
+| 作品资料库     | 小说、卷、章节、角色与关系                                    |
+| 写作规划       | 世界观、大纲、规划文件、时间线                                |
+| 内容与社区     | 新闻、调研、待办、留言墙                                      |
+| 后台管理       | 超管资源管理                                                  |
 | Agent 基础设施 | Provider 配置、主/子 Agent、工具循环、RAG、语义记忆、执行追踪 |
-| Skill | 市场、安装、自定义 `SKILL.md`、小说绑定与运行时装配 |
-| A2A | Agent Card、消息、流式任务与生命周期 |
+| Skill          | 市场、安装、自定义 `SKILL.md`、小说绑定与运行时装配           |
+| A2A            | Agent Card、消息、流式任务与生命周期                          |
 
 统一业务响应由全局拦截器包装；AI SDK 流式与 A2A 接口遵循各自协议，不强制套同一 envelope。
 
@@ -166,15 +166,15 @@ pnpm format
 
 完整模板见 [`.env.example`](./.env.example)。校验逻辑在 `src/config/env-schema.ts`。
 
-| 变量 | 说明 |
-| --- | --- |
-| `PORT` / `API_PREFIX` | 端口与全局前缀 |
-| `DATABASE_*` / `DATABASE_URL` | MySQL |
-| `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` | 鉴权 |
-| `APP_URL` / `CORS_ORIGINS` | 前端源与 CORS |
-| `AI_CONFIG_SECRET` | Provider 密钥加密主密钥 |
-| `AGENT_MAX_STEPS` / `AGENT_TIMEOUT_MS` | Agent 步数与超时 |
-| `QDRANT_URL` / `QDRANT_COLLECTION` | 向量记忆 |
+| 变量                                     | 说明                    |
+| ---------------------------------------- | ----------------------- |
+| `PORT` / `API_PREFIX`                    | 端口与全局前缀          |
+| `DATABASE_*` / `DATABASE_URL`            | MySQL                   |
+| `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` | 鉴权                    |
+| `APP_URL` / `CORS_ORIGINS`               | 前端源与 CORS           |
+| `AI_CONFIG_SECRET`                       | Provider 密钥加密主密钥 |
+| `AGENT_MAX_STEPS` / `AGENT_TIMEOUT_MS`   | Agent 步数与超时        |
+| `QDRANT_URL` / `QDRANT_COLLECTION`       | 向量记忆                |
 
 ## 设计原则
 

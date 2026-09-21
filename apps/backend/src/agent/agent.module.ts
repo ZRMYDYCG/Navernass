@@ -8,6 +8,7 @@ import { AgentErrorService } from "./error.service.js";
 import { MemoryService } from "./memory.service.js";
 import { ModelService } from "./model.service.js";
 import { ProviderService } from "./provider.service.js";
+import { QuestionService } from "./question.service.js";
 import { RuntimeService } from "./runtime.service.js";
 import { RetryService } from "./retry.service.js";
 import { SecretService } from "./secret.service.js";
@@ -21,6 +22,7 @@ import { VectorService } from "./vector.service.js";
   providers: [
     SecretService,
     ProviderService,
+    QuestionService,
     ModelService,
     VectorService,
     MemoryService,
@@ -32,6 +34,6 @@ import { VectorService } from "./vector.service.js";
     ToolService,
     RuntimeService,
   ],
-  exports: [RuntimeService, MemoryService, ProviderService],
+  exports: [RuntimeService, MemoryService, ProviderService, QuestionService],
 })
 export class AgentModule {}

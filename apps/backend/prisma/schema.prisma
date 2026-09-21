@@ -93,9 +93,18 @@ enum AgentRole {
 enum AgentRunStatus {
   queued
   running
+  waiting_input
   completed
   failed
   cancelled
+}
+
+enum AgentQuestionStatus {
+  pending
+  processing
+  answered
+  dismissed
+  expired
 }
 
 enum MemoryKind {
@@ -153,6 +162,7 @@ model User {
   novel_skills      NovelSkill[]
   chapter_edits     ChapterEdit[]
   chapter_revisions ChapterRevision[]
+  agent_questions   AgentQuestion[]
 
   @@map("auth_users")
 }
@@ -223,23 +233,23 @@ model Profile {
 }
 
 model Novel {
-  id                String           @id @default(uuid()) @db.VarChar(36)
-  user_id           String           @db.VarChar(36)
-  title             String           @db.VarChar(255)
-  description       String?          @db.Text
-  cover             String?          @db.Text
-  category          String?          @db.VarChar(100)
+  id                String            @id @default(uuid()) @db.VarChar(36)
+  user_id           String            @db.VarChar(36)
+  title             String            @db.VarChar(255)
+  description       String?           @db.Text
+  cover             String?           @db.Text
+  category          String?           @db.VarChar(100)
   tags              Json
-  word_count        Int              @default(0)
-  chapter_count     Int              @default(0)
-  status            NovelStatus      @default(draft)
+  word_count        Int               @default(0)
+  chapter_count     Int               @default(0)
+  status            NovelStatus       @default(draft)
   characters        Json
   relationships     Json
-  order_index       Int              @default(0)
-  created_at        DateTime         @default(now()) @db.DateTime(3)
-  updated_at        DateTime         @updatedAt @db.DateTime(3)
-  published_at      DateTime?        @db.DateTime(3)
-  user              User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order_index       Int               @default(0)
+  created_at        DateTime          @default(now()) @db.DateTime(3)
+  updated_at        DateTime          @updatedAt @db.DateTime(3)
+  published_at      DateTime?         @db.DateTime(3)
+  user              User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
   volumes           Volume[]
   chapters          Chapter[]
   worldbook         WorldbookEntry[]
@@ -253,6 +263,7 @@ model Novel {
   novel_skills      NovelSkill[]
   chapter_edits     ChapterEdit[]
   chapter_revisions ChapterRevision[]
+  agent_questions   AgentQuestion[]
 
   @@index([user_id, status, order_index])
   @@map("novels")
@@ -278,22 +289,22 @@ model Volume {
 }
 
 model Chapter {
-  id              String          @id @default(uuid()) @db.VarChar(36)
-  novel_id        String          @db.VarChar(36)
-  volume_id       String?         @db.VarChar(36)
-  user_id         String          @db.VarChar(36)
-  title           String          @db.VarChar(255)
-  content         String          @db.LongText
-  summary         String?         @db.Text
+  id              String            @id @default(uuid()) @db.VarChar(36)
+  novel_id        String            @db.VarChar(36)
+  volume_id       String?           @db.VarChar(36)
+  user_id         String            @db.VarChar(36)
+  title           String            @db.VarChar(255)
+  content         String            @db.LongText
+  summary         String?           @db.Text
   order_index     Int
-  word_count      Int             @default(0)
-  status          ChapterStatus   @default(draft)
-  revision        Int             @default(1)
-  created_at      DateTime        @default(now()) @db.DateTime(3)
-  updated_at      DateTime        @updatedAt @db.DateTime(3)
-  deleted_at      DateTime?       @db.DateTime(3)
-  novel           Novel           @relation(fields: [novel_id], references: [id], onDelete: Cascade)
-  volume          Volume?         @relation(fields: [volume_id], references: [id], onDelete: SetNull)
+  word_count      Int               @default(0)
+  status          ChapterStatus     @default(draft)
+  revision        Int               @default(1)
+  created_at      DateTime          @default(now()) @db.DateTime(3)
+  updated_at      DateTime          @updatedAt @db.DateTime(3)
+  deleted_at      DateTime?         @db.DateTime(3)
+  novel           Novel             @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  volume          Volume?           @relation(fields: [volume_id], references: [id], onDelete: SetNull)
   timeline_events TimelineEvent[]
   edits           ChapterEdit[]
   revisions       ChapterRevision[]
@@ -486,6 +497,7 @@ model AgentSession {
   provider    AiProviderConfig @relation(fields: [provider_id], references: [id], onDelete: Restrict)
   runs        AgentRun[]
   messages    AgentMessage[]
+  questions   AgentQuestion[]
 
   @@index([user_id, updated_at])
   @@index([novel_id, chapter_id])
@@ -526,6 +538,7 @@ model AgentRun {
   tool_calls       AgentToolCall[]
   messages         AgentMessage[]
   chapter_edits    ChapterEdit[]
+  questions        AgentQuestion[]
 
   @@index([user_id, created_at])
   @@index([novel_id, chapter_id, created_at])
@@ -558,6 +571,35 @@ model AgentMessage {
   @@index([run_id])
   @@index([remote_id])
   @@map("agent_messages")
+}
+
+/// Agent 请求人工输入时使用的持久化中断点；不属于可见聊天消息。
+model AgentQuestion {
+  id             String              @id @default(uuid()) @db.VarChar(36)
+  session_id     String              @db.VarChar(36)
+  run_id         String              @db.VarChar(36)
+  user_id        String              @db.VarChar(36)
+  novel_id       String              @db.VarChar(36)
+  chapter_id     String?             @db.VarChar(36)
+  tool_call_id   String              @db.VarChar(191)
+  status         AgentQuestionStatus @default(pending)
+  question       Json
+  answer         Json?
+  model_messages Json?
+  resume_config  Json
+  instructions   String              @db.LongText
+  created_at     DateTime            @default(now()) @db.DateTime(3)
+  updated_at     DateTime            @updatedAt @db.DateTime(3)
+  answered_at    DateTime?           @db.DateTime(3)
+  session        AgentSession        @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  run            AgentRun            @relation(fields: [run_id], references: [id], onDelete: Cascade)
+  user           User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel          Novel               @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+
+  @@unique([run_id, tool_call_id])
+  @@index([user_id, session_id, status, created_at])
+  @@index([run_id, status])
+  @@map("agent_questions")
 }
 
 /// Skill 定义只保存声明式 SKILL.md，不允许持久化或执行任意代码。
@@ -651,7 +693,7 @@ model AgentToolCall {
   status        String     @db.VarChar(32)
   duration_ms   Int?
   attempt_count Int        @default(1)
-  retry_log    Json?
+  retry_log     Json?
   error_message String?    @db.Text
   created_at    DateTime   @default(now()) @db.DateTime(3)
   run           AgentRun   @relation(fields: [run_id], references: [id], onDelete: Cascade)

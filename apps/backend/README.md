@@ -12,17 +12,17 @@ Narraverse business API and **AI novel-creation agent infrastructure**.
 
 Design goals: **open, scalable, and observable** — agents with memory, world knowledge, and continuous creation.
 
-| Layer | Responsibility |
-| --- | --- |
-| User | Web, apps/mini-programs, developers, other agents; HTTPS / WebSocket |
-| Agent-native API | REST (human), SSE/WebSocket (streaming), Agent Protocol / A2A (agent-to-agent) |
-| Model | OpenAI / Anthropic / Google / DeepSeek / Qwen / GLM / custom baseURL; routing and fallback |
-| Agent runtime | Main agent (plan / route / orchestrate) + character / plot / world / polish / verify sub-agents |
-| Skill runtime | 3-level progressive loading: resident index → load `SKILL.md` on hit → load resources on demand |
-| Capability / tools | Atomic tools for characters, settings, plot, memory, retrieval, verification |
-| Generation & RAG | `generateText` / `streamText` / structured output; chapter / character / plot retrieval and re-rank |
-| Memory | MySQL structural memory + Qdrant semantic memory |
-| Context / observability | Business and runtime context; tracing, tokens, tool calls, error logs |
+| Layer                   | Responsibility                                                                                      |
+| ----------------------- | --------------------------------------------------------------------------------------------------- |
+| User                    | Web, apps/mini-programs, developers, other agents; HTTPS / WebSocket                                |
+| Agent-native API        | REST (human), SSE/WebSocket (streaming), Agent Protocol / A2A (agent-to-agent)                      |
+| Model                   | OpenAI / Anthropic / Google / DeepSeek / Qwen / GLM / custom baseURL; routing and fallback          |
+| Agent runtime           | Main agent (plan / route / orchestrate) + character / plot / world / polish / verify sub-agents     |
+| Skill runtime           | 3-level progressive loading: resident index → load `SKILL.md` on hit → load resources on demand     |
+| Capability / tools      | Atomic tools for characters, settings, plot, memory, retrieval, verification                        |
+| Generation & RAG        | `generateText` / `streamText` / structured output; chapter / character / plot retrieval and re-rank |
+| Memory                  | MySQL structural memory + Qdrant semantic memory                                                    |
+| Context / observability | Business and runtime context; tracing, tokens, tool calls, error logs                               |
 
 ## Stack
 
@@ -97,13 +97,13 @@ pnpm --filter @narraverse/backend dev
 
 Listens on `http://localhost:3001` with API prefix `api/v1`.
 
-| Entry | URL |
-| --- | --- |
-| API docs | http://localhost:3001/api/v1/docs |
-| OpenAPI JSON | http://localhost:3001/api/v1/openapi.json |
-| Agent Card | http://localhost:3001/.well-known/agent-card.json |
-| A2A | http://localhost:3001/api/v1/a2a |
-| Health | see health module routes under `/api/v1` |
+| Entry        | URL                                               |
+| ------------ | ------------------------------------------------- |
+| API docs     | http://localhost:3001/api/v1/docs                 |
+| OpenAPI JSON | http://localhost:3001/api/v1/openapi.json         |
+| Agent Card   | http://localhost:3001/.well-known/agent-card.json |
+| A2A          | http://localhost:3001/api/v1/a2a                  |
+| Health       | see health module routes under `/api/v1`          |
 
 ## Commands
 
@@ -121,17 +121,17 @@ pnpm format
 
 ## Modules
 
-| Module | Description |
-| --- | --- |
-| Auth | Better Auth sign-up / sign-in / session |
-| Account & workspace | Profile and aggregated workspace data |
-| Library | Novels, volumes, chapters, characters, relationships |
-| Planning | Worldbook, outline, planning files, timeline |
-| Content & community | News, surveys, todos, message wall |
-| Admin | Super-admin resource management |
+| Module               | Description                                                                     |
+| -------------------- | ------------------------------------------------------------------------------- |
+| Auth                 | Better Auth sign-up / sign-in / session                                         |
+| Account & workspace  | Profile and aggregated workspace data                                           |
+| Library              | Novels, volumes, chapters, characters, relationships                            |
+| Planning             | Worldbook, outline, planning files, timeline                                    |
+| Content & community  | News, surveys, todos, message wall                                              |
+| Admin                | Super-admin resource management                                                 |
 | Agent infrastructure | Provider config, main/sub-agents, tool loops, RAG, semantic memory, run tracing |
-| Skill | Marketplace, install, custom `SKILL.md`, novel binding, runtime assembly |
-| A2A | Agent Card, messages, streaming tasks, lifecycle |
+| Skill                | Marketplace, install, custom `SKILL.md`, novel binding, runtime assembly        |
+| A2A                  | Agent Card, messages, streaming tasks, lifecycle                                |
 
 Business responses use a global envelope interceptor. AI SDK streams and A2A endpoints follow their own protocols and are not forced into that envelope.
 
@@ -166,15 +166,15 @@ New skills: directory name must match frontmatter `name`.
 
 Full template: [`.env.example`](./.env.example). Validation: `src/config/env-schema.ts`.
 
-| Variable | Purpose |
-| --- | --- |
-| `PORT` / `API_PREFIX` | Port and global prefix |
-| `DATABASE_*` / `DATABASE_URL` | MySQL |
-| `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` | Auth |
-| `APP_URL` / `CORS_ORIGINS` | Frontend origin and CORS |
-| `AI_CONFIG_SECRET` | Encryption key for provider secrets |
-| `AGENT_MAX_STEPS` / `AGENT_TIMEOUT_MS` | Agent step limit and timeout |
-| `QDRANT_URL` / `QDRANT_COLLECTION` | Vector memory |
+| Variable                                 | Purpose                             |
+| ---------------------------------------- | ----------------------------------- |
+| `PORT` / `API_PREFIX`                    | Port and global prefix              |
+| `DATABASE_*` / `DATABASE_URL`            | MySQL                               |
+| `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` | Auth                                |
+| `APP_URL` / `CORS_ORIGINS`               | Frontend origin and CORS            |
+| `AI_CONFIG_SECRET`                       | Encryption key for provider secrets |
+| `AGENT_MAX_STEPS` / `AGENT_TIMEOUT_MS`   | Agent step limit and timeout        |
+| `QDRANT_URL` / `QDRANT_COLLECTION`       | Vector memory                       |
 
 ## Principles
 
