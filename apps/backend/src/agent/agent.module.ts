@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { SkillModule } from "../skill/skill.module.js";
+import { EditorModule } from "../editor/editor.module.js";
 import { AgentController } from "./agent.controller.js";
 import { ChatService } from "./chat.service.js";
 import { ContextService } from "./context.service.js";
@@ -13,7 +14,7 @@ import { TraceService } from "./trace.service.js";
 import { VectorService } from "./vector.service.js";
 
 @Module({
-  imports: [SkillModule],
+  imports: [SkillModule, EditorModule],
   controllers: [AgentController],
   providers: [
     SecretService,

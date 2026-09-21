@@ -4,6 +4,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import { generateText, tool } from "ai";
 import { z } from "zod";
 import { PrismaService } from "../database/prisma.service.js";
+import { EditorService } from "../editor/editor.service.js";
+import { proposeEdit } from "../editor/editor.schema.js";
 import { SkillResolver } from "../skill/skill.resolver.js";
 import { MemoryService } from "./memory.service.js";
 import { TraceService } from "./trace.service.js";
@@ -31,6 +33,7 @@ export class ToolService {
     @Inject(MemoryService) private readonly memories: MemoryService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(SkillResolver) private readonly skills: SkillResolver,
+    @Inject(EditorService) private readonly editor: EditorService,
   ) {}
 
   build(context: ToolContext, mode: RunAgent["mode"] = "agent"): ToolSet {
@@ -121,7 +124,8 @@ export class ToolService {
           }),
       }),
       getChapter: tool({
-        description: "按 UUID 读取当前小说中的某一章节正文。",
+        description:
+          "兼容用的章节读取工具。编辑正文时优先使用 readArticle，它支持分段读取并返回 revision 和内容哈希。",
         inputSchema: z.object({ chapterId: z.uuid() }),
         execute: (input, options) =>
           observed(options.toolCallId, "getChapter", input, () =>
@@ -133,6 +137,51 @@ export class ToolService {
                 deleted_at: null,
               },
             }),
+          ),
+      }),
+      readArticle: tool({
+        description: [
+          "像读取代码文件一样分段读取章节正文。",
+          "任何正文编辑前必须先调用本工具，并把返回的 revision 传给 proposeArticleEdit。",
+          "offset 和 limit 使用 JavaScript UTF-16 字符偏移，与浏览器字符串和 Lexical 适配层一致。",
+        ].join("\n"),
+        inputSchema: z.object({
+          chapterId: z.uuid(),
+          offset: z.number().int().min(0).max(5_000_000).default(0),
+          limit: z.number().int().min(1).max(50_000).default(20_000),
+        }),
+        execute: (input, options) =>
+          observed(options.toolCallId, "readArticle", input, () =>
+            this.editor.read(context.userId, context.input.novelId, input.chapterId, input),
+          ),
+      }),
+      searchArticle: tool({
+        description:
+          "在章节正文中进行字面量搜索，返回精确 UTF-16 偏移与上下文。长文章先搜索再局部读取，避免把整章塞入上下文。",
+        inputSchema: z.object({
+          chapterId: z.uuid(),
+          query: z.string().min(1).max(2_000),
+          caseSensitive: z.boolean().default(true),
+          limit: z.number().int().min(1).max(50).default(20),
+          contextChars: z.number().int().min(0).max(1_000).default(160),
+        }),
+        execute: (input, options) =>
+          observed(options.toolCallId, "searchArticle", input, () =>
+            this.editor.search(context.userId, context.input.novelId, input.chapterId, input),
+          ),
+      }),
+      proposeArticleEdit: tool({
+        description: [
+          "为章节创建可审阅的持久化 diff 提案，不会直接修改正文。",
+          "这相当于代码编辑器的 apply_patch：oldText/anchor 必须从 readArticle 原样复制，不能概括或改写。",
+          "replace 用于替换或删除；insert_before/insert_after 用锚点插入；prepend/append 用于首尾新增。",
+          "同一提案的操作必须以原始正文为基准且范围不能重叠，每项使用稳定且唯一的 id。",
+          "前端收到工具结果后展示 diff，用户通过 applyEndpoint 全部或逐项接受，也可通过 rejectEndpoint 拒绝。",
+        ].join("\n"),
+        inputSchema: proposeEdit,
+        execute: (input, options) =>
+          observed(options.toolCallId, "proposeArticleEdit", input, () =>
+            this.editor.propose(context.userId, context.input.novelId, context.runId, input),
           ),
       }),
       searchMemory: tool({
@@ -231,6 +280,8 @@ export class ToolService {
         "readSkillResource",
         "getNovelSnapshot",
         "getChapter",
+        "readArticle",
+        "searchArticle",
         "searchMemory",
       ]),
       plan: new Set([
@@ -238,6 +289,8 @@ export class ToolService {
         "readSkillResource",
         "getNovelSnapshot",
         "getChapter",
+        "readArticle",
+        "searchArticle",
         "searchMemory",
         "saveMemory",
         "validateContinuity",
@@ -248,6 +301,8 @@ export class ToolService {
         "readSkillResource",
         "getNovelSnapshot",
         "getChapter",
+        "readArticle",
+        "searchArticle",
         "searchMemory",
         "saveMemory",
         "validateContinuity",
@@ -258,6 +313,8 @@ export class ToolService {
         "readSkillResource",
         "getNovelSnapshot",
         "getChapter",
+        "readArticle",
+        "searchArticle",
         "searchMemory",
         "saveMemory",
         "validateContinuity",

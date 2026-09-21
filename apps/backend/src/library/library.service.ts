@@ -237,7 +237,11 @@ export class LibraryService {
     return this.prisma.$transaction(async (tx) => {
       const chapter = await tx.chapter.update({
         where: { id },
-        data: { ...input, word_count: nextCount },
+        data: {
+          ...input,
+          word_count: nextCount,
+          ...(input.content !== undefined && { revision: { increment: 1 } }),
+        },
       });
       const delta = nextCount - existing.word_count;
       if (delta !== 0)

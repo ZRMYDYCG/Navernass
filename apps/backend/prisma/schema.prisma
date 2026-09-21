@@ -24,6 +24,13 @@ enum ChapterStatus {
   published
 }
 
+enum ChapterEditStatus {
+  pending
+  applied
+  rejected
+  stale
+}
+
 enum NewsType {
   feature
   update
@@ -144,6 +151,8 @@ model User {
   skill_defs        SkillDef[]
   skill_installs    SkillInstall[]
   novel_skills      NovelSkill[]
+  chapter_edits     ChapterEdit[]
+  chapter_revisions ChapterRevision[]
 
   @@map("auth_users")
 }
@@ -242,6 +251,8 @@ model Novel {
   semantic_memories SemanticMemory[]
   agent_messages    AgentMessage[]
   novel_skills      NovelSkill[]
+  chapter_edits     ChapterEdit[]
+  chapter_revisions ChapterRevision[]
 
   @@index([user_id, status, order_index])
   @@map("novels")
@@ -277,12 +288,15 @@ model Chapter {
   order_index     Int
   word_count      Int             @default(0)
   status          ChapterStatus   @default(draft)
+  revision        Int             @default(1)
   created_at      DateTime        @default(now()) @db.DateTime(3)
   updated_at      DateTime        @updatedAt @db.DateTime(3)
   deleted_at      DateTime?       @db.DateTime(3)
   novel           Novel           @relation(fields: [novel_id], references: [id], onDelete: Cascade)
   volume          Volume?         @relation(fields: [volume_id], references: [id], onDelete: SetNull)
   timeline_events TimelineEvent[]
+  edits           ChapterEdit[]
+  revisions       ChapterRevision[]
 
   @@index([novel_id, deleted_at, order_index])
   @@index([volume_id, deleted_at, order_index])
@@ -509,6 +523,7 @@ model AgentRun {
   steps            AgentStep[]
   tool_calls       AgentToolCall[]
   messages         AgentMessage[]
+  chapter_edits    ChapterEdit[]
 
   @@index([user_id, created_at])
   @@index([novel_id, chapter_id, created_at])
@@ -641,6 +656,59 @@ model AgentToolCall {
   @@unique([run_id, tool_call_id])
   @@index([run_id, tool_name])
   @@map("agent_tool_calls")
+}
+
+/// Agent 只创建编辑提案；用户确认后才应用到章节，避免模型静默覆盖正文。
+model ChapterEdit {
+  id               String            @id @default(uuid()) @db.VarChar(36)
+  user_id          String            @db.VarChar(36)
+  novel_id         String            @db.VarChar(36)
+  chapter_id       String            @db.VarChar(36)
+  run_id           String?           @db.VarChar(36)
+  status           ChapterEditStatus @default(pending)
+  summary          String            @db.VarChar(500)
+  base_revision    Int
+  base_hash        String            @db.Char(64)
+  result_hash      String            @db.Char(64)
+  operations       Json
+  original_content String            @db.LongText
+  proposed_content String            @db.LongText
+  accepted_edits   Json?
+  rejection_reason String?           @db.VarChar(500)
+  created_at       DateTime          @default(now()) @db.DateTime(3)
+  updated_at       DateTime          @updatedAt @db.DateTime(3)
+  applied_at       DateTime?         @db.DateTime(3)
+  rejected_at      DateTime?         @db.DateTime(3)
+  user             User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel            Novel             @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  chapter          Chapter           @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  run              AgentRun?         @relation(fields: [run_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id, chapter_id, status, created_at])
+  @@index([run_id])
+  @@map("chapter_edits")
+}
+
+/// 每次应用编辑前保存不可变快照，为历史查看和安全回滚提供依据。
+model ChapterRevision {
+  id           String   @id @default(uuid()) @db.VarChar(36)
+  user_id      String   @db.VarChar(36)
+  novel_id     String   @db.VarChar(36)
+  chapter_id   String   @db.VarChar(36)
+  edit_id      String?  @db.VarChar(36)
+  revision     Int
+  content      String   @db.LongText
+  content_hash String   @db.Char(64)
+  word_count   Int
+  created_at   DateTime @default(now()) @db.DateTime(3)
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel        Novel    @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  chapter      Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@unique([chapter_id, revision])
+  @@index([user_id, chapter_id, created_at])
+  @@index([edit_id])
+  @@map("chapter_revisions")
 }
 
 model SemanticMemory {
