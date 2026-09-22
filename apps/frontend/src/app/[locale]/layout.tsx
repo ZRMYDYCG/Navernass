@@ -10,8 +10,9 @@ import { AppProvider } from "@/providers/app-provider";
 import "../globals.css";
 
 export const metadata: Metadata = {
-  title: "Next Start",
-  description: "现代化 Next.js 应用初始化模板",
+  title: "Narraverse - AI 小说创作平台",
+  description:
+    "Narraverse 是面向网文创作者的 AI 小说创作平台，支持灵感共创、人物设定管理、章节续写与发布。",
 };
 
 export function generateStaticParams() {
