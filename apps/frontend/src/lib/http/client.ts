@@ -1,12 +1,15 @@
 import ky, { HTTPError } from "ky";
 
-import { ApiError } from "./api-error";
 import { apiErrorSchema } from "@/schemas/api.schema";
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api";
+import { ApiError } from "./error";
 
-export const apiClient = ky.create({
-  prefix: apiBaseUrl,
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
+
+export const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `${backendUrl}/api/v1`;
+
+const baseClient = ky.create({
+  credentials: "include",
   timeout: 15_000,
   retry: {
     limit: 2,
@@ -36,3 +39,9 @@ export const apiClient = ky.create({
     ],
   },
 });
+
+/** Nest 业务接口，响应带 `{ success, data }` 信封。 */
+export const apiClient = baseClient.extend({ prefix: apiBaseUrl });
+
+/** Better Auth 由 Nest 运行时注册在 /api/auth，不在业务前缀下，响应也不带信封。 */
+export const authClient = baseClient.extend({ prefix: `${backendUrl}/api/auth` });

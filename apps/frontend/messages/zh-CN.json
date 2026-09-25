@@ -1,1 +1,51 @@
-{}
+{
+  "chat": {
+    "title": "小说创作 Agent",
+    "subtitle": "对话、工具调用与人工决策会保持在同一会话中",
+    "status": {
+      "idle": "就绪",
+      "streaming": "生成中",
+      "waiting_input": "等待你的决定",
+      "error": "发生错误"
+    },
+    "context": {
+      "novel": "小说 ID",
+      "chapter": "章节 ID",
+      "novelPlaceholder": "小说 UUID（必填）",
+      "chapterPlaceholder": "章节 UUID（可选）",
+      "invalid": "请填写有效的小说 UUID；章节 UUID 如填写也必须有效。"
+    },
+    "empty": {
+      "title": "从一个创作任务开始",
+      "description": "Agent 会结合当前小说与章节上下文进行创作，工具执行过程将实时显示。"
+    },
+    "composer": {
+      "placeholder": "描述你希望 Agent 完成的创作任务…",
+      "waiting": "请先回答上方问题，再继续对话",
+      "send": "发送消息",
+      "stop": "停止生成"
+    },
+    "error": {
+      "title": "对话未能继续"
+    },
+    "askUser": {
+      "custom": "填写其他答案",
+      "confirm": "确认",
+      "reject": "拒绝",
+      "dismiss": "取消本次提问",
+      "submit": "提交并继续"
+    },
+    "auth": {
+      "signIn": "登录",
+      "signUp": "注册",
+      "signOut": "退出",
+      "signInTitle": "登录 Narraverse",
+      "signUpTitle": "创建 Narraverse 账号",
+      "description": "使用 Better Auth 邮箱账号进入小说创作工作台。",
+      "name": "昵称",
+      "email": "邮箱",
+      "password": "密码",
+      "failed": "认证失败，请检查填写内容。"
+    }
+  }
+}
