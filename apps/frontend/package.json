@@ -10,7 +10,8 @@
     "lint:fix": "oxlint --fix -c ../../.oxlintrc.json .",
     "format": "oxfmt --check -c ../../.oxfmtrc.json .",
     "format:fix": "oxfmt -c ../../.oxfmtrc.json .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "doctor": "react-doctor"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -43,6 +44,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "react-doctor": "^0.9.14",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
