@@ -1,28 +1,17 @@
 "use client";
 
 import { readUIMessageStream } from "ai";
-import { BotIcon, SendHorizontalIcon, SquareIcon } from "lucide-react";
+import { SendHorizontalIcon, SquareIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AskUser } from "@/components/buss/agui/ask-user";
+import { ChatWelcome } from "@/components/buss/agui/chat-welcome";
 import { MessageView, StreamingMessageView } from "@/components/buss/agui/message-view";
+import { PromptInput } from "@/components/buss/prompt-input/prompt-input";
+import type { PromptInputHandle } from "@/components/buss/prompt-input/prompt-input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupTextarea,
-} from "@/components/ui/input-group";
+import { InputGroupButton } from "@/components/ui/input-group";
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -44,41 +33,29 @@ import {
 } from "@/lib/api/agent.api";
 import { getErrorMessage } from "@/lib/http/error";
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function isUuid(value: string) {
-  return UUID_PATTERN.test(value);
-}
-
 interface ChatPanelProps {
-  initialNovelId?: string;
-  initialChapterId?: string;
-  initialSessionId?: string;
+  novelId?: string;
+  chapterId?: string;
+  sessionId?: string;
 }
 
 function getSessionId(message: AgentMessage | undefined) {
   return message?.metadata?.sessionId;
 }
 
-export function ChatPanel({
-  initialNovelId = "",
-  initialChapterId = "",
-  initialSessionId,
-}: ChatPanelProps) {
+export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: ChatPanelProps) {
   const t = useTranslations("chat");
   const [state, dispatch] = useReducer(chatReducer, {
     ...initialChatState,
     sessionId: initialSessionId,
   });
   const [draft, setDraft] = useState("");
-  const [novelId, setNovelId] = useState(initialNovelId);
-  const [chapterId, setChapterId] = useState(initialChapterId);
   const streamStore = useMemo(() => new StreamStore(), []);
   const abortRef = useRef<AbortController>(null);
+  const inputRef = useRef<PromptInputHandle>(null);
 
-  const contextValid = isUuid(novelId);
-  const chapterValid = !chapterId || isUuid(chapterId);
   const busy = state.phase === "streaming";
+  const canSend = Boolean(novelId) && !busy && !state.question;
 
   useEffect(() => {
     if (!initialSessionId) return;
@@ -137,9 +114,9 @@ export function ChatPanel({
     [state.sessionId, streamStore],
   );
 
-  const send = () => {
-    const prompt = draft.trim();
-    if (!prompt || busy || !contextValid || !chapterValid) return;
+  const sendPrompt = (prompt: string) => {
+    const text = prompt.trim();
+    if (!text || !canSend || !novelId) return;
 
     const context: AgentContext = {
       novelId,
@@ -148,12 +125,15 @@ export function ChatPanel({
     const message: AgentMessage = {
       id: crypto.randomUUID(),
       role: "user",
-      parts: [{ type: "text", text: prompt }],
+      parts: [{ type: "text", text }],
     };
     setDraft("");
+    inputRef.current?.clear();
     dispatch({ type: "SEND", message });
-    void consumeStream((signal) => startAgentStream(context, prompt, state.sessionId, signal));
+    void consumeStream((signal) => startAgentStream(context, text, state.sessionId, signal));
   };
+
+  const send = () => sendPrompt(draft);
 
   const answer = (answers: Record<string, AnswerValue>) => {
     if (!state.question || busy) return;
@@ -171,51 +151,13 @@ export function ChatPanel({
 
   return (
     <section className="flex h-full min-h-0 flex-col bg-card" aria-label={t("title")}>
-      <header className="flex flex-col gap-3 border-b p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h1 className="font-medium">{t("title")}</h1>
-            <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
-          </div>
-          <Badge variant={state.phase === "error" ? "destructive" : "secondary"}>
-            {t(`status.${state.phase}`)}
-          </Badge>
-        </div>
-        <div className="grid gap-2">
-          <Input
-            aria-label={t("context.novel")}
-            placeholder={t("context.novelPlaceholder")}
-            value={novelId}
-            disabled={busy}
-            aria-invalid={Boolean(novelId) && !contextValid}
-            onChange={(event) => setNovelId(event.target.value)}
-          />
-          <Input
-            aria-label={t("context.chapter")}
-            placeholder={t("context.chapterPlaceholder")}
-            value={chapterId}
-            disabled={busy}
-            aria-invalid={!chapterValid}
-            onChange={(event) => setChapterId(event.target.value)}
-          />
-        </div>
-      </header>
-
       <MessageScrollerProvider>
         <MessageScroller>
           <MessageScrollerViewport>
             <MessageScrollerContent>
               <div className="flex min-h-full flex-col gap-6 px-4 py-6">
                 {state.messages.length === 0 && !busy ? (
-                  <Empty>
-                    <EmptyHeader>
-                      <EmptyMedia variant="icon">
-                        <BotIcon />
-                      </EmptyMedia>
-                      <EmptyTitle>{t("empty.title")}</EmptyTitle>
-                      <EmptyDescription>{t("empty.description")}</EmptyDescription>
-                    </EmptyHeader>
-                  </Empty>
+                  <ChatWelcome disabled={!canSend} onSelectPrompt={sendPrompt} />
                 ) : null}
                 {state.messages.map((message) => (
                   <MessageScrollerItem key={message.id}>
@@ -247,29 +189,16 @@ export function ChatPanel({
         <AskUser question={state.question} disabled={busy} onAnswer={answer} onDismiss={dismiss} />
       ) : null}
 
-      <form
-        className="px-4 pt-2 pb-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          send();
-        }}
-      >
-        <InputGroup>
-          <InputGroupTextarea
-            rows={3}
-            value={draft}
-            placeholder={state.question ? t("composer.waiting") : t("composer.placeholder")}
-            disabled={busy || Boolean(state.question)}
-            onChange={(event) => setDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                send();
-              }
-            }}
-          />
-          <InputGroupAddon align="block-end" className="justify-end">
-            {busy ? (
+      <div className="px-4 pt-2 pb-6">
+        <PromptInput
+          ref={inputRef}
+          placeholder={state.question ? t("composer.waiting") : t("composer.placeholder")}
+          disabled={busy || Boolean(state.question)}
+          ariaLabel={t("composer.placeholder")}
+          onChange={setDraft}
+          onSubmit={send}
+          addon={
+            busy ? (
               <InputGroupButton
                 type="button"
                 size="icon-sm"
@@ -281,23 +210,18 @@ export function ChatPanel({
               </InputGroupButton>
             ) : (
               <InputGroupButton
-                type="submit"
+                type="button"
                 size="icon-sm"
                 variant="default"
                 aria-label={t("composer.send")}
-                disabled={
-                  !draft.trim() || !contextValid || !chapterValid || Boolean(state.question)
-                }
+                disabled={!draft.trim() || !canSend}
               >
                 <SendHorizontalIcon />
               </InputGroupButton>
-            )}
-          </InputGroupAddon>
-        </InputGroup>
-        {!contextValid || !chapterValid ? (
-          <p className="mt-2 text-xs text-destructive">{t("context.invalid")}</p>
-        ) : null}
-      </form>
+            )
+          }
+        />
+      </div>
     </section>
   );
 }

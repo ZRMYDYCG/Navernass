@@ -28,9 +28,9 @@ export function Workspace({ novelId, chapterId, sessionId }: WorkspaceProps) {
         <div className="min-h-0 lg:col-span-3">
           <ChatPanel
             key={selectedNovelId ?? "new-chat"}
-            initialNovelId={selectedNovelId}
-            initialChapterId={chapterId}
-            initialSessionId={sessionId}
+            novelId={selectedNovelId}
+            chapterId={chapterId}
+            sessionId={sessionId}
           />
         </div>
       </main>

@@ -1,26 +1,46 @@
 {
   "chat": {
-    "title": "小说创作 Agent",
-    "subtitle": "对话、工具调用与人工决策会保持在同一会话中",
-    "status": {
-      "idle": "就绪",
-      "streaming": "生成中",
-      "waiting_input": "等待你的决定",
-      "error": "发生错误"
-    },
-    "context": {
-      "novel": "小说 ID",
-      "chapter": "章节 ID",
-      "novelPlaceholder": "小说 UUID（必填）",
-      "chapterPlaceholder": "章节 UUID（可选）",
-      "invalid": "请填写有效的小说 UUID；章节 UUID 如填写也必须有效。"
-    },
-    "empty": {
-      "title": "从一个创作任务开始",
-      "description": "Agent 会结合当前小说与章节上下文进行创作，工具执行过程将实时显示。"
+    "title": "小说助手",
+    "welcome": {
+      "heading": "今天想写点什么？",
+      "description": "我可以结合当前章节、人物和设定，帮你继续写、调整剧情或完善细节。",
+      "suggestionsLabel": "你也可以这样问",
+      "actions": {
+        "continue": {
+          "title": "续写当前内容",
+          "description": "根据上下文自然续写下一段",
+          "prompt": "根据当前章节上下文，自然续写下一段，保持文风一致。"
+        },
+        "plot": {
+          "title": "推进剧情",
+          "description": "一起想想下一步发展",
+          "prompt": "基于当前剧情，帮我构思接下来合理的发展方向。"
+        },
+        "character": {
+          "title": "人物表现",
+          "description": "检查人物行为与台词",
+          "prompt": "检查当前内容中的人物行为与台词是否符合人设。"
+        },
+        "polish": {
+          "title": "润色文字",
+          "description": "优化表达与文风",
+          "prompt": "润色当前段落，优化表达并保持原有文风。"
+        },
+        "lore": {
+          "title": "梳理设定",
+          "description": "检查世界观与细节",
+          "prompt": "梳理当前相关设定，检查世界观与细节是否一致。"
+        }
+      },
+      "suggestions": {
+        "continue": "帮我续写下一段，保持当前的文风",
+        "plot": "这段剧情合理吗？有没有更好的发展方向？",
+        "scene": "帮我描写一下这个场景的细节",
+        "ooc": "检查一下这个角色是否OOC"
+      }
     },
     "composer": {
-      "placeholder": "描述你希望 Agent 完成的创作任务…",
+      "placeholder": "问问关于这篇小说的任何问题…",
       "waiting": "请先回答上方问题，再继续对话",
       "send": "发送消息",
       "stop": "停止生成"
@@ -41,7 +61,7 @@
       "signOut": "退出",
       "signInTitle": "登录 Narraverse",
       "signUpTitle": "创建 Narraverse 账号",
-      "description": "使用 Better Auth 邮箱账号进入小说创作工作台。",
+      "description": "使用邮箱账号进入小说创作工作台。",
       "name": "昵称",
       "email": "邮箱",
       "password": "密码",

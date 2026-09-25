@@ -1,26 +1,46 @@
 {
   "chat": {
-    "title": "Novel Writing Agent",
-    "subtitle": "Conversation, tool calls, and human decisions stay in one session",
-    "status": {
-      "idle": "Ready",
-      "streaming": "Generating",
-      "waiting_input": "Waiting for your decision",
-      "error": "Error"
-    },
-    "context": {
-      "novel": "Novel ID",
-      "chapter": "Chapter ID",
-      "novelPlaceholder": "Novel UUID (required)",
-      "chapterPlaceholder": "Chapter UUID (optional)",
-      "invalid": "Enter a valid novel UUID. The chapter UUID must also be valid when provided."
-    },
-    "empty": {
-      "title": "Start with a writing task",
-      "description": "The Agent uses the current novel and chapter context, while tool activity streams live."
+    "title": "Novel Assistant",
+    "welcome": {
+      "heading": "What do you want to write today?",
+      "description": "I can use the current chapter, characters, and settings to help you continue writing, adjust the plot, or refine details.",
+      "suggestionsLabel": "You can also ask",
+      "actions": {
+        "continue": {
+          "title": "Continue writing",
+          "description": "Naturally continue the next passage",
+          "prompt": "Based on the current chapter context, continue the next passage while keeping the same style."
+        },
+        "plot": {
+          "title": "Advance the plot",
+          "description": "Explore what happens next",
+          "prompt": "Based on the current plot, suggest reasonable directions for what happens next."
+        },
+        "character": {
+          "title": "Character portrayal",
+          "description": "Check behavior and dialogue",
+          "prompt": "Review whether character behavior and dialogue match their established personalities."
+        },
+        "polish": {
+          "title": "Polish the prose",
+          "description": "Improve expression and style",
+          "prompt": "Polish the current passage, improving expression while preserving the original style."
+        },
+        "lore": {
+          "title": "Organize worldbuilding",
+          "description": "Check consistency and details",
+          "prompt": "Organize the related worldbuilding and check whether details stay consistent."
+        }
+      },
+      "suggestions": {
+        "continue": "Continue the next passage while keeping the current style",
+        "plot": "Does this plot hold up? Are there better directions?",
+        "scene": "Help me describe the details of this scene",
+        "ooc": "Check whether this character is OOC"
+      }
     },
     "composer": {
-      "placeholder": "Describe the writing task for the Agent…",
+      "placeholder": "Ask anything about this novel…",
       "waiting": "Answer the question above before continuing",
       "send": "Send message",
       "stop": "Stop generation"
@@ -41,7 +61,7 @@
       "signOut": "Sign out",
       "signInTitle": "Sign in to Narraverse",
       "signUpTitle": "Create a Narraverse account",
-      "description": "Use a Better Auth email account to enter the novel writing workspace.",
+      "description": "Use an email account to enter the novel writing workspace.",
       "name": "Name",
       "email": "Email",
       "password": "Password",
