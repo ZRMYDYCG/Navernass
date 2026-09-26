@@ -9,8 +9,8 @@ import {
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
-import { cn } from "cn";
 
+import { OptionBadge, optionLetter as letter } from "@/components/buss/agui";
 import { Button } from "@/components/ui/button";
 import type { PendingQuestion } from "@/lib/agent/message-utils";
 import type { AskUserInput, AskUserOutput } from "@/schemas/agent.schema";
@@ -30,10 +30,6 @@ interface AskUserPanelProps {
   disabled?: boolean;
   onSubmit: (output: AskUserOutput) => void;
   onSkip: () => void;
-}
-
-function letter(index: number) {
-  return String.fromCharCode(65 + index);
 }
 
 function isAnswered(draft: Draft) {
@@ -264,19 +260,5 @@ export function AskUserPanel({ question, disabled = false, onSubmit, onSkip }: A
         </>
       )}
     </div>
-  );
-}
-
-function OptionBadge({ children }: { children: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "flex size-5 shrink-0 items-center justify-center rounded border border-input text-xs font-medium text-muted-foreground",
-        "group-data-checked/option:border-primary group-data-checked/option:bg-primary group-data-checked/option:text-primary-foreground",
-      )}
-    >
-      {children}
-    </span>
   );
 }

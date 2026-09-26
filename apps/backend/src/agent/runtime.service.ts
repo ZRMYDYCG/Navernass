@@ -69,6 +69,16 @@ const outputSchemas = {
   }),
 } as const;
 
+const reasoningLevel = z.enum([
+  "provider-default",
+  "none",
+  "minimal",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+]);
+
 interface PrepareOptions {
   retryOfId?: string;
   interactive?: boolean;
@@ -402,15 +412,19 @@ export class RuntimeService {
       const stream = toUIMessageStream({
         stream: result.fullStream,
         tools: execution.tools,
-        sendReasoning: false,
+        sendReasoning: true,
         sendSources: true,
-        messageMetadata: () => ({
-          runId: execution.run.id,
-          sessionId: execution.session.id,
-          skillIds: execution.skillSet.ids,
-          contextBudget: execution.context.budget,
-          contextWarnings: execution.context.warnings,
-        }),
+        // 只随 start/finish 下发；逐片段下发会让每个 delta 后跟一条 metadata，打断持久化合并。
+        messageMetadata: ({ part }) =>
+          part.type === "start" || part.type === "finish"
+            ? {
+                runId: execution.run.id,
+                sessionId: execution.session.id,
+                skillIds: execution.skillSet.ids,
+                contextBudget: execution.context.budget,
+                contextWarnings: execution.context.warnings,
+              }
+            : undefined,
         onError: (error) => {
           const failure = this.errors.classify(error);
           return `${failure.code}: ${failure.message}（runId: ${execution.run.id}）`;
@@ -600,7 +614,10 @@ export class RuntimeService {
       const current = key in settings ? settings[key] : undefined;
       return typeof current === "number" && current >= min && current <= max ? current : undefined;
     };
+    const reasoning = reasoningLevel.safeParse(settings.reasoning);
     return {
+      // 由各 Provider 映射为自身参数（Anthropic thinking、OpenAI reasoning_effort 等）。
+      reasoning: reasoning.success ? reasoning.data : undefined,
       temperature: number("temperature", 0, 2),
       topP: number("topP", 0, 1),
       presencePenalty: number("presencePenalty", -2, 2),

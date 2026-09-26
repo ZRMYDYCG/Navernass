@@ -50,10 +50,7 @@
       "other": "其他…",
       "otherPlaceholder": "输入你的答案",
       "skip": "跳过",
-      "continue": "继续",
-      "asking": "正在提问",
-      "answered": "已回答提问",
-      "skipped": "已跳过提问"
+      "continue": "继续"
     },
     "auth": {
       "signIn": "登录",
@@ -66,6 +63,104 @@
       "email": "邮箱",
       "password": "密码",
       "failed": "认证失败，请检查填写内容。"
+    }
+  },
+  "agui": {
+    "working": "处理中",
+    "connecting": "正在连接 Agent",
+    "reasoning": { "running": "正在思考", "done": "思考过程" },
+    "sources": "参考来源",
+    "status": {
+      "interrupted": "已中断"
+    },
+    "tools": {
+      "loadSkill": { "running": "正在加载技能", "done": "已加载技能" },
+      "readSkillResource": { "running": "正在读取技能资源", "done": "已读取技能资源" },
+      "getNovelSnapshot": { "running": "正在读取小说概览", "done": "已读取小说概览" },
+      "getChapter": { "running": "正在读取章节", "done": "已读取章节" },
+      "readArticle": { "running": "正在阅读正文", "done": "已阅读正文" },
+      "searchArticle": { "running": "正在搜索正文", "done": "已搜索正文" },
+      "proposeArticleEdit": { "running": "正在生成修改提案", "done": "修改提案" },
+      "searchMemory": { "running": "正在检索记忆", "done": "已检索记忆" },
+      "saveMemory": { "running": "正在保存记忆", "done": "已保存记忆" },
+      "validateContinuity": { "running": "正在校验一致性", "done": "已校验一致性" },
+      "delegateSubagent": {
+        "pending": "正在委派子助手",
+        "running": "{role}子助手处理中",
+        "done": "{role}子助手已完成"
+      },
+      "askUser": {
+        "running": "正在提问",
+        "done": "已回答提问",
+        "skipped": "已跳过提问",
+        "noAnswer": "未回答"
+      },
+      "fallback": { "running": "正在调用 {name}", "done": "已调用 {name}" }
+    },
+    "detail": {
+      "input": "参数",
+      "output": "结果",
+      "allowedTools": "可用工具",
+      "resources": "资源",
+      "instructions": "指令",
+      "readRange": "{start}–{end} / {total} 字符",
+      "revision": "版本 {revision}",
+      "wordCount": "{count} 字",
+      "hasMore": "后续内容未读取",
+      "chapters": "章节",
+      "volumes": "分卷",
+      "worldbook": "设定",
+      "outlines": "大纲",
+      "timeline": "时间线",
+      "chapterCount": "{count} 章",
+      "matchCount": "{count} 处匹配",
+      "noMatch": "没有匹配的内容",
+      "truncated": "仅显示前 {count} 处",
+      "hitCount": "{count} 条记忆",
+      "noHit": "没有相关记忆",
+      "score": "相关度 {score}%",
+      "reviewText": "待审核文本",
+      "report": "审核报告",
+      "task": "任务",
+      "result": "结果"
+    },
+    "memoryKind": {
+      "chapter": "章节",
+      "character": "角色",
+      "worldbook": "设定",
+      "outline": "大纲",
+      "timeline": "时间线",
+      "summary": "摘要",
+      "conversation": "对话",
+      "custom": "自定义"
+    },
+    "subagent": {
+      "character": "角色塑造",
+      "plot": "剧情创作",
+      "world": "世界观",
+      "style": "文风润色",
+      "reviewer": "校验审核"
+    },
+    "edit": {
+      "title": "修改提案",
+      "collapse": "收起",
+      "expand": "展开",
+      "status": {
+        "pending": "待审阅",
+        "applied": "已应用",
+        "rejected": "已拒绝",
+        "stale": "已过期"
+      },
+      "type": {
+        "replace": "替换",
+        "insert_before": "插入到锚点前",
+        "insert_after": "插入到锚点后",
+        "prepend": "插入到开头",
+        "append": "追加到末尾"
+      },
+      "reject": "拒绝",
+      "apply": "应用所选 {count}/{total}",
+      "staleHint": "正文已在提案后发生变化，请让助手重新读取后再生成提案。"
     }
   }
 }

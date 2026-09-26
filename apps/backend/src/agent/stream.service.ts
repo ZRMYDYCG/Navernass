@@ -82,8 +82,8 @@ export class StreamService {
 
     for await (const chunk of stream) {
       if (
-        buffered?.type === "text-delta" &&
-        chunk.type === "text-delta" &&
+        (buffered?.type === "text-delta" || buffered?.type === "reasoning-delta") &&
+        chunk.type === buffered.type &&
         buffered.id === chunk.id &&
         !buffered.providerMetadata &&
         !chunk.providerMetadata &&
@@ -94,7 +94,7 @@ export class StreamService {
       }
       await flush();
       buffered = chunk;
-      if (chunk.type !== "text-delta") await flush();
+      if (chunk.type !== "text-delta" && chunk.type !== "reasoning-delta") await flush();
     }
     await flush();
   }

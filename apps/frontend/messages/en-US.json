@@ -50,10 +50,7 @@
       "other": "Other...",
       "otherPlaceholder": "Type your answer",
       "skip": "Skip",
-      "continue": "Continue",
-      "asking": "Asking questions",
-      "answered": "Questions answered",
-      "skipped": "Questions skipped"
+      "continue": "Continue"
     },
     "auth": {
       "signIn": "Sign in",
@@ -66,6 +63,104 @@
       "email": "Email",
       "password": "Password",
       "failed": "Authentication failed. Check the entered details."
+    }
+  },
+  "agui": {
+    "working": "Working",
+    "connecting": "Connecting to the agent",
+    "reasoning": { "running": "Thinking", "done": "Reasoning" },
+    "sources": "Sources",
+    "status": {
+      "interrupted": "Interrupted"
+    },
+    "tools": {
+      "loadSkill": { "running": "Loading skill", "done": "Loaded skill" },
+      "readSkillResource": { "running": "Reading skill resource", "done": "Read skill resource" },
+      "getNovelSnapshot": { "running": "Reading novel overview", "done": "Read novel overview" },
+      "getChapter": { "running": "Reading chapter", "done": "Read chapter" },
+      "readArticle": { "running": "Reading text", "done": "Read text" },
+      "searchArticle": { "running": "Searching text", "done": "Searched text" },
+      "proposeArticleEdit": { "running": "Drafting edit proposal", "done": "Edit proposal" },
+      "searchMemory": { "running": "Searching memory", "done": "Searched memory" },
+      "saveMemory": { "running": "Saving memory", "done": "Saved memory" },
+      "validateContinuity": { "running": "Checking continuity", "done": "Checked continuity" },
+      "delegateSubagent": {
+        "pending": "Delegating to a subagent",
+        "running": "{role} subagent working",
+        "done": "{role} subagent finished"
+      },
+      "askUser": {
+        "running": "Asking questions",
+        "done": "Questions answered",
+        "skipped": "Questions skipped",
+        "noAnswer": "No answer"
+      },
+      "fallback": { "running": "Calling {name}", "done": "Called {name}" }
+    },
+    "detail": {
+      "input": "Input",
+      "output": "Output",
+      "allowedTools": "Allowed tools",
+      "resources": "Resources",
+      "instructions": "Instructions",
+      "readRange": "{start}–{end} of {total} chars",
+      "revision": "Revision {revision}",
+      "wordCount": "{count} words",
+      "hasMore": "More content not read",
+      "chapters": "Chapters",
+      "volumes": "Volumes",
+      "worldbook": "Lore",
+      "outlines": "Outlines",
+      "timeline": "Timeline",
+      "chapterCount": "{count} chapters",
+      "matchCount": "{count} matches",
+      "noMatch": "No matches",
+      "truncated": "Showing the first {count} only",
+      "hitCount": "{count} memories",
+      "noHit": "No related memories",
+      "score": "{score}% relevant",
+      "reviewText": "Text under review",
+      "report": "Review report",
+      "task": "Task",
+      "result": "Result"
+    },
+    "memoryKind": {
+      "chapter": "Chapter",
+      "character": "Character",
+      "worldbook": "Lore",
+      "outline": "Outline",
+      "timeline": "Timeline",
+      "summary": "Summary",
+      "conversation": "Conversation",
+      "custom": "Custom"
+    },
+    "subagent": {
+      "character": "Character",
+      "plot": "Plot",
+      "world": "Worldbuilding",
+      "style": "Style",
+      "reviewer": "Review"
+    },
+    "edit": {
+      "title": "Edit proposal",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "status": {
+        "pending": "Pending review",
+        "applied": "Applied",
+        "rejected": "Rejected",
+        "stale": "Outdated"
+      },
+      "type": {
+        "replace": "Replace",
+        "insert_before": "Insert before anchor",
+        "insert_after": "Insert after anchor",
+        "prepend": "Insert at start",
+        "append": "Append at end"
+      },
+      "reject": "Reject",
+      "apply": "Apply selected {count}/{total}",
+      "staleHint": "The text changed after this proposal. Ask the assistant to reread it and propose again."
     }
   }
 }
