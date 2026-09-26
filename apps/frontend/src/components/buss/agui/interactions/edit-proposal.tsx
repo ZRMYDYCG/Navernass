@@ -57,7 +57,7 @@ function DiffBlock({ operation }: { operation: EditOperation }) {
       ? `${anchor.slice(0, anchorLength)}${anchor.length > anchorLength ? "…" : ""}`
       : undefined;
   return (
-    <span className="flex flex-col overflow-hidden rounded-md border border-input font-mono text-xs leading-relaxed">
+    <span className="flex flex-col overflow-hidden rounded-md border border-input text-xs leading-relaxed">
       {before ? <DiffLine kind="context">{before}</DiffLine> : null}
       {operation.oldText ? <DiffLine kind="remove">{operation.oldText}</DiffLine> : null}
       {operation.newText ? <DiffLine kind="add">{operation.newText}</DiffLine> : null}
@@ -115,9 +115,9 @@ export function EditProposalCard({ output }: { call: ToolCall; output: EditPropo
       role="group"
       aria-label={t("title")}
       onKeyDown={handleKeyDown}
-      className="min-w-0 border-s border-border/80 bg-background ps-3 outline-none focus-visible:border-ring"
+      className="min-w-0 rounded-lg border border-input bg-muted/30 outline-none focus-visible:border-ring"
     >
-      <div className="flex items-center justify-between gap-2 py-2 text-xs text-muted-foreground">
+      <div className="flex items-center justify-between gap-2 px-3 py-2 text-xs text-muted-foreground">
         <div className="flex min-w-0 items-center gap-1.5">
           <FilePenLineIcon className="size-3.5 shrink-0" />
           <span className="shrink-0">{t("title")}</span>
@@ -140,7 +140,7 @@ export function EditProposalCard({ output }: { call: ToolCall; output: EditPropo
 
       {collapsed ? null : (
         <>
-          <div className="pb-2">
+          <div className="px-3 pb-2">
             <p className="mb-2 text-sm font-medium">{output.summary}</p>
             <div role="group" aria-label={output.summary} className="flex flex-col gap-0.5">
               {operations.map((operation, position) => {
@@ -169,12 +169,14 @@ export function EditProposalCard({ output }: { call: ToolCall; output: EditPropo
             </div>
           </div>
 
-          {error ? <p className="pb-2 text-xs text-destructive">{getErrorMessage(error)}</p> : null}
+          {error ? (
+            <p className="px-3 pb-2 text-xs text-destructive">{getErrorMessage(error)}</p>
+          ) : null}
           {status === "stale" ? (
-            <p className="pb-3 text-xs text-muted-foreground">{t("staleHint")}</p>
+            <p className="px-3 pb-3 text-xs text-muted-foreground">{t("staleHint")}</p>
           ) : null}
           {pending ? (
-            <div className="flex flex-wrap items-center justify-end gap-1 border-t border-border/80 py-2">
+            <div className="flex flex-wrap items-center justify-end gap-1 px-3 pb-3">
               <Button
                 type="button"
                 variant="ghost"

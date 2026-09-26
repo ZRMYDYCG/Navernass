@@ -22,7 +22,7 @@ export function ToolDuration({ timing, running }: { timing?: Timing; running: bo
   const seconds = ((duration ?? elapsed) / 1000).toFixed(1);
   return (
     <span
-      className="font-mono text-xs tabular-nums"
+      className="text-xs tabular-nums"
       title={duration === undefined ? t("live") : t("measured")}
     >
       {duration === undefined ? "~" : ""}

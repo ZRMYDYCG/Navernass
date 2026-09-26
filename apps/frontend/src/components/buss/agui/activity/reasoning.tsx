@@ -30,6 +30,7 @@ export function Reasoning({ text, active }: ReasoningProps) {
         title={active ? t("running") : t("done")}
         status={active ? "running" : "done"}
         defaultOpen={active}
+        bare
       >
         <div
           ref={scrollRef}
@@ -38,7 +39,7 @@ export function Reasoning({ text, active }: ReasoningProps) {
             followRef.current =
               element.scrollHeight - element.scrollTop - element.clientHeight < 24;
           }}
-          className="max-h-64 overflow-y-auto border-s border-border/80 ps-3 text-xs leading-relaxed text-muted-foreground"
+          className="max-h-72 overflow-y-auto text-sm leading-relaxed text-muted-foreground"
         >
           <StreamText text={text} streaming={active} />
         </div>

@@ -110,7 +110,6 @@ export function AssistantParts({ parts, streaming = false, toolTimings }: Assist
                 {item.calls.map(({ call, view }) => (
                   <ToolRow
                     key={call.toolCallId}
-                    command={call.name}
                     icon={view.icon}
                     title={view.title}
                     summary={view.summary}
