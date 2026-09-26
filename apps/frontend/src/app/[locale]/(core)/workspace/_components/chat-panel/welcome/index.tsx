@@ -8,20 +8,17 @@ import {
   SparklesIcon,
   UserRoundIcon,
 } from "lucide-react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { ComponentType } from "react";
 
-import { Separator } from "@/components/ui/separator";
 import { cn } from "cn";
 
-interface ChatWelcomeProps {
+interface WelcomeProps {
   onSelectPrompt: (prompt: string) => void;
   disabled?: boolean;
 }
 
 type ActionId = "continue" | "plot" | "character" | "polish" | "lore";
-type SuggestionId = "continue" | "plot" | "scene" | "ooc";
 
 const ACTIONS: { id: ActionId; icon: ComponentType<{ className?: string }>; featured?: boolean }[] =
   [
@@ -32,32 +29,18 @@ const ACTIONS: { id: ActionId; icon: ComponentType<{ className?: string }>; feat
     { id: "lore", icon: BookOpenIcon },
   ];
 
-const SUGGESTIONS: SuggestionId[] = ["continue", "plot", "scene", "ooc"];
-
-export function ChatWelcome({ onSelectPrompt, disabled }: ChatWelcomeProps) {
+export function Welcome({ onSelectPrompt, disabled }: WelcomeProps) {
   const t = useTranslations("chat.welcome");
   const featured = ACTIONS.find((action) => action.featured);
   const grid = ACTIONS.filter((action) => !action.featured);
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-1 py-2">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <div className="relative w-full max-w-xs">
-          <Image
-            src="/chat-welcome-hero.png"
-            alt=""
-            width={1942}
-            height={809}
-            priority
-            className="h-auto w-full mix-blend-screen"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <h2 className="text-xl font-semibold tracking-tight text-balance">{t("heading")}</h2>
-          <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
-            {t("description")}
-          </p>
-        </div>
+    <div className="mx-auto flex w-full max-w-md flex-col gap-6">
+      <div className="flex flex-col gap-2 text-center">
+        <h2 className="text-xl font-semibold tracking-tight text-balance">{t("heading")}</h2>
+        <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
+          {t("description")}
+        </p>
       </div>
 
       <div className="flex flex-col gap-2.5">
@@ -92,27 +75,6 @@ export function ChatWelcome({ onSelectPrompt, disabled }: ChatWelcomeProps) {
               disabled={disabled}
               onClick={() => onSelectPrompt(t(`actions.${action.id}.prompt`))}
             />
-          ))}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          <Separator className="flex-1" />
-          <span className="shrink-0 text-xs text-muted-foreground">{t("suggestionsLabel")}</span>
-          <Separator className="flex-1" />
-        </div>
-        <div className="flex flex-col gap-2">
-          {SUGGESTIONS.map((id) => (
-            <button
-              key={id}
-              type="button"
-              disabled={disabled}
-              className="rounded-full border border-border bg-background px-3.5 py-2 text-left text-sm text-muted-foreground transition-colors outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
-              onClick={() => onSelectPrompt(t(`suggestions.${id}`))}
-            >
-              {t(`suggestions.${id}`)}
-            </button>
           ))}
         </div>
       </div>

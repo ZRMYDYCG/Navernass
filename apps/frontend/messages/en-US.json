@@ -4,7 +4,6 @@
     "welcome": {
       "heading": "What do you want to write today?",
       "description": "I can use the current chapter, characters, and settings to help you continue writing, adjust the plot, or refine details.",
-      "suggestionsLabel": "You can also ask",
       "actions": {
         "continue": {
           "title": "Continue writing",
@@ -31,12 +30,6 @@
           "description": "Check consistency and details",
           "prompt": "Organize the related worldbuilding and check whether details stay consistent."
         }
-      },
-      "suggestions": {
-        "continue": "Continue the next passage while keeping the current style",
-        "plot": "Does this plot hold up? Are there better directions?",
-        "scene": "Help me describe the details of this scene",
-        "ooc": "Check whether this character is OOC"
       }
     },
     "composer": {

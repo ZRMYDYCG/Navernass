@@ -4,7 +4,6 @@
     "welcome": {
       "heading": "今天想写点什么？",
       "description": "我可以结合当前章节、人物和设定，帮你继续写、调整剧情或完善细节。",
-      "suggestionsLabel": "你也可以这样问",
       "actions": {
         "continue": {
           "title": "续写当前内容",
@@ -31,12 +30,6 @@
           "description": "检查世界观与细节",
           "prompt": "梳理当前相关设定，检查世界观与细节是否一致。"
         }
-      },
-      "suggestions": {
-        "continue": "帮我续写下一段，保持当前的文风",
-        "plot": "这段剧情合理吗？有没有更好的发展方向？",
-        "scene": "帮我描写一下这个场景的细节",
-        "ooc": "检查一下这个角色是否OOC"
       }
     },
     "composer": {
