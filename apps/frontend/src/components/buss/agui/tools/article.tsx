@@ -32,7 +32,7 @@ function SnapshotDetail({ output }: SnapshotProps) {
   return (
     <dl className="grid grid-cols-3 gap-1 text-center">
       {stats.map(([key, count]) => (
-        <div key={key} className="flex flex-col-reverse rounded-md bg-muted px-1 py-1.5">
+        <div key={key} className="flex flex-col-reverse py-0.5">
           <dt className="text-xs text-muted-foreground">{t(key)}</dt>
           <dd className="text-sm font-medium text-foreground tabular-nums">{count}</dd>
         </div>
@@ -124,11 +124,11 @@ function SearchArticleDetail({ output }: SearchArticleProps) {
         {output.matches.map((match) => (
           <li
             key={match.start}
-            className="rounded-md bg-muted px-2.5 py-1.5 text-xs leading-relaxed text-foreground/80"
+            className="text-xs leading-relaxed text-muted-foreground"
           >
             {match.before.length > contextLength ? "…" : null}
             {match.before.slice(-contextLength)}
-            <mark className="rounded-sm bg-accent px-0.5 text-accent-foreground">
+            <mark className="bg-transparent font-medium text-foreground">
               {match.match}
             </mark>
             {match.after.slice(0, contextLength)}

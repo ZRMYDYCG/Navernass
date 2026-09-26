@@ -21,7 +21,7 @@ export function ToolExcerpt({
     <div
       className={cn(
         "max-h-64 overflow-auto text-xs leading-relaxed wrap-break-word whitespace-pre-wrap",
-        tone === "error" ? "text-destructive" : "text-foreground/80",
+        tone === "error" ? "text-destructive" : "text-muted-foreground",
       )}
     >
       {children}

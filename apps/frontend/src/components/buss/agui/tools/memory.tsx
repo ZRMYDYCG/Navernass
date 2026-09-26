@@ -26,7 +26,7 @@ function SearchMemoryDetail({ output }: SearchMemoryProps) {
   return (
     <ul className="flex max-h-72 flex-col gap-1 overflow-y-auto">
       {output.map((hit) => (
-        <li key={hit.id} className="flex flex-col gap-1 rounded-md bg-muted px-2.5 py-1.5">
+        <li key={hit.id} className="flex flex-col gap-1">
           <div className="flex min-w-0 items-center gap-1.5">
             <Badge variant="outline">{t(`memoryKind.${hit.kind}`)}</Badge>
             {hit.title ? (

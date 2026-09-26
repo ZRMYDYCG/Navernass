@@ -100,8 +100,8 @@ export function ToolRow({
           <CollapsibleContent>
             <div
               className={cn(
-                "ms-5.5 mt-0.5 mb-2 flex min-w-0 flex-col gap-2.5",
-                !bare && "rounded-lg bg-muted/50 p-3",
+                "ms-5.5 mt-0.5 mb-2 flex min-w-0 flex-col",
+                bare ? "gap-2.5" : "gap-2 text-muted-foreground",
               )}
             >
               {children}
