@@ -50,7 +50,11 @@ function MessageBody({
   return (
     <Message>
       <MessageContent>
-        <AssistantParts parts={message.parts} streaming={streaming} />
+        <AssistantParts
+          parts={message.parts}
+          streaming={streaming}
+          toolTimings={message.metadata?.toolTimings}
+        />
       </MessageContent>
     </Message>
   );

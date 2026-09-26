@@ -45,6 +45,12 @@ export const sessionMessagePageSchema = z.object({
         .object({
           runId: z.string().optional(),
           sessionId: z.string().optional(),
+          toolTimings: z
+            .record(
+              z.string(),
+              z.object({ startedAt: z.number(), durationMs: z.number().nonnegative().optional() }),
+            )
+            .optional(),
         })
         .passthrough()
         .optional(),

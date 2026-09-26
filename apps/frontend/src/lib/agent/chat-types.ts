@@ -4,6 +4,7 @@ export interface AgentMessageMetadata {
   runId?: string;
   sessionId?: string;
   aiSdkMessageId?: string;
+  toolTimings?: Record<string, { startedAt: number; durationMs?: number }>;
 }
 
 export type AgentMessage = UIMessage<AgentMessageMetadata>;

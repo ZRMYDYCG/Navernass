@@ -4,16 +4,17 @@ import { isReasoningUIPart, isTextUIPart, isToolUIPart } from "ai";
 import type { UIMessage } from "ai";
 import { LinkIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
 
 import { Spinner } from "@/components/ui/spinner";
+import type { AgentMessageMetadata } from "@/lib/agent/chat-types";
+import { ToolDuration } from "../activity/tool-duration";
 
-import { Reasoning } from "./reasoning";
+import { Reasoning } from "../activity/reasoning";
 import { StreamText } from "./stream-text";
-import { ToolGroup, ToolRow } from "./tool-shell";
-import { resolveTool } from "./tools/registry";
-import type { ResolvedTool } from "./tools/define";
-import { isActive, toToolCall, type ToolCall } from "./types";
+import { ToolGroup, ToolRow } from "../activity/tool-row";
+import { resolveTool } from "../tools/registry";
+import type { ResolvedTool } from "../tools/define";
+import { isActive, toToolCall, type ToolCall } from "../tools/tool-call";
 
 type Part = UIMessage["parts"][number];
 
@@ -25,8 +26,7 @@ interface ResolvedCall {
 type Segment =
   | { kind: "text"; key: string; text: string }
   | { kind: "reasoning"; key: string; text: string; active: boolean }
-  | { kind: "tools"; key: string; calls: ResolvedCall[] }
-  | { kind: "card"; key: string; card: ReactNode };
+  | { kind: "tools"; key: string; calls: ResolvedCall[] };
 
 interface Source {
   id: string;
@@ -56,10 +56,6 @@ function segment(parts: Part[], streaming: boolean, resolve: (call: ToolCall) =>
     if (isToolUIPart(part)) {
       const call = toToolCall(part, streaming);
       const view = resolve(call);
-      if (view.card) {
-        segments.push({ kind: "card", key: call.toolCallId, card: view.card });
-        return;
-      }
       const last = segments.at(-1);
       if (last?.kind === "tools") last.calls.push({ call, view });
       else segments.push({ kind: "tools", key: call.toolCallId, calls: [{ call, view }] });
@@ -83,10 +79,11 @@ function Pending({ label }: { label: string }) {
 interface AssistantPartsProps {
   parts: Part[];
   streaming?: boolean;
+  toolTimings?: AgentMessageMetadata["toolTimings"];
 }
 
 /** 渲染助手消息的全部 parts：流式文本、推理、工具调用组、需要用户操作的卡片和来源。 */
-export function AssistantParts({ parts, streaming = false }: AssistantPartsProps) {
+export function AssistantParts({ parts, streaming = false, toolTimings }: AssistantPartsProps) {
   const t = useTranslations("agui");
   const { segments, sources } = segment(parts, streaming, (call) => resolveTool(call, t));
   const last = segments.at(-1);
@@ -94,7 +91,6 @@ export function AssistantParts({ parts, streaming = false }: AssistantPartsProps
   const waiting =
     streaming &&
     (!last ||
-      last.kind === "card" ||
       (last.kind === "reasoning" && !last.active) ||
       (last.kind === "tools" && !last.calls.some(({ call }) => isActive(call.status))));
 
@@ -114,18 +110,24 @@ export function AssistantParts({ parts, streaming = false }: AssistantPartsProps
                 {item.calls.map(({ call, view }) => (
                   <ToolRow
                     key={call.toolCallId}
+                    command={call.name}
                     icon={view.icon}
                     title={view.title}
                     summary={view.summary}
                     status={call.status}
+                    trailing={
+                      <ToolDuration
+                        timing={toolTimings?.[call.toolCallId]}
+                        running={call.status === "running"}
+                      />
+                    }
+                    result={view.card}
                   >
                     {view.detail}
                   </ToolRow>
                 ))}
               </ToolGroup>
             );
-          case "card":
-            return <div key={item.key}>{item.card}</div>;
         }
       })}
       {sources.length ? (

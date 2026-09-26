@@ -21,6 +21,12 @@ interface ToolContext {
   input: RunAgent;
   model: LanguageModel;
   contextText: string;
+  toolTimings?: Record<string, ToolTiming>;
+}
+
+export interface ToolTiming {
+  startedAt: number;
+  durationMs?: number;
 }
 
 const subagentPrompts = {
@@ -61,6 +67,8 @@ export class ToolService {
       policy: { retryable?: boolean; abortSignal?: AbortSignal } = {},
     ) => {
       const started = Date.now();
+      const timing: ToolTiming = { startedAt: started };
+      if (context.toolTimings) context.toolTimings[toolCallId] = timing;
       const retryLog: RetryEvent[] = [];
       try {
         const output = await this.retries.execute(execute, {
@@ -70,24 +78,26 @@ export class ToolService {
             retryLog.push(event);
           },
         });
+        timing.durationMs = Date.now() - started;
         await this.traces.saveTool(context.runId, {
           id: toolCallId,
           name,
           input,
           output,
           status: "completed",
-          durationMs: Date.now() - started,
+          durationMs: timing.durationMs,
           retryCount: retryLog.length,
           retryLog,
         });
         return output;
       } catch (error) {
+        timing.durationMs = Date.now() - started;
         await this.traces.saveTool(context.runId, {
           id: toolCallId,
           name,
           input,
           status: "failed",
-          durationMs: Date.now() - started,
+          durationMs: timing.durationMs,
           retryCount: retryLog.length,
           retryLog,
           error: error instanceof Error ? error.message : String(error),

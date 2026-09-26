@@ -54,11 +54,23 @@
     }
   },
   "agui": {
+    "failedTool": "Execution failed",
+    "interruptedTool": "Execution interrupted",
+    "duration": {
+      "seconds": "{seconds}s",
+      "live": "Live estimate; server duration shown on completion",
+      "measured": "Server execution time, including retries"
+    },
     "working": "Working",
     "connecting": "Connecting to the agent",
     "reasoning": { "running": "Thinking", "done": "Reasoning" },
     "sources": "Sources",
     "status": {
+      "streaming": "Preparing",
+      "running": "Running",
+      "waiting": "Waiting",
+      "done": "Done",
+      "error": "Failed",
       "interrupted": "Interrupted"
     },
     "tools": {

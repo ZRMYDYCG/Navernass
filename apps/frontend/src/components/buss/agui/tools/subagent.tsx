@@ -11,8 +11,8 @@ import {
   validateContinuityOutputSchema,
 } from "@/schemas/agent-tool.schema";
 
-import { StreamText } from "../stream-text";
-import { ToolExcerpt, ToolField, ToolMarkdown } from "../tool-shell";
+import { StreamText } from "../message/stream-text";
+import { ToolExcerpt, ToolField, ToolMarkdown } from "../activity/tool-detail";
 import { defineTool, toolPhase, type ToolProps } from "./define";
 
 type ValidateProps = ToolProps<

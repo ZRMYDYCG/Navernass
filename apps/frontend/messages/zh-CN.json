@@ -54,11 +54,23 @@
     }
   },
   "agui": {
+    "failedTool": "执行失败",
+    "interruptedTool": "执行中断",
+    "duration": {
+      "seconds": "{seconds}s",
+      "live": "实时估算，完成后显示后端实际耗时",
+      "measured": "后端实际执行耗时（含重试）"
+    },
     "working": "处理中",
     "connecting": "正在连接 Agent",
     "reasoning": { "running": "正在思考", "done": "思考过程" },
     "sources": "参考来源",
     "status": {
+      "streaming": "准备中",
+      "running": "执行中",
+      "waiting": "待回答",
+      "done": "完成",
+      "error": "失败",
       "interrupted": "已中断"
     },
     "tools": {

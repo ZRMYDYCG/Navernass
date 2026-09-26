@@ -3,7 +3,7 @@
 import { WrenchIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { ToolExcerpt, ToolField } from "../tool-shell";
+import { ToolExcerpt, ToolField } from "../activity/tool-detail";
 import { defineTool, toolPhase, type ToolProps } from "./define";
 
 function stringify(value: unknown) {

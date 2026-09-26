@@ -11,7 +11,7 @@ import {
   searchMemoryOutputSchema,
 } from "@/schemas/agent-tool.schema";
 
-import { ToolExcerpt, ToolMeta } from "../tool-shell";
+import { ToolExcerpt, ToolMeta } from "../activity/tool-detail";
 import { defineTool, quote, type ToolProps } from "./define";
 
 type SearchMemoryProps = ToolProps<

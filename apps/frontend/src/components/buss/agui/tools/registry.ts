@@ -1,4 +1,4 @@
-import type { ToolCall, Translate } from "../types";
+import type { ToolCall, Translate } from "./tool-call";
 import { getChapter, getNovelSnapshot, readArticle, searchArticle } from "./article";
 import { askUser } from "./ask-user";
 import type { ResolvedTool, ToolResolver } from "./define";

@@ -29,7 +29,7 @@ import { AgentErrorService } from "./error.service.js";
 import { ModelService } from "./model.service.js";
 import { askUserPrompt, rolePrompts } from "./prompt.js";
 import { StreamService } from "./stream.service.js";
-import { ToolService } from "./tool.service.js";
+import { ToolService, type ToolTiming } from "./tool.service.js";
 import { TraceService } from "./trace.service.js";
 
 const outputSchemas = {
@@ -414,15 +414,20 @@ export class RuntimeService {
         tools: execution.tools,
         sendReasoning: true,
         sendSources: true,
-        // 只随 start/finish 下发；逐片段下发会让每个 delta 后跟一条 metadata，打断持久化合并。
+        // Publish timing on tool boundaries, never on text deltas.
         messageMetadata: ({ part }) =>
-          part.type === "start" || part.type === "finish"
+          part.type === "start" ||
+          part.type === "finish" ||
+          part.type === "tool-call" ||
+          part.type === "tool-result" ||
+          part.type === "tool-error"
             ? {
                 runId: execution.run.id,
                 sessionId: execution.session.id,
                 skillIds: execution.skillSet.ids,
                 contextBudget: execution.context.budget,
                 contextWarnings: execution.context.warnings,
+                toolTimings: structuredClone(execution.toolTimings),
               }
             : undefined,
         onError: (error) => {
@@ -448,7 +453,12 @@ export class RuntimeService {
             remoteId: responseMessage.id,
             content: text,
             parts: responseMessage.parts,
-            metadata: { finishReason, usage, aiSdkMessageId: responseMessage.id },
+            metadata: {
+              finishReason,
+              usage,
+              aiSdkMessageId: responseMessage.id,
+              toolTimings: execution.toolTimings,
+            },
           });
           await this.traces.finishRun(execution.run.id, {
             output: text,
@@ -563,8 +573,9 @@ export class RuntimeService {
       });
     }
     const contextText = this.contexts.toPrompt(context);
+    const toolTimings: Record<string, ToolTiming> = {};
     const tools = this.tools.build(
-      { runId: run.id, userId, input: finalInput, model, contextText },
+      { runId: run.id, userId, input: finalInput, model, contextText, toolTimings },
       input.mode,
       { interactive },
     );
@@ -585,6 +596,7 @@ export class RuntimeService {
     });
     return {
       agent,
+      toolTimings,
       tools,
       run,
       session,

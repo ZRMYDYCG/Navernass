@@ -12,15 +12,10 @@ import {
   searchArticleOutputSchema,
 } from "@/schemas/agent-tool.schema";
 
-import { ToolExcerpt, ToolMeta } from "../tool-shell";
+import { ToolExcerpt, ToolMeta } from "../activity/tool-detail";
 import { defineTool, quote, type ToolProps } from "./define";
 
-const excerptLength = 1_200;
 const contextLength = 60;
-
-function excerpt(text: string) {
-  return text.length > excerptLength ? `${text.slice(0, excerptLength)}…` : text;
-}
 
 type SnapshotProps = ToolProps<unknown, z.infer<typeof novelSnapshotOutputSchema>>;
 
@@ -35,7 +30,7 @@ function SnapshotDetail({ output }: SnapshotProps) {
     ["timeline", output.timeline_events.length],
   ] as const;
   return (
-    <dl className="grid grid-cols-5 gap-1 text-center">
+    <dl className="grid grid-cols-3 gap-1 text-center">
       {stats.map(([key, count]) => (
         <div key={key} className="flex flex-col-reverse rounded-md bg-muted px-1 py-1.5">
           <dt className="text-xs text-muted-foreground">{t(key)}</dt>
@@ -69,7 +64,7 @@ function ChapterDetail({ output }: ChapterProps) {
           t("wordCount", { count: output.word_count }),
         ]}
       />
-      <ToolExcerpt>{excerpt(output.content)}</ToolExcerpt>
+      <ToolExcerpt>{output.content}</ToolExcerpt>
     </>
   );
 }
@@ -95,7 +90,7 @@ function ReadArticleDetail({ output }: ReadArticleProps) {
           output.hasMore && t("hasMore"),
         ]}
       />
-      <ToolExcerpt>{excerpt(output.content)}</ToolExcerpt>
+      <ToolExcerpt>{output.content}</ToolExcerpt>
     </>
   );
 }

@@ -12,7 +12,7 @@ import {
   readSkillResourceOutputSchema,
 } from "@/schemas/agent-tool.schema";
 
-import { ToolExcerpt, ToolField } from "../tool-shell";
+import { ToolExcerpt, ToolField } from "../activity/tool-detail";
 import { defineTool, type ToolProps } from "./define";
 
 type LoadSkillProps = ToolProps<

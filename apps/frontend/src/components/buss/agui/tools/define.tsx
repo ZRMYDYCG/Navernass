@@ -2,8 +2,8 @@ import type { LucideIcon } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import type { z } from "zod";
 
-import { ToolExcerpt } from "../tool-shell";
-import type { ToolCall, Translate } from "../types";
+import { ToolExcerpt } from "../activity/tool-detail";
+import type { ToolCall, Translate } from "./tool-call";
 
 export interface ToolProps<I, O> {
   call: ToolCall;
@@ -19,7 +19,7 @@ export interface ToolDefinition<I, O> {
   title?: (t: Translate, props: ToolProps<I, O>) => string;
   summary?: (t: Translate, props: ToolProps<I, O>) => string | undefined;
   Detail?: ComponentType<ToolProps<I, O>>;
-  /** 结果可用时替换整行，独立渲染在工具组之外（例如需要用户操作的修改提案）。 */
+  /** Interactive result below the stable tool row, outside its collapsed details. */
   Card?: ComponentType<{ call: ToolCall; output: O }>;
 }
 
@@ -57,8 +57,12 @@ export function defineTool<I, O>(definition: ToolDefinition<I, O>): ToolResolver
     const hasData = props.input !== undefined || props.output !== undefined;
     return {
       icon,
-      title: title?.(t, props) ?? t(`tools.${call.name}.${toolPhase(call)}`),
-      summary: failed ? call.errorText : summary?.(t, props),
+      title: failed
+        ? t("failedTool")
+        : call.status === "interrupted"
+          ? t("interruptedTool")
+          : (title?.(t, props) ?? t(`tools.${call.name}.${toolPhase(call)}`)),
+      summary: summary?.(t, props),
       detail: failed ? (
         <ToolExcerpt tone="error">{call.errorText}</ToolExcerpt>
       ) : Detail && hasData ? (
