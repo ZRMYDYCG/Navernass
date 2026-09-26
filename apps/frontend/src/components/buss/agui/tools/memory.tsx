@@ -4,7 +4,6 @@ import { BookmarkPlusIcon, BrainIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { z } from "zod";
 
-import { Badge } from "@/components/ui/badge";
 import {
   saveMemoryInputSchema,
   searchMemoryInputSchema,
@@ -24,21 +23,19 @@ function SearchMemoryDetail({ output }: SearchMemoryProps) {
   if (!output) return null;
   if (!output.length) return <ToolMeta items={[t("detail.noHit")]} />;
   return (
-    <ul className="flex max-h-72 flex-col gap-1 overflow-y-auto">
+    <ul className="flex max-h-72 flex-col gap-3 overflow-y-auto">
       {output.map((hit) => (
         <li key={hit.id} className="flex flex-col gap-1">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <Badge variant="outline">{t(`memoryKind.${hit.kind}`)}</Badge>
-            {hit.title ? (
-              <span className="min-w-0 truncate text-xs font-medium text-foreground">
-                {hit.title}
-              </span>
-            ) : null}
-            <span className="ms-auto shrink-0 text-xs text-muted-foreground tabular-nums">
-              {t("detail.score", { score: Math.round(hit.score * 100) })}
+          <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground/70">
+            <span className="shrink-0">{t(`memoryKind.${hit.kind}`)}</span>
+            {hit.title ? <span className="min-w-0 truncate">· {hit.title}</span> : null}
+            <span className="shrink-0 tabular-nums">
+              · {t("detail.score", { score: Math.round(hit.score * 100) })}
             </span>
           </div>
-          <p className="line-clamp-3 text-xs leading-relaxed text-foreground/80">{hit.content}</p>
+          <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+            {hit.content}
+          </p>
         </li>
       ))}
     </ul>

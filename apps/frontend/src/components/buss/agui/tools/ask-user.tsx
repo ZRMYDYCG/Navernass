@@ -27,13 +27,15 @@ function AskUserDetail({ input, output }: ToolProps<AskUserInput, AskUserOutput>
   const t = useTranslations("agui.tools.askUser");
   if (!input) return null;
   return (
-    <ol className="flex flex-col gap-1.5">
+    <ol className="flex flex-col gap-2">
       {input.questions.map((question, index) => (
-        <li key={question.id} className="flex flex-col gap-0.5 text-xs">
-          <span className="text-foreground">
+        <li key={question.id} className="flex flex-col gap-0.5">
+          <span>
             {index + 1}. {question.prompt}
           </span>
-          <span className="text-foreground/70">{answerOf(question, output) ?? t("noAnswer")}</span>
+          <span className="text-muted-foreground/70">
+            {answerOf(question, output) ?? t("noAnswer")}
+          </span>
         </li>
       ))}
     </ol>

@@ -120,9 +120,9 @@ function SearchArticleDetail({ output }: SearchArticleProps) {
   if (!output.matches.length) return <ToolMeta items={[t("noMatch")]} />;
   return (
     <>
-      <ul className="flex max-h-60 flex-col gap-1 overflow-y-auto">
+      <ul className="flex max-h-72 flex-col gap-2 overflow-y-auto">
         {output.matches.map((match) => (
-          <li key={match.start} className="text-xs leading-relaxed text-muted-foreground">
+          <li key={match.start} className="text-sm leading-relaxed text-muted-foreground">
             {match.before.length > contextLength ? "…" : null}
             {match.before.slice(-contextLength)}
             <mark className="bg-transparent font-medium text-foreground">{match.match}</mark>
