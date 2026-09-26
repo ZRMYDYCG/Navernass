@@ -24,8 +24,6 @@ interface ToolRowProps {
   children?: ReactNode;
   result?: ReactNode;
   trailing?: ReactNode;
-  /** 详情区自带样式（例如推理正文），不套灰底块。 */
-  bare?: boolean;
 }
 
 /** A stable row throughout execution; completing a tool never replaces its container. */
@@ -38,7 +36,6 @@ export function ToolRow({
   children,
   result,
   trailing,
-  bare = false,
 }: ToolRowProps) {
   const t = useTranslations("agui.status");
   const [userOpen, setUserOpen] = useState<boolean>();
@@ -98,12 +95,7 @@ export function ToolRow({
         )}
         {expandable ? (
           <CollapsibleContent>
-            <div
-              className={cn(
-                "ms-5.5 mt-0.5 mb-2 flex min-w-0 flex-col",
-                bare ? "gap-2.5" : "gap-2 text-muted-foreground",
-              )}
-            >
+            <div className="ms-5.5 mt-0.5 mb-2 flex min-w-0 flex-col gap-2 text-muted-foreground">
               {children}
             </div>
           </CollapsibleContent>

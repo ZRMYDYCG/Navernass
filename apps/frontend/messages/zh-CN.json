@@ -63,7 +63,11 @@
     },
     "working": "处理中",
     "connecting": "正在连接 Agent",
-    "reasoning": { "running": "正在思考", "done": "思考过程" },
+    "reasoning": {
+      "running": "正在思考…",
+      "done": "思考过程",
+      "duration": "已思考 {seconds} 秒"
+    },
     "sources": "参考来源",
     "status": {
       "streaming": "准备中",
