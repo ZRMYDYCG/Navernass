@@ -122,15 +122,10 @@ function SearchArticleDetail({ output }: SearchArticleProps) {
     <>
       <ul className="flex max-h-60 flex-col gap-1 overflow-y-auto">
         {output.matches.map((match) => (
-          <li
-            key={match.start}
-            className="text-xs leading-relaxed text-muted-foreground"
-          >
+          <li key={match.start} className="text-xs leading-relaxed text-muted-foreground">
             {match.before.length > contextLength ? "…" : null}
             {match.before.slice(-contextLength)}
-            <mark className="bg-transparent font-medium text-foreground">
-              {match.match}
-            </mark>
+            <mark className="bg-transparent font-medium text-foreground">{match.match}</mark>
             {match.after.slice(0, contextLength)}
             {match.after.length > contextLength ? "…" : null}
           </li>
