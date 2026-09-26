@@ -51,18 +51,6 @@
       "otherPlaceholder": "输入你的答案",
       "skip": "跳过",
       "continue": "继续"
-    },
-    "auth": {
-      "signIn": "登录",
-      "signUp": "注册",
-      "signOut": "退出",
-      "signInTitle": "登录 Narraverse",
-      "signUpTitle": "创建 Narraverse 账号",
-      "description": "使用邮箱账号进入小说创作工作台。",
-      "name": "昵称",
-      "email": "邮箱",
-      "password": "密码",
-      "failed": "认证失败，请检查填写内容。"
     }
   },
   "agui": {

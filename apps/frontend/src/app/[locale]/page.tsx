@@ -1,5 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { redirect } from "@/i18n/navigation";
 
-export default function HomePage() {
-  return <Button>Login</Button>;
+interface HomePageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function HomePage({ params }: HomePageProps) {
+  const { locale } = await params;
+  redirect({ href: "/workspace", locale });
 }

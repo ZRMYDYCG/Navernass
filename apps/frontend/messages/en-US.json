@@ -51,18 +51,6 @@
       "otherPlaceholder": "Type your answer",
       "skip": "Skip",
       "continue": "Continue"
-    },
-    "auth": {
-      "signIn": "Sign in",
-      "signUp": "Sign up",
-      "signOut": "Sign out",
-      "signInTitle": "Sign in to Narraverse",
-      "signUpTitle": "Create a Narraverse account",
-      "description": "Use an email account to enter the novel writing workspace.",
-      "name": "Name",
-      "email": "Email",
-      "password": "Password",
-      "failed": "Authentication failed. Check the entered details."
     }
   },
   "agui": {

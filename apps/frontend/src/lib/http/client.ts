@@ -42,6 +42,3 @@ const baseClient = ky.create({
 
 /** Nest 业务接口，响应带 `{ success, data }` 信封。 */
 export const apiClient = baseClient.extend({ prefix: apiBaseUrl });
-
-/** Better Auth 由 Nest 运行时注册在 /api/auth，不在业务前缀下，响应也不带信封。 */
-export const authClient = baseClient.extend({ prefix: `${backendUrl}/api/auth` });
