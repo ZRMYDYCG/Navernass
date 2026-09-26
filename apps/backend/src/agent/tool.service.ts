@@ -10,7 +10,6 @@ import { EditorService } from "../editor/editor.service.js";
 import { proposeEdit } from "../editor/editor.schema.js";
 import { SkillResolver } from "../skill/skill.resolver.js";
 import { MemoryService } from "./memory.service.js";
-import { askUserInput } from "./agent.schema.js";
 import { AgentErrorService } from "./error.service.js";
 import { RetryService, type RetryEvent } from "./retry.service.js";
 import { TraceService } from "./trace.service.js";
@@ -48,11 +47,7 @@ export class ToolService {
     this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
   }
 
-  build(
-    context: ToolContext,
-    mode: RunAgent["mode"] = "agent",
-    options: { allowAskUser?: boolean } = {},
-  ): ToolSet {
+  build(context: ToolContext, mode: RunAgent["mode"] = "agent"): ToolSet {
     const observed = async <T>(
       toolCallId: string,
       name: string,
@@ -97,15 +92,6 @@ export class ToolService {
     };
 
     const available: ToolSet = {
-      askUser: tool({
-        description: [
-          "只有缺少会显著改变创作结果的用户决策时，才调用本工具暂停执行并请求用户输入。",
-          "一次调用可以包含最多四个紧密相关的问题；不得询问能从小说资料、记忆或工具中自行获得的信息。",
-          "调用后必须等待用户回答，不能假设答案，也不能在同一步重复调用。",
-          "该工具由客户端完成，没有服务端 execute；问题显示在输入框上方，不进入聊天气泡。",
-        ].join("\n"),
-        inputSchema: askUserInput,
-      }),
       loadSkill: tool({
         description:
           "按需加载一个可用 Skill 的完整 SKILL.md 指令。只有任务确实需要该专业流程时才调用。",
@@ -351,7 +337,6 @@ export class ToolService {
     };
     const policies: Record<RunAgent["mode"], Set<string>> = {
       ask: new Set([
-        "askUser",
         "loadSkill",
         "readSkillResource",
         "getNovelSnapshot",
@@ -361,7 +346,6 @@ export class ToolService {
         "searchMemory",
       ]),
       plan: new Set([
-        "askUser",
         "loadSkill",
         "readSkillResource",
         "getNovelSnapshot",
@@ -374,7 +358,6 @@ export class ToolService {
         "delegateSubagent",
       ]),
       outline: new Set([
-        "askUser",
         "loadSkill",
         "readSkillResource",
         "getNovelSnapshot",
@@ -387,7 +370,6 @@ export class ToolService {
         "delegateSubagent",
       ]),
       worldbook: new Set([
-        "askUser",
         "loadSkill",
         "readSkillResource",
         "getNovelSnapshot",
@@ -402,9 +384,7 @@ export class ToolService {
       agent: new Set(Object.keys(available)),
     };
     return Object.fromEntries(
-      Object.entries(available).filter(
-        ([name]) => policies[mode].has(name) && (name !== "askUser" || options.allowAskUser),
-      ),
+      Object.entries(available).filter(([name]) => policies[mode].has(name)),
     ) as ToolSet;
   }
 }

@@ -34,6 +34,12 @@ export const envSchema = z.object({
   AGENT_RETRY_BASE_MS: z.coerce.number().int().min(50).max(10_000).default(500),
   AGENT_RETRY_MAX_MS: z.coerce.number().int().min(500).max(60_000).default(10_000),
   AGENT_CONTEXT_MAX_CHARS: z.coerce.number().int().min(2_000).max(500_000).default(120_000),
+  // 联调期临时写死的 AI 配置，配合 dev-fixtures 免配置 Provider
+  AI_DEV_BASE_URL: z.url().optional(),
+  AI_DEV_API_KEY: z.string().min(1).optional(),
+  AI_DEV_MODEL: z.string().min(1).optional(),
+  // 联调期临时写死的统一用户：开发环境下所有 CurrentUser 都用它，浏览器登录态不影响
+  AI_DEV_USER_ID: z.string().min(1).optional(),
   QDRANT_URL: z.url().default("http://localhost:6333"),
   QDRANT_API_KEY: z.string().optional(),
   QDRANT_COLLECTION: z.string().min(1).default("narraverse_memory"),

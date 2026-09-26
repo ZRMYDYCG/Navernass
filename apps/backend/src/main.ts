@@ -9,7 +9,10 @@ import { Logger } from "nestjs-pino";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { A2aGateway } from "./a2a/a2a.gateway.js";
 import { AppModule } from "./app.module.js";
+import { SecretService } from "./agent/secret.service.js";
 import { requestIdMiddleware } from "./common/request-id.js";
+import { ensureDevFixtures } from "./common/dev-fixtures.js";
+import { PrismaService } from "./database/prisma.service.js";
 import { appendA2aDocs } from "./openapi/a2a-doc.js";
 import { appendAuthDocs } from "./openapi/auth-doc.js";
 import "reflect-metadata";
@@ -55,6 +58,11 @@ async function bootstrap() {
     .getInstance()
     .set("trust proxy", config.get("TRUST_PROXY", { infer: true }));
   app.enableShutdownHooks();
+
+  // 联调期临时方案：开发环境写死开发用户/小说/Provider，免登录免配置直接联调对话模块
+  if (config.get("NODE_ENV", { infer: true }) === "development") {
+    await ensureDevFixtures(app.get(PrismaService), config, app.get(SecretService));
+  }
 
   if (config.get("DOCS_ENABLED", { infer: true })) {
     const apiPrefix = config.get("API_PREFIX", { infer: true });

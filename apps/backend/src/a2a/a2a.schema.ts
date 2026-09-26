@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { agentRole, answerQuestion, contextOptions } from "../agent/agent.schema.js";
+import { agentRole, contextOptions } from "../agent/agent.schema.js";
 import { skillMode } from "../skill/skill.schema.js";
 
 /** A2A Message 的 data Part 中承载的 Narraverse 执行上下文。 */
@@ -37,12 +37,6 @@ export const a2aContext = z.object({
     rag: { enabled: true, limit: 8, minScore: 0.2 },
     blocks: [],
   }),
-  askAnswer: z
-    .object({
-      questionId: z.uuid(),
-      answers: answerQuestion.shape.answers,
-    })
-    .optional(),
 });
 
 export type A2aContext = z.infer<typeof a2aContext>;

@@ -4,7 +4,7 @@ import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AppError } from "../common/app-error.js";
 import { PrismaService } from "../database/prisma.service.js";
 
-const terminalStates = new Set(["waiting_input", "completed", "failed", "cancelled"]);
+const terminalStates = new Set(["completed", "failed", "cancelled"]);
 
 /** 持久化并重放官方 UIMessageChunk，使浏览器刷新后可以恢复同一条生成流。 */
 @Injectable()

@@ -34,19 +34,11 @@
     },
     "composer": {
       "placeholder": "Ask anything about this novel…",
-      "waiting": "Answer the question above before continuing",
       "send": "Send message",
       "stop": "Stop generation"
     },
     "error": {
       "title": "The conversation could not continue"
-    },
-    "askUser": {
-      "custom": "Enter another answer",
-      "confirm": "Confirm",
-      "reject": "Reject",
-      "dismiss": "Cancel this question",
-      "submit": "Submit and continue"
     },
     "auth": {
       "signIn": "Sign in",

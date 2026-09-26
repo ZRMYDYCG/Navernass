@@ -5,20 +5,13 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useReducer, useRef } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import type { AgentMessage, AnswerValue } from "@/lib/agent/chat-types";
+import type { AgentMessage } from "@/lib/agent/chat-types";
 import { chatReducer, initialChatState } from "@/lib/agent/chat-machine";
 import { hasRenderablePart } from "@/lib/agent/message-utils";
 import { StreamStore } from "@/lib/agent/stream-store";
-import {
-  answerAgentStream,
-  dismissQuestion,
-  getPendingQuestion,
-  getSessionMessages,
-  startAgentStream,
-} from "@/lib/api/agent.api";
+import { getSessionMessages, startAgentStream } from "@/lib/api/agent.api";
 import { getErrorMessage } from "@/lib/http/error";
 
-import { AskUser } from "./ask-user";
 import { Composer } from "./composer";
 import { Messages } from "./messages";
 import { Welcome } from "./welcome";
@@ -43,14 +36,14 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
   const abortRef = useRef<AbortController>(null);
 
   const busy = state.phase === "streaming";
-  const canSend = Boolean(novelId) && !busy && !state.question;
+  const canSend = Boolean(novelId) && !busy;
 
   useEffect(() => {
     if (!initialSessionId) return;
     let active = true;
-    void Promise.all([getSessionMessages(initialSessionId), getPendingQuestion(initialSessionId)])
-      .then(([messages, question]) => {
-        if (active) dispatch({ type: "HYDRATE", messages, question });
+    void getSessionMessages(initialSessionId)
+      .then((messages) => {
+        if (active) dispatch({ type: "HYDRATE", messages });
       })
       .catch((error: unknown) => {
         if (active) dispatch({ type: "FAIL", message: getErrorMessage(error) });
@@ -78,13 +71,10 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
         streamStore.set(message);
       }
 
-      const sessionId = getSessionId(finalMessage) ?? state.sessionId;
-      const question = sessionId ? await getPendingQuestion(sessionId) : undefined;
       dispatch({
         type: "STREAM_DONE",
         message: finalMessage && hasRenderablePart(finalMessage) ? finalMessage : undefined,
-        sessionId,
-        question,
+        sessionId: getSessionId(finalMessage) ?? state.sessionId,
       });
     } catch (error) {
       if (controller.signal.aborted) {
@@ -116,20 +106,6 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
     );
   };
 
-  const answer = (answers: Record<string, AnswerValue>) => {
-    if (!state.question || busy) return;
-    const questionId = state.question.id;
-    dispatch({ type: "RESUME" });
-    void consumeStream((signal) => answerAgentStream(questionId, answers, signal));
-  };
-
-  const dismiss = () => {
-    if (!state.question || busy) return;
-    void dismissQuestion(state.question.id)
-      .then(() => dispatch({ type: "DISMISS_QUESTION" }))
-      .catch((error: unknown) => dispatch({ type: "FAIL", message: getErrorMessage(error) }));
-  };
-
   // 空状态：欢迎页独立于消息滚动区，不参与消息布局。
   const showWelcome = state.messages.length === 0 && !busy;
 
@@ -154,13 +130,8 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
         </div>
       ) : null}
 
-      {state.question ? (
-        <AskUser question={state.question} disabled={busy} onAnswer={answer} onDismiss={dismiss} />
-      ) : null}
-
       <Composer
         busy={busy}
-        waiting={Boolean(state.question)}
         canSend={canSend}
         onSubmit={sendPrompt}
         onStop={() => abortRef.current?.abort()}

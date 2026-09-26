@@ -1,16 +1,26 @@
 import type { Prisma } from "../generated/prisma/client.js";
+import type { EnvConfig } from "../config/env-schema.js";
 import type { CreateProvider, UpdateProvider } from "./agent.schema.js";
 import { HttpStatus, Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { AppError } from "../common/app-error.js";
+import { DEV_USER_ID, DEV_PROVIDER_NAME } from "../common/dev-fixtures.js";
 import { PrismaService } from "../database/prisma.service.js";
 import { SecretService } from "./secret.service.js";
 
 @Injectable()
 export class ProviderService {
+  private readonly devFallbackEnabled: boolean;
+
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(SecretService) private readonly secrets: SecretService,
-  ) {}
+    @Inject(ConfigService) config: ConfigService<EnvConfig, true>,
+  ) {
+    this.devFallbackEnabled =
+      config.get("NODE_ENV", { infer: true }) === "development" &&
+      Boolean(config.get("AI_DEV_API_KEY", { infer: true }));
+  }
 
   list(userId: string) {
     return this.prisma.aiProviderConfig.findMany({
@@ -102,14 +112,23 @@ export class ProviderService {
             orderBy: { created_at: "asc" },
           })
         : null);
-    if (!provider) {
-      throw new AppError(
-        "AI_PROVIDER_NOT_FOUND",
-        "未找到可用模型配置，请先配置 Provider",
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    if (!provider) return this.resolveDevProvider();
     return { ...provider, apiKey: this.secrets.decrypt(provider.api_key_cipher) };
+  }
+
+  // 联调期临时方案：没有可用配置时兜底到写死的开发 Provider
+  private async resolveDevProvider() {
+    if (this.devFallbackEnabled) {
+      const dev = await this.prisma.aiProviderConfig.findFirst({
+        where: { user_id: DEV_USER_ID, name: DEV_PROVIDER_NAME, is_enabled: true },
+      });
+      if (dev) return { ...dev, apiKey: this.secrets.decrypt(dev.api_key_cipher) };
+    }
+    throw new AppError(
+      "AI_PROVIDER_NOT_FOUND",
+      "未找到可用模型配置，请先配置 Provider",
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   private async getOwned(userId: string, id: string) {

@@ -8,7 +8,6 @@ import { TaskNotCancelableError } from "@a2a-js/sdk/errors";
 import { AgentEvent } from "@a2a-js/sdk/server";
 import { Inject, Injectable } from "@nestjs/common";
 import { RuntimeService } from "../agent/runtime.service.js";
-import { QuestionService } from "../agent/question.service.js";
 import { a2aContext } from "./a2a.schema.js";
 
 /** 把 A2A Task 生命周期桥接到现有 Vercel AI SDK Runtime。 */
@@ -19,10 +18,7 @@ export class A2aExecutor implements AgentExecutor {
     { controller: AbortController; contextId: string; cancelled: boolean }
   >();
 
-  constructor(
-    @Inject(RuntimeService) private readonly runtime: RuntimeService,
-    @Inject(QuestionService) private readonly questions: QuestionService,
-  ) {}
+  constructor(@Inject(RuntimeService) private readonly runtime: RuntimeService) {}
 
   async execute(requestContext: RequestContext, eventBus: ExecutionEventBus) {
     const { taskId, contextId, userMessage } = requestContext;
@@ -32,7 +28,7 @@ export class A2aExecutor implements AgentExecutor {
     try {
       const config = this.resolveContext(requestContext);
       const prompt = this.messageText(userMessage);
-      if (!prompt && !config.askAnswer) {
+      if (!prompt) {
         eventBus.publish(
           AgentEvent.task(
             this.task(
@@ -58,26 +54,20 @@ export class A2aExecutor implements AgentExecutor {
           )
           .filter((value): value is string => Boolean(value))
           .slice(-20) ?? [];
-      const userId = requestContext.context.user!.userName;
-      const result = config.askAnswer
-        ? await this.runtime.answerStream(userId, config.askAnswer.questionId, {
-            answers: config.askAnswer.answers,
-          })
-        : await this.runtime.stream(userId, {
-            ...config,
-            prompt,
-            sessionId: config.sessionId,
-            context: {
-              ...config.context,
-              a2aContextId: contextId,
-              a2aTaskId: taskId,
-              a2aHistory: history,
-            },
-          });
-      const { askAnswer: _, ...storedConfig } = config;
+      const result = await this.runtime.stream(requestContext.context.user!.userName, {
+        ...config,
+        prompt,
+        sessionId: config.sessionId,
+        context: {
+          ...config.context,
+          a2aContextId: contextId,
+          a2aTaskId: taskId,
+          a2aHistory: history,
+        },
+      });
       const metadata = {
         ...requestContext.task?.metadata,
-        narraverse: { ...storedConfig, sessionId: result.sessionId, runId: result.runId },
+        narraverse: { ...config, sessionId: result.sessionId, runId: result.runId },
       };
       eventBus.publish(
         AgentEvent.task(
@@ -85,15 +75,7 @@ export class A2aExecutor implements AgentExecutor {
         ),
       );
       taskPublished = true;
-      await this.forwardStream(
-        result.stream,
-        taskId,
-        contextId,
-        userId,
-        result.sessionId,
-        eventBus,
-        controller.signal,
-      );
+      await this.forwardStream(result.stream, taskId, contextId, eventBus, controller.signal);
     } catch (error) {
       const cancelled = controller.signal.aborted;
       if (cancelled && this.activeTasks.get(taskId)?.cancelled) return;
@@ -144,8 +126,6 @@ export class A2aExecutor implements AgentExecutor {
     stream: ReadableStream<UIMessageChunk>,
     taskId: string,
     contextId: string,
-    userId: string,
-    sessionId: string,
     eventBus: ExecutionEventBus,
     signal: AbortSignal,
   ) {
@@ -154,7 +134,6 @@ export class A2aExecutor implements AgentExecutor {
     let pendingText: string | undefined;
     let artifactStarted = false;
     let failed = false;
-    let asksUser = false;
     for await (const chunk of stream) {
       if (signal.aborted || chunk.type === "abort") throw new Error("A2A task aborted");
       if (chunk.type === "text-delta") {
@@ -169,19 +148,17 @@ export class A2aExecutor implements AgentExecutor {
         pendingText = chunk.delta;
       } else if (chunk.type === "tool-input-available") {
         toolNames.set(chunk.toolCallId, chunk.toolName);
-        if (chunk.toolName === "askUser") asksUser = true;
-        else
-          eventBus.publish(
-            AgentEvent.statusUpdate(
-              this.status(
-                taskId,
-                contextId,
-                TaskState.TASK_STATE_WORKING,
-                `正在调用工具：${chunk.toolName}`,
-                { toolCallId: chunk.toolCallId, toolName: chunk.toolName, input: chunk.input },
-              ),
+        eventBus.publish(
+          AgentEvent.statusUpdate(
+            this.status(
+              taskId,
+              contextId,
+              TaskState.TASK_STATE_WORKING,
+              `正在调用工具：${chunk.toolName}`,
+              { toolCallId: chunk.toolCallId, toolName: chunk.toolName, input: chunk.input },
             ),
-          );
+          ),
+        );
       } else if (chunk.type === "tool-output-available") {
         eventBus.publish(
           AgentEvent.statusUpdate(
@@ -208,21 +185,6 @@ export class A2aExecutor implements AgentExecutor {
         this.artifact(taskId, contextId, artifactId, pendingText ?? "", artifactStarted, true),
       ),
     );
-    if (asksUser) {
-      const question = await this.questions.pending(userId, sessionId);
-      eventBus.publish(
-        AgentEvent.statusUpdate(
-          this.status(
-            taskId,
-            contextId,
-            TaskState.TASK_STATE_INPUT_REQUIRED,
-            "Agent 正在等待用户回答。",
-            { question },
-          ),
-        ),
-      );
-      return;
-    }
     eventBus.publish(
       AgentEvent.statusUpdate(
         this.status(taskId, contextId, TaskState.TASK_STATE_COMPLETED, "任务执行完成。"),

@@ -1,8 +1,6 @@
 import { createZodDto } from "nestjs-zod";
 import {
-  answerQuestion,
   createProvider,
-  dismissQuestion,
   messageQuery,
   previewContext,
   replayStream,
@@ -19,8 +17,6 @@ import {
 } from "./agent.schema.js";
 
 export class CreateProviderDto extends createZodDto(createProvider) {}
-export class AnswerQuestionDto extends createZodDto(answerQuestion) {}
-export class DismissQuestionDto extends createZodDto(dismissQuestion) {}
 export class UpdateProviderDto extends createZodDto(updateProvider) {}
 export class RunAgentDto extends createZodDto(runAgent) {}
 export class PreviewContextDto extends createZodDto(previewContext) {}

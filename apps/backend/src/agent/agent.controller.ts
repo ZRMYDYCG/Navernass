@@ -16,6 +16,7 @@ import {
 } from "@nestjs/common";
 import { ApiProduces, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { pipeUIMessageStreamToResponse } from "ai";
+import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 import { z } from "zod";
 import { ApiResult } from "../common/api-result.js";
 import { AppError } from "../common/app-error.js";
@@ -31,9 +32,7 @@ import {
 } from "../openapi/api-doc.js";
 import { MutationResult, ResourceResult } from "../openapi/api-model.js";
 import {
-  AnswerQuestionDto,
   CreateProviderDto,
-  DismissQuestionDto,
   PreviewContextDto,
   RetryRunDto,
   RunAgentDto,
@@ -50,7 +49,6 @@ import { ContextService } from "./context.service.js";
 import { MemoryService } from "./memory.service.js";
 import { ModelService } from "./model.service.js";
 import { ProviderService } from "./provider.service.js";
-import { QuestionService } from "./question.service.js";
 import { RuntimeService } from "./runtime.service.js";
 import { StreamService } from "./stream.service.js";
 import { TraceService } from "./trace.service.js";
@@ -66,6 +64,8 @@ type AgentStreamResult = {
 };
 
 @Controller("agent")
+// 联调期临时方案：Agent/对话模块暂不做鉴权，上线前移除
+@AllowAnonymous()
 @ApiTags("Agent 基础设施")
 export class AgentController {
   constructor(
@@ -75,7 +75,6 @@ export class AgentController {
     @Inject(MemoryService) private readonly memories: MemoryService,
     @Inject(ChatService) private readonly chats: ChatService,
     @Inject(ContextService) private readonly contexts: ContextService,
-    @Inject(QuestionService) private readonly questions: QuestionService,
     @Inject(StreamService) private readonly streams: StreamService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(VectorService) private readonly vectors: VectorService,
@@ -90,7 +89,6 @@ export class AgentController {
       transports: ["rest", "ai-sdk-ui-message-stream-v1"],
       roles: schema.agentRole.options,
       tools: [
-        "askUser",
         "getNovelSnapshot",
         "getChapter",
         "readArticle",
@@ -128,65 +126,7 @@ export class AgentController {
         strategies: ["priority", "balanced"],
         features: ["budget", "deduplication", "role-scope", "trust-level", "editor-selection"],
       },
-      humanInTheLoop: {
-        tool: "askUser",
-        runState: "waiting_input",
-        placement: "composer-overlay",
-        visibleInChatHistory: false,
-        resumeTransport: "ai-sdk-ui-message-stream-v1",
-      },
     };
-  }
-
-  @Get("sessions/:id/question")
-  @ApiDoc({
-    summary: "查询会话当前待回答问题",
-    description: "用于页面刷新后恢复输入框上方的 AskUser 面板；没有待回答问题时返回 null。",
-    type: ResourceResult,
-  })
-  @ApiUuidParam("id", "聊天会话 UUID")
-  pendingQuestion(
-    @CurrentUser() user: AuthUser,
-    @Param(new ZodPipe(idParam)) params: { id: string },
-  ) {
-    return this.questions.pending(user.id, params.id);
-  }
-
-  @Post("questions/:id/answer/stream")
-  @HttpCode(200)
-  @LongTask()
-  @RawResponse()
-  @ApiProduces("text/event-stream")
-  @ApiStreamDoc(
-    "回答 AskUser 并恢复 Agent",
-    "答案作为官方 tool-result 注入原执行断点，继续返回 Vercel AI SDK UI Message Stream；答案不会写成普通用户聊天消息。刷新后可用同一 runId 重放。",
-  )
-  @ApiUuidParam("id", "Agent 提问 UUID")
-  @ApiZodBody(AnswerQuestionDto)
-  async answerQuestion(
-    @CurrentUser() user: AuthUser,
-    @Res() response: Response,
-    @Param(new ZodPipe(idParam)) params: { id: string },
-    @Body(new ZodPipe(schema.answerQuestion)) body: schema.AnswerQuestion,
-  ) {
-    const result = await this.runtime.answerStream(user.id, params.id, body);
-    await this.pipeAgentStream(response, result);
-  }
-
-  @Post("questions/:id/dismiss")
-  @HttpCode(200)
-  @ApiDoc({
-    summary: "取消待回答问题并结束当前执行",
-    type: MutationResult,
-  })
-  @ApiUuidParam("id", "Agent 提问 UUID")
-  @ApiZodBody(DismissQuestionDto)
-  dismissQuestion(
-    @CurrentUser() user: AuthUser,
-    @Param(new ZodPipe(idParam)) params: { id: string },
-    @Body(new ZodPipe(schema.dismissQuestion)) body: schema.DismissQuestion,
-  ) {
-    return this.questions.dismiss(user.id, params.id, body);
   }
 
   @Post("context/preview")
@@ -375,7 +315,7 @@ export class AgentController {
   @ApiQuery({
     name: "status",
     required: false,
-    enum: ["queued", "running", "waiting_input", "completed", "failed", "cancelled"],
+    enum: ["queued", "running", "completed", "failed", "cancelled"],
   })
   async listRuns(
     @CurrentUser() user: AuthUser,

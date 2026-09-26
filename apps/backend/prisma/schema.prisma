@@ -93,18 +93,9 @@ enum AgentRole {
 enum AgentRunStatus {
   queued
   running
-  waiting_input
   completed
   failed
   cancelled
-}
-
-enum AgentQuestionStatus {
-  pending
-  processing
-  answered
-  dismissed
-  expired
 }
 
 enum MemoryKind {
@@ -162,7 +153,6 @@ model User {
   novel_skills      NovelSkill[]
   chapter_edits     ChapterEdit[]
   chapter_revisions ChapterRevision[]
-  agent_questions   AgentQuestion[]
 
   @@map("auth_users")
 }
@@ -263,7 +253,6 @@ model Novel {
   novel_skills      NovelSkill[]
   chapter_edits     ChapterEdit[]
   chapter_revisions ChapterRevision[]
-  agent_questions   AgentQuestion[]
 
   @@index([user_id, status, order_index])
   @@map("novels")
@@ -497,7 +486,6 @@ model AgentSession {
   provider    AiProviderConfig @relation(fields: [provider_id], references: [id], onDelete: Restrict)
   runs        AgentRun[]
   messages    AgentMessage[]
-  questions   AgentQuestion[]
 
   @@index([user_id, updated_at])
   @@index([novel_id, chapter_id])
@@ -505,46 +493,45 @@ model AgentSession {
 }
 
 model AgentRun {
-  id               String           @id @default(uuid()) @db.VarChar(36)
-  session_id       String?          @db.VarChar(36)
-  user_id          String           @db.VarChar(36)
-  novel_id         String           @db.VarChar(36)
-  chapter_id       String?          @db.VarChar(36)
-  provider_id      String           @db.VarChar(36)
-  role             AgentRole        @default(main)
-  status           AgentRunStatus   @default(queued)
-  prompt           String           @db.LongText
-  output           String?          @db.LongText
-  context_snapshot Json
-  skill_ids        Json?
-  skill_snapshot   Json?
-  input_tokens     Int              @default(0)
-  output_tokens    Int              @default(0)
-  total_tokens     Int              @default(0)
-  finish_reason    String?          @db.VarChar(100)
-  error_code       String?          @db.VarChar(100)
-  error_message    String?          @db.Text
-  error_details    Json?
-  retry_count      Int              @default(0)
-  client_request_id String?          @db.VarChar(36)
-  request_snapshot Json?
-  retry_of_id      String?          @db.VarChar(36)
-  latency_ms       Int?
-  started_at       DateTime?        @db.DateTime(3)
-  completed_at     DateTime?        @db.DateTime(3)
-  created_at       DateTime         @default(now()) @db.DateTime(3)
-  user             User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  novel            Novel            @relation(fields: [novel_id], references: [id], onDelete: Cascade)
-  provider         AiProviderConfig @relation(fields: [provider_id], references: [id], onDelete: Restrict)
-  session          AgentSession?    @relation(fields: [session_id], references: [id], onDelete: SetNull)
-  steps            AgentStep[]
-  tool_calls       AgentToolCall[]
-  messages         AgentMessage[]
-  chapter_edits    ChapterEdit[]
-  questions        AgentQuestion[]
-  stream_events    AgentStreamEvent[]
-  retry_of         AgentRun?         @relation("AgentRunRetries", fields: [retry_of_id], references: [id], onDelete: SetNull)
-  retries          AgentRun[]        @relation("AgentRunRetries")
+  id                String             @id @default(uuid()) @db.VarChar(36)
+  session_id        String?            @db.VarChar(36)
+  user_id           String             @db.VarChar(36)
+  novel_id          String             @db.VarChar(36)
+  chapter_id        String?            @db.VarChar(36)
+  provider_id       String             @db.VarChar(36)
+  role              AgentRole          @default(main)
+  status            AgentRunStatus     @default(queued)
+  prompt            String             @db.LongText
+  output            String?            @db.LongText
+  context_snapshot  Json
+  skill_ids         Json?
+  skill_snapshot    Json?
+  input_tokens      Int                @default(0)
+  output_tokens     Int                @default(0)
+  total_tokens      Int                @default(0)
+  finish_reason     String?            @db.VarChar(100)
+  error_code        String?            @db.VarChar(100)
+  error_message     String?            @db.Text
+  error_details     Json?
+  retry_count       Int                @default(0)
+  client_request_id String?            @db.VarChar(36)
+  request_snapshot  Json?
+  retry_of_id       String?            @db.VarChar(36)
+  latency_ms        Int?
+  started_at        DateTime?          @db.DateTime(3)
+  completed_at      DateTime?          @db.DateTime(3)
+  created_at        DateTime           @default(now()) @db.DateTime(3)
+  user              User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel             Novel              @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  provider          AiProviderConfig   @relation(fields: [provider_id], references: [id], onDelete: Restrict)
+  session           AgentSession?      @relation(fields: [session_id], references: [id], onDelete: SetNull)
+  steps             AgentStep[]
+  tool_calls        AgentToolCall[]
+  messages          AgentMessage[]
+  chapter_edits     ChapterEdit[]
+  stream_events     AgentStreamEvent[]
+  retry_of          AgentRun?          @relation("AgentRunRetries", fields: [retry_of_id], references: [id], onDelete: SetNull)
+  retries           AgentRun[]         @relation("AgentRunRetries")
 
   @@unique([user_id, client_request_id])
   @@index([user_id, created_at])
@@ -579,35 +566,6 @@ model AgentMessage {
   @@index([run_id])
   @@index([remote_id])
   @@map("agent_messages")
-}
-
-/// Agent 请求人工输入时使用的持久化中断点；不属于可见聊天消息。
-model AgentQuestion {
-  id             String              @id @default(uuid()) @db.VarChar(36)
-  session_id     String              @db.VarChar(36)
-  run_id         String              @db.VarChar(36)
-  user_id        String              @db.VarChar(36)
-  novel_id       String              @db.VarChar(36)
-  chapter_id     String?             @db.VarChar(36)
-  tool_call_id   String              @db.VarChar(191)
-  status         AgentQuestionStatus @default(pending)
-  question       Json
-  answer         Json?
-  model_messages Json?
-  resume_config  Json
-  instructions   String              @db.LongText
-  created_at     DateTime            @default(now()) @db.DateTime(3)
-  updated_at     DateTime            @updatedAt @db.DateTime(3)
-  answered_at    DateTime?           @db.DateTime(3)
-  session        AgentSession        @relation(fields: [session_id], references: [id], onDelete: Cascade)
-  run            AgentRun            @relation(fields: [run_id], references: [id], onDelete: Cascade)
-  user           User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  novel          Novel               @relation(fields: [novel_id], references: [id], onDelete: Cascade)
-
-  @@unique([run_id, tool_call_id])
-  @@index([user_id, session_id, status, created_at])
-  @@index([run_id, status])
-  @@map("agent_questions")
 }
 
 /// 官方 AI SDK UIMessageChunk 的可重放事件，用于刷新后恢复流式内容。

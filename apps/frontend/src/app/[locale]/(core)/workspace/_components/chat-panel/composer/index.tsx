@@ -10,14 +10,12 @@ import { InputGroupButton } from "@/components/ui/input-group";
 
 interface ComposerProps {
   busy: boolean;
-  /** Agent 正在等待用户作答，输入框应禁用。 */
-  waiting: boolean;
   canSend: boolean;
   onSubmit: (prompt: string) => void;
   onStop: () => void;
 }
 
-export function Composer({ busy, waiting, canSend, onSubmit, onStop }: ComposerProps) {
+export function Composer({ busy, canSend, onSubmit, onStop }: ComposerProps) {
   const t = useTranslations("chat");
   const [draft, setDraft] = useState("");
   const inputRef = useRef<PromptInputHandle>(null);
@@ -33,8 +31,8 @@ export function Composer({ busy, waiting, canSend, onSubmit, onStop }: ComposerP
     <div className="px-4 pt-2 pb-6">
       <PromptInput
         ref={inputRef}
-        placeholder={waiting ? t("composer.waiting") : t("composer.placeholder")}
-        disabled={busy || waiting}
+        placeholder={t("composer.placeholder")}
+        disabled={busy}
         ariaLabel={t("composer.placeholder")}
         onChange={setDraft}
         onSubmit={send}

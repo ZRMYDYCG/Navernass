@@ -39,70 +39,6 @@ export const contextSource = z.enum([
 
 export const contextTrust = z.enum(["trusted", "reference", "untrusted"]);
 
-export const askQuestionType = z.enum(["text", "singleChoice", "multiChoice", "confirm"]);
-
-const askOption = z.object({
-  value: z.string().trim().min(1).max(100),
-  label: z.string().trim().min(1).max(100),
-  description: z.string().trim().max(300).optional(),
-});
-
-const askQuestion = z
-  .object({
-    id: z
-      .string()
-      .trim()
-      .regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/),
-    header: z.string().trim().min(1).max(40),
-    question: z.string().trim().min(1).max(1_000),
-    type: askQuestionType,
-    options: z.array(askOption).max(10).default([]),
-    required: z.boolean().default(true),
-    allowCustom: z.boolean().default(false),
-    placeholder: z.string().trim().max(200).optional(),
-  })
-  .superRefine((question, context) => {
-    if (["singleChoice", "multiChoice"].includes(question.type) && question.options.length < 2) {
-      context.addIssue({
-        code: "custom",
-        path: ["options"],
-        message: "选择题至少需要两个选项",
-      });
-    }
-    const values = question.options.map((option) => option.value);
-    if (new Set(values).size !== values.length) {
-      context.addIssue({ code: "custom", path: ["options"], message: "选项 value 不能重复" });
-    }
-  });
-
-/** Agent 主动请求用户补充决策，前端应在输入框上方渲染而非聊天气泡中。 */
-export const askUserInput = z.object({
-  title: z.string().trim().min(1).max(100).default("需要你的决定"),
-  reason: z.string().trim().max(500).optional(),
-  questions: z
-    .array(askQuestion)
-    .min(1)
-    .max(4)
-    .refine(
-      (questions) => new Set(questions.map((question) => question.id)).size === questions.length,
-      "问题 id 不能重复",
-    ),
-});
-
-const askAnswerValue = z.union([
-  z.string().trim().min(1).max(20_000),
-  z.array(z.string().trim().min(1).max(100)).max(10),
-  z.boolean(),
-]);
-
-export const answerQuestion = z.object({
-  answers: z.record(z.string(), askAnswerValue),
-});
-
-export const dismissQuestion = z.object({
-  reason: z.string().trim().min(1).max(500).default("用户取消了本次提问"),
-});
-
 const contextPriority = z.number().int().min(0).max(100);
 const chapterSelection = z
   .object({
@@ -233,9 +169,7 @@ export const runQuery = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
   novelId: z.uuid().optional(),
-  status: z
-    .enum(["queued", "running", "waiting_input", "completed", "failed", "cancelled"])
-    .optional(),
+  status: z.enum(["queued", "running", "completed", "failed", "cancelled"]).optional(),
 });
 
 export const replayStream = z.object({
@@ -299,9 +233,6 @@ export type PreviewContext = z.infer<typeof previewContext>;
 export type ContextOptions = z.infer<typeof contextOptions>;
 export type ContextSource = z.infer<typeof contextSource>;
 export type ContextTrust = z.infer<typeof contextTrust>;
-export type AskUserInput = z.infer<typeof askUserInput>;
-export type AnswerQuestion = z.infer<typeof answerQuestion>;
-export type DismissQuestion = z.infer<typeof dismissQuestion>;
 export type ReplayStream = z.infer<typeof replayStream>;
 export type RetryRun = z.infer<typeof retryRun>;
 export type StructuredAgent = z.infer<typeof structuredAgent>;

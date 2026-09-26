@@ -11,9 +11,13 @@ interface WorkspaceProps {
   sessionId?: string;
 }
 
+// 联调期临时方案：未选小说时兜底到写死的开发小说，免登录直接联调对话模块
+const DEV_NOVEL_ID = process.env.NEXT_PUBLIC_DEV_NOVEL_ID;
+
 export function Workspace({ novelId, chapterId, sessionId }: WorkspaceProps) {
   const [selectedNovelId, setSelectedNovelId] = useState(novelId);
   const selectNovel = useCallback((id: string) => setSelectedNovelId(id), []);
+  const activeNovelId = selectedNovelId ?? DEV_NOVEL_ID;
 
   return (
     <div className="flex h-dvh min-h-0 flex-col">
@@ -27,8 +31,8 @@ export function Workspace({ novelId, chapterId, sessionId }: WorkspaceProps) {
         </section>
         <div className="min-h-0 lg:col-span-3">
           <ChatPanel
-            key={selectedNovelId ?? "new-chat"}
-            novelId={selectedNovelId}
+            key={activeNovelId ?? "new-chat"}
+            novelId={activeNovelId}
             chapterId={chapterId}
             sessionId={sessionId}
           />

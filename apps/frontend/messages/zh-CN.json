@@ -34,19 +34,11 @@
     },
     "composer": {
       "placeholder": "问问关于这篇小说的任何问题…",
-      "waiting": "请先回答上方问题，再继续对话",
       "send": "发送消息",
       "stop": "停止生成"
     },
     "error": {
       "title": "对话未能继续"
-    },
-    "askUser": {
-      "custom": "填写其他答案",
-      "confirm": "确认",
-      "reject": "拒绝",
-      "dismiss": "取消本次提问",
-      "submit": "提交并继续"
     },
     "auth": {
       "signIn": "登录",

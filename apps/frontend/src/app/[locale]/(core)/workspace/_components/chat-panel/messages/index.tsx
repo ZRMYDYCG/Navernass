@@ -61,7 +61,7 @@ function MessageBody({
               </Streamdown>
             );
           }
-          if (isToolUIPart(part) && getToolName(part) !== "askUser") {
+          if (isToolUIPart(part)) {
             const running = part.state === "input-streaming" || part.state === "input-available";
             return (
               <div
