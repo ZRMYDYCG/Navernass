@@ -180,6 +180,53 @@ export const retryRun = z.object({
   requestId: z.uuid().optional(),
 });
 
+const askUserOption = z.object({
+  id: z.string().trim().min(1).max(64),
+  label: z.string().trim().min(1).max(200),
+});
+
+/** askUser 工具入参：一次最多四个相关问题，每题 2–8 个选项，前端固定追加「其他」自由填写。 */
+export const askUserInput = z.object({
+  title: z.string().trim().max(100).optional(),
+  questions: z
+    .array(
+      z.object({
+        id: z.string().trim().min(1).max(64),
+        prompt: z.string().trim().min(1).max(1_000),
+        options: z.array(askUserOption).min(2).max(8),
+        allowMultiple: z.boolean().default(false),
+      }),
+    )
+    .min(1)
+    .max(4),
+});
+
+/** askUser 工具结果：回答或跳过。跳过同样是合法结果，保证对话永远不会停在未完成的工具调用上。 */
+export const askUserOutput = z.discriminatedUnion("status", [
+  z.object({
+    status: z.literal("answered"),
+    answers: z
+      .array(
+        z.object({
+          questionId: z.string().trim().min(1).max(64),
+          selected: z.array(z.string().trim().min(1).max(64)).max(8).default([]),
+          other: z.string().trim().min(1).max(2_000).optional(),
+        }),
+      )
+      .min(1)
+      .max(4),
+  }),
+  z.object({
+    status: z.literal("skipped"),
+    reason: z.enum(["user_skipped", "user_sent_message"]).default("user_skipped"),
+  }),
+]);
+
+export const answerTool = z.object({
+  toolCallId: z.string().trim().min(1).max(191),
+  output: askUserOutput,
+});
+
 export const sessionQuery = z.object({
   novelId: z.uuid(),
   page: z.coerce.number().int().min(1).default(1),
@@ -235,6 +282,9 @@ export type ContextSource = z.infer<typeof contextSource>;
 export type ContextTrust = z.infer<typeof contextTrust>;
 export type ReplayStream = z.infer<typeof replayStream>;
 export type RetryRun = z.infer<typeof retryRun>;
+export type AskUserInput = z.infer<typeof askUserInput>;
+export type AskUserOutput = z.infer<typeof askUserOutput>;
+export type AnswerTool = z.infer<typeof answerTool>;
 export type StructuredAgent = z.infer<typeof structuredAgent>;
 export type SessionQuery = z.infer<typeof sessionQuery>;
 export type MessageQuery = z.infer<typeof messageQuery>;

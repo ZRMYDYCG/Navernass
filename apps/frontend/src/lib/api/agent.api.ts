@@ -4,7 +4,7 @@ import { DefaultChatTransport } from "ai";
 import type { AgentContext, AgentMessage } from "@/lib/agent/chat-types";
 import { apiBaseUrl } from "@/lib/http/client";
 import { apiRequest } from "@/lib/http/request";
-import { sessionMessagePageSchema } from "@/schemas/agent.schema";
+import { sessionMessagePageSchema, type AskUserOutput } from "@/schemas/agent.schema";
 
 function sendStream(path: string, body: object, signal: AbortSignal) {
   const transport = new DefaultChatTransport<AgentMessage>({
@@ -38,6 +38,19 @@ export function startAgentStream(
       prompt,
       context: {},
     },
+    signal,
+  );
+}
+
+export function answerAgentStream(
+  sessionId: string,
+  toolCallId: string,
+  output: AskUserOutput,
+  signal: AbortSignal,
+): Promise<ReadableStream<UIMessageChunk>> {
+  return sendStream(
+    `agent/sessions/${sessionId}/tool-output/stream`,
+    { toolCallId, output },
     signal,
   );
 }

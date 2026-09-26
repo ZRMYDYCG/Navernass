@@ -40,6 +40,21 @@
     "error": {
       "title": "The conversation could not continue"
     },
+    "askUser": {
+      "title": "Questions",
+      "progress": "{current} of {total}",
+      "previous": "Previous question",
+      "next": "Next question",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "other": "Other...",
+      "otherPlaceholder": "Type your answer",
+      "skip": "Skip",
+      "continue": "Continue",
+      "asking": "Asking questions",
+      "answered": "Questions answered",
+      "skipped": "Questions skipped"
+    },
     "auth": {
       "signIn": "Sign in",
       "signUp": "Sign up",

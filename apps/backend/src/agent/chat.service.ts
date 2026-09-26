@@ -4,6 +4,7 @@ import { Buffer } from "node:buffer";
 import { Inject, Injectable } from "@nestjs/common";
 import { AppError } from "../common/app-error.js";
 import { PrismaService } from "../database/prisma.service.js";
+import { describeAskUserParts } from "./ask-user.js";
 
 interface MessageInput {
   sessionId: string;
@@ -34,22 +35,66 @@ export class ChatService {
     return this.save("assistant", input);
   }
 
-  async promptHistory(userId: string, sessionId: string, limit = 20, novelId?: string) {
+  async promptHistory(
+    userId: string,
+    sessionId: string,
+    limit = 20,
+    novelId?: string,
+    before?: Date,
+  ) {
     if (novelId) {
       const session = await this.requireSession(userId, sessionId);
       if (session.novel_id !== novelId)
         throw AppError.notFound("AGENT_SESSION_NOT_FOUND", "Agent 会话");
     }
     const messages = await this.prisma.agentMessage.findMany({
-      where: { session_id: sessionId, user_id: userId },
+      where: {
+        session_id: sessionId,
+        user_id: userId,
+        ...(before ? { created_at: { lt: before } } : {}),
+      },
       orderBy: [{ created_at: "desc" }, { id: "desc" }],
       take: limit,
-      select: { role: true, content: true },
+      select: { role: true, content: true, parts: true },
     });
     return messages
       .reverse()
-      .map((message) => `${this.roleLabel(message.role)}：${message.content}`)
+      .map((message) => {
+        const asked = message.role === "assistant" ? describeAskUserParts(message.parts) : "";
+        const content = [message.content, asked].filter(Boolean).join("\n");
+        return `${this.roleLabel(message.role)}：${content}`;
+      })
       .join("\n\n");
+  }
+
+  /** 当前轮次：最后一条用户消息及其后的全部助手消息（askUser 续跑会产生多条）。 */
+  async currentTurn(userId: string, sessionId: string) {
+    const user = await this.prisma.agentMessage.findFirst({
+      where: { session_id: sessionId, user_id: userId, role: "user" },
+      orderBy: [{ created_at: "desc" }, { id: "desc" }],
+    });
+    if (!user) return undefined;
+    const assistants = await this.prisma.agentMessage.findMany({
+      where: {
+        session_id: sessionId,
+        user_id: userId,
+        role: "assistant",
+        created_at: { gte: user.created_at },
+      },
+      orderBy: [{ created_at: "asc" }, { id: "asc" }],
+    });
+    return { user, assistants };
+  }
+
+  latestMessage(userId: string, sessionId: string) {
+    return this.prisma.agentMessage.findFirst({
+      where: { session_id: sessionId, user_id: userId },
+      orderBy: [{ created_at: "desc" }, { id: "desc" }],
+    });
+  }
+
+  updateParts(id: string, parts: unknown) {
+    return this.prisma.agentMessage.update({ where: { id }, data: { parts: this.json(parts) } });
   }
 
   async listSessions(userId: string, query: SessionQuery) {

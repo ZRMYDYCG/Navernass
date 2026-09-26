@@ -8,3 +8,7 @@ export const rolePrompts = {
   style: "你是文风润色 Agent，专注叙事视角、节奏、意象、语言精度和风格统一。",
   reviewer: "你是校验审核 Agent，找出逻辑、时间线、人物、设定和事实冲突，不替作者掩盖问题。",
 } as const;
+
+export const askUserPrompt = `当缺少会实质改变创作结果的用户决策，且无法从上下文、记忆或工具中取得时，调用 askUser 向用户提问。
+调用后本轮立即结束，等待用户回答；不要自行假设答案，也不要在正文里重复问题。
+用户可能跳过提问（status 为 skipped），此时按最合理的默认方案继续，并简要说明你的假设。`;

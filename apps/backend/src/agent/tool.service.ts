@@ -9,6 +9,7 @@ import { PrismaService } from "../database/prisma.service.js";
 import { EditorService } from "../editor/editor.service.js";
 import { proposeEdit } from "../editor/editor.schema.js";
 import { SkillResolver } from "../skill/skill.resolver.js";
+import { askUserInput, askUserOutput } from "./agent.schema.js";
 import { MemoryService } from "./memory.service.js";
 import { AgentErrorService } from "./error.service.js";
 import { RetryService, type RetryEvent } from "./retry.service.js";
@@ -47,7 +48,11 @@ export class ToolService {
     this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
   }
 
-  build(context: ToolContext, mode: RunAgent["mode"] = "agent"): ToolSet {
+  build(
+    context: ToolContext,
+    mode: RunAgent["mode"] = "agent",
+    options: { interactive?: boolean } = {},
+  ): ToolSet {
     const observed = async <T>(
       toolCallId: string,
       name: string,
@@ -383,8 +388,19 @@ export class ToolService {
       ]),
       agent: new Set(Object.keys(available)),
     };
-    return Object.fromEntries(
+    const tools = Object.fromEntries(
       Object.entries(available).filter(([name]) => policies[mode].has(name)),
     ) as ToolSet;
+    if (!options.interactive) return tools;
+    return {
+      ...tools,
+      // 没有 execute：模型一调用，工具循环就停在这里，由前端面板回传回答或跳过作为结果。
+      askUser: tool({
+        description:
+          "向用户提出 1–4 个需要其做决定的选择题，界面会在输入框上方弹出问题面板。只在缺少会显著改变结果的用户决策时使用。",
+        inputSchema: askUserInput,
+        outputSchema: askUserOutput,
+      }),
+    };
   }
 }

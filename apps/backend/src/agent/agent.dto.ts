@@ -1,5 +1,6 @@
 import { createZodDto } from "nestjs-zod";
 import {
+  answerTool,
   createProvider,
   messageQuery,
   previewContext,
@@ -22,6 +23,7 @@ export class RunAgentDto extends createZodDto(runAgent) {}
 export class PreviewContextDto extends createZodDto(previewContext) {}
 export class ReplayStreamDto extends createZodDto(replayStream) {}
 export class RetryRunDto extends createZodDto(retryRun) {}
+export class AnswerToolDto extends createZodDto(answerTool) {}
 export class StructuredAgentDto extends createZodDto(structuredAgent) {}
 export class RunQueryDto extends createZodDto(runQuery) {}
 export class SessionQueryDto extends createZodDto(sessionQuery) {}

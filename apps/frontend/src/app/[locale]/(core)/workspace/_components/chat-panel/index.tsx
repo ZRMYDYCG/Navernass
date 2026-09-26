@@ -7,11 +7,13 @@ import { useEffect, useMemo, useReducer, useRef } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { AgentMessage } from "@/lib/agent/chat-types";
 import { chatReducer, initialChatState } from "@/lib/agent/chat-machine";
-import { hasRenderablePart } from "@/lib/agent/message-utils";
+import { findPendingQuestion, hasRenderablePart } from "@/lib/agent/message-utils";
 import { StreamStore } from "@/lib/agent/stream-store";
-import { getSessionMessages, startAgentStream } from "@/lib/api/agent.api";
+import { answerAgentStream, getSessionMessages, startAgentStream } from "@/lib/api/agent.api";
 import { getErrorMessage } from "@/lib/http/error";
+import type { AskUserOutput } from "@/schemas/agent.schema";
 
+import { AskUserPanel } from "./ask-user";
 import { Composer } from "./composer";
 import { Messages } from "./messages";
 import { Welcome } from "./welcome";
@@ -37,6 +39,10 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
 
   const busy = state.phase === "streaming";
   const canSend = Boolean(novelId) && !busy;
+  const pendingQuestion = useMemo(
+    () => (busy ? undefined : findPendingQuestion(state.messages)),
+    [busy, state.messages],
+  );
 
   useEffect(() => {
     if (!initialSessionId) return;
@@ -106,6 +112,14 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
     );
   };
 
+  const answerQuestion = (output: AskUserOutput) => {
+    const sessionId = state.sessionId;
+    if (!pendingQuestion || busy || !sessionId) return;
+    const { toolCallId } = pendingQuestion;
+    dispatch({ type: "ANSWER", toolCallId, output });
+    void consumeStream((signal) => answerAgentStream(sessionId, toolCallId, output, signal));
+  };
+
   // 空状态：欢迎页独立于消息滚动区，不参与消息布局。
   const showWelcome = state.messages.length === 0 && !busy;
 
@@ -127,6 +141,17 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
             <AlertTitle>{t("error.title")}</AlertTitle>
             <AlertDescription>{state.error}</AlertDescription>
           </Alert>
+        </div>
+      ) : null}
+
+      {pendingQuestion ? (
+        <div className="px-4 pt-2">
+          <AskUserPanel
+            key={pendingQuestion.toolCallId}
+            question={pendingQuestion}
+            onSubmit={answerQuestion}
+            onSkip={() => answerQuestion({ status: "skipped", reason: "user_skipped" })}
+          />
         </div>
       ) : null}
 

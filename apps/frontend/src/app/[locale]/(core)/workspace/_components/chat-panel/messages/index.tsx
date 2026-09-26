@@ -1,6 +1,7 @@
 "use client";
 
 import { getToolName, isToolUIPart } from "ai";
+import { useTranslations } from "next-intl";
 import { memo, useSyncExternalStore } from "react";
 import { Streamdown } from "streamdown";
 
@@ -17,13 +18,25 @@ import {
 import { Message, MessageContent } from "@/components/ui/message";
 import { Spinner } from "@/components/ui/spinner";
 import type { AgentMessage } from "@/lib/agent/chat-types";
-import { hasRenderablePart } from "@/lib/agent/message-utils";
+import { askUserPartType, hasRenderablePart } from "@/lib/agent/message-utils";
 import type { StreamStore } from "@/lib/agent/stream-store";
+import { askUserOutputSchema } from "@/schemas/agent.schema";
 
 interface MessagesProps {
   messages: AgentMessage[];
   busy: boolean;
   store: StreamStore;
+}
+
+function AskUserMarker({ state, output }: { state: string; output: unknown }) {
+  const t = useTranslations("chat.askUser");
+  const result = state === "output-available" ? askUserOutputSchema.safeParse(output) : undefined;
+  const label = !result
+    ? t("asking")
+    : result.success && result.data.status === "answered"
+      ? t("answered")
+      : t("skipped");
+  return <div className="text-sm text-muted-foreground">{label}</div>;
 }
 
 function MessageBody({
@@ -60,6 +73,9 @@ function MessageBody({
                 {part.text}
               </Streamdown>
             );
+          }
+          if (part.type === askUserPartType && isToolUIPart(part)) {
+            return <AskUserMarker key={part.toolCallId} state={part.state} output={part.output} />;
           }
           if (isToolUIPart(part)) {
             const running = part.state === "input-streaming" || part.state === "input-available";

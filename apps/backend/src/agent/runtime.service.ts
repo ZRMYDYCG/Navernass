@@ -1,19 +1,33 @@
 import type { EnvConfig } from "../config/env-schema.js";
 import type { Prisma } from "../generated/prisma/client.js";
-import { runAgent, type RunAgent, type StructuredAgent } from "./agent.schema.js";
+import type { ModelMessage, UIMessage } from "ai";
+import { runAgent, type AnswerTool, type RunAgent, type StructuredAgent } from "./agent.schema.js";
 import { randomUUID } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { generateText, Output, stepCountIs, ToolLoopAgent, toUIMessageStream } from "ai";
+import {
+  convertToModelMessages,
+  generateText,
+  Output,
+  stepCountIs,
+  ToolLoopAgent,
+  toUIMessageStream,
+} from "ai";
 import { z } from "zod";
 import { AppError } from "../common/app-error.js";
 import { PrismaService } from "../database/prisma.service.js";
 import { SkillResolver } from "../skill/skill.resolver.js";
+import {
+  assertValidAnswer,
+  pendingAskUserCalls,
+  resolveAskUser,
+  skipAllAskUser,
+} from "./ask-user.js";
 import { ChatService } from "./chat.service.js";
 import { ContextService } from "./context.service.js";
 import { AgentErrorService } from "./error.service.js";
 import { ModelService } from "./model.service.js";
-import { rolePrompts } from "./prompt.js";
+import { askUserPrompt, rolePrompts } from "./prompt.js";
 import { StreamService } from "./stream.service.js";
 import { ToolService } from "./tool.service.js";
 import { TraceService } from "./trace.service.js";
@@ -54,6 +68,13 @@ const outputSchemas = {
     ),
   }),
 } as const;
+
+interface PrepareOptions {
+  retryOfId?: string;
+  interactive?: boolean;
+  /** 回答 askUser 后续跑：不再写入用户消息，历史只取本轮之前的消息。 */
+  continuation?: { before: Date };
+}
 
 export interface AgentResult {
   runId: string;
@@ -146,13 +167,15 @@ export class RuntimeService {
     }
   }
 
-  async stream(userId: string, input: RunAgent) {
+  /** interactive 为 true 时开放 askUser；只有面向聊天界面的入口才应开启。 */
+  async stream(userId: string, input: RunAgent, interactive = false) {
     if (input.requestId) {
       const existing = await this.findByRequestId(userId, input.requestId);
       if (existing?.session_id) return this.toReplayResult(userId, existing.id);
     }
     try {
-      return await this.startStream(userId, input);
+      if (input.sessionId) await this.skipPendingQuestions(userId, input.sessionId);
+      return await this.startStream(userId, input, { interactive });
     } catch (error) {
       // 并发同 requestId 时后到的请求重放已创建的 Run，保持幂等。
       if (input.requestId && this.isRequestIdConflict(error)) {
@@ -183,18 +206,65 @@ export class RuntimeService {
       requestId: requestId ?? randomUUID(),
       sessionId: previous.session_id ?? undefined,
     });
-    return this.startStream(userId, input, previous.id);
+    return this.startStream(userId, input, { retryOfId: previous.id, interactive: true });
+  }
+
+  async answerStream(userId: string, sessionId: string, body: AnswerTool) {
+    const turn = await this.chats.currentTurn(userId, sessionId);
+    const last = turn?.assistants.at(-1);
+    const call = last
+      ? pendingAskUserCalls(last.parts).find((part) => part.toolCallId === body.toolCallId)
+      : undefined;
+    if (!turn || !last || !call) throw new AppError("CONFLICT", "该提问已结束或不存在", 409);
+    assertValidAnswer(call.input, body.output);
+    const parts = skipAllAskUser(
+      resolveAskUser(last.parts, body.toolCallId, body.output) ?? last.parts,
+    );
+    await this.chats.updateParts(last.id, parts);
+
+    const run = turn.user.run_id
+      ? await this.prisma.agentRun.findFirst({ where: { id: turn.user.run_id, user_id: userId } })
+      : null;
+    const snapshot = run?.request_snapshot;
+    if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot))
+      throw new AppError("CONFLICT", "原执行缺少请求快照，无法继续", 409);
+    const input = runAgent.parse({ ...snapshot, requestId: randomUUID(), sessionId });
+    const execution = await this.prepare(userId, input, {
+      interactive: true,
+      continuation: { before: turn.user.created_at },
+    });
+    await this.traces.startRun(execution.run.id);
+    const turnMessages = [turn.user, ...turn.assistants.slice(0, -1), { ...last, parts }].map(
+      (message) =>
+        ({
+          id: message.remote_id ?? message.id,
+          role: message.role,
+          parts: message.parts,
+        }) as UIMessage,
+    );
+    const messages = await convertToModelMessages(turnMessages, {
+      tools: execution.tools,
+      ignoreIncompleteToolCalls: true,
+    });
+    return this.streamExecution(execution, { messages });
+  }
+
+  /** 用户不回答直接发新消息时，把悬挂的 askUser 记为跳过，保证历史里每个工具调用都有结果。 */
+  private async skipPendingQuestions(userId: string, sessionId: string) {
+    const latest = await this.chats.latestMessage(userId, sessionId);
+    if (latest?.role !== "assistant" || !pendingAskUserCalls(latest.parts).length) return;
+    await this.chats.updateParts(latest.id, skipAllAskUser(latest.parts));
   }
 
   async replayStream(userId: string, runId: string, after = 0) {
     return this.toReplayResult(userId, runId, after);
   }
 
-  private async startStream(userId: string, input: RunAgent, retryOfId?: string) {
-    const execution = await this.prepare(userId, input, retryOfId);
+  private async startStream(userId: string, input: RunAgent, options: PrepareOptions) {
+    const execution = await this.prepare(userId, input, options);
     await this.traces.startRun(execution.run.id);
     // 可恢复流不因浏览器刷新中止；只保留服务端超时。
-    return this.streamExecution(execution, input.prompt);
+    return this.streamExecution(execution, { prompt: input.prompt });
   }
 
   private async toReplayResult(userId: string, runId: string, after = 0) {
@@ -310,18 +380,25 @@ export class RuntimeService {
 
   private async streamExecution(
     execution: Awaited<ReturnType<RuntimeService["prepare"]>>,
-    prompt: string,
+    call: { prompt: string } | { messages: ModelMessage[] },
   ) {
     const started = Date.now();
     let stepIndex = 0;
+    const options = {
+      abortSignal: this.signal(),
+      onStepFinish: async (
+        event: Parameters<
+          NonNullable<Parameters<typeof execution.agent.stream>[0]["onStepFinish"]>
+        >[0],
+      ) => {
+        await this.traces.saveStep(execution.run.id, stepIndex++, event);
+      },
+    };
     try {
-      const result = await execution.agent.stream({
-        prompt,
-        abortSignal: this.signal(),
-        onStepFinish: async (event) => {
-          await this.traces.saveStep(execution.run.id, stepIndex++, event);
-        },
-      });
+      const result =
+        "messages" in call
+          ? await execution.agent.stream({ ...options, messages: call.messages })
+          : await execution.agent.stream({ ...options, prompt: call.prompt });
       const stream = toUIMessageStream({
         stream: result.fullStream,
         tools: execution.tools,
@@ -382,7 +459,8 @@ export class RuntimeService {
     }
   }
 
-  private async prepare(userId: string, input: RunAgent, retryOfId?: string) {
+  private async prepare(userId: string, input: RunAgent, options: PrepareOptions = {}) {
+    const { retryOfId, interactive = false, continuation } = options;
     const currentSession = input.sessionId
       ? await this.prisma.agentSession.findFirst({
           where: { id: input.sessionId, user_id: userId, novel_id: input.novelId },
@@ -392,7 +470,15 @@ export class RuntimeService {
       throw AppError.notFound("AGENT_SESSION_NOT_FOUND", "Agent 会话");
     const { model, provider } = await this.models.language(userId, input.providerId);
     const resolvedInput = { ...input, providerId: provider.id };
-    const history = currentSession ? await this.chats.promptHistory(userId, currentSession.id) : "";
+    const history = currentSession
+      ? await this.chats.promptHistory(
+          userId,
+          currentSession.id,
+          20,
+          undefined,
+          continuation?.before,
+        )
+      : "";
     const skillSet = await this.skills.resolve({
       userId,
       novelId: input.novelId,
@@ -447,8 +533,8 @@ export class RuntimeService {
       novelId: input.novelId,
       chapterId: input.chapterId,
     };
-    // 重试沿用原会话历史里的用户消息，避免同提示词重复入库。
-    if (!retryOfId) {
+    // 重试和回答提问后的续跑沿用原会话里的用户消息，避免同提示词重复入库。
+    if (!retryOfId && !continuation) {
       await this.chats.saveUser({
         ...messageContext,
         content: input.prompt,
@@ -466,9 +552,11 @@ export class RuntimeService {
     const tools = this.tools.build(
       { runId: run.id, userId, input: finalInput, model, contextText },
       input.mode,
+      { interactive },
     );
+    const askText = interactive ? `\n\n${askUserPrompt}` : "";
     const skillText = skillSet.prompt ? `\n\n${skillSet.prompt}` : "";
-    const instructions = `${rolePrompts[input.role]}${skillText}\n\n${contextText}`;
+    const instructions = `${rolePrompts[input.role]}${askText}${skillText}\n\n${contextText}`;
     const stopWhen = stepCountIs(input.maxSteps ?? this.maxSteps);
     const settings = this.generationSettings(provider.settings);
     const agent = new ToolLoopAgent({

@@ -32,6 +32,7 @@ import {
 } from "../openapi/api-doc.js";
 import { MutationResult, ResourceResult } from "../openapi/api-model.js";
 import {
+  AnswerToolDto,
   CreateProviderDto,
   PreviewContextDto,
   RetryRunDto,
@@ -89,6 +90,7 @@ export class AgentController {
       transports: ["rest", "ai-sdk-ui-message-stream-v1"],
       roles: schema.agentRole.options,
       tools: [
+        "askUser",
         "getNovelSnapshot",
         "getChapter",
         "readArticle",
@@ -239,7 +241,28 @@ export class AgentController {
     @Res() response: Response,
     @Body(new ZodPipe(schema.runAgent)) body: schema.RunAgent,
   ) {
-    const result = await this.runtime.stream(user.id, body);
+    const result = await this.runtime.stream(user.id, body, true);
+    await this.pipeAgentStream(response, result);
+  }
+
+  @Post("sessions/:id/tool-output/stream")
+  @HttpCode(200)
+  @LongTask()
+  @RawResponse()
+  @ApiProduces("text/event-stream")
+  @ApiStreamDoc(
+    "回传 askUser 的回答或跳过并继续执行",
+    "把结果写回本轮最后一条助手消息里对应的工具调用，再用本轮完整消息新建 Run 续跑；返回 Vercel AI SDK UI Message Stream v1。",
+  )
+  @ApiUuidParam("id", "聊天会话 UUID")
+  @ApiZodBody(AnswerToolDto)
+  async answerTool(
+    @CurrentUser() user: AuthUser,
+    @Res() response: Response,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+    @Body(new ZodPipe(schema.answerTool)) body: schema.AnswerTool,
+  ) {
+    const result = await this.runtime.answerStream(user.id, params.id, body);
     await this.pipeAgentStream(response, result);
   }
 

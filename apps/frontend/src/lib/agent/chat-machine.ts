@@ -1,4 +1,7 @@
+import type { AskUserOutput } from "@/schemas/agent.schema";
+
 import type { AgentMessage } from "./chat-types";
+import { resolveQuestion } from "./message-utils";
 
 export type ChatPhase = "idle" | "streaming" | "error";
 
@@ -12,6 +15,7 @@ export interface ChatState {
 export type ChatEvent =
   | { type: "HYDRATE"; messages: AgentMessage[] }
   | { type: "SEND"; message: AgentMessage }
+  | { type: "ANSWER"; toolCallId: string; output: AskUserOutput }
   | { type: "STREAM_DONE"; message?: AgentMessage; sessionId?: string }
   | { type: "STOP"; message?: AgentMessage }
   | { type: "FAIL"; message: string };
@@ -30,7 +34,18 @@ export function chatReducer(state: ChatState, event: ChatEvent): ChatState {
       return {
         ...state,
         phase: "streaming",
-        messages: [...state.messages, event.message],
+        // 不回答直接发消息等同于跳过提问，与后端的处理保持一致。
+        messages: [
+          ...resolveQuestion(state.messages, { status: "skipped", reason: "user_sent_message" }),
+          event.message,
+        ],
+        error: undefined,
+      };
+    case "ANSWER":
+      return {
+        ...state,
+        phase: "streaming",
+        messages: resolveQuestion(state.messages, event.output, event.toolCallId),
         error: undefined,
       };
     case "STREAM_DONE":
