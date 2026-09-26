@@ -38,7 +38,7 @@ export function Reasoning({ text, active }: ReasoningProps) {
             followRef.current =
               element.scrollHeight - element.scrollTop - element.clientHeight < 24;
           }}
-          className="max-h-64 overflow-y-auto border-s-2 border-input ps-3 text-xs leading-relaxed text-muted-foreground"
+          className="max-h-64 overflow-y-auto border-s border-border/80 ps-3 text-xs leading-relaxed text-muted-foreground"
         >
           <StreamText text={text} streaming={active} />
         </div>

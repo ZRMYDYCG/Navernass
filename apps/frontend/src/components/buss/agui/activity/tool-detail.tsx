@@ -20,7 +20,7 @@ export function ToolExcerpt({
   return (
     <div
       className={cn(
-        "max-h-64 overflow-auto rounded-md bg-muted/60 px-3 py-2 font-mono text-xs leading-relaxed wrap-break-word whitespace-pre-wrap",
+        "max-h-64 overflow-auto border-s border-border/80 px-3 py-1.5 font-mono text-xs leading-relaxed wrap-break-word whitespace-pre-wrap",
         tone === "error" ? "text-destructive" : "text-foreground/80",
       )}
     >
@@ -43,7 +43,7 @@ export function ToolMeta({ items }: { items: Array<string | false | undefined> }
 
 export function ToolMarkdown({ children }: { children: ReactNode }) {
   return (
-    <div className="max-h-80 overflow-auto rounded-md bg-muted/40 px-3 py-2 text-sm leading-relaxed text-foreground">
+    <div className="max-h-80 overflow-auto border-s border-border/80 px-3 py-1.5 text-sm leading-relaxed text-foreground">
       {children}
     </div>
   );

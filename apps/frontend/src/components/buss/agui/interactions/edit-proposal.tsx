@@ -115,9 +115,9 @@ export function EditProposalCard({ output }: { call: ToolCall; output: EditPropo
       role="group"
       aria-label={t("title")}
       onKeyDown={handleKeyDown}
-      className="min-w-0 rounded-lg border border-border bg-background outline-none focus-visible:border-ring"
+      className="min-w-0 border-s border-border/80 bg-background ps-3 outline-none focus-visible:border-ring"
     >
-      <div className="flex items-center justify-between gap-2 px-3 py-2 text-xs text-muted-foreground">
+      <div className="flex items-center justify-between gap-2 py-2 text-xs text-muted-foreground">
         <div className="flex min-w-0 items-center gap-1.5">
           <FilePenLineIcon className="size-3.5 shrink-0" />
           <span className="shrink-0">{t("title")}</span>
@@ -140,7 +140,7 @@ export function EditProposalCard({ output }: { call: ToolCall; output: EditPropo
 
       {collapsed ? null : (
         <>
-          <div className="px-3 pb-2">
+          <div className="pb-2">
             <p className="mb-2 text-sm font-medium">{output.summary}</p>
             <div role="group" aria-label={output.summary} className="flex flex-col gap-0.5">
               {operations.map((operation, position) => {
@@ -154,7 +154,7 @@ export function EditProposalCard({ output }: { call: ToolCall; output: EditPropo
                     data-checked={checked || undefined}
                     disabled={!interactive}
                     onClick={() => toggle(operation.id)}
-                    className="group/option flex w-full items-start gap-2.5 rounded-md px-2 py-1.5 text-start text-sm transition-colors outline-none enabled:hover:bg-muted focus-visible:bg-muted disabled:cursor-default data-checked:bg-muted"
+                    className="group/option flex w-full items-start gap-2.5 rounded-sm px-2 py-1.5 text-start text-sm transition-colors outline-none enabled:hover:bg-muted/50 focus-visible:bg-muted/50 disabled:cursor-default data-checked:bg-muted/50"
                   >
                     <OptionBadge>{optionLetter(position)}</OptionBadge>
                     <span className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -169,14 +169,12 @@ export function EditProposalCard({ output }: { call: ToolCall; output: EditPropo
             </div>
           </div>
 
-          {error ? (
-            <p className="px-3 pb-2 text-xs text-destructive">{getErrorMessage(error)}</p>
-          ) : null}
+          {error ? <p className="pb-2 text-xs text-destructive">{getErrorMessage(error)}</p> : null}
           {status === "stale" ? (
-            <p className="px-3 pb-3 text-xs text-muted-foreground">{t("staleHint")}</p>
+            <p className="pb-3 text-xs text-muted-foreground">{t("staleHint")}</p>
           ) : null}
           {pending ? (
-            <div className="flex flex-wrap items-center justify-end gap-1 border-t border-border px-3 py-2">
+            <div className="flex flex-wrap items-center justify-end gap-1 border-t border-border/80 py-2">
               <Button
                 type="button"
                 variant="ghost"
