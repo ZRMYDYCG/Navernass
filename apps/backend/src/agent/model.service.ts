@@ -6,7 +6,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { generateText } from "ai";
+import { extractReasoningMiddleware, generateText, wrapLanguageModel } from "ai";
 import { AppError } from "../common/app-error.js";
 import { ProviderService } from "./provider.service.js";
 import { AgentErrorService } from "./error.service.js";
@@ -64,7 +64,12 @@ export class ModelService {
           baseURL,
           includeUsage: true,
         });
-        return { provider, model: compatible(provider.model) };
+        // MiniMax 等模型把推理以 <think> 标签混在正文里输出，拆成独立的 reasoning 片段。
+        const model = wrapLanguageModel({
+          model: compatible(provider.model),
+          middleware: extractReasoningMiddleware({ tagName: "think" }),
+        });
+        return { provider, model };
       }
     }
   }
