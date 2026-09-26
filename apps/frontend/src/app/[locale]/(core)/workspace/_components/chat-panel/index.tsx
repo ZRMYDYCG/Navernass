@@ -41,6 +41,7 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
   });
   const streamStore = useMemo(() => new StreamStore(), []);
   const abortRef = useRef<AbortController>(null);
+  const liveSessionRef = useRef<string | undefined>(undefined);
   const sessionStorageKey = useMemo(
     () => getDebugSessionStorageKey(novelId, chapterId),
     [novelId, chapterId],
@@ -60,7 +61,7 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
   }, [initialSessionId, sessionStorageKey]);
 
   useEffect(() => {
-    if (!state.sessionId) return;
+    if (!state.sessionId || state.sessionId === liveSessionRef.current) return;
     let active = true;
     void getSessionMessages(state.sessionId)
       .then((messages) => {
@@ -89,8 +90,9 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
   ) => {
     const controller = new AbortController();
     abortRef.current = controller;
-    streamStore.set(undefined);
     let finalMessage: AgentMessage | undefined;
+    const streamFallbackId = `assistant-${crypto.randomUUID()}`;
+    streamStore.set({ id: streamFallbackId, role: "assistant", parts: [] });
 
     try {
       const stream = await createStream(controller.signal);
@@ -98,10 +100,11 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
         stream,
         terminateOnError: true,
       })) {
-        finalMessage = message;
-        streamStore.set(message);
+        finalMessage = { ...message, id: streamFallbackId };
+        streamStore.set(finalMessage);
       }
 
+      liveSessionRef.current = getSessionId(finalMessage) ?? state.sessionId;
       dispatch({
         type: "STREAM_DONE",
         message: finalMessage && hasRenderablePart(finalMessage) ? finalMessage : undefined,
@@ -117,7 +120,6 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
         dispatch({ type: "FAIL", message: getErrorMessage(error) });
       }
     } finally {
-      streamStore.set(undefined);
       if (abortRef.current === controller) abortRef.current = null;
     }
   };

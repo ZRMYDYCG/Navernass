@@ -61,7 +61,7 @@ export async function getSessionMessages(sessionId: string): Promise<AgentMessag
     sessionMessagePageSchema,
   );
   return page.items.map((message) => ({
-    id: message.remote_id ?? message.id,
+    id: message.remote_id?.trim() || message.id,
     role: message.role,
     metadata: message.metadata,
     parts: message.parts as AgentMessage["parts"],
