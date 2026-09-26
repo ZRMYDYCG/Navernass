@@ -28,6 +28,11 @@ function getSessionId(message: AgentMessage | undefined) {
   return message?.metadata?.sessionId;
 }
 
+function getDebugSessionStorageKey(novelId: string | undefined, chapterId: string | undefined) {
+  if (!novelId) return undefined;
+  return `narraverse:agent-session:${novelId}:${chapterId ?? "workspace"}`;
+}
+
 export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: ChatPanelProps) {
   const t = useTranslations("chat");
   const [state, dispatch] = useReducer(chatReducer, {
@@ -36,6 +41,10 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
   });
   const streamStore = useMemo(() => new StreamStore(), []);
   const abortRef = useRef<AbortController>(null);
+  const sessionStorageKey = useMemo(
+    () => getDebugSessionStorageKey(novelId, chapterId),
+    [novelId, chapterId],
+  );
 
   const busy = state.phase === "streaming";
   const canSend = Boolean(novelId) && !busy;
@@ -45,9 +54,15 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
   );
 
   useEffect(() => {
-    if (!initialSessionId) return;
+    if (initialSessionId || !sessionStorageKey) return;
+    const storedSessionId = window.localStorage.getItem(sessionStorageKey);
+    if (storedSessionId) dispatch({ type: "RESTORE_SESSION", sessionId: storedSessionId });
+  }, [initialSessionId, sessionStorageKey]);
+
+  useEffect(() => {
+    if (!state.sessionId) return;
     let active = true;
-    void getSessionMessages(initialSessionId)
+    void getSessionMessages(state.sessionId)
       .then((messages) => {
         if (active) dispatch({ type: "HYDRATE", messages });
       })
@@ -57,7 +72,17 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
     return () => {
       active = false;
     };
-  }, [initialSessionId]);
+  }, [state.sessionId]);
+
+  useEffect(() => {
+    if (!state.sessionId || !sessionStorageKey) return;
+    window.localStorage.setItem(sessionStorageKey, state.sessionId);
+
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("sessionId") === state.sessionId) return;
+    url.searchParams.set("sessionId", state.sessionId);
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [sessionStorageKey, state.sessionId]);
 
   const consumeStream = async (
     createStream: (signal: AbortSignal) => ReturnType<typeof startAgentStream>,

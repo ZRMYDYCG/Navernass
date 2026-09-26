@@ -13,6 +13,7 @@ export interface ChatState {
 }
 
 export type ChatEvent =
+  | { type: "RESTORE_SESSION"; sessionId: string }
   | { type: "HYDRATE"; messages: AgentMessage[] }
   | { type: "SEND"; message: AgentMessage }
   | { type: "ANSWER"; toolCallId: string; output: AskUserOutput }
@@ -28,6 +29,8 @@ export const initialChatState: ChatState = {
 /** 显式状态迁移，避免网络状态和 UI 状态互相污染。 */
 export function chatReducer(state: ChatState, event: ChatEvent): ChatState {
   switch (event.type) {
+    case "RESTORE_SESSION":
+      return { ...state, sessionId: event.sessionId };
     case "HYDRATE":
       return { ...state, phase: "idle", messages: event.messages, error: undefined };
     case "SEND":
