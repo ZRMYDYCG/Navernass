@@ -40,10 +40,25 @@ const components: Components = {
   h6: createHeading("h6", "text-sm"),
 };
 
+// 中文没有空格分词，sep 用 char 才有逐字效果；blurIn 能掩盖成批到达的 token。
+// 必须是模块级常量：streamdown 对 animated 做引用比较，每次新建对象会击穿内部 memo。
+const streamingAnimation = {
+  animation: "blurIn",
+  duration: 200,
+  easing: "ease-out",
+  sep: "char",
+} as const;
+
 /** 只有仍在生成的最后一段文本使用 streaming 模式，其余段落按静态 Markdown 渲染。 */
 export const StreamText = memo(function StreamText({ text, streaming = false }: StreamTextProps) {
   return (
-    <Streamdown mode={streaming ? "streaming" : "static"} components={components}>
+    <Streamdown
+      mode={streaming ? "streaming" : "static"}
+      animated={streaming ? streamingAnimation : undefined}
+      caret={streaming ? "block" : undefined}
+      isAnimating={streaming}
+      components={components}
+    >
       {text}
     </Streamdown>
   );

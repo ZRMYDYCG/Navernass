@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "streamdown/styles.css";
 
 @source "../../node_modules/streamdown/dist/*.js";
 
@@ -183,5 +184,12 @@
 
   body {
     @apply min-h-dvh bg-background text-foreground antialiased;
+  }
+}
+
+/* streamdown 逐字动画跟随系统减弱动态效果偏好。 */
+@media (prefers-reduced-motion: reduce) {
+  [data-sd-animate] {
+    animation: none;
   }
 }
