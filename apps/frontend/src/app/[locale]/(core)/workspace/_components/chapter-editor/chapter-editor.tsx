@@ -35,7 +35,7 @@ export function EmptyChapterEditor() {
   const t = useTranslations("chapterEditor.empty");
 
   return (
-    <div className="flex h-full bg-paper">
+    <div className="flex h-full bg-background">
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -101,7 +101,7 @@ function EditorLayout({
 }) {
   const t = useTranslations("chapterEditor");
   return (
-    <section aria-label={t("title")} className="flex h-full min-h-0 flex-col bg-paper">
+    <section aria-label={t("title")} className="flex h-full min-h-0 flex-col bg-background">
       <EditorHeader novelId={novelId} chapter={chapter} editorStatus={editorStatus} />
       <div className="min-h-0 flex-1 overflow-y-auto">
         <article className="mx-auto w-full max-w-3xl px-12 pt-12 pb-32">{children}</article>

@@ -18,14 +18,14 @@ function DiffLine({ kind, text }: { kind: "removed" | "added"; text: string }) {
     <p
       className={cn(
         "relative -mx-2 w-fit max-w-full rounded-sm px-2",
-        kind === "removed" ? "bg-destructive/10" : "bg-success/15",
+        kind === "removed" ? "bg-destructive/10" : "bg-accent/20",
       )}
     >
       <span
         aria-hidden="true"
         className={cn(
           "absolute top-0 -left-4 font-sans select-none",
-          kind === "removed" ? "text-destructive" : "text-success",
+          kind === "removed" ? "text-destructive" : "text-accent-foreground",
         )}
       >
         {kind === "removed" ? "−" : "+"}

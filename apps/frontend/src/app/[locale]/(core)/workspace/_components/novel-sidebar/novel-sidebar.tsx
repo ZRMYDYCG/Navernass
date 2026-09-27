@@ -70,9 +70,9 @@ export function NovelSidebar({
   return (
     <aside
       aria-label={t("title")}
-      className="flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground"
+      className="flex h-full min-h-0 flex-col bg-muted text-foreground"
     >
-      <div className="flex flex-col gap-4 border-b border-sidebar-border p-4">
+      <div className="flex flex-col gap-4 border-b border-border p-4">
         <NovelSelector novelId={novelId} onSelectNovel={onSelectNovel} />
         <ChapterSearch value={keyword} onChange={setKeyword} />
       </div>

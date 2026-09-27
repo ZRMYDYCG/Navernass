@@ -65,12 +65,12 @@ export function Welcome({ onSelectPrompt, disabled }: WelcomeProps) {
               icon={action.icon}
               iconClassName={
                 action.id === "plot"
-                  ? "bg-chart-1/15 text-chart-1"
+                  ? "bg-primary/10 text-primary"
                   : action.id === "character"
-                    ? "bg-chart-2/15 text-chart-2"
+                    ? "bg-accent text-accent-foreground"
                     : action.id === "polish"
-                      ? "bg-chart-4/20 text-chart-4"
-                      : "bg-chart-3/15 text-chart-3"
+                      ? "bg-secondary/60 text-secondary-foreground"
+                      : "bg-muted text-muted-foreground"
               }
               disabled={disabled}
               onClick={() => onSelectPrompt(t(`actions.${action.id}.prompt`))}

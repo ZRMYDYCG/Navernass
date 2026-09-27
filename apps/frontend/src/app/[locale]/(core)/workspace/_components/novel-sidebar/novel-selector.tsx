@@ -60,7 +60,7 @@ export function NovelSelector({ novelId, onSelectNovel }: NovelSelectorProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="group w-full" aria-label={t("selectNovel")}>
-        <span className="flex w-full items-center gap-3 rounded-lg p-2 text-start transition-colors group-hover:bg-sidebar-accent group-focus-visible:ring-2 group-focus-visible:ring-sidebar-ring">
+        <span className="flex w-full items-center gap-3 rounded-lg p-2 text-start transition-colors group-hover:bg-accent group-focus-visible:ring-2 group-focus-visible:ring-ring">
           <NovelCover novel={novel} size="lg" />
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="truncate font-serif text-lg font-bold">{novel.title}</span>

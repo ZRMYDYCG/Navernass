@@ -48,7 +48,7 @@ function VolumeGroup({
   return (
     <Collapsible open={forceExpanded || expanded} onOpenChange={setExpanded}>
       <CollapsibleTrigger className="group/trigger flex w-full min-w-0">
-        <span className="flex w-full min-w-0 items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold transition-colors hover:bg-sidebar-accent">
+        <span className="flex w-full min-w-0 items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold transition-colors hover:bg-accent">
           <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground transition-transform group-data-panel-open/trigger:rotate-90" />
           <span className="min-w-0 flex-1 truncate text-start">{title}</span>
           <span className="shrink-0 text-xs font-normal text-muted-foreground">
@@ -81,7 +81,7 @@ function ChapterLink({
         aria-current={active ? "page" : undefined}
         data-active={active || undefined}
         onClick={onSelect}
-        className="group/chapter flex w-full items-center gap-2 rounded-md px-3 py-2 text-start transition-colors outline-none hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground"
+        className="group/chapter flex w-full items-center gap-2 rounded-md px-3 py-2 text-start transition-colors outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-active:bg-accent data-active:text-accent-foreground"
       >
         <span className="min-w-0 flex-1 truncate text-sm group-data-active/chapter:font-medium">
           {chapter.title}

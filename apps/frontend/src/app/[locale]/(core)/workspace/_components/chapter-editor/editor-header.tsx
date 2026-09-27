@@ -44,7 +44,7 @@ function SaveStatusIndicator({ status, savedAt }: { status: SaveStatus; savedAt:
         </>
       ) : (
         <>
-          <CircleCheckIcon className="size-4 fill-success text-paper" />
+          <CircleCheckIcon className="size-4 text-muted-foreground" />
           {t("saved", { time: format.dateTime(savedAt, { hour: "2-digit", minute: "2-digit" }) })}
         </>
       )}
