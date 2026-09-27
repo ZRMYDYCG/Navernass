@@ -4,10 +4,12 @@ import { SearchIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+import { ActivityBar, type SidebarView } from "./activity-bar";
 import { ChapterOutline } from "./chapter-outline";
 import { NovelSelector } from "./novel-selector";
 
@@ -58,6 +60,19 @@ function ChapterSearch({ value, onChange }: { value: string; onChange: (value: s
   );
 }
 
+function PlaceholderView({ view }: { view: Exclude<SidebarView, "novel"> }) {
+  const t = useTranslations("novelSidebar.views");
+
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>{t(view)}</EmptyTitle>
+        <EmptyDescription>{t("comingSoon")}</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+}
+
 export function NovelSidebar({
   novelId,
   activeChapterId,
@@ -65,6 +80,7 @@ export function NovelSidebar({
   onSelectChapter,
 }: NovelSidebarProps) {
   const t = useTranslations("novelSidebar");
+  const [view, setView] = useState<SidebarView>("novel");
   const [keyword, setKeyword] = useState("");
 
   return (
@@ -72,18 +88,25 @@ export function NovelSidebar({
       aria-label={t("title")}
       className="flex h-full min-h-0 flex-col bg-muted text-foreground"
     >
-      <div className="flex flex-col gap-4 border-b border-border p-4">
-        <NovelSelector novelId={novelId} onSelectNovel={onSelectNovel} />
-        <ChapterSearch value={keyword} onChange={setKeyword} />
-      </div>
-      <ScrollArea className="min-h-0 flex-1">
-        <ChapterOutline
-          novelId={novelId}
-          keyword={keyword}
-          activeChapterId={activeChapterId}
-          onSelectChapter={onSelectChapter}
-        />
-      </ScrollArea>
+      <ActivityBar active={view} onSelect={setView} />
+      {view === "novel" ? (
+        <>
+          <div className="flex flex-col gap-4 border-b border-border p-4">
+            <NovelSelector novelId={novelId} onSelectNovel={onSelectNovel} />
+            <ChapterSearch value={keyword} onChange={setKeyword} />
+          </div>
+          <ScrollArea className="min-h-0 flex-1">
+            <ChapterOutline
+              novelId={novelId}
+              keyword={keyword}
+              activeChapterId={activeChapterId}
+              onSelectChapter={onSelectChapter}
+            />
+          </ScrollArea>
+        </>
+      ) : (
+        <PlaceholderView view={view} />
+      )}
     </aside>
   );
 }

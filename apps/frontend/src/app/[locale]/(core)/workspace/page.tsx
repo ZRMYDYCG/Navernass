@@ -5,6 +5,7 @@ interface WorkspacePageProps {
     novelId?: string | string[];
     chapterId?: string | string[];
     sessionId?: string | string[];
+    view?: string | string[];
   }>;
 }
 
@@ -19,6 +20,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
       novelId={single(query.novelId)}
       chapterId={single(query.chapterId)}
       sessionId={single(query.sessionId)}
+      settingsActive={single(query.view) === "settings"}
     />
   );
 }

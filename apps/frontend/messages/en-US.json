@@ -184,8 +184,61 @@
       "staleHint": "The text changed after this proposal. Ask the assistant to reread it and propose again."
     }
   },
+  "appHeader": {
+    "workspace": "Workspace",
+    "toggleSidebar": "Toggle sidebar",
+    "toggleChatPanel": "Toggle chat panel",
+    "back": "Back",
+    "forward": "Forward",
+    "chats": "Chats",
+    "settings": "Settings",
+    "agentsWindow": "Agents Window"
+  },
+  "editorTabs": {
+    "label": "Open pages",
+    "settings": "Settings",
+    "closeSettings": "Close settings"
+  },
+  "settings": {
+    "title": "Settings",
+    "comingSoon": "Coming soon.",
+    "sections": {
+      "general": "General",
+      "agents": "Agents",
+      "models": "Models",
+      "customize": "Customize",
+      "docs": "Docs",
+      "changelog": "Changelog"
+    },
+    "general": {
+      "title": "General",
+      "preferences": "Preferences",
+      "theme": {
+        "title": "Theme",
+        "description": "Change the interface colors. System follows your OS setting.",
+        "options": {
+          "system": "System",
+          "light": "Light",
+          "dark": "Dark",
+          "dusk": "Dusk"
+        }
+      },
+      "language": {
+        "title": "Language",
+        "description": "Interface display language."
+      }
+    }
+  },
   "novelSidebar": {
     "title": "Contents",
+    "views": {
+      "label": "Sidebar views",
+      "novel": "Novel",
+      "search": "Search",
+      "plugins": "Plugins",
+      "characters": "Characters",
+      "comingSoon": "Coming soon."
+    },
     "selectNovel": "Select novel",
     "loadingNovels": "Loading novels…",
     "loadNovelsError": "Failed to load novels",
