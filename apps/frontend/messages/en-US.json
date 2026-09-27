@@ -41,13 +41,17 @@
       "paused": "Paused"
     },
     "sessions": {
-      "switch": "Switch conversation",
       "history": "Conversation history",
       "new": "New conversation",
       "newConversation": "New conversation",
       "untitled": "Untitled conversation",
-      "running": "Running",
       "empty": "No conversations yet",
+      "search": "Search sessions…",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "older": "Older",
+      "delete": "Delete session",
+      "noMatch": "No matching sessions",
       "loading": "Loading conversation"
     },
     "error": {

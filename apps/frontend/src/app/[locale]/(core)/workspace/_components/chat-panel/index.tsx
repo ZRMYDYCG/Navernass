@@ -18,7 +18,12 @@ import {
   startAgentStream,
 } from "@/lib/api/agent.api";
 import { getErrorMessage } from "@/lib/http/error";
-import { agentKeys, useChatSessions, useSessionMessages } from "@/lib/query/agent.query";
+import {
+  agentKeys,
+  useChatSessions,
+  useDeleteChatSession,
+  useSessionMessages,
+} from "@/lib/query/agent.query";
 import { editorKeys } from "@/lib/query/editor.query";
 import type { AskUserOutput } from "@/schemas/agent.schema";
 
@@ -57,6 +62,7 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
   const storageKey = useMemo(() => getSessionStorageKey(novelId), [novelId]);
   const sessionsQuery = useChatSessions(novelId);
   const messagesQuery = useSessionMessages(state.sessionId);
+  const deleteSessionMutation = useDeleteChatSession();
   const sessions = sessionsQuery.data ?? [];
   const activeSession = sessions.find((session) => session.id === state.sessionId);
 
@@ -226,6 +232,15 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
     syncSelectedSession(sessionId);
   };
 
+  const deleteSession = (sessionId: string) => {
+    deleteSessionMutation.mutate(sessionId, {
+      onSuccess: () => {
+        refreshSessionData(undefined);
+        if (sessionId === state.sessionId) selectSession(undefined);
+      },
+    });
+  };
+
   const sendPrompt = (prompt: string) => {
     const text = prompt.trim();
     if (!text || !canSend || !novelId) return;
@@ -289,6 +304,7 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
         loading={sessionsQuery.isLoading}
         onSelect={(sessionId) => selectSession(sessionId)}
         onNew={() => selectSession(undefined)}
+        onDelete={deleteSession}
       />
 
       {state.phase === "hydrating" ? (

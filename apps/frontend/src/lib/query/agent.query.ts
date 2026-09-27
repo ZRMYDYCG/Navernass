@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { getChatSessions, getSessionMessages } from "@/lib/api/agent.api";
+import { deleteChatSession, getChatSessions, getSessionMessages } from "@/lib/api/agent.api";
 
 export const agentKeys = {
   sessions: (novelId: string) => ["agent", "novels", novelId, "sessions"] as const,
@@ -21,4 +21,8 @@ export function useSessionMessages(sessionId: string | undefined) {
     queryFn: () => getSessionMessages(sessionId!),
     enabled: Boolean(sessionId),
   });
+}
+
+export function useDeleteChatSession() {
+  return useMutation({ mutationFn: deleteChatSession });
 }

@@ -1,6 +1,8 @@
 import type { UIMessageChunk } from "ai";
 import { DefaultChatTransport } from "ai";
 
+import { z } from "zod";
+
 import type { AgentContext, AgentMessage } from "@/lib/agent/chat-types";
 import { apiBaseUrl } from "@/lib/http/client";
 import { apiRequest } from "@/lib/http/request";
@@ -10,6 +12,8 @@ import {
   sessionMessagePageSchema,
   type AskUserOutput,
 } from "@/schemas/agent.schema";
+
+const sessionDeletedSchema = z.object({ deleted: z.boolean() });
 
 function sendStream(path: string, body: object, signal: AbortSignal) {
   const transport = new DefaultChatTransport<AgentMessage>({
@@ -85,6 +89,10 @@ export async function getChatSessions(novelId: string) {
     `agent/sessions?novelId=${encodeURIComponent(novelId)}&page=1&pageSize=100`,
     chatSessionListSchema,
   );
+}
+
+export async function deleteChatSession(sessionId: string) {
+  return apiRequest(`agent/sessions/${sessionId}`, sessionDeletedSchema, { method: "delete" });
 }
 
 export async function getSessionMessages(sessionId: string): Promise<AgentMessage[]> {
