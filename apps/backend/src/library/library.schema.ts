@@ -63,6 +63,13 @@ export const chapterSearch = z.object({
   excludeVolumeId: uuidSchema.nullable().optional(),
 });
 
+export const characterCustomField = z.object({
+  id: z.string().min(1).max(64),
+  label: z.string().max(100),
+  value: z.string().max(20_000),
+  type: z.enum(["text", "longText", "tags"]).default("text"),
+});
+
 export const createCharacter = z.object({
   novel_id: uuidSchema,
   name: z.string().trim().min(1).max(100),
@@ -77,9 +84,21 @@ export const createCharacter = z.object({
   order_index: z.number().int().min(0).optional(),
   overview_x: z.number().finite().nullable().optional(),
   overview_y: z.number().finite().nullable().optional(),
+  custom_fields: z.array(characterCustomField).max(200).default([]),
 });
 
 export const updateCharacter = createCharacter.omit({ novel_id: true }).partial();
+
+const relationshipKinds = z.enum([
+  "ally",
+  "family",
+  "romance",
+  "rival",
+  "enemy",
+  "mentor",
+  "secret",
+  "custom",
+]);
 
 const relationshipFields = z.object({
   novel_id: uuidSchema,
@@ -88,6 +107,9 @@ const relationshipFields = z.object({
   sourceToTargetLabel: z.string().trim().min(1).max(100),
   targetToSourceLabel: z.string().trim().min(1).max(100),
   note: z.string().max(20_000).default(""),
+  kind: relationshipKinds.default("custom"),
+  strength: z.number().int().min(1).max(100).default(50),
+  isSecret: z.boolean().default(false),
 });
 
 export const createRelationship = relationshipFields.refine(

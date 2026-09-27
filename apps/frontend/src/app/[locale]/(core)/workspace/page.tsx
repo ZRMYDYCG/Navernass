@@ -21,6 +21,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
       chapterId={single(query.chapterId)}
       sessionId={single(query.sessionId)}
       settingsActive={single(query.view) === "settings"}
+      graphActive={single(query.view) === "graph"}
     />
   );
 }

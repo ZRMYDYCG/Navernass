@@ -10,8 +10,10 @@ import { AppHeader } from "./app-header";
 import { ChapterEditor, EmptyChapterEditor } from "./chapter-editor/chapter-editor";
 import { ChatPanel } from "./chat-panel";
 import { EditorTabs, type EditorTab } from "./editor-tabs";
+import type { SidebarView } from "./novel-sidebar/activity-bar";
 import { NovelSidebar } from "./novel-sidebar/novel-sidebar";
 import { SettingsView } from "./settings/settings-view";
+import { NovelGraphWorkspace } from "@/features/novel-graph/novel-graph-workspace";
 
 interface WorkspaceProps {
   novelId?: string;
@@ -19,6 +21,7 @@ interface WorkspaceProps {
   sessionId?: string;
   /** 切换语言会整页重新渲染，靠 `view=settings` 参数回到设置页。 */
   settingsActive?: boolean;
+  graphActive?: boolean;
 }
 
 // 联调期临时方案：未选小说时兜底到写死的开发小说，免登录直接联调对话模块
@@ -64,6 +67,7 @@ export function Workspace({
   chapterId: initialChapterId,
   sessionId,
   settingsActive = false,
+  graphActive = false,
 }: WorkspaceProps) {
   const [selection, setSelection] = useState<WorkspaceSelection>({
     novelId: novelId ?? DEV_NOVEL_ID,
@@ -71,7 +75,10 @@ export function Workspace({
     initialSessionId: sessionId,
   });
   const [settingsOpen, setSettingsOpen] = useState(settingsActive);
-  const [activeTab, setActiveTab] = useState<EditorTab>(settingsActive ? "settings" : "chapter");
+  const [graphOpen, setGraphOpen] = useState(graphActive);
+  const [activeTab, setActiveTab] = useState<EditorTab>(
+    settingsActive ? "settings" : graphActive ? "graph" : "chapter",
+  );
   const sidebar = usePanelToggle();
   const chatPanel = usePanelToggle();
 
@@ -89,12 +96,31 @@ export function Workspace({
 
   const selectTab = (tab: EditorTab) => {
     setActiveTab(tab);
-    replaceWorkspaceParams({ view: tab === "settings" ? "settings" : undefined });
+    replaceWorkspaceParams({
+      view: tab === "settings" ? "settings" : tab === "graph" ? "graph" : undefined,
+    });
   };
 
   const openSettings = () => {
     setSettingsOpen(true);
     selectTab("settings");
+  };
+
+  const closeGraph = () => {
+    setGraphOpen(false);
+    selectTab("chapter");
+  };
+
+  const selectSidebarView = (view: SidebarView) => {
+    if (view === "characters") {
+      setGraphOpen(true);
+      selectTab("graph");
+      return;
+    }
+
+    if (view === "novel" && activeTab === "graph") {
+      selectTab("chapter");
+    }
   };
 
   const closeSettings = () => {
@@ -103,6 +129,7 @@ export function Workspace({
   };
 
   const showSettings = settingsOpen && activeTab === "settings";
+  const showGraph = graphOpen && activeTab === "graph";
 
   return (
     <div className="flex h-dvh min-h-0 flex-col">
@@ -128,8 +155,10 @@ export function Workspace({
               key={selection.novelId}
               novelId={selection.novelId}
               activeChapterId={selection.chapterId}
+              initialView={graphActive ? "characters" : "novel"}
               onSelectNovel={selectNovel}
               onSelectChapter={selectChapter}
+              onSelectView={selectSidebarView}
             />
           ) : null}
         </ResizablePanel>
@@ -139,12 +168,14 @@ export function Workspace({
             <EditorTabs
               chapterId={selection.chapterId}
               settingsOpen={settingsOpen}
+              graphOpen={graphOpen}
               activeTab={activeTab}
               onSelectTab={selectTab}
+              onCloseGraph={closeGraph}
               onCloseSettings={closeSettings}
             />
             {/* 设置页只是遮住编辑器，保留 Lexical 的撤销栈与滚动位置。 */}
-            <div hidden={showSettings} className="min-h-0 flex-1">
+            <div hidden={showSettings || showGraph} className="min-h-0 flex-1">
               {selection.novelId && selection.chapterId ? (
                 <ChapterEditor
                   key={selection.chapterId}
@@ -155,6 +186,11 @@ export function Workspace({
                 <EmptyChapterEditor />
               )}
             </div>
+            {graphOpen ? (
+              <div hidden={!showGraph} className="min-h-0 flex-1">
+                <NovelGraphWorkspace novelId={selection.novelId} />
+              </div>
+            ) : null}
             {settingsOpen ? (
               <div hidden={!showSettings} className="min-h-0 flex-1">
                 <SettingsView />

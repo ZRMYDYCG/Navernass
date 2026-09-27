@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "cn";
-import { FileTextIcon, SettingsIcon, XIcon } from "lucide-react";
+import { FileTextIcon, NetworkIcon, SettingsIcon, XIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
@@ -9,13 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useChapter } from "@/lib/query/library.query";
 
-export type EditorTab = "chapter" | "settings";
+export type EditorTab = "chapter" | "graph" | "settings";
 
 interface EditorTabsProps {
   chapterId?: string;
   settingsOpen: boolean;
+  graphOpen: boolean;
   activeTab: EditorTab;
   onSelectTab: (tab: EditorTab) => void;
+  onCloseGraph: () => void;
   onCloseSettings: () => void;
 }
 
@@ -72,8 +74,10 @@ function ChapterTabLabel({ chapterId }: { chapterId: string }) {
 export function EditorTabs({
   chapterId,
   settingsOpen,
+  graphOpen,
   activeTab,
   onSelectTab,
+  onCloseGraph,
   onCloseSettings,
 }: EditorTabsProps) {
   const t = useTranslations("editorTabs");
@@ -90,6 +94,16 @@ export function EditorTabs({
           icon={<FileTextIcon />}
           label={<ChapterTabLabel chapterId={chapterId} />}
           onSelect={() => onSelectTab("chapter")}
+        />
+      ) : null}
+      {graphOpen ? (
+        <TabItem
+          active={activeTab === "graph"}
+          icon={<NetworkIcon />}
+          label={t("graph")}
+          onSelect={() => onSelectTab("graph")}
+          closeLabel={t("closeGraph")}
+          onClose={onCloseGraph}
         />
       ) : null}
       {settingsOpen ? (

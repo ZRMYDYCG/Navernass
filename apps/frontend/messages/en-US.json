@@ -191,11 +191,14 @@
     "back": "Back",
     "forward": "Forward",
     "chats": "Chats",
+    "graph": "Character graph",
     "settings": "Settings",
     "agentsWindow": "Agents Window"
   },
   "editorTabs": {
     "label": "Open pages",
+    "graph": "Character graph",
+    "closeGraph": "Close character graph",
     "settings": "Settings",
     "closeSettings": "Close settings"
   },

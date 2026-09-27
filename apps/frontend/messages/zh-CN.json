@@ -191,11 +191,14 @@
     "back": "后退",
     "forward": "前进",
     "chats": "对话",
+    "graph": "角色关系",
     "settings": "设置",
     "agentsWindow": "Agents 窗口"
   },
   "editorTabs": {
     "label": "打开的页面",
+    "graph": "角色关系",
+    "closeGraph": "关闭角色关系",
     "settings": "设置",
     "closeSettings": "关闭设置"
   },
