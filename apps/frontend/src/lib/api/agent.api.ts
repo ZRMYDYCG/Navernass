@@ -4,7 +4,12 @@ import { DefaultChatTransport } from "ai";
 import type { AgentContext, AgentMessage } from "@/lib/agent/chat-types";
 import { apiBaseUrl } from "@/lib/http/client";
 import { apiRequest } from "@/lib/http/request";
-import { sessionMessagePageSchema, type AskUserOutput } from "@/schemas/agent.schema";
+import {
+  chatSessionListSchema,
+  pauseRunResultSchema,
+  sessionMessagePageSchema,
+  type AskUserOutput,
+} from "@/schemas/agent.schema";
 
 function sendStream(path: string, body: object, signal: AbortSignal) {
   const transport = new DefaultChatTransport<AgentMessage>({
@@ -52,6 +57,33 @@ export function answerAgentStream(
     `agent/sessions/${sessionId}/tool-output/stream`,
     { toolCallId, output },
     signal,
+  );
+}
+
+export async function resumeAgentStream(
+  runId: string,
+  signal: AbortSignal,
+): Promise<ReadableStream<UIMessageChunk>> {
+  const transport = new DefaultChatTransport<AgentMessage>({
+    api: `${apiBaseUrl}/agent/runs`,
+    credentials: "include",
+    prepareReconnectToStreamRequest: ({ id }) => ({
+      api: `${apiBaseUrl}/agent/runs/${id}/stream?after=0`,
+    }),
+  });
+  const stream = await transport.reconnectToStream({ chatId: runId, abortSignal: signal });
+  if (!stream) throw new Error("Agent stream is no longer available");
+  return stream;
+}
+
+export function pauseAgentRun(runId: string) {
+  return apiRequest(`agent/runs/${runId}/pause`, pauseRunResultSchema, { method: "post" });
+}
+
+export async function getChatSessions(novelId: string) {
+  return apiRequest(
+    `agent/sessions?novelId=${encodeURIComponent(novelId)}&page=1&pageSize=100`,
+    chatSessionListSchema,
   );
 }
 

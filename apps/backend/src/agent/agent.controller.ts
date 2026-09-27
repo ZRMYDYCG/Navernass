@@ -291,6 +291,14 @@ export class AgentController {
     await this.pipeAgentStream(response, result);
   }
 
+  @Post("runs/:id/pause")
+  @HttpCode(200)
+  @ApiDoc({ summary: "暂停正在生成的对话", type: MutationResult })
+  @ApiUuidParam("id", "Agent 执行记录 UUID")
+  pauseRun(@CurrentUser() user: AuthUser, @Param(new ZodPipe(idParam)) params: { id: string }) {
+    return this.runtime.pauseRun(user.id, params.id);
+  }
+
   @Post("runs/:id/retry/stream")
   @HttpCode(200)
   @LongTask()

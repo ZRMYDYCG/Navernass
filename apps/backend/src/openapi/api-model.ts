@@ -72,6 +72,9 @@ export class MutationResult {
 
   @ApiPropertyOptional({ example: true })
   updated?: boolean;
+
+  @ApiPropertyOptional({ example: true })
+  paused?: boolean;
 }
 
 export class HealthResult {

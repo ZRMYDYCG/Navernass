@@ -86,6 +86,12 @@ interface PrepareOptions {
   continuation?: { before: Date };
 }
 
+interface ActiveStream {
+  controller: AbortController;
+  done: Promise<void>;
+  finish: () => void;
+}
+
 export interface AgentResult {
   runId: string;
   sessionId: string;
@@ -112,6 +118,7 @@ export class RuntimeService {
   private readonly maxSteps: number;
   private readonly timeoutMs: number;
   private readonly maxRetries: number;
+  private readonly activeStreams = new Map<string, ActiveStream>();
 
   constructor(
     @Inject(ConfigService) config: ConfigService<EnvConfig, true>,
@@ -270,6 +277,25 @@ export class RuntimeService {
     return this.toReplayResult(userId, runId, after);
   }
 
+  async pauseRun(userId: string, runId: string) {
+    const run = await this.prisma.agentRun.findFirst({
+      where: { id: runId, user_id: userId },
+      select: { status: true },
+    });
+    if (!run) throw AppError.notFound("AGENT_RUN_NOT_FOUND", "Agent 执行记录");
+    if (run.status !== "running") {
+      throw new AppError("CONFLICT", "只有正在生成的对话可以暂停", 409, {
+        status: run.status,
+      });
+    }
+
+    const active = this.activeStreams.get(runId);
+    if (!active) throw new AppError("CONFLICT", "当前生成已结束或无法暂停", 409);
+    active.controller.abort("user_paused");
+    await active.done;
+    return { paused: true as const };
+  }
+
   private async startStream(userId: string, input: RunAgent, options: PrepareOptions) {
     const execution = await this.prepare(userId, input, options);
     await this.traces.startRun(execution.run.id);
@@ -394,8 +420,18 @@ export class RuntimeService {
   ) {
     const started = Date.now();
     let stepIndex = 0;
+    const controller = new AbortController();
+    let finishActiveStream: () => void = () => {};
+    const done = new Promise<void>((resolve) => {
+      finishActiveStream = resolve;
+    });
+    this.activeStreams.set(execution.run.id, {
+      controller,
+      done,
+      finish: finishActiveStream,
+    });
     const options = {
-      abortSignal: this.signal(),
+      abortSignal: this.signal(controller.signal),
       onStepFinish: async (
         event: Parameters<
           NonNullable<Parameters<typeof execution.agent.stream>[0]["onStepFinish"]>
@@ -435,39 +471,61 @@ export class RuntimeService {
           return `${failure.code}: ${failure.message}（runId: ${execution.run.id}）`;
         },
         onEnd: async ({ outcome, finishReason, responseMessage }) => {
-          if (outcome.status === "aborted") {
-            await this.traces.cancelRun(execution.run.id, Date.now() - started);
-            return;
-          }
-          if (outcome.status === "failed") {
-            await this.traces.failRun(
-              execution.run.id,
-              this.errors.toAppError(outcome.error),
-              Date.now() - started,
-            );
-            return;
-          }
-          const [usage, text] = await Promise.all([result.totalUsage, result.text]);
-          await this.chats.saveAssistant({
-            ...execution.messageContext,
-            remoteId: responseMessage.id,
-            content: text,
-            parts: responseMessage.parts,
-            metadata: {
+          try {
+            if (outcome.status === "aborted") {
+              if (responseMessage.parts.length > 0) {
+                const text = responseMessage.parts
+                  .filter((part) => part.type === "text")
+                  .map((part) => part.text)
+                  .join("");
+                await this.chats.saveAssistant({
+                  ...execution.messageContext,
+                  remoteId: responseMessage.id,
+                  content: text,
+                  parts: responseMessage.parts,
+                  metadata: {
+                    interrupted: true,
+                    finishReason: "cancelled",
+                    aiSdkMessageId: responseMessage.id,
+                    toolTimings: execution.toolTimings,
+                  },
+                });
+              }
+              await this.traces.cancelRun(execution.run.id, Date.now() - started);
+              return;
+            }
+            if (outcome.status === "failed") {
+              await this.traces.failRun(
+                execution.run.id,
+                this.errors.toAppError(outcome.error),
+                Date.now() - started,
+              );
+              return;
+            }
+            const [usage, text] = await Promise.all([result.totalUsage, result.text]);
+            await this.chats.saveAssistant({
+              ...execution.messageContext,
+              remoteId: responseMessage.id,
+              content: text,
+              parts: responseMessage.parts,
+              metadata: {
+                finishReason,
+                usage,
+                aiSdkMessageId: responseMessage.id,
+                toolTimings: execution.toolTimings,
+              },
+            });
+            await this.traces.finishRun(execution.run.id, {
+              output: text,
+              inputTokens: usage.inputTokens ?? 0,
+              outputTokens: usage.outputTokens ?? 0,
+              totalTokens: usage.totalTokens ?? 0,
               finishReason,
-              usage,
-              aiSdkMessageId: responseMessage.id,
-              toolTimings: execution.toolTimings,
-            },
-          });
-          await this.traces.finishRun(execution.run.id, {
-            output: text,
-            inputTokens: usage.inputTokens ?? 0,
-            outputTokens: usage.outputTokens ?? 0,
-            totalTokens: usage.totalTokens ?? 0,
-            finishReason,
-            latencyMs: Date.now() - started,
-          });
+              latencyMs: Date.now() - started,
+            });
+          } finally {
+            this.finishActiveStream(execution.run.id);
+          }
         },
       });
       return {
@@ -478,7 +536,15 @@ export class RuntimeService {
       };
     } catch (error) {
       const failure = this.errors.toAppError(error);
-      await this.traces.failRun(execution.run.id, failure, Date.now() - started);
+      try {
+        if (controller.signal.aborted) {
+          await this.traces.cancelRun(execution.run.id, Date.now() - started);
+        } else {
+          await this.traces.failRun(execution.run.id, failure, Date.now() - started);
+        }
+      } finally {
+        this.finishActiveStream(execution.run.id);
+      }
       throw failure;
     }
   }
@@ -618,6 +684,13 @@ export class RuntimeService {
   private signal(signal?: AbortSignal) {
     const timeout = AbortSignal.timeout(this.timeoutMs);
     return signal ? AbortSignal.any([signal, timeout]) : timeout;
+  }
+
+  private finishActiveStream(runId: string) {
+    const active = this.activeStreams.get(runId);
+    if (!active) return;
+    this.activeStreams.delete(runId);
+    active.finish();
   }
 
   private generationSettings(value: Prisma.JsonValue) {

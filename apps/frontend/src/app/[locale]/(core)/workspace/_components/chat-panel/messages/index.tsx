@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
 
 import { AgentConnecting, AssistantParts } from "@/components/buss/agui";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
@@ -30,6 +31,7 @@ function MessageBody({
   message: AgentMessage;
   streaming?: boolean;
 }) {
+  const t = useTranslations("chat.composer");
   if (message.role === "user") {
     const text = message.parts
       .filter((part) => part.type === "text")
@@ -55,6 +57,9 @@ function MessageBody({
           streaming={streaming}
           toolTimings={message.metadata?.toolTimings}
         />
+        {message.metadata?.interrupted ? (
+          <span className="text-xs text-muted-foreground">{t("paused")}</span>
+        ) : null}
       </MessageContent>
     </Message>
   );

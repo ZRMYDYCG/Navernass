@@ -41,6 +41,7 @@ services:
       DATABASE_HOST: mysql
       DATABASE_PORT: 3306
       DATABASE_URL: mysql://narraverse:narraverse@mysql:3306/narraverse
+      DATABASE_ALLOW_PUBLIC_KEY_RETRIEVAL: "true"
       QDRANT_URL: http://qdrant:6333
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-local-development-auth-secret-32-chars}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}

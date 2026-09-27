@@ -23,6 +23,7 @@ export const envSchema = z.object({
   DATABASE_PASSWORD: z.string(),
   DATABASE_NAME: z.string().min(1),
   DATABASE_POOL_SIZE: z.coerce.number().int().min(1).max(100).default(10),
+  DATABASE_ALLOW_PUBLIC_KEY_RETRIEVAL: booleanText,
   BETTER_AUTH_SECRET: z.string().min(32),
   BETTER_AUTH_URL: z.url(),
   APP_URL: z.url(),

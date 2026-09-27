@@ -107,6 +107,12 @@ export class ChatService {
         take: query.pageSize,
         include: {
           _count: { select: { messages: true } },
+          runs: {
+            where: { status: { in: ["queued", "running"] } },
+            orderBy: { created_at: "desc" },
+            take: 1,
+            select: { id: true, status: true },
+          },
           messages: {
             orderBy: [{ created_at: "desc" }, { id: "desc" }],
             take: 1,
@@ -117,10 +123,11 @@ export class ChatService {
       this.prisma.agentSession.count({ where }),
     ]);
     return {
-      data: data.map(({ messages, _count, ...session }) => ({
+      data: data.map(({ messages, runs, _count, ...session }) => ({
         ...session,
         messageCount: _count.messages,
         lastMessage: messages[0] ?? null,
+        activeRun: runs[0] ?? null,
       })),
       total,
     };

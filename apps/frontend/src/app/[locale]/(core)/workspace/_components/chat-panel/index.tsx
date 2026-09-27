@@ -1,21 +1,31 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { readUIMessageStream } from "ai";
+import { LoaderCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { AgentMessage } from "@/lib/agent/chat-types";
 import { chatReducer, initialChatState } from "@/lib/agent/chat-machine";
 import { findPendingQuestion, hasRenderablePart } from "@/lib/agent/message-utils";
 import { StreamStore } from "@/lib/agent/stream-store";
-import { answerAgentStream, getSessionMessages, startAgentStream } from "@/lib/api/agent.api";
+import {
+  answerAgentStream,
+  pauseAgentRun,
+  resumeAgentStream,
+  startAgentStream,
+} from "@/lib/api/agent.api";
 import { getErrorMessage } from "@/lib/http/error";
+import { agentKeys, useChatSessions, useSessionMessages } from "@/lib/query/agent.query";
+import { editorKeys } from "@/lib/query/editor.query";
 import type { AskUserOutput } from "@/schemas/agent.schema";
 
 import { AskUserPanel } from "./ask-user";
 import { Composer } from "./composer";
 import { Messages } from "./messages";
+import { SessionSwitcher } from "./session-switcher";
 import { Welcome } from "./welcome";
 
 interface ChatPanelProps {
@@ -28,100 +38,192 @@ function getSessionId(message: AgentMessage | undefined) {
   return message?.metadata?.sessionId;
 }
 
-function getDebugSessionStorageKey(novelId: string | undefined, chapterId: string | undefined) {
-  if (!novelId) return undefined;
-  return `narraverse:agent-session:${novelId}:${chapterId ?? "workspace"}`;
+function getSessionStorageKey(novelId: string | undefined) {
+  return novelId ? `narraverse:agent-session:${novelId}` : undefined;
 }
 
 export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: ChatPanelProps) {
   const t = useTranslations("chat");
+  const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(chatReducer, {
     ...initialChatState,
+    phase: initialSessionId ? "hydrating" : "idle",
     sessionId: initialSessionId,
   });
   const streamStore = useMemo(() => new StreamStore(), []);
   const abortRef = useRef<AbortController>(null);
-  const liveSessionRef = useRef<string | undefined>(undefined);
-  const sessionStorageKey = useMemo(
-    () => getDebugSessionStorageKey(novelId, chapterId),
-    [novelId, chapterId],
-  );
+  const resumedRunsRef = useRef(new Set<string>());
+  const pauseRequestedViewsRef = useRef(new Set<number>());
+  const storageKey = useMemo(() => getSessionStorageKey(novelId), [novelId]);
+  const sessionsQuery = useChatSessions(novelId);
+  const messagesQuery = useSessionMessages(state.sessionId);
+  const sessions = sessionsQuery.data ?? [];
+  const activeSession = sessions.find((session) => session.id === state.sessionId);
 
-  const busy = state.phase === "streaming";
-  const canSend = Boolean(novelId) && !busy;
+  const busy = state.phase === "streaming" || state.phase === "pausing";
+  const canSend = Boolean(novelId) && !["hydrating", "streaming", "pausing"].includes(state.phase);
   const pendingQuestion = useMemo(
     () => (busy ? undefined : findPendingQuestion(state.messages)),
     [busy, state.messages],
   );
 
   useEffect(() => {
-    if (initialSessionId || !sessionStorageKey) return;
-    const storedSessionId = window.localStorage.getItem(sessionStorageKey);
-    if (storedSessionId) dispatch({ type: "RESTORE_SESSION", sessionId: storedSessionId });
-  }, [initialSessionId, sessionStorageKey]);
-
-  useEffect(() => {
-    if (!state.sessionId || state.sessionId === liveSessionRef.current) return;
-    let active = true;
-    void getSessionMessages(state.sessionId)
-      .then((messages) => {
-        if (active) dispatch({ type: "HYDRATE", messages });
-      })
-      .catch((error: unknown) => {
-        if (active) dispatch({ type: "FAIL", message: getErrorMessage(error) });
-      });
-    return () => {
-      active = false;
-    };
-  }, [state.sessionId]);
-
-  useEffect(() => {
-    if (!state.sessionId || !sessionStorageKey) return;
-    window.localStorage.setItem(sessionStorageKey, state.sessionId);
-
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("sessionId") === state.sessionId) return;
-    url.searchParams.set("sessionId", state.sessionId);
-    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [sessionStorageKey, state.sessionId]);
-
-  const consumeStream = async (
-    createStream: (signal: AbortSignal) => ReturnType<typeof startAgentStream>,
-  ) => {
-    const controller = new AbortController();
-    abortRef.current = controller;
-    let finalMessage: AgentMessage | undefined;
-    const streamFallbackId = `assistant-${crypto.randomUUID()}`;
-    streamStore.set({ id: streamFallbackId, role: "assistant", parts: [] });
-
-    try {
-      const stream = await createStream(controller.signal);
-      for await (const message of readUIMessageStream<AgentMessage>({
-        stream,
-        terminateOnError: true,
-      })) {
-        finalMessage = { ...message, id: streamFallbackId };
-        streamStore.set(finalMessage);
-      }
-
-      liveSessionRef.current = getSessionId(finalMessage) ?? state.sessionId;
-      dispatch({
-        type: "STREAM_DONE",
-        message: finalMessage && hasRenderablePart(finalMessage) ? finalMessage : undefined,
-        sessionId: getSessionId(finalMessage) ?? state.sessionId,
-      });
-    } catch (error) {
-      if (controller.signal.aborted) {
-        dispatch({
-          type: "STOP",
-          message: finalMessage && hasRenderablePart(finalMessage) ? finalMessage : undefined,
-        });
-      } else {
-        dispatch({ type: "FAIL", message: getErrorMessage(error) });
-      }
-    } finally {
-      if (abortRef.current === controller) abortRef.current = null;
+    if (initialSessionId) {
+      if (storageKey) window.localStorage.setItem(storageKey, initialSessionId);
+      return;
     }
+    const storedSessionId = storageKey ? window.localStorage.getItem(storageKey) : null;
+    if (storedSessionId) dispatch({ type: "SELECT_SESSION", sessionId: storedSessionId });
+  }, [initialSessionId, storageKey]);
+
+  const syncSelectedSession = useCallback(
+    (sessionId: string | undefined) => {
+      if (storageKey) {
+        if (sessionId) window.localStorage.setItem(storageKey, sessionId);
+        else window.localStorage.removeItem(storageKey);
+      }
+
+      const url = new URL(window.location.href);
+      if (sessionId) url.searchParams.set("sessionId", sessionId);
+      else url.searchParams.delete("sessionId");
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    },
+    [storageKey],
+  );
+
+  useEffect(() => {
+    if (!state.sessionId || !messagesQuery.isSuccess) return;
+    dispatch({ type: "HYDRATE", sessionId: state.sessionId, messages: messagesQuery.data });
+  }, [messagesQuery.data, messagesQuery.isSuccess, state.sessionId]);
+
+  useEffect(() => {
+    if (!messagesQuery.error || !state.sessionId) return;
+    dispatch({
+      type: "FAIL",
+      viewKey: state.viewKey,
+      message: getErrorMessage(messagesQuery.error),
+    });
+  }, [messagesQuery.error, state.sessionId, state.viewKey]);
+
+  const refreshSessionData = useCallback(
+    (sessionId: string | undefined) => {
+      if (novelId) {
+        void queryClient.invalidateQueries({ queryKey: agentKeys.sessions(novelId), exact: true });
+      }
+      if (sessionId) {
+        void queryClient.invalidateQueries({
+          queryKey: agentKeys.messages(sessionId),
+          exact: true,
+        });
+      }
+      void queryClient.invalidateQueries({ queryKey: editorKeys.pendingAll });
+    },
+    [novelId, queryClient],
+  );
+
+  const consumeStream = useCallback(
+    async (
+      createStream: (signal: AbortSignal) => ReturnType<typeof startAgentStream>,
+      viewKey: number,
+      knownSessionId?: string,
+      knownRunId?: string,
+    ) => {
+      const controller = new AbortController();
+      abortRef.current = controller;
+      let finalMessage: AgentMessage | undefined;
+      let streamSessionId = knownSessionId;
+      let streamRunId = knownRunId;
+      const streamFallbackId = `assistant-${crypto.randomUUID()}`;
+      streamStore.set({ id: streamFallbackId, role: "assistant", parts: [] });
+
+      try {
+        const stream = await createStream(controller.signal);
+        refreshSessionData(streamSessionId);
+        for await (const message of readUIMessageStream<AgentMessage>({
+          stream,
+          terminateOnError: true,
+        })) {
+          finalMessage = { ...message, id: streamFallbackId };
+          streamStore.set(finalMessage);
+          const assignedRunId = message.metadata?.runId;
+          if (assignedRunId) resumedRunsRef.current.add(assignedRunId);
+          const assignedSessionId = getSessionId(message);
+          if (
+            (assignedSessionId && assignedSessionId !== streamSessionId) ||
+            (assignedRunId && assignedRunId !== streamRunId)
+          ) {
+            streamRunId = assignedRunId ?? streamRunId;
+            dispatch({
+              type: "STREAM_IDENTIFIED",
+              sessionId: assignedSessionId,
+              runId: assignedRunId,
+              viewKey,
+            });
+          }
+          if (assignedSessionId && assignedSessionId !== streamSessionId) {
+            streamSessionId = assignedSessionId;
+            syncSelectedSession(assignedSessionId);
+            refreshSessionData(assignedSessionId);
+          }
+        }
+
+        const message = finalMessage && hasRenderablePart(finalMessage) ? finalMessage : undefined;
+        if (pauseRequestedViewsRef.current.has(viewKey)) {
+          dispatch({
+            type: "STOP",
+            viewKey,
+            message: message
+              ? { ...message, metadata: { ...message.metadata, interrupted: true } }
+              : undefined,
+          });
+        } else {
+          dispatch({ type: "STREAM_DONE", viewKey, message, sessionId: streamSessionId });
+        }
+      } catch (error) {
+        if (controller.signal.aborted) {
+          const message =
+            finalMessage && hasRenderablePart(finalMessage)
+              ? {
+                  ...finalMessage,
+                  metadata: { ...finalMessage.metadata, interrupted: true },
+                }
+              : undefined;
+          dispatch({
+            type: "STOP",
+            viewKey,
+            message,
+          });
+        } else {
+          dispatch({ type: "FAIL", viewKey, message: getErrorMessage(error) });
+        }
+      } finally {
+        pauseRequestedViewsRef.current.delete(viewKey);
+        if (abortRef.current === controller) abortRef.current = null;
+        refreshSessionData(streamSessionId);
+      }
+    },
+    [refreshSessionData, streamStore, syncSelectedSession],
+  );
+
+  useEffect(() => {
+    const runId = activeSession?.activeRun?.id;
+    if (!runId || state.phase !== "idle" || resumedRunsRef.current.has(runId)) return;
+    resumedRunsRef.current.add(runId);
+    const viewKey = state.viewKey;
+    dispatch({ type: "RESUME", runId, viewKey });
+    void consumeStream(
+      (signal) => resumeAgentStream(runId, signal),
+      viewKey,
+      state.sessionId,
+      runId,
+    );
+  }, [activeSession?.activeRun?.id, consumeStream, state.phase, state.sessionId, state.viewKey]);
+
+  const selectSession = (sessionId: string | undefined) => {
+    if (sessionId === state.sessionId) return;
+    streamStore.set(undefined);
+    dispatch({ type: "SELECT_SESSION", sessionId });
+    syncSelectedSession(sessionId);
   };
 
   const sendPrompt = (prompt: string) => {
@@ -133,9 +235,18 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
       role: "user",
       parts: [{ type: "text", text }],
     };
+    const viewKey = state.viewKey;
     dispatch({ type: "SEND", message });
-    void consumeStream((signal) =>
-      startAgentStream({ novelId, ...(chapterId && { chapterId }) }, text, state.sessionId, signal),
+    void consumeStream(
+      (signal) =>
+        startAgentStream(
+          { novelId, ...(chapterId && { chapterId }) },
+          text,
+          state.sessionId,
+          signal,
+        ),
+      viewKey,
+      state.sessionId,
     );
   };
 
@@ -143,16 +254,48 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
     const sessionId = state.sessionId;
     if (!pendingQuestion || busy || !sessionId) return;
     const { toolCallId } = pendingQuestion;
+    const viewKey = state.viewKey;
     dispatch({ type: "ANSWER", toolCallId, output });
-    void consumeStream((signal) => answerAgentStream(sessionId, toolCallId, output, signal));
+    void consumeStream(
+      (signal) => answerAgentStream(sessionId, toolCallId, output, signal),
+      viewKey,
+      sessionId,
+    );
   };
 
-  // 空状态：欢迎页独立于消息滚动区，不参与消息布局。
-  const showWelcome = state.messages.length === 0 && !busy;
+  const pauseConversation = async () => {
+    const runId = state.runId;
+    if (!runId || state.phase !== "streaming") return;
+    const viewKey = state.viewKey;
+    pauseRequestedViewsRef.current.add(viewKey);
+    dispatch({ type: "PAUSE", runId, viewKey });
+    try {
+      await pauseAgentRun(runId);
+      abortRef.current?.abort();
+    } catch (error) {
+      pauseRequestedViewsRef.current.delete(viewKey);
+      dispatch({ type: "PAUSE_FAILED", viewKey, message: getErrorMessage(error) });
+    }
+  };
+
+  const showWelcome = state.messages.length === 0 && state.phase === "idle";
 
   return (
     <section className="flex h-full min-h-0 flex-col bg-card" aria-label={t("title")}>
-      {showWelcome ? (
+      <SessionSwitcher
+        sessions={sessions}
+        activeSessionId={state.sessionId}
+        disabled={state.phase === "hydrating" || busy}
+        loading={sessionsQuery.isLoading}
+        onSelect={(sessionId) => selectSession(sessionId)}
+        onNew={() => selectSession(undefined)}
+      />
+
+      {state.phase === "hydrating" ? (
+        <div className="flex min-h-0 flex-1 items-center justify-center text-muted-foreground">
+          <LoaderCircleIcon className="animate-spin" aria-label={t("sessions.loading")} />
+        </div>
+      ) : showWelcome ? (
         <div className="flex min-h-0 flex-1 overflow-y-auto">
           <div className="m-auto w-full px-4 py-6">
             <Welcome disabled={!canSend} onSelectPrompt={sendPrompt} />
@@ -184,9 +327,11 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
 
       <Composer
         busy={busy}
+        pausing={state.phase === "pausing"}
+        canPause={Boolean(state.runId)}
         canSend={canSend}
         onSubmit={sendPrompt}
-        onStop={() => abortRef.current?.abort()}
+        onPause={() => void pauseConversation()}
       />
     </section>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { SendHorizontalIcon, SquareIcon } from "lucide-react";
+import { PauseIcon, SendHorizontalIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
@@ -10,12 +10,14 @@ import { InputGroupButton } from "@/components/ui/input-group";
 
 interface ComposerProps {
   busy: boolean;
+  pausing: boolean;
+  canPause: boolean;
   canSend: boolean;
   onSubmit: (prompt: string) => void;
-  onStop: () => void;
+  onPause: () => void;
 }
 
-export function Composer({ busy, canSend, onSubmit, onStop }: ComposerProps) {
+export function Composer({ busy, pausing, canPause, canSend, onSubmit, onPause }: ComposerProps) {
   const t = useTranslations("chat");
   const [draft, setDraft] = useState("");
   const inputRef = useRef<PromptInputHandle>(null);
@@ -42,10 +44,11 @@ export function Composer({ busy, canSend, onSubmit, onStop }: ComposerProps) {
               type="button"
               size="icon-sm"
               variant="secondary"
-              aria-label={t("composer.stop")}
-              onClick={onStop}
+              aria-label={t(pausing ? "composer.pausing" : "composer.pause")}
+              disabled={pausing || !canPause}
+              onClick={onPause}
             >
-              <SquareIcon />
+              <PauseIcon />
             </InputGroupButton>
           ) : (
             <InputGroupButton
@@ -54,6 +57,7 @@ export function Composer({ busy, canSend, onSubmit, onStop }: ComposerProps) {
               variant="default"
               aria-label={t("composer.send")}
               disabled={!draft.trim() || !canSend}
+              onClick={send}
             >
               <SendHorizontalIcon />
             </InputGroupButton>

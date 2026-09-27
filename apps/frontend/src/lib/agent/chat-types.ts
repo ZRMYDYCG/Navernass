@@ -4,6 +4,7 @@ export interface AgentMessageMetadata {
   runId?: string;
   sessionId?: string;
   aiSdkMessageId?: string;
+  interrupted?: boolean;
   toolTimings?: Record<string, { startedAt: number; durationMs?: number }>;
 }
 

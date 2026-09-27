@@ -2,7 +2,8 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useState, type PropsWithChildren } from "react";
+import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
+import { useEffect, useState, type PropsWithChildren } from "react";
 
 export function QueryProvider({ children }: PropsWithChildren) {
   const [queryClient] = useState(
@@ -16,6 +17,15 @@ export function QueryProvider({ children }: PropsWithChildren) {
           },
         },
       }),
+  );
+
+  useEffect(
+    () =>
+      broadcastQueryClient({
+        queryClient,
+        broadcastChannel: "narraverse-query",
+      }),
+    [queryClient],
   );
 
   return (

@@ -34,6 +34,35 @@ export const askUserOutputSchema = z.discriminatedUnion("status", [
 export type AskUserInput = z.infer<typeof askUserInputSchema>;
 export type AskUserOutput = z.infer<typeof askUserOutputSchema>;
 
+export const chatSessionSchema = z.object({
+  id: z.string(),
+  novel_id: z.string(),
+  chapter_id: z.string().nullable(),
+  title: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  messageCount: z.number().int().nonnegative(),
+  lastMessage: z
+    .object({
+      role: z.enum(["user", "assistant"]),
+      content: z.string(),
+      created_at: z.string(),
+    })
+    .nullable(),
+  activeRun: z
+    .object({
+      id: z.string(),
+      status: z.enum(["queued", "running"]),
+    })
+    .nullable(),
+});
+
+export type ChatSession = z.infer<typeof chatSessionSchema>;
+
+export const chatSessionListSchema = z.array(chatSessionSchema);
+
+export const pauseRunResultSchema = z.object({ paused: z.literal(true) });
+
 export const sessionMessagePageSchema = z.object({
   items: z.array(
     z.object({

@@ -35,7 +35,20 @@
     "composer": {
       "placeholder": "Ask anything about this novel…",
       "send": "Send message",
-      "stop": "Stop generation"
+      "stop": "Stop generation",
+      "pause": "Pause generation",
+      "pausing": "Pausing",
+      "paused": "Paused"
+    },
+    "sessions": {
+      "switch": "Switch conversation",
+      "history": "Conversation history",
+      "new": "New conversation",
+      "newConversation": "New conversation",
+      "untitled": "Untitled conversation",
+      "running": "Running",
+      "empty": "No conversations yet",
+      "loading": "Loading conversation"
     },
     "error": {
       "title": "The conversation could not continue"
@@ -165,6 +178,54 @@
       "reject": "Reject",
       "apply": "Apply selected {count}/{total}",
       "staleHint": "The text changed after this proposal. Ask the assistant to reread it and propose again."
+    }
+  },
+  "novelSidebar": {
+    "title": "Contents",
+    "selectNovel": "Select novel",
+    "loadingNovels": "Loading novels…",
+    "loadNovelsError": "Failed to load novels",
+    "novelStats": "{words} words · {status}",
+    "novelStatus": {
+      "draft": "In progress",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "searchPlaceholder": "Search chapters…",
+    "chapterCount": "{count, plural, one {# chapter} other {# chapters}}",
+    "chapterMeta": "{status} · {count, number} words",
+    "chapterStatus": {
+      "draft": "Draft",
+      "published": "Published"
+    },
+    "ungrouped": "No volume",
+    "empty": "No chapters yet",
+    "noMatch": "No matching chapters",
+    "loadError": "Failed to load contents"
+  },
+  "chapterEditor": {
+    "title": "Manuscript editor",
+    "placeholder": "Start writing here…",
+    "wordCount": "{count, number} words",
+    "loadError": "Failed to load chapter",
+    "save": {
+      "saving": "Saving…",
+      "saved": "Autosaved {time}",
+      "error": "Save failed"
+    },
+    "empty": {
+      "title": "Select a chapter",
+      "description": "Open a chapter from the contents to start writing."
+    },
+    "review": {
+      "title": "Review proposed edits",
+      "accept": "Accept",
+      "reject": "Reject",
+      "itemized": "Review each",
+      "previous": "Previous change",
+      "next": "Next change",
+      "removed": "Removed: ",
+      "added": "Added: "
     }
   }
 }

@@ -15,6 +15,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       password: config.get("DATABASE_PASSWORD", { infer: true }),
       database: config.get("DATABASE_NAME", { infer: true }),
       connectionLimit: config.get("DATABASE_POOL_SIZE", { infer: true }),
+      allowPublicKeyRetrieval: config.get("DATABASE_ALLOW_PUBLIC_KEY_RETRIEVAL", { infer: true }),
     });
     super({ adapter });
   }
