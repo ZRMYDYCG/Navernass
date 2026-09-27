@@ -242,6 +242,17 @@
       "characters": "Characters",
       "comingSoon": "Coming soon."
     },
+    "search": {
+      "placeholder": "Search chapter titles and text",
+      "matchCase": "Match case",
+      "wholeWord": "Match whole word",
+      "searching": "Searching…",
+      "noResults": "No results found",
+      "error": "Search failed. Please try again.",
+      "summary": "{matches, plural, one {# result} other {# results}} in {chapters, plural, one {# chapter} other {# chapters}}",
+      "truncated": "Only the first {count} matching chapters were searched. Try a more specific keyword.",
+      "moreMatches": "{count} more not shown"
+    },
     "selectNovel": "Select novel",
     "loadingNovels": "Loading novels…",
     "loadNovelsError": "Failed to load novels",
@@ -251,7 +262,6 @@
       "published": "Published",
       "archived": "Archived"
     },
-    "searchPlaceholder": "Search chapters…",
     "chapterCount": "{count, plural, one {# chapter} other {# chapters}}",
     "chapterMeta": "{status} · {count, number} words",
     "chapterStatus": {
@@ -260,7 +270,6 @@
     },
     "ungrouped": "No volume",
     "empty": "No chapters yet",
-    "noMatch": "No matching chapters",
     "loadError": "Failed to load contents"
   },
   "chapterEditor": {

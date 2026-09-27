@@ -30,23 +30,15 @@ interface VolumeGroupProps {
   title: string;
   chapterCount: number;
   defaultExpanded: boolean;
-  /** 搜索时强制展开，不改写用户手动折叠的状态。 */
-  forceExpanded: boolean;
   children: ReactNode;
 }
 
-function VolumeGroup({
-  title,
-  chapterCount,
-  defaultExpanded,
-  forceExpanded,
-  children,
-}: VolumeGroupProps) {
+function VolumeGroup({ title, chapterCount, defaultExpanded, children }: VolumeGroupProps) {
   const t = useTranslations("novelSidebar");
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
-    <Collapsible open={forceExpanded || expanded} onOpenChange={setExpanded}>
+    <Collapsible open={expanded} onOpenChange={setExpanded}>
       <CollapsibleTrigger className="group/trigger flex w-full min-w-0">
         <span className="flex w-full min-w-0 items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold transition-colors hover:bg-accent">
           <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground transition-transform group-data-panel-open/trigger:rotate-90" />
@@ -99,17 +91,11 @@ function ChapterLink({
 
 interface ChapterOutlineProps {
   novelId: string;
-  keyword: string;
   activeChapterId?: string;
   onSelectChapter: (chapterId: string) => void;
 }
 
-export function ChapterOutline({
-  novelId,
-  keyword,
-  activeChapterId,
-  onSelectChapter,
-}: ChapterOutlineProps) {
+export function ChapterOutline({ novelId, activeChapterId, onSelectChapter }: ChapterOutlineProps) {
   const t = useTranslations("novelSidebar");
   const volumes = useNovelVolumes(novelId);
   const chapters = useNovelChapters(novelId);
@@ -129,20 +115,10 @@ export function ChapterOutline({
     );
   }
 
-  const query = keyword.trim().toLowerCase();
-  const matched = query
-    ? chapters.data.filter((chapter) => chapter.title.toLowerCase().includes(query))
-    : chapters.data;
-  const groups = groupChaptersByVolume(volumes.data, matched).filter(
-    (group) => !query || group.chapters.length > 0,
-  );
+  const groups = groupChaptersByVolume(volumes.data, chapters.data);
 
   if (!groups.length) {
-    return (
-      <p className="p-4 text-center text-sm text-muted-foreground">
-        {query ? t("noMatch") : t("empty")}
-      </p>
-    );
+    return <p className="p-4 text-center text-sm text-muted-foreground">{t("empty")}</p>;
   }
 
   return (
@@ -155,7 +131,6 @@ export function ChapterOutline({
             title={group.volume?.title ?? t("ungrouped")}
             chapterCount={group.chapters.length}
             defaultExpanded={containsActive || (!activeChapterId && index === 0)}
-            forceExpanded={Boolean(query)}
           >
             {group.chapters.map((chapter) => (
               <ChapterLink

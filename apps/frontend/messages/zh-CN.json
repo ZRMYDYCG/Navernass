@@ -242,6 +242,17 @@
       "characters": "角色",
       "comingSoon": "即将推出，敬请期待。"
     },
+    "search": {
+      "placeholder": "搜索章节标题与正文",
+      "matchCase": "区分大小写",
+      "wholeWord": "全字匹配",
+      "searching": "正在搜索…",
+      "noResults": "未找到结果",
+      "error": "搜索失败，请稍后重试",
+      "summary": "{chapters} 个章节中有 {matches} 个结果",
+      "truncated": "仅搜索了前 {count} 个匹配章节，请输入更具体的关键词。",
+      "moreMatches": "还有 {count} 处未显示"
+    },
     "selectNovel": "选择小说",
     "loadingNovels": "正在加载小说…",
     "loadNovelsError": "小说列表加载失败",
@@ -251,7 +262,6 @@
       "published": "已发布",
       "archived": "已归档"
     },
-    "searchPlaceholder": "搜索章节…",
     "chapterCount": "{count} 章",
     "chapterMeta": "{status} · {count, number}字",
     "chapterStatus": {
@@ -260,7 +270,6 @@
     },
     "ungrouped": "未分卷",
     "empty": "还没有章节",
-    "noMatch": "没有匹配的章节",
     "loadError": "目录加载失败"
   },
   "chapterEditor": {

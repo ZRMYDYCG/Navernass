@@ -36,6 +36,13 @@ export function getChapter(id: string) {
   return apiRequest(`chapters/${id}`, chapterSchema);
 }
 
+export function searchChapters(novelId: string, keyword: string) {
+  return apiRequest("chapters/search", z.array(chapterSchema), {
+    method: "post",
+    json: { novelId, keyword },
+  });
+}
+
 export function updateChapterContent(id: string, content: string) {
   return apiRequest(`chapters/${id}`, chapterSchema, {
     method: "put",

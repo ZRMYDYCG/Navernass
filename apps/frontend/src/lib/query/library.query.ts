@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import {
@@ -11,6 +17,7 @@ import {
   getNovelChapters,
   getNovels,
   getNovelVolumes,
+  searchChapters,
   updateCharacter as updateCharacterApi,
   updateChapterContent,
   updateRelationship as updateRelationshipApi,
@@ -33,6 +40,8 @@ export const libraryKeys = {
   volumes: (novelId: string) => ["library", "novels", novelId, "volumes"] as const,
   chapters: (novelId: string) => ["library", "novels", novelId, "chapters"] as const,
   chapter: (id: string) => ["library", "chapters", id] as const,
+  chapterSearch: (novelId: string, keyword: string) =>
+    ["library", "novels", novelId, "chapter-search", keyword] as const,
   characters: (novelId: string) => ["library", "novels", novelId, "characters"] as const,
   relationships: (novelId: string) => ["library", "novels", novelId, "relationships"] as const,
 };
@@ -49,6 +58,16 @@ export function useNovelVolumes(novelId: string) {
   return useQuery({
     queryKey: libraryKeys.volumes(novelId),
     queryFn: () => getNovelVolumes(novelId),
+  });
+}
+
+export function useChapterSearch(novelId: string, keyword: string) {
+  return useQuery({
+    queryKey: libraryKeys.chapterSearch(novelId, keyword),
+    queryFn: () => searchChapters(novelId, keyword),
+    enabled: keyword.length > 0,
+    placeholderData: keepPreviousData,
+    staleTime: 0,
   });
 }
 
