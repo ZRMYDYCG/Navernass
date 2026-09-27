@@ -12,7 +12,6 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ChatSession } from "@/schemas/agent.schema";
@@ -121,23 +120,25 @@ export function SessionSwitcher({
         >
           <HistoryIcon />
         </PopoverTrigger>
-        <PopoverContent align="end" className="max-h-100 w-80">
-          <div className="shrink-0 p-0.5">
-            <Input
-              value={keyword}
-              onChange={(event) => setKeyword(event.target.value)}
-              placeholder={t("search")}
-              autoComplete="off"
-            />
-          </div>
+        <PopoverContent align="end" className="max-h-100 w-80 gap-0 rounded-xl p-1">
+          <input
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            placeholder={t("search")}
+            autoComplete="off"
+            className="w-full shrink-0 bg-transparent px-2 py-1.5 text-sm outline-none placeholder:text-muted-foreground/70"
+          />
           {/* 弹层只有 max-height，视口的 height:100% 无法解析；让 Root 也成为 flex 列，视口作为 flex 子项被压缩后才能滚动。 */}
           <ScrollArea className="flex min-h-0 flex-1 flex-col">
-            <div className="pb-1">
-              {groups.map((group) => (
-                <div key={group.key} role="group" aria-label={t(group.key)}>
-                  <p className="px-3 pt-2 pb-1 text-xs font-medium text-muted-foreground">
-                    {t(group.key)}
-                  </p>
+            <div>
+              {groups.map((group, index) => (
+                <div
+                  key={group.key}
+                  role="group"
+                  aria-label={t(group.key)}
+                  className={index > 0 ? "mt-1 border-t pt-1" : undefined}
+                >
+                  <p className="px-2 pt-1 pb-1 text-xs text-muted-foreground">{t(group.key)}</p>
                   {group.sessions.map((session) => (
                     <SessionRow
                       key={session.id}
@@ -185,12 +186,12 @@ function SessionRow({ session, active, labels, onSelect, onDelete }: SessionRowP
 
   return (
     <div
-      className={`group flex items-center gap-1 rounded-lg pr-1.5 ${active ? "bg-accent text-accent-foreground" : "hover:bg-accent/50"}`}
+      className={`group flex items-center rounded-md pr-1 ${active ? "bg-accent text-accent-foreground" : "hover:bg-accent/60"}`}
     >
       <button
         type="button"
         onClick={onSelect}
-        className="flex min-w-0 flex-1 cursor-default items-center gap-2 rounded-lg px-2.5 py-1.5 text-start outline-none"
+        className="flex min-w-0 flex-1 cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-start outline-none"
       >
         {running ? (
           <LoaderCircleIcon className="size-4 shrink-0 animate-spin text-muted-foreground" />
@@ -199,11 +200,12 @@ function SessionRow({ session, active, labels, onSelect, onDelete }: SessionRowP
         )}
         <span className="min-w-0 flex-1 truncate text-sm">{session.title || labels.untitled}</span>
       </button>
-      <div className="flex opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+      <div className="flex opacity-0 group-hover:opacity-100 group-focus-within:opacity-100">
         <Button
           type="button"
           size="icon-xs"
           variant="ghost"
+          className="text-muted-foreground hover:bg-transparent hover:text-foreground"
           aria-label={labels.delete}
           onClick={onDelete}
         >
