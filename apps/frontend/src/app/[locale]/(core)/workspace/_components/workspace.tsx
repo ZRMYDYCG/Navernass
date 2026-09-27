@@ -4,9 +4,9 @@ import { useState } from "react";
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
-import { ChapterEditor, EmptyChapterEditor } from "./chapter-editor";
+import { ChapterEditor, EmptyChapterEditor } from "./chapter-editor/chapter-editor";
 import { ChatPanel } from "./chat-panel";
-import { NovelSidebar } from "./novel-sidebar";
+import { NovelSidebar } from "./novel-sidebar/novel-sidebar";
 
 interface WorkspaceProps {
   novelId?: string;

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getErrorMessage } from "@/lib/http/error";
 
-import { useProposalReview } from "./review-context";
+import { useProposalReview } from "./proposal-review-context";
 
 function DiffLine({ kind, text }: { kind: "removed" | "added"; text: string }) {
   const t = useTranslations("chapterEditor.review");
@@ -101,7 +101,7 @@ function ReviewToolbar() {
   );
 }
 
-export function DiffHunkView({ hunkId }: { hunkId: string }) {
+export function ReviewDiff({ hunkId }: { hunkId: string }) {
   const review = useProposalReview();
   const containerRef = useRef<HTMLDivElement>(null);
   const hunk = review.hunks.find((item) => item.id === hunkId);

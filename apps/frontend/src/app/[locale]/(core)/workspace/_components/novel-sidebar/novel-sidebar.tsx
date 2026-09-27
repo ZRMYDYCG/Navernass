@@ -8,7 +8,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { ChapterNavigation } from "./chapter-navigation";
+import { ChapterOutline } from "./chapter-outline";
 import { NovelSelector } from "./novel-selector";
 
 interface NovelSidebarProps {
@@ -77,7 +77,7 @@ export function NovelSidebar({
         <ChapterSearch value={keyword} onChange={setKeyword} />
       </div>
       <ScrollArea className="min-h-0 flex-1">
-        <ChapterNavigation
+        <ChapterOutline
           novelId={novelId}
           keyword={keyword}
           activeChapterId={activeChapterId}

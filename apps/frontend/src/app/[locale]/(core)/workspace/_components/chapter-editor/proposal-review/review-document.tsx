@@ -1,9 +1,9 @@
 import { $create, $getRoot, DecoratorNode, defineExtension } from "lexical";
 import type { ReactNode } from "react";
 
-import { $createTextParagraph } from "../manuscript-editor";
-import type { DiffHunk } from "./diff-hunks";
-import { DiffHunkView } from "./diff-hunk-view";
+import { $createTextParagraph } from "../manuscript-editor/plain-text";
+import type { DiffHunk } from "./build-diff-hunks";
+import { ReviewDiff } from "./review-diff";
 
 /** 审阅文档里的差异块；仅存在于只读的审阅会话中，不参与序列化与保存。 */
 export class DiffHunkNode extends DecoratorNode<ReactNode> {
@@ -31,7 +31,7 @@ export class DiffHunkNode extends DecoratorNode<ReactNode> {
   }
 
   decorate() {
-    return <DiffHunkView hunkId={this.__hunkId} />;
+    return <ReviewDiff hunkId={this.__hunkId} />;
   }
 }
 

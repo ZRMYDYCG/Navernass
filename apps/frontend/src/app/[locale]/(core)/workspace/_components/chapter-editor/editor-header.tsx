@@ -2,6 +2,7 @@
 
 import { CircleAlertIcon, CircleCheckIcon, SlashIcon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { useSyncExternalStore } from "react";
 
 import {
   Breadcrumb,
@@ -14,13 +15,12 @@ import { Spinner } from "@/components/ui/spinner";
 import { useNovel, useNovelVolumes } from "@/lib/query/library.query";
 import type { Chapter } from "@/schemas/library.schema";
 
-import type { SaveStatus } from "./use-chapter-autosave";
+import type { EditorStatusStore, SaveStatus } from "./editor-status-store";
 
-interface ChapterHeaderProps {
+interface EditorHeaderProps {
   novelId: string;
   chapter?: Chapter;
-  wordCount: number;
-  saveStatus: SaveStatus;
+  editorStatus?: EditorStatusStore;
 }
 
 function SaveStatusIndicator({ status, savedAt }: { status: SaveStatus; savedAt: Date }) {
@@ -52,8 +52,32 @@ function SaveStatusIndicator({ status, savedAt }: { status: SaveStatus; savedAt:
   );
 }
 
-export function ChapterHeader({ novelId, chapter, wordCount, saveStatus }: ChapterHeaderProps) {
+function LiveSaveStatus({ store }: { store: EditorStatusStore }) {
+  const snapshot = useSyncExternalStore(
+    store.subscribe,
+    store.getSaveStatusSnapshot,
+    store.getSaveStatusSnapshot,
+  );
+
+  return <SaveStatusIndicator status={snapshot.saveStatus} savedAt={snapshot.savedAt} />;
+}
+
+function LiveWordCount({ store }: { store: EditorStatusStore }) {
   const t = useTranslations("chapterEditor");
+  const wordCount = useSyncExternalStore(
+    store.subscribe,
+    store.getWordCountSnapshot,
+    store.getWordCountSnapshot,
+  );
+
+  return (
+    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+      {t("wordCount", { count: wordCount })}
+    </span>
+  );
+}
+
+export function EditorHeader({ novelId, chapter, editorStatus }: EditorHeaderProps) {
   const { data: novel } = useNovel(novelId);
   const { data: volumes } = useNovelVolumes(novelId);
   const volume = volumes?.find((item) => item.id === chapter?.volume_id);
@@ -91,12 +115,10 @@ export function ChapterHeader({ novelId, chapter, wordCount, saveStatus }: Chapt
           ) : null}
         </BreadcrumbList>
       </Breadcrumb>
-      {chapter ? (
+      {chapter && editorStatus ? (
         <>
-          <SaveStatusIndicator status={saveStatus} savedAt={chapter.updated_at} />
-          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-            {t("wordCount", { count: wordCount })}
-          </span>
+          <LiveSaveStatus store={editorStatus} />
+          <LiveWordCount store={editorStatus} />
         </>
       ) : null}
     </header>

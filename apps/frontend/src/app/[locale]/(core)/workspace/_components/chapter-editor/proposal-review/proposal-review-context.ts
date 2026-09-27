@@ -1,6 +1,6 @@
 import { createContext, use } from "react";
 
-import type { DiffHunk } from "./diff-hunks";
+import type { DiffHunk } from "./build-diff-hunks";
 
 export type HunkDecision = "accepted" | "rejected";
 

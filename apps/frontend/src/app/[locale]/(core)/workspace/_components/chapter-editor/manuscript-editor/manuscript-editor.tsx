@@ -5,7 +5,7 @@ import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalExtensionComposer } from "@lexical/react/LexicalExtensionComposer";
 import { RichTextExtension } from "@lexical/rich-text";
 import { defineExtension, type AnyLexicalExtensionArgument } from "lexical";
-import { useState, type ReactNode } from "react";
+import { memo, useState, type ReactNode } from "react";
 
 import { TextChangePlugin } from "./text-change-plugin";
 
@@ -21,7 +21,7 @@ interface ManuscriptEditorProps {
   children?: ReactNode;
 }
 
-export function ManuscriptEditor({
+export const ManuscriptEditor = memo(function ManuscriptEditor({
   $initialContent,
   editable = true,
   extensions = [],
@@ -56,4 +56,4 @@ export function ManuscriptEditor({
       {children}
     </LexicalExtensionComposer>
   );
-}
+});

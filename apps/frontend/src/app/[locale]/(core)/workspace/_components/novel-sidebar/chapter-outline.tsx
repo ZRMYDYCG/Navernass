@@ -97,19 +97,19 @@ function ChapterLink({
   );
 }
 
-interface ChapterNavigationProps {
+interface ChapterOutlineProps {
   novelId: string;
   keyword: string;
   activeChapterId?: string;
   onSelectChapter: (chapterId: string) => void;
 }
 
-export function ChapterNavigation({
+export function ChapterOutline({
   novelId,
   keyword,
   activeChapterId,
   onSelectChapter,
-}: ChapterNavigationProps) {
+}: ChapterOutlineProps) {
   const t = useTranslations("novelSidebar");
   const volumes = useNovelVolumes(novelId);
   const chapters = useNovelChapters(novelId);

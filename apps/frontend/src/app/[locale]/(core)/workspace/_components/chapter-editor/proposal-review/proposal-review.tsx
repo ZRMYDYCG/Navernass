@@ -6,14 +6,14 @@ import { useState } from "react";
 import { useApplyEdit, useRejectEdit } from "@/lib/query/editor.query";
 import type { ChapterEdit } from "@/schemas/editor.schema";
 
-import { ManuscriptEditor } from "../manuscript-editor";
-import { $setReviewDocument, ProposalReviewExtension } from "./diff-hunk-node";
-import { buildDiffHunks } from "./diff-hunks";
+import { ManuscriptEditor } from "../manuscript-editor/manuscript-editor";
+import { buildDiffHunks } from "./build-diff-hunks";
 import {
   ProposalReviewContext,
   type HunkDecision,
   type ProposalReviewState,
-} from "./review-context";
+} from "./proposal-review-context";
+import { $setReviewDocument, ProposalReviewExtension } from "./review-document";
 
 interface ProposalReviewProps {
   edit: ChapterEdit;
