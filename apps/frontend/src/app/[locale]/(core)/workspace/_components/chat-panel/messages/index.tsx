@@ -31,7 +31,7 @@ function MessageBody({
   message: AgentMessage;
   streaming?: boolean;
 }) {
-  const t = useTranslations("chat.composer");
+  const t = useTranslations("chat.message");
   if (message.role === "user") {
     const text = message.parts
       .filter((part) => part.type === "text")
@@ -58,7 +58,9 @@ function MessageBody({
           toolTimings={message.metadata?.toolTimings}
         />
         {message.metadata?.interrupted ? (
-          <span className="text-xs text-muted-foreground">{t("paused")}</span>
+          <span className="text-xs text-muted-foreground">
+            {message.metadata.paused ? t("paused") : t("interrupted")}
+          </span>
         ) : null}
       </MessageContent>
     </Message>

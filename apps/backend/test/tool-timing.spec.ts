@@ -20,6 +20,7 @@ function setup() {
     { saveTool, addUsage: vi.fn() } as never,
     {} as never,
     {} as never,
+    {} as never,
     { toAppError: (error: unknown) => error } as never,
     { execute: (execute: () => Promise<unknown>) => execute() } as never,
   );
@@ -44,6 +45,7 @@ describe("subagent execution timing", () => {
       {} as never,
       {} as never,
       { saveTool: vi.fn(), addUsage: vi.fn() } as never,
+      {} as never,
       {} as never,
       {} as never,
       { toAppError: (error: unknown) => error } as never,

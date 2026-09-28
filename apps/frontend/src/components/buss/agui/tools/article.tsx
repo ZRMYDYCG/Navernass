@@ -2,6 +2,8 @@
 
 import {
   BookOpenTextIcon,
+  BookPlusIcon,
+  ContactRoundIcon,
   FilePenLineIcon,
   FileTextIcon,
   FilesIcon,
@@ -19,6 +21,8 @@ import {
   readArticleOutputSchema,
   searchArticleInputSchema,
   searchArticleOutputSchema,
+  volumeOutputSchema,
+  characterOutputSchema,
 } from "@/schemas/agent-tool.schema";
 
 import { ToolExcerpt, ToolMeta } from "../activity/tool-detail";
@@ -83,6 +87,35 @@ export const getChapter = defineTool({
   output: chapterOutputSchema,
   summary: (_, { output }) => output?.title,
   Detail: ChapterDetail,
+});
+
+export const createChapter = defineTool({
+  icon: BookPlusIcon,
+  output: chapterOutputSchema,
+  summary: (t, { output }) =>
+    output ? `${output.title} · ${t("detail.createdChapter")}` : undefined,
+  Detail: ChapterDetail,
+});
+
+export const createVolume = defineTool({
+  icon: BookPlusIcon,
+  output: volumeOutputSchema,
+  summary: (t, { output }) =>
+    output ? `${output.title} · ${t("detail.createdVolume")}` : undefined,
+});
+
+export const createCharacter = defineTool({
+  icon: ContactRoundIcon,
+  output: characterOutputSchema,
+  summary: (t, { output }) =>
+    output ? `${output.name} · ${t("detail.createdCharacter")}` : undefined,
+});
+
+export const updateCharacter = defineTool({
+  icon: ContactRoundIcon,
+  output: characterOutputSchema,
+  summary: (t, { output }) =>
+    output ? `${output.name} · ${t("detail.updatedCharacter")}` : undefined,
 });
 
 type ArticleFilesProps = ToolProps<unknown, z.infer<typeof listArticleFilesOutputSchema>>;

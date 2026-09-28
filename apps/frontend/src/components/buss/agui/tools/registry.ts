@@ -1,5 +1,8 @@
 import type { ToolCall, Translate } from "./tool-call";
 import {
+  createChapter,
+  createCharacter,
+  createVolume,
   editArticle,
   getChapter,
   getNovelSnapshot,
@@ -8,6 +11,7 @@ import {
   patchArticle,
   readArticle,
   searchArticle,
+  updateCharacter,
   writeArticle,
 } from "./article";
 import { askUser } from "./ask-user";
@@ -32,6 +36,10 @@ const tools: Record<string, ToolResolver> = {
   writeArticle,
   patchArticle,
   proposeArticleEdit,
+  createVolume,
+  createChapter,
+  createCharacter,
+  updateCharacter,
   searchMemory,
   saveMemory,
   validateContinuity,

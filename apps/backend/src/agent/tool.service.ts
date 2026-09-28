@@ -14,6 +14,13 @@ import {
   proposeEdit,
   writeArticle,
 } from "../editor/editor.schema.js";
+import {
+  createChapter,
+  createCharacter,
+  createVolume,
+  updateCharacter,
+} from "../library/library.schema.js";
+import { LibraryService } from "../library/library.service.js";
 import { SkillResolver } from "../skill/skill.resolver.js";
 import { askUserInput, askUserOutput } from "./agent.schema.js";
 import { MemoryService } from "./memory.service.js";
@@ -54,6 +61,7 @@ export class ToolService {
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(SkillResolver) private readonly skills: SkillResolver,
     @Inject(EditorService) private readonly editor: EditorService,
+    @Inject(LibraryService) private readonly library: LibraryService,
     @Inject(AgentErrorService) private readonly errors: AgentErrorService,
     @Inject(RetryService) private readonly retries: RetryService,
   ) {
@@ -324,6 +332,70 @@ export class ToolService {
             this.editor.propose(context.userId, context.input.novelId, context.runId, input),
           ),
       }),
+      createVolume: tool({
+        description:
+          "在当前小说中创建新卷。创建前先读取小说快照，确认没有同名或等价卷；order_index 使用现有卷之后的位置。",
+        inputSchema: createVolume.omit({ novel_id: true }),
+        execute: (input, options) =>
+          observed(
+            options.toolCallId,
+            "createVolume",
+            input,
+            () =>
+              this.library.createVolume(context.userId, {
+                ...input,
+                novel_id: context.input.novelId,
+              }),
+            { abortSignal: options.abortSignal },
+          ),
+      }),
+      createChapter: tool({
+        description:
+          "在当前小说中创建新章节，可放入指定卷。创建前先读取小说快照，确认顺序、标题和卷归属；正文可以为空或直接写入草稿。",
+        inputSchema: createChapter.omit({ novel_id: true }),
+        execute: (input, options) =>
+          observed(
+            options.toolCallId,
+            "createChapter",
+            input,
+            () =>
+              this.library.createChapter(context.userId, {
+                ...input,
+                novel_id: context.input.novelId,
+              }),
+            { abortSignal: options.abortSignal },
+          ),
+      }),
+      createCharacter: tool({
+        description:
+          "在当前小说中创建角色资料。适合从大纲、章节或用户设定里抽取角色卡；不要重复创建已有角色，先读小说快照。",
+        inputSchema: createCharacter.omit({ novel_id: true }),
+        execute: (input, options) =>
+          observed(
+            options.toolCallId,
+            "createCharacter",
+            input,
+            () =>
+              this.library.createCharacter(context.userId, {
+                ...input,
+                novel_id: context.input.novelId,
+              }),
+            { abortSignal: options.abortSignal },
+          ),
+      }),
+      updateCharacter: tool({
+        description:
+          "更新已有角色资料。适合补全人物动机、关系、口癖、标签和备注；不要删除用户已写内容，除非用户明确要求。",
+        inputSchema: z.object({ id: z.uuid(), patch: updateCharacter }),
+        execute: (input, options) =>
+          observed(
+            options.toolCallId,
+            "updateCharacter",
+            input,
+            () => this.library.updateCharacter(context.userId, input.id, input.patch),
+            { abortSignal: options.abortSignal },
+          ),
+      }),
       searchMemory: tool({
         description: "在当前小说的语义记忆和关键词记忆中混合检索，返回带相关度的证据。",
         inputSchema: z.object({
@@ -445,6 +517,10 @@ export class ToolService {
         "grepArticle",
         "searchArticle",
         "searchMemory",
+        "createVolume",
+        "createChapter",
+        "createCharacter",
+        "updateCharacter",
         "saveMemory",
         "validateContinuity",
         "delegateSubagent",
@@ -459,6 +535,10 @@ export class ToolService {
         "grepArticle",
         "searchArticle",
         "searchMemory",
+        "createVolume",
+        "createChapter",
+        "createCharacter",
+        "updateCharacter",
         "saveMemory",
         "validateContinuity",
         "delegateSubagent",
@@ -473,6 +553,10 @@ export class ToolService {
         "grepArticle",
         "searchArticle",
         "searchMemory",
+        "createVolume",
+        "createChapter",
+        "createCharacter",
+        "updateCharacter",
         "saveMemory",
         "validateContinuity",
         "delegateSubagent",

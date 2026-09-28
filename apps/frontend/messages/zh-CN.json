@@ -40,6 +40,10 @@
       "pausing": "正在暂停",
       "paused": "已暂停"
     },
+    "message": {
+      "paused": "已暂停",
+      "interrupted": "已中断"
+    },
     "sessions": {
       "history": "历史对话",
       "new": "新建对话",
@@ -107,6 +111,10 @@
       "writeArticle": { "running": "正在写入正文", "done": "已写入正文" },
       "patchArticle": { "running": "正在应用正文补丁", "done": "已应用正文补丁" },
       "proposeArticleEdit": { "running": "正在生成修改提案", "done": "修改提案" },
+      "createVolume": { "running": "正在创建卷", "done": "已创建卷" },
+      "createChapter": { "running": "正在创建章节", "done": "已创建章节" },
+      "createCharacter": { "running": "正在创建角色", "done": "已创建角色" },
+      "updateCharacter": { "running": "正在更新角色", "done": "已更新角色" },
       "searchMemory": { "running": "正在检索记忆", "done": "已检索记忆" },
       "saveMemory": { "running": "正在保存记忆", "done": "已保存记忆" },
       "validateContinuity": { "running": "正在校验一致性", "done": "已校验一致性" },
@@ -145,6 +153,10 @@
       "noMatch": "没有匹配的内容",
       "truncated": "仅显示前 {count} 处",
       "written": "已写入",
+      "createdVolume": "已创建卷",
+      "createdChapter": "已创建章节",
+      "createdCharacter": "已创建角色",
+      "updatedCharacter": "已更新角色",
       "revisionChange": "版本 {from} → {to}",
       "wordDelta": "字数变化 {count}",
       "hitCount": "{count} 条记忆",

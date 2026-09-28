@@ -117,7 +117,7 @@ function LoadedChapterEditor({
 }: {
   novelId: string;
   chapter: Chapter;
-  pendingEdit?: ChapterEdit;
+  pendingEdit?: ChapterEdit | null;
 }) {
   const t = useTranslations("chapterEditor");
   const [editorStatus] = useState(() =>
@@ -127,12 +127,8 @@ function LoadedChapterEditor({
     }),
   );
 
-  // 本地还有未落库的输入时，提案的原文已与编辑器不一致，交给对话面板里的卡片处理。
-  const reviewEdit =
-    pendingEdit?.base_revision === chapter.revision &&
-    editorStatus.getSnapshot().saveStatus === "saved"
-      ? pendingEdit
-      : undefined;
+  // 本地还有未落库的输入时，先不进入审阅态，避免把用户正在写的文字挡住。
+  const reviewEdit = editorStatus.getSnapshot().saveStatus === "saved" ? pendingEdit : undefined;
 
   return (
     <EditorLayout novelId={novelId} chapter={chapter} editorStatus={editorStatus}>

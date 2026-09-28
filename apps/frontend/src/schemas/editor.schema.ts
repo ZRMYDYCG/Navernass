@@ -15,7 +15,11 @@ export const chapterEditSchema = z.object({
   status: editStatusSchema,
   summary: z.string(),
   base_revision: z.number(),
+  base_hash: z.string().optional(),
+  result_hash: z.string().optional(),
   operations: z.array(resolvedEditOperationSchema),
+  original_content: z.string().optional(),
+  proposed_content: z.string().optional(),
 });
 
 /** 全部未勾选时后端按拒绝处理，此时不返回章节。 */

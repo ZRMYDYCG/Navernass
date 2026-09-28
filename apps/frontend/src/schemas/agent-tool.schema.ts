@@ -49,6 +49,19 @@ export const chapterOutputSchema = z.object({
   revision: z.number(),
 });
 
+export const volumeOutputSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  order_index: z.number(),
+});
+
+export const characterOutputSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  custom_fields: z.array(z.unknown()).optional(),
+});
+
 export const readArticleOutputSchema = z.object({
   chapterId: z.string(),
   title: z.string(),

@@ -24,7 +24,8 @@ interface ProposalReviewProps {
 /** 只读审阅会话，按提案挂载（以提案 id 为 `key`）；应用或拒绝后由父组件切回可编辑的正文。 */
 export function ProposalReview({ edit, text }: ProposalReviewProps) {
   const t = useTranslations("chapterEditor");
-  const [hunks] = useState(() => buildDiffHunks(text, edit.operations));
+  const baseText = edit.original_content ?? text;
+  const [hunks] = useState(() => buildDiffHunks(baseText, edit.operations));
   const apply = useApplyEdit(edit.id);
   const reject = useRejectEdit(edit.id);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -70,7 +71,7 @@ export function ProposalReview({ edit, text }: ProposalReviewProps) {
         editable={false}
         extensions={[ProposalReviewExtension]}
         placeholder={t("placeholder")}
-        $initialContent={() => $setReviewDocument(text, hunks)}
+        $initialContent={() => $setReviewDocument(baseText, hunks)}
       />
     </ProposalReviewContext>
   );

@@ -120,6 +120,18 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
           queryKey: libraryKeys.chapters(novelId),
           exact: true,
         });
+        void queryClient.invalidateQueries({
+          queryKey: libraryKeys.volumes(novelId),
+          exact: true,
+        });
+        void queryClient.invalidateQueries({
+          queryKey: libraryKeys.characters(novelId),
+          exact: true,
+        });
+        void queryClient.invalidateQueries({
+          queryKey: libraryKeys.relationships(novelId),
+          exact: true,
+        });
       }
       if (chapterId) {
         void queryClient.invalidateQueries({
@@ -190,7 +202,7 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
             type: "STOP",
             viewKey,
             message: message
-              ? { ...message, metadata: { ...message.metadata, interrupted: true } }
+              ? { ...message, metadata: { ...message.metadata, interrupted: true, paused: true } }
               : undefined,
           });
         } else {
@@ -198,11 +210,16 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
         }
       } catch (error) {
         if (controller.signal.aborted) {
+          const pausedByUser = pauseRequestedViewsRef.current.has(viewKey);
           const message =
             finalMessage && hasRenderablePart(finalMessage)
               ? {
                   ...finalMessage,
-                  metadata: { ...finalMessage.metadata, interrupted: true },
+                  metadata: {
+                    ...finalMessage.metadata,
+                    interrupted: true,
+                    paused: pausedByUser,
+                  },
                 }
               : undefined;
           dispatch({
