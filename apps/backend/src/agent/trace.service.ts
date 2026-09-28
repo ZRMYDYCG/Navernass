@@ -10,6 +10,17 @@ export class TraceService {
     return this.prisma.agentRun.create({ data });
   }
 
+  saveHarnessPlan(id: string, snapshot: Prisma.InputJsonValue, harness: Prisma.InputJsonValue) {
+    const requestSnapshot =
+      snapshot && typeof snapshot === "object" && !Array.isArray(snapshot)
+        ? { ...snapshot, _harness: harness }
+        : snapshot;
+    return this.prisma.agentRun.update({
+      where: { id },
+      data: { request_snapshot: requestSnapshot },
+    });
+  }
+
   startRun(id: string) {
     return this.prisma.agentRun.update({
       where: { id },

@@ -35,6 +35,39 @@ function setup() {
 }
 
 describe("subagent execution timing", () => {
+  it("honors an explicit harness allowlist for interactive tools", () => {
+    const { tools } = setup();
+    expect(tools.askUser).toBeUndefined();
+
+    const service = new ToolService(
+      { get: () => 0 } as never,
+      {} as never,
+      {} as never,
+      { saveTool: vi.fn(), addUsage: vi.fn() } as never,
+      {} as never,
+      {} as never,
+      { toAppError: (error: unknown) => error } as never,
+      { execute: (execute: () => Promise<unknown>) => execute() } as never,
+    );
+    const interactiveTools = service.build(
+      {
+        runId: "run",
+        userId: "user",
+        model: {} as never,
+        contextText: "",
+        input: runAgent.parse({
+          novelId: "00000000-0000-4000-8000-000000000001",
+          prompt: "test",
+        }),
+      },
+      "ask",
+      { interactive: true, allowedTools: ["readArticle"] },
+    );
+
+    expect(interactiveTools.askUser).toBeUndefined();
+    expect(interactiveTools.readArticle).toBeDefined();
+  });
+
   it("records separate durations for delegated and reviewer calls without changing their outputs", async () => {
     const clock = vi.spyOn(Date, "now").mockReturnValue(1000);
     const { timings, saveTool, tools } = setup();

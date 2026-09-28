@@ -5,6 +5,7 @@ import { AgentController } from "./agent.controller.js";
 import { ChatService } from "./chat.service.js";
 import { ContextService } from "./context.service.js";
 import { AgentErrorService } from "./error.service.js";
+import { HarnessService } from "./harness.service.js";
 import { MemoryService } from "./memory.service.js";
 import { ModelService } from "./model.service.js";
 import { ProviderService } from "./provider.service.js";
@@ -32,6 +33,7 @@ import { VectorService } from "./vector.service.js";
     ChatService,
     TraceService,
     ToolService,
+    HarnessService,
     RuntimeService,
   ],
   exports: [RuntimeService, MemoryService, ProviderService],

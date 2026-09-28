@@ -26,10 +26,9 @@ import {
 import { ChatService } from "./chat.service.js";
 import { ContextService } from "./context.service.js";
 import { AgentErrorService } from "./error.service.js";
+import { HarnessService } from "./harness.service.js";
 import { ModelService } from "./model.service.js";
-import { askUserPrompt, rolePrompts } from "./prompt.js";
 import { StreamService } from "./stream.service.js";
-import { ToolService, type ToolTiming } from "./tool.service.js";
 import { TraceService } from "./trace.service.js";
 
 const outputSchemas = {
@@ -126,7 +125,7 @@ export class RuntimeService {
     @Inject(ModelService) private readonly models: ModelService,
     @Inject(ContextService) private readonly contexts: ContextService,
     @Inject(ChatService) private readonly chats: ChatService,
-    @Inject(ToolService) private readonly tools: ToolService,
+    @Inject(HarnessService) private readonly harnesses: HarnessService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(StreamService) private readonly streams: StreamService,
     @Inject(SkillResolver) private readonly skills: SkillResolver,
@@ -639,22 +638,30 @@ export class RuntimeService {
       });
     }
     const contextText = this.contexts.toPrompt(context);
-    const toolTimings: Record<string, ToolTiming> = {};
-    const tools = this.tools.build(
-      { runId: run.id, userId, input: finalInput, model, contextText, toolTimings },
-      input.mode,
-      { interactive },
-    );
-    const askText = interactive ? `\n\n${askUserPrompt}` : "";
-    const skillText = skillSet.prompt ? `\n\n${skillSet.prompt}` : "";
-    const instructions = `${rolePrompts[input.role]}${askText}${skillText}\n\n${contextText}`;
+    const harness = this.harnesses.build({
+      runId: run.id,
+      userId,
+      input: finalInput,
+      model,
+      context,
+      contextText,
+      skillPrompt: skillSet.prompt,
+      interactive,
+    });
+    await this.traces.saveHarnessPlan(run.id, finalInput as unknown as Prisma.InputJsonValue, {
+      id: harness.id,
+      version: harness.version,
+      mode: harness.mode,
+      role: harness.role,
+      policy: harness.policy,
+    });
     const stopWhen = stepCountIs(input.maxSteps ?? this.maxSteps);
     const settings = this.generationSettings(provider.settings);
     const agent = new ToolLoopAgent({
       id: `narraverse-${input.role}`,
       model,
-      instructions,
-      tools,
+      instructions: harness.instructions,
+      tools: harness.tools,
       stopWhen,
       maxRetries: this.maxRetries,
       ...settings,
@@ -662,8 +669,8 @@ export class RuntimeService {
     });
     return {
       agent,
-      toolTimings,
-      tools,
+      toolTimings: harness.toolTimings,
+      tools: harness.tools,
       run,
       session,
       messageContext,
@@ -671,8 +678,8 @@ export class RuntimeService {
       context,
       structuredOptions: {
         model,
-        instructions,
-        tools,
+        instructions: harness.instructions,
+        tools: harness.tools,
         stopWhen,
         maxRetries: this.maxRetries,
         ...settings,

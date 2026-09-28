@@ -483,7 +483,7 @@ export class ToolService {
     const tools = Object.fromEntries(
       Object.entries(available).filter(([name]) => allowed.has(name)),
     ) as ToolSet;
-    if (!options.interactive) return tools;
+    if (!options.interactive || (options.allowedTools && !allowed.has("askUser"))) return tools;
     return {
       ...tools,
       // 没有 execute：模型一调用，工具循环就停在这里，由前端面板回传回答或跳过作为结果。
