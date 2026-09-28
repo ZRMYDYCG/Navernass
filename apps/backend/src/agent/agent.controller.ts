@@ -16,7 +16,6 @@ import {
 } from "@nestjs/common";
 import { ApiProduces, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { pipeUIMessageStreamToResponse } from "ai";
-import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 import { z } from "zod";
 import { ApiResult } from "../common/api-result.js";
 import { AppError } from "../common/app-error.js";
@@ -65,8 +64,6 @@ type AgentStreamResult = {
 };
 
 @Controller("agent")
-// 联调期临时方案：Agent/对话模块暂不做鉴权，上线前移除
-@AllowAnonymous()
 @ApiTags("Agent 基础设施")
 export class AgentController {
   constructor(

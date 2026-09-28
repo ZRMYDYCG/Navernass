@@ -43,6 +43,21 @@ export class ModelService {
     };
     switch (provider.kind) {
       case "openai":
+        if (provider.base_url) {
+          const compatible = createOpenAICompatible({
+            name: provider.kind,
+            apiKey: provider.apiKey,
+            baseURL: provider.base_url,
+            includeUsage: true,
+          });
+          return {
+            provider,
+            model: wrapLanguageModel({
+              model: compatible(provider.model),
+              middleware: extractReasoningMiddleware({ tagName: "think" }),
+            }),
+          };
+        }
         return { provider, model: createOpenAI(options)(provider.model) };
       case "anthropic":
         return { provider, model: createAnthropic(options)(provider.model) };
@@ -93,7 +108,7 @@ export class ModelService {
       apiKey: provider.apiKey,
       ...(provider.base_url && { baseURL: provider.base_url }),
     };
-    if (provider.kind === "openai") {
+    if (provider.kind === "openai" && !provider.base_url) {
       return { provider, model: createOpenAI(options).embeddingModel(provider.embedding_model) };
     }
     if (provider.kind === "google") {

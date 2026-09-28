@@ -1,10 +1,21 @@
-import { redirect } from "@/i18n/navigation";
+import { Cta } from "@/components/landing/cta";
+import { Faq } from "@/components/landing/faq";
+import { FreePlan } from "@/components/landing/free-plan";
+import { Hero } from "@/components/landing/hero";
+import { LandingFooter } from "@/components/landing/landing-footer";
+import { LandingHeader } from "@/components/landing/landing-header";
 
-interface HomePageProps {
-  params: Promise<{ locale: string }>;
-}
-
-export default async function HomePage({ params }: HomePageProps) {
-  const { locale } = await params;
-  redirect({ href: "/workspace", locale });
+export default function LandingPage() {
+  return (
+    <div className="flex min-h-dvh flex-col">
+      <LandingHeader />
+      <main className="flex-1">
+        <Hero />
+        <FreePlan />
+        <Faq />
+        <Cta />
+      </main>
+      <LandingFooter />
+    </div>
+  );
 }

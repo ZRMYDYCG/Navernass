@@ -13,7 +13,7 @@ const prisma = new PrismaClient({
   }),
 });
 
-// 联调小说：与 apps/frontend/.env.local 的 NEXT_PUBLIC_DEV_NOVEL_ID 保持一致
+// 可选演示小说：仅在手动执行 seed 且设置 NARRAVERSE_SEED_USER_ID 时写入。
 const WORKSPACE_NOVEL_ID = "fdef7201-aa78-4458-9e8e-0d4f26bae89c";
 const WORKSPACE_COVER =
   "https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=320&h=448&fit=crop";
@@ -183,9 +183,9 @@ async function seedNews() {
   });
 }
 
-/** 给联调小说灌入分卷与章节目录，方便前端侧边栏/编辑器联调。 */
+/** 给演示小说灌入分卷与章节目录，方便本地查看侧边栏/编辑器效果。 */
 async function seedWorkspaceNovel() {
-  const userId = process.env.AI_DEV_USER_ID;
+  const userId = process.env.NARRAVERSE_SEED_USER_ID;
   if (!userId) return;
 
   const novel = await prisma.novel.findUnique({ where: { id: WORKSPACE_NOVEL_ID } });
@@ -245,7 +245,7 @@ async function seedWorkspaceNovel() {
 
 /** 额外的可切换作品，覆盖草稿/发布状态、分卷与正文调试场景。 */
 async function seedDebugNovels() {
-  const userId = process.env.AI_DEV_USER_ID;
+  const userId = process.env.NARRAVERSE_SEED_USER_ID;
   if (!userId) return;
 
   for (const [novelIndex, novel] of DEBUG_NOVELS.entries()) {

@@ -2,7 +2,6 @@ import type { z } from "zod";
 import type { AuthUser } from "../common/current-user.js";
 import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
-import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 import { ApiResult } from "../common/api-result.js";
 import { CurrentUser } from "../common/current-user.js";
 import { ZodPipe } from "../common/zod-pipe.js";
@@ -13,8 +12,6 @@ import * as schema from "./editor.schema.js";
 import { EditorService } from "./editor.service.js";
 
 @Controller("editor/edits")
-// 联调期临时方案：编辑器模块暂不做鉴权，上线前移除
-@AllowAnonymous()
 @ApiTags("文章编辑")
 export class EditorController {
   constructor(@Inject(EditorService) private readonly editor: EditorService) {}

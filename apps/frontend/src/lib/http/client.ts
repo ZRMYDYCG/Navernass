@@ -7,6 +7,7 @@ import { ApiError } from "./error";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
 
 export const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `${backendUrl}/api/v1`;
+export const authBaseUrl = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? `${backendUrl}/api/auth`;
 
 const baseClient = ky.create({
   credentials: "include",

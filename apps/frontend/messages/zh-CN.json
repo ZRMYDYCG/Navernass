@@ -202,6 +202,31 @@
     "settings": "设置",
     "closeSettings": "关闭设置"
   },
+  "workspaceStarter": {
+    "novelTitle": "我的第一本小说",
+    "chapterTitle": "第一章"
+  },
+  "auth": {
+    "name": "昵称",
+    "email": "邮箱",
+    "password": "密码",
+    "passwordHint": "至少 8 位。",
+    "error": "登录失败，请稍后再试",
+    "noAccount": "还没有账号？",
+    "hasAccount": "已经有账号？",
+    "goRegister": "注册",
+    "goLogin": "登录",
+    "login": {
+      "title": "登录",
+      "description": "回到你的小说工作台。",
+      "submit": "登录"
+    },
+    "register": {
+      "title": "注册",
+      "description": "创建账号后即可配置模型并开始写作。",
+      "submit": "注册"
+    }
+  },
   "settings": {
     "title": "设置",
     "comingSoon": "即将推出，敬请期待。",
@@ -229,6 +254,69 @@
       "language": {
         "title": "语言",
         "description": "界面显示语言。"
+      }
+    },
+    "models": {
+      "title": "模型",
+      "description": "保存你自己的 Provider、URL、API Key 和模型名。密钥只会加密写入服务端，不会回显。",
+      "new": "新增",
+      "newTitle": "新增模型配置",
+      "editTitle": "编辑模型配置",
+      "availableModels": "可用模型",
+      "apiKeys": "API Keys",
+      "viewAllModels": "新增模型",
+      "secretSaved": "Secret saved",
+      "apiKeyHelp": "你可以写入自己的 API Key 来调用对应模型。",
+      "overrideBaseUrl": "中转 / 替换 URL",
+      "advanced": "高级选项",
+      "toggleModel": "启用或停用 {name}",
+      "deleteModel": "删除 {name}",
+      "formDescription": "Base URL 不要带 /chat/completions；兼容服务通常填写到 /v1。",
+      "emptyTitle": "还没有模型配置",
+      "emptyDescription": "新增一个 Provider 后，助手就会使用你的账号配置调用模型。",
+      "default": "默认",
+      "disabled": "停用",
+      "save": "保存",
+      "test": "测试",
+      "delete": "删除",
+      "deleteConfirm": "删除“{name}”？相关对话和运行记录也会一起清理。",
+      "apiKeyPlaceholder": "留空则不修改现有密钥",
+      "baseUrlHint": "使用中转站或代理时填写这里。不要带 /chat/completions；留空则使用该 Provider 的官方默认地址。",
+      "testSuccess": "连接正常",
+      "testResult": "{latency}ms · {response}",
+      "fields": {
+        "name": "配置名称",
+        "kind": "Provider",
+        "baseUrl": "中转 / 替换 Base URL",
+        "apiKey": "API Key",
+        "model": "模型名",
+        "embeddingModel": "Embedding 模型",
+        "supportsTools": "工具调用",
+        "supportsStructured": "结构化输出",
+        "isDefault": "设为默认",
+        "isEnabled": "启用"
+      },
+      "kinds": {
+        "openai": "OpenAI",
+        "anthropic": "Anthropic",
+        "google": "Google",
+        "deepseek": "DeepSeek",
+        "qwen": "通义千问",
+        "glm": "智谱 GLM",
+        "compatible": "OpenAI 兼容"
+      },
+      "errors": {
+        "required": "名称和模型名不能为空。",
+        "apiKeyRequired": "新增配置时必须填写 API Key。",
+        "baseUrlRequired": "OpenAI 兼容 Provider 必须填写 Base URL。",
+        "saveFailed": "保存失败，请稍后再试。",
+        "deleteFailed": "删除失败，请稍后再试。",
+        "testFailed": "测试失败，请检查配置。"
+      },
+      "placeholders": {
+        "name": "我的模型配置",
+        "apiKey": "输入 API Key",
+        "model": "gpt-5.6-sol / claude-opus-5.5…"
       }
     }
   },
@@ -295,6 +383,76 @@
       "next": "下一处修改",
       "removed": "删除：",
       "added": "新增："
+    }
+  },
+  "landing": {
+    "header": {
+      "faq": "常见问题",
+      "start": "开始写作",
+      "menu": "打开菜单"
+    },
+    "hero": {
+      "title1": "让写作回归",
+      "title2": "纯粹与自由",
+      "description": "Narraverse 是为小说家打造的新一代智能写作平台。无论是起草第一章，还是经营长篇连载，结构、设定与正文都在同一处，让你专注于只有你能写出的故事。",
+      "cta": "开始创作",
+      "secondary": "了解更多"
+    },
+    "free": {
+      "title": "定价",
+      "title2": "现在，完全免费。",
+      "description": "正文创作、AI 辅助、角色工具、大纲与设定管理——向每一位写作者开放。",
+      "planName": "创作者计划",
+      "price": "免费",
+      "cta": "立即开始",
+      "features": {
+        "f1": "无限作品与章节",
+        "f2": "AI 全部五种模式",
+        "f3": "角色关系图谱与场景预览",
+        "f4": "大纲、规划与世界观设定",
+        "f5": "时间线管理与稿件导入",
+        "f6": "Markdown / 纯文本导出"
+      }
+    },
+    "faq": {
+      "title": "常见问题",
+      "subtitle": "这里是一些最常见的问题。",
+      "items": {
+        "q1": {
+          "title": "Narraverse 是什么？",
+          "content": "Narraverse 是为小说家打造的写作平台：结构化的稿件管理、角色关系图谱、世界观设定与 AI 助手，让结构、设定与正文同处一处，你可以专心写只有你能写的故事。"
+        },
+        "q2": {
+          "title": "AI 会替我写作吗？",
+          "content": "不会。AI 是编辑而非代笔：Agent 模式的每一次修改都以对比形式呈现，由你逐行决定接受或拒绝。Ask 模式只提供建议，从不触碰你的文件。"
+        },
+        "q3": {
+          "title": "AI 的建议能贴合我的故事吗？",
+          "content": "能。规划、大纲、设定与章节共享同一份事实来源，AI 在给出剧情、场景或语句层面的反馈之前，会先阅读你的稿件与设定，所以建议贴合你的故事，而非通用模板。"
+        },
+        "q4": {
+          "title": "支持导入已有稿件吗？",
+          "content": "支持。粘贴已有稿件即可自动识别章节分隔，还可以运行角色分析，从现有文本生成你的角色关系图谱。"
+        },
+        "q5": {
+          "title": "需要付费吗？",
+          "content": "现阶段完全免费。正文创作、AI 辅助、角色工具、大纲与设定管理，全部向每一位写作者开放。"
+        },
+        "q6": {
+          "title": "支持哪些界面语言？",
+          "content": "目前支持简体中文与英文界面，可以随时在设置中切换。"
+        }
+      }
+    },
+    "cta": {
+      "title": "现在，开始写下你的故事",
+      "description": "灵感、人物与世界观已经就绪，只差你的第一章。",
+      "button": "免费开始创作",
+      "quote": "“没有比心里的故事无人讲述更痛苦的事。”"
+    },
+    "footer": {
+      "tagline": "让写作回归纯粹与自由。",
+      "rights": "保留所有权利。"
     }
   }
 }

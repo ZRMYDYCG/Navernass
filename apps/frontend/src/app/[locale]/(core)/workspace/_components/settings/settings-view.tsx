@@ -24,6 +24,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 import { GeneralSettings } from "./general-settings";
+import { ModelsSettings } from "./models-settings";
 
 type SettingsSection = "general" | "agents" | "models" | "customize" | "docs" | "changelog";
 
@@ -107,7 +108,11 @@ export function SettingsView() {
       <Separator orientation="vertical" />
       <ScrollArea className="min-h-0 flex-1">
         <div className="mx-auto w-full max-w-3xl px-10 py-8">
-          {active.id === "general" ? <GeneralSettings /> : <PlaceholderSection entry={active} />}
+          {active.id === "general" ? <GeneralSettings /> : null}
+          {active.id === "models" ? <ModelsSettings /> : null}
+          {active.id !== "general" && active.id !== "models" ? (
+            <PlaceholderSection entry={active} />
+          ) : null}
         </div>
       </ScrollArea>
     </section>

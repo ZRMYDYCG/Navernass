@@ -8,7 +8,9 @@ import {
 import { useCallback } from "react";
 
 import {
+  createChapter as createChapterApi,
   createCharacter as createCharacterApi,
+  createNovel as createNovelApi,
   createRelationship as createRelationshipApi,
   deleteCharacter as deleteCharacterApi,
   deleteRelationship as deleteRelationshipApi,
@@ -71,10 +73,41 @@ export function useChapterSearch(novelId: string, keyword: string) {
   });
 }
 
-export function useNovelChapters(novelId: string) {
+export function useNovelChapters(novelId: string | undefined) {
   return useQuery({
-    queryKey: libraryKeys.chapters(novelId),
-    queryFn: () => getNovelChapters(novelId),
+    queryKey: libraryKeys.chapters(novelId ?? ""),
+    queryFn: () => getNovelChapters(novelId!),
+    enabled: Boolean(novelId),
+  });
+}
+
+export function useCreateStarterWorkspace() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      novelTitle,
+      chapterTitle,
+    }: {
+      novelTitle: string;
+      chapterTitle: string;
+    }) => {
+      const novel = await createNovelApi({ title: novelTitle, tags: [] });
+      const chapter = await createChapterApi({
+        novel_id: novel.id,
+        title: chapterTitle,
+        content: "",
+        order_index: 1,
+      });
+      return { novel, chapter };
+    },
+    onSuccess: ({ novel, chapter }) => {
+      queryClient.setQueryData(libraryKeys.novels, [novel]);
+      queryClient.setQueryData(libraryKeys.chapters(novel.id), [
+        chapterSummarySchema.parse(chapter),
+      ]);
+      queryClient.setQueryData(libraryKeys.chapter(chapter.id), chapter);
+      queryClient.setQueryData(libraryKeys.novel(novel.id), novel);
+    },
   });
 }
 

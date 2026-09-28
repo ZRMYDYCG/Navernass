@@ -37,8 +37,6 @@ import * as schema from "./library.schema.js";
 import { LibraryService } from "./library.service.js";
 
 @Controller()
-// 联调期临时方案：作品资料库暂不做鉴权，上线前移除
-@AllowAnonymous()
 @ApiTags("作品资料库")
 export class LibraryController {
   constructor(@Inject(LibraryService) private readonly library: LibraryService) {}

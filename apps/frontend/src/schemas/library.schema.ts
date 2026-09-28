@@ -38,6 +38,22 @@ export const chapterSchema = chapterSummarySchema.extend({
   revision: z.number(),
 });
 
+export const createNovelPayloadSchema = z.object({
+  title: z.string().min(1).max(255),
+  description: z.string().max(20_000).optional(),
+  cover: z.string().optional(),
+  category: z.string().max(100).optional(),
+  tags: z.array(z.string().min(1).max(50)).max(30).default([]),
+});
+
+export const createChapterPayloadSchema = z.object({
+  novel_id: z.string(),
+  volume_id: z.string().nullable().optional(),
+  title: z.string().min(1).max(255),
+  content: z.string().max(5_000_000).default(""),
+  order_index: z.number().int().min(0).default(0),
+});
+
 export const characterFieldTypeSchema = z.enum(["text", "longText", "tags"]);
 
 export const characterFieldSchema = z.object({
@@ -116,6 +132,8 @@ export type Novel = z.infer<typeof novelSchema>;
 export type Volume = z.infer<typeof volumeSchema>;
 export type ChapterSummary = z.infer<typeof chapterSummarySchema>;
 export type Chapter = z.infer<typeof chapterSchema>;
+export type CreateNovelPayload = z.infer<typeof createNovelPayloadSchema>;
+export type CreateChapterPayload = z.infer<typeof createChapterPayloadSchema>;
 export type CharacterFieldType = z.infer<typeof characterFieldTypeSchema>;
 export type CharacterField = z.infer<typeof characterFieldSchema>;
 export type RelationshipKind = z.infer<typeof relationshipKindSchema>;

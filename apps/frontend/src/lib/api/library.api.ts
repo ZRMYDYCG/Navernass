@@ -8,7 +8,9 @@ import {
   characterRelationshipSchema,
   novelSchema,
   volumeSchema,
+  type CreateChapterPayload,
   type CreateCharacterPayload,
+  type CreateNovelPayload,
   type CreateRelationshipPayload,
   type UpdateCharacterPayload,
   type UpdateRelationshipPayload,
@@ -24,6 +26,10 @@ export function getNovels() {
   return apiRequest("novels?page=1&pageSize=100", z.array(novelSchema));
 }
 
+export function createNovel(payload: CreateNovelPayload) {
+  return apiRequest("novels", novelSchema, { method: "post", json: payload });
+}
+
 export function getNovelVolumes(novelId: string) {
   return apiRequest(`novels/${novelId}/volumes`, z.array(volumeSchema));
 }
@@ -34,6 +40,10 @@ export function getNovelChapters(novelId: string) {
 
 export function getChapter(id: string) {
   return apiRequest(`chapters/${id}`, chapterSchema);
+}
+
+export function createChapter(payload: CreateChapterPayload) {
+  return apiRequest("chapters", chapterSchema, { method: "post", json: payload });
 }
 
 export function searchChapters(novelId: string, keyword: string) {

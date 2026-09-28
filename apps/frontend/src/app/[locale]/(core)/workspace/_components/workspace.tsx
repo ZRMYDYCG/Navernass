@@ -1,10 +1,13 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { PanelImperativeHandle } from "react-resizable-panels";
+import { useTranslations } from "next-intl";
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { NovelGraphWorkspace } from "@/features/novel-graph/novel-graph-workspace";
+import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/lib/query/library.query";
 
 import { AppHeader } from "./app-header";
 import { ChapterEditor, EmptyChapterEditor } from "./chapter-editor/chapter-editor";
@@ -13,19 +16,12 @@ import { EditorTabs, type EditorTab } from "./editor-tabs";
 import type { SidebarView } from "./novel-sidebar/activity-bar";
 import { NovelSidebar } from "./novel-sidebar/novel-sidebar";
 import { SettingsView } from "./settings/settings-view";
-import { NovelGraphWorkspace } from "@/features/novel-graph/novel-graph-workspace";
 
 interface WorkspaceProps {
   novelId?: string;
   chapterId?: string;
   sessionId?: string;
-  /** 切换语言会整页重新渲染，靠 `view=settings` 参数回到设置页。 */
-  settingsActive?: boolean;
-  graphActive?: boolean;
 }
-
-// 联调期临时方案：未选小说时兜底到写死的开发小说，免登录直接联调对话模块
-const DEV_NOVEL_ID = process.env.NEXT_PUBLIC_DEV_NOVEL_ID;
 
 interface WorkspaceSelection {
   novelId?: string;
@@ -62,28 +58,35 @@ function usePanelToggle() {
   return { panelRef, collapsed, toggle };
 }
 
-export function Workspace({
-  novelId,
-  chapterId: initialChapterId,
-  sessionId,
-  settingsActive = false,
-  graphActive = false,
-}: WorkspaceProps) {
+export function Workspace({ novelId, chapterId: initialChapterId, sessionId }: WorkspaceProps) {
+  const t = useTranslations("workspaceStarter");
+  const novels = useNovels();
+  const starter = useCreateStarterWorkspace();
+  const starterStartedRef = useRef(false);
   const [selection, setSelection] = useState<WorkspaceSelection>({
-    novelId: novelId ?? DEV_NOVEL_ID,
+    novelId,
     chapterId: initialChapterId,
     initialSessionId: sessionId,
   });
-  const [settingsOpen, setSettingsOpen] = useState(settingsActive);
-  const [graphOpen, setGraphOpen] = useState(graphActive);
-  const [activeTab, setActiveTab] = useState<EditorTab>(
-    settingsActive ? "settings" : graphActive ? "graph" : "chapter",
-  );
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [graphOpen, setGraphOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<EditorTab>("chapter");
   const sidebar = usePanelToggle();
   const chatPanel = usePanelToggle();
+  const effectiveNovelId = selection.novelId ?? novels.data?.[0]?.id;
+  const chapters = useNovelChapters(effectiveNovelId);
+  const effectiveChapterId =
+    selection.chapterId ?? chapters.data?.[0]?.id ?? starter.data?.chapter.id;
+
+  useEffect(() => {
+    if (selection.novelId || novels.isLoading || novels.isError || novels.data?.length) return;
+    if (starterStartedRef.current || starter.isPending || starter.data) return;
+    starterStartedRef.current = true;
+    starter.mutate({ novelTitle: t("novelTitle"), chapterTitle: t("chapterTitle") });
+  }, [novels.data?.length, novels.isError, novels.isLoading, selection.novelId, starter, t]);
 
   const selectNovel = (id: string) => {
-    if (id === selection.novelId) return;
+    if (id === effectiveNovelId) return;
     setSelection({ novelId: id });
     replaceWorkspaceParams({ novelId: id, chapterId: undefined, sessionId: undefined });
   };
@@ -91,14 +94,11 @@ export function Workspace({
   const selectChapter = (id: string) => {
     setSelection((current) => ({ ...current, chapterId: id }));
     setActiveTab("chapter");
-    replaceWorkspaceParams({ chapterId: id, view: undefined });
+    replaceWorkspaceParams({ novelId: effectiveNovelId, chapterId: id });
   };
 
   const selectTab = (tab: EditorTab) => {
     setActiveTab(tab);
-    replaceWorkspaceParams({
-      view: tab === "settings" ? "settings" : tab === "graph" ? "graph" : undefined,
-    });
   };
 
   const openSettings = () => {
@@ -150,12 +150,11 @@ export function Workspace({
           collapsedSize={0}
           groupResizeBehavior="preserve-pixel-size"
         >
-          {selection.novelId ? (
+          {effectiveNovelId ? (
             <NovelSidebar
-              key={selection.novelId}
-              novelId={selection.novelId}
-              activeChapterId={selection.chapterId}
-              initialView={graphActive ? "characters" : "novel"}
+              key={effectiveNovelId}
+              novelId={effectiveNovelId}
+              activeChapterId={effectiveChapterId}
               onSelectNovel={selectNovel}
               onSelectChapter={selectChapter}
               onSelectView={selectSidebarView}
@@ -166,7 +165,7 @@ export function Workspace({
         <ResizablePanel minSize={480}>
           <div className="flex h-full min-h-0 flex-col">
             <EditorTabs
-              chapterId={selection.chapterId}
+              chapterId={effectiveChapterId}
               settingsOpen={settingsOpen}
               graphOpen={graphOpen}
               activeTab={activeTab}
@@ -176,11 +175,11 @@ export function Workspace({
             />
             {/* 设置页只是遮住编辑器，保留 Lexical 的撤销栈与滚动位置。 */}
             <div hidden={showSettings || showGraph} className="min-h-0 flex-1">
-              {selection.novelId && selection.chapterId ? (
+              {effectiveNovelId && effectiveChapterId ? (
                 <ChapterEditor
-                  key={selection.chapterId}
-                  novelId={selection.novelId}
-                  chapterId={selection.chapterId}
+                  key={effectiveChapterId}
+                  novelId={effectiveNovelId}
+                  chapterId={effectiveChapterId}
                 />
               ) : (
                 <EmptyChapterEditor />
@@ -188,7 +187,7 @@ export function Workspace({
             </div>
             {graphOpen ? (
               <div hidden={!showGraph} className="min-h-0 flex-1">
-                <NovelGraphWorkspace novelId={selection.novelId} />
+                <NovelGraphWorkspace novelId={effectiveNovelId} />
               </div>
             ) : null}
             {settingsOpen ? (
@@ -209,9 +208,9 @@ export function Workspace({
           groupResizeBehavior="preserve-pixel-size"
         >
           <ChatPanel
-            key={selection.novelId ?? "new-chat"}
-            novelId={selection.novelId}
-            chapterId={selection.chapterId}
+            key={effectiveNovelId ?? "new-chat"}
+            novelId={effectiveNovelId}
+            chapterId={effectiveChapterId}
             sessionId={selection.initialSessionId}
           />
         </ResizablePanel>

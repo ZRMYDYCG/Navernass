@@ -202,6 +202,31 @@
     "settings": "Settings",
     "closeSettings": "Close settings"
   },
+  "workspaceStarter": {
+    "novelTitle": "My First Novel",
+    "chapterTitle": "Chapter 1"
+  },
+  "auth": {
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "At least 8 characters.",
+    "error": "Authentication failed. Please try again.",
+    "noAccount": "No account yet?",
+    "hasAccount": "Already have an account?",
+    "goRegister": "Register",
+    "goLogin": "Log in",
+    "login": {
+      "title": "Log in",
+      "description": "Return to your writing workspace.",
+      "submit": "Log in"
+    },
+    "register": {
+      "title": "Register",
+      "description": "Create an account, configure your model, and start writing.",
+      "submit": "Register"
+    }
+  },
   "settings": {
     "title": "Settings",
     "comingSoon": "Coming soon.",
@@ -229,6 +254,69 @@
       "language": {
         "title": "Language",
         "description": "Interface display language."
+      }
+    },
+    "models": {
+      "title": "Models",
+      "description": "Save your own provider, URL, API key, and model name. Secrets are encrypted on the server and never shown again.",
+      "new": "New",
+      "newTitle": "New model config",
+      "editTitle": "Edit model config",
+      "availableModels": "Available Models",
+      "apiKeys": "API Keys",
+      "viewAllModels": "Add Model",
+      "secretSaved": "Secret saved",
+      "apiKeyHelp": "You can put in your own API key to use this provider's models.",
+      "overrideBaseUrl": "Relay / Override URL",
+      "advanced": "Advanced options",
+      "toggleModel": "Enable or disable {name}",
+      "deleteModel": "Delete {name}",
+      "formDescription": "Do not include /chat/completions in the Base URL. Compatible services usually end at /v1.",
+      "emptyTitle": "No model configs yet",
+      "emptyDescription": "Add a Provider and the assistant will use your own model settings.",
+      "default": "Default",
+      "disabled": "Disabled",
+      "save": "Save",
+      "test": "Test",
+      "delete": "Delete",
+      "deleteConfirm": "Delete \"{name}\"? Related chats and run records will also be removed.",
+      "apiKeyPlaceholder": "Leave blank to keep the current key",
+      "baseUrlHint": "Put relay or proxy URLs here. Do not include /chat/completions. Leave blank to use the provider default.",
+      "testSuccess": "Connection OK",
+      "testResult": "{latency}ms · {response}",
+      "fields": {
+        "name": "Config name",
+        "kind": "Provider",
+        "baseUrl": "Relay / Override Base URL",
+        "apiKey": "API Key",
+        "model": "Model",
+        "embeddingModel": "Embedding model",
+        "supportsTools": "Tool calls",
+        "supportsStructured": "Structured output",
+        "isDefault": "Set as default",
+        "isEnabled": "Enabled"
+      },
+      "kinds": {
+        "openai": "OpenAI",
+        "anthropic": "Anthropic",
+        "google": "Google",
+        "deepseek": "DeepSeek",
+        "qwen": "Qwen",
+        "glm": "GLM",
+        "compatible": "OpenAI-compatible"
+      },
+      "errors": {
+        "required": "Name and model are required.",
+        "apiKeyRequired": "API key is required for a new config.",
+        "baseUrlRequired": "OpenAI-compatible providers require a Base URL.",
+        "saveFailed": "Save failed. Please try again.",
+        "deleteFailed": "Delete failed. Please try again.",
+        "testFailed": "Test failed. Please check the config."
+      },
+      "placeholders": {
+        "name": "My model config",
+        "apiKey": "Enter API Key",
+        "model": "gpt-5.6-sol / claude-opus-5.5..."
       }
     }
   },
@@ -295,6 +383,76 @@
       "next": "Next change",
       "removed": "Removed: ",
       "added": "Added: "
+    }
+  },
+  "landing": {
+    "header": {
+      "faq": "FAQ",
+      "start": "Start writing",
+      "menu": "Open menu"
+    },
+    "hero": {
+      "title1": "Bring writing back to",
+      "title2": "purity and freedom",
+      "description": "Narraverse is a next-generation intelligent novel writing platform built for novelists. Whether you are drafting your first chapter or managing a long-running series, structure, lore, and prose live in one place — so you can focus on the story only you can write.",
+      "cta": "Start creating",
+      "secondary": "Learn more"
+    },
+    "free": {
+      "title": "Pricing",
+      "title2": "Completely free, for now.",
+      "description": "Drafting, AI assistance, character tools, outline and worldbook management — all open to every writer.",
+      "planName": "Creator plan",
+      "price": "Free",
+      "cta": "Get started",
+      "features": {
+        "f1": "Unlimited novels and chapters",
+        "f2": "All five AI modes",
+        "f3": "Character map and scene preview",
+        "f4": "Outline, planning, and worldbook",
+        "f5": "Timeline and manuscript import",
+        "f6": "Markdown / plain-text export"
+      }
+    },
+    "faq": {
+      "title": "FAQs",
+      "subtitle": "Here are some of the most frequently asked questions.",
+      "items": {
+        "q1": {
+          "title": "What is Narraverse?",
+          "content": "Narraverse is a writing home built for novelists: structured manuscript management, a character relationship map, a worldbook, and an AI assistant — with structure, lore, and prose in one place, so you can focus on the work only you can write."
+        },
+        "q2": {
+          "title": "Will the AI write for me?",
+          "content": "No. The AI is an editor, not a ghostwriter: every change from the Agent mode appears as a diff that you accept or reject line by line. Ask mode only offers advice and never touches your files."
+        },
+        "q3": {
+          "title": "Do the AI suggestions fit my story?",
+          "content": "Yes. Plans, outlines, worldbook entries, and chapters share one source of truth. Before giving plot, scene, or line-level feedback, the AI reads your manuscript and lore — so advice fits your story, not a generic template."
+        },
+        "q4": {
+          "title": "Can I import an existing manuscript?",
+          "content": "Yes. Paste an existing manuscript and Narraverse will recognize chapter breaks for you. You can optionally run character analysis to populate your relationship map from the text you already have."
+        },
+        "q5": {
+          "title": "Does it cost anything?",
+          "content": "Narraverse is completely free at this stage. Drafting, AI assistance, character tools, outline and worldbook management — all open to every writer."
+        },
+        "q6": {
+          "title": "Which interface languages are supported?",
+          "content": "Simplified Chinese and English are currently supported, and you can switch anytime in settings."
+        }
+      }
+    },
+    "cta": {
+      "title": "Start writing your story now",
+      "description": "Inspiration, characters, and world are ready — all that is missing is your first chapter.",
+      "button": "Start creating for free",
+      "quote": "\"Nothing is more painful than an untold story inside you.\""
+    },
+    "footer": {
+      "tagline": "Bring writing back to purity and freedom.",
+      "rights": "All rights reserved."
     }
   }
 }
