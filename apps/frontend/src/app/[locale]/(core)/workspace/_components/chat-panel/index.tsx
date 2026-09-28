@@ -25,6 +25,7 @@ import {
   useSessionMessages,
 } from "@/lib/query/agent.query";
 import { editorKeys } from "@/lib/query/editor.query";
+import { libraryKeys } from "@/lib/query/library.query";
 import type { AskUserOutput } from "@/schemas/agent.schema";
 
 import { AskUserPanel } from "./ask-user";
@@ -115,6 +116,16 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
     (sessionId: string | undefined) => {
       if (novelId) {
         void queryClient.invalidateQueries({ queryKey: agentKeys.sessions(novelId), exact: true });
+        void queryClient.invalidateQueries({
+          queryKey: libraryKeys.chapters(novelId),
+          exact: true,
+        });
+      }
+      if (chapterId) {
+        void queryClient.invalidateQueries({
+          queryKey: libraryKeys.chapter(chapterId),
+          exact: true,
+        });
       }
       if (sessionId) {
         void queryClient.invalidateQueries({
@@ -124,7 +135,7 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
       }
       void queryClient.invalidateQueries({ queryKey: editorKeys.pendingAll });
     },
-    [novelId, queryClient],
+    [chapterId, novelId, queryClient],
   );
 
   const consumeStream = useCallback(

@@ -1,11 +1,20 @@
 "use client";
 
-import { BookOpenTextIcon, FileTextIcon, LibraryBigIcon, TextSearchIcon } from "lucide-react";
+import {
+  BookOpenTextIcon,
+  FilePenLineIcon,
+  FileTextIcon,
+  FilesIcon,
+  LibraryBigIcon,
+  TextSearchIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { z } from "zod";
 
 import {
   chapterOutputSchema,
+  articleWriteOutputSchema,
+  listArticleFilesOutputSchema,
   novelSnapshotOutputSchema,
   readArticleOutputSchema,
   searchArticleInputSchema,
@@ -74,6 +83,39 @@ export const getChapter = defineTool({
   output: chapterOutputSchema,
   summary: (_, { output }) => output?.title,
   Detail: ChapterDetail,
+});
+
+type ArticleFilesProps = ToolProps<unknown, z.infer<typeof listArticleFilesOutputSchema>>;
+
+function ArticleFilesDetail({ output }: ArticleFilesProps) {
+  const t = useTranslations("agui.detail");
+  if (!output) return null;
+  if (!output.files.length) return <ToolMeta items={[t("noFiles")]} />;
+  return (
+    <>
+      <ul className="flex max-h-72 flex-col gap-1 overflow-y-auto">
+        {output.files.map((file) => (
+          <li key={file.chapterId} className="flex items-center justify-between gap-3 text-sm">
+            <span className="min-w-0 truncate text-foreground">{file.path}</span>
+            <span className="shrink-0 text-xs text-muted-foreground">
+              {t("revision", { revision: file.revision })}
+            </span>
+          </li>
+        ))}
+      </ul>
+      {output.truncated ? (
+        <ToolMeta items={[t("truncated", { count: output.files.length })]} />
+      ) : null}
+    </>
+  );
+}
+
+export const listArticleFiles = defineTool({
+  icon: FilesIcon,
+  output: listArticleFilesOutputSchema,
+  summary: (t, { output }) =>
+    output ? t("detail.fileCount", { count: output.files.length }) : undefined,
+  Detail: ArticleFilesDetail,
 });
 
 type ReadArticleProps = ToolProps<unknown, z.infer<typeof readArticleOutputSchema>>;
@@ -149,3 +191,45 @@ export const searchArticle = defineTool({
   },
   Detail: SearchArticleDetail,
 });
+
+type ArticleWriteProps = ToolProps<unknown, z.infer<typeof articleWriteOutputSchema>>;
+
+function ArticleWriteDetail({ output }: ArticleWriteProps) {
+  const t = useTranslations("agui.detail");
+  if (!output) return null;
+  return (
+    <ToolMeta
+      items={[
+        output.chapterTitle,
+        t("revisionChange", { from: output.baseRevision, to: output.revision }),
+        t("wordDelta", { count: output.wordDelta }),
+      ]}
+    />
+  );
+}
+
+export const editArticle = defineTool({
+  icon: FilePenLineIcon,
+  output: articleWriteOutputSchema,
+  summary: (t, { output }) =>
+    output ? `${output.chapterTitle} · ${t("detail.written")}` : undefined,
+  Detail: ArticleWriteDetail,
+});
+
+export const writeArticle = defineTool({
+  icon: FilePenLineIcon,
+  output: articleWriteOutputSchema,
+  summary: (t, { output }) =>
+    output ? `${output.chapterTitle} · ${t("detail.written")}` : undefined,
+  Detail: ArticleWriteDetail,
+});
+
+export const patchArticle = defineTool({
+  icon: FilePenLineIcon,
+  output: articleWriteOutputSchema,
+  summary: (t, { output }) =>
+    output ? `${output.chapterTitle} · ${t("detail.written")}` : undefined,
+  Detail: ArticleWriteDetail,
+});
+
+export const grepArticle = searchArticle;

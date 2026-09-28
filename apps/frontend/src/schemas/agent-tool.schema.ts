@@ -53,6 +53,7 @@ export const readArticleOutputSchema = z.object({
   chapterId: z.string(),
   title: z.string(),
   revision: z.number(),
+  contentHash: z.string().optional(),
   wordCount: z.number(),
   totalLength: z.number(),
   startOffset: z.number(),
@@ -74,6 +75,32 @@ export const searchArticleOutputSchema = z.object({
     }),
   ),
   truncated: z.boolean(),
+});
+
+export const listArticleFilesOutputSchema = z.object({
+  files: z.array(
+    z.object({
+      chapterId: z.string(),
+      path: z.string(),
+      title: z.string(),
+      revision: z.number(),
+      wordCount: z.number(),
+      totalLength: z.number(),
+    }),
+  ),
+  truncated: z.boolean(),
+});
+
+export const articleWriteOutputSchema = z.object({
+  chapterId: z.string(),
+  chapterTitle: z.string(),
+  status: z.literal("written"),
+  reason: z.string(),
+  baseRevision: z.number(),
+  revision: z.number(),
+  wordCount: z.number(),
+  wordDelta: z.number(),
+  operations: z.array(z.unknown()),
 });
 
 export const editOperationSchema = z.object({

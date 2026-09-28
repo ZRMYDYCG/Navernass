@@ -7,7 +7,13 @@ import { generateText, tool } from "ai";
 import { z } from "zod";
 import { PrismaService } from "../database/prisma.service.js";
 import { EditorService } from "../editor/editor.service.js";
-import { proposeEdit } from "../editor/editor.schema.js";
+import {
+  editArticle,
+  listArticleFiles,
+  patchArticle,
+  proposeEdit,
+  writeArticle,
+} from "../editor/editor.schema.js";
 import { SkillResolver } from "../skill/skill.resolver.js";
 import { askUserInput, askUserOutput } from "./agent.schema.js";
 import { MemoryService } from "./memory.service.js";
@@ -57,7 +63,7 @@ export class ToolService {
   build(
     context: ToolContext,
     mode: RunAgent["mode"] = "agent",
-    options: { interactive?: boolean } = {},
+    options: { interactive?: boolean; allowedTools?: Iterable<string> } = {},
   ): ToolSet {
     const observed = async <T>(
       toolCallId: string,
@@ -198,10 +204,23 @@ export class ToolService {
             { retryable: true, abortSignal: options.abortSignal },
           ),
       }),
+      listArticleFiles: tool({
+        description:
+          "列出当前小说中可编辑的章节虚拟文件。正文工具把章节当成 chapters/*.md 文件处理。",
+        inputSchema: listArticleFiles,
+        execute: (input, options) =>
+          observed(
+            options.toolCallId,
+            "listArticleFiles",
+            input,
+            () => this.editor.listFiles(context.userId, context.input.novelId, input),
+            { retryable: true, abortSignal: options.abortSignal },
+          ),
+      }),
       readArticle: tool({
         description: [
           "像读取代码文件一样分段读取章节正文。",
-          "任何正文编辑前必须先调用本工具，并把返回的 revision 传给 proposeArticleEdit。",
+          "任何正文编辑前必须先调用本工具，并把返回的 revision 和 contentHash 传给 editArticle、writeArticle 或 patchArticle。",
           "offset 和 limit 使用 JavaScript UTF-16 字符偏移，与浏览器字符串和 Lexical 适配层一致。",
         ].join("\n"),
         inputSchema: z.object({
@@ -215,6 +234,25 @@ export class ToolService {
             "readArticle",
             input,
             () => this.editor.read(context.userId, context.input.novelId, input.chapterId, input),
+            { retryable: true, abortSignal: options.abortSignal },
+          ),
+      }),
+      grepArticle: tool({
+        description:
+          "像 grep 一样在章节正文中搜索字面量，返回 UTF-16 偏移与上下文。等同于 searchArticle，但语义更接近代码 agent 工具。",
+        inputSchema: z.object({
+          chapterId: z.uuid(),
+          query: z.string().min(1).max(2_000),
+          caseSensitive: z.boolean().default(true),
+          limit: z.number().int().min(1).max(50).default(20),
+          contextChars: z.number().int().min(0).max(1_000).default(160),
+        }),
+        execute: (input, options) =>
+          observed(
+            options.toolCallId,
+            "grepArticle",
+            input,
+            () => this.editor.search(context.userId, context.input.novelId, input.chapterId, input),
             { retryable: true, abortSignal: options.abortSignal },
           ),
       }),
@@ -237,10 +275,45 @@ export class ToolService {
             { retryable: true, abortSignal: options.abortSignal },
           ),
       }),
+      editArticle: tool({
+        description: [
+          "直接修改章节正文中的精确片段，类似代码编辑器的 Edit 工具。",
+          "调用前必须用 readArticle/grepArticle/searchArticle 取得原文，并传入当前 baseRevision 和 baseHash。",
+          "oldText 必须逐字复制现有正文；如正文已变化会拒绝写入，避免覆盖用户内容。",
+        ].join("\n"),
+        inputSchema: editArticle,
+        execute: (input, options) =>
+          observed(options.toolCallId, "editArticle", input, () =>
+            this.editor.edit(context.userId, context.input.novelId, input),
+          ),
+      }),
+      writeArticle: tool({
+        description: [
+          "直接重写整个章节正文，类似代码编辑器的 Write 工具。",
+          "只在用户明确要求整章重写或新章节为空时使用；调用前必须读取当前 revision 和 contentHash。",
+        ].join("\n"),
+        inputSchema: writeArticle,
+        execute: (input, options) =>
+          observed(options.toolCallId, "writeArticle", input, () =>
+            this.editor.write(context.userId, context.input.novelId, input),
+          ),
+      }),
+      patchArticle: tool({
+        description: [
+          "一次性直接应用多个正文编辑，类似代码编辑器的 Patch 工具。",
+          "操作格式与 proposeArticleEdit 相同，但会直接写入章节；调用前必须读取当前 revision 和 contentHash。",
+          "只把从正文中精确读取到的 oldText/anchor 放进操作，不要概括。",
+        ].join("\n"),
+        inputSchema: patchArticle,
+        execute: (input, options) =>
+          observed(options.toolCallId, "patchArticle", input, () =>
+            this.editor.patch(context.userId, context.input.novelId, input),
+          ),
+      }),
       proposeArticleEdit: tool({
         description: [
-          "为章节创建可审阅的持久化 diff 提案，不会直接修改正文。",
-          "这相当于代码编辑器的 apply_patch：oldText/anchor 必须从 readArticle 原样复制，不能概括或改写。",
+          "为章节创建可审阅的 diff 预览，不会直接修改正文。只有用户明确要求先预览或审阅时使用。",
+          "oldText/anchor 必须从 readArticle 原样复制，不能概括或改写。",
           "replace 用于替换或删除；insert_before/insert_after 用锚点插入；prepend/append 用于首尾新增。",
           "同一提案的操作必须以原始正文为基准且范围不能重叠，每项使用稳定且唯一的 id。",
           "前端收到工具结果后展示 diff，用户通过 applyEndpoint 全部或逐项接受，也可通过 rejectEndpoint 拒绝。",
@@ -356,7 +429,9 @@ export class ToolService {
         "readSkillResource",
         "getNovelSnapshot",
         "getChapter",
+        "listArticleFiles",
         "readArticle",
+        "grepArticle",
         "searchArticle",
         "searchMemory",
       ]),
@@ -365,7 +440,9 @@ export class ToolService {
         "readSkillResource",
         "getNovelSnapshot",
         "getChapter",
+        "listArticleFiles",
         "readArticle",
+        "grepArticle",
         "searchArticle",
         "searchMemory",
         "saveMemory",
@@ -377,7 +454,9 @@ export class ToolService {
         "readSkillResource",
         "getNovelSnapshot",
         "getChapter",
+        "listArticleFiles",
         "readArticle",
+        "grepArticle",
         "searchArticle",
         "searchMemory",
         "saveMemory",
@@ -389,7 +468,9 @@ export class ToolService {
         "readSkillResource",
         "getNovelSnapshot",
         "getChapter",
+        "listArticleFiles",
         "readArticle",
+        "grepArticle",
         "searchArticle",
         "searchMemory",
         "saveMemory",
@@ -398,8 +479,9 @@ export class ToolService {
       ]),
       agent: new Set(Object.keys(available)),
     };
+    const allowed = options.allowedTools ? new Set(options.allowedTools) : policies[mode];
     const tools = Object.fromEntries(
-      Object.entries(available).filter(([name]) => policies[mode].has(name)),
+      Object.entries(available).filter(([name]) => allowed.has(name)),
     ) as ToolSet;
     if (!options.interactive) return tools;
     return {

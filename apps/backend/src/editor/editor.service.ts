@@ -1,5 +1,14 @@
 import type { Prisma } from "../generated/prisma/client.js";
-import type { ApplyEdit, EditOperation, EditQuery, ProposeEdit } from "./editor.schema.js";
+import type {
+  ApplyEdit,
+  EditArticle,
+  EditOperation,
+  EditQuery,
+  ListArticleFiles,
+  PatchArticle,
+  ProposeEdit,
+  WriteArticle,
+} from "./editor.schema.js";
 import { createHash } from "node:crypto";
 import { HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { AppError } from "../common/app-error.js";
@@ -18,6 +27,33 @@ interface ResolvedEdit {
 @Injectable()
 export class EditorService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async listFiles(userId: string, novelId: string, input: ListArticleFiles) {
+    await this.ownedNovel(userId, novelId);
+    const chapters = await this.prisma.chapter.findMany({
+      where: { user_id: userId, novel_id: novelId, deleted_at: null },
+      orderBy: { order_index: "asc" },
+      take: input.limit,
+    });
+    const normalized = input.pattern.toLocaleLowerCase();
+    const files = chapters
+      .map((chapter) => ({
+        chapterId: chapter.id,
+        path: `chapters/${String(chapter.order_index + 1).padStart(3, "0")}-${slugTitle(chapter.title)}.md`,
+        title: chapter.title,
+        revision: chapter.revision,
+        contentHash: this.hash(chapter.content),
+        wordCount: chapter.word_count,
+        totalLength: chapter.content.length,
+      }))
+      .filter(
+        (file) =>
+          normalized === "**/*" ||
+          normalized === "*" ||
+          file.path.toLocaleLowerCase().includes(normalized.replaceAll("*", "")),
+      );
+    return { novelId, pattern: input.pattern, files, truncated: chapters.length === input.limit };
+  }
 
   async read(
     userId: string,
@@ -80,6 +116,57 @@ export class EditorService {
       matches,
       truncated: matches.length === input.limit && haystack.indexOf(needle, cursor) >= 0,
     };
+  }
+
+  async edit(userId: string, novelId: string, input: EditArticle) {
+    const chapter = await this.ownedChapter(userId, novelId, input.chapterId);
+    this.assertBase(chapter, input.baseRevision, input.baseHash);
+    const operation = this.resolveOperation(chapter.content, {
+      id: "edit",
+      type: "replace",
+      oldText: input.oldText,
+      newText: input.newText,
+      occurrence: input.occurrence,
+      reason: input.reason,
+    });
+    const nextContent = this.applyOperations(chapter.content, [operation]);
+    return this.commitChapterContent(userId, chapter, nextContent, {
+      reason: input.reason,
+      operations: [operation],
+    });
+  }
+
+  async write(userId: string, novelId: string, input: WriteArticle) {
+    const chapter = await this.ownedChapter(userId, novelId, input.chapterId);
+    this.assertBase(chapter, input.baseRevision, input.baseHash);
+    return this.commitChapterContent(userId, chapter, input.content, {
+      reason: input.reason,
+      operations: [
+        {
+          id: "write",
+          type: "replace",
+          start: 0,
+          end: chapter.content.length,
+          oldText: chapter.content,
+          newText: input.content,
+          reason: input.reason,
+        },
+      ],
+    });
+  }
+
+  async patch(userId: string, novelId: string, input: PatchArticle) {
+    const chapter = await this.ownedChapter(userId, novelId, input.chapterId);
+    this.assertBase(chapter, input.baseRevision, input.baseHash);
+    const resolved = input.operations.map((operation) =>
+      this.resolveOperation(chapter.content, operation),
+    );
+    this.assertNonOverlapping(resolved);
+    const nextContent = this.applyOperations(chapter.content, resolved);
+    return this.commitChapterContent(userId, chapter, nextContent, {
+      reason: input.summary,
+      operations: resolved,
+    });
   }
 
   async propose(userId: string, novelId: string, runId: string, input: ProposeEdit) {
@@ -280,6 +367,94 @@ export class EditorService {
     return chapter;
   }
 
+  private async ownedNovel(userId: string, novelId: string) {
+    const novel = await this.prisma.novel.findFirst({ where: { id: novelId, user_id: userId } });
+    if (!novel) throw AppError.notFound("NOVEL_NOT_FOUND", "小说");
+    return novel;
+  }
+
+  private assertBase(
+    chapter: Awaited<ReturnType<EditorService["ownedChapter"]>>,
+    revision: number,
+    hash: string,
+  ) {
+    if (chapter.revision !== revision || this.hash(chapter.content) !== hash) {
+      throw this.conflict("正文已被修改，请重新读取后再编辑", {
+        expectedRevision: revision,
+        currentRevision: chapter.revision,
+      });
+    }
+  }
+
+  private async commitChapterContent(
+    userId: string,
+    chapter: Awaited<ReturnType<EditorService["ownedChapter"]>>,
+    nextContent: string,
+    metadata: { reason: string; operations: ResolvedEdit[] },
+  ) {
+    if (nextContent === chapter.content) {
+      throw new AppError("ARTICLE_EDIT_INVALID", "编辑没有产生任何正文变化");
+    }
+    const baseHash = this.hash(chapter.content);
+    const resultHash = this.hash(nextContent);
+    const nextCount = countWords(nextContent);
+    const wordDelta = nextCount - chapter.word_count;
+    const result = await this.prisma.$transaction(async (tx) => {
+      await tx.chapterRevision.upsert({
+        where: {
+          chapter_id_revision: { chapter_id: chapter.id, revision: chapter.revision },
+        },
+        create: {
+          user_id: userId,
+          novel_id: chapter.novel_id,
+          chapter_id: chapter.id,
+          revision: chapter.revision,
+          content: chapter.content,
+          content_hash: baseHash,
+          word_count: chapter.word_count,
+        },
+        update: {},
+      });
+      const updated = await tx.chapter.updateMany({
+        where: { id: chapter.id, user_id: userId, revision: chapter.revision },
+        data: {
+          content: nextContent,
+          word_count: nextCount,
+          revision: { increment: 1 },
+        },
+      });
+      if (updated.count !== 1) throw this.conflict("正文版本冲突，请重新读取后再编辑");
+      if (wordDelta !== 0) {
+        await tx.novel.update({
+          where: { id: chapter.novel_id },
+          data: { word_count: { increment: wordDelta } },
+        });
+      }
+      await tx.chapterEdit.updateMany({
+        where: { chapter_id: chapter.id, status: "pending" },
+        data: { status: "stale" },
+      });
+      return tx.chapter.findUniqueOrThrow({ where: { id: chapter.id } });
+    });
+    return {
+      chapterId: result.id,
+      chapterTitle: result.title,
+      status: "written" as const,
+      reason: metadata.reason,
+      baseRevision: chapter.revision,
+      revision: result.revision,
+      baseHash,
+      resultHash,
+      wordCount: result.word_count,
+      wordDelta,
+      operations: metadata.operations.map(({ oldText, newText, ...operation }) => ({
+        ...operation,
+        oldLength: oldText.length,
+        newLength: newText.length,
+      })),
+    };
+  }
+
   private resolveOperation(content: string, operation: EditOperation): ResolvedEdit {
     if (operation.type === "prepend") {
       return { ...operation, start: 0, end: 0, oldText: "", newText: operation.text };
@@ -376,4 +551,12 @@ function findOccurrence(content: string, target: string, occurrence: number) {
 
 function countWords(content: string) {
   return content.replace(/<[^>]*>/gu, "").replace(/\s+/gu, "").length;
+}
+
+function slugTitle(title: string) {
+  return title
+    .trim()
+    .replace(/[\\/:*?"<>|#]+/gu, "-")
+    .replace(/\s+/gu, "-")
+    .slice(0, 80);
 }

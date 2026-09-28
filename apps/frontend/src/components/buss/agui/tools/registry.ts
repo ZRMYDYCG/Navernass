@@ -1,5 +1,15 @@
 import type { ToolCall, Translate } from "./tool-call";
-import { getChapter, getNovelSnapshot, readArticle, searchArticle } from "./article";
+import {
+  editArticle,
+  getChapter,
+  getNovelSnapshot,
+  grepArticle,
+  listArticleFiles,
+  patchArticle,
+  readArticle,
+  searchArticle,
+  writeArticle,
+} from "./article";
 import { askUser } from "./ask-user";
 import type { ResolvedTool, ToolResolver } from "./define";
 import { proposeArticleEdit } from "./edit-proposal";
@@ -14,8 +24,13 @@ const tools: Record<string, ToolResolver> = {
   readSkillResource,
   getNovelSnapshot,
   getChapter,
+  listArticleFiles,
   readArticle,
+  grepArticle,
   searchArticle,
+  editArticle,
+  writeArticle,
+  patchArticle,
   proposeArticleEdit,
   searchMemory,
   saveMemory,
