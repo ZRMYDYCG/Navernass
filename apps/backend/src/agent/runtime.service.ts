@@ -420,6 +420,17 @@ export class RuntimeService {
     const started = Date.now();
     let stepIndex = 0;
     const controller = new AbortController();
+    const idleController = new AbortController();
+    let idleTimer: NodeJS.Timeout | undefined;
+    // 空闲超时：每收到一个流事件就重置计时器，只有持续无输出才中止；长生成不会被总时长误杀。
+    const armIdle = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(
+        () => idleController.abort(new Error("AGENT_IDLE_TIMEOUT")),
+        this.timeoutMs,
+      );
+    };
+    const stopIdle = () => clearTimeout(idleTimer);
     let finishActiveStream: () => void = () => {};
     const done = new Promise<void>((resolve) => {
       finishActiveStream = resolve;
@@ -430,7 +441,7 @@ export class RuntimeService {
       finish: finishActiveStream,
     });
     const options = {
-      abortSignal: this.signal(controller.signal),
+      abortSignal: AbortSignal.any([controller.signal, idleController.signal]),
       onStepFinish: async (
         event: Parameters<
           NonNullable<Parameters<typeof execution.agent.stream>[0]["onStepFinish"]>
@@ -445,7 +456,17 @@ export class RuntimeService {
           ? await execution.agent.stream({ ...options, messages: call.messages })
           : await execution.agent.stream({ ...options, prompt: call.prompt });
       const stream = toUIMessageStream({
-        stream: result.fullStream,
+        stream: result.fullStream.pipeThrough(
+          new TransformStream({
+            start() {
+              armIdle();
+            },
+            transform(part, output) {
+              armIdle();
+              output.enqueue(part);
+            },
+          }),
+        ),
         tools: execution.tools,
         sendReasoning: true,
         sendSources: true,
@@ -523,6 +544,7 @@ export class RuntimeService {
               latencyMs: Date.now() - started,
             });
           } finally {
+            stopIdle();
             this.finishActiveStream(execution.run.id);
           }
         },
@@ -535,8 +557,9 @@ export class RuntimeService {
       };
     } catch (error) {
       const failure = this.errors.toAppError(error);
+      stopIdle();
       try {
-        if (controller.signal.aborted) {
+        if (controller.signal.aborted || idleController.signal.aborted) {
           await this.traces.cancelRun(execution.run.id, Date.now() - started);
         } else {
           await this.traces.failRun(execution.run.id, failure, Date.now() - started);
@@ -688,6 +711,7 @@ export class RuntimeService {
     };
   }
 
+  // 非流式（generate/structured）没有可观察的中间输出，只能用总时长兜底；流式路径见 streamExecution 的空闲超时。
   private signal(signal?: AbortSignal) {
     const timeout = AbortSignal.timeout(this.timeoutMs);
     return signal ? AbortSignal.any([signal, timeout]) : timeout;
