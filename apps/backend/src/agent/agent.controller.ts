@@ -128,7 +128,14 @@ export class AgentController {
         version: "2.0",
         sources: schema.contextSource.options,
         strategies: ["priority", "balanced"],
-        features: ["budget", "deduplication", "role-scope", "trust-level", "editor-selection"],
+        features: [
+          "budget",
+          "compression",
+          "deduplication",
+          "role-scope",
+          "trust-level",
+          "editor-selection",
+        ],
       },
     };
   }

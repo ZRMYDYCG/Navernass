@@ -17,6 +17,7 @@ const context: ContextSnapshot = {
     estimatedTokens: 3,
     includedBlocks: 1,
     droppedBlocks: 0,
+    compressedBlocks: 0,
     truncatedBlocks: 0,
   },
   blocks: [],

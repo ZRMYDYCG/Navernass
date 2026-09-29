@@ -3,6 +3,8 @@ import type { RunAgent } from "./agent.schema.js";
 import type { ContextSnapshot } from "./context.service.js";
 import type { ToolTiming } from "./tool.service.js";
 import { Inject, Injectable } from "@nestjs/common";
+import type { ExecutionTrace } from "./execution-trace.js";
+import { ExecutionTraceRecorder } from "./execution-trace.js";
 import { askUserPrompt, rolePrompts } from "./prompt.js";
 import { ToolService } from "./tool.service.js";
 
@@ -25,6 +27,7 @@ export interface HarnessExecutionPlan {
   instructions: string;
   tools: ToolSet;
   toolTimings: Record<string, ToolTiming>;
+  executionTrace: ExecutionTrace;
   policy: {
     allowedTools: string[];
     writeTools: string[];
@@ -144,6 +147,7 @@ export class HarnessService {
   build(input: HarnessBuildInput): HarnessExecutionPlan {
     const allowedTools = this.allowedTools(input.input.mode, input.interactive);
     const toolTimings: Record<string, ToolTiming> = {};
+    const { trace, recorder } = ExecutionTraceRecorder.create(input.runId);
     const tools = this.tools.build(
       {
         runId: input.runId,
@@ -152,6 +156,7 @@ export class HarnessService {
         model: input.model,
         contextText: input.contextText,
         toolTimings,
+        traceRecorder: recorder,
       },
       input.input.mode,
       { interactive: input.interactive, allowedTools },
@@ -165,6 +170,7 @@ export class HarnessService {
       instructions,
       tools,
       toolTimings,
+      executionTrace: trace,
       policy: {
         allowedTools,
         writeTools: allowedTools.filter((name) => writeTools.includes(name)),

@@ -5,6 +5,14 @@ import { AppError } from "../common/app-error.js";
 import { PrismaService } from "../database/prisma.service.js";
 
 const terminalStates = new Set(["completed", "failed", "cancelled"]);
+const STREAM_DELTA_FLUSH_MS = 80;
+const STREAM_DELTA_MAX_CHARS = 256;
+
+type DeltaChunk = Extract<UIMessageChunk, { type: "text-delta" | "reasoning-delta" }>;
+
+function isDeltaChunk(chunk: UIMessageChunk): chunk is DeltaChunk {
+  return chunk.type === "text-delta" || chunk.type === "reasoning-delta";
+}
 
 /** 持久化并重放官方 UIMessageChunk，使浏览器刷新后可以恢复同一条生成流。 */
 @Injectable()
@@ -22,7 +30,7 @@ export class StreamService {
         "持久化 Agent 流事件失败",
       );
     });
-    return clientStream;
+    return this.coalesceDeltas(clientStream);
   }
 
   async latestSequence(runId: string) {
@@ -97,6 +105,64 @@ export class StreamService {
       if (chunk.type !== "text-delta" && chunk.type !== "reasoning-delta") await flush();
     }
     await flush();
+  }
+
+  private coalesceDeltas(stream: ReadableStream<UIMessageChunk>) {
+    let buffered: UIMessageChunk | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const clearFlushTimer = () => {
+      if (timer === undefined) return;
+      clearTimeout(timer);
+      timer = undefined;
+    };
+
+    const flush = (controller: TransformStreamDefaultController<UIMessageChunk>) => {
+      if (!buffered) return;
+      controller.enqueue(buffered);
+      buffered = undefined;
+      clearFlushTimer();
+    };
+
+    const armFlushTimer = (controller: TransformStreamDefaultController<UIMessageChunk>) => {
+      if (timer !== undefined) return;
+      timer = setTimeout(() => flush(controller), STREAM_DELTA_FLUSH_MS);
+    };
+
+    return stream.pipeThrough(
+      new TransformStream<UIMessageChunk, UIMessageChunk>({
+        transform(chunk, controller) {
+          const current = buffered;
+          if (
+            current !== undefined &&
+            isDeltaChunk(current) &&
+            isDeltaChunk(chunk) &&
+            chunk.type === current.type &&
+            current.id === chunk.id &&
+            !current.providerMetadata &&
+            !chunk.providerMetadata
+          ) {
+            buffered = { ...current, delta: current.delta + chunk.delta };
+            if (buffered.delta.length >= STREAM_DELTA_MAX_CHARS) flush(controller);
+            return;
+          }
+
+          flush(controller);
+          if (isDeltaChunk(chunk)) {
+            buffered = chunk;
+            armFlushTimer(controller);
+            return;
+          }
+          controller.enqueue(chunk);
+        },
+        flush(controller) {
+          flush(controller);
+        },
+        cancel() {
+          clearFlushTimer();
+        },
+      }),
+    );
   }
 
   private async replayLoop(

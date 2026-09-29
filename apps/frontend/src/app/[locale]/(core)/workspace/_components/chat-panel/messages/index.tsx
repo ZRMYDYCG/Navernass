@@ -71,46 +71,50 @@ function MessageBody({
 const MessageView = memo(MessageBody);
 
 export function Messages({ messages, busy, store }: MessagesProps) {
-  const streamingMessage = useSyncExternalStore(
-    store.subscribe,
-    store.getSnapshot,
-    store.getSnapshot,
-  );
-  // Keep the streaming row in the same keyed list when it becomes history.
-  const visibleMessages = busy && streamingMessage ? [...messages, streamingMessage] : messages;
-
   return (
     <MessageScrollerProvider autoScroll defaultScrollPosition="end" scrollPreviousItemPeek={64}>
       <div className="min-h-0 flex-1 px-4 py-6">
         <MessageScroller>
           <MessageScrollerViewport>
             <MessageScrollerContent>
-              {visibleMessages.map((message, index) => {
+              {messages.map((message, index) => {
                 const messageId = resolveAgentMessageId(message, `${message.role}-${index}`);
-                const streaming = busy && message === streamingMessage;
                 return (
                   <MessageScrollerItem
                     key={messageId}
                     messageId={messageId}
                     scrollAnchor={message.role === "user"}
                   >
-                    {streaming && message.parts.length === 0 ? (
-                      <Message>
-                        <MessageContent>
-                          <AgentConnecting />
-                        </MessageContent>
-                      </Message>
-                    ) : (
-                      <MessageView message={message} streaming={streaming} />
-                    )}
+                    <MessageView message={message} />
                   </MessageScrollerItem>
                 );
               })}
+              {busy ? <StreamingMessageItem key="assistant-streaming" store={store} /> : null}
             </MessageScrollerContent>
           </MessageScrollerViewport>
           <MessageScrollerButton />
         </MessageScroller>
       </div>
     </MessageScrollerProvider>
+  );
+}
+
+function StreamingMessageItem({ store }: { store: StreamStore }) {
+  const message = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  if (!message) return null;
+
+  const messageId = resolveAgentMessageId(message, "assistant-streaming");
+  return (
+    <MessageScrollerItem messageId={messageId} scrollAnchor={false}>
+      {message.parts.length === 0 ? (
+        <Message>
+          <MessageContent>
+            <AgentConnecting />
+          </MessageContent>
+        </Message>
+      ) : (
+        <MessageView message={message} streaming />
+      )}
+    </MessageScrollerItem>
   );
 }

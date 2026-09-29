@@ -25,6 +25,7 @@ import { SkillResolver } from "../skill/skill.resolver.js";
 import { askUserInput, askUserOutput } from "./agent.schema.js";
 import { MemoryService } from "./memory.service.js";
 import { AgentErrorService } from "./error.service.js";
+import type { ExecutionTraceRecorder } from "./execution-trace.js";
 import { RetryService, type RetryEvent } from "./retry.service.js";
 import { TraceService } from "./trace.service.js";
 
@@ -35,6 +36,7 @@ interface ToolContext {
   model: LanguageModel;
   contextText: string;
   toolTimings?: Record<string, ToolTiming>;
+  traceRecorder?: ExecutionTraceRecorder;
 }
 
 export interface ToolTiming {
@@ -83,6 +85,7 @@ export class ToolService {
       const started = Date.now();
       const timing: ToolTiming = { startedAt: started };
       if (context.toolTimings) context.toolTimings[toolCallId] = timing;
+      context.traceRecorder?.startTool({ id: toolCallId, name, input, startedAt: started });
       const retryLog: RetryEvent[] = [];
       try {
         const output = await this.retries.execute(execute, {
@@ -92,7 +95,9 @@ export class ToolService {
             retryLog.push(event);
           },
         });
-        timing.durationMs = Date.now() - started;
+        const ended = Date.now();
+        timing.durationMs = ended - started;
+        context.traceRecorder?.completeTool({ id: toolCallId, output, endedAt: ended });
         await this.traces.saveTool(context.runId, {
           id: toolCallId,
           name,
@@ -105,7 +110,14 @@ export class ToolService {
         });
         return output;
       } catch (error) {
-        timing.durationMs = Date.now() - started;
+        const ended = Date.now();
+        timing.durationMs = ended - started;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        context.traceRecorder?.failTool({
+          id: toolCallId,
+          error: errorMessage,
+          endedAt: ended,
+        });
         await this.traces.saveTool(context.runId, {
           id: toolCallId,
           name,
@@ -114,7 +126,7 @@ export class ToolService {
           durationMs: timing.durationMs,
           retryCount: retryLog.length,
           retryLog,
-          error: error instanceof Error ? error.message : String(error),
+          error: errorMessage,
         });
         throw this.errors.toAppError(error, retryLog.length);
       }

@@ -41,6 +41,32 @@ describe("可恢复流", () => {
     });
   });
 
+  it("实时客户端流也合并相邻 text-delta", async () => {
+    const prisma = {
+      agentStreamEvent: {
+        aggregate: vi.fn().mockResolvedValue({ _max: { sequence: null } }),
+        create: vi.fn().mockResolvedValue({}),
+      },
+    } as unknown as PrismaService;
+    const service = new StreamService(prisma);
+    const source = new ReadableStream<UIMessageChunk>({
+      start(controller) {
+        controller.enqueue(chunk("你"));
+        controller.enqueue(chunk("好"));
+        controller.enqueue({ type: "finish" });
+        controller.close();
+      },
+    });
+
+    const received: UIMessageChunk[] = [];
+    for await (const part of service.attach(runId, source)) received.push(part);
+
+    expect(received).toEqual([
+      { type: "text-delta", id: "msg-1", delta: "你好" },
+      { type: "finish" },
+    ]);
+  });
+
   it("按 after 游标重放已持久化事件并在终态关闭", async () => {
     const prisma = {
       agentRun: {

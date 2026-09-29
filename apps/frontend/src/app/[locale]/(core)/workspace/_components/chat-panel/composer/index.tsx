@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import { PromptInput } from "@/components/buss/prompt-input";
 import type { PromptInputHandle } from "@/components/buss/prompt-input";
 import { InputGroupButton } from "@/components/ui/input-group";
+import { cn } from "cn";
 
 interface ComposerProps {
   busy: boolean;
@@ -15,9 +16,18 @@ interface ComposerProps {
   canSend: boolean;
   onSubmit: (prompt: string) => void;
   onPause: () => void;
+  className?: string;
 }
 
-export function Composer({ busy, pausing, canPause, canSend, onSubmit, onPause }: ComposerProps) {
+export function Composer({
+  busy,
+  pausing,
+  canPause,
+  canSend,
+  onSubmit,
+  onPause,
+  className,
+}: ComposerProps) {
   const t = useTranslations("chat");
   const [draft, setDraft] = useState("");
   const inputRef = useRef<PromptInputHandle>(null);
@@ -30,7 +40,7 @@ export function Composer({ busy, pausing, canPause, canSend, onSubmit, onPause }
   };
 
   return (
-    <div className="px-4 pt-2 pb-6">
+    <div className={cn("px-4 pt-2 pb-6", className)}>
       <PromptInput
         ref={inputRef}
         placeholder={t("composer.placeholder")}

@@ -120,53 +120,57 @@ export function SessionSwitcher({
         >
           <HistoryIcon />
         </PopoverTrigger>
-        <PopoverContent align="end" className="max-h-100 w-80 gap-0 rounded-xl p-1">
-          <input
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            placeholder={t("search")}
-            autoComplete="off"
-            className="w-full shrink-0 bg-transparent px-2 py-1.5 text-sm outline-none placeholder:text-muted-foreground/70"
-          />
-          {/* 弹层只有 max-height，视口的 height:100% 无法解析；让 Root 也成为 flex 列，视口作为 flex 子项被压缩后才能滚动。 */}
-          <ScrollArea className="flex min-h-0 flex-1 flex-col">
-            <div>
-              {groups.map((group, index) => (
-                <div
-                  key={group.key}
-                  role="group"
-                  aria-label={t(group.key)}
-                  className={index > 0 ? "mt-1 border-t pt-1" : undefined}
-                >
-                  <p className="px-2 pt-1 pb-1 text-xs text-muted-foreground">{t(group.key)}</p>
-                  {group.sessions.map((session) => (
-                    <SessionRow
-                      key={session.id}
-                      session={session}
-                      active={session.id === activeSessionId}
-                      labels={{
-                        untitled: t("untitled"),
-                        delete: t("delete"),
-                      }}
-                      onSelect={() => {
-                        onSelect(session.id);
-                        closeHistory();
-                      }}
-                      onDelete={() => onDelete(session.id)}
-                    />
-                  ))}
-                </div>
-              ))}
-              {!loading && sessions.length === 0 ? (
-                <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
-              ) : null}
-              {!loading && sessions.length > 0 && groups.length === 0 ? (
-                <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                  {t("noMatch")}
-                </p>
-              ) : null}
-            </div>
-          </ScrollArea>
+        <PopoverContent align="end" className="w-80">
+          <div className="flex max-h-100 flex-col p-1">
+            <input
+              value={keyword}
+              onChange={(event) => setKeyword(event.target.value)}
+              placeholder={t("search")}
+              autoComplete="off"
+              className="w-full shrink-0 bg-transparent px-2 py-1.5 text-sm outline-none placeholder:text-muted-foreground/70"
+            />
+            {/* 弹层只有 max-height，视口的 height:100% 无法解析；让 Root 也成为 flex 列，视口作为 flex 子项被压缩后才能滚动。 */}
+            <ScrollArea className="flex min-h-0 flex-1 flex-col">
+              <div>
+                {groups.map((group, index) => (
+                  <div
+                    key={group.key}
+                    role="group"
+                    aria-label={t(group.key)}
+                    className={index > 0 ? "mt-1 border-t pt-1" : undefined}
+                  >
+                    <p className="px-2 pt-1 pb-1 text-xs text-muted-foreground">{t(group.key)}</p>
+                    {group.sessions.map((session) => (
+                      <SessionRow
+                        key={session.id}
+                        session={session}
+                        active={session.id === activeSessionId}
+                        labels={{
+                          untitled: t("untitled"),
+                          delete: t("delete"),
+                        }}
+                        onSelect={() => {
+                          onSelect(session.id);
+                          closeHistory();
+                        }}
+                        onDelete={() => onDelete(session.id)}
+                      />
+                    ))}
+                  </div>
+                ))}
+                {!loading && sessions.length === 0 ? (
+                  <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+                    {t("empty")}
+                  </p>
+                ) : null}
+                {!loading && sessions.length > 0 && groups.length === 0 ? (
+                  <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+                    {t("noMatch")}
+                  </p>
+                ) : null}
+              </div>
+            </ScrollArea>
+          </div>
         </PopoverContent>
       </Popover>
     </header>
@@ -205,7 +209,6 @@ function SessionRow({ session, active, labels, onSelect, onDelete }: SessionRowP
           type="button"
           size="icon-xs"
           variant="ghost"
-          className="text-muted-foreground hover:bg-transparent hover:text-foreground"
           aria-label={labels.delete}
           onClick={onDelete}
         >

@@ -63,6 +63,42 @@ export const chatSessionListSchema = z.array(chatSessionSchema);
 
 export const pauseRunResultSchema = z.object({ paused: z.literal(true) });
 
+const traceNodeSchema = z.object({
+  id: z.string(),
+  parentId: z.string().optional(),
+  kind: z.enum(["run", "tool", "subagent"]),
+  name: z.string(),
+  status: z.enum(["pending", "running", "completed", "failed"]),
+  startedAt: z.number().optional(),
+  endedAt: z.number().optional(),
+  inputAvailableAt: z.number().optional(),
+  outputAvailableAt: z.number().optional(),
+  outputFinalizedAt: z.number().optional(),
+  input: z.unknown().optional(),
+  output: z.unknown().optional(),
+  error: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const traceEventSchema = z.object({
+  id: z.string(),
+  nodeId: z.string(),
+  parentId: z.string().optional(),
+  type: z.string(),
+  timestamp: z.number(),
+  sequence: z.number().int().positive(),
+  input: z.unknown().optional(),
+  output: z.unknown().optional(),
+  error: z.string().optional(),
+});
+
+const executionTraceSchema = z.object({
+  runId: z.string(),
+  rootId: z.string(),
+  nodes: z.record(z.string(), traceNodeSchema),
+  events: z.array(traceEventSchema),
+});
+
 export const sessionMessagePageSchema = z.object({
   items: z.array(
     z.object({
@@ -80,6 +116,7 @@ export const sessionMessagePageSchema = z.object({
               z.object({ startedAt: z.number(), durationMs: z.number().nonnegative().optional() }),
             )
             .optional(),
+          executionTrace: executionTraceSchema.optional(),
         })
         .passthrough()
         .optional(),

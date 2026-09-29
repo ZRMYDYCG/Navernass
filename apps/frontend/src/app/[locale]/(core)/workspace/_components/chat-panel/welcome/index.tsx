@@ -1,136 +1,55 @@
 "use client";
 
-import {
-  BookOpenIcon,
-  ChevronRightIcon,
-  GitBranchIcon,
-  PencilIcon,
-  SparklesIcon,
-  UserRoundIcon,
-} from "lucide-react";
+import { BookOpenIcon, GitBranchIcon, PencilIcon, SparklesIcon, UserRoundIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { ComponentType } from "react";
-
-import { cn } from "cn";
+import type { ComponentType, ReactNode } from "react";
 
 interface WelcomeProps {
+  /** 渲染在标题与快捷操作之间的输入区。 */
+  children?: ReactNode;
   onSelectPrompt: (prompt: string) => void;
   disabled?: boolean;
 }
 
 type ActionId = "continue" | "plot" | "character" | "polish" | "lore";
 
-const ACTIONS: { id: ActionId; icon: ComponentType<{ className?: string }>; featured?: boolean }[] =
-  [
-    { id: "continue", icon: PencilIcon, featured: true },
-    { id: "plot", icon: GitBranchIcon },
-    { id: "character", icon: UserRoundIcon },
-    { id: "polish", icon: SparklesIcon },
-    { id: "lore", icon: BookOpenIcon },
-  ];
+const ACTIONS: { id: ActionId; icon: ComponentType<{ className?: string }> }[] = [
+  { id: "continue", icon: PencilIcon },
+  { id: "plot", icon: GitBranchIcon },
+  { id: "character", icon: UserRoundIcon },
+  { id: "polish", icon: SparklesIcon },
+  { id: "lore", icon: BookOpenIcon },
+];
 
-export function Welcome({ onSelectPrompt, disabled }: WelcomeProps) {
+export function Welcome({ children, onSelectPrompt, disabled }: WelcomeProps) {
   const t = useTranslations("chat.welcome");
-  const featured = ACTIONS.find((action) => action.featured);
-  const grid = ACTIONS.filter((action) => !action.featured);
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-6">
-      <div className="flex flex-col gap-2 text-center">
-        <h2 className="text-xl font-semibold tracking-tight text-balance">{t("heading")}</h2>
+    <div className="flex w-full flex-col items-center gap-8">
+      <div className="flex flex-col gap-2.5 text-center">
+        <h2 className="text-2xl font-semibold tracking-tight text-balance">{t("heading")}</h2>
         <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
           {t("description")}
         </p>
       </div>
 
-      <div className="flex flex-col gap-2.5">
-        {featured ? (
-          <ActionCard
-            title={t(`actions.${featured.id}.title`)}
-            description={t(`actions.${featured.id}.description`)}
-            icon={featured.icon}
-            iconClassName="bg-accent text-accent-foreground"
-            featured
-            disabled={disabled}
-            onClick={() => onSelectPrompt(t(`actions.${featured.id}.prompt`))}
-          />
-        ) : null}
+      <div className="w-full">{children}</div>
 
-        <div className="grid grid-cols-2 gap-2.5">
-          {grid.map((action) => (
-            <ActionCard
-              key={action.id}
-              title={t(`actions.${action.id}.title`)}
-              description={t(`actions.${action.id}.description`)}
-              icon={action.icon}
-              iconClassName={
-                action.id === "plot"
-                  ? "bg-primary/10 text-primary"
-                  : action.id === "character"
-                    ? "bg-accent text-accent-foreground"
-                    : action.id === "polish"
-                      ? "bg-secondary/60 text-secondary-foreground"
-                      : "bg-muted text-muted-foreground"
-              }
-              disabled={disabled}
-              onClick={() => onSelectPrompt(t(`actions.${action.id}.prompt`))}
-            />
-          ))}
-        </div>
+      <div className="flex flex-wrap justify-center gap-2">
+        {ACTIONS.map((action) => (
+          <button
+            key={action.id}
+            type="button"
+            title={t(`actions.${action.id}.description`)}
+            disabled={disabled}
+            onClick={() => onSelectPrompt(t(`actions.${action.id}.prompt`))}
+            className="inline-flex items-center gap-1.5 rounded-full border border-input px-3 py-1.5 text-xs text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+          >
+            <action.icon className="size-3.5" />
+            {t(`actions.${action.id}.title`)}
+          </button>
+        ))}
       </div>
     </div>
-  );
-}
-
-function ActionCard({
-  title,
-  description,
-  icon: Icon,
-  iconClassName,
-  featured,
-  disabled,
-  onClick,
-}: {
-  title: string;
-  description: string;
-  icon: ComponentType<{ className?: string }>;
-  iconClassName: string;
-  featured?: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className={cn(
-        "w-full rounded-xl text-left transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
-        featured
-          ? "flex items-center gap-3 bg-accent px-3.5 py-3.5 hover:bg-accent/80"
-          : "relative flex flex-col gap-2.5 bg-card p-3 pr-8 ring-1 ring-foreground/10 hover:bg-muted/60",
-      )}
-    >
-      <span
-        className={cn(
-          "inline-flex size-9 shrink-0 items-center justify-center rounded-full",
-          iconClassName,
-        )}
-      >
-        <Icon className="size-4" />
-      </span>
-      <span className={cn(featured && "min-w-0 flex-1")}>
-        <span className="block text-sm font-medium text-foreground">{title}</span>
-        <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">
-          {description}
-        </span>
-      </span>
-      <ChevronRightIcon
-        className={cn(
-          "size-4 shrink-0 text-muted-foreground",
-          !featured && "absolute right-3 bottom-3 size-3.5",
-        )}
-      />
-    </button>
   );
 }

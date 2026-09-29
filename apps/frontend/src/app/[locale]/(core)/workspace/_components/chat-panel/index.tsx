@@ -341,8 +341,18 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
         </div>
       ) : showWelcome ? (
         <div className="flex min-h-0 flex-1 overflow-y-auto">
-          <div className="m-auto w-full px-4 py-6">
-            <Welcome disabled={!canSend} onSelectPrompt={sendPrompt} />
+          <div className="m-auto flex w-full max-w-md flex-col px-4 py-6">
+            <Welcome disabled={!canSend} onSelectPrompt={sendPrompt}>
+              <Composer
+                className="p-0"
+                busy={busy}
+                pausing={state.phase === "pausing"}
+                canPause={Boolean(state.runId)}
+                canSend={canSend}
+                onSubmit={sendPrompt}
+                onPause={() => void pauseConversation()}
+              />
+            </Welcome>
           </div>
         </div>
       ) : (
@@ -369,14 +379,16 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
         </div>
       ) : null}
 
-      <Composer
-        busy={busy}
-        pausing={state.phase === "pausing"}
-        canPause={Boolean(state.runId)}
-        canSend={canSend}
-        onSubmit={sendPrompt}
-        onPause={() => void pauseConversation()}
-      />
+      {showWelcome ? null : (
+        <Composer
+          busy={busy}
+          pausing={state.phase === "pausing"}
+          canPause={Boolean(state.runId)}
+          canSend={canSend}
+          onSubmit={sendPrompt}
+          onPause={() => void pauseConversation()}
+        />
+      )}
     </section>
   );
 }

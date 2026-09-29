@@ -153,7 +153,12 @@ export class RuntimeService {
         ...execution.messageContext,
         content: result.text,
         parts: [{ type: "text", text: result.text }],
-        metadata: { finishReason: result.finishReason, usage: result.totalUsage },
+        metadata: {
+          finishReason: result.finishReason,
+          usage: result.totalUsage,
+          toolTimings: execution.toolTimings,
+          executionTrace: execution.executionTrace,
+        },
       });
       await this.traces.finishRun(execution.run.id, {
         output: result.text,
@@ -387,6 +392,8 @@ export class RuntimeService {
           outputType: input.outputType,
           finishReason: result.finishReason,
           usage: result.totalUsage,
+          toolTimings: execution.toolTimings,
+          executionTrace: execution.executionTrace,
         },
       });
       await this.traces.finishRun(execution.run.id, {
@@ -484,6 +491,7 @@ export class RuntimeService {
                 contextBudget: execution.context.budget,
                 contextWarnings: execution.context.warnings,
                 toolTimings: structuredClone(execution.toolTimings),
+                executionTrace: structuredClone(execution.executionTrace),
               }
             : undefined,
         onError: (error) => {
@@ -508,6 +516,7 @@ export class RuntimeService {
                     finishReason: "cancelled",
                     aiSdkMessageId: responseMessage.id,
                     toolTimings: execution.toolTimings,
+                    executionTrace: execution.executionTrace,
                   },
                 });
               }
@@ -533,6 +542,7 @@ export class RuntimeService {
                 usage,
                 aiSdkMessageId: responseMessage.id,
                 toolTimings: execution.toolTimings,
+                executionTrace: execution.executionTrace,
               },
             });
             await this.traces.finishRun(execution.run.id, {
@@ -693,6 +703,7 @@ export class RuntimeService {
     return {
       agent,
       toolTimings: harness.toolTimings,
+      executionTrace: harness.executionTrace,
       tools: harness.tools,
       run,
       session,

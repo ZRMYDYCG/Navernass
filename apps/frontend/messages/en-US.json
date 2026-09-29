@@ -40,6 +40,10 @@
       "pausing": "Pausing",
       "paused": "Paused"
     },
+    "message": {
+      "paused": "Paused",
+      "interrupted": "Interrupted"
+    },
     "sessions": {
       "history": "Conversation history",
       "new": "New conversation",

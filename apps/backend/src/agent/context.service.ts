@@ -41,6 +41,7 @@ export interface ContextSnapshot {
     estimatedTokens: number;
     includedBlocks: number;
     droppedBlocks: number;
+    compressedBlocks: number;
     truncatedBlocks: number;
   };
   blocks: ContextBlockSnapshot[];
@@ -335,6 +336,7 @@ export class ContextService {
     const maxChars = Math.min(options.maxChars, this.serverMaxChars);
     const included: ContextBlockSnapshot[] = [];
     let usedChars = 0;
+    let compressedBlocks = 0;
     let truncatedBlocks = 0;
     let droppedBlocks = candidates.length - deduplicated.length;
 
@@ -345,12 +347,14 @@ export class ContextService {
         continue;
       }
       const allowed = Math.min(options.maxBlockChars, remaining);
-      const content = this.truncate(block.content, allowed);
+      const compressed = this.compressBlock(block, allowed);
+      if (compressed.compressed) compressedBlocks++;
+      const content = this.truncate(compressed.content, allowed);
       if (!content) {
         droppedBlocks++;
         continue;
       }
-      const truncated = content.length < block.content.length;
+      const truncated = content.length < compressed.content.length;
       if (truncated) truncatedBlocks++;
       usedChars += content.length;
       included.push({
@@ -360,7 +364,9 @@ export class ContextService {
         content,
         priority: block.priority,
         trust: block.trust,
-        metadata: block.metadata,
+        metadata: compressed.compressed
+          ? { ...block.metadata, compressed: true, originalChars: block.content.length }
+          : block.metadata,
         chars: content.length,
         estimatedTokens: this.estimateTokens(content),
         truncated,
@@ -368,6 +374,7 @@ export class ContextService {
       });
     }
     if (droppedBlocks) warnings.push(`${droppedBlocks} 个上下文块因去重、作用域或预算限制未注入。`);
+    if (compressedBlocks) warnings.push(`${compressedBlocks} 个上下文块已压缩为摘要。`);
     if (truncatedBlocks) warnings.push(`${truncatedBlocks} 个上下文块已按字符预算截断。`);
     if (options.maxChars > this.serverMaxChars)
       warnings.push(`请求预算已被服务端上限 ${this.serverMaxChars} 字符约束。`);
@@ -384,6 +391,7 @@ export class ContextService {
         estimatedTokens: included.reduce((sum, block) => sum + block.estimatedTokens, 0),
         includedBlocks: included.length,
         droppedBlocks,
+        compressedBlocks,
         truncatedBlocks,
       },
       blocks: included,
@@ -432,6 +440,78 @@ export class ContextService {
     return JSON.stringify(value, null, 2) ?? "";
   }
 
+  private compressBlock(block: PendingBlock, maxChars: number) {
+    if (block.content.length <= maxChars) return { content: block.content, compressed: false };
+    if (maxChars < 800) return { content: block.content, compressed: false };
+
+    const structured = this.compressStructuredContent(block.content, maxChars);
+    if (structured && structured.length < block.content.length) {
+      return { content: structured, compressed: true };
+    }
+
+    return { content: this.compressText(block.content, maxChars), compressed: true };
+  }
+
+  private compressStructuredContent(content: string, maxChars: number) {
+    const parsed = this.safeJsonParse(content);
+    if (!parsed) return undefined;
+
+    if (Array.isArray(parsed)) {
+      const lines = parsed.map((item, index) => this.summarizeJsonItem(item, index));
+      return this.truncateLines(lines, maxChars, "结构化列表已压缩");
+    }
+
+    if (typeof parsed === "object") {
+      const lines = Object.entries(parsed as Record<string, unknown>)
+        .filter(([, value]) => value !== null && value !== undefined && value !== "")
+        .map(([key, value]) => `${key}: ${this.shortValue(value, 220)}`);
+      return this.truncateLines(lines, maxChars, "结构化对象已压缩");
+    }
+
+    return undefined;
+  }
+
+  private summarizeJsonItem(item: unknown, index: number) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      return `${index + 1}. ${this.shortValue(item, 260)}`;
+    }
+    const record = item as Record<string, unknown>;
+    const title = this.firstString(record, ["title", "name", "label", "id"]) ?? `条目 ${index + 1}`;
+    const details = [
+      this.firstString(record, ["summary", "description", "content", "note"]),
+      this.firstString(record, ["role", "category", "event_type", "occurred_at_label"]),
+      Array.isArray(record.keywords) ? `关键词：${record.keywords.join("、")}` : undefined,
+    ].filter(Boolean);
+    return `- ${title}${details.length ? `：${details.map((item) => this.shortValue(item, 180)).join("；")}` : ""}`;
+  }
+
+  private compressText(content: string, maxChars: number) {
+    const marker = `\n…[中间 ${content.length - maxChars} 字已压缩省略]…\n`;
+    const available = maxChars - marker.length;
+    if (available <= 0) return content;
+    const headLength = Math.ceil(available * 0.6);
+    const tailLength = Math.max(0, available - headLength);
+    return `${content.slice(0, headLength)}${marker}${content.slice(content.length - tailLength)}`;
+  }
+
+  private truncateLines(lines: string[], maxChars: number, label: string) {
+    const header = `[${label}，保留 ${lines.length} 条候选中的高密度摘要]\n`;
+    const output: string[] = [header.trimEnd()];
+    let used = header.length;
+    let omitted = 0;
+    for (const line of lines) {
+      const next = `${line}\n`;
+      if (used + next.length > maxChars) {
+        omitted++;
+        continue;
+      }
+      output.push(line);
+      used += next.length;
+    }
+    if (omitted > 0 && used + 30 < maxChars) output.push(`…另有 ${omitted} 条未展开`);
+    return output.join("\n");
+  }
+
   private truncate(value: string, maxChars: number) {
     if (value.length <= maxChars) return value;
     const suffix = "\n…[上下文已截断]";
@@ -451,6 +531,31 @@ export class ContextService {
 
   private safeText(value: string) {
     return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+  }
+
+  private safeJsonParse(value: string) {
+    try {
+      return JSON.parse(value) as unknown;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private firstString(record: Record<string, unknown>, keys: string[]) {
+    for (const key of keys) {
+      const value = record[key];
+      if (typeof value === "string" && value.trim()) return value.trim();
+      if (typeof value === "number") return String(value);
+    }
+    return undefined;
+  }
+
+  private shortValue(value: unknown, maxChars: number) {
+    const text =
+      typeof value === "string"
+        ? value.replace(/\s+/gu, " ").trim()
+        : (JSON.stringify(value)?.replace(/\s+/gu, " ").trim() ?? "");
+    return text.length <= maxChars ? text : `${text.slice(0, maxChars - 1)}…`;
   }
 
   private json(value: string | number) {
