@@ -13,7 +13,7 @@ import { findPendingQuestion, hasRenderablePart } from "@/lib/agent/message-util
 import { StreamStore } from "@/lib/agent/stream-store";
 import {
   answerAgentStream,
-  pauseAgentRun,
+  pauseAgentRunIfActive,
   resumeAgentStream,
   startAgentStream,
 } from "@/lib/api/agent.api";
@@ -313,7 +313,7 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
     pauseRequestedViewsRef.current.add(viewKey);
     dispatch({ type: "PAUSE", runId, viewKey });
     try {
-      await pauseAgentRun(runId);
+      await pauseAgentRunIfActive(runId);
       abortRef.current?.abort();
     } catch (error) {
       pauseRequestedViewsRef.current.delete(viewKey);

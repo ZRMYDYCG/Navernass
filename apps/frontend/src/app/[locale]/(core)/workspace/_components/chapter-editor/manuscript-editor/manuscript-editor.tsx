@@ -42,15 +42,17 @@ export const ManuscriptEditor = memo(function ManuscriptEditor({
   return (
     <LexicalExtensionComposer extension={extension} contentEditable={null}>
       <div className="relative">
-        <ContentEditable
-          aria-placeholder={placeholder}
-          placeholder={
-            <div className="pointer-events-none absolute inset-x-0 top-0 font-serif text-lg/loose text-muted-foreground select-none">
-              {placeholder}
-            </div>
-          }
-          className="min-h-96 font-serif text-lg/loose text-foreground caret-ring outline-none *:mb-3"
-        />
+        <div>
+          <ContentEditable
+            aria-placeholder={placeholder}
+            placeholder={
+              <div className="pointer-events-none absolute inset-x-0 top-0 font-serif text-lg/loose text-muted-foreground select-none">
+                {placeholder}
+              </div>
+            }
+            className="min-h-96 font-serif text-lg/loose text-foreground caret-ring outline-none *:mb-3"
+          />
+        </div>
       </div>
       {onTextChange ? <TextChangePlugin onTextChange={onTextChange} /> : null}
       {children}

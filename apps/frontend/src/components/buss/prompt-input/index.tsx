@@ -104,12 +104,14 @@ function PromptInputEditor({
     <>
       <PlainTextPlugin
         contentEditable={
-          <ContentEditable
-            data-slot="prompt-input-control"
-            aria-label={ariaLabel}
-            aria-disabled={disabled || undefined}
-            className="max-h-48 min-h-20 flex-1 overflow-y-auto px-2.5 py-2 text-sm whitespace-pre-wrap outline-none"
-          />
+          <div className="min-w-0 flex-1">
+            <ContentEditable
+              data-slot="prompt-input-control"
+              aria-label={ariaLabel}
+              aria-disabled={disabled || undefined}
+              className="max-h-48 min-h-20 overflow-y-auto px-2.5 py-2 text-sm whitespace-pre-wrap outline-none"
+            />
+          </div>
         }
         placeholder={
           placeholder ? (

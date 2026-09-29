@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import type { AgentContext, AgentMessage } from "@/lib/agent/chat-types";
 import { apiBaseUrl } from "@/lib/http/client";
+import { ApiError } from "@/lib/http/error";
 import { apiRequest } from "@/lib/http/request";
 import {
   chatSessionListSchema,
@@ -82,6 +83,16 @@ export async function resumeAgentStream(
 
 export function pauseAgentRun(runId: string) {
   return apiRequest(`agent/runs/${runId}/pause`, pauseRunResultSchema, { method: "post" });
+}
+
+export async function pauseAgentRunIfActive(runId: string) {
+  try {
+    await pauseAgentRun(runId);
+    return { paused: true as const };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 409) return { paused: false as const };
+    throw error;
+  }
 }
 
 export async function getChatSessions(novelId: string) {
