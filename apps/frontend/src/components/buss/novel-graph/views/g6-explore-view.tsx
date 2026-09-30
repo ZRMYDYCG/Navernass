@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { useTranslations } from "next-intl";
 
-import { characterDisplayFaction, characterDisplayRole } from "../character-fields";
+import { characterDisplayFaction, characterFactionColor } from "../character-fields";
+import { relationshipColors } from "../relationship-colors";
 import { useCharacters, useRelationships } from "../api";
-import { relationshipKindLabel, useNovelGraphStore } from "../graph-store";
+import { useNovelGraphStore } from "../graph-store";
 
 type G6Graph = {
   render: () => Promise<void> | void;
@@ -19,18 +21,8 @@ type G6Graph = {
   ) => void;
 };
 
-const relationColorByKind: Record<string, string> = {
-  ally: "#22c55e",
-  family: "#f59e0b",
-  romance: "#ec4899",
-  rival: "#a78bfa",
-  enemy: "#ef4444",
-  mentor: "#38bdf8",
-  secret: "#facc15",
-  custom: "#94a3b8",
-};
-
 export function G6ExploreView({ novelId }: { novelId?: string }) {
+  const t = useTranslations("novelGraph");
   const containerRef = useRef<HTMLDivElement>(null);
   const { data: characters } = useCharacters(novelId);
   const { data: relationships } = useRelationships(novelId);
@@ -47,7 +39,6 @@ export function G6ExploreView({ novelId }: { novelId?: string }) {
 
     return {
       nodes: characters.map((character, index) => {
-        const faction = characterDisplayFaction(character);
         const degree = degreeMap.get(character.id) ?? 0;
         const ring = 190 + (index % 4) * 78;
         const angle = (index / Math.max(characters.length, 1)) * Math.PI * 2;
@@ -59,14 +50,9 @@ export function G6ExploreView({ novelId }: { novelId?: string }) {
           },
           data: {
             label: character.name,
-            role: characterDisplayRole(character),
-            faction,
+            faction: characterDisplayFaction(character),
             degree,
-            color: faction.includes("夜幕")
-              ? "#67e8f9"
-              : faction.includes("北境")
-                ? "#a78bfa"
-                : "#fbbf24",
+            color: characterFactionColor(character),
           },
         };
       }),
@@ -75,15 +61,15 @@ export function G6ExploreView({ novelId }: { novelId?: string }) {
         source: relationship.sourceId,
         target: relationship.targetId,
         data: {
-          label: relationship.label || relationshipKindLabel[relationship.kind],
+          label: relationship.label || t(`kinds.${relationship.kind}`),
           kind: relationship.kind,
-          color: relationColorByKind[relationship.kind],
+          color: relationshipColors[relationship.kind],
           strength: relationship.strength,
           secret: relationship.isSecret,
         },
       })),
     };
-  }, [characters, relationships]);
+  }, [characters, relationships, t]);
 
   useEffect(() => {
     let graph: G6Graph | undefined;
@@ -129,7 +115,7 @@ export function G6ExploreView({ novelId }: { novelId?: string }) {
             haloLineWidth: 12,
             icon: true,
             iconText: (datum: { data?: { label?: string } }) =>
-              datum.data?.label?.slice(0, 1) ?? "角",
+              datum.data?.label?.slice(0, 1) ?? "",
             iconFill: "#0b0712",
             iconFontSize: 14,
             iconFontWeight: 800,
@@ -203,9 +189,9 @@ export function G6ExploreView({ novelId }: { novelId?: string }) {
     <div className="relative h-full min-h-0 overflow-hidden bg-background">
       <div ref={containerRef} className="h-full w-full" />
       <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-3 rounded-full border border-border/70 bg-background/80 px-4 py-2 text-xs text-muted-foreground shadow-lg backdrop-blur-xl">
-        <span>关系密度</span>
+        <span>{t("explore.legendDensity")}</span>
         <span className="h-1.5 w-14 rounded-full bg-primary/70" />
-        <span>数字代表连接数</span>
+        <span>{t("explore.legendHint")}</span>
       </div>
     </div>
   );

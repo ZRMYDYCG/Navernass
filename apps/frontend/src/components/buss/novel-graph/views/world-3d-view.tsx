@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { useTranslations } from "next-intl";
 
-import { characterDisplayFaction, characterDisplayRole } from "../character-fields";
+import { characterFactionColor } from "../character-fields";
+import { relationshipColors } from "../relationship-colors";
 import { useCharacters, useRelationships } from "../api";
-import { relationshipKindLabel, useNovelGraphStore } from "../graph-store";
+import { useNovelGraphStore } from "../graph-store";
 
 type ForceGraphInstance = {
   graphData: (data: unknown) => ForceGraphInstance;
@@ -43,17 +45,6 @@ type ForceGraphInstance = {
   _destructor?: () => void;
 };
 
-const linkColorByKind: Record<string, string> = {
-  ally: "#22c55e",
-  family: "#f59e0b",
-  romance: "#ec4899",
-  rival: "#a78bfa",
-  enemy: "#ef4444",
-  mentor: "#38bdf8",
-  secret: "#facc15",
-  custom: "#94a3b8",
-};
-
 type ThreeModule = typeof import("three");
 
 function createTextSprite(THREE: ThreeModule, label: string, color: string) {
@@ -84,7 +75,7 @@ function createTextSprite(THREE: ThreeModule, label: string, color: string) {
   return sprite;
 }
 
-function createNodeObject(THREE: ThreeModule, node: Record<string, unknown>) {
+function createNodeObject(THREE: ThreeModule, node: Record<string, unknown>, fallback: string) {
   const color = String(node.color ?? "#67e8f9");
   const group = new THREE.Group();
 
@@ -123,11 +114,12 @@ function createNodeObject(THREE: ThreeModule, node: Record<string, unknown>) {
   ring.rotation.x = Math.PI / 2.4;
   group.add(ring);
 
-  group.add(createTextSprite(THREE, String(node.name ?? "未命名"), color));
+  group.add(createTextSprite(THREE, String(node.name ?? fallback), color));
   return group;
 }
 
 export function World3DView({ novelId }: { novelId?: string }) {
+  const t = useTranslations("novelGraph");
   const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<ForceGraphInstance | null>(null);
   const { data: characters } = useCharacters(novelId);
@@ -138,31 +130,23 @@ export function World3DView({ novelId }: { novelId?: string }) {
 
   const graphData = useMemo(
     () => ({
-      nodes: characters.map((character) => {
-        const faction = characterDisplayFaction(character);
-        return {
-          id: character.id,
-          name: character.name,
-          role: characterDisplayRole(character),
-          color: faction.includes("夜幕")
-            ? "#67e8f9"
-            : faction.includes("北境")
-              ? "#a78bfa"
-              : "#fbbf24",
-        };
-      }),
+      nodes: characters.map((character) => ({
+        id: character.id,
+        name: character.name,
+        color: characterFactionColor(character),
+      })),
       links: relationships.map((relationship) => ({
         id: relationship.id,
         source: relationship.sourceId,
         target: relationship.targetId,
-        name: relationship.label || relationshipKindLabel[relationship.kind],
+        name: relationship.label || t(`kinds.${relationship.kind}`),
         kind: relationship.kind,
-        color: linkColorByKind[relationship.kind],
+        color: relationshipColors[relationship.kind],
         strength: relationship.strength,
         secret: relationship.isSecret,
       })),
     }),
-    [characters, relationships],
+    [characters, relationships, t],
   );
 
   useEffect(() => {
@@ -206,12 +190,12 @@ export function World3DView({ novelId }: { novelId?: string }) {
       ]);
       graphRef.current
         .backgroundColor("#020617")
-        .nodeLabel((node) => String(node.name ?? "未命名角色"))
+        .nodeLabel((node) => String(node.name ?? t("world3d.unnamedCharacter")))
         .nodeColor((node) => String(node.color ?? "#67e8f9"))
         .nodeRelSize(5.5)
         .nodeResolution(32)
-        .nodeThreeObject((node) => createNodeObject(THREE, node))
-        .linkLabel((link) => String(link.name ?? "关系"))
+        .nodeThreeObject((node) => createNodeObject(THREE, node, t("world3d.unnamed")))
+        .linkLabel((link) => String(link.name ?? t("world3d.unnamedRelationship")))
         .linkColor((link) => String(link.color ?? "#94a3b8"))
         .linkOpacity(0.64)
         .linkWidth((link) => 1.2 + Number(link.strength ?? 50) / 32)
@@ -250,7 +234,7 @@ export function World3DView({ novelId }: { novelId?: string }) {
       graphRef.current?._destructor?.();
       graphRef.current = null;
     };
-  }, [graphData, openInspector, selectCharacter, selectRelationship]);
+  }, [graphData, openInspector, selectCharacter, selectRelationship, t]);
 
   useEffect(() => {
     graphRef.current?.graphData(graphData);

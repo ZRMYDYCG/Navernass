@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CharacterLibrary } from "@/features/novel-graph/panels/character-library";
+import { CharacterLibrary } from "@/components/buss/novel-graph/panels/character-library";
 
 import { ActivityBar, type SidebarView } from "./activity-bar";
 import { ChapterOutline } from "./chapter-outline";

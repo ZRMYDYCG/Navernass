@@ -206,6 +206,91 @@
       "staleHint": "The text changed after this proposal. Ask the assistant to reread it and propose again."
     }
   },
+  "novelGraph": {
+    "workspace": {
+      "viewEditor": "Edit",
+      "viewExplore": "Relations",
+      "viewWorld3d": "3D",
+      "addCharacter": "Character"
+    },
+    "kinds": {
+      "ally": "Ally",
+      "family": "Family",
+      "romance": "Romance",
+      "rival": "Rival",
+      "enemy": "Enemy",
+      "mentor": "Mentor",
+      "secret": "Secret",
+      "custom": "Custom"
+    },
+    "editor": {
+      "noSummary": "No summary yet",
+      "emptyCanvas": "The canvas is empty. Click “Character” in the top right to create your first one.",
+      "unsetRole": "Not set"
+    },
+    "explore": {
+      "legendDensity": "Relation density",
+      "legendHint": "Numbers show connection counts"
+    },
+    "world3d": {
+      "unnamed": "Unnamed",
+      "unnamedCharacter": "Unnamed character",
+      "unnamedRelationship": "Relation"
+    },
+    "inspector": {
+      "relationshipTitle": "Edit relationship",
+      "characterTitle": "Edit character",
+      "unknownCharacter": "Unknown character",
+      "closeRelationship": "Close relationship editor",
+      "closeCharacter": "Close character editor",
+      "characterHint": "Only the name and summary are fixed; everything else is up to you.",
+      "relationshipName": "Relationship name",
+      "relationshipKind": "Relationship type",
+      "strength": "Strength {value}",
+      "secretRelationship": "Hidden plot relationship",
+      "relationshipDescription": "Description",
+      "relationshipPlaceholder": "e.g. Cooperating on the surface while testing each other underneath.",
+      "deleteRelationship": "Delete relationship",
+      "characterName": "Character name",
+      "characterSummary": "Summary",
+      "characterPlaceholder": "This character's goals, secrets, and conflicts.",
+      "deleteCharacter": "Delete character",
+      "empty": "Select a character or relationship to edit its details here."
+    },
+    "library": {
+      "selectNovel": "Select a novel to see characters",
+      "loading": "Loading…",
+      "empty": "No characters yet — add them in the relationship graph"
+    },
+    "fields": {
+      "title": "Custom fields",
+      "empty": "No fields yet. Pick a common preset below or add your own.",
+      "addCustom": "Custom field",
+      "type": "Type",
+      "remove": "Delete field",
+      "fieldName": "Field name",
+      "valuePlaceholder": "Enter content",
+      "unnamedField": "Field",
+      "options": "{label} options",
+      "tagPlaceholder": "Type and press Enter to add",
+      "newTag": "New tag for {label}",
+      "removeTag": "Remove tag {tag}",
+      "types": {
+        "text": "Short text",
+        "longText": "Long text",
+        "tags": "Tags"
+      },
+      "presets": {
+        "role": "Role",
+        "faction": "Faction",
+        "tags": "Tags",
+        "age": "Age",
+        "ability": "Abilities",
+        "secret": "Secret",
+        "arc": "Character arc"
+      }
+    }
+  },
   "appHeader": {
     "workspace": "Workspace",
     "toggleSidebar": "Toggle sidebar",

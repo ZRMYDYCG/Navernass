@@ -10,14 +10,9 @@ import type {
   UpdateCharacterPayload,
 } from "@/schemas/library.schema";
 
-import { relationshipKindLabel } from "./graph-store";
 import type { Character, CharacterCustomField, GraphPosition, Relationship } from "./types";
 
 const defaultPosition: GraphPosition = { x: 160, y: 160 };
-
-const trimmedLabel = (relationship: Omit<Relationship, "id">) =>
-  relationship.label.trim() || relationshipKindLabel[relationship.kind];
-
 export function toCharacter(profile: CharacterProfile): Character {
   return {
     id: profile.id,
@@ -73,8 +68,11 @@ export function characterCreatePayload(
   };
 }
 
-export function relationshipToPayload(relationship: Omit<Relationship, "id">) {
-  const label = trimmedLabel(relationship);
+export function relationshipToPayload(
+  relationship: Omit<Relationship, "id">,
+  defaultLabel: string,
+) {
+  const label = relationship.label.trim() || defaultLabel;
   return {
     sourceToTargetLabel: label,
     targetToSourceLabel: label,
@@ -88,12 +86,13 @@ export function relationshipToPayload(relationship: Omit<Relationship, "id">) {
 export function relationshipCreatePayload(
   novelId: string,
   relationship: Omit<Relationship, "id">,
+  defaultLabel: string,
 ): CreateRelationshipPayload {
   return {
     novel_id: novelId,
     sourceId: relationship.sourceId,
     targetId: relationship.targetId,
-    ...relationshipToPayload(relationship),
+    ...relationshipToPayload(relationship, defaultLabel),
   };
 }
 
@@ -129,6 +128,3 @@ export function useRelationships(novelId: string | undefined) {
   });
   return { ...query, data: query.data ?? noRelationships };
 }
-
-export const uid = (prefix: string) =>
-  `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;

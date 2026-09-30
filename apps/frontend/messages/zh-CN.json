@@ -206,6 +206,91 @@
       "staleHint": "正文已在提案后发生变化，请让助手重新读取后再生成提案。"
     }
   },
+  "novelGraph": {
+    "workspace": {
+      "viewEditor": "编辑",
+      "viewExplore": "关系",
+      "viewWorld3d": "3D",
+      "addCharacter": "角色"
+    },
+    "kinds": {
+      "ally": "盟友",
+      "family": "血缘",
+      "romance": "情感",
+      "rival": "竞争",
+      "enemy": "敌对",
+      "mentor": "师徒",
+      "secret": "秘密",
+      "custom": "自定义"
+    },
+    "editor": {
+      "noSummary": "暂无摘要",
+      "emptyCanvas": "画布还是空的，点击右上角「角色」创建第一个人物。",
+      "unsetRole": "未设定"
+    },
+    "explore": {
+      "legendDensity": "关系密度",
+      "legendHint": "数字代表连接数"
+    },
+    "world3d": {
+      "unnamed": "未命名",
+      "unnamedCharacter": "未命名角色",
+      "unnamedRelationship": "关系"
+    },
+    "inspector": {
+      "relationshipTitle": "关系编辑",
+      "characterTitle": "角色编辑",
+      "unknownCharacter": "未知角色",
+      "closeRelationship": "关闭关系编辑",
+      "closeCharacter": "关闭角色编辑",
+      "characterHint": "默认只固定姓名和摘要，其余信息都由作者自定义。",
+      "relationshipName": "关系名称",
+      "relationshipKind": "关系类型",
+      "strength": "强度 {value}",
+      "secretRelationship": "剧情秘密关系",
+      "relationshipDescription": "关系说明",
+      "relationshipPlaceholder": "例如：表面合作，实际上互相试探。",
+      "deleteRelationship": "删除关系",
+      "characterName": "角色名",
+      "characterSummary": "人物摘要",
+      "characterPlaceholder": "这个角色的目标、秘密、冲突点。",
+      "deleteCharacter": "删除角色",
+      "empty": "选择一个角色或关系后，可以在这里编辑详细设定。"
+    },
+    "library": {
+      "selectNovel": "选择小说后查看角色",
+      "loading": "加载中…",
+      "empty": "还没有角色，可在关系图谱中添加"
+    },
+    "fields": {
+      "title": "自定义属性",
+      "empty": "还没有属性。从下面挑常用设定，或添加自定义属性。",
+      "addCustom": "自定义属性",
+      "type": "类型",
+      "remove": "删除属性",
+      "fieldName": "属性名",
+      "valuePlaceholder": "填写内容",
+      "unnamedField": "属性",
+      "options": "{label}选项",
+      "tagPlaceholder": "输入后回车添加",
+      "newTag": "{label} 新标签",
+      "removeTag": "移除标签 {tag}",
+      "types": {
+        "text": "短文本",
+        "longText": "长文本",
+        "tags": "标签"
+      },
+      "presets": {
+        "role": "角色定位",
+        "faction": "阵营",
+        "tags": "标签",
+        "age": "年龄",
+        "ability": "能力",
+        "secret": "秘密",
+        "arc": "人物弧光"
+      }
+    }
+  },
   "appHeader": {
     "workspace": "工作台",
     "toggleSidebar": "切换目录栏",

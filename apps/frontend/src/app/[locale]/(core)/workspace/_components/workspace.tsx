@@ -6,7 +6,7 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTranslations } from "next-intl";
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { NovelGraphWorkspace } from "@/features/novel-graph/novel-graph-workspace";
+import { NovelGraphWorkspace } from "@/components/buss/novel-graph/novel-graph-workspace";
 import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/lib/query/library.query";
 
 import { AppHeader } from "./app-header";

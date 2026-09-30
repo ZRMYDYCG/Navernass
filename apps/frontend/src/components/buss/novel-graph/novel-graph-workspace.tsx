@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { PlusIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
@@ -16,13 +17,8 @@ import { GraphEditorView } from "./views/graph-editor-view";
 import { G6ExploreView } from "./views/g6-explore-view";
 import { World3DView } from "./views/world-3d-view";
 
-const views: Array<{ id: GraphViewMode; label: string }> = [
-  { id: "editor", label: "编辑" },
-  { id: "explore", label: "关系" },
-  { id: "world3d", label: "3D" },
-];
-
 export function NovelGraphWorkspace({ novelId }: { novelId?: string }) {
+  const t = useTranslations("novelGraph.workspace");
   const [mode, setMode] = useState<GraphViewMode>("editor");
   const { data: characters } = useCharacters(novelId);
   const createCharacter = useCreateCharacter(novelId);
@@ -33,6 +29,12 @@ export function NovelGraphWorkspace({ novelId }: { novelId?: string }) {
   const inspectorOpen = useNovelGraphStore((state) => state.inspectorOpen);
   const closeInspector = useNovelGraphStore((state) => state.closeInspector);
   const drawerOpen = inspectorOpen && Boolean(selectedCharacterId || selectedRelationshipId);
+
+  const views: Array<{ id: GraphViewMode; label: string }> = [
+    { id: "editor", label: t("viewEditor") },
+    { id: "explore", label: t("viewExplore") },
+    { id: "world3d", label: t("viewWorld3d") },
+  ];
 
   const addCharacter = () => {
     if (!novelId) return;
@@ -73,7 +75,7 @@ export function NovelGraphWorkspace({ novelId }: { novelId?: string }) {
         <div className="ml-auto">
           <Button size="sm" disabled={!novelId || createCharacter.isPending} onClick={addCharacter}>
             <PlusIcon />
-            角色
+            {t("addCharacter")}
           </Button>
         </div>
       </div>

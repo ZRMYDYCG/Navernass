@@ -18,6 +18,7 @@ import {
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
+import { useTranslations } from "next-intl";
 import { cn } from "cn";
 
 import { useCreateRelationship, useUpdateCharacter } from "@/lib/query/library.query";
@@ -27,34 +28,25 @@ import {
   characterDisplayRole,
   characterDisplayTags,
 } from "../character-fields";
+import { relationshipColors } from "../relationship-colors";
 import {
   characterPatchToPayload,
   relationshipCreatePayload,
   useCharacters,
   useRelationships,
 } from "../api";
-import { relationshipKindLabel, useNovelGraphStore } from "../graph-store";
-import type { Character, GraphPosition, Relationship } from "../types";
+import { useNovelGraphStore } from "../graph-store";
+import type { Character, GraphPosition } from "../types";
 
 interface CharacterNodeData extends Record<string, unknown> {
   character: Character;
   selected?: boolean;
 }
 
-const edgeColorByKind: Record<Relationship["kind"], string> = {
-  ally: "#22c55e",
-  family: "#f59e0b",
-  romance: "#ec4899",
-  rival: "#a78bfa",
-  enemy: "#ef4444",
-  mentor: "#38bdf8",
-  secret: "#facc15",
-  custom: "#94a3b8",
-};
-
 const CharacterNode = memo(function CharacterNode({ data }: NodeProps<Node<CharacterNodeData>>) {
+  const t = useTranslations("novelGraph.editor");
   const { character, selected } = data;
-  const role = characterDisplayRole(character);
+  const role = characterDisplayRole(character) || t("unsetRole");
   const faction = characterDisplayFaction(character);
   const tags = characterDisplayTags(character);
   const initial = character.name.trim().slice(0, 1) || "?";
@@ -97,7 +89,7 @@ const CharacterNode = memo(function CharacterNode({ data }: NodeProps<Node<Chara
               {character.summary}
             </p>
           ) : (
-            <p className="text-xs text-muted-foreground">暂无摘要</p>
+            <p className="text-xs text-muted-foreground">{t("noSummary")}</p>
           )}
         </div>
         {tags.length > 0 ? (
@@ -120,6 +112,7 @@ const CharacterNode = memo(function CharacterNode({ data }: NodeProps<Node<Chara
 const nodeTypes = { character: CharacterNode };
 
 export function GraphEditorView({ novelId }: { novelId?: string }) {
+  const t = useTranslations("novelGraph");
   const { data: characters } = useCharacters(novelId);
   const { data: relationships } = useRelationships(novelId);
   const updateCharacter = useUpdateCharacter(novelId);
@@ -158,18 +151,18 @@ export function GraphEditorView({ novelId }: { novelId?: string }) {
         id: relationship.id,
         source: relationship.sourceId,
         target: relationship.targetId,
-        label: relationship.label || relationshipKindLabel[relationship.kind],
+        label: relationship.label || t(`kinds.${relationship.kind}`),
         animated: relationship.isSecret,
         selected: selectedRelationshipId === relationship.id,
         style: {
-          stroke: edgeColorByKind[relationship.kind],
+          stroke: relationshipColors[relationship.kind],
           strokeWidth: 1.5 + relationship.strength / 45,
           strokeDasharray: relationship.isSecret ? "6 4" : undefined,
         },
         labelStyle: { fill: "currentColor", fontSize: 12 },
         labelBgStyle: { fill: "var(--background)", fillOpacity: 0.85 },
       })),
-    [relationships, selectedRelationshipId],
+    [relationships, selectedRelationshipId, t],
   );
 
   const [nodes, setNodes, onNodesChangeBase] = useNodesState<Node<CharacterNodeData>>(graphNodes);
@@ -207,15 +200,19 @@ export function GraphEditorView({ novelId }: { novelId?: string }) {
       )
         return;
       createRelationship.mutate(
-        relationshipCreatePayload(novelId, {
-          sourceId: connection.source,
-          targetId: connection.target,
-          kind: "ally",
-          label: relationshipKindLabel.ally,
-          strength: 50,
-          isSecret: false,
-          description: "",
-        }),
+        relationshipCreatePayload(
+          novelId,
+          {
+            sourceId: connection.source,
+            targetId: connection.target,
+            kind: "ally",
+            label: t("kinds.ally"),
+            strength: 50,
+            isSecret: false,
+            description: "",
+          },
+          t("kinds.ally"),
+        ),
         {
           onSuccess: (relationship) => {
             selectRelationship(relationship.id);
@@ -224,7 +221,7 @@ export function GraphEditorView({ novelId }: { novelId?: string }) {
         },
       );
     },
-    [createRelationship, novelId, openInspector, selectRelationship],
+    [createRelationship, novelId, openInspector, selectRelationship, t],
   );
 
   return (
@@ -263,7 +260,7 @@ export function GraphEditorView({ novelId }: { novelId?: string }) {
       </ReactFlow>
       {characters.length === 0 ? (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-          画布还是空的，点击右上角「角色」创建第一个人物。
+          {t("editor.emptyCanvas")}
         </div>
       ) : null}
     </div>

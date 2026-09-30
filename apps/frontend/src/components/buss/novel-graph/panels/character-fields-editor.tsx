@@ -1,6 +1,7 @@
 "use client";
 
 import { EllipsisIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -22,21 +23,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { splitTags } from "../character-fields";
 import type { Character, CharacterCustomField, CharacterFieldType } from "../types";
 
-const fieldTypes: Array<{ value: CharacterFieldType; label: string }> = [
-  { value: "text", label: "短文本" },
-  { value: "longText", label: "长文本" },
-  { value: "tags", label: "标签" },
-];
+const fieldTypes: CharacterFieldType[] = ["text", "longText", "tags"];
 
-const presets: Array<Pick<CharacterCustomField, "label" | "type">> = [
-  { label: "角色定位", type: "text" },
-  { label: "阵营", type: "text" },
-  { label: "标签", type: "tags" },
-  { label: "年龄", type: "text" },
-  { label: "能力", type: "longText" },
-  { label: "秘密", type: "longText" },
-  { label: "人物弧光", type: "longText" },
-];
+const presetKeys = ["role", "faction", "tags", "age", "ability", "secret", "arc"] as const;
+
+type PresetKey = (typeof presetKeys)[number];
+
+const PRESET_TYPES: Record<PresetKey, CharacterCustomField["type"]> = {
+  role: "text",
+  faction: "text",
+  tags: "tags",
+  age: "text",
+  ability: "longText",
+  secret: "longText",
+  arc: "longText",
+};
 
 function TagInput({
   value,
@@ -49,6 +50,7 @@ function TagInput({
   autoFocus: boolean;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("novelGraph.fields");
   const tags = splitTags(value);
   const [draft, setDraft] = useState("");
 
@@ -67,7 +69,7 @@ function TagInput({
           {tag}
           <button
             type="button"
-            aria-label={`移除标签 ${tag}`}
+            aria-label={t("removeTag", { tag })}
             className="-mr-1 rounded-full text-muted-foreground hover:text-foreground [&_svg]:size-3"
             onClick={() => remove(tag)}
           >
@@ -77,8 +79,8 @@ function TagInput({
       ))}
       <input
         value={draft}
-        aria-label={`${label} 新标签`}
-        placeholder={tags.length > 0 ? "" : "输入后回车添加"}
+        aria-label={t("newTag", { label })}
+        placeholder={tags.length > 0 ? "" : t("tagPlaceholder")}
         autoFocus={autoFocus}
         className="h-6 min-w-20 flex-1 bg-transparent px-1 text-sm outline-none placeholder:text-muted-foreground"
         onChange={(event) => {
@@ -110,7 +112,8 @@ function FieldValueEditor({
   autoFocus: boolean;
   onChange: (value: string) => void;
 }) {
-  const label = field.label || "属性";
+  const t = useTranslations("novelGraph.fields");
+  const label = field.label || t("unnamedField");
 
   if (field.type === "tags") {
     return <TagInput value={field.value} label={label} autoFocus={autoFocus} onChange={onChange} />;
@@ -121,7 +124,7 @@ function FieldValueEditor({
       <Textarea
         value={field.value}
         aria-label={label}
-        placeholder="填写内容"
+        placeholder={t("valuePlaceholder")}
         rows={2}
         autoFocus={autoFocus}
         onChange={(event) => onChange(event.target.value)}
@@ -133,7 +136,7 @@ function FieldValueEditor({
     <Input
       value={field.value}
       aria-label={label}
-      placeholder="填写内容"
+      placeholder={t("valuePlaceholder")}
       autoFocus={autoFocus}
       onChange={(event) => onChange(event.target.value)}
     />
@@ -151,6 +154,7 @@ function FieldRow({
   onUpdateField: (fieldId: string, patch: Partial<Omit<CharacterCustomField, "id">>) => void;
   onRemoveField: (fieldId: string) => void;
 }) {
+  const t = useTranslations("novelGraph.fields");
   const update = (patch: Partial<Omit<CharacterCustomField, "id">>) =>
     onUpdateField(field.id, patch);
 
@@ -158,8 +162,8 @@ function FieldRow({
     <li className="flex items-start gap-2">
       <input
         value={field.label}
-        aria-label="属性名"
-        placeholder="属性名"
+        aria-label={t("fieldName")}
+        placeholder={t("fieldName")}
         autoFocus={focusOnMount && !field.label}
         className="h-8 w-24 shrink-0 truncate rounded-md bg-transparent px-2 text-sm text-muted-foreground outline-none placeholder:text-muted-foreground/60 hover:bg-muted focus:bg-muted focus:text-foreground"
         onChange={(event) => update({ label: event.target.value })}
@@ -174,21 +178,25 @@ function FieldRow({
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button variant="ghost" size="icon-sm" aria-label={`${field.label || "属性"}选项`} />
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("options", { label: field.label || t("unnamedField") })}
+            />
           }
         >
           <EllipsisIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
-            <DropdownMenuLabel>类型</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("type")}</DropdownMenuLabel>
             <DropdownMenuRadioGroup
               value={field.type}
               onValueChange={(type: CharacterFieldType) => update({ type })}
             >
               {fieldTypes.map((type) => (
-                <DropdownMenuRadioItem key={type.value} value={type.value}>
-                  {type.label}
+                <DropdownMenuRadioItem key={type} value={type}>
+                  {t(`types.${type}`)}
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>
@@ -196,7 +204,7 @@ function FieldRow({
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={() => onRemoveField(field.id)}>
             <Trash2Icon />
-            删除属性
+            {t("remove")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -215,17 +223,20 @@ export function CharacterFieldsEditor({
   onRemoveField: (fieldId: string) => void;
   onAddField: (preset?: Pick<CharacterCustomField, "label" | "type">) => string;
 }) {
+  const t = useTranslations("novelGraph.fields");
   const [focusFieldId, setFocusFieldId] = useState<string>();
 
   const usedLabels = new Set(character.customFields.map((field) => field.label.trim()));
-  const availablePresets = presets.filter((preset) => !usedLabels.has(preset.label));
+  const availablePresets = presetKeys
+    .map((key) => ({ key, label: t(`presets.${key}`), type: PRESET_TYPES[key] }))
+    .filter((preset) => !usedLabels.has(preset.label));
 
   const addField = (preset?: Pick<CharacterCustomField, "label" | "type">) =>
     setFocusFieldId(onAddField(preset));
 
   return (
     <section className="flex flex-col gap-3">
-      <div className="text-sm font-medium">自定义属性</div>
+      <div className="text-sm font-medium">{t("title")}</div>
       {character.customFields.length > 0 ? (
         <ul className="flex flex-col gap-2">
           {character.customFields.map((field) => (
@@ -239,20 +250,23 @@ export function CharacterFieldsEditor({
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          还没有属性。从下面挑常用设定，或添加自定义属性。
-        </p>
+        <p className="text-sm text-muted-foreground">{t("empty")}</p>
       )}
       <div className="flex flex-wrap items-center gap-1.5">
         {availablePresets.map((preset) => (
-          <Button key={preset.label} variant="outline" size="xs" onClick={() => addField(preset)}>
+          <Button
+            key={preset.key}
+            variant="outline"
+            size="xs"
+            onClick={() => addField({ label: preset.label, type: preset.type })}
+          >
             <PlusIcon />
             {preset.label}
           </Button>
         ))}
         <Button variant="ghost" size="xs" onClick={() => addField()}>
           <PlusIcon />
-          自定义属性
+          {t("addCustom")}
         </Button>
       </div>
     </section>

@@ -1,11 +1,14 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Button } from "@/components/ui/button";
 
 import { useCharacters } from "../api";
 import { useNovelGraphStore } from "../graph-store";
 
 export function CharacterLibrary({ novelId }: { novelId?: string }) {
+  const t = useTranslations("novelGraph.library");
   const { data: characters, isPending } = useCharacters(novelId);
   const selectedCharacterId = useNovelGraphStore((state) => state.selectedCharacterId);
   const selectCharacter = useNovelGraphStore((state) => state.selectCharacter);
@@ -35,11 +38,7 @@ export function CharacterLibrary({ novelId }: { novelId?: string }) {
         })}
         {characters.length === 0 ? (
           <li className="px-3 py-6 text-center text-xs text-muted-foreground">
-            {!novelId
-              ? "选择小说后查看角色"
-              : isPending
-                ? "加载中…"
-                : "还没有角色，可在关系图谱中添加"}
+            {!novelId ? t("selectNovel") : isPending ? t("loading") : t("empty")}
           </li>
         ) : null}
       </ul>

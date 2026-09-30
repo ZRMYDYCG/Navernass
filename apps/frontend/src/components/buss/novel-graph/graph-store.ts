@@ -2,19 +2,6 @@
 
 import { create } from "zustand/react";
 
-import type { RelationshipKind } from "./types";
-
-export const relationshipKindLabel: Record<RelationshipKind, string> = {
-  ally: "盟友",
-  family: "血缘",
-  romance: "情感",
-  rival: "竞争",
-  enemy: "敌对",
-  mentor: "师徒",
-  secret: "秘密",
-  custom: "自定义",
-};
-
 interface NovelGraphState {
   selectedCharacterId?: string;
   selectedRelationshipId?: string;

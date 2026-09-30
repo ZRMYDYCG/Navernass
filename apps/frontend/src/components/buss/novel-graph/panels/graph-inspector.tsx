@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Link2Icon, Trash2Icon, UserRoundIcon, XIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { DrawerClose } from "@/components/ui/drawer";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { relationshipKindSchema } from "@/schemas/library.schema";
 
 import {
   useDeleteCharacter,
@@ -20,15 +22,14 @@ import {
 import {
   characterPatchToPayload,
   relationshipToPayload,
-  uid,
   useCharacters,
   useRelationships,
 } from "../api";
-import { relationshipKindLabel, useNovelGraphStore } from "../graph-store";
+import { useNovelGraphStore } from "../graph-store";
 import type { Character, Relationship, RelationshipKind } from "../types";
 import { CharacterFieldsEditor } from "./character-fields-editor";
 
-const relationshipKinds = Object.keys(relationshipKindLabel) as RelationshipKind[];
+const relationshipKinds = relationshipKindSchema.options;
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -40,6 +41,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 }
 
 export function GraphInspector({ novelId }: { novelId?: string }) {
+  const t = useTranslations("novelGraph");
   const { data: characters } = useCharacters(novelId);
   const { data: relationships } = useRelationships(novelId);
   const updateCharacter = useUpdateCharacter(novelId);
@@ -62,7 +64,8 @@ export function GraphInspector({ novelId }: { novelId?: string }) {
 
   const patchRelationship = (patch: Partial<Omit<Relationship, "id">>) => {
     if (!relationship) return;
-    updateRelationship(relationship.id, relationshipToPayload({ ...relationship, ...patch }));
+    const next = { ...relationship, ...patch };
+    updateRelationship(relationship.id, relationshipToPayload(next, t(`kinds.${next.kind}`)));
   };
 
   if (relationship) {
@@ -75,44 +78,50 @@ export function GraphInspector({ novelId }: { novelId?: string }) {
           <div>
             <div className="flex items-center gap-2 text-sm font-medium">
               <Link2Icon className="size-4 text-primary" />
-              关系编辑
+              {t("inspector.relationshipTitle")}
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              {source?.name ?? "未知角色"} → {target?.name ?? "未知角色"}
+              {source?.name ?? t("inspector.unknownCharacter")} →{" "}
+              {target?.name ?? t("inspector.unknownCharacter")}
             </p>
           </div>
-          <DrawerClose render={<Button variant="ghost" size="icon-sm" aria-label="关闭关系编辑" />}>
+          <DrawerClose
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t("inspector.closeRelationship")}
+              />
+            }
+          >
             <XIcon />
           </DrawerClose>
         </div>
         <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-5 md:grid-cols-3">
           <div className="space-y-4 md:col-span-1">
-            <Field label="关系名称">
+            <Field label={t("inspector.relationshipName")}>
               <Input
                 value={relationship.label}
                 onChange={(event) => patchRelationship({ label: event.target.value })}
               />
             </Field>
-            <Field label="关系类型">
+            <Field label={t("inspector.relationshipKind")}>
               <NativeSelect
                 className="w-full"
                 value={relationship.kind}
                 onChange={(event) => {
                   const kind = event.target.value as RelationshipKind;
-                  patchRelationship({
-                    kind,
-                    label: relationship.label || relationshipKindLabel[kind],
-                  });
+                  patchRelationship({ kind });
                 }}
               >
                 {relationshipKinds.map((kind) => (
                   <NativeSelectOption key={kind} value={kind}>
-                    {relationshipKindLabel[kind]}
+                    {t(`kinds.${kind}`)}
                   </NativeSelectOption>
                 ))}
               </NativeSelect>
             </Field>
-            <Field label={`强度 ${relationship.strength}`}>
+            <Field label={t("inspector.strength", { value: relationship.strength })}>
               <input
                 type="range"
                 min={1}
@@ -128,15 +137,15 @@ export function GraphInspector({ novelId }: { novelId?: string }) {
                 checked={relationship.isSecret}
                 onChange={(event) => patchRelationship({ isSecret: event.target.checked })}
               />
-              剧情秘密关系
+              {t("inspector.secretRelationship")}
             </label>
           </div>
           <div className="space-y-4 md:col-span-2">
-            <Field label="关系说明">
+            <Field label={t("inspector.relationshipDescription")}>
               <Textarea
                 value={relationship.description}
                 onChange={(event) => patchRelationship({ description: event.target.value })}
-                placeholder="例如：表面合作，实际上互相试探。"
+                placeholder={t("inspector.relationshipPlaceholder")}
               />
             </Field>
           </div>
@@ -154,7 +163,7 @@ export function GraphInspector({ novelId }: { novelId?: string }) {
             }
           >
             <Trash2Icon />
-            删除关系
+            {t("inspector.deleteRelationship")}
           </Button>
         </div>
       </div>
@@ -168,29 +177,31 @@ export function GraphInspector({ novelId }: { novelId?: string }) {
           <div>
             <div className="flex items-center gap-2 text-sm font-medium">
               <UserRoundIcon className="size-4 text-primary" />
-              角色编辑
+              {t("inspector.characterTitle")}
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              默认只固定姓名和摘要，其余信息都由作者自定义。
-            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("inspector.characterHint")}</p>
           </div>
-          <DrawerClose render={<Button variant="ghost" size="icon-sm" aria-label="关闭角色编辑" />}>
+          <DrawerClose
+            render={
+              <Button variant="ghost" size="icon-sm" aria-label={t("inspector.closeCharacter")} />
+            }
+          >
             <XIcon />
           </DrawerClose>
         </div>
         <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-5 md:grid-cols-5">
           <div className="space-y-4 md:col-span-2">
-            <Field label="角色名">
+            <Field label={t("inspector.characterName")}>
               <Input
                 value={character.name}
                 onChange={(event) => patchCharacter({ name: event.target.value })}
               />
             </Field>
-            <Field label="人物摘要">
+            <Field label={t("inspector.characterSummary")}>
               <Textarea
                 value={character.summary}
                 onChange={(event) => patchCharacter({ summary: event.target.value })}
-                placeholder="这个角色的目标、秘密、冲突点。"
+                placeholder={t("inspector.characterPlaceholder")}
               />
             </Field>
           </div>
@@ -211,7 +222,7 @@ export function GraphInspector({ novelId }: { novelId?: string }) {
               }
               onAddField={(preset) => {
                 const field = {
-                  id: uid("field"),
+                  id: crypto.randomUUID(),
                   label: preset?.label ?? "",
                   value: "",
                   type: preset?.type ?? "text",
@@ -235,7 +246,7 @@ export function GraphInspector({ novelId }: { novelId?: string }) {
             }
           >
             <Trash2Icon />
-            删除角色
+            {t("inspector.deleteCharacter")}
           </Button>
         </div>
       </div>
@@ -245,7 +256,7 @@ export function GraphInspector({ novelId }: { novelId?: string }) {
   return (
     <div className="flex min-h-0 flex-col p-4">
       <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-        选择一个角色或关系后，可以在这里编辑详细设定。
+        {t("inspector.empty")}
       </div>
     </div>
   );
