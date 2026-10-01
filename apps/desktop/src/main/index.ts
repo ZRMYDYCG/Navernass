@@ -2,12 +2,15 @@ import { join } from "node:path";
 
 import { app, BrowserWindow, shell } from "electron";
 
+import icon from "../../resources/icon.png?asset";
+
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
     show: false,
     autoHideMenuBar: true,
+    icon,
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       sandbox: false,

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./apps/web/public/logo.png" alt="Narraverse" width="120" />
+<img src="./apps/frontend/public/logo.png" alt="Narraverse" width="120" />
 
 # Narraverse
 
@@ -11,8 +11,6 @@
 [中文说明](./README.zh-CN.md)
 
 </div>
-
-![Narraverse v0.14.0 feature showcase](./apps/web/public/v0.14.0-night.png)
 
 ---
 
