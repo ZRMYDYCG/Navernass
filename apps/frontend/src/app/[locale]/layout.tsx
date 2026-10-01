@@ -4,16 +4,13 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { PropsWithChildren } from "react";
 
+import { siteConfig } from "@/config/site";
 import { routing } from "@/i18n/routing";
 import { AppProvider } from "@/providers/app-provider";
 
 import "../globals.css";
 
-export const metadata: Metadata = {
-  title: "Narraverse - AI 小说创作平台",
-  description:
-    "Narraverse 是面向网文创作者的 AI 小说创作平台，支持灵感共创、人物设定管理、章节续写与发布。",
-};
+export const metadata: Metadata = siteConfig.metadata;
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
