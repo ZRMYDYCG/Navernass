@@ -228,9 +228,7 @@
       "custom": "Custom"
     },
     "editor": {
-      "noSummary": "No summary yet",
-      "emptyCanvas": "No characters yet. Use “New character” below to add the first one.",
-      "unsetRole": "Not set"
+      "emptyCanvas": "No characters yet. Use “New character” below to add the first one."
     },
     "explore": {
       "legendDensity": "Relation density",

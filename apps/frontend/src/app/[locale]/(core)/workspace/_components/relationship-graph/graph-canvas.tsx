@@ -208,7 +208,7 @@ export function GraphCanvas({ novelId, characters, relationships }: GraphCanvasP
 }
 
 /** 角色卡片的近似尺寸，用于把新角色放到视野中心、整理布局时留出间距。 */
-const nodeSize = { width: 256, height: 110 };
+const nodeSize = { width: 224, height: 96 };
 const zoomDuration = 200;
 
 /** 画布底部的操作栏：新建角色、缩放与视图、整理布局。 */

@@ -228,9 +228,7 @@
       "custom": "自定义"
     },
     "editor": {
-      "noSummary": "暂无摘要",
-      "emptyCanvas": "还没有角色，点下方的「新建角色」添加第一个。",
-      "unsetRole": "未设定"
+      "emptyCanvas": "还没有角色，点下方的「新建角色」添加第一个。"
     },
     "explore": {
       "legendDensity": "关系密度",
