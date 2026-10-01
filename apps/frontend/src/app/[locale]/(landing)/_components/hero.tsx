@@ -25,9 +25,6 @@ export function Hero() {
           <PenLineIcon data-icon="inline-start" />
           {t("cta")}
         </Button>
-        <Button variant="outline" size="lg" render={<a href="#faq" />}>
-          {t("secondary")}
-        </Button>
       </div>
     </section>
   );

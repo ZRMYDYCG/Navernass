@@ -9,30 +9,10 @@ import { useWorkspaceEntry } from "@/components/buss/auth-dialog";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 
-const anchorLinks = ["faq"] as const;
-
 export function LandingHeader() {
   const t = useTranslations("landing.header");
   const enterWorkspace = useWorkspaceEntry();
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const nav = (
-    <ul className="flex flex-col gap-1 md:flex-row md:items-center md:gap-6">
-      {anchorLinks.map((key) => (
-        <li key={key}>
-          <a
-            href={`#${key}`}
-            aria-label={t(key)}
-            title={t(key)}
-            className="block rounded-md px-2 py-1.5 text-sm font-normal tracking-wide transition-colors hover:text-foreground md:px-0"
-            onClick={() => setMenuOpen(false)}
-          >
-            {t(key)}
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
 
   const startButton = (
     <Button size="lg" onClick={() => void enterWorkspace()}>
@@ -57,8 +37,6 @@ export function LandingHeader() {
           </Link>
         </div>
 
-        <div className="hidden flex-1 justify-center md:flex">{nav}</div>
-
         <div className="flex flex-1 items-center justify-end gap-6">
           <div className="hidden md:block">{startButton}</div>
           <div className="md:hidden">
@@ -77,8 +55,7 @@ export function LandingHeader() {
 
       {menuOpen && (
         <div className="absolute inset-x-4 top-full z-50 rounded-xl border bg-card p-5 shadow-lg md:hidden">
-          {nav}
-          <div className="pt-4">{startButton}</div>
+          {startButton}
         </div>
       )}
     </header>

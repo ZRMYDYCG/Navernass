@@ -494,7 +494,6 @@
   },
   "landing": {
     "header": {
-      "faq": "FAQ",
       "start": "Start writing",
       "menu": "Open menu"
     },
@@ -502,60 +501,7 @@
       "title1": "Bring writing back to",
       "title2": "purity and freedom",
       "description": "Narraverse is a next-generation intelligent novel writing platform built for novelists. Whether you are drafting your first chapter or managing a long-running series, structure, lore, and prose live in one place — so you can focus on the story only you can write.",
-      "cta": "Start creating",
-      "secondary": "Learn more"
-    },
-    "free": {
-      "title": "Pricing",
-      "title2": "Completely free, for now.",
-      "description": "Drafting, AI assistance, character tools, outline and worldbook management — all open to every writer.",
-      "planName": "Creator plan",
-      "price": "Free",
-      "cta": "Get started",
-      "features": {
-        "f1": "Unlimited novels and chapters",
-        "f2": "All five AI modes",
-        "f3": "Character map and scene preview",
-        "f4": "Outline, planning, and worldbook",
-        "f5": "Timeline and manuscript import",
-        "f6": "Markdown / plain-text export"
-      }
-    },
-    "faq": {
-      "title": "FAQs",
-      "subtitle": "Here are some of the most frequently asked questions.",
-      "items": {
-        "q1": {
-          "title": "What is Narraverse?",
-          "content": "Narraverse is a writing home built for novelists: structured manuscript management, a character relationship map, a worldbook, and an AI assistant — with structure, lore, and prose in one place, so you can focus on the work only you can write."
-        },
-        "q2": {
-          "title": "Will the AI write for me?",
-          "content": "No. The AI is an editor, not a ghostwriter: every change from the Agent mode appears as a diff that you accept or reject line by line. Ask mode only offers advice and never touches your files."
-        },
-        "q3": {
-          "title": "Do the AI suggestions fit my story?",
-          "content": "Yes. Plans, outlines, worldbook entries, and chapters share one source of truth. Before giving plot, scene, or line-level feedback, the AI reads your manuscript and lore — so advice fits your story, not a generic template."
-        },
-        "q4": {
-          "title": "Can I import an existing manuscript?",
-          "content": "Yes. Paste an existing manuscript and Narraverse will recognize chapter breaks for you. You can optionally run character analysis to populate your relationship map from the text you already have."
-        },
-        "q5": {
-          "title": "Does it cost anything?",
-          "content": "Narraverse is completely free at this stage. Drafting, AI assistance, character tools, outline and worldbook management — all open to every writer."
-        },
-        "q6": {
-          "title": "Which interface languages are supported?",
-          "content": "Simplified Chinese and English are currently supported, and you can switch anytime in settings."
-        }
-      }
-    },
-    "cta": {
-      "title": "Start writing your story now",
-      "description": "Inspiration, characters, and world are ready — all that is missing is your first chapter.",
-      "button": "Start creating for free",
-      "quote": "\"Nothing is more painful than an untold story inside you.\""
+      "cta": "Start creating"
     },
     "footer": {
       "tagline": "Bring writing back to purity and freedom.",
