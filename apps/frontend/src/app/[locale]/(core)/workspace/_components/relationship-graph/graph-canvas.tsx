@@ -168,6 +168,7 @@ export function GraphCanvas({ novelId, characters, relationships }: GraphCanvasP
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
+        fitViewOptions={fitViewOptions}
         proOptions={{ hideAttribution: true }}
         minZoom={0.25}
         maxZoom={1.6}
@@ -210,6 +211,8 @@ export function GraphCanvas({ novelId, characters, relationships }: GraphCanvasP
 /** 角色卡片的近似尺寸，用于把新角色放到视野中心、整理布局时留出间距。 */
 const nodeSize = { width: 224, height: 96 };
 const zoomDuration = 200;
+/** 角色很少时，适配视图不放大超过 100%。 */
+const fitViewOptions = { maxZoom: 1 };
 
 /** 画布底部的操作栏：新建角色、缩放与视图、整理布局。 */
 function Toolbar({ novelId, characters }: { novelId?: string; characters: Character[] }) {
@@ -256,7 +259,7 @@ function Toolbar({ novelId, characters }: { novelId?: string; characters: Charac
         overview_y: Math.floor(index / columns) * (nodeSize.height + 80),
       });
     });
-    requestAnimationFrame(() => void fitView({ duration: 300 }));
+    requestAnimationFrame(() => void fitView({ ...fitViewOptions, duration: 300 }));
   };
 
   return (
@@ -307,7 +310,7 @@ function Toolbar({ novelId, characters }: { novelId?: string; characters: Charac
         size="icon-sm"
         title={t("fitView")}
         aria-label={t("fitView")}
-        onClick={() => void fitView({ duration: 300 })}
+        onClick={() => void fitView({ ...fitViewOptions, duration: 300 })}
       >
         <ScanIcon />
       </Button>
