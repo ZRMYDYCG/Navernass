@@ -1,6 +1,6 @@
 "use client";
 
-import { BookmarkPlusIcon, BrainIcon } from "lucide-react";
+import { BrainIcon, BookmarkPlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { z } from "zod";
 
@@ -10,10 +10,9 @@ import {
   searchMemoryOutputSchema,
 } from "@/lib/http/modules/agent-tool.schema";
 
-import { ToolExcerpt, ToolMeta } from "../activity/tool-detail";
-import { defineTool, quote, type ToolProps } from "./define";
+import { defineMaterial, quote, ToolExcerpt, ToolMeta, type MaterialContext } from "../protocol";
 
-type SearchMemoryProps = ToolProps<
+type SearchMemoryProps = MaterialContext<
   z.infer<typeof searchMemoryInputSchema>,
   z.infer<typeof searchMemoryOutputSchema>
 >;
@@ -42,7 +41,8 @@ function SearchMemoryDetail({ output }: SearchMemoryProps) {
   );
 }
 
-export const searchMemory = defineTool({
+const searchMemory = defineMaterial({
+  tool: "searchMemory",
   icon: BrainIcon,
   input: searchMemoryInputSchema,
   output: searchMemoryOutputSchema,
@@ -51,18 +51,21 @@ export const searchMemory = defineTool({
     if (!output) return quote(input.query);
     return `${quote(input.query)} · ${t("detail.hitCount", { count: output.length })}`;
   },
-  Detail: SearchMemoryDetail,
+  detail: SearchMemoryDetail,
 });
 
-type SaveMemoryProps = ToolProps<z.infer<typeof saveMemoryInputSchema>, unknown>;
+type SaveMemoryProps = MaterialContext<z.infer<typeof saveMemoryInputSchema>, unknown>;
 
 function SaveMemoryDetail({ input }: SaveMemoryProps) {
   return input ? <ToolExcerpt>{input.content}</ToolExcerpt> : null;
 }
 
-export const saveMemory = defineTool({
+const saveMemory = defineMaterial({
+  tool: "saveMemory",
   icon: BookmarkPlusIcon,
   input: saveMemoryInputSchema,
   summary: (t, { input }) => (input ? (input.title ?? t(`memoryKind.${input.kind}`)) : undefined),
-  Detail: SaveMemoryDetail,
+  detail: SaveMemoryDetail,
 });
+
+export default [searchMemory, saveMemory];

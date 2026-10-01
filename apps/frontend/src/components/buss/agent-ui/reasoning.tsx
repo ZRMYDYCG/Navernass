@@ -7,7 +7,7 @@ import { cn } from "cn";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-import { StreamText } from "../message/stream-text";
+import { StreamText } from "./stream-text";
 
 interface ReasoningProps {
   text: string;

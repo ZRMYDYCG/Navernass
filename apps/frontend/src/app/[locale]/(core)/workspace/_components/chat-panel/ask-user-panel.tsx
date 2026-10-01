@@ -10,10 +10,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
-import {
-  OptionBadge,
-  optionLetter as letter,
-} from "@/app/[locale]/(core)/workspace/_components/agent-ui/option-badge";
+import { OptionBadge, optionLetter as letter } from "@/components/buss/agent-ui/option-badge";
 import { Button } from "@/components/ui/button";
 import type { PendingQuestion } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/message-utils";
 import type { AskUserInput, AskUserOutput } from "@/lib/http/modules/agent.schema";

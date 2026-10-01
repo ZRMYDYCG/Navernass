@@ -12,7 +12,7 @@ export const routing = defineRouting({
   localePrefix: "always",
 });
 
-/** 
- * 站点支持的语言。 
+/**
+ * 站点支持的语言。
  */
 export type AppLocale = (typeof routing.locales)[number];

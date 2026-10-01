@@ -11,13 +11,15 @@ import { Button } from "@/components/ui/button";
 import { getErrorMessage } from "@/lib/http/error";
 import { useApplyEdit, useEditStatus, useRejectEdit } from "@/servers/editor.server";
 import {
+  proposeEditInputSchema,
+  proposeEditOutputSchema,
   type EditOperation,
   type EditProposal,
   type EditStatus,
 } from "@/lib/http/modules/agent-tool.schema";
 
 import { OptionBadge, optionLetter } from "../option-badge";
-import type { ToolCall } from "../tools/tool-call";
+import { defineMaterial, type ToolCall } from "../protocol";
 
 const statusVariant: Record<EditStatus, "secondary" | "outline" | "destructive"> = {
   pending: "secondary",
@@ -67,7 +69,7 @@ function DiffBlock({ operation }: { operation: EditOperation }) {
 }
 
 /** 修改提案卡片：与提问面板一致的字母快捷键，字母切换勾选，Enter 应用所选。 */
-export function EditProposalCard({ output }: { call: ToolCall; output: EditProposal }) {
+function EditProposalCard({ output }: { call: ToolCall; output: EditProposal }) {
   const t = useTranslations("agui.edit");
   const { proposalId, operations } = output;
   const remote = useEditStatus(proposalId, { enabled: output.status === "pending" });
@@ -197,3 +199,14 @@ export function EditProposalCard({ output }: { call: ToolCall; output: EditPropo
     </div>
   );
 }
+
+const proposeArticleEdit = defineMaterial({
+  tool: "proposeArticleEdit",
+  icon: FilePenLineIcon,
+  input: proposeEditInputSchema,
+  output: proposeEditOutputSchema,
+  summary: (_, { input }) => input?.summary,
+  card: EditProposalCard,
+});
+
+export default [proposeArticleEdit];

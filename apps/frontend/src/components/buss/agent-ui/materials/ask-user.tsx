@@ -10,7 +10,7 @@ import {
   type AskUserOutput,
 } from "@/lib/http/modules/agent.schema";
 
-import { defineTool, type ToolProps } from "./define";
+import { defineMaterial, type MaterialContext } from "../protocol";
 
 function answerOf(question: AskUserInput["questions"][number], output: AskUserOutput | undefined) {
   if (output?.status !== "answered") return undefined;
@@ -23,7 +23,7 @@ function answerOf(question: AskUserInput["questions"][number], output: AskUserOu
   return labels.join("、");
 }
 
-function AskUserDetail({ input, output }: ToolProps<AskUserInput, AskUserOutput>) {
+function AskUserDetail({ input, output }: MaterialContext<AskUserInput, AskUserOutput>) {
   const t = useTranslations("agui.tools.askUser");
   if (!input) return null;
   return (
@@ -42,7 +42,8 @@ function AskUserDetail({ input, output }: ToolProps<AskUserInput, AskUserOutput>
   );
 }
 
-export const askUser = defineTool({
+const askUser = defineMaterial({
+  tool: "askUser",
   icon: MessageCircleQuestionMarkIcon,
   input: askUserInputSchema,
   output: askUserOutputSchema,
@@ -51,5 +52,7 @@ export const askUser = defineTool({
     return output?.status === "answered" ? t("tools.askUser.done") : t("tools.askUser.skipped");
   },
   summary: (_, { input }) => input?.title ?? input?.questions[0]?.prompt,
-  Detail: AskUserDetail,
+  detail: AskUserDetail,
 });
+
+export default [askUser];

@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 import { cn } from "cn";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { isActive, type ToolStatus } from "../tools/tool-call";
+import { isActive, type ToolStatus } from "./protocol";
 
 export function ToolGroup({ children }: { children: ReactNode }) {
   return <div className="flex min-w-0 flex-col gap-2">{children}</div>;

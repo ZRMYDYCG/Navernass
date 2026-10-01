@@ -3,14 +3,19 @@
 import { WrenchIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { ToolExcerpt, ToolField } from "../activity/tool-detail";
-import { defineTool, toolPhase, type ToolProps } from "./define";
+import {
+  defineMaterial,
+  ToolExcerpt,
+  ToolField,
+  toolPhase,
+  type MaterialContext,
+} from "./protocol";
 
 function stringify(value: unknown) {
   return typeof value === "string" ? value : JSON.stringify(value, null, 2);
 }
 
-function FallbackDetail({ call }: ToolProps<unknown, unknown>) {
+function FallbackDetail({ call }: MaterialContext<unknown, unknown>) {
   const t = useTranslations("agui.detail");
   return (
     <>
@@ -28,9 +33,10 @@ function FallbackDetail({ call }: ToolProps<unknown, unknown>) {
   );
 }
 
-/** 未登记的工具按原始 JSON 展示，保证后端新增工具时前端不会丢失信息。 */
-export const fallback = defineTool<unknown, unknown>({
+/** 兜底物料：未登记的工具按原始 JSON 展示，保证后端新增工具时前端不会丢失信息。 */
+export default defineMaterial({
+  tool: "*",
   icon: WrenchIcon,
-  title: (t, { call }) => t(`tools.fallback.${toolPhase(call)}`, { name: call.name }),
-  Detail: FallbackDetail,
+  title: (t, { call }) => t(`tools.fallback.${toolPhase(call)}`, { name: call.tool }),
+  detail: FallbackDetail,
 });

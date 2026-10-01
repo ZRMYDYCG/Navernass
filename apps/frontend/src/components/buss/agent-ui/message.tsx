@@ -7,20 +7,18 @@ import { useTranslations } from "next-intl";
 
 import { Spinner } from "@/components/ui/spinner";
 import type { AgentMessageMetadata } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
-import { ToolDuration } from "../activity/tool-duration";
-
-import { Reasoning } from "../activity/reasoning";
+import { Reasoning } from "./reasoning";
+import { resolveTool } from "./registry";
 import { StreamText } from "./stream-text";
-import { ToolGroup, ToolRow } from "../activity/tool-row";
-import { resolveTool } from "../tools/registry";
-import type { ResolvedTool } from "../tools/define";
-import { isActive, toToolCall, type ToolCall } from "../tools/tool-call";
+import { isActive, toToolCall, type MaterialView, type ToolCall } from "./protocol";
+import { ToolDuration } from "./duration";
+import { ToolGroup, ToolRow } from "./tool-row";
 
 type Part = UIMessage["parts"][number];
 
 interface ResolvedCall {
   call: ToolCall;
-  view: ResolvedTool;
+  view: MaterialView;
 }
 
 type Segment =
@@ -35,7 +33,7 @@ interface Source {
 }
 
 /** 把 parts 切成渲染片段：连续的工具调用合并为一组，step-start 不打断分组。 */
-function segment(parts: Part[], streaming: boolean, resolve: (call: ToolCall) => ResolvedTool) {
+function segment(parts: Part[], streaming: boolean, resolve: (call: ToolCall) => MaterialView) {
   const segments: Segment[] = [];
   const sources: Source[] = [];
   parts.forEach((part, index) => {
@@ -82,7 +80,7 @@ interface AssistantPartsProps {
   toolTimings?: AgentMessageMetadata["toolTimings"];
 }
 
-/** 渲染助手消息的全部 parts：流式文本、推理、工具调用组、需要用户操作的卡片和来源。 */
+/** 渲染引擎：把助手消息的全部 parts 交给物料解析，输出文本、推理、工具行、交互卡片和来源。 */
 export function AssistantParts({ parts, streaming = false, toolTimings }: AssistantPartsProps) {
   const t = useTranslations("agui");
   const { segments, sources } = segment(parts, streaming, (call) => resolveTool(call, t));

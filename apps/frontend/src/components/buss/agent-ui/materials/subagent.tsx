@@ -11,11 +11,17 @@ import {
   validateContinuityOutputSchema,
 } from "@/lib/http/modules/agent-tool.schema";
 
-import { StreamText } from "../message/stream-text";
-import { ToolExcerpt, ToolField, ToolMarkdown } from "../activity/tool-detail";
-import { defineTool, toolPhase, type ToolProps } from "./define";
+import {
+  defineMaterial,
+  ToolExcerpt,
+  ToolField,
+  ToolMarkdown,
+  toolPhase,
+  type MaterialContext,
+} from "../protocol";
+import { StreamText } from "../stream-text";
 
-type ValidateProps = ToolProps<
+type ValidateProps = MaterialContext<
   z.infer<typeof validateContinuityInputSchema>,
   z.infer<typeof validateContinuityOutputSchema>
 >;
@@ -40,15 +46,16 @@ function ValidateDetail({ input, output }: ValidateProps) {
   );
 }
 
-export const validateContinuity = defineTool({
+const validateContinuity = defineMaterial({
+  tool: "validateContinuity",
   icon: ShieldCheckIcon,
   input: validateContinuityInputSchema,
   output: validateContinuityOutputSchema,
   summary: (_, { input }) => input?.focus,
-  Detail: ValidateDetail,
+  detail: ValidateDetail,
 });
 
-type DelegateProps = ToolProps<
+type DelegateProps = MaterialContext<
   z.infer<typeof delegateSubagentInputSchema>,
   z.infer<typeof delegateSubagentOutputSchema>
 >;
@@ -73,7 +80,8 @@ function DelegateDetail({ input, output }: DelegateProps) {
   );
 }
 
-export const delegateSubagent = defineTool({
+const delegateSubagent = defineMaterial({
+  tool: "delegateSubagent",
   icon: BotIcon,
   input: delegateSubagentInputSchema,
   output: delegateSubagentOutputSchema,
@@ -82,5 +90,7 @@ export const delegateSubagent = defineTool({
       ? t(`tools.delegateSubagent.${toolPhase(call)}`, { role: t(`subagent.${input.role}`) })
       : t(`tools.delegateSubagent.pending`),
   summary: (_, { input }) => input?.task,
-  Detail: DelegateDetail,
+  detail: DelegateDetail,
 });
+
+export default [validateContinuity, delegateSubagent];

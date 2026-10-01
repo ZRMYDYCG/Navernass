@@ -1,124 +1,29 @@
 "use client";
 
-import {
-  BookOpenTextIcon,
-  BookPlusIcon,
-  ContactRoundIcon,
-  FilePenLineIcon,
-  FileTextIcon,
-  FilesIcon,
-  LibraryBigIcon,
-  TextSearchIcon,
-} from "lucide-react";
+import { BookOpenTextIcon, FilePenLineIcon, FilesIcon, TextSearchIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { z } from "zod";
 
 import {
-  chapterOutputSchema,
   articleWriteOutputSchema,
   listArticleFilesOutputSchema,
-  novelSnapshotOutputSchema,
   readArticleOutputSchema,
   searchArticleInputSchema,
   searchArticleOutputSchema,
-  volumeOutputSchema,
-  characterOutputSchema,
 } from "@/lib/http/modules/agent-tool.schema";
 
-import { ToolExcerpt, ToolMeta } from "../activity/tool-detail";
-import { defineTool, quote, type ToolProps } from "./define";
+import {
+  defineMaterial,
+  quote,
+  ToolExcerpt,
+  ToolMeta,
+  type MaterialContext,
+  type MaterialEntry,
+} from "../protocol";
 
 const contextLength = 60;
 
-type SnapshotProps = ToolProps<unknown, z.infer<typeof novelSnapshotOutputSchema>>;
-
-function SnapshotDetail({ output }: SnapshotProps) {
-  const t = useTranslations("agui.detail");
-  if (!output) return null;
-  const stats = [
-    ["chapters", output.chapters.length],
-    ["volumes", output.volumes.length],
-    ["worldbook", output.worldbook.length],
-    ["outlines", output.outlines.length],
-    ["timeline", output.timeline_events.length],
-  ] as const;
-  return (
-    <dl className="grid grid-cols-3 gap-1 text-center">
-      {stats.map(([key, count]) => (
-        <div key={key} className="flex flex-col-reverse py-0.5">
-          <dt className="text-xs text-muted-foreground">{t(key)}</dt>
-          <dd className="text-sm font-medium text-foreground tabular-nums">{count}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-export const getNovelSnapshot = defineTool({
-  icon: LibraryBigIcon,
-  output: novelSnapshotOutputSchema,
-  summary: (t, { output }) =>
-    output
-      ? `${output.title} · ${t("detail.chapterCount", { count: output.chapters.length })}`
-      : undefined,
-  Detail: SnapshotDetail,
-});
-
-type ChapterProps = ToolProps<unknown, z.infer<typeof chapterOutputSchema>>;
-
-function ChapterDetail({ output }: ChapterProps) {
-  const t = useTranslations("agui.detail");
-  if (!output) return null;
-  return (
-    <>
-      <ToolMeta
-        items={[
-          t("revision", { revision: output.revision }),
-          t("wordCount", { count: output.word_count }),
-        ]}
-      />
-      <ToolExcerpt>{output.content}</ToolExcerpt>
-    </>
-  );
-}
-
-export const getChapter = defineTool({
-  icon: FileTextIcon,
-  output: chapterOutputSchema,
-  summary: (_, { output }) => output?.title,
-  Detail: ChapterDetail,
-});
-
-export const createChapter = defineTool({
-  icon: BookPlusIcon,
-  output: chapterOutputSchema,
-  summary: (t, { output }) =>
-    output ? `${output.title} · ${t("detail.createdChapter")}` : undefined,
-  Detail: ChapterDetail,
-});
-
-export const createVolume = defineTool({
-  icon: BookPlusIcon,
-  output: volumeOutputSchema,
-  summary: (t, { output }) =>
-    output ? `${output.title} · ${t("detail.createdVolume")}` : undefined,
-});
-
-export const createCharacter = defineTool({
-  icon: ContactRoundIcon,
-  output: characterOutputSchema,
-  summary: (t, { output }) =>
-    output ? `${output.name} · ${t("detail.createdCharacter")}` : undefined,
-});
-
-export const updateCharacter = defineTool({
-  icon: ContactRoundIcon,
-  output: characterOutputSchema,
-  summary: (t, { output }) =>
-    output ? `${output.name} · ${t("detail.updatedCharacter")}` : undefined,
-});
-
-type ArticleFilesProps = ToolProps<unknown, z.infer<typeof listArticleFilesOutputSchema>>;
+type ArticleFilesProps = MaterialContext<unknown, z.infer<typeof listArticleFilesOutputSchema>>;
 
 function ArticleFilesDetail({ output }: ArticleFilesProps) {
   const t = useTranslations("agui.detail");
@@ -143,15 +48,16 @@ function ArticleFilesDetail({ output }: ArticleFilesProps) {
   );
 }
 
-export const listArticleFiles = defineTool({
+const listArticleFiles = defineMaterial({
+  tool: "listArticleFiles",
   icon: FilesIcon,
   output: listArticleFilesOutputSchema,
   summary: (t, { output }) =>
     output ? t("detail.fileCount", { count: output.files.length }) : undefined,
-  Detail: ArticleFilesDetail,
+  detail: ArticleFilesDetail,
 });
 
-type ReadArticleProps = ToolProps<unknown, z.infer<typeof readArticleOutputSchema>>;
+type ReadArticleProps = MaterialContext<unknown, z.infer<typeof readArticleOutputSchema>>;
 
 function ReadArticleDetail({ output }: ReadArticleProps) {
   const t = useTranslations("agui.detail");
@@ -170,7 +76,8 @@ function ReadArticleDetail({ output }: ReadArticleProps) {
   );
 }
 
-export const readArticle = defineTool({
+const readArticle = defineMaterial({
+  tool: "readArticle",
   icon: BookOpenTextIcon,
   output: readArticleOutputSchema,
   summary: (t, { output }) =>
@@ -181,10 +88,10 @@ export const readArticle = defineTool({
           total: output.totalLength,
         })}`
       : undefined,
-  Detail: ReadArticleDetail,
+  detail: ReadArticleDetail,
 });
 
-type SearchArticleProps = ToolProps<
+type SearchArticleProps = MaterialContext<
   z.infer<typeof searchArticleInputSchema>,
   z.infer<typeof searchArticleOutputSchema>
 >;
@@ -213,7 +120,8 @@ function SearchArticleDetail({ output }: SearchArticleProps) {
   );
 }
 
-export const searchArticle = defineTool({
+const searchArticle = defineMaterial({
+  tool: "searchArticle",
   icon: TextSearchIcon,
   input: searchArticleInputSchema,
   output: searchArticleOutputSchema,
@@ -222,10 +130,13 @@ export const searchArticle = defineTool({
     if (!output) return quote(input.query);
     return `${quote(input.query)} · ${t("detail.matchCount", { count: output.matches.length })}`;
   },
-  Detail: SearchArticleDetail,
+  detail: SearchArticleDetail,
 });
 
-type ArticleWriteProps = ToolProps<unknown, z.infer<typeof articleWriteOutputSchema>>;
+/** 同协议换匹配键即得别名物料。 */
+const grepArticle: MaterialEntry = { ...searchArticle, tool: "grepArticle" };
+
+type ArticleWriteProps = MaterialContext<unknown, z.infer<typeof articleWriteOutputSchema>>;
 
 function ArticleWriteDetail({ output }: ArticleWriteProps) {
   const t = useTranslations("agui.detail");
@@ -241,28 +152,39 @@ function ArticleWriteDetail({ output }: ArticleWriteProps) {
   );
 }
 
-export const editArticle = defineTool({
+const editArticle = defineMaterial({
+  tool: "editArticle",
   icon: FilePenLineIcon,
   output: articleWriteOutputSchema,
   summary: (t, { output }) =>
     output ? `${output.chapterTitle} · ${t("detail.written")}` : undefined,
-  Detail: ArticleWriteDetail,
+  detail: ArticleWriteDetail,
 });
 
-export const writeArticle = defineTool({
+const writeArticle = defineMaterial({
+  tool: "writeArticle",
   icon: FilePenLineIcon,
   output: articleWriteOutputSchema,
   summary: (t, { output }) =>
     output ? `${output.chapterTitle} · ${t("detail.written")}` : undefined,
-  Detail: ArticleWriteDetail,
+  detail: ArticleWriteDetail,
 });
 
-export const patchArticle = defineTool({
+const patchArticle = defineMaterial({
+  tool: "patchArticle",
   icon: FilePenLineIcon,
   output: articleWriteOutputSchema,
   summary: (t, { output }) =>
     output ? `${output.chapterTitle} · ${t("detail.written")}` : undefined,
-  Detail: ArticleWriteDetail,
+  detail: ArticleWriteDetail,
 });
 
-export const grepArticle = searchArticle;
+export default [
+  listArticleFiles,
+  readArticle,
+  searchArticle,
+  grepArticle,
+  editArticle,
+  writeArticle,
+  patchArticle,
+];

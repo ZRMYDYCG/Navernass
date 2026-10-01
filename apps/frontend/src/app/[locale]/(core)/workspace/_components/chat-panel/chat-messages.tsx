@@ -3,10 +3,7 @@
 import { memo, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 
-import {
-  AgentConnecting,
-  AssistantParts,
-} from "@/app/[locale]/(core)/workspace/_components/agent-ui/message/assistant-message";
+import { AgentConnecting, AssistantParts } from "@/components/buss/agent-ui/message";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import {
   MessageScroller,

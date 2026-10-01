@@ -12,10 +12,9 @@ import {
   readSkillResourceOutputSchema,
 } from "@/lib/http/modules/agent-tool.schema";
 
-import { ToolExcerpt, ToolField } from "../activity/tool-detail";
-import { defineTool, type ToolProps } from "./define";
+import { defineMaterial, ToolExcerpt, ToolField, type MaterialContext } from "../protocol";
 
-type LoadSkillProps = ToolProps<
+type LoadSkillProps = MaterialContext<
   z.infer<typeof loadSkillInputSchema>,
   z.infer<typeof loadSkillOutputSchema>
 >;
@@ -54,7 +53,8 @@ function LoadSkillDetail({ output }: LoadSkillProps) {
   );
 }
 
-export const loadSkill = defineTool({
+const loadSkill = defineMaterial({
+  tool: "loadSkill",
   icon: SparklesIcon,
   input: loadSkillInputSchema,
   output: loadSkillOutputSchema,
@@ -62,10 +62,10 @@ export const loadSkill = defineTool({
     output
       ? [output.id, output.version && `v${output.version}`].filter(Boolean).join(" ")
       : input?.skillId,
-  Detail: LoadSkillDetail,
+  detail: LoadSkillDetail,
 });
 
-type ReadResourceProps = ToolProps<
+type ReadResourceProps = MaterialContext<
   z.infer<typeof readSkillResourceInputSchema>,
   z.infer<typeof readSkillResourceOutputSchema>
 >;
@@ -74,10 +74,13 @@ function ReadResourceDetail({ output }: ReadResourceProps) {
   return output ? <ToolExcerpt>{output.content}</ToolExcerpt> : null;
 }
 
-export const readSkillResource = defineTool({
+const readSkillResource = defineMaterial({
+  tool: "readSkillResource",
   icon: FileCodeIcon,
   input: readSkillResourceInputSchema,
   output: readSkillResourceOutputSchema,
   summary: (_, { input }) => (input ? `${input.skillId}/${input.path}` : undefined),
-  Detail: ReadResourceDetail,
+  detail: ReadResourceDetail,
 });
+
+export default [loadSkill, readSkillResource];
