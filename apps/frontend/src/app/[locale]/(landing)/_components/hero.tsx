@@ -1,13 +1,16 @@
+"use client";
+
 import { PenLineIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { AuthCtaButton } from "@/components/auth/auth-cta-button";
+import { useWorkspaceEntry } from "@/components/buss/auth-dialog";
 import { Button } from "@/components/ui/button";
 
 import { LineText } from "./line-text";
 
 export function Hero() {
   const t = useTranslations("landing.hero");
+  const enterWorkspace = useWorkspaceEntry();
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 pt-16 pb-16 text-center sm:px-6 md:pt-24 lg:px-8">
@@ -18,10 +21,10 @@ export function Hero() {
         {t("description")}
       </p>
       <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-        <AuthCtaButton size="lg">
+        <Button size="lg" onClick={() => void enterWorkspace()}>
           <PenLineIcon data-icon="inline-start" />
           {t("cta")}
-        </AuthCtaButton>
+        </Button>
         <Button variant="outline" size="lg" render={<a href="#faq" />}>
           {t("secondary")}
         </Button>

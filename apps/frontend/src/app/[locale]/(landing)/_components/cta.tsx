@@ -1,10 +1,14 @@
+"use client";
+
 import { PenLineIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { AuthCtaButton } from "@/components/auth/auth-cta-button";
+import { useWorkspaceEntry } from "@/components/buss/auth-dialog";
+import { Button } from "@/components/ui/button";
 
 export function Cta() {
   const t = useTranslations("landing.cta");
+  const enterWorkspace = useWorkspaceEntry();
 
   return (
     <section className="mx-auto flex max-w-3xl flex-col items-center justify-center gap-12 px-4 py-16 sm:px-6">
@@ -13,10 +17,10 @@ export function Cta() {
         <p className="text-lg text-muted-foreground">{t("description")}</p>
         <p className="font-serif text-xl text-muted-foreground italic">{t("quote")}</p>
       </div>
-      <AuthCtaButton size="lg">
+      <Button size="lg" onClick={() => void enterWorkspace()}>
         <PenLineIcon data-icon="inline-start" />
         {t("button")}
-      </AuthCtaButton>
+      </Button>
     </section>
   );
 }

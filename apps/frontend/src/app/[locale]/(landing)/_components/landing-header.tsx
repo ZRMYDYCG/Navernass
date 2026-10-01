@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { AuthCtaButton } from "@/components/auth/auth-cta-button";
+import { useWorkspaceEntry } from "@/components/buss/auth-dialog";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 
@@ -13,6 +13,7 @@ const anchorLinks = ["faq"] as const;
 
 export function LandingHeader() {
   const t = useTranslations("landing.header");
+  const enterWorkspace = useWorkspaceEntry();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const nav = (
@@ -34,10 +35,10 @@ export function LandingHeader() {
   );
 
   const startButton = (
-    <AuthCtaButton size="lg">
+    <Button size="lg" onClick={() => void enterWorkspace()}>
       <PenLineIcon data-icon="inline-start" />
       {t("start")}
-    </AuthCtaButton>
+    </Button>
   );
 
   return (

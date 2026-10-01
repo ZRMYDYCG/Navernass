@@ -1,4 +1,4 @@
-import { AuthDialogProvider } from "@/components/auth/auth-dialog";
+import { AuthDialogProvider } from "@/components/buss/auth-dialog";
 
 import { Cta } from "./_components/cta";
 import { Faq } from "./_components/faq";

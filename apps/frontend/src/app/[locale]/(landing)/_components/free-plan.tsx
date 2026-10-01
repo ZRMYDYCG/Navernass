@@ -1,8 +1,11 @@
+"use client";
+
 import { CheckIcon, PenLineIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { AuthCtaButton } from "@/components/auth/auth-cta-button";
+import { useWorkspaceEntry } from "@/components/buss/auth-dialog";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 import { Highlight } from "./highlight";
 
@@ -10,6 +13,7 @@ const featureKeys = ["f1", "f2", "f3", "f4", "f5", "f6"] as const;
 
 export function FreePlan() {
   const t = useTranslations("landing.free");
+  const enterWorkspace = useWorkspaceEntry();
 
   return (
     <section
@@ -43,10 +47,10 @@ export function FreePlan() {
           </ul>
         </CardContent>
         <CardFooter>
-          <AuthCtaButton className="w-full" size="lg">
+          <Button className="w-full" size="lg" onClick={() => void enterWorkspace()}>
             <PenLineIcon data-icon="inline-start" />
             {t("cta")}
-          </AuthCtaButton>
+          </Button>
         </CardFooter>
       </Card>
     </section>
