@@ -208,8 +208,14 @@
     }
   },
   "relationshipGraph": {
-    "workspace": {
-      "addCharacter": "角色"
+    "toolbar": {
+      "addCharacter": "新建角色",
+      "newCharacterName": "新角色 {count}",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "resetZoom": "恢复 100%",
+      "fitView": "显示全部角色",
+      "arrange": "整理布局"
     },
     "kinds": {
       "ally": "盟友",
@@ -223,7 +229,7 @@
     },
     "editor": {
       "noSummary": "暂无摘要",
-      "emptyCanvas": "画布还是空的，点击右上角「角色」创建第一个人物。",
+      "emptyCanvas": "还没有角色，点下方的「新建角色」添加第一个。",
       "unsetRole": "未设定"
     },
     "explore": {

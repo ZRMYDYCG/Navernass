@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import {
   Background,
   BackgroundVariant,
+  Panel,
   ReactFlow,
   type Connection,
   type Edge,
@@ -14,10 +15,19 @@ import {
   type OnNodesChange,
   useEdgesState,
   useNodesState,
+  useReactFlow,
+  useStoreApi,
+  useViewport,
 } from "@xyflow/react";
+import { LayoutGridIcon, MinusIcon, PlusIcon, ScanIcon, UserPlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { useCreateRelationship, useUpdateCharacter } from "@/servers/library.server";
+import { Button } from "@/components/ui/button";
+import {
+  useCreateCharacter,
+  useCreateRelationship,
+  useUpdateCharacter,
+} from "@/servers/library.server";
 import { useRelationshipGraphStore } from "@/stores";
 
 import { CharacterNode, type CharacterNodeData } from "./character-node";
@@ -184,12 +194,135 @@ export function GraphCanvas({ novelId, characters, relationships }: GraphCanvasP
           size={1}
           color="color-mix(in_oklch,var(--foreground),transparent 80%)"
         />
+        <Panel position="bottom-center">
+          <Toolbar novelId={novelId} characters={characters} />
+        </Panel>
       </ReactFlow>
       {characters.length === 0 ? (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
           {t("editor.emptyCanvas")}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/** 角色卡片的近似尺寸，用于把新角色放到视野中心、整理布局时留出间距。 */
+const nodeSize = { width: 256, height: 110 };
+const zoomDuration = 200;
+
+/** 画布底部的操作栏：新建角色、缩放与视图、整理布局。 */
+function Toolbar({ novelId, characters }: { novelId?: string; characters: Character[] }) {
+  const t = useTranslations("relationshipGraph.toolbar");
+  const createCharacter = useCreateCharacter(novelId);
+  const updateCharacter = useUpdateCharacter(novelId);
+  const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
+  const openInspector = useRelationshipGraphStore((state) => state.openInspector);
+  const { zoomIn, zoomOut, zoomTo, fitView } = useReactFlow();
+  const { zoom } = useViewport();
+  const store = useStoreApi();
+
+  const addCharacter = () => {
+    if (!novelId) return;
+    const {
+      width,
+      height,
+      transform: [x, y, scale],
+    } = store.getState();
+    // 连续新建时错开一点，避免卡片完全叠在一起。
+    const offset = (characters.length % 5) * 24;
+    createCharacter.mutate(
+      {
+        novel_id: novelId,
+        name: t("newCharacterName", { count: characters.length + 1 }),
+        overview_x: Math.round((width / 2 - x) / scale - nodeSize.width / 2 + offset),
+        overview_y: Math.round((height / 2 - y) / scale - nodeSize.height / 2 + offset),
+        custom_fields: [],
+      },
+      {
+        onSuccess: (character) => {
+          selectCharacter(character.id);
+          openInspector();
+        },
+      },
+    );
+  };
+
+  const arrange = () => {
+    const columns = Math.ceil(Math.sqrt(characters.length));
+    characters.forEach((character, index) => {
+      updateCharacter(character.id, {
+        overview_x: (index % columns) * (nodeSize.width + 64),
+        overview_y: Math.floor(index / columns) * (nodeSize.height + 80),
+      });
+    });
+    requestAnimationFrame(() => void fitView({ duration: 300 }));
+  };
+
+  return (
+    <div className="flex items-center gap-1 rounded-lg border border-border bg-background/95 p-1 shadow-sm">
+      <Button
+        type="button"
+        size="sm"
+        disabled={!novelId || createCharacter.isPending}
+        onClick={addCharacter}
+      >
+        <UserPlusIcon />
+        {t("addCharacter")}
+      </Button>
+      <div className="mx-1 h-5 w-px bg-border" />
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        title={t("zoomOut")}
+        aria-label={t("zoomOut")}
+        onClick={() => void zoomOut({ duration: zoomDuration })}
+      >
+        <MinusIcon />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        title={t("resetZoom")}
+        aria-label={t("resetZoom")}
+        onClick={() => void zoomTo(1, { duration: zoomDuration })}
+      >
+        <span className="w-9 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        title={t("zoomIn")}
+        aria-label={t("zoomIn")}
+        onClick={() => void zoomIn({ duration: zoomDuration })}
+      >
+        <PlusIcon />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        title={t("fitView")}
+        aria-label={t("fitView")}
+        onClick={() => void fitView({ duration: 300 })}
+      >
+        <ScanIcon />
+      </Button>
+      <div className="mx-1 h-5 w-px bg-border" />
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        title={t("arrange")}
+        aria-label={t("arrange")}
+        disabled={characters.length < 2}
+        onClick={arrange}
+      >
+        <LayoutGridIcon />
+      </Button>
     </div>
   );
 }

@@ -208,8 +208,14 @@
     }
   },
   "relationshipGraph": {
-    "workspace": {
-      "addCharacter": "Character"
+    "toolbar": {
+      "addCharacter": "New character",
+      "newCharacterName": "Character {count}",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "resetZoom": "Reset to 100%",
+      "fitView": "Show all characters",
+      "arrange": "Tidy layout"
     },
     "kinds": {
       "ally": "Ally",
@@ -223,7 +229,7 @@
     },
     "editor": {
       "noSummary": "No summary yet",
-      "emptyCanvas": "The canvas is empty. Click “Character” in the top right to create your first one.",
+      "emptyCanvas": "No characters yet. Use “New character” below to add the first one.",
       "unsetRole": "Not set"
     },
     "explore": {
