@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Link } from "@/i18n/navigation";
-import { signInEmail, signUpEmail } from "@/lib/api/auth.api";
+import { signInEmail, signUpEmail } from "@/lib/http/modules/auth.api";
 
 type AuthMode = "login" | "register";
 

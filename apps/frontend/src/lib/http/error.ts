@@ -1,4 +1,4 @@
-import { apiErrorSchema, type ApiErrorPayload } from "@/schemas/api.schema";
+import { apiErrorSchema, type ApiErrorPayload } from "@/lib/http/modules/api.schema";
 
 export class ApiError extends Error {
   readonly status: number;

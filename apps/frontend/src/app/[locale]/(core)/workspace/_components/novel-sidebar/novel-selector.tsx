@@ -12,8 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useNovel, useNovels } from "@/lib/query/library.query";
-import type { Novel } from "@/schemas/library.schema";
+import { useNovel, useNovels } from "@/hooks/library/queries";
+import type { Novel } from "@/lib/http/modules/library.schema";
 
 function NovelCover({ novel, size }: { novel: Novel; size: "sm" | "lg" }) {
   const sizeClass = size === "lg" ? "size-16 rounded-lg" : "size-9 rounded-md";

@@ -13,11 +13,10 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePendingEdit } from "@/lib/query/editor.query";
-import { useChapter } from "@/lib/query/library.query";
-import { countWords } from "@/lib/word-count";
-import type { Chapter } from "@/schemas/library.schema";
-import type { ChapterEdit } from "@/schemas/editor.schema";
+import { usePendingEdit } from "@/hooks/editor/queries";
+import { useChapter } from "@/hooks/library/queries";
+import type { Chapter } from "@/lib/http/modules/library.schema";
+import type { ChapterEdit } from "@/lib/http/modules/editor.schema";
 
 import { createEditorStatusStore, type EditorStatusStore } from "./editor-status-store";
 import { EditorHeader } from "./editor-header";
@@ -54,6 +53,11 @@ interface EditableManuscriptProps {
   initialContent: string;
   placeholder: string;
   editorStatus: EditorStatusStore;
+}
+
+/** 与后端 LibraryService 的计算保持一致，避免保存前后字数跳变。 */
+function countWords(text: string) {
+  return text.replace(/\s+/gu, "").length;
 }
 
 /** 保存状态变化可以重渲染此控制层，但 memo 会隔离下方的 Lexical 编辑器。 */

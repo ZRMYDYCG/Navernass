@@ -2,7 +2,7 @@ import type { Input, Options } from "ky";
 import { HTTPError } from "ky";
 import type { z } from "zod";
 
-import { apiEnvelopeSchema, apiErrorSchema } from "@/schemas/api.schema";
+import { apiEnvelopeSchema, apiErrorSchema } from "@/lib/http/modules/api.schema";
 
 import { apiClient } from "./client";
 import { ApiError } from "./error";

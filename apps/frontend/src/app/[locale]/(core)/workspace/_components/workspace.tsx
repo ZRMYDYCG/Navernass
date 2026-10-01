@@ -6,12 +6,12 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTranslations } from "next-intl";
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { NovelGraphWorkspace } from "@/components/buss/novel-graph/novel-graph-workspace";
-import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/lib/query/library.query";
+import { NovelGraphWorkspace } from "@/app/[locale]/(core)/workspace/_components/novel-graph/novel-graph-workspace";
+import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/hooks/library/queries";
 
 import { AppHeader } from "./app-header";
 import { ChapterEditor, EmptyChapterEditor } from "./chapter-editor/chapter-editor";
-import { ChatPanel } from "./chat-panel";
+import { ChatPanel } from "./chat-panel/chat-panel";
 import { EditorTabs, type EditorTab } from "./editor-tabs";
 import type { SidebarView } from "./novel-sidebar/activity-bar";
 import { NovelSidebar } from "./novel-sidebar/novel-sidebar";

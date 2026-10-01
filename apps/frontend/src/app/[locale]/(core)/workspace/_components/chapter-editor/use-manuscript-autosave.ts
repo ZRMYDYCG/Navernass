@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import { useUpdateChapterContent } from "@/lib/query/library.query";
+import { useUpdateChapterContent } from "@/hooks/library/queries";
 
 import type { EditorStatusStore } from "./editor-status-store";
 

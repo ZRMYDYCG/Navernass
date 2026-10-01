@@ -6,8 +6,8 @@ import { useState, type ReactNode } from "react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useNovelChapters, useNovelVolumes } from "@/lib/query/library.query";
-import type { ChapterSummary, Volume } from "@/schemas/library.schema";
+import { useNovelChapters, useNovelVolumes } from "@/hooks/library/queries";
+import type { ChapterSummary, Volume } from "@/lib/http/modules/library.schema";
 
 interface ChapterGroup {
   /** 缺省表示未分卷的章节。 */

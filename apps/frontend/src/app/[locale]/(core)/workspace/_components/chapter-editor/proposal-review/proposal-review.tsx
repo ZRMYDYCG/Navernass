@@ -3,8 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { useApplyEdit, useRejectEdit } from "@/lib/query/editor.query";
-import type { ChapterEdit } from "@/schemas/editor.schema";
+import { useApplyEdit, useRejectEdit } from "@/hooks/editor/queries";
+import type { ChapterEdit } from "@/lib/http/modules/editor.schema";
 
 import { ManuscriptEditor } from "../manuscript-editor/manuscript-editor";
 import { buildDiffHunks } from "./build-diff-hunks";

@@ -1,6 +1,6 @@
 import ky, { HTTPError } from "ky";
 
-import { apiErrorSchema } from "@/schemas/api.schema";
+import { apiErrorSchema } from "@/lib/http/modules/api.schema";
 
 import { ApiError } from "./error";
 

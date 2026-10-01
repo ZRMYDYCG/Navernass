@@ -32,8 +32,12 @@ import {
   useProviders,
   useTestProvider,
   useUpdateProvider,
-} from "@/lib/query/provider.query";
-import type { ProviderConfig, ProviderKind, ProviderPayload } from "@/schemas/provider.schema";
+} from "@/hooks/providers/queries";
+import type {
+  ProviderConfig,
+  ProviderKind,
+  ProviderPayload,
+} from "@/lib/http/modules/provider.schema";
 
 const providerKinds: ProviderKind[] = [
   "openai",

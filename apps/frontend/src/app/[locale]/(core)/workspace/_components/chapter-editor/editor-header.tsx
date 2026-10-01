@@ -12,8 +12,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Spinner } from "@/components/ui/spinner";
-import { useNovel, useNovelVolumes } from "@/lib/query/library.query";
-import type { Chapter } from "@/schemas/library.schema";
+import { useNovel, useNovelVolumes } from "@/hooks/library/queries";
+import type { Chapter } from "@/lib/http/modules/library.schema";
 
 import type { EditorStatusStore, SaveStatus } from "./editor-status-store";
 

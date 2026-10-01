@@ -1,4 +1,4 @@
-import type { ResolvedEditOperation } from "@/schemas/editor.schema";
+import type { ResolvedEditOperation } from "@/lib/http/modules/editor.schema";
 
 export interface DiffHunk {
   /** 取首个编辑操作的 id，作为文档节点与审阅状态的键。 */
