@@ -135,6 +135,18 @@ Extract only what carries core correctness. Everything else lives inside its bus
 - `src/lib/` is shared infrastructure only (http client, error, schemas). Feature business logic never goes there — `lib` means shared, and lib must not import from feature folders.
 - Target blast radius: a change to one business concern touches exactly one file. If a "helper" edit forces touching several files, it's misplaced.
 - Store classes consumed via `useSyncExternalStore` live beside the component that renders from them (e.g. `StreamingMessageStore` inside `chat-messages.tsx`), not in separate files.
+- Don't wrap one component's state + effects + actions into a custom hook for a single consumer — that's indirection, not abstraction. The component wires `useReducer` and effects directly; the extracted part is the pure machine/reducer.
+- Cross-component view models come from the feature's data entry (the component that owns the machine): it maps DTO → view model once and passes models down as props. Payload builders dissolve into each mutation's call site — no shared mapper/builder files.
+
+### Business Component Naming — names carry business, not structure
+
+The folder already states the category; the file must state the business. Generic prefixes/suffixes are noise that compounds until nobody can navigate.
+
+- No generic suffixes/prefixes: inside `views/` it's `search.tsx`, never `search-view.tsx`; inside `sidebar/` it's `placeholder.tsx`, never `SidebarPlaceholderView`. Specific business nouns are fine (`chapter-outline.tsx`, `novel-selector.tsx`); pattern suffixes (`-view`, `-panel`, `-ui`, `-settings`) are not.
+- File name = component name = business identity: `characters.tsx` exports `Characters`. View/tab/section ids map 1:1 to file and component (`SidebarView` "novel" → `views/novel.tsx` → `<Novel/>`; settings section "general" → `general.tsx` → `<General/>`). Adding a view = one id + one same-named file.
+- A feature's entry is `index.tsx` exporting the domain-named root (`settings/index.tsx` → `Settings`, imported as `./settings`). Never `settings/settings.tsx` — folder/file/name triple redundancy.
+- Feature-internal logic files are named by what they are: `machine.ts` for the state core, `types.ts` for contracts. Never `model.ts`, `utils.ts`, `xxx-ui.tsx`, or noun-less names like `stream-store.ts`.
+- Layout primitives are not a layer inside a feature: inline single-use JSX; if reused within one business file, keep it a private component there. No shared `xxx-ui.tsx` primitive grab-bags.
 
 ### Type Safety
 
