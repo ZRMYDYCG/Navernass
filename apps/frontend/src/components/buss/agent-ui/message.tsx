@@ -6,7 +6,7 @@ import { LinkIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Spinner } from "@/components/ui/spinner";
-import type { AgentMessageMetadata } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
+import type { ChatMessageMetadata } from "@/app/[locale]/(core)/workspace/_components/chat-panel/types";
 import { Reasoning } from "./reasoning";
 import { resolveTool } from "./registry";
 import { StreamText } from "./stream-text";
@@ -77,7 +77,7 @@ function Pending({ label }: { label: string }) {
 interface AssistantPartsProps {
   parts: Part[];
   streaming?: boolean;
-  toolTimings?: AgentMessageMetadata["toolTimings"];
+  toolTimings?: ChatMessageMetadata["toolTimings"];
 }
 
 /** 渲染引擎：把助手消息的全部 parts 交给物料解析，输出文本、推理、工具行、交互卡片和来源。 */

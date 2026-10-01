@@ -12,8 +12,12 @@ import type { KeyboardEvent } from "react";
 
 import { OptionBadge, optionLetter as letter } from "@/components/buss/agent-ui/option-badge";
 import { Button } from "@/components/ui/button";
-import type { PendingQuestion } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/message-utils";
 import type { AskUserInput, AskUserOutput } from "@/lib/http/modules/agent.schema";
+
+interface PendingQuestion {
+  toolCallId: string;
+  input: AskUserInput;
+}
 
 type Question = AskUserInput["questions"][number];
 

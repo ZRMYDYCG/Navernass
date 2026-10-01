@@ -1,6 +1,6 @@
 import type { UIMessage } from "ai";
 
-export interface AgentTraceNode {
+export interface TraceNode {
   id: string;
   parentId?: string;
   kind: "run" | "tool" | "subagent";
@@ -17,7 +17,7 @@ export interface AgentTraceNode {
   metadata?: Record<string, unknown>;
 }
 
-export interface AgentTraceEvent {
+export interface TraceEvent {
   id: string;
   nodeId: string;
   parentId?: string;
@@ -29,39 +29,26 @@ export interface AgentTraceEvent {
   error?: string;
 }
 
-export interface AgentExecutionTrace {
+export interface ExecutionTrace {
   runId: string;
   rootId: string;
-  nodes: Record<string, AgentTraceNode>;
-  events: AgentTraceEvent[];
+  nodes: Record<string, TraceNode>;
+  events: TraceEvent[];
 }
 
-export interface AgentMessageMetadata {
+export interface ChatMessageMetadata {
   runId?: string;
   sessionId?: string;
   aiSdkMessageId?: string;
   interrupted?: boolean;
   paused?: boolean;
   toolTimings?: Record<string, { startedAt: number; durationMs?: number }>;
-  executionTrace?: AgentExecutionTrace;
+  executionTrace?: ExecutionTrace;
 }
 
-export type AgentMessage = UIMessage<AgentMessageMetadata>;
+export type ChatMessage = UIMessage<ChatMessageMetadata>;
 
-export interface AgentContext {
+export interface ChatContext {
   novelId: string;
   chapterId?: string;
-}
-
-export function resolveAgentMessageId(message: AgentMessage, fallback: string) {
-  const id = message.id?.trim();
-  if (id) return id;
-
-  const aiSdkMessageId = message.metadata?.aiSdkMessageId?.trim();
-  if (aiSdkMessageId) return aiSdkMessageId;
-
-  const runId = message.metadata?.runId?.trim();
-  if (runId) return `${message.role}-${runId}`;
-
-  return fallback;
 }

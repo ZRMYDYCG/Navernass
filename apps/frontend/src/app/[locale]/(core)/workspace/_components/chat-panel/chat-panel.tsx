@@ -1,22 +1,11 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { readUIMessageStream } from "ai";
+import { isToolUIPart, readUIMessageStream } from "ai";
 import { LoaderCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import type { AgentMessage } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
-import {
-  chatReducer,
-  initialChatState,
-} from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-machine";
-import {
-  findPendingQuestion,
-  hasRenderablePart,
-} from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/message-utils";
-import { StreamStore } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/stream-store";
 import { useWorkspaceStore } from "@/stores";
 import {
   answerAgentStream,
@@ -33,21 +22,48 @@ import {
 } from "@/servers/agent.server";
 import { editorKeys } from "@/servers/editor.server";
 import { libraryKeys } from "@/servers/library.server";
-import type { AskUserOutput } from "@/lib/http/modules/agent.schema";
+import { askUserInputSchema, type AskUserOutput } from "@/lib/http/modules/agent.schema";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AskUserPanel } from "./ask-user-panel";
 import { Composer } from "./chat-composer";
-import { Messages } from "./chat-messages";
+import { Messages, StreamingMessageStore } from "./chat-messages";
+import { chatReducer, initialChatState } from "./machine";
 import { SessionSwitcher } from "./session-switcher";
 import { Welcome } from "./chat-welcome";
+import type { ChatMessage } from "./types";
 
 interface ChatPanelProps {
   novelId?: string;
   chapterId?: string;
 }
 
-function getSessionId(message: AgentMessage | undefined) {
+function getSessionId(message: ChatMessage | undefined) {
   return message?.metadata?.sessionId;
+}
+
+const askUserPartType = "tool-askUser";
+
+/** 消息是否包含可渲染内容（非空文本、推理或工具调用）。 */
+function hasRenderablePart(message: ChatMessage) {
+  return message.parts.some(
+    (part) =>
+      ((part.type === "text" || part.type === "reasoning") && part.text.trim()) ||
+      isToolUIPart(part),
+  );
+}
+
+/** 只有最后一条助手消息里尚未得到结果的 askUser 才需要弹出面板。 */
+function findPendingQuestion(messages: ChatMessage[]) {
+  const last = messages.at(-1);
+  if (last?.role !== "assistant") return undefined;
+  for (const part of last.parts) {
+    if (part.type !== askUserPartType || !isToolUIPart(part)) continue;
+    if (part.state !== "input-available") continue;
+    const input = askUserInputSchema.safeParse(part.input);
+    if (input.success) return { toolCallId: part.toolCallId, input: input.data };
+  }
+  return undefined;
 }
 
 export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
@@ -62,7 +78,7 @@ export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
     phase: storedSessionId ? "hydrating" : "idle",
     sessionId: storedSessionId,
   });
-  const streamStore = useMemo(() => new StreamStore(), []);
+  const streamStore = useMemo(() => new StreamingMessageStore(), []);
   const abortRef = useRef<AbortController>(null);
   const resumedRunsRef = useRef(new Set<string>());
   const pauseRequestedViewsRef = useRef(new Set<number>());
@@ -147,7 +163,7 @@ export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
     ) => {
       const controller = new AbortController();
       abortRef.current = controller;
-      let finalMessage: AgentMessage | undefined;
+      let finalMessage: ChatMessage | undefined;
       let streamSessionId = knownSessionId;
       let streamRunId = knownRunId;
       const streamFallbackId = `assistant-${crypto.randomUUID()}`;
@@ -156,7 +172,7 @@ export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
       try {
         const stream = await createStream(controller.signal);
         refreshSessionData(streamSessionId);
-        for await (const message of readUIMessageStream<AgentMessage>({
+        for await (const message of readUIMessageStream<ChatMessage>({
           stream,
           terminateOnError: true,
         })) {
@@ -261,7 +277,7 @@ export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
     const text = prompt.trim();
     if (!text || !canSend || !novelId) return;
 
-    const message: AgentMessage = {
+    const message: ChatMessage = {
       id: crypto.randomUUID(),
       role: "user",
       parts: [{ type: "text", text }],

@@ -4,9 +4,9 @@ import { DefaultChatTransport } from "ai";
 import { z } from "zod";
 
 import type {
-  AgentContext,
-  AgentMessage,
-} from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
+  ChatContext,
+  ChatMessage,
+} from "@/app/[locale]/(core)/workspace/_components/chat-panel/types";
 import { apiBaseUrl } from "@/lib/http/client";
 import { ApiError } from "@/lib/http/error";
 import { apiRequest } from "@/lib/http/request";
@@ -20,7 +20,7 @@ import {
 const sessionDeletedSchema = z.object({ deleted: z.boolean() });
 
 function sendStream(path: string, body: object, signal: AbortSignal) {
-  const transport = new DefaultChatTransport<AgentMessage>({
+  const transport = new DefaultChatTransport<ChatMessage>({
     api: `${apiBaseUrl}/${path}`,
     credentials: "include",
     prepareSendMessagesRequest: ({ body }) => ({ body: body ?? {} }),
@@ -36,7 +36,7 @@ function sendStream(path: string, body: object, signal: AbortSignal) {
 }
 
 export function startAgentStream(
-  context: AgentContext,
+  context: ChatContext,
   prompt: string,
   sessionId: string | undefined,
   signal: AbortSignal,
@@ -72,7 +72,7 @@ export async function resumeAgentStream(
   runId: string,
   signal: AbortSignal,
 ): Promise<ReadableStream<UIMessageChunk>> {
-  const transport = new DefaultChatTransport<AgentMessage>({
+  const transport = new DefaultChatTransport<ChatMessage>({
     api: `${apiBaseUrl}/agent/runs`,
     credentials: "include",
     prepareReconnectToStreamRequest: ({ id }) => ({
@@ -109,7 +109,7 @@ export async function deleteChatSession(sessionId: string) {
   return apiRequest(`agent/sessions/${sessionId}`, sessionDeletedSchema, { method: "delete" });
 }
 
-export async function getSessionMessages(sessionId: string): Promise<AgentMessage[]> {
+export async function getSessionMessages(sessionId: string): Promise<ChatMessage[]> {
   const page = await apiRequest(
     `agent/sessions/${sessionId}/messages?limit=100`,
     sessionMessagePageSchema,
@@ -118,6 +118,6 @@ export async function getSessionMessages(sessionId: string): Promise<AgentMessag
     id: message.remote_id?.trim() || message.id,
     role: message.role,
     metadata: message.metadata,
-    parts: message.parts as AgentMessage["parts"],
+    parts: message.parts as ChatMessage["parts"],
   }));
 }

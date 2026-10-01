@@ -1,13 +1,16 @@
+import { isToolUIPart } from "ai";
+
 import type { AskUserOutput } from "@/lib/http/modules/agent.schema";
 
-import type { AgentMessage } from "./chat-types";
-import { resolveQuestion } from "./message-utils";
+import type { ChatMessage } from "./types";
+
+const askUserPartType = "tool-askUser";
 
 export type ChatPhase = "hydrating" | "idle" | "streaming" | "pausing" | "error";
 
 export interface ChatState {
   phase: ChatPhase;
-  messages: AgentMessage[];
+  messages: ChatMessage[];
   sessionId?: string;
   runId?: string;
   error?: string;
@@ -17,14 +20,14 @@ export interface ChatState {
 export type ChatEvent =
   | { type: "SELECT_SESSION"; sessionId?: string }
   | { type: "STREAM_IDENTIFIED"; sessionId?: string; runId?: string; viewKey: number }
-  | { type: "HYDRATE"; sessionId: string; messages: AgentMessage[] }
+  | { type: "HYDRATE"; sessionId: string; messages: ChatMessage[] }
   | { type: "RESUME"; runId: string; viewKey: number }
-  | { type: "SEND"; message: AgentMessage }
+  | { type: "SEND"; message: ChatMessage }
   | { type: "ANSWER"; toolCallId: string; output: AskUserOutput }
   | { type: "PAUSE"; runId: string; viewKey: number }
   | { type: "PAUSE_FAILED"; viewKey: number; message: string }
-  | { type: "STREAM_DONE"; viewKey: number; message?: AgentMessage; sessionId?: string }
-  | { type: "STOP"; viewKey: number; message?: AgentMessage }
+  | { type: "STREAM_DONE"; viewKey: number; message?: ChatMessage; sessionId?: string }
+  | { type: "STOP"; viewKey: number; message?: ChatMessage }
   | { type: "FAIL"; viewKey: number; message: string };
 
 export const initialChatState: ChatState = {
@@ -32,6 +35,25 @@ export const initialChatState: ChatState = {
   messages: [],
   viewKey: 0,
 };
+
+/** 把最后一条消息里悬挂的 askUser 补上结果；不传 toolCallId 时全部记为该结果。 */
+function resolveQuestion(
+  messages: ChatMessage[],
+  output: AskUserOutput,
+  toolCallId?: string,
+): ChatMessage[] {
+  const last = messages.at(-1);
+  if (last?.role !== "assistant") return messages;
+  const parts = last.parts.map((part) =>
+    part.type === askUserPartType &&
+    isToolUIPart(part) &&
+    part.state === "input-available" &&
+    (!toolCallId || part.toolCallId === toolCallId)
+      ? ({ ...part, state: "output-available", output } as ChatMessage["parts"][number])
+      : part,
+  );
+  return [...messages.slice(0, -1), { ...last, parts }];
+}
 
 /** 显式状态迁移，避免网络状态和 UI 状态互相污染。 */
 export function chatReducer(state: ChatState, event: ChatEvent): ChatState {

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import type { AgentMessageMetadata } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
+import type { ChatMessageMetadata } from "@/app/[locale]/(core)/workspace/_components/chat-panel/types";
 
-type Timing = NonNullable<AgentMessageMetadata["toolTimings"]>[string];
+type Timing = NonNullable<ChatMessageMetadata["toolTimings"]>[string];
 
 export function ToolDuration({ timing, running }: { timing?: Timing; running: boolean }) {
   const t = useTranslations("agui.duration");

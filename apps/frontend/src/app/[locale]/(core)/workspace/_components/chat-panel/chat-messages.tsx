@@ -14,21 +14,70 @@ import {
   MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
 import { Message, MessageContent } from "@/components/ui/message";
-import type { AgentMessage } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
-import { resolveAgentMessageId } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
-import type { StreamStore } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/stream-store";
+import type { ChatMessage } from "./types";
+
+type Listener = () => void;
+
+/**
+ * 通知节流：逐字动画会为每个字符挂载 span，token 级高频重渲染容易把
+ * 渲染树压爆栈（Maximum call stack）。等价于 useChat 调高
+ * experimental_throttle——动画卡顿/报栈时优先调大这个间隔。
+ */
+const NOTIFY_THROTTLE_MS = 100;
+
+/** 流式消息的外部 store，供 useSyncExternalStore 消费；每个 token 只通知当前输出消息。 */
+export class StreamingMessageStore {
+  private message: ChatMessage | undefined;
+  private readonly listeners = new Set<Listener>();
+  private timer: ReturnType<typeof setTimeout> | undefined;
+
+  getSnapshot = () => this.message;
+
+  subscribe = (listener: Listener) => {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  };
+
+  /** 首帧立即广播，节流窗口内的后续 token 合并为窗口末尾的一次通知。 */
+  set(message: ChatMessage | undefined) {
+    this.message = message;
+    if (this.timer !== undefined) return;
+    this.notify();
+    this.timer = setTimeout(() => {
+      this.timer = undefined;
+      this.notify();
+    }, NOTIFY_THROTTLE_MS);
+  }
+
+  private notify() {
+    this.listeners.forEach((listener) => listener());
+  }
+}
+
+function resolveMessageId(message: ChatMessage, fallback: string) {
+  const id = message.id?.trim();
+  if (id) return id;
+
+  const aiSdkMessageId = message.metadata?.aiSdkMessageId?.trim();
+  if (aiSdkMessageId) return aiSdkMessageId;
+
+  const runId = message.metadata?.runId?.trim();
+  if (runId) return `${message.role}-${runId}`;
+
+  return fallback;
+}
 
 interface MessagesProps {
-  messages: AgentMessage[];
+  messages: ChatMessage[];
   busy: boolean;
-  store: StreamStore;
+  store: StreamingMessageStore;
 }
 
 function MessageBody({
   message,
   streaming = false,
 }: {
-  message: AgentMessage;
+  message: ChatMessage;
   streaming?: boolean;
 }) {
   const t = useTranslations("chat.message");
@@ -78,7 +127,7 @@ export function Messages({ messages, busy, store }: MessagesProps) {
           <MessageScrollerViewport>
             <MessageScrollerContent>
               {messages.map((message, index) => {
-                const messageId = resolveAgentMessageId(message, `${message.role}-${index}`);
+                const messageId = resolveMessageId(message, `${message.role}-${index}`);
                 return (
                   <MessageScrollerItem
                     key={messageId}
@@ -99,11 +148,11 @@ export function Messages({ messages, busy, store }: MessagesProps) {
   );
 }
 
-function StreamingMessageItem({ store }: { store: StreamStore }) {
+function StreamingMessageItem({ store }: { store: StreamingMessageStore }) {
   const message = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
   if (!message) return null;
 
-  const messageId = resolveAgentMessageId(message, "assistant-streaming");
+  const messageId = resolveMessageId(message, "assistant-streaming");
   return (
     <MessageScrollerItem messageId={messageId} scrollAnchor={false}>
       {message.parts.length === 0 ? (
