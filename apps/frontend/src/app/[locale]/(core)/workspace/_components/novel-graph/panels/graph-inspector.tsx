@@ -17,7 +17,7 @@ import {
   useDeleteRelationship,
   useUpdateCharacter,
   useUpdateRelationship,
-} from "@/hooks/library/queries";
+} from "@/servers/library.server";
 
 import {
   characterPatchToPayload,

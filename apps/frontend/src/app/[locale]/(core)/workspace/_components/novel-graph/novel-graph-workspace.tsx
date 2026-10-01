@@ -9,7 +9,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { characterCreatePayload, useCharacters } from "./api";
-import { useCreateCharacter } from "@/hooks/library/queries";
+import { useCreateCharacter } from "@/servers/library.server";
 import { useNovelGraphStore } from "./graph-store";
 import type { GraphViewMode } from "./types";
 import { GraphInspector } from "./panels/graph-inspector";

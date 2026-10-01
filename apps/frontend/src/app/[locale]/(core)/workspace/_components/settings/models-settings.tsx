@@ -32,7 +32,7 @@ import {
   useProviders,
   useTestProvider,
   useUpdateProvider,
-} from "@/hooks/providers/queries";
+} from "@/servers/provider.server";
 import type {
   ProviderConfig,
   ProviderKind,

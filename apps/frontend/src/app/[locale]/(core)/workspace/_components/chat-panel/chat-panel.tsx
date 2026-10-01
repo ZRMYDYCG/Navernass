@@ -7,10 +7,16 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import type { AgentMessage } from "@/hooks/agent/model/chat-types";
-import { chatReducer, initialChatState } from "@/hooks/agent/model/chat-machine";
-import { findPendingQuestion, hasRenderablePart } from "@/hooks/agent/model/message-utils";
-import { StreamStore } from "@/hooks/agent/model/stream-store";
+import type { AgentMessage } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
+import {
+  chatReducer,
+  initialChatState,
+} from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-machine";
+import {
+  findPendingQuestion,
+  hasRenderablePart,
+} from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/message-utils";
+import { StreamStore } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/stream-store";
 import {
   answerAgentStream,
   pauseAgentRunIfActive,
@@ -23,9 +29,9 @@ import {
   useChatSessions,
   useDeleteChatSession,
   useSessionMessages,
-} from "@/hooks/agent/queries";
-import { editorKeys } from "@/hooks/editor/queries";
-import { libraryKeys } from "@/hooks/library/queries";
+} from "@/servers/agent.server";
+import { editorKeys } from "@/servers/editor.server";
+import { libraryKeys } from "@/servers/library.server";
 import type { AskUserOutput } from "@/lib/http/modules/agent.schema";
 
 import { AskUserPanel } from "./ask-user-panel";

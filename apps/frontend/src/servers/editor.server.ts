@@ -6,7 +6,7 @@ import {
   getPendingEdit,
   rejectEdit,
 } from "@/lib/http/modules/editor.api";
-import { syncChapterCache } from "@/hooks/library/queries";
+import { syncChapterCache } from "@/servers/library.server";
 
 export const editorKeys = {
   edit: (id: string) => ["editor", "edits", id] as const,

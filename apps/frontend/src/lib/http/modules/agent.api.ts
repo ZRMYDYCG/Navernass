@@ -3,7 +3,10 @@ import { DefaultChatTransport } from "ai";
 
 import { z } from "zod";
 
-import type { AgentContext, AgentMessage } from "@/hooks/agent/model/chat-types";
+import type {
+  AgentContext,
+  AgentMessage,
+} from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
 import { apiBaseUrl } from "@/lib/http/client";
 import { ApiError } from "@/lib/http/error";
 import { apiRequest } from "@/lib/http/request";

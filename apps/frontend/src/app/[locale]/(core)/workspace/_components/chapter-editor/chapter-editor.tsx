@@ -13,8 +13,8 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePendingEdit } from "@/hooks/editor/queries";
-import { useChapter } from "@/hooks/library/queries";
+import { usePendingEdit } from "@/servers/editor.server";
+import { useChapter } from "@/servers/library.server";
 import type { Chapter } from "@/lib/http/modules/library.schema";
 import type { ChapterEdit } from "@/lib/http/modules/editor.schema";
 

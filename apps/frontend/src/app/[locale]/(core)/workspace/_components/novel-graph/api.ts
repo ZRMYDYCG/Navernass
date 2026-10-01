@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { getNovelCharacters, getNovelRelationships } from "@/lib/http/modules/library.api";
-import { libraryKeys } from "@/hooks/library/queries";
+import { libraryKeys } from "@/servers/library.server";
 import type {
   CharacterProfile,
   CharacterRelationship,

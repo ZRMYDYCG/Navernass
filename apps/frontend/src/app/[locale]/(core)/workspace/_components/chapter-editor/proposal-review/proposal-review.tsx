@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { useApplyEdit, useRejectEdit } from "@/hooks/editor/queries";
+import { useApplyEdit, useRejectEdit } from "@/servers/editor.server";
 import type { ChapterEdit } from "@/lib/http/modules/editor.schema";
 
 import { ManuscriptEditor } from "../manuscript-editor/manuscript-editor";

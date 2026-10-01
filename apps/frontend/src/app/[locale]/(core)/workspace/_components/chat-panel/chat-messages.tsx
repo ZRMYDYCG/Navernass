@@ -17,9 +17,9 @@ import {
   MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
 import { Message, MessageContent } from "@/components/ui/message";
-import type { AgentMessage } from "@/hooks/agent/model/chat-types";
-import { resolveAgentMessageId } from "@/hooks/agent/model/chat-types";
-import type { StreamStore } from "@/hooks/agent/model/stream-store";
+import type { AgentMessage } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
+import { resolveAgentMessageId } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
+import type { StreamStore } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/stream-store";
 
 interface MessagesProps {
   messages: AgentMessage[];

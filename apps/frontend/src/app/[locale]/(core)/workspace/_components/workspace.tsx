@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { NovelGraphWorkspace } from "@/app/[locale]/(core)/workspace/_components/novel-graph/novel-graph-workspace";
-import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/hooks/library/queries";
+import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/servers/library.server";
 
 import { AppHeader } from "./app-header";
 import { ChapterEditor, EmptyChapterEditor } from "./chapter-editor/chapter-editor";

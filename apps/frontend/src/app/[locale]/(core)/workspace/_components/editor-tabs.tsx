@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useChapter } from "@/hooks/library/queries";
+import { useChapter } from "@/servers/library.server";
 
 export type EditorTab = "chapter" | "graph" | "settings";
 

@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useNovel, useNovels } from "@/hooks/library/queries";
+import { useNovel, useNovels } from "@/servers/library.server";
 import type { Novel } from "@/lib/http/modules/library.schema";
 
 function NovelCover({ novel, size }: { novel: Novel; size: "sm" | "lg" }) {

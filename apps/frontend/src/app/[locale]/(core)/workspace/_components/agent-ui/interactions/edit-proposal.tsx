@@ -9,7 +9,7 @@ import { cn } from "cn";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getErrorMessage } from "@/lib/http/error";
-import { useApplyEdit, useEditStatus, useRejectEdit } from "@/hooks/editor/queries";
+import { useApplyEdit, useEditStatus, useRejectEdit } from "@/servers/editor.server";
 import {
   type EditOperation,
   type EditProposal,

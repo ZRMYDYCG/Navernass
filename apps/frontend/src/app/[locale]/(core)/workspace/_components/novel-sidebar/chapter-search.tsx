@@ -12,7 +12,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useChapterSearch } from "@/hooks/library/queries";
+import { useChapterSearch } from "@/servers/library.server";
 import type { Chapter } from "@/lib/http/modules/library.schema";
 
 import { buildSearchPattern, findMatches, type TextMatch } from "./text-search";

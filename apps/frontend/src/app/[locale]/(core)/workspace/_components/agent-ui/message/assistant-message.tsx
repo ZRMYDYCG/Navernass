@@ -6,7 +6,7 @@ import { LinkIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Spinner } from "@/components/ui/spinner";
-import type { AgentMessageMetadata } from "@/hooks/agent/model/chat-types";
+import type { AgentMessageMetadata } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/chat-types";
 import { ToolDuration } from "../activity/tool-duration";
 
 import { Reasoning } from "../activity/reasoning";

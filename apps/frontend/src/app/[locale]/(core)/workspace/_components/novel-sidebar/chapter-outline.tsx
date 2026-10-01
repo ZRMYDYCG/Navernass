@@ -6,7 +6,7 @@ import { useState, type ReactNode } from "react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useNovelChapters, useNovelVolumes } from "@/hooks/library/queries";
+import { useNovelChapters, useNovelVolumes } from "@/servers/library.server";
 import type { ChapterSummary, Volume } from "@/lib/http/modules/library.schema";
 
 interface ChapterGroup {

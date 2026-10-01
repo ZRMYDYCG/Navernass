@@ -21,7 +21,7 @@ import {
 import { useTranslations } from "next-intl";
 import { cn } from "cn";
 
-import { useCreateRelationship, useUpdateCharacter } from "@/hooks/library/queries";
+import { useCreateRelationship, useUpdateCharacter } from "@/servers/library.server";
 
 import {
   characterDisplayFaction,

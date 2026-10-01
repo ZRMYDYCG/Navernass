@@ -15,7 +15,7 @@ import {
   optionLetter as letter,
 } from "@/app/[locale]/(core)/workspace/_components/agent-ui/option-badge";
 import { Button } from "@/components/ui/button";
-import type { PendingQuestion } from "@/hooks/agent/model/message-utils";
+import type { PendingQuestion } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/message-utils";
 import type { AskUserInput, AskUserOutput } from "@/lib/http/modules/agent.schema";
 
 type Question = AskUserInput["questions"][number];
