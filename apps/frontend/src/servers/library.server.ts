@@ -36,6 +36,9 @@ import {
   type UpdateRelationshipPayload,
 } from "@/lib/http/modules/library.schema";
 
+/**
+ * 小说、章节、角色和关系数据使用的稳定缓存键。
+ */
 export const libraryKeys = {
   novels: ["library", "novels"] as const,
   novel: (id: string) => ["library", "novels", id] as const,
@@ -48,14 +51,23 @@ export const libraryKeys = {
   relationships: (novelId: string) => ["library", "novels", novelId, "relationships"] as const,
 };
 
+/**
+ * 获取小说列表。
+ */
 export function useNovels() {
   return useQuery({ queryKey: libraryKeys.novels, queryFn: getNovels });
 }
 
+/**
+ * 获取指定小说的详情。
+ */
 export function useNovel(id: string) {
   return useQuery({ queryKey: libraryKeys.novel(id), queryFn: () => getNovel(id) });
 }
 
+/**
+ * 获取小说的卷列表。
+ */
 export function useNovelVolumes(novelId: string) {
   return useQuery({
     queryKey: libraryKeys.volumes(novelId),
@@ -63,6 +75,9 @@ export function useNovelVolumes(novelId: string) {
   });
 }
 
+/**
+ * 按关键词搜索小说章节，并在关键词切换时保留上一份结果。
+ */
 export function useChapterSearch(novelId: string, keyword: string) {
   return useQuery({
     queryKey: libraryKeys.chapterSearch(novelId, keyword),
@@ -73,6 +88,9 @@ export function useChapterSearch(novelId: string, keyword: string) {
   });
 }
 
+/**
+ * 获取小说的章节目录；尚未选择小说时不发起请求。
+ */
 export function useNovelChapters(novelId: string | undefined) {
   return useQuery({
     queryKey: libraryKeys.chapters(novelId ?? ""),
@@ -81,6 +99,9 @@ export function useNovelChapters(novelId: string | undefined) {
   });
 }
 
+/**
+ * 创建首部小说和首章，并直接建立工作区所需缓存。
+ */
 export function useCreateStarterWorkspace() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -111,11 +132,16 @@ export function useCreateStarterWorkspace() {
   });
 }
 
+/**
+ * 获取指定章节的完整内容。
+ */
 export function useChapter(id: string) {
   return useQuery({ queryKey: libraryKeys.chapter(id), queryFn: () => getChapter(id) });
 }
 
-/** 服务端返回最新章节后，同步详情、目录字数与小说总字数。 */
+/**
+ * 服务端返回最新章节后，同步详情、目录字数与小说总字数。
+ */
 export function syncChapterCache(queryClient: QueryClient, chapter: Chapter) {
   queryClient.setQueryData(libraryKeys.chapter(chapter.id), chapter);
   const summary = chapterSummarySchema.parse(chapter);
@@ -131,7 +157,9 @@ export function syncChapterCache(queryClient: QueryClient, chapter: Chapter) {
   ]);
 }
 
-/** 同一章节的保存串行执行，保证后发出的正文最后落库。 */
+/**
+ * 更新章节正文；同一章节的保存串行执行，保证后发出的正文最后落库。
+ */
 export function useUpdateChapterContent(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -141,6 +169,9 @@ export function useUpdateChapterContent(id: string) {
   });
 }
 
+/**
+ * 在 mutation 执行边界确保小说上下文存在。
+ */
 function requireNovelId(novelId: string | undefined) {
   if (!novelId) throw new Error("尚未选择小说");
   return novelId;
@@ -151,7 +182,9 @@ const UPDATE_DEBOUNCE_MS = 400;
 const updateTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const pendingUpdatePatches = new Map<string, Record<string, unknown>>();
 
-/** 同一实体的连续修改先乐观写入缓存，再防抖合并成一次请求落库。 */
+/**
+ * 同一实体的连续修改先乐观写入缓存，再防抖合并成一次请求落库。
+ */
 function useEntityUpdate<TEntity extends { id: string }, TPatch extends Partial<TEntity>>(config: {
   novelId: string | undefined;
   listKey: (novelId: string) => readonly unknown[];
@@ -201,6 +234,9 @@ function useEntityUpdate<TEntity extends { id: string }, TPatch extends Partial<
   );
 }
 
+/**
+ * 乐观更新角色，并将连续修改防抖合并后提交。
+ */
 export function useUpdateCharacter(novelId: string | undefined) {
   return useEntityUpdate<CharacterProfile, UpdateCharacterPayload>({
     novelId,
@@ -209,6 +245,9 @@ export function useUpdateCharacter(novelId: string | undefined) {
   });
 }
 
+/**
+ * 乐观更新角色关系，并将连续修改防抖合并后提交。
+ */
 export function useUpdateRelationship(novelId: string | undefined) {
   return useEntityUpdate<CharacterRelationship, UpdateRelationshipPayload>({
     novelId,
@@ -217,6 +256,9 @@ export function useUpdateRelationship(novelId: string | undefined) {
   });
 }
 
+/**
+ * 创建角色，并将结果追加到当前小说的角色缓存。
+ */
 export function useCreateCharacter(novelId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -231,6 +273,9 @@ export function useCreateCharacter(novelId: string | undefined) {
   });
 }
 
+/**
+ * 创建角色关系，并将结果追加到当前小说的关系缓存。
+ */
 export function useCreateRelationship(novelId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -245,6 +290,9 @@ export function useCreateRelationship(novelId: string | undefined) {
   });
 }
 
+/**
+ * 乐观删除角色及其关联关系；请求失败时恢复缓存。
+ */
 export function useDeleteCharacter(novelId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -275,6 +323,9 @@ export function useDeleteCharacter(novelId: string | undefined) {
   });
 }
 
+/**
+ * 乐观删除角色关系；请求失败时恢复缓存。
+ */
 export function useDeleteRelationship(novelId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({

@@ -8,13 +8,18 @@ import {
 } from "@/lib/http/modules/editor.api";
 import { syncChapterCache } from "@/servers/library.server";
 
+/**
+ * 编辑提案数据使用的稳定缓存键。
+ */
 export const editorKeys = {
   edit: (id: string) => ["editor", "edits", id] as const,
   pendingAll: ["editor", "pending"] as const,
   pending: (chapterId: string) => ["editor", "pending", chapterId] as const,
 };
 
-/** 工具结果里的 status 是提案生成时的快照，刷新后需要以服务端为准。 */
+/**
+ * 获取编辑提案的最新状态；工具结果中的状态只作为生成时的快照。
+ */
 export function useEditStatus(id: string, { enabled }: { enabled: boolean }) {
   return useQuery({
     queryKey: editorKeys.edit(id),
@@ -24,6 +29,9 @@ export function useEditStatus(id: string, { enabled }: { enabled: boolean }) {
   });
 }
 
+/**
+ * 获取章节当前等待审阅的编辑提案。
+ */
 export function usePendingEdit(chapterId: string) {
   return useQuery({
     queryKey: editorKeys.pending(chapterId),
@@ -31,6 +39,9 @@ export function usePendingEdit(chapterId: string) {
   });
 }
 
+/**
+ * 应用选中的编辑项，并同步章节与待审阅提案缓存。
+ */
 export function useApplyEdit(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -47,6 +58,9 @@ export function useApplyEdit(id: string) {
   });
 }
 
+/**
+ * 拒绝编辑提案，并重新校准相关缓存。
+ */
 export function useRejectEdit(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
