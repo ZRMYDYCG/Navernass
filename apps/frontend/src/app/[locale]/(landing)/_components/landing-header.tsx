@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { AuthCtaButton } from "@/components/auth/auth-cta-button";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 
@@ -33,10 +34,10 @@ export function LandingHeader() {
   );
 
   const startButton = (
-    <Button size="lg" render={<Link href="/workspace" />}>
+    <AuthCtaButton size="lg">
       <PenLineIcon data-icon="inline-start" />
       {t("start")}
-    </Button>
+    </AuthCtaButton>
   );
 
   return (

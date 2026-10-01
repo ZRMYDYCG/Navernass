@@ -1,9 +1,8 @@
 import { CheckIcon, PenLineIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
+import { AuthCtaButton } from "@/components/auth/auth-cta-button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "@/i18n/navigation";
 
 import { Highlight } from "./highlight";
 
@@ -44,10 +43,10 @@ export function FreePlan() {
           </ul>
         </CardContent>
         <CardFooter>
-          <Button className="w-full" size="lg" render={<Link href="/workspace" />}>
+          <AuthCtaButton className="w-full" size="lg">
             <PenLineIcon data-icon="inline-start" />
             {t("cta")}
-          </Button>
+          </AuthCtaButton>
         </CardFooter>
       </Card>
     </section>

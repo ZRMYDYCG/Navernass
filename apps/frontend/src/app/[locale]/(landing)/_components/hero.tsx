@@ -1,8 +1,8 @@
 import { PenLineIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { AuthCtaButton } from "@/components/auth/auth-cta-button";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
 
 import { LineText } from "./line-text";
 
@@ -18,10 +18,10 @@ export function Hero() {
         {t("description")}
       </p>
       <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-        <Button size="lg" render={<Link href="/workspace" />}>
+        <AuthCtaButton size="lg">
           <PenLineIcon data-icon="inline-start" />
           {t("cta")}
-        </Button>
+        </AuthCtaButton>
         <Button variant="outline" size="lg" render={<a href="#faq" />}>
           {t("secondary")}
         </Button>

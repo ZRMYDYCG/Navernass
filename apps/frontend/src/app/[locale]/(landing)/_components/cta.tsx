@@ -1,8 +1,7 @@
 import { PenLineIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import { AuthCtaButton } from "@/components/auth/auth-cta-button";
 
 export function Cta() {
   const t = useTranslations("landing.cta");
@@ -14,10 +13,10 @@ export function Cta() {
         <p className="text-lg text-muted-foreground">{t("description")}</p>
         <p className="font-serif text-xl text-muted-foreground italic">{t("quote")}</p>
       </div>
-      <Button size="lg" render={<Link href="/workspace" />}>
+      <AuthCtaButton size="lg">
         <PenLineIcon data-icon="inline-start" />
         {t("button")}
-      </Button>
+      </AuthCtaButton>
     </section>
   );
 }
