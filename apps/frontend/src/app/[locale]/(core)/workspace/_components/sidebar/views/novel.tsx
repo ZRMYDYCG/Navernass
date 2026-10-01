@@ -5,19 +5,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChapterOutline } from "./chapter-outline";
 import { NovelSelector } from "./novel-selector";
 
-interface NovelViewProps {
+interface NovelProps {
   novelId: string;
   activeChapterId?: string;
   onSelectNovel: (novelId: string) => void;
   onSelectChapter: (chapterId: string) => void;
 }
 
-export function NovelView({
-  novelId,
-  activeChapterId,
-  onSelectNovel,
-  onSelectChapter,
-}: NovelViewProps) {
+export function Novel({ novelId, activeChapterId, onSelectNovel, onSelectChapter }: NovelProps) {
   return (
     <>
       <div className="flex flex-col gap-4 border-b border-border p-4">

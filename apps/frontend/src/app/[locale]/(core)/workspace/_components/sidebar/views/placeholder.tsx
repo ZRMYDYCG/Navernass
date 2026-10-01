@@ -9,11 +9,11 @@ import type { SidebarView } from "../types";
 /** 已实现视图之外的占位视图。 */
 type UnimplementedView = Exclude<SidebarView, "novel" | "search" | "characters">;
 
-interface SidebarPlaceholderViewProps {
+interface PlaceholderProps {
   view: UnimplementedView;
 }
 
-export function SidebarPlaceholderView({ view }: SidebarPlaceholderViewProps) {
+export function Placeholder({ view }: PlaceholderProps) {
   const t = useTranslations("sidebar.views");
 
   return (

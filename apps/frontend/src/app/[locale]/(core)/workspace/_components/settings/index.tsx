@@ -23,8 +23,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
-import { GeneralSettings } from "./general-settings";
-import { ModelsSettings } from "./models-settings";
+import { General } from "./general";
+import { Models } from "./models";
 
 type SettingsSectionId = "general" | "agents" | "models" | "customize" | "docs" | "changelog";
 
@@ -35,10 +35,10 @@ interface SettingsSection {
 }
 
 const sectionGroups: SettingsSection[][] = [
-  [{ id: "general", icon: SettingsIcon, content: GeneralSettings }],
+  [{ id: "general", icon: SettingsIcon, content: General }],
   [{ id: "agents", icon: BotIcon }],
   [
-    { id: "models", icon: BoxIcon, content: ModelsSettings },
+    { id: "models", icon: BoxIcon, content: Models },
     { id: "customize", icon: PuzzleIcon },
   ],
   [
@@ -104,7 +104,7 @@ function ComingSoonSection({ section }: { section: SettingsSection }) {
   );
 }
 
-export function SettingsView() {
+export function Settings() {
   const t = useTranslations("settings");
   const [activeId, setActiveId] = useState<SettingsSectionId>("general");
   const active = getSection(activeId);

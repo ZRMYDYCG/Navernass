@@ -20,8 +20,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import type { Character, CharacterCustomField, CharacterFieldType } from "./model";
-import { splitTags } from "./display";
+import type { Character, CharacterCustomField, CharacterFieldType } from "./machine";
+
+const splitTags = (value: string) =>
+  value
+    .split(/[,，、]/)
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 
 const fieldTypes: CharacterFieldType[] = ["text", "longText", "tags"];
 

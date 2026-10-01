@@ -12,8 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useDeleteCharacter, useUpdateCharacter } from "@/servers/library.server";
 import { useRelationshipGraphStore } from "@/stores";
 
-import type { Character } from "./model";
-import { characterPatchToPayload } from "./model";
+import type { Character } from "./machine";
 import { CharacterFieldsEditor } from "./character-fields-editor";
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -39,7 +38,15 @@ export function CharacterForm({ novelId, character }: CharacterFormProps) {
   const closeInspector = useRelationshipGraphStore((state) => state.closeInspector);
 
   const patchCharacter = (patch: Partial<Omit<Character, "id">>) => {
-    updateCharacter(character.id, characterPatchToPayload(patch));
+    updateCharacter(character.id, {
+      ...(patch.name !== undefined && { name: patch.name }),
+      ...(patch.summary !== undefined && { description: patch.summary }),
+      ...(patch.customFields !== undefined && { custom_fields: patch.customFields }),
+      ...(patch.position && {
+        overview_x: patch.position.x,
+        overview_y: patch.position.y,
+      }),
+    });
   };
 
   return (

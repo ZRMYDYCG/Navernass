@@ -2,7 +2,7 @@
 
 import { hasLocale, useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 
 import {
   Select,
@@ -16,8 +16,6 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { themes } from "@/providers/theme-provider";
 
-import { SettingsCard, SettingsGroup, SettingsRow } from "./settings-ui";
-
 const themeOptions = ["system", ...themes] as const;
 
 const localeLabels: Record<(typeof routing.locales)[number], string> = {
@@ -27,6 +25,26 @@ const localeLabels: Record<(typeof routing.locales)[number], string> = {
 
 // useSyncExternalStore 需要订阅函数；这里只关心首次客户端渲染，没有可订阅的来源。
 const subscribeNoop = () => () => {};
+
+function Row({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-6 px-4 py-3">
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <span className="text-sm font-medium">{title}</span>
+        {description ? <span className="text-xs text-muted-foreground">{description}</span> : null}
+      </div>
+      <div className="shrink-0">{children}</div>
+    </div>
+  );
+}
 
 interface SelectOption {
   value: string;
@@ -77,7 +95,7 @@ function ThemeRow() {
   );
 
   return (
-    <SettingsRow title={t("title")} description={t("description")}>
+    <Row title={t("title")} description={t("description")}>
       {mounted ? (
         <RowSelect
           label={t("title")}
@@ -88,7 +106,7 @@ function ThemeRow() {
       ) : (
         <Skeleton className="h-7 w-28" />
       )}
-    </SettingsRow>
+    </Row>
   );
 }
 
@@ -99,7 +117,7 @@ function LanguageRow() {
   const pathname = usePathname();
 
   return (
-    <SettingsRow title={t("title")} description={t("description")}>
+    <Row title={t("title")} description={t("description")}>
       <RowSelect
         label={t("title")}
         options={routing.locales.map((value) => ({ value, label: localeLabels[value] }))}
@@ -109,22 +127,23 @@ function LanguageRow() {
           router.replace(pathname, { locale: value });
         }}
       />
-    </SettingsRow>
+    </Row>
   );
 }
 
-export function GeneralSettings() {
+export function General() {
   const t = useTranslations("settings.general");
 
   return (
     <div className="flex flex-col gap-6">
       <h2 className="text-xl font-semibold">{t("title")}</h2>
-      <SettingsGroup title={t("preferences")}>
-        <SettingsCard className="divide-y divide-border">
+      <section className="flex flex-col gap-3">
+        <h3 className="px-1 text-sm font-medium text-muted-foreground">{t("preferences")}</h3>
+        <div className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
           <ThemeRow />
           <LanguageRow />
-        </SettingsCard>
-      </SettingsGroup>
+        </div>
+      </section>
     </div>
   );
 }

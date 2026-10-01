@@ -10,7 +10,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useState, type ReactNode } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,22 @@ import {
   useUpdateProvider,
 } from "@/servers/provider.server";
 
-import { SettingsCard, SettingsGroup } from "./settings-ui";
+function Group({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="flex flex-col gap-3">
+      <h3 className="px-1 text-sm font-medium text-muted-foreground">{title}</h3>
+      {children}
+    </section>
+  );
+}
+
+function Card({ children }: { children: ReactNode }) {
+  return (
+    <div className="overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
+      {children}
+    </div>
+  );
+}
 
 const defaultBaseUrls: Partial<Record<ProviderKind, string>> = {
   deepseek: "https://api.deepseek.com",
@@ -134,7 +149,7 @@ function ProviderList({
   const t = useTranslations("settings.models");
 
   return (
-    <SettingsCard>
+    <Card>
       {isLoading ? (
         <div className="flex flex-col gap-3 p-4">
           <Skeleton className="h-8 w-full" />
@@ -161,7 +176,7 @@ function ProviderList({
           <p className="mt-1 text-sm text-muted-foreground">{t("emptyDescription")}</p>
         </div>
       )}
-    </SettingsCard>
+    </Card>
   );
 }
 
@@ -257,7 +272,7 @@ function ProviderForm({
   };
 
   return (
-    <SettingsCard>
+    <Card>
       <form
         className="flex flex-col"
         onSubmit={(event) => {
@@ -446,11 +461,11 @@ function ProviderForm({
           </Button>
         </div>
       </form>
-    </SettingsCard>
+    </Card>
   );
 }
 
-export function ModelsSettings() {
+export function Models() {
   const t = useTranslations("settings.models");
   const providers = useProviders();
   const createMutation = useCreateProvider();
@@ -547,7 +562,7 @@ export function ModelsSettings() {
         </Button>
       </div>
 
-      <SettingsGroup title={t("availableModels")}>
+      <Group title={t("availableModels")}>
         <ProviderList
           providers={providers.data ?? []}
           isLoading={providers.isLoading}
@@ -557,9 +572,9 @@ export function ModelsSettings() {
           onToggle={(provider, isEnabled) => void toggle(provider, isEnabled)}
           onDelete={(provider) => void remove(provider)}
         />
-      </SettingsGroup>
+      </Group>
 
-      <SettingsGroup title={t("apiKeys")}>
+      <Group title={t("apiKeys")}>
         <ProviderForm
           key={selectedId ?? "new"}
           provider={selected}
@@ -577,7 +592,7 @@ export function ModelsSettings() {
             if (selected) void toggle(selected, isEnabled);
           }}
         />
-      </SettingsGroup>
+      </Group>
     </div>
   );
 }

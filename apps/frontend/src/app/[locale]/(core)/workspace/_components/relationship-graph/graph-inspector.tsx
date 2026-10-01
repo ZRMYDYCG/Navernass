@@ -1,25 +1,25 @@
 "use client";
 
-import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { useCharacters, useRelationships } from "@/servers/library.server";
 import { useRelationshipGraphStore } from "@/stores";
 
 import { CharacterForm } from "./character-form";
 import { RelationshipForm } from "./relationship-form";
-import { toCharacter, toRelationship } from "./model";
+import type { Character, Relationship } from "./machine";
+
+interface GraphInspectorProps {
+  novelId?: string;
+  characters: Character[];
+  relationships: Relationship[];
+}
 
 /** 检查器：按画布选中对象分发到角色表单或关系表单。 */
-export function GraphInspector({ novelId }: { novelId?: string }) {
+export function GraphInspector({ novelId, characters, relationships }: GraphInspectorProps) {
   const t = useTranslations("relationshipGraph");
-  const { data: profiles } = useCharacters(novelId);
-  const { data: relationshipDtos } = useRelationships(novelId);
   const selectedCharacterId = useRelationshipGraphStore((state) => state.selectedCharacterId);
   const selectedRelationshipId = useRelationshipGraphStore((state) => state.selectedRelationshipId);
 
-  const characters = useMemo(() => profiles.map(toCharacter), [profiles]);
-  const relationships = useMemo(() => relationshipDtos.map(toRelationship), [relationshipDtos]);
   const character = characters.find((item) => item.id === selectedCharacterId);
   const relationship = relationships.find((item) => item.id === selectedRelationshipId);
 

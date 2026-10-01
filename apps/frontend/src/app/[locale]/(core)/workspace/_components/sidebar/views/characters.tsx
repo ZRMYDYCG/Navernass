@@ -7,7 +7,7 @@ import { useCharacters } from "@/servers/library.server";
 import { useRelationshipGraphStore } from "@/stores";
 
 /** 「角色」视图：角色列表，点击选中并打开关系图的检查器。 */
-export function CharactersView({ novelId }: { novelId: string }) {
+export function Characters({ novelId }: { novelId: string }) {
   const t = useTranslations("relationshipGraph.library");
   const { data: characters, isPending } = useCharacters(novelId);
   const selectedCharacterId = useRelationshipGraphStore((state) => state.selectedCharacterId);

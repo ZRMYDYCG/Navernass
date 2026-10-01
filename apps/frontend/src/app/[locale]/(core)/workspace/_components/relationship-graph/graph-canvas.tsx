@@ -17,31 +17,35 @@ import {
 } from "@xyflow/react";
 import { useTranslations } from "next-intl";
 
-import {
-  useCreateRelationship,
-  useCharacters,
-  useRelationships,
-  useUpdateCharacter,
-} from "@/servers/library.server";
+import { useCreateRelationship, useUpdateCharacter } from "@/servers/library.server";
 import { useRelationshipGraphStore } from "@/stores";
 
-import type { GraphPosition } from "./model";
-import {
-  characterPatchToPayload,
-  relationshipCreatePayload,
-  toCharacter,
-  toRelationship,
-} from "./model";
-import { relationshipColors } from "./display";
 import { CharacterNode, type CharacterNodeData } from "./character-node";
+import type { Character, Relationship, RelationshipKind } from "./machine";
 
 const nodeTypes = { character: CharacterNode };
 
+/** 关系类型在画布中的连线颜色。 */
+const relationshipColors: Record<RelationshipKind, string> = {
+  ally: "#22c55e",
+  family: "#f59e0b",
+  romance: "#ec4899",
+  rival: "#a78bfa",
+  enemy: "#ef4444",
+  mentor: "#38bdf8",
+  secret: "#facc15",
+  custom: "#94a3b8",
+};
+
+interface GraphCanvasProps {
+  novelId?: string;
+  characters: Character[];
+  relationships: Relationship[];
+}
+
 /** 人物关系画布：React Flow 编辑器，节点拖动即保存位置，连线即创建关系。 */
-export function GraphCanvas({ novelId }: { novelId?: string }) {
+export function GraphCanvas({ novelId, characters, relationships }: GraphCanvasProps) {
   const t = useTranslations("relationshipGraph");
-  const { data: profiles } = useCharacters(novelId);
-  const { data: relationshipDtos } = useRelationships(novelId);
   const updateCharacter = useUpdateCharacter(novelId);
   const createRelationship = useCreateRelationship(novelId);
   const selectedCharacterId = useRelationshipGraphStore((state) => state.selectedCharacterId);
@@ -49,15 +53,6 @@ export function GraphCanvas({ novelId }: { novelId?: string }) {
   const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
   const selectRelationship = useRelationshipGraphStore((state) => state.selectRelationship);
   const openInspector = useRelationshipGraphStore((state) => state.openInspector);
-
-  const characters = useMemo(() => profiles.map(toCharacter), [profiles]);
-  const relationships = useMemo(() => relationshipDtos.map(toRelationship), [relationshipDtos]);
-
-  const setCharacterPosition = useCallback(
-    (id: string, position: GraphPosition) =>
-      updateCharacter(id, characterPatchToPayload({ position })),
-    [updateCharacter],
-  );
 
   const graphNodes = useMemo<Node<CharacterNodeData>[]>(
     () =>
@@ -105,12 +100,16 @@ export function GraphCanvas({ novelId }: { novelId?: string }) {
     (changes) => {
       onNodesChangeBase(changes);
       for (const change of changes) {
+        // 拖拽落定才持久化位置。
         if (change.type === "position" && change.position && !change.dragging) {
-          setCharacterPosition(change.id, change.position);
+          updateCharacter(change.id, {
+            overview_x: change.position.x,
+            overview_y: change.position.y,
+          });
         }
       }
     },
-    [onNodesChangeBase, setCharacterPosition],
+    [onNodesChangeBase, updateCharacter],
   );
 
   const onEdgesChange: OnEdgesChange<Edge> = useCallback(
@@ -130,19 +129,17 @@ export function GraphCanvas({ novelId }: { novelId?: string }) {
       )
         return;
       createRelationship.mutate(
-        relationshipCreatePayload(
-          novelId,
-          {
-            sourceId: connection.source,
-            targetId: connection.target,
-            kind: "ally",
-            label: t("kinds.ally"),
-            strength: 50,
-            isSecret: false,
-            description: "",
-          },
-          t("kinds.ally"),
-        ),
+        {
+          novel_id: novelId,
+          sourceId: connection.source,
+          targetId: connection.target,
+          sourceToTargetLabel: t("kinds.ally"),
+          targetToSourceLabel: t("kinds.ally"),
+          note: "",
+          kind: "ally",
+          strength: 50,
+          isSecret: false,
+        },
         {
           onSuccess: (relationship) => {
             selectRelationship(relationship.id);

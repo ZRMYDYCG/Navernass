@@ -5,13 +5,36 @@ import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import { useTranslations } from "next-intl";
 import { cn } from "cn";
 
-import type { Character } from "./model";
-import { characterDisplayFaction, characterDisplayRole, characterDisplayTags } from "./display";
+import type { Character } from "./machine";
 
 export interface CharacterNodeData extends Record<string, unknown> {
   character: Character;
   selected?: boolean;
 }
+
+const fieldValue = (character: Character, labels: string[]) => {
+  const normalizedLabels = labels.map((label) => label.toLowerCase());
+  return (
+    character.customFields.find((field) =>
+      normalizedLabels.includes(field.label.trim().toLowerCase()),
+    )?.value ?? ""
+  );
+};
+
+const characterDisplayRole = (character: Character) =>
+  fieldValue(character, ["角色定位", "定位", "身份", "role"]);
+
+const characterDisplayFaction = (character: Character) =>
+  fieldValue(character, ["阵营", "组织", "势力", "faction"]);
+
+const splitTags = (value: string) =>
+  value
+    .split(/[,，、]/)
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+const characterDisplayTags = (character: Character) =>
+  splitTags(fieldValue(character, ["标签", "tag", "tags"]));
 
 /** 关系画布上的角色节点卡片。 */
 export const CharacterNode = memo(function CharacterNode({

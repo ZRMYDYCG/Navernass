@@ -15,7 +15,7 @@ import { ChapterEditor, EmptyChapterEditor } from "./editor";
 import { ChatPanel } from "./chat-panel/chat-panel";
 import { Sidebar } from "./sidebar/sidebar";
 import type { SidebarView } from "./sidebar/types";
-import { SettingsView } from "./settings/settings-view";
+import { Settings } from "./settings";
 
 function usePanelToggle() {
   const panelRef = useRef<PanelImperativeHandle>(null);
@@ -167,7 +167,7 @@ export function Workspace() {
             ) : null}
             {settingsOpen ? (
               <div hidden={activeView !== "settings"} className="min-h-0 flex-1">
-                <SettingsView />
+                <Settings />
               </div>
             ) : null}
           </div>

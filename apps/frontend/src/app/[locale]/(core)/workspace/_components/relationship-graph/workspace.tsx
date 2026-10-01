@@ -2,21 +2,24 @@
 
 import { PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useReducer } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { useCharacters, useCreateCharacter } from "@/servers/library.server";
+import { useCharacters, useCreateCharacter, useRelationships } from "@/servers/library.server";
 import { useRelationshipGraphStore } from "@/stores";
 
-import { characterCreatePayload } from "./model";
 import { GraphCanvas } from "./graph-canvas";
 import { GraphInspector } from "./graph-inspector";
+import { graphReducer, initialGraphState } from "./machine";
 
-/** 人物关系图工作区：顶栏操作 + 画布 + 检查器抽屉。 */
+/** 人物关系图工作区：数据入口（DTO 同步进状态机）+ 顶栏操作 + 画布 + 检查器抽屉。 */
 export function RelationshipGraphWorkspace({ novelId }: { novelId?: string }) {
   const t = useTranslations("relationshipGraph.workspace");
-  const { data: characters } = useCharacters(novelId);
+  const { data: profiles } = useCharacters(novelId);
+  const { data: relationshipDtos } = useRelationships(novelId);
   const createCharacter = useCreateCharacter(novelId);
+  const [graph, dispatch] = useReducer(graphReducer, initialGraphState);
   const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
   const openInspector = useRelationshipGraphStore((state) => state.openInspector);
   const selectedCharacterId = useRelationshipGraphStore((state) => state.selectedCharacterId);
@@ -25,14 +28,27 @@ export function RelationshipGraphWorkspace({ novelId }: { novelId?: string }) {
   const closeInspector = useRelationshipGraphStore((state) => state.closeInspector);
   const drawerOpen = inspectorOpen && Boolean(selectedCharacterId || selectedRelationshipId);
 
+  useEffect(() => {
+    if (profiles) dispatch({ type: "CHARACTERS_SYNCED", profiles });
+  }, [profiles]);
+
+  useEffect(() => {
+    if (relationshipDtos) {
+      dispatch({ type: "RELATIONSHIPS_SYNCED", relationships: relationshipDtos });
+    }
+  }, [relationshipDtos]);
+
   const addCharacter = () => {
     if (!novelId) return;
-    const count = characters.length + 1;
+    const count = graph.characters.length + 1;
     createCharacter.mutate(
-      characterCreatePayload(novelId, `新角色 ${count}`, {
-        x: 140 + (count % 4) * 180,
-        y: 120 + Math.floor(count / 4) * 150,
-      }),
+      {
+        novel_id: novelId,
+        name: `新角色 ${count}`,
+        overview_x: 140 + (count % 4) * 180,
+        overview_y: 120 + Math.floor(count / 4) * 150,
+        custom_fields: [],
+      },
       {
         onSuccess: (character) => {
           selectCharacter(character.id);
@@ -55,7 +71,11 @@ export function RelationshipGraphWorkspace({ novelId }: { novelId?: string }) {
 
       <div className="min-h-0 flex-1 overflow-hidden">
         <div className="relative h-full min-h-0 overflow-hidden">
-          <GraphCanvas novelId={novelId} />
+          <GraphCanvas
+            novelId={novelId}
+            characters={graph.characters}
+            relationships={graph.relationships}
+          />
         </div>
         <Drawer
           modal={false}
@@ -69,7 +89,11 @@ export function RelationshipGraphWorkspace({ novelId }: { novelId?: string }) {
           }}
         >
           <DrawerContent>
-            <GraphInspector novelId={novelId} />
+            <GraphInspector
+              novelId={novelId}
+              characters={graph.characters}
+              relationships={graph.relationships}
+            />
           </DrawerContent>
         </Drawer>
       </div>

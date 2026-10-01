@@ -3,10 +3,10 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { NovelView } from "./views/novel-view";
-import { CharactersView } from "./views/characters-view";
-import { SearchView } from "./views/search-view";
-import { SidebarPlaceholderView } from "./views/placeholder-view";
+import { Novel } from "./views/novel";
+import { Characters } from "./views/characters";
+import { Search } from "./views/search";
+import { Placeholder } from "./views/placeholder";
 import { SidebarNav } from "./sidebar-nav";
 import type { SidebarView } from "./types";
 
@@ -41,22 +41,22 @@ export function Sidebar({
     >
       <SidebarNav active={view} onSelect={selectView} />
       {view === "novel" ? (
-        <NovelView
+        <Novel
           novelId={novelId}
           activeChapterId={activeChapterId}
           onSelectNovel={onSelectNovel}
           onSelectChapter={onSelectChapter}
         />
       ) : view === "search" ? (
-        <SearchView
+        <Search
           novelId={novelId}
           activeChapterId={activeChapterId}
           onSelectChapter={onSelectChapter}
         />
       ) : view === "characters" ? (
-        <CharactersView novelId={novelId} />
+        <Characters novelId={novelId} />
       ) : (
-        <SidebarPlaceholderView view={view} />
+        <Placeholder view={view} />
       )}
     </aside>
   );
