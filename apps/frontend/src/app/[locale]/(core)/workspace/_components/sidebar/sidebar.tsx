@@ -6,7 +6,6 @@ import { useState } from "react";
 import { Novel } from "./views/novel";
 import { Characters } from "./views/characters";
 import { Search } from "./views/search";
-import { Placeholder } from "./views/placeholder";
 import { SidebarNav } from "./sidebar-nav";
 import type { SidebarView } from "./types";
 
@@ -53,10 +52,8 @@ export function Sidebar({
           activeChapterId={activeChapterId}
           onSelectChapter={onSelectChapter}
         />
-      ) : view === "characters" ? (
-        <Characters novelId={novelId} />
       ) : (
-        <Placeholder view={view} />
+        <Characters novelId={novelId} />
       )}
     </aside>
   );

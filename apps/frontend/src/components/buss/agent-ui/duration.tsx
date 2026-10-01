@@ -19,14 +19,17 @@ export function ToolDuration({ timing, running }: { timing?: Timing; running: bo
   }, [running, timing?.startedAt]);
   const duration = timing?.durationMs;
   if (duration === undefined && !running) return null;
-  const seconds = ((duration ?? elapsed) / 1000).toFixed(1);
+  const milliseconds = duration ?? elapsed;
+  const seconds = (milliseconds / 1000).toFixed(1);
   return (
     <span
       className="text-xs tabular-nums"
       title={duration === undefined ? t("live") : t("measured")}
     >
       {duration === undefined ? "~" : ""}
-      {t("seconds", { seconds })}
+      {milliseconds < 1000
+        ? t("milliseconds", { milliseconds: Math.round(milliseconds) })
+        : t("seconds", { seconds })}
     </span>
   );
 }

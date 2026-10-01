@@ -79,6 +79,7 @@
     "interruptedTool": "执行中断",
     "duration": {
       "seconds": "{seconds}s",
+      "milliseconds": "{milliseconds}ms",
       "live": "实时估算，完成后显示后端实际耗时",
       "measured": "后端实际执行耗时（含重试）"
     },
@@ -423,9 +424,7 @@
       "label": "侧边栏视图",
       "novel": "小说",
       "search": "搜索",
-      "plugins": "插件",
-      "characters": "角色",
-      "comingSoon": "即将推出，敬请期待。"
+      "characters": "角色"
     },
     "search": {
       "placeholder": "搜索章节标题与正文",

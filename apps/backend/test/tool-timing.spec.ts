@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { generateText } from "ai";
+import { streamText } from "ai";
 import { runAgent } from "../src/agent/agent.schema.js";
 import { ExecutionTraceRecorder } from "../src/agent/execution-trace.js";
 import { ToolService, type ToolTiming } from "../src/agent/tool.service.js";
 
 vi.mock("ai", async (original) => ({
   ...(await original<typeof import("ai")>()),
-  generateText: vi.fn(),
+  streamText: vi.fn(),
 }));
 
 afterEach(() => vi.restoreAllMocks());
@@ -39,6 +39,22 @@ function setup() {
 }
 
 describe("subagent execution timing", () => {
+  it("rejects partial subagent output after a stream timeout", async () => {
+    const { tools, timings } = setup();
+    vi.mocked(streamText).mockReturnValueOnce({
+      fullStream: [{ type: "text-delta", text: "unfinished" }, { type: "abort" }],
+      text: Promise.resolve("unfinished"),
+      totalUsage: Promise.resolve({}),
+    } as never);
+    await expect(
+      tools.delegateSubagent!.execute!(
+        { role: "reviewer", task: "review" },
+        { toolCallId: "timeout", messages: [], context: {} },
+      ),
+    ).rejects.toMatchObject({ name: "TimeoutError" });
+    expect(timings.timeout).toEqual(expect.objectContaining({ durationMs: expect.any(Number) }));
+  });
+
   it("honors an explicit harness allowlist for interactive tools", () => {
     const { tools } = setup();
     expect(tools.askUser).toBeUndefined();
@@ -76,19 +92,27 @@ describe("subagent execution timing", () => {
   it("records separate durations for delegated and reviewer calls without changing their outputs", async () => {
     const clock = vi.spyOn(Date, "now").mockReturnValue(1000);
     const { timings, trace, saveTool, tools } = setup();
-    vi.mocked(generateText).mockImplementationOnce(async () => {
+    vi.mocked(streamText).mockImplementationOnce(() => {
       expect(timings.delegate).toEqual({ startedAt: 1000 });
       clock.mockReturnValue(2350);
-      return { text: "plot result", totalUsage: {} } as never;
+      return {
+        text: Promise.resolve("plot result"),
+        totalUsage: Promise.resolve({}),
+        fullStream: [],
+      } as never;
     });
     const result = await tools.delegateSubagent!.execute!(
       { role: "plot", task: "review" },
       { toolCallId: "delegate", messages: [], context: {} },
     );
     expect(result).toMatchObject({ role: "plot", result: "plot result" });
-    vi.mocked(generateText).mockImplementationOnce(async () => {
+    vi.mocked(streamText).mockImplementationOnce(() => {
       clock.mockReturnValue(3000);
-      return { text: "review result", totalUsage: {} } as never;
+      return {
+        text: Promise.resolve("review result"),
+        totalUsage: Promise.resolve({}),
+        fullStream: [],
+      } as never;
     });
     await tools.validateContinuity!.execute!(
       { text: "chapter" },
@@ -138,7 +162,7 @@ describe("subagent execution timing", () => {
   it("retains elapsed time when a subagent fails", async () => {
     const clock = vi.spyOn(Date, "now").mockReturnValue(1000);
     const { timings, trace, tools, saveTool } = setup();
-    vi.mocked(generateText).mockImplementationOnce(async () => {
+    vi.mocked(streamText).mockImplementationOnce(() => {
       clock.mockReturnValue(4200);
       throw new Error("model unavailable");
     });

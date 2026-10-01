@@ -25,16 +25,7 @@ function SnapshotDetail({ output }: SnapshotProps) {
     ["outlines", output.outlines.length],
     ["timeline", output.timeline_events.length],
   ] as const;
-  return (
-    <dl className="grid grid-cols-3 gap-1 text-center">
-      {stats.map(([key, count]) => (
-        <div key={key} className="flex flex-col-reverse py-0.5">
-          <dt className="text-xs text-muted-foreground">{t(key)}</dt>
-          <dd className="text-sm font-medium text-foreground tabular-nums">{count}</dd>
-        </div>
-      ))}
-    </dl>
-  );
+  return <ToolMeta items={stats.map(([key, count]) => `${t(key)} ${count}`)} />;
 }
 
 type ChapterProps = MaterialContext<unknown, z.infer<typeof chapterOutputSchema>>;

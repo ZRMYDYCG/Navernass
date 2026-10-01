@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { isToolUIPart, readUIMessageStream } from "ai";
+import { getToolName, isToolUIPart, readUIMessageStream } from "ai";
 import { LoaderCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
@@ -23,6 +23,10 @@ import {
 import { editorKeys } from "@/servers/editor.server";
 import { libraryKeys } from "@/servers/library.server";
 import { askUserInputSchema, type AskUserOutput } from "@/lib/http/modules/agent.schema";
+import {
+  articleWriteOutputSchema,
+  chapterOutputSchema,
+} from "@/lib/http/modules/agent-tool.schema";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AskUserPanel } from "./ask-user-panel";
@@ -36,6 +40,7 @@ import type { ChatMessage } from "./types";
 interface ChatPanelProps {
   novelId?: string;
   chapterId?: string;
+  onBeforeSend?: () => Promise<void> | void;
 }
 
 function getSessionId(message: ChatMessage | undefined) {
@@ -66,7 +71,9 @@ function findPendingQuestion(messages: ChatMessage[]) {
   return undefined;
 }
 
-export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
+const chapterWritingTools = new Set(["editArticle", "writeArticle", "patchArticle"]);
+
+export function ChatPanel({ novelId, chapterId, onBeforeSend }: ChatPanelProps) {
   const t = useTranslations("chat");
   const queryClient = useQueryClient();
   // 组件按 novelId 重建，这里在挂载时读取该小说最近使用的会话。
@@ -82,6 +89,7 @@ export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
   const abortRef = useRef<AbortController>(null);
   const resumedRunsRef = useRef(new Set<string>());
   const pauseRequestedViewsRef = useRef(new Set<number>());
+  const handledToolOutputsRef = useRef(new Set<string>());
   const sessionsQuery = useChatSessions(novelId);
   const messagesQuery = useSessionMessages(state.sessionId);
   const deleteSessionMutation = useDeleteChatSession();
@@ -154,6 +162,57 @@ export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
     [chapterId, novelId, queryClient],
   );
 
+  const handleToolEffects = useCallback(
+    (message: ChatMessage) => {
+      if (!novelId) return;
+
+      for (const part of message.parts) {
+        if (!isToolUIPart(part) || part.state !== "output-available") continue;
+        const key = `${part.toolCallId}:output`;
+        if (handledToolOutputsRef.current.has(key)) continue;
+        handledToolOutputsRef.current.add(key);
+
+        const toolName = getToolName(part);
+        if (toolName === "createChapter") {
+          const parsed = chapterOutputSchema.safeParse(part.output);
+          if (!parsed.success) continue;
+          void queryClient.invalidateQueries({
+            queryKey: libraryKeys.chapters(novelId),
+            exact: true,
+          });
+          void queryClient.invalidateQueries({
+            queryKey: libraryKeys.chapter(parsed.data.id),
+            exact: true,
+          });
+          useWorkspaceStore.getState().selectChapter(parsed.data.id);
+          continue;
+        }
+
+        if (toolName === "createVolume") {
+          void queryClient.invalidateQueries({
+            queryKey: libraryKeys.volumes(novelId),
+            exact: true,
+          });
+          continue;
+        }
+
+        if (chapterWritingTools.has(toolName)) {
+          const parsed = articleWriteOutputSchema.safeParse(part.output);
+          if (!parsed.success) continue;
+          void queryClient.invalidateQueries({
+            queryKey: libraryKeys.chapter(parsed.data.chapterId),
+            exact: true,
+          });
+          void queryClient.invalidateQueries({
+            queryKey: libraryKeys.chapters(novelId),
+            exact: true,
+          });
+        }
+      }
+    },
+    [novelId, queryClient],
+  );
+
   const consumeStream = useCallback(
     async (
       createStream: (signal: AbortSignal) => ReturnType<typeof startAgentStream>,
@@ -178,6 +237,7 @@ export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
         })) {
           finalMessage = { ...message, id: streamFallbackId };
           streamStore.set(finalMessage);
+          handleToolEffects(message);
           const assignedRunId = message.metadata?.runId;
           if (assignedRunId) resumedRunsRef.current.add(assignedRunId);
           const assignedSessionId = getSessionId(message);
@@ -240,7 +300,7 @@ export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
         refreshSessionData(streamSessionId);
       }
     },
-    [refreshSessionData, streamStore, syncSelectedSession],
+    [handleToolEffects, refreshSessionData, streamStore, syncSelectedSession],
   );
 
   useEffect(() => {
@@ -273,9 +333,10 @@ export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
     });
   };
 
-  const sendPrompt = (prompt: string) => {
+  const sendPrompt = async (prompt: string) => {
     const text = prompt.trim();
     if (!text || !canSend || !novelId) return;
+    await onBeforeSend?.();
 
     const message: ChatMessage = {
       id: crypto.randomUUID(),

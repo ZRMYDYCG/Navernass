@@ -79,6 +79,7 @@
     "interruptedTool": "Execution interrupted",
     "duration": {
       "seconds": "{seconds}s",
+      "milliseconds": "{milliseconds}ms",
       "live": "Live estimate; server duration shown on completion",
       "measured": "Server execution time, including retries"
     },
@@ -423,9 +424,7 @@
       "label": "Sidebar views",
       "novel": "Novel",
       "search": "Search",
-      "plugins": "Plugins",
-      "characters": "Characters",
-      "comingSoon": "Coming soon."
+      "characters": "Characters"
     },
     "search": {
       "placeholder": "Search chapter titles and text",

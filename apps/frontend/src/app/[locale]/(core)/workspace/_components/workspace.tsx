@@ -12,6 +12,7 @@ import { useWorkspaceStore } from "@/stores";
 
 import { AppHeader } from "./app-header";
 import { ChapterEditor, EmptyChapterEditor } from "./editor";
+import type { ChapterEditorHandle } from "./editor";
 import { ChatPanel } from "./chat-panel/chat-panel";
 import { Sidebar } from "./sidebar/sidebar";
 import type { SidebarView } from "./sidebar/types";
@@ -52,6 +53,7 @@ export function Workspace() {
   const [activeView, setActiveView] = useState<WorkspaceView>("editor");
   const sidebar = usePanelToggle();
   const chatPanel = usePanelToggle();
+  const editorRef = useRef<ChapterEditorHandle>(null);
 
   // persist 采用 skipHydration，挂载后再恢复本地缓存，避免 SSR 水合不一致。
   useEffect(() => {
@@ -93,6 +95,10 @@ export function Workspace() {
     selectChapterInStore(id);
     setActiveView("editor");
   };
+
+  const saveCurrentChapter = useCallback(async () => {
+    await editorRef.current?.save();
+  }, []);
 
   // 设置入口只剩顶栏按钮，作为开关使用。
   const toggleSettings = () => {
@@ -155,6 +161,7 @@ export function Workspace() {
                   key={effectiveChapterId}
                   novelId={effectiveNovelId}
                   chapterId={effectiveChapterId}
+                  ref={editorRef}
                 />
               ) : (
                 <EmptyChapterEditor />
@@ -186,6 +193,7 @@ export function Workspace() {
             key={effectiveNovelId ?? "new-chat"}
             novelId={effectiveNovelId}
             chapterId={effectiveChapterId}
+            onBeforeSend={saveCurrentChapter}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

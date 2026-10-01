@@ -47,6 +47,8 @@ const streamingAnimation = {
   duration: 200,
   easing: "ease-out",
   sep: "char",
+  // 同批字符同时淡入，避免默认逐字延迟让长段落占位后持续透明。
+  stagger: 0,
 } as const;
 
 /** 只有仍在生成的最后一段文本使用 streaming 模式，其余段落按静态 Markdown 渲染。 */

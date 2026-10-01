@@ -1,6 +1,6 @@
 "use client";
 
-import { BlocksIcon, BookOpenIcon, SearchIcon, UsersIcon, type LucideIcon } from "lucide-react";
+import { BookOpenIcon, SearchIcon, UsersIcon, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import type { SidebarView } from "./types";
 const views: { id: SidebarView; icon: LucideIcon }[] = [
   { id: "novel", icon: BookOpenIcon },
   { id: "search", icon: SearchIcon },
-  { id: "plugins", icon: BlocksIcon },
   { id: "characters", icon: UsersIcon },
 ];
 

@@ -429,11 +429,13 @@ export class RuntimeService {
     const controller = new AbortController();
     const idleController = new AbortController();
     let idleTimer: NodeJS.Timeout | undefined;
-    // 空闲超时：每收到一个流事件就重置计时器，只有持续无输出才中止；长生成不会被总时长误杀。
+    const runningTools = new Set<string>();
+    // 工具执行由各自的 I/O 超时负责；等待工具时不能把主模型判为空闲。
     const armIdle = () => {
       clearTimeout(idleTimer);
+      if (runningTools.size > 0) return;
       idleTimer = setTimeout(
-        () => idleController.abort(new Error("AGENT_IDLE_TIMEOUT")),
+        () => idleController.abort(new DOMException("模型输出超时", "TimeoutError")),
         this.timeoutMs,
       );
     };
@@ -458,6 +460,7 @@ export class RuntimeService {
       },
     };
     try {
+      armIdle();
       const result =
         "messages" in call
           ? await execution.agent.stream({ ...options, messages: call.messages })
@@ -465,12 +468,26 @@ export class RuntimeService {
       const stream = toUIMessageStream({
         stream: result.fullStream.pipeThrough(
           new TransformStream({
-            start() {
-              armIdle();
-            },
             transform(part, output) {
+              if (part.type === "tool-call" && execution.tools[part.toolName]?.execute) {
+                runningTools.add(part.toolCallId);
+              } else if (
+                part.type === "tool-error" ||
+                (part.type === "tool-result" && !part.preliminary)
+              ) {
+                runningTools.delete(part.toolCallId);
+              }
+              if (part.type === "abort") {
+                const endedAt = Date.now();
+                for (const timing of Object.values(execution.toolTimings)) {
+                  timing.durationMs ??= Math.max(0, endedAt - timing.startedAt);
+                }
+              }
               armIdle();
               output.enqueue(part);
+            },
+            flush() {
+              stopIdle();
             },
           }),
         ),
@@ -481,6 +498,7 @@ export class RuntimeService {
         messageMetadata: ({ part }) =>
           part.type === "start" ||
           part.type === "finish" ||
+          part.type === "abort" ||
           part.type === "tool-call" ||
           part.type === "tool-result" ||
           part.type === "tool-error"
@@ -501,6 +519,7 @@ export class RuntimeService {
         onEnd: async ({ outcome, finishReason, responseMessage }) => {
           try {
             if (outcome.status === "aborted") {
+              const paused = controller.signal.aborted;
               if (responseMessage.parts.length > 0) {
                 const text = responseMessage.parts
                   .filter((part) => part.type === "text")
@@ -513,14 +532,24 @@ export class RuntimeService {
                   parts: responseMessage.parts,
                   metadata: {
                     interrupted: true,
-                    finishReason: "cancelled",
+                    finishReason: paused ? "cancelled" : "error",
                     aiSdkMessageId: responseMessage.id,
                     toolTimings: execution.toolTimings,
                     executionTrace: execution.executionTrace,
                   },
                 });
               }
-              await this.traces.cancelRun(execution.run.id, Date.now() - started);
+              if (paused) {
+                await this.traces.cancelRun(execution.run.id, Date.now() - started);
+              } else {
+                await this.traces.failRun(
+                  execution.run.id,
+                  this.errors.toAppError(
+                    idleController.signal.reason ?? new DOMException("执行已中断", "AbortError"),
+                  ),
+                  Date.now() - started,
+                );
+              }
               return;
             }
             if (outcome.status === "failed") {
@@ -566,10 +595,10 @@ export class RuntimeService {
         replayed: false,
       };
     } catch (error) {
-      const failure = this.errors.toAppError(error);
+      const failure = this.errors.toAppError(idleController.signal.reason ?? error);
       stopIdle();
       try {
-        if (controller.signal.aborted || idleController.signal.aborted) {
+        if (controller.signal.aborted) {
           await this.traces.cancelRun(execution.run.id, Date.now() - started);
         } else {
           await this.traces.failRun(execution.run.id, failure, Date.now() - started);

@@ -1,1 +1,1 @@
-export type SidebarView = "novel" | "search" | "plugins" | "characters";
+export type SidebarView = "novel" | "search" | "characters";

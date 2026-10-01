@@ -1,16 +1,18 @@
 "use client";
 
-/* oxlint-disable shadcn/no-raw-colors -- 临时占位色块 */
-
-interface ChapterEditorProps {
-  novelId: string;
-  chapterId: string;
-}
+import type { ChapterEditorProps } from "./types";
+import { ConnectedChapterEditor } from "./chapter";
 
 export function EmptyChapterEditor() {
-  return <div className="h-full bg-pink-300" />;
+  return (
+    <div className="flex h-full items-center justify-center bg-background text-sm text-muted-foreground">
+      选择一个章节开始写作
+    </div>
+  );
 }
 
-export function ChapterEditor(_props: ChapterEditorProps) {
-  return <div className="h-full bg-pink-300" />;
+export function ChapterEditor({ ref, ...props }: ChapterEditorProps) {
+  return <ConnectedChapterEditor {...props} handleRef={ref} />;
 }
+
+export type { ChapterEditorHandle, EditorDiffProposal, SerializedChapter } from "./types";

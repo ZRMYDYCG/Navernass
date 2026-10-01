@@ -3,7 +3,7 @@ import type { EnvConfig } from "../config/env-schema.js";
 import type { RunAgent } from "./agent.schema.js";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { generateText, tool } from "ai";
+import { streamText, tool } from "ai";
 import { z } from "zod";
 import { PrismaService } from "../database/prisma.service.js";
 import { EditorService } from "../editor/editor.service.js";
@@ -55,6 +55,7 @@ const subagentPrompts = {
 @Injectable()
 export class ToolService {
   private readonly maxRetries: number;
+  private readonly timeoutMs: number;
 
   constructor(
     @Inject(ConfigService) config: ConfigService<EnvConfig, true>,
@@ -67,6 +68,7 @@ export class ToolService {
     @Inject(AgentErrorService) private readonly errors: AgentErrorService,
     @Inject(RetryService) private readonly retries: RetryService,
   ) {
+    this.timeoutMs = config.get("AGENT_TIMEOUT_MS", { infer: true });
     this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
   }
 
@@ -474,16 +476,27 @@ export class ToolService {
         }),
         execute: (input, options) =>
           observed(options.toolCallId, "validateContinuity", input, async () => {
-            const result = await generateText({
+            const result = streamText({
               model: context.model,
               instructions: subagentPrompts.reviewer,
               prompt: `${context.contextText}\n\n待审核文本：\n${input.text}\n\n审核重点：${input.focus ?? "全部一致性维度"}`,
               temperature: 0.1,
               maxRetries: this.maxRetries,
+              timeout: { firstChunkMs: this.timeoutMs, chunkMs: this.timeoutMs },
               abortSignal: options.abortSignal,
             });
-            await this.traces.addUsage(context.runId, result.totalUsage);
-            return { report: result.text, usage: result.totalUsage };
+            for await (const part of result.fullStream) {
+              if (part.type === "error") throw part.error;
+              if (part.type === "abort") {
+                throw (
+                  options.abortSignal?.reason ??
+                  new DOMException("Subagent 输出超时", "TimeoutError")
+                );
+              }
+            }
+            const [text, usage] = await Promise.all([result.text, result.totalUsage]);
+            await this.traces.addUsage(context.runId, usage);
+            return { report: text, usage };
           }),
       }),
       delegateSubagent: tool({
@@ -494,16 +507,27 @@ export class ToolService {
         }),
         execute: (input, options) =>
           observed(options.toolCallId, "delegateSubagent", input, async () => {
-            const result = await generateText({
+            const result = streamText({
               model: context.model,
               instructions: `${subagentPrompts[input.role]} 只处理被委派任务，输出可供主 Agent 合并的明确结果。`,
               prompt: `${context.contextText}\n\n委派任务：${input.task}`,
               temperature: context.input.temperature,
               maxRetries: this.maxRetries,
+              timeout: { firstChunkMs: this.timeoutMs, chunkMs: this.timeoutMs },
               abortSignal: options.abortSignal,
             });
-            await this.traces.addUsage(context.runId, result.totalUsage);
-            return { role: input.role, result: result.text, usage: result.totalUsage };
+            for await (const part of result.fullStream) {
+              if (part.type === "error") throw part.error;
+              if (part.type === "abort") {
+                throw (
+                  options.abortSignal?.reason ??
+                  new DOMException("Subagent 输出超时", "TimeoutError")
+                );
+              }
+            }
+            const [text, usage] = await Promise.all([result.text, result.totalUsage]);
+            await this.traces.addUsage(context.runId, usage);
+            return { role: input.role, result: text, usage };
           }),
       }),
     };
