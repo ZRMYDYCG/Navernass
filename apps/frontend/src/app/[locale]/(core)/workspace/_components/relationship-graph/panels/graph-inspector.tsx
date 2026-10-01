@@ -25,7 +25,7 @@ import {
   useCharacters,
   useRelationships,
 } from "../api";
-import { useNovelGraphStore } from "../graph-store";
+import { useRelationshipGraphStore } from "@/stores";
 import type { Character, Relationship, RelationshipKind } from "../types";
 import { CharacterFieldsEditor } from "./character-fields-editor";
 
@@ -41,18 +41,18 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 }
 
 export function GraphInspector({ novelId }: { novelId?: string }) {
-  const t = useTranslations("novelGraph");
+  const t = useTranslations("relationshipGraph");
   const { data: characters } = useCharacters(novelId);
   const { data: relationships } = useRelationships(novelId);
   const updateCharacter = useUpdateCharacter(novelId);
   const deleteCharacter = useDeleteCharacter(novelId);
   const updateRelationship = useUpdateRelationship(novelId);
   const deleteRelationship = useDeleteRelationship(novelId);
-  const selectedCharacterId = useNovelGraphStore((state) => state.selectedCharacterId);
-  const selectedRelationshipId = useNovelGraphStore((state) => state.selectedRelationshipId);
-  const selectCharacter = useNovelGraphStore((state) => state.selectCharacter);
-  const selectRelationship = useNovelGraphStore((state) => state.selectRelationship);
-  const closeInspector = useNovelGraphStore((state) => state.closeInspector);
+  const selectedCharacterId = useRelationshipGraphStore((state) => state.selectedCharacterId);
+  const selectedRelationshipId = useRelationshipGraphStore((state) => state.selectedRelationshipId);
+  const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
+  const selectRelationship = useRelationshipGraphStore((state) => state.selectRelationship);
+  const closeInspector = useRelationshipGraphStore((state) => state.closeInspector);
 
   const character = characters.find((item) => item.id === selectedCharacterId);
   const relationship = relationships.find((item) => item.id === selectedRelationshipId);

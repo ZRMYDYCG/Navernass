@@ -35,7 +35,7 @@ import {
   useCharacters,
   useRelationships,
 } from "../api";
-import { useNovelGraphStore } from "../graph-store";
+import { useRelationshipGraphStore } from "@/stores";
 import type { Character, GraphPosition } from "../types";
 
 interface CharacterNodeData extends Record<string, unknown> {
@@ -44,7 +44,7 @@ interface CharacterNodeData extends Record<string, unknown> {
 }
 
 const CharacterNode = memo(function CharacterNode({ data }: NodeProps<Node<CharacterNodeData>>) {
-  const t = useTranslations("novelGraph.editor");
+  const t = useTranslations("relationshipGraph.editor");
   const { character, selected } = data;
   const role = characterDisplayRole(character) || t("unsetRole");
   const faction = characterDisplayFaction(character);
@@ -112,16 +112,16 @@ const CharacterNode = memo(function CharacterNode({ data }: NodeProps<Node<Chara
 const nodeTypes = { character: CharacterNode };
 
 export function GraphEditorView({ novelId }: { novelId?: string }) {
-  const t = useTranslations("novelGraph");
+  const t = useTranslations("relationshipGraph");
   const { data: characters } = useCharacters(novelId);
   const { data: relationships } = useRelationships(novelId);
   const updateCharacter = useUpdateCharacter(novelId);
   const createRelationship = useCreateRelationship(novelId);
-  const selectedCharacterId = useNovelGraphStore((state) => state.selectedCharacterId);
-  const selectedRelationshipId = useNovelGraphStore((state) => state.selectedRelationshipId);
-  const selectCharacter = useNovelGraphStore((state) => state.selectCharacter);
-  const selectRelationship = useNovelGraphStore((state) => state.selectRelationship);
-  const openInspector = useNovelGraphStore((state) => state.openInspector);
+  const selectedCharacterId = useRelationshipGraphStore((state) => state.selectedCharacterId);
+  const selectedRelationshipId = useRelationshipGraphStore((state) => state.selectedRelationshipId);
+  const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
+  const selectRelationship = useRelationshipGraphStore((state) => state.selectRelationship);
+  const openInspector = useRelationshipGraphStore((state) => state.openInspector);
 
   const setCharacterPosition = useCallback(
     (id: string, position: GraphPosition) =>

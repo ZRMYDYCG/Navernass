@@ -10,24 +10,24 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { characterCreatePayload, useCharacters } from "./api";
 import { useCreateCharacter } from "@/servers/library.server";
-import { useNovelGraphStore } from "./graph-store";
+import { useRelationshipGraphStore } from "@/stores";
 import type { GraphViewMode } from "./types";
 import { GraphInspector } from "./panels/graph-inspector";
 import { GraphEditorView } from "./views/graph-editor-view";
 import { G6ExploreView } from "./views/g6-explore-view";
 import { World3DView } from "./views/world-3d-view";
 
-export function NovelGraphWorkspace({ novelId }: { novelId?: string }) {
-  const t = useTranslations("novelGraph.workspace");
+export function RelationshipGraphWorkspace({ novelId }: { novelId?: string }) {
+  const t = useTranslations("relationshipGraph.workspace");
   const [mode, setMode] = useState<GraphViewMode>("editor");
   const { data: characters } = useCharacters(novelId);
   const createCharacter = useCreateCharacter(novelId);
-  const selectCharacter = useNovelGraphStore((state) => state.selectCharacter);
-  const openInspector = useNovelGraphStore((state) => state.openInspector);
-  const selectedCharacterId = useNovelGraphStore((state) => state.selectedCharacterId);
-  const selectedRelationshipId = useNovelGraphStore((state) => state.selectedRelationshipId);
-  const inspectorOpen = useNovelGraphStore((state) => state.inspectorOpen);
-  const closeInspector = useNovelGraphStore((state) => state.closeInspector);
+  const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
+  const openInspector = useRelationshipGraphStore((state) => state.openInspector);
+  const selectedCharacterId = useRelationshipGraphStore((state) => state.selectedCharacterId);
+  const selectedRelationshipId = useRelationshipGraphStore((state) => state.selectedRelationshipId);
+  const inspectorOpen = useRelationshipGraphStore((state) => state.inspectorOpen);
+  const closeInspector = useRelationshipGraphStore((state) => state.closeInspector);
   const drawerOpen = inspectorOpen && Boolean(selectedCharacterId || selectedRelationshipId);
 
   const views: Array<{ id: GraphViewMode; label: string }> = [

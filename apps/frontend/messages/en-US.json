@@ -206,7 +206,7 @@
       "staleHint": "The text changed after this proposal. Ask the assistant to reread it and propose again."
     }
   },
-  "novelGraph": {
+  "relationshipGraph": {
     "workspace": {
       "viewEditor": "Edit",
       "viewExplore": "Relations",

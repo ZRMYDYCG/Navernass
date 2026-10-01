@@ -6,7 +6,7 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTranslations } from "next-intl";
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { NovelGraphWorkspace } from "@/app/[locale]/(core)/workspace/_components/novel-graph/novel-graph-workspace";
+import { RelationshipGraphWorkspace } from "@/app/[locale]/(core)/workspace/_components/relationship-graph/relationship-graph-workspace";
 import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/servers/library.server";
 import { useWorkspaceStore } from "@/stores";
 
@@ -183,7 +183,7 @@ export function Workspace() {
             </div>
             {graphOpen ? (
               <div hidden={!showGraph} className="min-h-0 flex-1">
-                <NovelGraphWorkspace novelId={effectiveNovelId} />
+                <RelationshipGraphWorkspace novelId={effectiveNovelId} />
               </div>
             ) : null}
             {settingsOpen ? (

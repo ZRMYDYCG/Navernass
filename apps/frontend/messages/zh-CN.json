@@ -206,7 +206,7 @@
       "staleHint": "正文已在提案后发生变化，请让助手重新读取后再生成提案。"
     }
   },
-  "novelGraph": {
+  "relationshipGraph": {
     "workspace": {
       "viewEditor": "编辑",
       "viewExplore": "关系",

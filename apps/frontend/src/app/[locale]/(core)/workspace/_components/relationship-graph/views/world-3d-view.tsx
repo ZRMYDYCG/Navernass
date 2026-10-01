@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { characterFactionColor } from "../character-fields";
 import { relationshipColors } from "../relationship-colors";
 import { useCharacters, useRelationships } from "../api";
-import { useNovelGraphStore } from "../graph-store";
+import { useRelationshipGraphStore } from "@/stores";
 
 type ForceGraphInstance = {
   graphData: (data: unknown) => ForceGraphInstance;
@@ -119,14 +119,14 @@ function createNodeObject(THREE: ThreeModule, node: Record<string, unknown>, fal
 }
 
 export function World3DView({ novelId }: { novelId?: string }) {
-  const t = useTranslations("novelGraph");
+  const t = useTranslations("relationshipGraph");
   const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<ForceGraphInstance | null>(null);
   const { data: characters } = useCharacters(novelId);
   const { data: relationships } = useRelationships(novelId);
-  const selectCharacter = useNovelGraphStore((state) => state.selectCharacter);
-  const selectRelationship = useNovelGraphStore((state) => state.selectRelationship);
-  const openInspector = useNovelGraphStore((state) => state.openInspector);
+  const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
+  const selectRelationship = useRelationshipGraphStore((state) => state.selectRelationship);
+  const openInspector = useRelationshipGraphStore((state) => state.openInspector);
 
   const graphData = useMemo(
     () => ({

@@ -50,7 +50,7 @@ function TagInput({
   autoFocus: boolean;
   onChange: (value: string) => void;
 }) {
-  const t = useTranslations("novelGraph.fields");
+  const t = useTranslations("relationshipGraph.fields");
   const tags = splitTags(value);
   const [draft, setDraft] = useState("");
 
@@ -112,7 +112,7 @@ function FieldValueEditor({
   autoFocus: boolean;
   onChange: (value: string) => void;
 }) {
-  const t = useTranslations("novelGraph.fields");
+  const t = useTranslations("relationshipGraph.fields");
   const label = field.label || t("unnamedField");
 
   if (field.type === "tags") {
@@ -154,7 +154,7 @@ function FieldRow({
   onUpdateField: (fieldId: string, patch: Partial<Omit<CharacterCustomField, "id">>) => void;
   onRemoveField: (fieldId: string) => void;
 }) {
-  const t = useTranslations("novelGraph.fields");
+  const t = useTranslations("relationshipGraph.fields");
   const update = (patch: Partial<Omit<CharacterCustomField, "id">>) =>
     onUpdateField(field.id, patch);
 
@@ -223,7 +223,7 @@ export function CharacterFieldsEditor({
   onRemoveField: (fieldId: string) => void;
   onAddField: (preset?: Pick<CharacterCustomField, "label" | "type">) => string;
 }) {
-  const t = useTranslations("novelGraph.fields");
+  const t = useTranslations("relationshipGraph.fields");
   const [focusFieldId, setFocusFieldId] = useState<string>();
 
   const usedLabels = new Set(character.customFields.map((field) => field.label.trim()));

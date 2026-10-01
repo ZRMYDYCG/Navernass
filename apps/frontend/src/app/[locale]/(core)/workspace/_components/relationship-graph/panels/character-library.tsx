@@ -5,14 +5,14 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 import { useCharacters } from "../api";
-import { useNovelGraphStore } from "../graph-store";
+import { useRelationshipGraphStore } from "@/stores";
 
 export function CharacterLibrary({ novelId }: { novelId?: string }) {
-  const t = useTranslations("novelGraph.library");
+  const t = useTranslations("relationshipGraph.library");
   const { data: characters, isPending } = useCharacters(novelId);
-  const selectedCharacterId = useNovelGraphStore((state) => state.selectedCharacterId);
-  const selectCharacter = useNovelGraphStore((state) => state.selectCharacter);
-  const openInspector = useNovelGraphStore((state) => state.openInspector);
+  const selectedCharacterId = useRelationshipGraphStore((state) => state.selectedCharacterId);
+  const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
+  const openInspector = useRelationshipGraphStore((state) => state.openInspector);
 
   return (
     <aside className="flex h-full min-h-0 flex-col bg-background">
