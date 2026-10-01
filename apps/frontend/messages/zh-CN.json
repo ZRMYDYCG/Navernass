@@ -503,12 +503,12 @@
       "removed": "删除：",
       "added": "新增："
     },
-    "agentDiff": {
-      "summary": "Agent 修改了 {count} 处，待处理 {pending} 处",
-      "keep": "保留",
-      "revert": "撤销",
-      "keepAll": "全部保留",
-      "revertAll": "全部撤销"
+    "revisions": {
+      "pending": "{count} 处修订",
+      "accept": "接受",
+      "reject": "拒绝",
+      "acceptAll": "全部接受",
+      "rejectAll": "全部拒绝"
     }
   },
   "landing": {

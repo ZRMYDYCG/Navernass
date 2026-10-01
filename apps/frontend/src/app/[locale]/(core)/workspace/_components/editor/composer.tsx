@@ -6,7 +6,7 @@ import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import type { Ref } from "react";
 import { cn } from "cn";
 import {
@@ -30,6 +30,9 @@ import type { ChapterEditorHandle, ChapterEditorProps } from "./types";
 
 interface EditorShellProps extends ChapterEditorProps {
   handleRef?: Ref<ChapterEditorHandle>;
+  /** Agent 改写前的原文；存在时进入审阅视图，与当前正文逐处对比。 */
+  reviewBase?: string;
+  onResolveReview?: () => void;
 }
 
 export function EditorComposer(props: EditorShellProps) {
@@ -62,8 +65,10 @@ export function EditorComposer(props: EditorShellProps) {
 function EditorShell({
   readonly = false,
   initialContent,
+  reviewBase,
   onChange,
   onSave,
+  onResolveReview,
   handleRef,
 }: EditorShellProps) {
   const [editor] = useLexicalComposerContext();
@@ -72,7 +77,6 @@ function EditorShell({
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onChangeRef = useRef(onChange);
   const onSaveRef = useRef(onSave);
-  const [review, setReview] = useState<{ before: string; after: string } | null>(null);
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -91,6 +95,10 @@ function EditorShell({
     }
   }, [editor, statusStore]);
 
+  const review =
+    reviewBase !== undefined && typeof initialContent === "string"
+      ? { before: reviewBase, after: initialContent }
+      : null;
   const reviewing = review !== null;
 
   useEffect(() => {
@@ -101,15 +109,9 @@ function EditorShell({
   useEffect(() => {
     if (typeof initialContent !== "string") return;
     if (statusStore.getSnapshot().saveState !== "saved") return;
-    const current = editor.getEditorState().read($readPlainText);
-    if (current === initialContent) return;
+    if (editor.getEditorState().read($readPlainText) === initialContent) return;
     latestState.current = null;
-    editor.update(() => $setPlainText(initialContent), {
-      tag: HISTORY_MERGE_TAG,
-      // 连续多次改写时保留最早的原文，撤销能一次回到 Agent 动手之前。
-      onUpdate: () =>
-        setReview((previous) => ({ before: previous?.before ?? current, after: initialContent })),
-    });
+    editor.update(() => $setPlainText(initialContent), { tag: HISTORY_MERGE_TAG });
     editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
   }, [editor, initialContent, statusStore]);
 
@@ -133,13 +135,13 @@ function EditorShell({
   );
 
   function resolveReview(text: string) {
-    if (text !== review?.after) editor.update(() => $setPlainText(text));
-    setReview(null);
+    if (text !== initialContent) editor.update(() => $setPlainText(text));
+    onResolveReview?.();
   }
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
-      <Toolbar statusStore={statusStore} readonly={readonly || reviewing} />
+      {reviewing ? null : <Toolbar statusStore={statusStore} readonly={readonly} />}
       <div className="flex min-h-0 flex-1">
         <div className="relative min-w-0 flex-1 overflow-y-auto">
           <RichTextPlugin

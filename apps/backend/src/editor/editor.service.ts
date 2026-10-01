@@ -421,6 +421,8 @@ export class EditorService {
           content: nextContent,
           word_count: nextCount,
           revision: { increment: 1 },
+          // 连续改写时保留最早的起点，用户一次就能审阅全部改动。
+          review_base_revision: chapter.review_base_revision ?? chapter.revision,
         },
       });
       if (updated.count !== 1) throw this.conflict("正文版本冲突，请重新读取后再编辑");

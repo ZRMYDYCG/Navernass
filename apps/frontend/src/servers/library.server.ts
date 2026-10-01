@@ -20,6 +20,7 @@ import {
   duplicateChapter as duplicateChapterApi,
   duplicateVolume as duplicateVolumeApi,
   getChapter,
+  getChapterReview,
   getNovel,
   getNovelChapters,
   getNovels,
@@ -30,6 +31,7 @@ import {
   renameVolume as renameVolumeApi,
   reorderChapters as reorderChaptersApi,
   reorderVolumes as reorderVolumesApi,
+  resolveChapterReview,
   searchChapters,
   updateCharacter as updateCharacterApi,
   updateChapterContent,
@@ -59,6 +61,8 @@ export const libraryKeys = {
   volumes: (novelId: string) => ["library", "novels", novelId, "volumes"] as const,
   chapters: (novelId: string) => ["library", "novels", novelId, "chapters"] as const,
   chapter: (id: string) => ["library", "chapters", id] as const,
+  chapterReview: (id: string, revision: number) =>
+    ["library", "chapters", id, "review", revision] as const,
   chapterSearch: (novelId: string, keyword: string) =>
     ["library", "novels", novelId, "chapter-search", keyword] as const,
   characters: (novelId: string) => ["library", "novels", novelId, "characters"] as const,
@@ -151,6 +155,37 @@ export function useCreateStarterWorkspace() {
  */
 export function useChapter(id: string) {
   return useQuery({ queryKey: libraryKeys.chapter(id), queryFn: () => getChapter(id) });
+}
+
+/**
+ * 获取 Agent 改写前的原文快照；快照不可变，按起点版本缓存。
+ */
+export function useChapterReview(id: string, revision: number | null) {
+  return useQuery({
+    queryKey: libraryKeys.chapterReview(id, revision ?? 0),
+    queryFn: () => getChapterReview(id),
+    enabled: revision !== null,
+    staleTime: Infinity,
+  });
+}
+
+/**
+ * 完成审阅：乐观清除审阅标记。只改标记不动正文，撤销后紧跟的正文保存不会被这里的响应覆盖。
+ */
+export function useResolveChapterReview(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => resolveChapterReview(id),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: libraryKeys.chapter(id), exact: true });
+      queryClient.setQueryData<Chapter>(libraryKeys.chapter(id), (chapter) =>
+        chapter ? { ...chapter, review_base_revision: null } : chapter,
+      );
+    },
+    onError: () => {
+      void queryClient.invalidateQueries({ queryKey: libraryKeys.chapter(id), exact: true });
+    },
+  });
 }
 
 /**

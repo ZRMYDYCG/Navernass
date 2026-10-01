@@ -1,6 +1,11 @@
 "use client";
 
-import { useChapter, useUpdateChapterContent } from "@/servers/library.server";
+import {
+  useChapter,
+  useChapterReview,
+  useResolveChapterReview,
+  useUpdateChapterContent,
+} from "@/servers/library.server";
 
 import { EditorComposer } from "./composer";
 import type { ChapterEditorHandle, ChapterEditorProps, SerializedChapter } from "./types";
@@ -19,6 +24,8 @@ export function ConnectedChapterEditor({
 }: ConnectedChapterEditorProps) {
   const chapter = useChapter(chapterId);
   const updateContent = useUpdateChapterContent(chapterId);
+  const review = useChapterReview(chapterId, chapter.data?.review_base_revision ?? null);
+  const resolveReview = useResolveChapterReview(chapterId);
 
   if (chapter.isLoading) {
     return <EditorStateMessage text="正在加载章节..." />;
@@ -37,7 +44,9 @@ export function ConnectedChapterEditor({
       {...props}
       chapterId={chapterId}
       initialContent={chapter.data.content}
+      reviewBase={chapter.data.review_base_revision === null ? undefined : review.data?.content}
       onSave={save}
+      onResolveReview={() => resolveReview.mutate()}
       handleRef={handleRef}
     />
   );

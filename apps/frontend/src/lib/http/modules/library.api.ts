@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { apiRequest } from "@/lib/http/request";
 import {
+  chapterReviewSchema,
   chapterSchema,
   chapterSummarySchema,
   characterProfileSchema,
@@ -80,6 +81,14 @@ export function reorderChapters(items: ChapterOrderItem[]) {
 
 export function getChapter(id: string) {
   return apiRequest(`chapters/${id}`, chapterSchema);
+}
+
+export function getChapterReview(id: string) {
+  return apiRequest(`chapters/${id}/review`, chapterReviewSchema);
+}
+
+export function resolveChapterReview(id: string) {
+  return apiRequest(`chapters/${id}/review`, chapterSchema, { method: "delete" });
 }
 
 export function createChapter(payload: CreateChapterPayload) {

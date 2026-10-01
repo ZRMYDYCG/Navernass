@@ -33,6 +33,36 @@ function createService() {
   return { service: new EditorService(prisma), created };
 }
 
+function createWriteService(reviewBaseRevision: number | null) {
+  const current = { ...chapter, review_base_revision: reviewBaseRevision };
+  const updates: Array<Record<string, unknown>> = [];
+  const tx = {
+    chapterRevision: { upsert: vi.fn() },
+    chapter: {
+      updateMany: vi.fn(async ({ data }: { data: Record<string, unknown> }) => {
+        updates.push(data);
+        return { count: 1 };
+      }),
+      findUniqueOrThrow: vi.fn().mockResolvedValue({ ...current, revision: current.revision + 1 }),
+    },
+    novel: { update: vi.fn() },
+    chapterEdit: { updateMany: vi.fn() },
+  };
+  const prisma = {
+    chapter: { findFirst: vi.fn().mockResolvedValue(current) },
+    $transaction: vi.fn(async (run: (client: typeof tx) => unknown) => run(tx)),
+  } as unknown as PrismaService;
+  return { service: new EditorService(prisma), updates };
+}
+
+async function baseHash(service: EditorService) {
+  const result = await service.read("user-1", chapter.novel_id, chapter.id, {
+    offset: 0,
+    limit: chapter.content.length,
+  });
+  return result.contentHash;
+}
+
 describe("文章编辑工具", () => {
   it("分段读取时返回 revision、hash 和绝对偏移", async () => {
     const { service } = createService();
@@ -74,6 +104,33 @@ describe("文章编辑工具", () => {
     });
     expect(created[0]?.proposed_content).toContain("檐角的雨珠");
     expect(created[0]?.original_content).toBe(chapter.content);
+  });
+
+  it("直接写入时把写入前的版本记为待审阅起点", async () => {
+    const { service, updates } = createWriteService(null);
+    const result = await service.write("user-1", chapter.novel_id, {
+      chapterId: chapter.id,
+      baseRevision: 3,
+      baseHash: await baseHash(service),
+      content: "全新的正文。",
+      reason: "重写",
+    });
+
+    expect(result.status).toBe("written");
+    expect(updates[0]?.review_base_revision).toBe(3);
+  });
+
+  it("连续写入时保留最早的待审阅起点", async () => {
+    const { service, updates } = createWriteService(1);
+    await service.write("user-1", chapter.novel_id, {
+      chapterId: chapter.id,
+      baseRevision: 3,
+      baseHash: await baseHash(service),
+      content: "又一次改写。",
+      reason: "再改",
+    });
+
+    expect(updates[0]?.review_base_revision).toBe(1);
   });
 
   it("拒绝过期版本和无法精确定位的原文", async () => {

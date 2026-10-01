@@ -36,6 +36,12 @@ export const chapterSummarySchema = z.object({
 export const chapterSchema = chapterSummarySchema.extend({
   content: z.string(),
   revision: z.number(),
+  review_base_revision: z.number().nullable(),
+});
+
+export const chapterReviewSchema = z.object({
+  revision: z.number(),
+  content: z.string(),
 });
 
 export const createNovelPayloadSchema = z.object({

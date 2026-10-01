@@ -1,4 +1,5 @@
 import { diffArrays, diffChars } from "diff";
+import { CheckIcon, XIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { cn } from "cn";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 interface DiffProps {
   before: string;
   after: string;
-  /** 每处修改都处理完后回传最终正文。 */
+  /** 每处修订都处理完后回传最终正文。 */
   onResolve: (text: string) => void;
 }
 
@@ -16,11 +17,11 @@ type Segment =
   | { kind: "same"; lines: string[] }
   | { kind: "change"; removed: string[]; added: string[] };
 
-type Decision = "keep" | "revert";
+type Decision = "accept" | "reject";
 
-/** 正文内审阅 Agent 的改写：逐处保留或撤销，段落内精确到字。 */
+/** 修订模式：正文照常排版，改动以页边竖线、删除线和插入底色标出，逐处接受或拒绝。 */
 export function Diff({ before, after, onResolve }: DiffProps) {
-  const t = useTranslations("chapterEditor.agentDiff");
+  const t = useTranslations("chapterEditor.revisions");
   const segments = useMemo(() => buildSegments(before, after), [before, after]);
   const [decisions, setDecisions] = useState<Record<number, Decision>>({});
   const reviewable = segments.flatMap((segment, index) =>
@@ -39,16 +40,16 @@ export function Diff({ before, after, onResolve }: DiffProps) {
 
   return (
     <>
-      <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-border bg-background px-4 py-2">
-        <span className="text-xs text-muted-foreground">
-          {t("summary", { count: reviewable.length, pending })}
+      <div className="sticky top-0 z-10 flex h-11 items-center gap-1 border-b border-border bg-background/95 px-3">
+        <span className="px-2 text-sm text-muted-foreground">
+          {t("pending", { count: pending })}
         </span>
-        <div className="flex gap-1">
-          <Button type="button" variant="ghost" size="sm" onClick={() => decideAll("revert")}>
-            {t("revertAll")}
+        <div className="ml-auto flex items-center gap-1">
+          <Button type="button" variant="ghost" size="sm" onClick={() => decideAll("reject")}>
+            {t("rejectAll")}
           </Button>
-          <Button type="button" size="sm" onClick={() => decideAll("keep")}>
-            {t("keepAll")}
+          <Button type="button" size="sm" onClick={() => decideAll("accept")}>
+            {t("acceptAll")}
           </Button>
         </div>
       </div>
@@ -57,7 +58,7 @@ export function Diff({ before, after, onResolve }: DiffProps) {
           segment.kind === "same" ? (
             <Paragraphs key={index} lines={segment.lines} />
           ) : (
-            <Hunk
+            <Revision
               key={index}
               segment={segment}
               decision={decisions[index]}
@@ -70,7 +71,7 @@ export function Diff({ before, after, onResolve }: DiffProps) {
   );
 }
 
-function Hunk({
+function Revision({
   segment,
   decision,
   onDecide,
@@ -79,62 +80,73 @@ function Hunk({
   decision: Decision | undefined;
   onDecide: (decision: Decision) => void;
 }) {
-  const t = useTranslations("chapterEditor.agentDiff");
+  const t = useTranslations("chapterEditor.revisions");
   if (decision || !hasText(segment)) {
-    return <Paragraphs lines={decision === "revert" ? segment.removed : segment.added} />;
+    return <Paragraphs lines={decision === "reject" ? segment.removed : segment.added} />;
   }
 
   const removed = segment.removed.filter((line) => line.trim());
-  const added = segment.added.filter((line) => line.trim());
-  // 行数一致时按位置配对做字级比对；否则多半是整段增删，按整行展示。
-  const paired = removed.length === added.length;
+  const addedCount = segment.added.filter((line) => line.trim()).length;
+  // 段落数一致时逐段合并成一段，字级标出增删；否则是整段增删，原文整段划掉。
+  const paired = removed.length === addedCount;
+  let pairIndex = 0;
 
   return (
-    <div className="mb-3 overflow-hidden rounded-md border border-border">
-      {removed.map((line, index) => (
-        <p
-          key={`removed-${index}`}
-          className="bg-destructive/10 px-3 whitespace-pre-wrap text-destructive"
+    <div className="relative before:absolute before:inset-y-1 before:-left-6 before:w-0.5 before:rounded-full before:bg-primary/30">
+      {paired ? (
+        segment.added.map((line, index) => {
+          if (!line.trim()) return <p key={index} className="mb-3 min-h-8" />;
+          const original = removed[pairIndex++] ?? "";
+          return (
+            <p key={index} className="mb-3 whitespace-pre-wrap">
+              {diffChars(original, line).map((part, partIndex) => (
+                <span
+                  key={partIndex}
+                  className={cn(
+                    part.removed && "text-muted-foreground line-through decoration-destructive/60",
+                    part.added &&
+                      "rounded-sm bg-accent underline decoration-primary/30 underline-offset-4",
+                  )}
+                >
+                  {part.value}
+                </span>
+              ))}
+            </p>
+          );
+        })
+      ) : (
+        <>
+          {removed.map((line, index) => (
+            <p
+              key={index}
+              className="mb-3 whitespace-pre-wrap text-muted-foreground line-through decoration-destructive/60"
+            >
+              {line}
+            </p>
+          ))}
+          <Paragraphs lines={segment.added} />
+        </>
+      )}
+      <div className="absolute top-1 -right-10 flex flex-col gap-0.5">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          title={t("accept")}
+          aria-label={t("accept")}
+          onClick={() => onDecide("accept")}
         >
-          {paired
-            ? diffChars(line, added[index] ?? "")
-                .filter((part) => !part.added)
-                .map((part, partIndex) => (
-                  <span
-                    key={partIndex}
-                    className={cn(part.removed && "bg-destructive/20 line-through")}
-                  >
-                    {part.value}
-                  </span>
-                ))
-            : line}
-        </p>
-      ))}
-      {added.map((line, index) => (
-        <p
-          key={`added-${index}`}
-          className="bg-accent px-3 whitespace-pre-wrap text-accent-foreground"
-        >
-          {paired
-            ? diffChars(removed[index] ?? "", line)
-                .filter((part) => !part.removed)
-                .map((part, partIndex) => (
-                  <span
-                    key={partIndex}
-                    className={cn(part.added && "rounded-sm bg-primary/15 font-medium")}
-                  >
-                    {part.value}
-                  </span>
-                ))
-            : line}
-        </p>
-      ))}
-      <div className="flex justify-end gap-1 bg-muted/30 px-2 py-1">
-        <Button type="button" variant="ghost" size="xs" onClick={() => onDecide("revert")}>
-          {t("revert")}
+          <CheckIcon />
         </Button>
-        <Button type="button" variant="secondary" size="xs" onClick={() => onDecide("keep")}>
-          {t("keep")}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          title={t("reject")}
+          aria-label={t("reject")}
+          onClick={() => onDecide("reject")}
+        >
+          <XIcon />
         </Button>
       </div>
     </div>
@@ -166,7 +178,7 @@ function buildSegments(before: string, after: string): Segment[] {
   return segments;
 }
 
-/** 只改了空行的地方不需要审阅，默认保留。 */
+/** 只改了空行的地方不需要审阅，默认接受。 */
 function hasText(segment: Extract<Segment, { kind: "change" }>) {
   return [...segment.removed, ...segment.added].some((line) => line.trim());
 }
@@ -175,7 +187,7 @@ function composeText(segments: Segment[], decisions: Record<number, Decision>) {
   return segments
     .flatMap((segment, index) => {
       if (segment.kind === "same") return segment.lines;
-      return decisions[index] === "revert" ? segment.removed : segment.added;
+      return decisions[index] === "reject" ? segment.removed : segment.added;
     })
     .join("\n");
 }

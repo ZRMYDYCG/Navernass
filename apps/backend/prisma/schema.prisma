@@ -278,25 +278,27 @@ model Volume {
 }
 
 model Chapter {
-  id              String            @id @default(uuid()) @db.VarChar(36)
-  novel_id        String            @db.VarChar(36)
-  volume_id       String?           @db.VarChar(36)
-  user_id         String            @db.VarChar(36)
-  title           String            @db.VarChar(255)
-  content         String            @db.LongText
-  summary         String?           @db.Text
-  order_index     Int
-  word_count      Int               @default(0)
-  status          ChapterStatus     @default(draft)
-  revision        Int               @default(1)
-  created_at      DateTime          @default(now()) @db.DateTime(3)
-  updated_at      DateTime          @updatedAt @db.DateTime(3)
-  deleted_at      DateTime?         @db.DateTime(3)
-  novel           Novel             @relation(fields: [novel_id], references: [id], onDelete: Cascade)
-  volume          Volume?           @relation(fields: [volume_id], references: [id], onDelete: SetNull)
-  timeline_events TimelineEvent[]
-  edits           ChapterEdit[]
-  revisions       ChapterRevision[]
+  id                   String            @id @default(uuid()) @db.VarChar(36)
+  novel_id             String            @db.VarChar(36)
+  volume_id            String?           @db.VarChar(36)
+  user_id              String            @db.VarChar(36)
+  title                String            @db.VarChar(255)
+  content              String            @db.LongText
+  summary              String?           @db.Text
+  order_index          Int
+  word_count           Int               @default(0)
+  status               ChapterStatus     @default(draft)
+  revision             Int               @default(1)
+  /// Agent 直接改写后待用户审阅的起点版本，对应 chapter_revisions 里的快照；审阅完成后清空。
+  review_base_revision Int?
+  created_at           DateTime          @default(now()) @db.DateTime(3)
+  updated_at           DateTime          @updatedAt @db.DateTime(3)
+  deleted_at           DateTime?         @db.DateTime(3)
+  novel                Novel             @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  volume               Volume?           @relation(fields: [volume_id], references: [id], onDelete: SetNull)
+  timeline_events      TimelineEvent[]
+  edits                ChapterEdit[]
+  revisions            ChapterRevision[]
 
   @@index([novel_id, deleted_at, order_index])
   @@index([volume_id, deleted_at, order_index])

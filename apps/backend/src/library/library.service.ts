@@ -266,6 +266,26 @@ export class LibraryService {
     return chapter;
   }
 
+  async getChapterReview(userId: string, id: string) {
+    const chapter = await this.getChapter(userId, id);
+    if (chapter.review_base_revision === null) {
+      throw AppError.notFound("CHAPTER_REVIEW_NOT_FOUND", "待审阅修改");
+    }
+    const base = await this.prisma.chapterRevision.findUnique({
+      where: {
+        chapter_id_revision: { chapter_id: chapter.id, revision: chapter.review_base_revision },
+      },
+      select: { revision: true, content: true },
+    });
+    if (!base) throw AppError.notFound("CHAPTER_REVIEW_NOT_FOUND", "待审阅修改");
+    return base;
+  }
+
+  async resolveChapterReview(userId: string, id: string) {
+    await this.getChapter(userId, id);
+    return this.prisma.chapter.update({ where: { id }, data: { review_base_revision: null } });
+  }
+
   async createChapter(userId: string, input: CreateChapterInput) {
     await this.getNovel(userId, input.novel_id);
     if (input.volume_id) {
