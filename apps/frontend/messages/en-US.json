@@ -304,6 +304,15 @@
     "settings": "Settings",
     "agentsWindow": "Agents Window"
   },
+  "agents": {
+    "newChat": "New chat",
+    "newChatIn": "New chat in “{title}”",
+    "novels": "Novels",
+    "noChats": "No chats yet",
+    "untitled": "Untitled chat",
+    "deleteChat": "Delete chat",
+    "editor": "Editor"
+  },
   "workspaceStarter": {
     "novelTitle": "My First Novel",
     "chapterTitle": "Chapter 1"

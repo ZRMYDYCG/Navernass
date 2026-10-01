@@ -41,6 +41,8 @@ interface ChatPanelProps {
   novelId?: string;
   chapterId?: string;
   onBeforeSend?: () => Promise<void> | void;
+  /** Agents 窗口由侧栏切换会话，不需要面板内的会话栏。 */
+  sessionSwitcher?: boolean;
 }
 
 function getSessionId(message: ChatMessage | undefined) {
@@ -73,7 +75,12 @@ function findPendingQuestion(messages: ChatMessage[]) {
 
 const chapterWritingTools = new Set(["editArticle", "writeArticle", "patchArticle"]);
 
-export function ChatPanel({ novelId, chapterId, onBeforeSend }: ChatPanelProps) {
+export function ChatPanel({
+  novelId,
+  chapterId,
+  onBeforeSend,
+  sessionSwitcher = true,
+}: ChatPanelProps) {
   const t = useTranslations("chat");
   const queryClient = useQueryClient();
   // 组件按 novelId 重建，这里在挂载时读取该小说最近使用的会话。
@@ -391,15 +398,17 @@ export function ChatPanel({ novelId, chapterId, onBeforeSend }: ChatPanelProps) 
 
   return (
     <section className="flex h-full min-h-0 flex-col bg-card" aria-label={t("title")}>
-      <SessionSwitcher
-        sessions={sessions}
-        activeSessionId={state.sessionId}
-        disabled={state.phase === "hydrating" || busy}
-        loading={sessionsQuery.isLoading}
-        onSelect={(sessionId) => selectSession(sessionId)}
-        onNew={() => selectSession(undefined)}
-        onDelete={deleteSession}
-      />
+      {sessionSwitcher ? (
+        <SessionSwitcher
+          sessions={sessions}
+          activeSessionId={state.sessionId}
+          disabled={state.phase === "hydrating" || busy}
+          loading={sessionsQuery.isLoading}
+          onSelect={(sessionId) => selectSession(sessionId)}
+          onNew={() => selectSession(undefined)}
+          onDelete={deleteSession}
+        />
+      ) : null}
 
       {state.phase === "hydrating" ? (
         <div className="flex min-h-0 flex-1 items-center justify-center text-muted-foreground">

@@ -1,17 +1,17 @@
-import { Workspace } from "./_components/workspace";
+import { Agents } from "./_components/agents";
 import { redirect } from "next/navigation";
 
 import { hasSession } from "../session";
 
-interface WorkspacePageProps {
+interface AgentsPageProps {
   params: Promise<{ locale: string }>;
 }
 
-export default async function WorkspacePage({ params }: WorkspacePageProps) {
+export default async function AgentsPage({ params }: AgentsPageProps) {
   const { locale } = await params;
   if (!(await hasSession())) {
     redirect(`/${locale}`);
   }
 
-  return <Workspace />;
+  return <Agents />;
 }

@@ -304,6 +304,15 @@
     "settings": "设置",
     "agentsWindow": "Agents 窗口"
   },
+  "agents": {
+    "newChat": "新对话",
+    "newChatIn": "在《{title}》中新建对话",
+    "novels": "小说",
+    "noChats": "还没有对话",
+    "untitled": "未命名对话",
+    "deleteChat": "删除对话",
+    "editor": "编辑器"
+  },
   "workspaceStarter": {
     "novelTitle": "我的第一本小说",
     "chapterTitle": "第一章"

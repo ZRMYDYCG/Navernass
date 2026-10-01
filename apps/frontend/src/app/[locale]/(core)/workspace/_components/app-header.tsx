@@ -12,6 +12,7 @@ import {
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { useRouter } from "@/i18n/navigation";
 
 interface AppHeaderProps {
   sidebarCollapsed: boolean;
@@ -29,6 +30,7 @@ export function AppHeader({
   onOpenSettings,
 }: AppHeaderProps) {
   const t = useTranslations("appHeader");
+  const router = useRouter();
 
   return (
     <header className="relative flex h-11 shrink-0 items-center border-b border-border bg-background px-2">
@@ -81,7 +83,7 @@ export function AppHeader({
           <SettingsIcon />
         </Button>
         <div className="ml-1">
-          <Button size="sm">
+          <Button size="sm" onClick={() => router.push("/agents")}>
             {t("agentsWindow")}
             <ArrowUpRightIcon />
           </Button>
