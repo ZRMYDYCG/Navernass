@@ -126,6 +126,16 @@ After substantive edits, run `pnpm lint` and `pnpm format` (or `*:fix`) and fix 
 - No defensive code for type-guaranteed / deterministic paths. Validate at untrusted boundaries only (HTTP, env, external I/O).
 - Occam's razor — simplest solution that fully solves the problem.
 
+### Abstraction Bar — business code stays business code
+
+Extract only what carries core correctness. Everything else lives inside its business component.
+
+- The state machine is the one abstraction worth extracting: a pure `State × Event → State` reducer with no React, no side effects, unit-testable (see `apps/frontend/src/app/[locale]/(core)/workspace/_components/chat-panel/machine.ts`). Complex state transitions belong here — not in components, not scattered across effects.
+- Single-consumer logic stays in the business component that uses it, as private (non-exported) functions. No `utils.ts` / `hooks.ts` / `model/` intermediate layers for one caller.
+- `src/lib/` is shared infrastructure only (http client, error, schemas). Feature business logic never goes there — `lib` means shared, and lib must not import from feature folders.
+- Target blast radius: a change to one business concern touches exactly one file. If a "helper" edit forces touching several files, it's misplaced.
+- Store classes consumed via `useSyncExternalStore` live beside the component that renders from them (e.g. `StreamingMessageStore` inside `chat-messages.tsx`), not in separate files.
+
 ### Type Safety
 
 - Prefer explicit types, `unknown`, or generics over `any`.
