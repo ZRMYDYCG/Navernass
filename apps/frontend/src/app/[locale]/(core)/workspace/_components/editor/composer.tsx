@@ -6,17 +6,23 @@ import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import type { Ref } from "react";
 import { cn } from "cn";
-import { $createParagraphNode, $createTextNode, $getRoot, type LexicalEditor } from "lexical";
+import {
+  $createParagraphNode,
+  $createTextNode,
+  $getRoot,
+  CLEAR_HISTORY_COMMAND,
+  HISTORY_MERGE_TAG,
+} from "lexical";
 
-import { DiffGutter } from "./diff";
+import { Diff } from "./diff";
 import { editorNodes } from "./nodes";
 import { ShortcutsPlugin } from "./plugins/shortcuts";
 import { SlashCommandPlugin } from "./plugins/slash-command";
 import { WordCountPlugin } from "./plugins/word-count";
-import { serializeEditorState } from "./serialization";
+import { $readPlainText, serializeEditorState } from "./serialization";
 import { EditorStatusStore, useEditorStatus } from "./status";
 import { editorTheme } from "./theme";
 import { Toolbar } from "./toolbar";
@@ -35,7 +41,7 @@ export function EditorComposer(props: EditorShellProps) {
       editable: !props.readonly,
       editorState:
         typeof props.initialContent === "string"
-          ? (editor) => initializePlainText(editor, props.initialContent as string)
+          ? () => $setPlainText(props.initialContent as string)
           : props.initialContent
             ? JSON.stringify(props.initialContent)
             : undefined,
@@ -55,7 +61,7 @@ export function EditorComposer(props: EditorShellProps) {
 
 function EditorShell({
   readonly = false,
-  pendingDiffs,
+  initialContent,
   onChange,
   onSave,
   handleRef,
@@ -66,6 +72,7 @@ function EditorShell({
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onChangeRef = useRef(onChange);
   const onSaveRef = useRef(onSave);
+  const [review, setReview] = useState<{ before: string; after: string } | null>(null);
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -84,9 +91,27 @@ function EditorShell({
     }
   }, [editor, statusStore]);
 
+  const reviewing = review !== null;
+
   useEffect(() => {
-    editor.setEditable(!readonly);
-  }, [editor, readonly]);
+    editor.setEditable(!readonly && !reviewing);
+  }, [editor, readonly, reviewing]);
+
+  // 正文被外部（如 Agent）改写后同步进编辑器；有未落库的本地修改时以本地为准，避免吞掉输入。
+  useEffect(() => {
+    if (typeof initialContent !== "string") return;
+    if (statusStore.getSnapshot().saveState !== "saved") return;
+    const current = editor.getEditorState().read($readPlainText);
+    if (current === initialContent) return;
+    latestState.current = null;
+    editor.update(() => $setPlainText(initialContent), {
+      tag: HISTORY_MERGE_TAG,
+      // 连续多次改写时保留最早的原文，撤销能一次回到 Agent 动手之前。
+      onUpdate: () =>
+        setReview((previous) => ({ before: previous?.before ?? current, after: initialContent })),
+    });
+    editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+  }, [editor, initialContent, statusStore]);
 
   useEffect(() => {
     return () => {
@@ -107,11 +132,14 @@ function EditorShell({
     [editor, save],
   );
 
-  const diffs = pendingDiffs ?? [];
+  function resolveReview(text: string) {
+    if (text !== review?.after) editor.update(() => $setPlainText(text));
+    setReview(null);
+  }
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
-      <Toolbar statusStore={statusStore} readonly={readonly} />
+      <Toolbar statusStore={statusStore} readonly={readonly || reviewing} />
       <div className="flex min-h-0 flex-1">
         <div className="relative min-w-0 flex-1 overflow-y-auto">
           <RichTextPlugin
@@ -121,12 +149,21 @@ function EditorShell({
                 className={cn(
                   "mx-auto min-h-full w-full max-w-3xl px-12 py-14 text-base leading-8 outline-none",
                   "selection:bg-primary/20",
+                  reviewing && "hidden",
                 )}
               />
             }
             placeholder={<div className="sr-only">开始写作</div>}
             ErrorBoundary={LexicalErrorBoundary}
           />
+          {review ? (
+            <Diff
+              key={review.after}
+              before={review.before}
+              after={review.after}
+              onResolve={resolveReview}
+            />
+          ) : null}
           <OnChangePlugin
             ignoreSelectionChange
             onChange={(editorState) => {
@@ -145,23 +182,20 @@ function EditorShell({
           <ShortcutsPlugin onSave={save} />
           <WordCountPlugin store={statusStore} />
         </div>
-        <DiffGutter proposals={diffs} />
       </div>
       <StatusBar store={statusStore} />
     </div>
   );
 }
 
-function initializePlainText(editor: LexicalEditor, content: string) {
-  editor.update(() => {
-    const root = $getRoot();
-    root.clear();
+function $setPlainText(content: string) {
+  const root = $getRoot();
+  root.clear();
 
-    const lines = content.length ? content.split(/\r?\n/) : [""];
-    for (const line of lines) {
-      root.append($createParagraphNode().append($createTextNode(line)));
-    }
-  });
+  const lines = content.length ? content.split(/\r?\n/) : [""];
+  for (const line of lines) {
+    root.append($createParagraphNode().append($createTextNode(line)));
+  }
 }
 
 function StatusBar({ store }: { store: EditorStatusStore }) {

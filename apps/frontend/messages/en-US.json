@@ -502,6 +502,13 @@
       "next": "Next change",
       "removed": "Removed: ",
       "added": "Added: "
+    },
+    "agentDiff": {
+      "summary": "Agent made {count, plural, one {# change} other {# changes}}, {pending} pending",
+      "keep": "Keep",
+      "revert": "Revert",
+      "keepAll": "Keep all",
+      "revertAll": "Revert all"
     }
   },
   "landing": {

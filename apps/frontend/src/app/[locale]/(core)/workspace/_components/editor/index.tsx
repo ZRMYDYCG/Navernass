@@ -15,4 +15,4 @@ export function ChapterEditor({ ref, ...props }: ChapterEditorProps) {
   return <ConnectedChapterEditor {...props} handleRef={ref} />;
 }
 
-export type { ChapterEditorHandle, EditorDiffProposal, SerializedChapter } from "./types";
+export type { ChapterEditorHandle, SerializedChapter } from "./types";
