@@ -73,8 +73,9 @@ Narraverse is a pnpm monorepo for an AI-assisted novel writing platform.
 | --- | --- |
 | `apps/frontend` | **Primary app** — Next.js 16 App Router UI |
 | `apps/backend` | NestJS API, Prisma, agent/skills runtime |
+| `apps/desktop` | Electron + React + TypeScript desktop shell (electron-vite) |
 
-Root tooling owns lint/format for `frontend` + `backend`.
+Root tooling owns lint/format for `frontend` + `backend` + `desktop`.
 
 ### Stack
 
@@ -92,6 +93,11 @@ Root tooling owns lint/format for `frontend` + `backend`.
 - Vitest (`test/**/*.spec.ts`)
 - AI SDK + skill files under `apps/backend/skills/`
 
+**Desktop (`@narraverse/desktop`)**
+
+- Electron + React 19 + TypeScript, built with electron-vite
+- `src/main` / `src/preload` / `src/renderer` standard three-process layout
+
 **Package manager:** pnpm only (`pnpm@11`). Never use npm/yarn/bun for installs or scripts.
 
 ### Commands
@@ -99,13 +105,14 @@ Root tooling owns lint/format for `frontend` + `backend`.
 ```bash
 pnpm dev                 # frontend
 pnpm dev:backend         # backend
+pnpm dev:desktop         # electron
 pnpm dev:all             # frontend + backend
-pnpm lint                # oxlint (frontend + backend)
+pnpm lint                # oxlint (frontend + backend + desktop)
 pnpm lint:fix
 pnpm format              # oxfmt --check
 pnpm format:fix
 pnpm typecheck           # frontend
-pnpm typecheck:all       # frontend + backend
+pnpm typecheck:all       # frontend + backend + desktop
 pnpm test                # backend (vitest)
 ```
 

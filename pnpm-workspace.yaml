@@ -5,6 +5,7 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - '@prisma/engines'
   - '@swc/core'
+  - electron
   - esbuild
   - lefthook
   - prisma
@@ -16,6 +17,7 @@ allowBuilds:
   '@prisma/engines': true
   '@swc/core': true
   '@scarf/scarf': false
+  electron: true
   esbuild: true
   lefthook: true
   prisma: true
