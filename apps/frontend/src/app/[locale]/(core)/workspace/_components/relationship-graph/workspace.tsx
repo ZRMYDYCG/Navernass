@@ -1,25 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { characterCreatePayload, useCharacters } from "./api";
-import { useCreateCharacter } from "@/servers/library.server";
+import { useCharacters, useCreateCharacter } from "@/servers/library.server";
 import { useRelationshipGraphStore } from "@/stores";
-import type { GraphViewMode } from "./types";
-import { GraphInspector } from "./panels/graph-inspector";
-import { GraphEditorView } from "./views/graph-editor-view";
-import { G6ExploreView } from "./views/g6-explore-view";
-import { World3DView } from "./views/world-3d-view";
 
+import { characterCreatePayload } from "./model";
+import { GraphCanvas } from "./graph-canvas";
+import { GraphInspector } from "./graph-inspector";
+
+/** 人物关系图工作区：顶栏操作 + 画布 + 检查器抽屉。 */
 export function RelationshipGraphWorkspace({ novelId }: { novelId?: string }) {
   const t = useTranslations("relationshipGraph.workspace");
-  const [mode, setMode] = useState<GraphViewMode>("editor");
   const { data: characters } = useCharacters(novelId);
   const createCharacter = useCreateCharacter(novelId);
   const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
@@ -29,12 +24,6 @@ export function RelationshipGraphWorkspace({ novelId }: { novelId?: string }) {
   const inspectorOpen = useRelationshipGraphStore((state) => state.inspectorOpen);
   const closeInspector = useRelationshipGraphStore((state) => state.closeInspector);
   const drawerOpen = inspectorOpen && Boolean(selectedCharacterId || selectedRelationshipId);
-
-  const views: Array<{ id: GraphViewMode; label: string }> = [
-    { id: "editor", label: t("viewEditor") },
-    { id: "explore", label: t("viewExplore") },
-    { id: "world3d", label: t("viewWorld3d") },
-  ];
 
   const addCharacter = () => {
     if (!novelId) return;
@@ -53,25 +42,9 @@ export function RelationshipGraphWorkspace({ novelId }: { novelId?: string }) {
     );
   };
 
-  const currentView = useMemo(() => {
-    if (mode === "explore") return <G6ExploreView novelId={novelId} />;
-    if (mode === "world3d") return <World3DView novelId={novelId} />;
-    return <GraphEditorView novelId={novelId} />;
-  }, [mode, novelId]);
-
   return (
     <section className="flex h-full min-h-0 flex-col bg-background">
       <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border/80 px-3">
-        <Tabs value={mode} onValueChange={setMode}>
-          <TabsList variant="line">
-            {views.map((view) => (
-              <TabsTrigger key={view.id} value={view.id}>
-                {view.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-
         <div className="ml-auto">
           <Button size="sm" disabled={!novelId || createCharacter.isPending} onClick={addCharacter}>
             <PlusIcon />
@@ -81,7 +54,9 @@ export function RelationshipGraphWorkspace({ novelId }: { novelId?: string }) {
       </div>
 
       <div className="min-h-0 flex-1 overflow-hidden">
-        <div className="relative h-full min-h-0 overflow-hidden">{currentView}</div>
+        <div className="relative h-full min-h-0 overflow-hidden">
+          <GraphCanvas novelId={novelId} />
+        </div>
         <Drawer
           modal={false}
           open={drawerOpen}

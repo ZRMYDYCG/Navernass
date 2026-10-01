@@ -34,7 +34,7 @@ interface VolumeGroupProps {
 }
 
 function VolumeGroup({ title, chapterCount, defaultExpanded, children }: VolumeGroupProps) {
-  const t = useTranslations("novelSidebar");
+  const t = useTranslations("sidebar");
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
@@ -64,7 +64,7 @@ function ChapterLink({
   active: boolean;
   onSelect: () => void;
 }) {
-  const t = useTranslations("novelSidebar");
+  const t = useTranslations("sidebar");
 
   return (
     <li>
@@ -96,7 +96,7 @@ interface ChapterOutlineProps {
 }
 
 export function ChapterOutline({ novelId, activeChapterId, onSelectChapter }: ChapterOutlineProps) {
-  const t = useTranslations("novelSidebar");
+  const t = useTranslations("sidebar");
   const volumes = useNovelVolumes(novelId);
   const chapters = useNovelChapters(novelId);
 

@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Fragment, useState } from "react";
+import { Fragment, useState, type ComponentType } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,18 +26,19 @@ import { Separator } from "@/components/ui/separator";
 import { GeneralSettings } from "./general-settings";
 import { ModelsSettings } from "./models-settings";
 
-type SettingsSection = "general" | "agents" | "models" | "customize" | "docs" | "changelog";
+type SettingsSectionId = "general" | "agents" | "models" | "customize" | "docs" | "changelog";
 
-interface SectionEntry {
-  id: SettingsSection;
+interface SettingsSection {
+  id: SettingsSectionId;
   icon: LucideIcon;
+  content?: ComponentType;
 }
 
-const sectionGroups: SectionEntry[][] = [
-  [{ id: "general", icon: SettingsIcon }],
+const sectionGroups: SettingsSection[][] = [
+  [{ id: "general", icon: SettingsIcon, content: GeneralSettings }],
   [{ id: "agents", icon: BotIcon }],
   [
-    { id: "models", icon: BoxIcon },
+    { id: "models", icon: BoxIcon, content: ModelsSettings },
     { id: "customize", icon: PuzzleIcon },
   ],
   [
@@ -46,12 +47,16 @@ const sectionGroups: SectionEntry[][] = [
   ],
 ];
 
+function getSection(id: SettingsSectionId): SettingsSection {
+  return sectionGroups.flat().find((section) => section.id === id) ?? sectionGroups[0][0];
+}
+
 function SettingsNav({
-  active,
+  activeId,
   onSelect,
 }: {
-  active: SectionEntry;
-  onSelect: (entry: SectionEntry) => void;
+  activeId: SettingsSectionId;
+  onSelect: (id: SettingsSectionId) => void;
 }) {
   const t = useTranslations("settings");
 
@@ -61,17 +66,17 @@ function SettingsNav({
         <Fragment key={group[0].id}>
           {index > 0 ? <Separator /> : null}
           <ul className="flex flex-col gap-0.5">
-            {group.map((entry) => (
-              <li key={entry.id}>
+            {group.map((section) => (
+              <li key={section.id}>
                 <Button
-                  variant={entry === active ? "secondary" : "ghost"}
+                  variant={section.id === activeId ? "secondary" : "ghost"}
                   size="sm"
-                  aria-current={entry === active ? "page" : undefined}
+                  aria-current={section.id === activeId ? "page" : undefined}
                   className="w-full justify-start"
-                  onClick={() => onSelect(entry)}
+                  onClick={() => onSelect(section.id)}
                 >
-                  <entry.icon />
-                  {t(`sections.${entry.id}`)}
+                  <section.icon />
+                  {t(`sections.${section.id}`)}
                 </Button>
               </li>
             ))}
@@ -82,8 +87,9 @@ function SettingsNav({
   );
 }
 
-function PlaceholderSection({ entry: { id, icon: Icon } }: { entry: SectionEntry }) {
+function ComingSoonSection({ section }: { section: SettingsSection }) {
   const t = useTranslations("settings");
+  const Icon = section.icon;
 
   return (
     <Empty>
@@ -91,7 +97,7 @@ function PlaceholderSection({ entry: { id, icon: Icon } }: { entry: SectionEntry
         <EmptyMedia variant="icon">
           <Icon />
         </EmptyMedia>
-        <EmptyTitle>{t(`sections.${id}`)}</EmptyTitle>
+        <EmptyTitle>{t(`sections.${section.id}`)}</EmptyTitle>
         <EmptyDescription>{t("comingSoon")}</EmptyDescription>
       </EmptyHeader>
     </Empty>
@@ -100,19 +106,17 @@ function PlaceholderSection({ entry: { id, icon: Icon } }: { entry: SectionEntry
 
 export function SettingsView() {
   const t = useTranslations("settings");
-  const [active, setActive] = useState<SectionEntry>(sectionGroups[0][0]);
+  const [activeId, setActiveId] = useState<SettingsSectionId>("general");
+  const active = getSection(activeId);
+  const Content = active.content;
 
   return (
     <section aria-label={t("title")} className="flex h-full min-h-0 bg-background">
-      <SettingsNav active={active} onSelect={setActive} />
+      <SettingsNav activeId={activeId} onSelect={setActiveId} />
       <Separator orientation="vertical" />
       <ScrollArea className="min-h-0 flex-1">
         <div className="mx-auto w-full max-w-3xl px-10 py-8">
-          {active.id === "general" ? <GeneralSettings /> : null}
-          {active.id === "models" ? <ModelsSettings /> : null}
-          {active.id !== "general" && active.id !== "models" ? (
-            <PlaceholderSection entry={active} />
-          ) : null}
+          {Content ? <Content /> : <ComingSoonSection section={active} />}
         </div>
       </ScrollArea>
     </section>

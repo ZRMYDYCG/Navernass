@@ -40,7 +40,7 @@ interface NovelSelectorProps {
 }
 
 export function NovelSelector({ novelId, onSelectNovel }: NovelSelectorProps) {
-  const t = useTranslations("novelSidebar");
+  const t = useTranslations("sidebar");
   const format = useFormatter();
   const { data: novel } = useNovel(novelId);
   const novels = useNovels();

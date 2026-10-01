@@ -19,6 +19,8 @@ import {
   getNovelChapters,
   getNovels,
   getNovelVolumes,
+  getNovelCharacters,
+  getNovelRelationships,
   searchChapters,
   updateCharacter as updateCharacterApi,
   updateChapterContent,
@@ -254,6 +256,32 @@ export function useUpdateRelationship(novelId: string | undefined) {
     listKey: libraryKeys.relationships,
     updateApi: (id, payload) => updateRelationshipApi(id, payload),
   });
+}
+
+/**
+ * 获取指定小说的角色列表；未选择小说时不发起请求，data 恒为数组。
+ */
+const noCharacters: CharacterProfile[] = [];
+export function useCharacters(novelId: string | undefined) {
+  const query = useQuery({
+    queryKey: libraryKeys.characters(novelId ?? ""),
+    queryFn: () => getNovelCharacters(requireNovelId(novelId)),
+    enabled: Boolean(novelId),
+  });
+  return { ...query, data: query.data ?? noCharacters };
+}
+
+/**
+ * 获取指定小说的角色关系列表；未选择小说时不发起请求，data 恒为数组。
+ */
+const noRelationships: CharacterRelationship[] = [];
+export function useRelationships(novelId: string | undefined) {
+  const query = useQuery({
+    queryKey: libraryKeys.relationships(novelId ?? ""),
+    queryFn: () => getNovelRelationships(requireNovelId(novelId)),
+    enabled: Boolean(novelId),
+  });
+  return { ...query, data: query.data ?? noRelationships };
 }
 
 /**

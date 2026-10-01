@@ -6,16 +6,15 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTranslations } from "next-intl";
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { RelationshipGraphWorkspace } from "@/app/[locale]/(core)/workspace/_components/relationship-graph/relationship-graph-workspace";
+import { RelationshipGraphWorkspace } from "./relationship-graph";
 import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/servers/library.server";
 import { useWorkspaceStore } from "@/stores";
 
 import { AppHeader } from "./app-header";
-import { ChapterEditor, EmptyChapterEditor } from "./chapter-editor/chapter-editor";
+import { ChapterEditor, EmptyChapterEditor } from "./editor";
 import { ChatPanel } from "./chat-panel/chat-panel";
-import { EditorTabs, type EditorTab } from "./editor-tabs";
-import type { SidebarView } from "./novel-sidebar/activity-bar";
-import { NovelSidebar } from "./novel-sidebar/novel-sidebar";
+import { Sidebar } from "./sidebar/sidebar";
+import type { SidebarView } from "./sidebar/types";
 import { SettingsView } from "./settings/settings-view";
 
 function usePanelToggle() {
@@ -37,6 +36,8 @@ function usePanelToggle() {
   return { panelRef, collapsed, toggle };
 }
 
+type WorkspaceView = "editor" | "graph" | "settings";
+
 export function Workspace() {
   const t = useTranslations("workspaceStarter");
   const novels = useNovels();
@@ -48,7 +49,7 @@ export function Workspace() {
   const selectChapterInStore = useWorkspaceStore((state) => state.selectChapter);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [graphOpen, setGraphOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<EditorTab>("chapter");
+  const [activeView, setActiveView] = useState<WorkspaceView>("editor");
   const sidebar = usePanelToggle();
   const chatPanel = usePanelToggle();
 
@@ -90,42 +91,29 @@ export function Workspace() {
 
   const selectChapter = (id: string) => {
     selectChapterInStore(id);
-    setActiveTab("chapter");
+    setActiveView("editor");
   };
 
-  const selectTab = (tab: EditorTab) => {
-    setActiveTab(tab);
-  };
-
-  const openSettings = () => {
-    setSettingsOpen(true);
-    selectTab("settings");
-  };
-
-  const closeGraph = () => {
-    setGraphOpen(false);
-    selectTab("chapter");
+  // 设置入口只剩顶栏按钮，作为开关使用。
+  const toggleSettings = () => {
+    setSettingsOpen((open) => {
+      if (open) setActiveView("editor");
+      else setActiveView("settings");
+      return !open;
+    });
   };
 
   const selectSidebarView = (view: SidebarView) => {
     if (view === "characters") {
       setGraphOpen(true);
-      selectTab("graph");
+      setActiveView("graph");
       return;
     }
 
-    if (view === "novel" && activeTab === "graph") {
-      selectTab("chapter");
+    if (view === "novel" && activeView === "graph") {
+      setActiveView("editor");
     }
   };
-
-  const closeSettings = () => {
-    setSettingsOpen(false);
-    selectTab("chapter");
-  };
-
-  const showSettings = settingsOpen && activeTab === "settings";
-  const showGraph = graphOpen && activeTab === "graph";
 
   return (
     <div className="flex h-dvh min-h-0 flex-col">
@@ -134,7 +122,7 @@ export function Workspace() {
         chatPanelCollapsed={chatPanel.collapsed}
         onToggleSidebar={sidebar.toggle}
         onToggleChatPanel={chatPanel.toggle}
-        onOpenSettings={openSettings}
+        onOpenSettings={toggleSettings}
       />
       <ResizablePanelGroup orientation="horizontal" className="min-h-0 flex-1">
         <ResizablePanel
@@ -147,7 +135,7 @@ export function Workspace() {
           groupResizeBehavior="preserve-pixel-size"
         >
           {effectiveNovelId ? (
-            <NovelSidebar
+            <Sidebar
               key={effectiveNovelId}
               novelId={effectiveNovelId}
               activeChapterId={effectiveChapterId}
@@ -160,17 +148,8 @@ export function Workspace() {
         <ResizableHandle />
         <ResizablePanel minSize={480}>
           <div className="flex h-full min-h-0 flex-col">
-            <EditorTabs
-              chapterId={effectiveChapterId}
-              settingsOpen={settingsOpen}
-              graphOpen={graphOpen}
-              activeTab={activeTab}
-              onSelectTab={selectTab}
-              onCloseGraph={closeGraph}
-              onCloseSettings={closeSettings}
-            />
-            {/* 设置页只是遮住编辑器，保留 Lexical 的撤销栈与滚动位置。 */}
-            <div hidden={showSettings || showGraph} className="min-h-0 flex-1">
+            {/* 覆盖视图只是遮住编辑器，编辑器保持挂载以保留状态与滚动位置。 */}
+            <div hidden={activeView !== "editor"} className="min-h-0 flex-1">
               {effectiveNovelId && effectiveChapterId ? (
                 <ChapterEditor
                   key={effectiveChapterId}
@@ -182,12 +161,12 @@ export function Workspace() {
               )}
             </div>
             {graphOpen ? (
-              <div hidden={!showGraph} className="min-h-0 flex-1">
+              <div hidden={activeView !== "graph"} className="min-h-0 flex-1">
                 <RelationshipGraphWorkspace novelId={effectiveNovelId} />
               </div>
             ) : null}
             {settingsOpen ? (
-              <div hidden={!showSettings} className="min-h-0 flex-1">
+              <div hidden={activeView !== "settings"} className="min-h-0 flex-1">
                 <SettingsView />
               </div>
             ) : null}

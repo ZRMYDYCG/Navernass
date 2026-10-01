@@ -28,7 +28,7 @@ interface ChapterResult {
   matches: TextMatch[];
 }
 
-interface ChapterSearchProps {
+interface SearchViewProps {
   novelId: string;
   activeChapterId?: string;
   onSelectChapter: (chapterId: string) => void;
@@ -43,7 +43,7 @@ function ResultGroup({
   active: boolean;
   onSelect: () => void;
 }) {
-  const t = useTranslations("novelSidebar.search");
+  const t = useTranslations("sidebar.search");
   const [expanded, setExpanded] = useState(true);
   const hidden = matches.length - matchesPerChapter;
 
@@ -88,8 +88,8 @@ function ResultGroup({
   );
 }
 
-export function ChapterSearch({ novelId, activeChapterId, onSelectChapter }: ChapterSearchProps) {
-  const t = useTranslations("novelSidebar.search");
+export function SearchView({ novelId, activeChapterId, onSelectChapter }: SearchViewProps) {
+  const t = useTranslations("sidebar.search");
   const [input, setInput] = useState("");
   const [keyword, setKeyword] = useState("");
   const [matchCase, setMatchCase] = useState(false);

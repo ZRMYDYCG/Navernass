@@ -50,3 +50,4 @@ export const providerTestResultSchema = z.object({
 export type ProviderKind = z.infer<typeof providerKindSchema>;
 export type ProviderConfig = z.infer<typeof providerConfigSchema>;
 export type ProviderPayload = z.infer<typeof providerPayloadSchema>;
+export type ProviderTestResult = z.infer<typeof providerTestResultSchema>;

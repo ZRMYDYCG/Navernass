@@ -208,9 +208,6 @@
   },
   "relationshipGraph": {
     "workspace": {
-      "viewEditor": "Edit",
-      "viewExplore": "Relations",
-      "viewWorld3d": "3D",
       "addCharacter": "Character"
     },
     "kinds": {
@@ -301,13 +298,6 @@
     "graph": "Character graph",
     "settings": "Settings",
     "agentsWindow": "Agents Window"
-  },
-  "editorTabs": {
-    "label": "Open pages",
-    "graph": "Character graph",
-    "closeGraph": "Close character graph",
-    "settings": "Settings",
-    "closeSettings": "Close settings"
   },
   "workspaceStarter": {
     "novelTitle": "My First Novel",
@@ -427,7 +417,7 @@
       }
     }
   },
-  "novelSidebar": {
+  "sidebar": {
     "title": "Contents",
     "views": {
       "label": "Sidebar views",

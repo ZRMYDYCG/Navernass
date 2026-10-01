@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-export type SidebarView = "novel" | "search" | "plugins" | "characters";
+import type { SidebarView } from "./types";
 
 const views: { id: SidebarView; icon: LucideIcon }[] = [
   { id: "novel", icon: BookOpenIcon },
@@ -15,13 +15,13 @@ const views: { id: SidebarView; icon: LucideIcon }[] = [
   { id: "characters", icon: UsersIcon },
 ];
 
-interface ActivityBarProps {
+interface SidebarNavProps {
   active: SidebarView;
   onSelect: (view: SidebarView) => void;
 }
 
-export function ActivityBar({ active, onSelect }: ActivityBarProps) {
-  const t = useTranslations("novelSidebar.views");
+export function SidebarNav({ active, onSelect }: SidebarNavProps) {
+  const t = useTranslations("sidebar.views");
 
   return (
     <nav

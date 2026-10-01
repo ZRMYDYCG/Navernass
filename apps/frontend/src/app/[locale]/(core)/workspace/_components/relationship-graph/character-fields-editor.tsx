@@ -20,8 +20,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import { splitTags } from "../character-fields";
-import type { Character, CharacterCustomField, CharacterFieldType } from "../types";
+import type { Character, CharacterCustomField, CharacterFieldType } from "./model";
+import { splitTags } from "./display";
 
 const fieldTypes: CharacterFieldType[] = ["text", "longText", "tags"];
 
@@ -212,6 +212,7 @@ function FieldRow({
   );
 }
 
+/** 角色自定义字段编辑器：标签输入、类型切换与预设字段。 */
 export function CharacterFieldsEditor({
   character,
   onUpdateField,

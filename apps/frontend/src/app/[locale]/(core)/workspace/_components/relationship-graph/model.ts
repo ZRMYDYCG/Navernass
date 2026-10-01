@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import type { z } from "zod";
 
-import { getNovelCharacters, getNovelRelationships } from "@/lib/http/modules/library.api";
-import { libraryKeys } from "@/servers/library.server";
 import type {
+  characterFieldSchema,
+  relationshipKindSchema,
   CharacterProfile,
   CharacterRelationship,
   CreateCharacterPayload,
@@ -10,9 +10,41 @@ import type {
   UpdateCharacterPayload,
 } from "@/lib/http/modules/library.schema";
 
-import type { Character, CharacterCustomField, GraphPosition, Relationship } from "./types";
+export type RelationshipKind = z.infer<typeof relationshipKindSchema>;
+
+export type CharacterCustomField = z.infer<typeof characterFieldSchema>;
+
+export type CharacterFieldType = CharacterCustomField["type"];
+
+export interface GraphPosition {
+  x: number;
+  y: number;
+}
+
+/** 画布上的角色视图模型。 */
+export interface Character {
+  id: string;
+  name: string;
+  summary: string;
+  customFields: CharacterCustomField[];
+  position: GraphPosition;
+}
+
+/** 画布上的角色关系视图模型。 */
+export interface Relationship {
+  id: string;
+  sourceId: string;
+  targetId: string;
+  kind: RelationshipKind;
+  label: string;
+  strength: number;
+  isSecret: boolean;
+  description: string;
+}
 
 const defaultPosition: GraphPosition = { x: 160, y: 160 };
+
+/** 服务端 DTO → 画布视图模型；映射结果会被同步进 React Flow 内部状态，必须保持引用稳定。 */
 export function toCharacter(profile: CharacterProfile): Character {
   return {
     id: profile.id,
@@ -39,6 +71,7 @@ export function toRelationship(relationship: CharacterRelationship): Relationshi
   };
 }
 
+/** 视图模型部分更新 → 更新接口载荷。 */
 export function characterPatchToPayload(
   patch: Partial<Omit<Character, "id">>,
 ): UpdateCharacterPayload {
@@ -53,6 +86,7 @@ export function characterPatchToPayload(
   return payload;
 }
 
+/** 创建角色的接口载荷。 */
 export function characterCreatePayload(
   novelId: string,
   name: string,
@@ -68,6 +102,7 @@ export function characterCreatePayload(
   };
 }
 
+/** 视图模型 → 更新关系载荷；label 为空时回退到默认文案。 */
 export function relationshipToPayload(
   relationship: Omit<Relationship, "id">,
   defaultLabel: string,
@@ -83,6 +118,7 @@ export function relationshipToPayload(
   };
 }
 
+/** 创建关系的接口载荷。 */
 export function relationshipCreatePayload(
   novelId: string,
   relationship: Omit<Relationship, "id">,
@@ -94,37 +130,4 @@ export function relationshipCreatePayload(
     targetId: relationship.targetId,
     ...relationshipToPayload(relationship, defaultLabel),
   };
-}
-
-// 视图会把这些数组同步进 React Flow / G6 的内部状态，引用必须稳定，否则每次渲染都会触发同步形成死循环。
-const noCharacters: Character[] = [];
-const noRelationships: Relationship[] = [];
-const selectCharacters = (profiles: CharacterProfile[]) => profiles.map(toCharacter);
-const selectRelationships = (relationships: CharacterRelationship[]) =>
-  relationships.map(toRelationship);
-
-export function useCharacters(novelId: string | undefined) {
-  const query = useQuery({
-    queryKey: libraryKeys.characters(novelId ?? ""),
-    queryFn: () => {
-      if (!novelId) throw new Error("尚未选择小说");
-      return getNovelCharacters(novelId);
-    },
-    enabled: Boolean(novelId),
-    select: selectCharacters,
-  });
-  return { ...query, data: query.data ?? noCharacters };
-}
-
-export function useRelationships(novelId: string | undefined) {
-  const query = useQuery({
-    queryKey: libraryKeys.relationships(novelId ?? ""),
-    queryFn: () => {
-      if (!novelId) throw new Error("尚未选择小说");
-      return getNovelRelationships(novelId);
-    },
-    enabled: Boolean(novelId),
-    select: selectRelationships,
-  });
-  return { ...query, data: query.data ?? noRelationships };
 }
