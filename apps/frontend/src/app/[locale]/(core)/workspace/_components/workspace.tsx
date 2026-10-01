@@ -75,7 +75,7 @@ export function Workspace() {
   useEffect(() => {
     if (!effectiveNovelId || chapters.isLoading || !chapters.data) return;
     if (storedChapterId && !chapters.data.some((chapter) => chapter.id === storedChapterId)) {
-      selectChapterInStore(chapters.data[0].id);
+      selectChapterInStore(chapters.data[0]?.id);
     }
   }, [chapters.data, chapters.isLoading, effectiveNovelId, selectChapterInStore, storedChapterId]);
 

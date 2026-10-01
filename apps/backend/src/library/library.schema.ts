@@ -32,6 +32,21 @@ export const orderItems = z
   .min(1)
   .max(500);
 
+export const chapterOrderItems = z
+  .array(
+    z.object({
+      id: uuidSchema,
+      order_index: z.number().int().min(0),
+      volume_id: uuidSchema.nullable().optional(),
+    }),
+  )
+  .min(1)
+  .max(500);
+
+export const duplicate = z.object({
+  title: z.string().trim().min(1).max(255),
+});
+
 export const createVolume = z.object({
   novel_id: uuidSchema,
   title: z.string().trim().min(1).max(255),
@@ -128,6 +143,8 @@ export const updateRelationship = relationshipFields
     path: ["targetId"],
   });
 
+export type ChapterOrderItems = z.infer<typeof chapterOrderItems>;
+export type DuplicateInput = z.infer<typeof duplicate>;
 export type CreateNovelInput = z.infer<typeof createNovel>;
 export type UpdateNovelInput = z.infer<typeof updateNovel>;
 export type CreateVolumeInput = z.infer<typeof createVolume>;

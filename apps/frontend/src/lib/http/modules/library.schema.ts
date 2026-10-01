@@ -46,6 +46,21 @@ export const createNovelPayloadSchema = z.object({
   tags: z.array(z.string().min(1).max(50)).max(30).default([]),
 });
 
+export const createVolumePayloadSchema = z.object({
+  novel_id: z.string(),
+  title: z.string().min(1).max(255),
+  order_index: z.number().int().min(0),
+});
+
+export const orderItemSchema = z.object({
+  id: z.string(),
+  order_index: z.number().int().min(0),
+});
+
+export const chapterOrderItemSchema = orderItemSchema.extend({
+  volume_id: z.string().nullable(),
+});
+
 export const createChapterPayloadSchema = z.object({
   novel_id: z.string(),
   volume_id: z.string().nullable().optional(),
@@ -133,6 +148,9 @@ export type Volume = z.infer<typeof volumeSchema>;
 export type ChapterSummary = z.infer<typeof chapterSummarySchema>;
 export type Chapter = z.infer<typeof chapterSchema>;
 export type CreateNovelPayload = z.infer<typeof createNovelPayloadSchema>;
+export type CreateVolumePayload = z.infer<typeof createVolumePayloadSchema>;
+export type OrderItem = z.infer<typeof orderItemSchema>;
+export type ChapterOrderItem = z.infer<typeof chapterOrderItemSchema>;
 export type CreateChapterPayload = z.infer<typeof createChapterPayloadSchema>;
 export type CharacterFieldType = z.infer<typeof characterFieldTypeSchema>;
 export type CharacterField = z.infer<typeof characterFieldSchema>;

@@ -20,12 +20,14 @@ import { ZodPipe } from "../common/zod-pipe.js";
 import { ApiDoc, ApiPageQuery, ApiUuidParam, ApiZodBody } from "../openapi/api-doc.js";
 import { MutationResult, ResourceResult } from "../openapi/api-model.js";
 import {
+  ChapterOrderItemsDto,
   ChapterSearchDto,
   CreateChapterDto,
   CreateCharacterDto,
   CreateNovelDto,
   CreateRelationshipDto,
   CreateVolumeDto,
+  DuplicateDto,
   OrderItemsDto,
   UpdateChapterDto,
   UpdateCharacterDto,
@@ -238,6 +240,18 @@ export class LibraryController {
     return { deleted: true };
   }
 
+  @Post("volumes/:id/duplicate")
+  @ApiDoc({ summary: "复制卷及卷内章节", type: ResourceResult, status: 201 })
+  @ApiUuidParam()
+  @ApiZodBody(DuplicateDto)
+  duplicateVolume(
+    @CurrentUser() user: AuthUser,
+    @Param(new ZodPipe(schema.idParams)) params: { id: string },
+    @Body(new ZodPipe(schema.duplicate)) body: schema.DuplicateInput,
+  ) {
+    return this.library.duplicateVolume(user.id, params.id, body);
+  }
+
   @Post("volumes/reorder")
   @HttpCode(200)
   @ApiDoc({ summary: "批量调整卷排序", type: MutationResult })
@@ -304,6 +318,18 @@ export class LibraryController {
     return { deleted: true };
   }
 
+  @Post("chapters/:id/duplicate")
+  @ApiDoc({ summary: "复制章节", type: ResourceResult, status: 201 })
+  @ApiUuidParam()
+  @ApiZodBody(DuplicateDto)
+  duplicateChapter(
+    @CurrentUser() user: AuthUser,
+    @Param(new ZodPipe(schema.idParams)) params: { id: string },
+    @Body(new ZodPipe(schema.duplicate)) body: schema.DuplicateInput,
+  ) {
+    return this.library.duplicateChapter(user.id, params.id, body);
+  }
+
   @Post("chapters/:id/publish")
   @HttpCode(200)
   @ApiDoc({ summary: "发布章节", type: ResourceResult })
@@ -327,11 +353,11 @@ export class LibraryController {
 
   @Post("chapters/reorder")
   @HttpCode(200)
-  @ApiDoc({ summary: "批量调整章节排序", type: MutationResult })
-  @ApiZodBody(OrderItemsDto)
+  @ApiDoc({ summary: "批量调整章节排序与所属卷", type: MutationResult })
+  @ApiZodBody(ChapterOrderItemsDto)
   async reorderChapters(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodPipe(schema.orderItems)) body: z.infer<typeof schema.orderItems>,
+    @Body(new ZodPipe(schema.chapterOrderItems)) body: schema.ChapterOrderItems,
   ) {
     await this.library.reorderChapters(user.id, body);
     return { updated: true };

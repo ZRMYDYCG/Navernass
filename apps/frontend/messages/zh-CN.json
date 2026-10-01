@@ -454,7 +454,28 @@
     },
     "ungrouped": "未分卷",
     "empty": "还没有章节",
-    "loadError": "目录加载失败"
+    "loadError": "目录加载失败",
+    "newVolume": "新建卷",
+    "newVolumeTitle": "第 {index} 卷",
+    "copyTitle": "{title}（副本）",
+    "actions": {
+      "moveTo": "移动到卷",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "rename": "编辑",
+      "duplicate": "复制",
+      "delete": "删除",
+      "renameLabel": "标题",
+      "cancel": "取消"
+    },
+    "deleteChapter": {
+      "title": "删除章节「{title}」？",
+      "description": "章节正文会一并删除。"
+    },
+    "deleteVolume": {
+      "title": "删除卷「{title}」？",
+      "description": "卷内章节不会被删除，会移入「未分卷」。"
+    }
   },
   "chapterEditor": {
     "title": "正文编辑器",

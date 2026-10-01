@@ -8,15 +8,19 @@ import {
   characterRelationshipSchema,
   novelSchema,
   volumeSchema,
+  type ChapterOrderItem,
   type CreateChapterPayload,
   type CreateCharacterPayload,
   type CreateNovelPayload,
   type CreateRelationshipPayload,
+  type CreateVolumePayload,
+  type OrderItem,
   type UpdateCharacterPayload,
   type UpdateRelationshipPayload,
 } from "@/lib/http/modules/library.schema";
 
 const deletedResultSchema = z.object({ deleted: z.boolean() });
+const updatedResultSchema = z.object({ updated: z.boolean() });
 
 export function getNovel(id: string) {
   return apiRequest(`novels/${id}`, novelSchema);
@@ -34,8 +38,44 @@ export function getNovelVolumes(novelId: string) {
   return apiRequest(`novels/${novelId}/volumes`, z.array(volumeSchema));
 }
 
+export function createVolume(payload: CreateVolumePayload) {
+  return apiRequest("volumes", volumeSchema, { method: "post", json: payload });
+}
+
+export function renameVolume(id: string, title: string) {
+  return apiRequest(`volumes/${id}`, volumeSchema, { method: "put", json: { title } });
+}
+
+export function deleteVolume(id: string) {
+  return apiRequest(`volumes/${id}`, deletedResultSchema, { method: "delete" });
+}
+
+export function duplicateVolume(id: string, title: string) {
+  return apiRequest(`volumes/${id}/duplicate`, volumeSchema, { method: "post", json: { title } });
+}
+
+export function reorderVolumes(items: OrderItem[]) {
+  return apiRequest("volumes/reorder", updatedResultSchema, { method: "post", json: items });
+}
+
 export function getNovelChapters(novelId: string) {
   return apiRequest(`novels/${novelId}/chapters`, z.array(chapterSummarySchema));
+}
+
+export function renameChapter(id: string, title: string) {
+  return apiRequest(`chapters/${id}`, chapterSchema, { method: "put", json: { title } });
+}
+
+export function deleteChapter(id: string) {
+  return apiRequest(`chapters/${id}`, deletedResultSchema, { method: "delete" });
+}
+
+export function duplicateChapter(id: string, title: string) {
+  return apiRequest(`chapters/${id}/duplicate`, chapterSchema, { method: "post", json: { title } });
+}
+
+export function reorderChapters(items: ChapterOrderItem[]) {
+  return apiRequest("chapters/reorder", updatedResultSchema, { method: "post", json: items });
 }
 
 export function getChapter(id: string) {

@@ -3,11 +3,13 @@ import type { Prisma } from "../generated/prisma/client.js";
 import { PrismaService } from "../database/prisma.service.js";
 import { AppError } from "../common/app-error.js";
 import type {
+  ChapterOrderItems,
   CreateChapterInput,
   CreateCharacterInput,
   CreateNovelInput,
   CreateRelationshipInput,
   CreateVolumeInput,
+  DuplicateInput,
   UpdateChapterInput,
   UpdateCharacterInput,
   UpdateNovelInput,
@@ -160,7 +162,71 @@ export class LibraryService {
 
   async deleteVolume(userId: string, id: string) {
     await this.getVolume(userId, id);
-    await this.prisma.volume.update({ where: { id }, data: { deleted_at: new Date() } });
+    await this.prisma.$transaction([
+      this.prisma.volume.update({ where: { id }, data: { deleted_at: new Date() } }),
+      this.prisma.chapter.updateMany({
+        where: { volume_id: id, deleted_at: null },
+        data: { volume_id: null },
+      }),
+    ]);
+  }
+
+  /** 副本紧跟原卷，章节副本紧跟原卷最后一章，后续卷与章节顺延。 */
+  async duplicateVolume(userId: string, id: string, input: DuplicateInput) {
+    const source = await this.getVolume(userId, id);
+    const chapters = await this.prisma.chapter.findMany({
+      where: { volume_id: id, user_id: userId, deleted_at: null },
+      orderBy: { order_index: "asc" },
+    });
+    const lastChapterIndex = chapters.at(-1)?.order_index;
+    return this.prisma.$transaction(async (tx) => {
+      await tx.volume.updateMany({
+        where: {
+          novel_id: source.novel_id,
+          deleted_at: null,
+          order_index: { gt: source.order_index },
+        },
+        data: { order_index: { increment: 1 } },
+      });
+      const volume = await tx.volume.create({
+        data: {
+          novel_id: source.novel_id,
+          user_id: userId,
+          title: input.title,
+          description: source.description,
+          order_index: source.order_index + 1,
+        },
+      });
+      if (lastChapterIndex === undefined) return volume;
+      await tx.chapter.updateMany({
+        where: {
+          novel_id: source.novel_id,
+          deleted_at: null,
+          order_index: { gt: lastChapterIndex },
+        },
+        data: { order_index: { increment: chapters.length } },
+      });
+      await tx.chapter.createMany({
+        data: chapters.map((chapter, index) => ({
+          novel_id: source.novel_id,
+          volume_id: volume.id,
+          user_id: userId,
+          title: chapter.title,
+          content: chapter.content,
+          summary: chapter.summary,
+          word_count: chapter.word_count,
+          order_index: lastChapterIndex + 1 + index,
+        })),
+      });
+      await tx.novel.update({
+        where: { id: source.novel_id },
+        data: {
+          chapter_count: { increment: chapters.length },
+          word_count: { increment: chapters.reduce((sum, chapter) => sum + chapter.word_count, 0) },
+        },
+      });
+      return volume;
+    });
   }
 
   async reorderVolumes(userId: string, items: Array<{ id: string; order_index: number }>) {
@@ -267,6 +333,41 @@ export class LibraryService {
     ]);
   }
 
+  /** 副本紧跟原章节，后续章节顺延。 */
+  async duplicateChapter(userId: string, id: string, input: DuplicateInput) {
+    const source = await this.getChapter(userId, id);
+    return this.prisma.$transaction(async (tx) => {
+      await tx.chapter.updateMany({
+        where: {
+          novel_id: source.novel_id,
+          deleted_at: null,
+          order_index: { gt: source.order_index },
+        },
+        data: { order_index: { increment: 1 } },
+      });
+      const chapter = await tx.chapter.create({
+        data: {
+          novel_id: source.novel_id,
+          volume_id: source.volume_id,
+          user_id: userId,
+          title: input.title,
+          content: source.content,
+          summary: source.summary,
+          word_count: source.word_count,
+          order_index: source.order_index + 1,
+        },
+      });
+      await tx.novel.update({
+        where: { id: source.novel_id },
+        data: {
+          chapter_count: { increment: 1 },
+          word_count: { increment: source.word_count },
+        },
+      });
+      return chapter;
+    });
+  }
+
   async publishChapter(userId: string, id: string, published: boolean) {
     await this.getChapter(userId, id);
     return this.prisma.chapter.update({
@@ -275,17 +376,37 @@ export class LibraryService {
     });
   }
 
-  async reorderChapters(userId: string, items: Array<{ id: string; order_index: number }>) {
-    await this.ensureOwnedIds(
-      "chapter",
-      userId,
-      items.map((item) => item.id),
-    );
+  async reorderChapters(userId: string, items: ChapterOrderItems) {
+    const ids = items.map((item) => item.id);
+    const chapters = await this.prisma.chapter.findMany({
+      where: { id: { in: ids }, user_id: userId, deleted_at: null },
+      select: { novel_id: true },
+    });
+    if (chapters.length !== new Set(ids).size) {
+      throw AppError.forbidden("排序列表包含无权访问的数据");
+    }
+    const novelIds = new Set(chapters.map((chapter) => chapter.novel_id));
+    if (novelIds.size > 1) throw new AppError("BAD_REQUEST", "排序列表包含多本小说的章节");
+    const volumeIds = new Set(items.flatMap((item) => (item.volume_id ? [item.volume_id] : [])));
+    if (volumeIds.size) {
+      const count = await this.prisma.volume.count({
+        where: {
+          id: { in: [...volumeIds] },
+          user_id: userId,
+          novel_id: { in: [...novelIds] },
+          deleted_at: null,
+        },
+      });
+      if (count !== volumeIds.size) throw new AppError("BAD_REQUEST", "卷与章节不属于同一本小说");
+    }
     await this.prisma.$transaction(
       items.map((item) =>
         this.prisma.chapter.update({
           where: { id: item.id },
-          data: { order_index: item.order_index },
+          data: {
+            order_index: item.order_index,
+            ...(item.volume_id !== undefined && { volume_id: item.volume_id }),
+          },
         }),
       ),
     );
@@ -462,17 +583,11 @@ export class LibraryService {
     throw AppError.notFound("NOT_FOUND", "角色关系");
   }
 
-  private async ensureOwnedIds(
-    model: "novel" | "volume" | "chapter",
-    userId: string,
-    ids: string[],
-  ) {
+  private async ensureOwnedIds(model: "novel" | "volume", userId: string, ids: string[]) {
     const count =
       model === "novel"
         ? await this.prisma.novel.count({ where: { id: { in: ids }, user_id: userId } })
-        : model === "volume"
-          ? await this.prisma.volume.count({ where: { id: { in: ids }, user_id: userId } })
-          : await this.prisma.chapter.count({ where: { id: { in: ids }, user_id: userId } });
+        : await this.prisma.volume.count({ where: { id: { in: ids }, user_id: userId } });
     if (count !== new Set(ids).size) throw AppError.forbidden("排序列表包含无权访问的数据");
   }
 }

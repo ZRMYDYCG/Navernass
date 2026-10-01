@@ -12,8 +12,13 @@ import {
   createCharacter as createCharacterApi,
   createNovel as createNovelApi,
   createRelationship as createRelationshipApi,
+  createVolume as createVolumeApi,
+  deleteChapter as deleteChapterApi,
   deleteCharacter as deleteCharacterApi,
   deleteRelationship as deleteRelationshipApi,
+  deleteVolume as deleteVolumeApi,
+  duplicateChapter as duplicateChapterApi,
+  duplicateVolume as duplicateVolumeApi,
   getChapter,
   getNovel,
   getNovelChapters,
@@ -21,6 +26,10 @@ import {
   getNovelVolumes,
   getNovelCharacters,
   getNovelRelationships,
+  renameChapter as renameChapterApi,
+  renameVolume as renameVolumeApi,
+  reorderChapters as reorderChaptersApi,
+  reorderVolumes as reorderVolumesApi,
   searchChapters,
   updateCharacter as updateCharacterApi,
   updateChapterContent,
@@ -29,13 +38,16 @@ import {
 import {
   chapterSummarySchema,
   type Chapter,
+  type ChapterOrderItem,
   type ChapterSummary,
   type CharacterProfile,
   type CharacterRelationship,
   type CreateCharacterPayload,
   type CreateRelationshipPayload,
+  type OrderItem,
   type UpdateCharacterPayload,
   type UpdateRelationshipPayload,
+  type Volume,
 } from "@/lib/http/modules/library.schema";
 
 /**
@@ -168,6 +180,128 @@ export function useUpdateChapterContent(id: string) {
     mutationFn: (content: string) => updateChapterContent(id, content),
     scope: { id: `chapter-content:${id}` },
     onSuccess: (chapter) => syncChapterCache(queryClient, chapter),
+  });
+}
+
+/**
+ * 目录结构变化会牵动卷、章节、小说字数与章节数，统一以服务端为准刷新。
+ */
+function invalidateOutline(queryClient: QueryClient, novelId: string) {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: libraryKeys.volumes(novelId) }),
+    queryClient.invalidateQueries({ queryKey: libraryKeys.chapters(novelId) }),
+    queryClient.invalidateQueries({ queryKey: libraryKeys.novel(novelId), exact: true }),
+    queryClient.invalidateQueries({ queryKey: libraryKeys.novels, exact: true }),
+  ]);
+}
+
+function applyOrder<T extends OrderItem>(list: T[], items: Array<Partial<T> & OrderItem>) {
+  const patches = new Map(items.map((item) => [item.id, item]));
+  return list
+    .map((item) => ({ ...item, ...patches.get(item.id) }))
+    .sort((a, b) => a.order_index - b.order_index);
+}
+
+/**
+ * 乐观调整卷顺序、章节顺序与章节所属卷；请求失败时以服务端数据为准。
+ */
+export function useReorderOutline(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ volumes, chapters }: { volumes: OrderItem[]; chapters: ChapterOrderItem[] }) =>
+      Promise.all([
+        volumes.length ? reorderVolumesApi(volumes) : undefined,
+        chapters.length ? reorderChaptersApi(chapters) : undefined,
+      ]),
+    onMutate: async ({ volumes, chapters }) => {
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: libraryKeys.volumes(novelId) }),
+        queryClient.cancelQueries({ queryKey: libraryKeys.chapters(novelId) }),
+      ]);
+      queryClient.setQueryData<Volume[]>(
+        libraryKeys.volumes(novelId),
+        (list) => list && applyOrder(list, volumes),
+      );
+      queryClient.setQueryData<ChapterSummary[]>(
+        libraryKeys.chapters(novelId),
+        (list) => list && applyOrder(list, chapters),
+      );
+    },
+    onError: () => invalidateOutline(queryClient, novelId),
+  });
+}
+
+export function useCreateVolume(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { title: string; order_index: number }) =>
+      createVolumeApi({ ...payload, novel_id: novelId }),
+    onSuccess: () => invalidateOutline(queryClient, novelId),
+  });
+}
+
+/**
+ * 乐观重命名卷；请求失败时以服务端数据为准。
+ */
+export function useRenameVolume(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, title }: { id: string; title: string }) => renameVolumeApi(id, title),
+    onMutate: ({ id, title }) => {
+      queryClient.setQueryData<Volume[]>(libraryKeys.volumes(novelId), (list) =>
+        list?.map((item) => (item.id === id ? { ...item, title } : item)),
+      );
+    },
+    onError: () => invalidateOutline(queryClient, novelId),
+  });
+}
+
+export function useDeleteVolume(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteVolumeApi(id),
+    onSuccess: () => invalidateOutline(queryClient, novelId),
+  });
+}
+
+export function useDuplicateVolume(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, title }: { id: string; title: string }) => duplicateVolumeApi(id, title),
+    onSuccess: () => invalidateOutline(queryClient, novelId),
+  });
+}
+
+/**
+ * 乐观重命名章节；请求失败时以服务端数据为准。
+ */
+export function useRenameChapter(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, title }: { id: string; title: string }) => renameChapterApi(id, title),
+    onMutate: ({ id, title }) => {
+      queryClient.setQueryData<ChapterSummary[]>(libraryKeys.chapters(novelId), (list) =>
+        list?.map((item) => (item.id === id ? { ...item, title } : item)),
+      );
+    },
+    onSuccess: (chapter) => syncChapterCache(queryClient, chapter),
+    onError: () => invalidateOutline(queryClient, novelId),
+  });
+}
+
+export function useDeleteChapter(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteChapterApi(id),
+    onSuccess: () => invalidateOutline(queryClient, novelId),
+  });
+}
+
+export function useDuplicateChapter(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, title }: { id: string; title: string }) => duplicateChapterApi(id, title),
+    onSuccess: () => invalidateOutline(queryClient, novelId),
   });
 }
 

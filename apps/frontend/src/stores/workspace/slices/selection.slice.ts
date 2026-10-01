@@ -12,7 +12,7 @@ export interface SelectionState {
 /** 选择的操作集合。 */
 export interface SelectionActions {
   selectNovel: (id?: string) => void;
-  selectChapter: (id: string) => void;
+  selectChapter: (id?: string) => void;
   selectSession: (novelId: string, sessionId?: string) => void;
 }
 

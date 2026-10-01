@@ -454,7 +454,28 @@
     },
     "ungrouped": "No volume",
     "empty": "No chapters yet",
-    "loadError": "Failed to load contents"
+    "loadError": "Failed to load contents",
+    "newVolume": "New volume",
+    "newVolumeTitle": "Volume {index}",
+    "copyTitle": "{title} (copy)",
+    "actions": {
+      "moveTo": "Move to volume",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "rename": "Rename",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "renameLabel": "Title",
+      "cancel": "Cancel"
+    },
+    "deleteChapter": {
+      "title": "Delete chapter “{title}”?",
+      "description": "The chapter text will be deleted as well."
+    },
+    "deleteVolume": {
+      "title": "Delete volume “{title}”?",
+      "description": "Chapters in this volume are kept and moved to “No volume”."
+    }
   },
   "chapterEditor": {
     "title": "Manuscript editor",
