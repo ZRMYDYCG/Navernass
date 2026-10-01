@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "ignorePatterns": [
-    "apps/web/**",
     "**/node_modules/**",
     "**/.next/**",
     "**/out/**",

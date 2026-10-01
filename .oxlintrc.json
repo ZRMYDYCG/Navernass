@@ -6,7 +6,6 @@
     "correctness": "error"
   },
   "ignorePatterns": [
-    "apps/web/**",
     "**/node_modules/**",
     "**/.next/**",
     "**/out/**",

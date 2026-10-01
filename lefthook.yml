@@ -1,43 +1,26 @@
-# Pre-commit: 提交前检查
+# Pre-commit: 只检查暂存区（lint-staged 的范围由 .lintstagedrc.mjs 限定为 apps/frontend、apps/backend）
 pre-commit:
   parallel: true
   commands:
-  # 1. Lint staged files
-  # lint-staged:
-  #   glob: '*.{js,ts,jsx,tsx,css,md,json}'
-  #   run: pnpm lint-staged
-  #   stage_fixed: true
+    lint-staged:
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs}"
+      run: pnpm lint-staged
 
-  # 2. 类型检查
-  # typecheck:
-  #   glob: "*.{ts,tsx}"
-  #   run: pnpm tsc --noEmit
-
-# Commit-msg: 检查 commit 信息
+# Commit-msg: commit message 规范检查
 commit-msg:
   commands:
     commitlint:
       run: pnpm commitlint --edit {1}
 
-# Pre-push: 推送前检查（可选）
+# Pre-push: 推送前对前后端做完整门禁
 pre-push:
-  parallel: false
+  parallel: true
   commands:
-  # 由于项目之前不规范，暂时关闭如下的完整项目检查，只做上面缓存区的检查和自动修复即可
-  # 完整 lint 检查
-  # lint:
-  #   run: pnpm lint
-
-  # 完整类型检查
-  # typecheck:
-  #   run: pnpm tsc --noEmit
-
-  # 运行测试
-  # test:
-  #   run: pnpm test
-
-# 安装后自动设置 hooks
-install:
-  scripts:
-    enable-auto-install:
-      run: echo "Lefthook hooks installed successfully ❤️"
+    lint:
+      run: pnpm lint
+    format:
+      run: pnpm format
+    typecheck:
+      run: pnpm typecheck:all
+    test:
+      run: pnpm test

@@ -73,9 +73,8 @@ Narraverse is a pnpm monorepo for an AI-assisted novel writing platform.
 | --- | --- |
 | `apps/frontend` | **Primary app** — Next.js 16 App Router UI |
 | `apps/backend` | NestJS API, Prisma, agent/skills runtime |
-| `apps/web` | **Legacy — do not touch** unless the user explicitly asks |
 
-Root tooling owns lint/format for `frontend` + `backend`. Ignore `apps/web` in oxlint/oxfmt/lint-staged.
+Root tooling owns lint/format for `frontend` + `backend`.
 
 ### Stack
 
@@ -106,8 +105,8 @@ pnpm lint:fix
 pnpm format              # oxfmt --check
 pnpm format:fix
 pnpm typecheck           # frontend
-pnpm typecheck:backend
-pnpm --filter @narraverse/backend test
+pnpm typecheck:all       # frontend + backend
+pnpm test                # backend (vitest)
 ```
 
 After substantive edits, run `pnpm lint` and `pnpm format` (or `*:fix`) and fix failures.
