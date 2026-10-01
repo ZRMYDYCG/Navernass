@@ -4,15 +4,6 @@ import { redirect } from "next/navigation";
 
 interface WorkspacePageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{
-    novelId?: string | string[];
-    chapterId?: string | string[];
-    sessionId?: string | string[];
-  }>;
-}
-
-function single(value: string | string[] | undefined) {
-  return typeof value === "string" ? value : undefined;
 }
 
 async function hasSession() {
@@ -26,18 +17,11 @@ async function hasSession() {
   return Boolean(session?.user?.id);
 }
 
-export default async function WorkspacePage({ params, searchParams }: WorkspacePageProps) {
+export default async function WorkspacePage({ params }: WorkspacePageProps) {
   const { locale } = await params;
-  const query = await searchParams;
   if (!(await hasSession())) {
     redirect(`/${locale}`);
   }
 
-  return (
-    <Workspace
-      novelId={single(query.novelId)}
-      chapterId={single(query.chapterId)}
-      sessionId={single(query.sessionId)}
-    />
-  );
+  return <Workspace />;
 }

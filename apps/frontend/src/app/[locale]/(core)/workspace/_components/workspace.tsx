@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { NovelGraphWorkspace } from "@/app/[locale]/(core)/workspace/_components/novel-graph/novel-graph-workspace";
 import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/servers/library.server";
+import { useWorkspaceStore } from "@/stores";
 
 import { AppHeader } from "./app-header";
 import { ChapterEditor, EmptyChapterEditor } from "./chapter-editor/chapter-editor";
@@ -16,28 +17,6 @@ import { EditorTabs, type EditorTab } from "./editor-tabs";
 import type { SidebarView } from "./novel-sidebar/activity-bar";
 import { NovelSidebar } from "./novel-sidebar/novel-sidebar";
 import { SettingsView } from "./settings/settings-view";
-
-interface WorkspaceProps {
-  novelId?: string;
-  chapterId?: string;
-  sessionId?: string;
-}
-
-interface WorkspaceSelection {
-  novelId?: string;
-  chapterId?: string;
-  /** 只保存由页面参数传入的初始会话；后续会话状态由 ChatPanel 自己管理。 */
-  initialSessionId?: string;
-}
-
-function replaceWorkspaceParams(params: Record<string, string | undefined>) {
-  const url = new URL(window.location.href);
-  for (const [key, value] of Object.entries(params)) {
-    if (value) url.searchParams.set(key, value);
-    else url.searchParams.delete(key);
-  }
-  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-}
 
 function usePanelToggle() {
   const panelRef = useRef<PanelImperativeHandle>(null);
@@ -58,43 +37,60 @@ function usePanelToggle() {
   return { panelRef, collapsed, toggle };
 }
 
-export function Workspace({ novelId, chapterId: initialChapterId, sessionId }: WorkspaceProps) {
+export function Workspace() {
   const t = useTranslations("workspaceStarter");
   const novels = useNovels();
   const starter = useCreateStarterWorkspace();
   const starterStartedRef = useRef(false);
-  const [selection, setSelection] = useState<WorkspaceSelection>({
-    novelId,
-    chapterId: initialChapterId,
-    initialSessionId: sessionId,
-  });
+  const storedNovelId = useWorkspaceStore((state) => state.novelId);
+  const storedChapterId = useWorkspaceStore((state) => state.chapterId);
+  const selectNovelInStore = useWorkspaceStore((state) => state.selectNovel);
+  const selectChapterInStore = useWorkspaceStore((state) => state.selectChapter);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [graphOpen, setGraphOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<EditorTab>("chapter");
   const sidebar = usePanelToggle();
   const chatPanel = usePanelToggle();
-  const effectiveNovelId = selection.novelId ?? novels.data?.[0]?.id;
+
+  // persist 采用 skipHydration，挂载后再恢复本地缓存，避免 SSR 水合不一致。
+  useEffect(() => {
+    void useWorkspaceStore.persist.rehydrate();
+  }, []);
+
+  const effectiveNovelId = storedNovelId ?? novels.data?.[0]?.id;
   const chapters = useNovelChapters(effectiveNovelId);
-  const effectiveChapterId =
-    selection.chapterId ?? chapters.data?.[0]?.id ?? starter.data?.chapter.id;
+  const effectiveChapterId = storedChapterId ?? chapters.data?.[0]?.id ?? starter.data?.chapter.id;
+
+  // 本地缓存里的 id 可能指向已删除的小说或章节，数据到位后校正。
+  useEffect(() => {
+    if (novels.isLoading || !novels.data) return;
+    if (storedNovelId && !novels.data.some((novel) => novel.id === storedNovelId)) {
+      selectNovelInStore(undefined);
+    }
+  }, [novels.data, novels.isLoading, selectNovelInStore, storedNovelId]);
 
   useEffect(() => {
-    if (selection.novelId || novels.isLoading || novels.isError || novels.data?.length) return;
+    if (!effectiveNovelId || chapters.isLoading || !chapters.data) return;
+    if (storedChapterId && !chapters.data.some((chapter) => chapter.id === storedChapterId)) {
+      selectChapterInStore(chapters.data[0].id);
+    }
+  }, [chapters.data, chapters.isLoading, effectiveNovelId, selectChapterInStore, storedChapterId]);
+
+  useEffect(() => {
+    if (storedNovelId || novels.isLoading || novels.isError || novels.data?.length) return;
     if (starterStartedRef.current || starter.isPending || starter.data) return;
     starterStartedRef.current = true;
     starter.mutate({ novelTitle: t("novelTitle"), chapterTitle: t("chapterTitle") });
-  }, [novels.data?.length, novels.isError, novels.isLoading, selection.novelId, starter, t]);
+  }, [novels.data?.length, novels.isError, novels.isLoading, storedNovelId, starter, t]);
 
   const selectNovel = (id: string) => {
     if (id === effectiveNovelId) return;
-    setSelection({ novelId: id });
-    replaceWorkspaceParams({ novelId: id, chapterId: undefined, sessionId: undefined });
+    selectNovelInStore(id);
   };
 
   const selectChapter = (id: string) => {
-    setSelection((current) => ({ ...current, chapterId: id }));
+    selectChapterInStore(id);
     setActiveTab("chapter");
-    replaceWorkspaceParams({ novelId: effectiveNovelId, chapterId: id });
   };
 
   const selectTab = (tab: EditorTab) => {
@@ -211,7 +207,6 @@ export function Workspace({ novelId, chapterId: initialChapterId, sessionId }: W
             key={effectiveNovelId ?? "new-chat"}
             novelId={effectiveNovelId}
             chapterId={effectiveChapterId}
-            sessionId={selection.initialSessionId}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

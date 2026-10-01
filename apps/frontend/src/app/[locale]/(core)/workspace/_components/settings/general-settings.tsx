@@ -89,7 +89,7 @@ function LanguageSelect() {
       value={locale}
       onValueChange={(value) => {
         if (!hasLocale(routing.locales, value) || value === locale) return;
-        router.replace(`${pathname}${window.location.search}`, { locale: value });
+        router.replace(pathname, { locale: value });
       }}
     >
       <SelectTrigger size="sm" aria-label={t("title")} className="w-28">

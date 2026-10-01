@@ -17,6 +17,7 @@ import {
   hasRenderablePart,
 } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/message-utils";
 import { StreamStore } from "@/app/[locale]/(core)/workspace/_components/chat-panel/model/stream-store";
+import { useWorkspaceStore } from "@/stores";
 import {
   answerAgentStream,
   pauseAgentRunIfActive,
@@ -43,30 +44,28 @@ import { Welcome } from "./chat-welcome";
 interface ChatPanelProps {
   novelId?: string;
   chapterId?: string;
-  sessionId?: string;
 }
 
 function getSessionId(message: AgentMessage | undefined) {
   return message?.metadata?.sessionId;
 }
 
-function getSessionStorageKey(novelId: string | undefined) {
-  return novelId ? `narraverse:agent-session:${novelId}` : undefined;
-}
-
-export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: ChatPanelProps) {
+export function ChatPanel({ novelId, chapterId }: ChatPanelProps) {
   const t = useTranslations("chat");
   const queryClient = useQueryClient();
+  // 组件按 novelId 重建，这里在挂载时读取该小说最近使用的会话。
+  const storedSessionId = useWorkspaceStore((state) =>
+    novelId ? state.sessionIds[novelId] : undefined,
+  );
   const [state, dispatch] = useReducer(chatReducer, {
     ...initialChatState,
-    phase: initialSessionId ? "hydrating" : "idle",
-    sessionId: initialSessionId,
+    phase: storedSessionId ? "hydrating" : "idle",
+    sessionId: storedSessionId,
   });
   const streamStore = useMemo(() => new StreamStore(), []);
   const abortRef = useRef<AbortController>(null);
   const resumedRunsRef = useRef(new Set<string>());
   const pauseRequestedViewsRef = useRef(new Set<number>());
-  const storageKey = useMemo(() => getSessionStorageKey(novelId), [novelId]);
   const sessionsQuery = useChatSessions(novelId);
   const messagesQuery = useSessionMessages(state.sessionId);
   const deleteSessionMutation = useDeleteChatSession();
@@ -80,28 +79,11 @@ export function ChatPanel({ novelId, chapterId, sessionId: initialSessionId }: C
     [busy, state.messages],
   );
 
-  useEffect(() => {
-    if (initialSessionId) {
-      if (storageKey) window.localStorage.setItem(storageKey, initialSessionId);
-      return;
-    }
-    const storedSessionId = storageKey ? window.localStorage.getItem(storageKey) : null;
-    if (storedSessionId) dispatch({ type: "SELECT_SESSION", sessionId: storedSessionId });
-  }, [initialSessionId, storageKey]);
-
   const syncSelectedSession = useCallback(
     (sessionId: string | undefined) => {
-      if (storageKey) {
-        if (sessionId) window.localStorage.setItem(storageKey, sessionId);
-        else window.localStorage.removeItem(storageKey);
-      }
-
-      const url = new URL(window.location.href);
-      if (sessionId) url.searchParams.set("sessionId", sessionId);
-      else url.searchParams.delete("sessionId");
-      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+      if (novelId) useWorkspaceStore.getState().selectSession(novelId, sessionId);
     },
-    [storageKey],
+    [novelId],
   );
 
   useEffect(() => {
