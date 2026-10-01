@@ -482,7 +482,11 @@ export class ToolService {
               prompt: `${context.contextText}\n\n待审核文本：\n${input.text}\n\n审核重点：${input.focus ?? "全部一致性维度"}`,
               temperature: 0.1,
               maxRetries: this.maxRetries,
-              timeout: { firstChunkMs: this.timeoutMs, chunkMs: this.timeoutMs },
+              timeout: {
+                totalMs: this.timeoutMs,
+                firstChunkMs: this.timeoutMs,
+                chunkMs: this.timeoutMs,
+              },
               abortSignal: options.abortSignal,
             });
             for await (const part of result.fullStream) {
@@ -513,7 +517,11 @@ export class ToolService {
               prompt: `${context.contextText}\n\n委派任务：${input.task}`,
               temperature: context.input.temperature,
               maxRetries: this.maxRetries,
-              timeout: { firstChunkMs: this.timeoutMs, chunkMs: this.timeoutMs },
+              timeout: {
+                totalMs: this.timeoutMs,
+                firstChunkMs: this.timeoutMs,
+                chunkMs: this.timeoutMs,
+              },
               abortSignal: options.abortSignal,
             });
             for await (const part of result.fullStream) {

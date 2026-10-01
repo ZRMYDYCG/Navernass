@@ -457,8 +457,10 @@
     "loadError": "目录加载失败",
     "newVolume": "新建卷",
     "newVolumeTitle": "第 {index} 卷",
+    "newChapterTitle": "第 {index} 章",
     "copyTitle": "{title}（副本）",
     "actions": {
+      "addChapter": "新增章节",
       "moveTo": "移动到卷",
       "moveUp": "上移",
       "moveDown": "下移",

@@ -284,19 +284,18 @@ export class RuntimeService {
   async pauseRun(userId: string, runId: string) {
     const run = await this.prisma.agentRun.findFirst({
       where: { id: runId, user_id: userId },
-      select: { status: true },
+      select: { status: true, started_at: true },
     });
     if (!run) throw AppError.notFound("AGENT_RUN_NOT_FOUND", "Agent 执行记录");
-    if (run.status !== "running") {
-      throw new AppError("CONFLICT", "只有正在生成的对话可以暂停", 409, {
-        status: run.status,
-      });
-    }
+    if (run.status === "cancelled") return { paused: true as const };
+    if (run.status !== "running" && run.status !== "queued") return { paused: false as const };
 
     const active = this.activeStreams.get(runId);
-    if (!active) throw new AppError("CONFLICT", "当前生成已结束或无法暂停", 409);
-    active.controller.abort("user_paused");
-    await active.done;
+    active?.controller.abort("user_paused");
+    await this.traces.cancelRun(
+      runId,
+      run.started_at ? Math.max(0, Date.now() - run.started_at.getTime()) : 0,
+    );
     return { paused: true as const };
   }
 

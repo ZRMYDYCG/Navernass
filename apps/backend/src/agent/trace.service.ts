@@ -39,8 +39,8 @@ export class TraceService {
       latencyMs: number;
     },
   ) {
-    return this.prisma.agentRun.update({
-      where: { id },
+    return this.prisma.agentRun.updateMany({
+      where: { id, status: "running" },
       data: {
         status: "completed",
         output: data.output,
@@ -78,8 +78,8 @@ export class TraceService {
       details && typeof details === "object" && "retryCount" in details
         ? Number((details as { retryCount?: unknown }).retryCount) || 0
         : 0;
-    return this.prisma.agentRun.update({
-      where: { id },
+    return this.prisma.agentRun.updateMany({
+      where: { id, status: { in: ["queued", "running"] } },
       data: {
         status: "failed",
         error_code:
@@ -96,8 +96,8 @@ export class TraceService {
   }
 
   cancelRun(id: string, latencyMs: number) {
-    return this.prisma.agentRun.update({
-      where: { id },
+    return this.prisma.agentRun.updateMany({
+      where: { id, status: { in: ["queued", "running"] } },
       data: { status: "cancelled", latency_ms: latencyMs, completed_at: new Date() },
     });
   }

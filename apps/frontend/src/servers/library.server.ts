@@ -273,6 +273,28 @@ export function useDuplicateVolume(novelId: string) {
 }
 
 /**
+ * 创建空白章节，并追加到目录缓存末尾，由调用方决定最终排序。
+ */
+export function useCreateChapter(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { volume_id: string | null; title: string; order_index: number }) =>
+      createChapterApi({ ...payload, novel_id: novelId, content: "" }),
+    onSuccess: (chapter) => {
+      queryClient.setQueryData(libraryKeys.chapter(chapter.id), chapter);
+      queryClient.setQueryData<ChapterSummary[]>(
+        libraryKeys.chapters(novelId),
+        (list) => list && [...list, chapterSummarySchema.parse(chapter)],
+      );
+      void Promise.all([
+        queryClient.invalidateQueries({ queryKey: libraryKeys.novel(novelId), exact: true }),
+        queryClient.invalidateQueries({ queryKey: libraryKeys.novels, exact: true }),
+      ]);
+    },
+  });
+}
+
+/**
  * 乐观重命名章节；请求失败时以服务端数据为准。
  */
 export function useRenameChapter(novelId: string) {

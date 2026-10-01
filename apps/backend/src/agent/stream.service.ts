@@ -191,6 +191,7 @@ export class StreamService {
         select: { status: true },
       });
       if (!run || terminalStates.has(run.status)) {
+        if (run?.status === "cancelled") controller.enqueue({ type: "abort" });
         controller.close();
         return;
       }

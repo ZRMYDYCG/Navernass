@@ -457,8 +457,10 @@
     "loadError": "Failed to load contents",
     "newVolume": "New volume",
     "newVolumeTitle": "Volume {index}",
+    "newChapterTitle": "Chapter {index}",
     "copyTitle": "{title} (copy)",
     "actions": {
+      "addChapter": "Add chapter",
       "moveTo": "Move to volume",
       "moveUp": "Move up",
       "moveDown": "Move down",

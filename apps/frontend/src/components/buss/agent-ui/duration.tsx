@@ -26,7 +26,6 @@ export function ToolDuration({ timing, running }: { timing?: Timing; running: bo
       className="text-xs tabular-nums"
       title={duration === undefined ? t("live") : t("measured")}
     >
-      {duration === undefined ? "~" : ""}
       {milliseconds < 1000
         ? t("milliseconds", { milliseconds: Math.round(milliseconds) })
         : t("seconds", { seconds })}

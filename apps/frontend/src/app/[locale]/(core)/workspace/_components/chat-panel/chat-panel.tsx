@@ -375,11 +375,12 @@ export function ChatPanel({ novelId, chapterId, onBeforeSend }: ChatPanelProps) 
     const runId = state.runId;
     if (!runId || state.phase !== "streaming") return;
     const viewKey = state.viewKey;
+    const controller = abortRef.current;
     pauseRequestedViewsRef.current.add(viewKey);
     dispatch({ type: "PAUSE", runId, viewKey });
     try {
       await pauseAgentRunIfActive(runId);
-      abortRef.current?.abort();
+      controller?.abort();
     } catch (error) {
       pauseRequestedViewsRef.current.delete(viewKey);
       dispatch({ type: "PAUSE_FAILED", viewKey, message: getErrorMessage(error) });

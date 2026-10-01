@@ -6,6 +6,7 @@ import {
   CheckIcon,
   ChevronRightIcon,
   CopyIcon,
+  FilePlusIcon,
   FolderInputIcon,
   PencilIcon,
   PlusIcon,
@@ -39,6 +40,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
+  useCreateChapter,
   useCreateVolume,
   useDeleteChapter,
   useDeleteVolume,
@@ -204,6 +206,8 @@ interface VolumeGroupProps {
   /** 缺省表示已在边界，按钮禁用。 */
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  /** 缺省表示正在创建，按钮禁用。 */
+  onAddChapter?: () => void;
   children: ReactNode;
 }
 
@@ -213,6 +217,7 @@ function VolumeGroup({
   defaultExpanded,
   onMoveUp,
   onMoveDown,
+  onAddChapter,
   children,
 }: VolumeGroupProps) {
   const t = useTranslations("sidebar");
@@ -249,6 +254,16 @@ function VolumeGroup({
         )}
         {volume && !editing ? (
           <RowActions>
+            <ActionButton
+              label={t("actions.addChapter")}
+              disabled={!onAddChapter}
+              onClick={() => {
+                setExpanded(true);
+                onAddChapter?.();
+              }}
+            >
+              <FilePlusIcon />
+            </ActionButton>
             <ActionButton label={t("actions.moveUp")} disabled={!onMoveUp} onClick={onMoveUp}>
               <ArrowUpIcon />
             </ActionButton>
@@ -411,6 +426,7 @@ export function ChapterOutline({ novelId, activeChapterId, onSelectChapter }: Ch
   const chapters = useNovelChapters(novelId);
   const reorder = useReorderOutline(novelId);
   const createVolume = useCreateVolume(novelId);
+  const createChapter = useCreateChapter(novelId);
 
   if (volumes.isError || chapters.isError) {
     return <p className="p-4 text-sm text-destructive">{t("loadError")}</p>;
@@ -446,6 +462,28 @@ export function ChapterOutline({ novelId, activeChapterId, onSelectChapter }: Ch
     commit(next);
   };
 
+  /** 先追加到全书末尾避免与已有顺序冲突，创建后再按目录统一编号到该卷末尾。 */
+  const addChapter = (groupIndex: number) => {
+    const chapterList = chapters.data;
+    createChapter.mutate(
+      {
+        volume_id: groups[groupIndex].volume?.id ?? null,
+        title: t("newChapterTitle", { index: chapterList.length + 1 }),
+        order_index: Math.max(-1, ...chapterList.map((chapter) => chapter.order_index)) + 1,
+      },
+      {
+        onSuccess: (chapter) => {
+          commit(
+            groups.map((group, index) =>
+              index === groupIndex ? { ...group, chapters: [...group.chapters, chapter] } : group,
+            ),
+          );
+          onSelectChapter(chapter.id);
+        },
+      },
+    );
+  };
+
   const addVolume = () =>
     createVolume.mutate({
       title: t("newVolumeTitle", { index: volumeList.length + 1 }),
@@ -476,6 +514,7 @@ export function ChapterOutline({ novelId, activeChapterId, onSelectChapter }: Ch
                 ? () => commit(swap(groups, groupIndex, groupIndex + 1))
                 : undefined
             }
+            onAddChapter={createChapter.isPending ? undefined : () => addChapter(groupIndex)}
           >
             {group.chapters.map((chapter, chapterIndex) => {
               const moveWithinGroup = (to: number) =>

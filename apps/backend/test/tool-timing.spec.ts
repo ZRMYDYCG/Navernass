@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { streamText } from "ai";
+import { MockLanguageModelV4 } from "ai/test";
 import { runAgent } from "../src/agent/agent.schema.js";
 import { ExecutionTraceRecorder } from "../src/agent/execution-trace.js";
 import { ToolService, type ToolTiming } from "../src/agent/tool.service.js";
@@ -9,14 +10,17 @@ vi.mock("ai", async (original) => ({
   streamText: vi.fn(),
 }));
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
 
-function setup() {
+function setup(model: Parameters<ToolService["build"]>[0]["model"] = {} as never) {
   const timings: Record<string, ToolTiming> = {};
   const { trace, recorder } = ExecutionTraceRecorder.create("run");
   const saveTool = vi.fn();
   const service = new ToolService(
-    { get: () => 0 } as never,
+    { get: (key: string) => (key === "AGENT_TIMEOUT_MS" ? 1000 : 0) } as never,
     {} as never,
     {} as never,
     { saveTool, addUsage: vi.fn() } as never,
@@ -29,7 +33,7 @@ function setup() {
   const tools = service.build({
     runId: "run",
     userId: "user",
-    model: {} as never,
+    model,
     contextText: "",
     input: runAgent.parse({ novelId: "00000000-0000-4000-8000-000000000001", prompt: "test" }),
     toolTimings: timings,
@@ -39,6 +43,32 @@ function setup() {
 }
 
 describe("subagent execution timing", () => {
+  it("bounds a reviewer request that never opens its response stream", async () => {
+    vi.useFakeTimers();
+    const real = await vi.importActual<typeof import("ai")>("ai");
+    vi.mocked(streamText).mockImplementationOnce(real.streamText);
+    const model = new MockLanguageModelV4({
+      doStream: ({ abortSignal }) =>
+        new Promise((_resolve, reject) => {
+          abortSignal!.addEventListener("abort", () => reject(abortSignal!.reason), {
+            once: true,
+          });
+        }),
+    });
+    const { tools, saveTool } = setup(model);
+    const result = tools.validateContinuity!.execute!(
+      { text: "chapter" },
+      { toolCallId: "stalled", messages: [], context: {} },
+    );
+    const rejected = expect(result).rejects.toMatchObject({ name: "TimeoutError" });
+    await vi.advanceTimersByTimeAsync(1001);
+    await rejected;
+    expect(saveTool).toHaveBeenCalledWith(
+      "run",
+      expect.objectContaining({ id: "stalled", status: "failed" }),
+    );
+  });
+
   it("rejects partial subagent output after a stream timeout", async () => {
     const { tools, timings } = setup();
     vi.mocked(streamText).mockReturnValueOnce({

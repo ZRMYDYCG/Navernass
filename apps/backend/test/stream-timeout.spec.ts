@@ -64,6 +64,40 @@ async function setup() {
 }
 
 describe("stream idle timeout", () => {
+  it.each([false, true])(
+    "persists pause without waiting for stream shutdown (active: %s)",
+    async (active) => {
+      const cancelRun = vi.fn().mockResolvedValue({ count: 1 });
+      const service = new RuntimeService(
+        { get: () => 180_000 } as never,
+        {
+          agentRun: {
+            findFirst: vi.fn().mockResolvedValue({ status: "running", started_at: new Date() }),
+          },
+        } as never,
+        {} as never,
+        {} as never,
+        {} as never,
+        {} as never,
+        { cancelRun } as never,
+        {} as never,
+        {} as never,
+        new AgentErrorService(),
+      );
+      const controller = new AbortController();
+      if (active) {
+        service["activeStreams"].set("run", {
+          controller,
+          done: new Promise(() => {}),
+          finish: () => {},
+        });
+      }
+      await expect(service.pauseRun("user", "run")).resolves.toEqual({ paused: true });
+      expect(controller.signal.aborted).toBe(active);
+      expect(cancelRun).toHaveBeenCalledWith("run", expect.any(Number));
+    },
+  );
+
   it("keeps a long generation alive while model output continues", async () => {
     const { source, signal, consumed } = await setup();
     for (let step = 0; step < 4; step++) {
