@@ -8,6 +8,7 @@ import { AccountModule } from "./account/account.module.js";
 import { AdminModule } from "./admin/admin.module.js";
 import { AgentModule } from "./agent/agent.module.js";
 import { AuthCoreModule } from "./auth/auth.module.js";
+import { ChangelogModule } from "./changelog/changelog.module.js";
 import { ErrorFilter } from "./common/error.filter.js";
 import { ResponseInterceptor } from "./common/response.interceptor.js";
 import { RoleGuard } from "./common/role.guard.js";
@@ -49,6 +50,7 @@ import { SkillModule } from "./skill/skill.module.js";
     DatabaseModule,
     AuthCoreModule,
     HealthModule,
+    ChangelogModule,
     EditorModule,
     AccountModule,
     LibraryModule,

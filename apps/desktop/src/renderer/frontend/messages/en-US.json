@@ -344,11 +344,16 @@
     "comingSoon": "Coming soon.",
     "sections": {
       "general": "General",
-      "agents": "Agents",
       "models": "Models",
       "customize": "Customize",
-      "docs": "Docs",
       "changelog": "Changelog"
+    },
+    "changelog": {
+      "title": "Changelog",
+      "loadFailed": "Failed to load. Please try again later.",
+      "empty": "No commits yet.",
+      "loadMore": "Load more",
+      "allLoaded": "All loaded"
     },
     "general": {
       "title": "General",

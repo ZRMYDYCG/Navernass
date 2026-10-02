@@ -88,6 +88,20 @@ export class HealthResult {
   uptime!: number;
 }
 
+export class ChangelogResult {
+  @ApiProperty({ example: "7a54ec1db43949cb4498641540702c5cefa428c9" })
+  sha!: string;
+
+  @ApiProperty({ example: "feat(provider): add built-in provider catalog" })
+  subject!: string;
+
+  @ApiProperty({ example: "Zr" })
+  author!: string;
+
+  @ApiProperty({ example: "2026-10-02T08:53:20Z" })
+  date!: string;
+}
+
 /** 数据库资源的通用文档模型，保留扩展字段以忠实表达 Prisma 返回值。 */
 export class ResourceResult {
   @ApiProperty({ format: "uuid", example: "bf263965-d407-4c92-a8d6-13bf7ddaf3dd" })

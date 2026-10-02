@@ -38,6 +38,7 @@ export const ErrorCode = {
   ARTICLE_EDIT_NOT_FOUND: "ARTICLE_EDIT_NOT_FOUND",
   ARTICLE_EDIT_CONFLICT: "ARTICLE_EDIT_CONFLICT",
   ARTICLE_EDIT_INVALID: "ARTICLE_EDIT_INVALID",
+  CHANGELOG_UNAVAILABLE: "CHANGELOG_UNAVAILABLE",
 } as const;
 
 export type ErrorCodeName = (typeof ErrorCode)[keyof typeof ErrorCode];
