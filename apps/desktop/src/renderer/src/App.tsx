@@ -11,6 +11,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { getSession, signOut } from "@/lib/http/modules/auth.api";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { authKeys } from "@/servers/auth.server";
 import { useNovels, useCreateStarterWorkspace } from "@/servers/library.server";
 import { useWorkspaceStore } from "@/stores";
 import zh from "../frontend/messages/zh-CN.json";
@@ -62,7 +63,7 @@ export function App() {
 
 function Desktop({ pathname, onSignedOut }: { pathname: string; onSignedOut: () => void }) {
   const queryClient = useQueryClient();
-  const session = useQuery({ queryKey: ["desktop", "session"], queryFn: getSession });
+  const session = useQuery({ queryKey: authKeys.session, queryFn: getSession });
   const user = session.data?.user;
   const t = useTranslations("workspaceStarter");
   const novels = useNovels(Boolean(user));
@@ -97,7 +98,7 @@ function Desktop({ pathname, onSignedOut }: { pathname: string; onSignedOut: () 
                   sessionIds: {},
                 });
                 startedFor.current = undefined;
-                queryClient.setQueryData(["desktop", "session"], null);
+                queryClient.setQueryData(authKeys.session, null);
                 queryClient.removeQueries({
                   predicate: (query) => query.queryKey[0] !== "desktop",
                 });

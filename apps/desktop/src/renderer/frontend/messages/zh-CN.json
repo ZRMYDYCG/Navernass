@@ -358,6 +358,13 @@
     "general": {
       "title": "通用",
       "preferences": "偏好",
+      "account": {
+        "title": "账号",
+        "avatar": "头像",
+        "name": "昵称",
+        "email": "邮箱",
+        "remove": "移除头像"
+      },
       "theme": {
         "title": "主题",
         "description": "切换界面配色，跟随系统时随操作系统自动切换。",

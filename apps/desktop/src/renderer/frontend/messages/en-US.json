@@ -358,6 +358,13 @@
     "general": {
       "title": "General",
       "preferences": "Preferences",
+      "account": {
+        "title": "Account",
+        "avatar": "Avatar",
+        "name": "Name",
+        "email": "Email",
+        "remove": "Remove avatar"
+      },
       "theme": {
         "title": "Theme",
         "description": "Change the interface colors. System follows your OS setting.",
