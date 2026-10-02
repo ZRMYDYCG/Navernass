@@ -15,19 +15,26 @@ import {
   GmiCloud,
   Groq,
   HuggingFace,
+  Hunyuan,
+  LmStudio,
   Minimax,
   Mistral,
+  ModelScope,
   Moonshot,
+  Nvidia,
   Ollama,
   OpenAI,
   OpenRouter,
   Perplexity,
   Qwen,
   SiliconCloud,
+  Stepfun,
   Together,
   Vercel,
   VertexAI,
+  Volcengine,
   XAI,
+  XiaomiMiMo,
   ZAI,
   Zhipu,
 } from "@lobehub/icons";
@@ -44,7 +51,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState, type ComponentType } from "react";
+import { useMemo, useState, type ComponentType, type CSSProperties } from "react";
 import { Autocomplete } from "@base-ui/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -75,8 +82,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
-  providerKindSchema,
   type CatalogModel,
+  type CatalogProvider,
   type ProviderConfig,
   type ProviderKind,
   type ProviderPayload,
@@ -86,66 +93,72 @@ import {
   useDeleteProvider,
   useDiscoverModels,
   useModelCatalog,
+  useProviderCatalog,
   useProviders,
   useTestProvider,
   useUpdateProvider,
 } from "@/servers/provider.server";
 
-const vendors = {
-  openai: { name: "OpenAI", icon: OpenAI, website: "https://platform.openai.com/api-keys" },
-  anthropic: { name: "Anthropic", icon: Anthropic, website: "https://console.anthropic.com/" },
-  google: { name: "Google Gemini", icon: Gemini, website: "https://aistudio.google.com/apikey" },
-  deepseek: { name: "DeepSeek", icon: DeepSeek, website: "https://platform.deepseek.com/" },
-  qwen: { name: "Alibaba · Qwen", icon: Qwen, website: "https://bailian.console.aliyun.com/" },
-  glm: { name: "智谱 · GLM", icon: Zhipu, website: "https://open.bigmodel.cn/" },
-  xai: { name: "xAI · Grok", icon: XAI, website: "https://console.x.ai/" },
-  mistral: { name: "Mistral AI", icon: Mistral, website: "https://console.mistral.ai/" },
-  groq: { name: "Groq", icon: Groq, website: "https://console.groq.com/keys" },
-  cohere: { name: "Cohere", icon: Cohere, website: "https://dashboard.cohere.com/" },
-  deepinfra: { name: "DeepInfra", icon: DeepInfra, website: "https://deepinfra.com/dash" },
-  togetherai: { name: "Together AI", icon: Together, website: "https://api.together.ai/" },
-  fireworks: { name: "Fireworks AI", icon: Fireworks, website: "https://fireworks.ai/" },
-  cerebras: { name: "Cerebras", icon: Cerebras, website: "https://cloud.cerebras.ai/" },
-  perplexity: {
-    name: "Perplexity",
-    icon: Perplexity,
-    website: "https://www.perplexity.ai/account/api/keys",
-  },
-  moonshotai: { name: "Moonshot · Kimi", icon: Moonshot, website: "https://platform.moonshot.ai/" },
-  minimax: { name: "MiniMax", icon: Minimax, website: "https://platform.minimax.io/" },
-  azure: { name: "Azure OpenAI", icon: Azure, website: "https://ai.azure.com/" },
-  bedrock: {
-    name: "Amazon Bedrock",
-    icon: Bedrock,
-    website: "https://console.aws.amazon.com/bedrock/",
-  },
-  vertex: {
-    name: "Vertex AI",
-    icon: VertexAI,
-    website: "https://console.cloud.google.com/vertex-ai",
-  },
-  gateway: { name: "Vercel AI Gateway", icon: Vercel, website: "https://vercel.com/ai-gateway" },
-  baseten: { name: "Baseten", icon: Baseten, website: "https://app.baseten.co/" },
-  huggingface: {
-    name: "Hugging Face",
-    icon: HuggingFace,
-    website: "https://huggingface.co/settings/tokens",
-  },
-  gmicloud: { name: "GMI Cloud", icon: GmiCloud, website: "https://console.gmicloud.ai/" },
-  zai: { name: "Z.AI", icon: ZAI, website: "https://open.z.ai/" },
-  anthropic_aws: { name: "Claude on AWS", icon: Aws, website: "https://console.aws.amazon.com/" },
-  openrouter: { name: "OpenRouter", icon: OpenRouter, website: "https://openrouter.ai/keys" },
-  siliconflow: {
-    name: "SiliconFlow",
-    icon: SiliconCloud,
-    website: "https://cloud.siliconflow.cn/",
-  },
-  ollama: { name: "Ollama", icon: Ollama, website: "https://ollama.com/" },
-  compatible: { name: "Custom", icon: GlobeIcon, website: "" },
-} satisfies Record<
-  ProviderKind,
-  { name: string; icon: ComponentType<{ size?: number }>; website: string }
->;
+/** 常用厂商的彩色图标与密钥页；顺序即厂商列表默认展示顺序，其余厂商使用 Models.dev 图标。 */
+const brands: Record<string, { icon: ComponentType<{ size?: number }>; website?: string }> = {
+  openai: { icon: OpenAI, website: "https://platform.openai.com/api-keys" },
+  anthropic: { icon: Anthropic, website: "https://console.anthropic.com/" },
+  google: { icon: Gemini, website: "https://aistudio.google.com/apikey" },
+  deepseek: { icon: DeepSeek, website: "https://platform.deepseek.com/" },
+  "alibaba-cn": { icon: Qwen, website: "https://bailian.console.aliyun.com/" },
+  zhipuai: { icon: Zhipu, website: "https://open.bigmodel.cn/" },
+  moonshotai: { icon: Moonshot, website: "https://platform.moonshot.ai/" },
+  "moonshotai-cn": { icon: Moonshot, website: "https://platform.moonshot.cn/" },
+  volcengine: { icon: Volcengine, website: "https://console.volcengine.com/ark" },
+  minimax: { icon: Minimax, website: "https://platform.minimax.io/" },
+  "minimax-cn": { icon: Minimax, website: "https://platform.minimaxi.com/" },
+  stepfun: { icon: Stepfun, website: "https://platform.stepfun.com/" },
+  xiaomi: { icon: XiaomiMiMo },
+  "tencent-tokenhub": { icon: Hunyuan },
+  modelscope: { icon: ModelScope, website: "https://modelscope.cn/my/myaccesstoken" },
+  "siliconflow-cn": { icon: SiliconCloud, website: "https://cloud.siliconflow.cn/" },
+  siliconflow: { icon: SiliconCloud, website: "https://cloud.siliconflow.com/" },
+  openrouter: { icon: OpenRouter, website: "https://openrouter.ai/keys" },
+  xai: { icon: XAI, website: "https://console.x.ai/" },
+  mistral: { icon: Mistral, website: "https://console.mistral.ai/" },
+  groq: { icon: Groq, website: "https://console.groq.com/keys" },
+  zai: { icon: ZAI, website: "https://open.z.ai/" },
+  azure: { icon: Azure, website: "https://ai.azure.com/" },
+  "amazon-bedrock": { icon: Bedrock, website: "https://console.aws.amazon.com/bedrock/" },
+  "google-vertex": { icon: VertexAI, website: "https://console.cloud.google.com/vertex-ai" },
+  vercel: { icon: Vercel, website: "https://vercel.com/ai-gateway" },
+  cohere: { icon: Cohere, website: "https://dashboard.cohere.com/" },
+  deepinfra: { icon: DeepInfra, website: "https://deepinfra.com/dash" },
+  togetherai: { icon: Together, website: "https://api.together.ai/" },
+  "fireworks-ai": { icon: Fireworks, website: "https://fireworks.ai/" },
+  cerebras: { icon: Cerebras, website: "https://cloud.cerebras.ai/" },
+  perplexity: { icon: Perplexity, website: "https://www.perplexity.ai/account/api/keys" },
+  huggingface: { icon: HuggingFace, website: "https://huggingface.co/settings/tokens" },
+  nvidia: { icon: Nvidia, website: "https://build.nvidia.com/" },
+  baseten: { icon: Baseten, website: "https://app.baseten.co/" },
+  gmicloud: { icon: GmiCloud, website: "https://console.gmicloud.ai/" },
+  anthropic_aws: { icon: Aws, website: "https://console.aws.amazon.com/" },
+  ollama: { icon: Ollama, website: "https://ollama.com/" },
+  lmstudio: { icon: LmStudio, website: "https://lmstudio.ai/" },
+};
+const featured = Object.keys(brands);
+
+function ProviderLogo({ id, size }: { id: string; size: number }) {
+  const Icon = id === "compatible" ? GlobeIcon : brands[id]?.icon;
+  if (Icon) return <Icon size={size} />;
+  return (
+    <span
+      aria-hidden
+      className="size-(--logo-size) shrink-0 bg-foreground mask-(--logo) mask-contain mask-center mask-no-repeat"
+      style={
+        {
+          "--logo": `url(https://models.dev/logos/${encodeURIComponent(id)}.svg)`,
+          "--logo-size": `${size}px`,
+        } as CSSProperties
+      }
+    />
+  );
+}
 
 function settingText(settings: ProviderConfig["settings"] | undefined, key: string) {
   const value = settings?.[key];
@@ -166,7 +179,7 @@ function reasoningChoices(kind: ProviderKind, model: CatalogModel | undefined, c
   const efforts = options.find((option) => option.type === "effort")?.values ?? [];
   const toggle = options.some((option) => option.type === "toggle");
   const levels =
-    kind === "qwen"
+    kind === "alibaba-cn"
       ? toggle || model?.reasoning
         ? ["enabled", "none"]
         : []
@@ -181,14 +194,14 @@ function reasoningChoices(kind: ProviderKind, model: CatalogModel | undefined, c
 }
 
 function ProviderForm({
-  kind,
+  vendor,
   provider,
   first,
   saving,
   error,
   onSave,
 }: {
-  kind: ProviderKind;
+  vendor: CatalogProvider;
   provider?: ProviderConfig;
   first: boolean;
   saving: boolean;
@@ -196,6 +209,7 @@ function ProviderForm({
   onSave: (payload: ProviderPayload) => void;
 }) {
   const t = useTranslations("settings.models");
+  const kind = vendor.id;
   const catalog = useModelCatalog(kind);
   const discover = useDiscoverModels();
   const [protocol, setProtocol] = useState(
@@ -228,8 +242,10 @@ function ProviderForm({
   const [frequencyPenalty, setFrequencyPenalty] = useState(
     settingNumber(provider?.settings, "frequencyPenalty"),
   );
-  const vendor = vendors[kind];
   const custom = kind === "compatible";
+  const azure = vendor.npm === "@ai-sdk/azure";
+  const bedrock = vendor.npm === "@ai-sdk/amazon-bedrock";
+  const website = brands[kind]?.website ?? vendor.doc;
   const protocols = [
     { value: "chat", label: "OpenAI Chat Completions" },
     { value: "responses", label: "OpenAI Responses" },
@@ -271,23 +287,15 @@ function ProviderForm({
     reasoning !== "none" &&
     (selectedModel
       ? !!budget
-      : ["anthropic", "anthropic_aws", "bedrock", "fireworks", "google", "qwen", "vertex"].includes(
-          kind,
-        ));
-  const canDiscover =
-    kind === "ollama" ||
-    [
-      "openai",
-      "anthropic",
-      "google",
-      "deepseek",
-      "qwen",
-      "groq",
-      "mistral",
-      "openrouter",
-      "siliconflow",
-      "compatible",
-    ].includes(kind);
+      : bedrock ||
+        [
+          "anthropic",
+          "anthropic_aws",
+          "fireworks-ai",
+          "google",
+          "alibaba-cn",
+          "google-vertex",
+        ].includes(kind));
 
   function chooseModel(next: CatalogModel) {
     setReasoning("");
@@ -338,8 +346,8 @@ function ProviderForm({
             presencePenalty: toNumber(presencePenalty),
             frequencyPenalty: toNumber(frequencyPenalty),
             ...((custom || kind === "openai") && { protocol }),
-            ...((kind === "bedrock" || kind === "anthropic_aws") && { region: value("region") }),
-            ...(kind === "azure" && { resourceName: value("resourceName") || undefined }),
+            ...((bedrock || kind === "anthropic_aws") && { region: value("region") }),
+            ...(azure && { resourceName: value("resourceName") || undefined }),
             ...(kind === "anthropic_aws" && { workspaceId: value("workspaceId") }),
           },
         });
@@ -361,9 +369,9 @@ function ProviderForm({
           <Field>
             <div className="flex items-center justify-between gap-2">
               <FieldLabel htmlFor="provider-key">{t("fields.apiKey")}</FieldLabel>
-              {vendor.website && (
+              {website && (
                 <a
-                  href={vendor.website}
+                  href={website}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-4 hover:underline"
@@ -389,9 +397,9 @@ function ProviderForm({
             />
             <FieldDescription>
               {t(
-                kind === "vertex"
+                vendor.npm === "@ai-sdk/google-vertex"
                   ? "vertexHelp"
-                  : kind === "bedrock"
+                  : bedrock
                     ? "bedrockHelp"
                     : "apiKeyHelp",
               )}
@@ -420,7 +428,7 @@ function ProviderForm({
               </Select>
             </Field>
           )}
-          {kind === "azure" && (
+          {azure && (
             <Field>
               <FieldLabel htmlFor="provider-resource">{t("fields.resourceName")}</FieldLabel>
               <Input
@@ -432,7 +440,7 @@ function ProviderForm({
               <FieldDescription>{t("azureHelp")}</FieldDescription>
             </Field>
           )}
-          {(kind === "bedrock" || kind === "anthropic_aws") && (
+          {(bedrock || kind === "anthropic_aws") && (
             <Field>
               <FieldLabel htmlFor="provider-region">{t("fields.region")}</FieldLabel>
               <Input
@@ -475,7 +483,7 @@ function ProviderForm({
           <Field>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <FieldLabel htmlFor="provider-model">{t("fields.model")}</FieldLabel>
-              {canDiscover && (
+              {vendor.discoverable && (
                 <Button
                   type="button"
                   variant="outline"
@@ -534,9 +542,7 @@ function ProviderForm({
               </ComboboxContent>
             </Autocomplete.Root>
             <FieldDescription>
-              {discover.data
-                ? t("accountModelHelp")
-                : t(kind === "azure" ? "deploymentHelp" : "modelHelp")}
+              {discover.data ? t("accountModelHelp") : t(azure ? "deploymentHelp" : "modelHelp")}
             </FieldDescription>
             {catalog.isError && <FieldError>{t("errors.catalogFailed")}</FieldError>}
             {discover.isError && <FieldError>{discover.error.message}</FieldError>}
@@ -760,20 +766,37 @@ export function Models() {
   const update = useUpdateProvider();
   const remove = useDeleteProvider();
   const test = useTestProvider();
-  const [editor, setEditor] = useState<{ kind: ProviderKind; provider?: ProviderConfig }>();
+  const catalog = useProviderCatalog();
+  const [editor, setEditor] = useState<{ vendor: CatalogProvider; provider?: ProviderConfig }>();
   const [search, setSearch] = useState("");
+  const [showAll, setShowAll] = useState(false);
   const [error, setError] = useState<string>();
   const [formError, setFormError] = useState<string>();
   const busy = create.isPending || update.isPending || remove.isPending || test.isPending;
   const configured = providers.data ?? [];
-  const kinds = providerKindSchema.options.filter(
-    (kind) =>
-      kind !== "compatible" &&
-      `${vendors[kind].name} ${kind}`.toLowerCase().includes(search.trim().toLowerCase()),
-  );
-  function edit(kind: ProviderKind, provider?: ProviderConfig) {
+  const query = search.trim().toLowerCase();
+  const rank = (id: string) => (featured.includes(id) ? featured.indexOf(id) : featured.length);
+  const vendors = (catalog.data ?? [])
+    .filter((vendor) => vendor.id !== "compatible")
+    .sort((a, b) => rank(a.id) - rank(b.id) || a.name.localeCompare(b.name));
+  const matched = query
+    ? vendors.filter((vendor) => `${vendor.name} ${vendor.id}`.toLowerCase().includes(query))
+    : vendors;
+  const shown =
+    query || showAll ? matched : matched.filter((vendor) => featured.includes(vendor.id));
+  function vendorOf(kind: ProviderKind): CatalogProvider {
+    return (
+      catalog.data?.find((vendor) => vendor.id === kind) ?? {
+        id: kind,
+        name: kind,
+        npm: "",
+        discoverable: false,
+      }
+    );
+  }
+  function edit(vendor: CatalogProvider, provider?: ProviderConfig) {
     setFormError(undefined);
-    setEditor({ kind, provider });
+    setEditor({ vendor, provider });
   }
   async function save(payload: ProviderPayload) {
     setFormError(undefined);
@@ -824,7 +847,6 @@ export function Models() {
       setError(caught instanceof Error ? caught.message : t("errors.deleteFailed"));
     }
   }
-  const EditorIcon = editor ? vendors[editor.kind].icon : GlobeIcon;
   return (
     <div className="flex flex-col gap-7">
       <div>
@@ -863,13 +885,12 @@ export function Models() {
           </div>
         ) : (
           configured.map((provider) => {
-            const Icon = vendors[provider.kind].icon;
             return (
               <div
                 key={provider.id}
                 className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4"
               >
-                <Icon size={28} />
+                <ProviderLogo id={provider.kind} size={28} />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium">{provider.name}</span>
@@ -878,7 +899,7 @@ export function Models() {
                   </div>
                   <p className="mt-1 truncate text-xs text-muted-foreground">
                     {provider.model} ·{" "}
-                    {provider.kind === "compatible" ? t("custom") : vendors[provider.kind].name}
+                    {provider.kind === "compatible" ? t("custom") : vendorOf(provider.kind).name}
                   </p>
                 </div>
                 <Switch
@@ -918,7 +939,7 @@ export function Models() {
                     disabled={busy}
                     title={t("editTitle")}
                     aria-label={t("editTitle")}
-                    onClick={() => edit(provider.kind, provider)}
+                    onClick={() => edit(vendorOf(provider.kind), provider)}
                   >
                     <PencilIcon />
                   </Button>
@@ -949,34 +970,47 @@ export function Models() {
           placeholder={t("search")}
           aria-label={t("search")}
         />
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {kinds.map((kind) => {
-            const { icon: Icon, name } = vendors[kind];
-            return (
+        {catalog.isLoading ? (
+          <Skeleton className="h-40 w-full" />
+        ) : catalog.isError ? (
+          <Alert variant="destructive">
+            <AlertDescription>{catalog.error.message}</AlertDescription>
+            <Button variant="outline" onClick={() => void catalog.refetch()}>
+              {t("retry")}
+            </Button>
+          </Alert>
+        ) : (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {shown.map((vendor) => (
               <button
-                key={kind}
+                key={vendor.id}
                 type="button"
                 disabled={busy || !providers.data}
-                onClick={() => edit(kind)}
+                onClick={() => edit(vendor)}
                 className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
               >
-                <Icon size={24} />
-                <span className="min-w-0 flex-1 text-sm font-medium">{name}</span>
-                {configured.some((provider) => provider.kind === kind) && (
+                <ProviderLogo id={vendor.id} size={24} />
+                <span className="min-w-0 flex-1 truncate text-sm font-medium">{vendor.name}</span>
+                {configured.some((provider) => provider.kind === vendor.id) && (
                   <CheckCircle2Icon className="size-3.5 shrink-0 text-muted-foreground" />
                 )}
               </button>
-            );
-          })}
-        </div>
-        {kinds.length === 0 && (
+            ))}
+          </div>
+        )}
+        {catalog.isSuccess && shown.length === 0 && (
           <p className="py-3 text-sm text-muted-foreground">{t("noResults")}</p>
+        )}
+        {!query && vendors.length > shown.length && (
+          <Button variant="ghost" onClick={() => setShowAll(true)}>
+            {t("showAllProviders", { count: vendors.length })}
+          </Button>
         )}
       </section>
       <button
         type="button"
         disabled={busy || !providers.data}
-        onClick={() => edit("compatible")}
+        onClick={() => edit(vendorOf("compatible"))}
         className="flex items-center gap-4 rounded-lg border border-dashed border-border p-4 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
       >
         <GlobeIcon className="size-6 shrink-0" />
@@ -996,8 +1030,8 @@ export function Models() {
           <DialogHeader>
             <DialogTitle>
               <span className="flex items-center gap-2">
-                <EditorIcon size={24} />
-                {editor?.kind === "compatible" ? t("custom") : editor && vendors[editor.kind].name}
+                {editor && <ProviderLogo id={editor.vendor.id} size={24} />}
+                {editor?.vendor.id === "compatible" ? t("custom") : editor?.vendor.name}
               </span>
             </DialogTitle>
             <DialogDescription>
@@ -1007,7 +1041,7 @@ export function Models() {
           <div className="min-h-0 overflow-y-auto px-1 py-1">
             {editor && (
               <ProviderForm
-                key={editor.provider?.id ?? editor.kind}
+                key={editor.provider?.id ?? editor.vendor.id}
                 {...editor}
                 first={!configured.length}
                 saving={create.isPending || update.isPending}

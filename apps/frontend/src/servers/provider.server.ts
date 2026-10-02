@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createProvider,
   getModelCatalog,
+  getProviderCatalog,
   discoverModels,
   deleteProvider,
   getProviders,
@@ -16,6 +17,7 @@ import type { ProviderKind, ProviderPayload } from "@/lib/http/modules/provider.
  */
 export const providerKeys = {
   all: ["agent", "providers"] as const,
+  catalog: ["agent", "provider-catalog"] as const,
 };
 
 /**
@@ -66,9 +68,16 @@ export function useTestProvider() {
   return useMutation({ mutationFn: testProvider });
 }
 
+export function useProviderCatalog() {
+  return useQuery({
+    queryKey: providerKeys.catalog,
+    queryFn: getProviderCatalog,
+    staleTime: 3_600_000,
+  });
+}
 export function useModelCatalog(kind: ProviderKind) {
   return useQuery({
-    queryKey: ["agent", "model-catalog", kind],
+    queryKey: [...providerKeys.catalog, kind],
     queryFn: () => getModelCatalog(kind),
     staleTime: 3_600_000,
     retry: false,

@@ -431,6 +431,7 @@
       "catalogHelp": "选择模型厂商，同一厂商可以添加多份配置。",
       "search": "搜索厂商…",
       "noResults": "未找到厂商，可以使用下方的自定义服务。",
+      "showAllProviders": "显示全部 {count} 个厂商",
       "custom": "自定义服务",
       "customHelp": "填写自己的 URL、API Key 和模型 ID，连接中转服务或其他兼容接口。",
       "getApiKey": "获取密钥",

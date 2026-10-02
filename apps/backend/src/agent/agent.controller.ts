@@ -47,6 +47,7 @@ import * as schema from "./agent.schema.js";
 import { ChatService } from "./chat.service.js";
 import { ContextService } from "./context.service.js";
 import { MemoryService } from "./memory.service.js";
+import { CatalogService } from "./catalog.service.js";
 import { ModelService } from "./model.service.js";
 import { ProviderService } from "./provider.service.js";
 import { RuntimeService } from "./runtime.service.js";
@@ -76,6 +77,7 @@ export class AgentController {
     @Inject(StreamService) private readonly streams: StreamService,
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(VectorService) private readonly vectors: VectorService,
+    @Inject(CatalogService) private readonly catalog: CatalogService,
   ) {}
 
   @Get("manifest")
@@ -163,6 +165,12 @@ export class AgentController {
     };
   }
 
+  @Get("providers/catalog")
+  @ApiDoc({ summary: "查询可接入的模型厂商目录", type: ResourceResult, array: true })
+  providerCatalog() {
+    return this.catalog.providers();
+  }
+
   @Get("providers/catalog/:kind")
   @ApiDoc({ summary: "查询厂商公开模型目录", type: ResourceResult, array: true })
   modelCatalog(
@@ -171,7 +179,7 @@ export class AgentController {
       "kind"
     >,
   ) {
-    return this.models.catalog(params.kind);
+    return this.catalog.models(params.kind);
   }
 
   @Post("providers/models")

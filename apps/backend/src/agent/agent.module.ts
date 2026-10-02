@@ -3,6 +3,7 @@ import { SkillModule } from "../skill/skill.module.js";
 import { EditorModule } from "../editor/editor.module.js";
 import { LibraryModule } from "../library/library.module.js";
 import { AgentController } from "./agent.controller.js";
+import { CatalogService } from "./catalog.service.js";
 import { ChatService } from "./chat.service.js";
 import { ContextService } from "./context.service.js";
 import { AgentErrorService } from "./error.service.js";
@@ -24,6 +25,7 @@ import { VectorService } from "./vector.service.js";
   providers: [
     SecretService,
     StreamService,
+    CatalogService,
     ProviderService,
     ModelService,
     VectorService,

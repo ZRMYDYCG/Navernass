@@ -431,6 +431,7 @@
       "catalogHelp": "Choose a provider. You can add multiple configurations for the same provider.",
       "search": "Search providers…",
       "noResults": "No matching providers. Use a custom service below.",
+      "showAllProviders": "Show all {count} providers",
       "custom": "Custom service",
       "customHelp": "Connect a proxy or another compatible API with your own URL, API key, and model ID.",
       "getApiKey": "Get API key",

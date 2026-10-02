@@ -1,38 +1,13 @@
 import { z } from "zod";
 import { skillMode } from "../skill/skill.schema.js";
 
-export const providerKind = z.enum([
-  "openai",
-  "anthropic",
-  "google",
-  "deepseek",
-  "qwen",
-  "glm",
-  "xai",
-  "mistral",
-  "groq",
-  "cohere",
-  "deepinfra",
-  "togetherai",
-  "fireworks",
-  "cerebras",
-  "perplexity",
-  "moonshotai",
-  "minimax",
-  "azure",
-  "bedrock",
-  "vertex",
-  "gateway",
-  "baseten",
-  "huggingface",
-  "gmicloud",
-  "zai",
-  "anthropic_aws",
-  "openrouter",
-  "siliconflow",
-  "ollama",
-  "compatible",
-]);
+/** Models.dev 厂商 ID，或内置的 ollama / anthropic_aws / compatible。 */
+export const providerKind = z
+  .string()
+  .trim()
+  .min(1)
+  .max(100)
+  .regex(/^[\w.-]+$/);
 export const agentRole = z.enum(["main", "character", "plot", "world", "style", "reviewer"]);
 export const memoryKind = z.enum([
   "chapter",

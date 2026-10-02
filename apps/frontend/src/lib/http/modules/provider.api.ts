@@ -4,6 +4,7 @@ import { apiRequest } from "@/lib/http/request";
 import {
   providerConfigSchema,
   catalogModelSchema,
+  catalogProviderSchema,
   discoveredModelSchema,
   type ProviderKind,
   type DiscoverModelsPayload,
@@ -39,6 +40,9 @@ export function testProvider(id: string) {
   return apiRequest(`agent/providers/${id}/test`, providerTestResultSchema, { method: "post" });
 }
 
+export function getProviderCatalog() {
+  return apiRequest("agent/providers/catalog", z.array(catalogProviderSchema));
+}
 export function getModelCatalog(kind: ProviderKind) {
   return apiRequest(`agent/providers/catalog/${kind}`, z.array(catalogModelSchema));
 }

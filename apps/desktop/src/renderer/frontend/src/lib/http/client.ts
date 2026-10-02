@@ -24,12 +24,7 @@ const baseClient = ky.create({
           return error;
         }
 
-        const payload = apiErrorSchema.safeParse(
-          await error.response
-            .clone()
-            .json()
-            .catch(() => null),
-        );
+        const payload = apiErrorSchema.safeParse(error.data);
 
         if (payload.success) {
           return new ApiError(error.response.status, payload.data);

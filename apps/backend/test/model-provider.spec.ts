@@ -5,7 +5,8 @@ import type { AgentErrorService } from "../src/agent/error.service.js";
 import type { SecretService } from "../src/agent/secret.service.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { generateText } from "ai";
-import { createProvider, providerKind, updateProvider } from "../src/agent/agent.schema.js";
+import { createProvider, updateProvider } from "../src/agent/agent.schema.js";
+import { CatalogService } from "../src/agent/catalog.service.js";
 import { ModelService } from "../src/agent/model.service.js";
 import { ProviderService } from "../src/agent/provider.service.js";
 
@@ -36,13 +37,22 @@ function models(provider: ResolvedProvider) {
     { get: () => 0 } as unknown as ConfigService<EnvConfig, true>,
     { resolve: vi.fn().mockResolvedValue(provider) } as unknown as ProviderService,
     { toAppError: (error: unknown) => error } as AgentErrorService,
+    new CatalogService(),
   );
 }
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("model provider routing", () => {
-  it.each(providerKind.options)("constructs a language model for %s", async (kind) => {
+  it.each(
+    [
+      "openai anthropic google google-vertex azure amazon-bedrock vercel",
+      "xai mistral groq cohere deepinfra togetherai cerebras perplexity",
+      "deepseek alibaba-cn moonshotai zai zhipuai fireworks-ai minimax",
+      "baseten huggingface gmicloud anthropic_aws ollama compatible",
+      "openrouter siliconflow-cn volcengine minimax-cn meta",
+    ].flatMap((line) => line.split(" ")),
+  )("constructs a language model for %s", async (kind) => {
     const service = models(
       config({
         kind,
@@ -137,6 +147,21 @@ describe("model provider routing", () => {
     expect(model).toMatchObject({ provider: "openai.chat" });
   });
 
+  it("sends catalog-only providers to their catalog endpoint", async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      new Response('{"error":{"message":"test endpoint"}}', {
+        status: 400,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    const { model } = await models(config({ kind: "volcengine" })).language("user-1");
+    await expect(generateText({ model, prompt: "hello", maxRetries: 0 })).rejects.toThrow();
+    expect(String(fetch.mock.calls[0]![0])).toBe(
+      "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+    );
+  });
+
   it("rejects a custom provider without an endpoint", async () => {
     await expect(models(config({ kind: "compatible" })).language("user-1")).rejects.toThrow(
       "请填写服务地址",
@@ -166,6 +191,7 @@ describe("provider configuration persistence", () => {
     const service = new ProviderService(
       prisma as unknown as PrismaService,
       secrets as unknown as SecretService,
+      new CatalogService(),
     );
     return { service, tx, secrets };
   }
@@ -208,7 +234,19 @@ describe("provider configuration persistence", () => {
     expect(tx.aiProviderConfig.update).not.toHaveBeenCalled();
   });
 
-  it.each(["azure", "bedrock", "anthropic_aws", "compatible"] as const)(
+  it("rejects providers outside the catalog", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+    const { service, tx } = providers();
+    await expect(
+      service.create(
+        "user-1",
+        createProvider.parse({ name: "Test", kind: "unknown-vendor", apiKey: "test", model: "x" }),
+      ),
+    ).rejects.toThrow("不支持的模型厂商");
+    expect(tx.aiProviderConfig.create).not.toHaveBeenCalled();
+  });
+
+  it.each(["azure", "amazon-bedrock", "anthropic_aws", "compatible"] as const)(
     "requires connection settings for %s",
     async (kind) => {
       const { service, tx } = providers();

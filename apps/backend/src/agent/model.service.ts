@@ -41,54 +41,10 @@ import { providerSettings, type DiscoverModels } from "./agent.schema.js";
 import { AppError } from "../common/app-error.js";
 import { ProviderService } from "./provider.service.js";
 import { AgentErrorService } from "./error.service.js";
+import { CatalogService } from "./catalog.service.js";
 
 type ResolvedProvider = Awaited<ReturnType<ProviderService["resolve"]>>;
 
-const catalogModel = z.object({
-  id: z.string(),
-  name: z.string(),
-  reasoning: z.boolean().optional(),
-  temperature: z.boolean().optional(),
-  tool_call: z.boolean().optional(),
-  structured_output: z.boolean().optional(),
-  modalities: z.object({ input: z.array(z.string()), output: z.array(z.string()) }),
-  limit: z.object({ context: z.number(), output: z.number() }),
-  reasoning_options: z
-    .array(
-      z.object({
-        type: z.enum(["effort", "toggle", "budget_tokens"]),
-        values: z.array(z.string().nullable()).optional(),
-        min: z.number().optional(),
-        max: z.number().optional(),
-      }),
-    )
-    .optional(),
-  release_date: z.string().optional(),
-  status: z.string().optional(),
-});
-const catalogSchema = z.record(z.string(), z.object({ models: z.record(z.string(), z.unknown()) }));
-const catalogIds: Partial<Record<ResolvedProvider["kind"], string>> = {
-  qwen: "alibaba-cn",
-  glm: "zhipuai",
-  bedrock: "amazon-bedrock",
-  vertex: "google-vertex",
-  gateway: "vercel",
-  fireworks: "fireworks-ai",
-  anthropic_aws: "anthropic",
-  siliconflow: "siliconflow-cn",
-};
-const discoveryUrls: Partial<Record<ResolvedProvider["kind"], string>> = {
-  openai: "https://api.openai.com/v1",
-  anthropic: "https://api.anthropic.com/v1",
-  google: "https://generativelanguage.googleapis.com/v1beta",
-  deepseek: "https://api.deepseek.com",
-  qwen: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-  groq: "https://api.groq.com/openai/v1",
-  mistral: "https://api.mistral.ai/v1",
-  openrouter: "https://openrouter.ai/api/v1",
-  siliconflow: "https://api.siliconflow.cn/v1",
-  ollama: "http://localhost:11434/v1",
-};
 const remoteModels = z.object({
   data: z
     .array(
@@ -115,60 +71,6 @@ const remoteModels = z.object({
 
 @Injectable()
 export class ModelService {
-  private catalogCache?: { data: z.infer<typeof catalogSchema>; fetchedAt: number };
-
-  async catalog(kind: ResolvedProvider["kind"]) {
-    if (kind === "compatible" || kind === "ollama") return [];
-    if (!this.catalogCache || Date.now() - this.catalogCache.fetchedAt > 3_600_000) {
-      try {
-        const response = await fetch("https://models.dev/api.json", {
-          signal: AbortSignal.timeout(10_000),
-        });
-        if (!response.ok) throw new Error("catalog unavailable");
-        this.catalogCache = {
-          data: catalogSchema.parse(await response.json()),
-          fetchedAt: Date.now(),
-        };
-      } catch {
-        throw new AppError(
-          "AI_PROVIDER_UNAVAILABLE",
-          "模型目录暂时无法加载，请重试、从账号获取或手动填写模型 ID",
-          HttpStatus.BAD_GATEWAY,
-        );
-      }
-    }
-    return Object.values(this.catalogCache.data[catalogIds[kind] ?? kind]?.models ?? {})
-      .flatMap((value) => {
-        const parsed = catalogModel.safeParse(value);
-        if (
-          !parsed.success ||
-          parsed.data.status === "deprecated" ||
-          !parsed.data.modalities.output.includes("text")
-        )
-          return [];
-        const model = parsed.data;
-        return [
-          {
-            id: model.id,
-            name: model.name,
-            reasoning: model.reasoning ?? false,
-            temperature: model.temperature,
-            tools: model.tool_call,
-            structured: model.structured_output,
-            contextWindow: model.limit.context,
-            maxOutputTokens: model.limit.output,
-            input: model.modalities.input,
-            reasoningOptions: (model.reasoning_options ?? []).map((option) => ({
-              ...option,
-              values: option.values?.filter((value) => value !== null),
-            })),
-            releaseDate: model.release_date ?? "",
-          },
-        ];
-      })
-      .sort((a, b) => b.releaseDate.localeCompare(a.releaseDate) || a.name.localeCompare(b.name));
-  }
-
   async discover(userId: string, input: DiscoverModels) {
     const saved = input.providerId
       ? await this.providers.credentials(userId, input.providerId)
@@ -176,14 +78,22 @@ export class ModelService {
     const apiKey = input.apiKey ?? saved?.apiKey;
     if (!apiKey && input.kind !== "ollama")
       throw new AppError("AI_PROVIDER_INVALID", "请先填写 API Key", HttpStatus.BAD_REQUEST);
-    const baseURL = input.baseUrl ?? discoveryUrls[input.kind];
-    if (!baseURL)
+    const entry = await this.catalog.provider(input.kind);
+    const baseURL = input.baseUrl ?? saved?.base_url ?? (entry && this.catalog.modelsUrl(entry));
+    if (!entry || !baseURL)
       throw new AppError(
         "AI_PROVIDER_INVALID",
         "此厂商暂不支持账号模型查询，请使用公开目录或手动输入",
         HttpStatus.BAD_REQUEST,
       );
-    const protocol = input.kind === "compatible" ? input.protocol : input.kind;
+    const protocol =
+      input.kind === "compatible"
+        ? input.protocol
+        : entry.npm === "@ai-sdk/anthropic"
+          ? "anthropic"
+          : entry.npm === "@ai-sdk/google"
+            ? "google"
+            : "chat";
     const headers: Record<string, string> =
       protocol === "anthropic"
         ? { "x-api-key": apiKey ?? "", "anthropic-version": "2023-06-01" }
@@ -246,118 +156,129 @@ export class ModelService {
     @Inject(ConfigService) config: ConfigService<EnvConfig, true>,
     @Inject(ProviderService) private readonly providers: ProviderService,
     @Inject(AgentErrorService) private readonly errors: AgentErrorService,
+    @Inject(CatalogService) private readonly catalog: CatalogService,
   ) {
     this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
   }
 
-  private sdk(provider: ResolvedProvider) {
+  /**
+   * 按目录中的 SDK 包选择 AI SDK 适配器；`options` 是该适配器读取 providerOptions 的命名空间。
+   * 已安装原生包的厂商优先走原生适配器，其余走 OpenAI 兼容协议。
+   */
+  private async sdk(provider: ResolvedProvider) {
     const settings = providerSettings.parse(provider.settings);
-    const options = {
+    const entry = await this.catalog.provider(provider.kind);
+    if (!entry) {
+      throw new AppError(
+        "AI_PROVIDER_INVALID",
+        "该模型厂商已不在目录中，请重新配置",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const own = {
       apiKey: provider.apiKey,
       ...(provider.base_url && { baseURL: provider.base_url }),
     };
+    const baseURL = provider.base_url ?? entry.api;
+    const options = { apiKey: provider.apiKey, ...(baseURL && { baseURL }) };
     switch (provider.kind) {
-      case "openai":
-        return createOpenAI(options);
-      case "anthropic":
-        return createAnthropic(options);
-      case "google":
-        return createGoogleGenerativeAI(options);
       case "deepseek":
-        return createDeepSeek(options);
-      case "qwen":
-        return createAlibaba({
-          ...options,
-          baseURL: provider.base_url ?? "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        });
-      case "xai":
-        return createXai(options);
-      case "mistral":
-        return createMistral(options);
-      case "groq":
-        return createGroq(options);
-      case "cohere":
-        return createCohere(options);
-      case "deepinfra":
-        return createDeepInfra(options);
-      case "togetherai":
-        return createTogetherAI(options);
-      case "fireworks":
-        return createFireworks(options);
-      case "cerebras":
-        return createCerebras(options);
-      case "perplexity":
-        return createPerplexity(options);
+        return { sdk: createDeepSeek(own), options: "deepseek" };
+      case "alibaba-cn":
+        return { sdk: createAlibaba(options), options: "alibaba" };
       case "moonshotai":
-        return createMoonshotAI(options);
-      case "minimax":
-        return createMiniMax(options);
-      case "gateway":
-        return createGateway(options);
-      case "baseten":
-        return createBaseten(options);
-      case "huggingface":
-        return createHuggingFace(options);
-      case "gmicloud":
-        return createGmicloud(options);
+        return { sdk: createMoonshotAI(own), options: "moonshotai" };
       case "zai":
-        return createZai(options);
-      case "azure":
-        return createAzure({ ...options, resourceName: settings.resourceName });
-      case "bedrock":
-        return createAmazonBedrock({ ...options, region: settings.region });
+        return { sdk: createZai(own), options: "zai" };
+      case "zhipuai":
+        return { sdk: createZai(options), options: "zai" };
+      case "fireworks-ai":
+        return { sdk: createFireworks(own), options: "fireworks" };
+      case "minimax":
+        return { sdk: createMiniMax(own), options: "minimax" };
+      case "baseten":
+        return { sdk: createBaseten(own), options: "baseten" };
+      case "huggingface":
+        return { sdk: createHuggingFace(own), options: "huggingface" };
+      case "gmicloud":
+        return { sdk: createGmicloud(own), options: "gmicloud" };
       case "anthropic_aws":
-        return createAnthropicAws({
-          ...options,
-          region: settings.region,
-          workspaceId: settings.workspaceId,
-        });
-      case "vertex":
-        return createGoogleVertex(options);
-      case "glm":
-        return createZai({
-          ...options,
-          baseURL: provider.base_url ?? "https://open.bigmodel.cn/api/paas/v4",
-        });
-      case "openrouter":
-      case "siliconflow":
-      case "ollama":
-      case "compatible": {
-        const baseURL =
-          provider.base_url ??
-          {
-            openrouter: "https://openrouter.ai/api/v1",
-            siliconflow: "https://api.siliconflow.cn/v1",
-            ollama: "http://localhost:11434/v1",
-            compatible: "",
-          }[provider.kind];
+        return {
+          sdk: createAnthropicAws({
+            ...own,
+            region: settings.region,
+            workspaceId: settings.workspaceId,
+          }),
+          options: "anthropic",
+        };
+      case "compatible":
         if (!baseURL) {
           throw new AppError("AI_PROVIDER_INVALID", "请填写服务地址", HttpStatus.BAD_REQUEST);
         }
-        if (provider.kind === "compatible") {
-          switch (settings.protocol) {
-            case "responses":
-              return createOpenAI({ ...options, baseURL });
-            case "open-responses":
-              return createOpenResponses({
+        switch (settings.protocol) {
+          case "responses":
+            return { sdk: createOpenAI({ ...options, baseURL }), options: "openai" };
+          case "open-responses":
+            return {
+              sdk: createOpenResponses({
                 ...options,
                 name: "custom",
                 url: `${baseURL.replace(/\/$/, "")}/responses`,
-              });
-            case "anthropic":
-              return createAnthropic({ ...options, baseURL });
-            case "google":
-              return createGoogleGenerativeAI({ ...options, baseURL });
-          }
+              }),
+              options: "custom",
+            };
+          case "anthropic":
+            return { sdk: createAnthropic(options), options: "anthropic" };
+          case "google":
+            return { sdk: createGoogleGenerativeAI(options), options: "google" };
         }
-        return createOpenAICompatible({
-          ...options,
-          name: provider.kind,
-          baseURL,
-          includeUsage: true,
-        });
-      }
     }
+    switch (entry.npm) {
+      case "@ai-sdk/openai":
+        return { sdk: createOpenAI(options), options: "openai" };
+      case "@ai-sdk/anthropic":
+        return { sdk: createAnthropic(options), options: "anthropic" };
+      case "@ai-sdk/google":
+        return { sdk: createGoogleGenerativeAI(options), options: "google" };
+      case "@ai-sdk/google-vertex":
+        return { sdk: createGoogleVertex(options), options: "google" };
+      case "@ai-sdk/azure":
+        return {
+          sdk: createAzure({ ...options, resourceName: settings.resourceName }),
+          options: "openai",
+        };
+      case "@ai-sdk/amazon-bedrock":
+        return {
+          sdk: createAmazonBedrock({ ...options, region: settings.region }),
+          options: "bedrock",
+        };
+      case "@ai-sdk/gateway":
+        return { sdk: createGateway(options), options: "gateway" };
+      case "@ai-sdk/xai":
+        return { sdk: createXai(options), options: "xai" };
+      case "@ai-sdk/mistral":
+        return { sdk: createMistral(options), options: "mistral" };
+      case "@ai-sdk/groq":
+        return { sdk: createGroq(options), options: "groq" };
+      case "@ai-sdk/cohere":
+        return { sdk: createCohere(options), options: "cohere" };
+      case "@ai-sdk/deepinfra":
+        return { sdk: createDeepInfra(options), options: "deepinfra" };
+      case "@ai-sdk/togetherai":
+        return { sdk: createTogetherAI(options), options: "togetherai" };
+      case "@ai-sdk/cerebras":
+        return { sdk: createCerebras(options), options: "cerebras" };
+      case "@ai-sdk/perplexity":
+        return { sdk: createPerplexity(options), options: "perplexity" };
+    }
+    if (!baseURL) {
+      throw new AppError("AI_PROVIDER_INVALID", "请填写服务地址", HttpStatus.BAD_REQUEST);
+    }
+    return {
+      sdk: createOpenAICompatible({ ...options, name: provider.kind, baseURL, includeUsage: true }),
+      options: provider.kind,
+      thinkTags: true,
+    };
   }
 
   async language(
@@ -366,40 +287,40 @@ export class ModelService {
   ): Promise<{ model: LanguageModel; provider: ResolvedProvider }> {
     const provider = await this.providers.resolve(userId, providerId);
     const settings = providerSettings.parse(provider.settings);
+    const { sdk, options: namespace, thinkTags } = await this.sdk(provider);
     const model =
       provider.kind === "openai" &&
       (settings.protocol === "chat" || (provider.base_url && !settings.protocol))
         ? createOpenAI({ apiKey: provider.apiKey, baseURL: provider.base_url ?? undefined }).chat(
             provider.model,
           )
-        : this.sdk(provider).languageModel(provider.model);
-    const kind = provider.kind === "compatible" ? (settings.protocol ?? "chat") : provider.kind;
+        : sdk.languageModel(provider.model);
     const effort = settings.reasoning;
     const budget = effort === "none" ? undefined : settings.thinkingBudget;
     const options: NonNullable<Parameters<typeof generateText>[0]["providerOptions"]> = {};
     let reasoning =
       effort === "max" || effort === "default" ? undefined : effort === "enabled" ? "high" : effort;
-    if (kind === "google" || kind === "vertex") {
+    if (namespace === "google") {
       if (budget !== undefined) options.google = { thinkingConfig: { thinkingBudget: budget } };
-    } else if (kind === "anthropic" || kind === "anthropic_aws") {
+    } else if (namespace === "anthropic") {
       if (budget !== undefined)
         options.anthropic = { thinking: { type: "enabled", budgetTokens: budget } };
       else if (effort === "max")
         options.anthropic = { thinking: { type: "adaptive" }, effort: "max" };
-    } else if (kind === "qwen") {
+    } else if (namespace === "alibaba") {
       options.alibaba = {
         ...(effort && effort !== "provider-default" && { enableThinking: effort !== "none" }),
         ...(budget !== undefined && { thinkingBudget: budget }),
       };
       reasoning = undefined;
-    } else if (kind === "bedrock") {
+    } else if (namespace === "bedrock") {
       if (budget !== undefined)
         options.bedrock = { reasoningConfig: { type: "enabled", budgetTokens: budget } };
       else if (effort === "max")
         options.bedrock = { reasoningConfig: { type: "adaptive", maxReasoningEffort: "max" } };
-    } else if (kind === "fireworks" && budget !== undefined) {
+    } else if (namespace === "fireworks" && budget !== undefined) {
       options.fireworks = { thinking: { type: "enabled", budgetTokens: budget } };
-    } else if (kind === "openrouter" && effort && effort !== "provider-default") {
+    } else if (namespace === "openrouter" && effort && effort !== "provider-default") {
       options.openrouter = {
         reasoning: {
           ...(effort === "none"
@@ -412,14 +333,6 @@ export class ModelService {
       };
       reasoning = undefined;
     } else if (effort === "max" || effort === "default") {
-      const namespaces: Record<string, string> = {
-        azure: "openai",
-        responses: "openai",
-        "open-responses": "custom",
-        glm: "zai",
-        chat: "compatible",
-      };
-      const namespace = namespaces[kind] ?? kind;
       options[namespace] = { reasoningEffort: effort };
     }
     return {
@@ -444,9 +357,7 @@ export class ModelService {
               reasoning: params.reasoning ?? reasoning,
             }),
           },
-          ...(["compatible", "ollama", "siliconflow", "openrouter"].includes(provider.kind)
-            ? [extractReasoningMiddleware({ tagName: "think" })]
-            : []),
+          ...(thinkTags ? [extractReasoningMiddleware({ tagName: "think" })] : []),
         ],
       }),
     };
@@ -464,7 +375,7 @@ export class ModelService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const sdk = this.sdk(provider);
+    const { sdk } = await this.sdk(provider);
     try {
       return { provider, model: sdk.embeddingModel(provider.embedding_model) };
     } catch (error) {

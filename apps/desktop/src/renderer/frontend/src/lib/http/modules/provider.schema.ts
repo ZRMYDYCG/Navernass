@@ -1,37 +1,16 @@
 import { z } from "zod";
 
-export const providerKindSchema = z.enum([
-  "openai",
-  "anthropic",
-  "google",
-  "deepseek",
-  "qwen",
-  "glm",
-  "xai",
-  "mistral",
-  "groq",
-  "cohere",
-  "deepinfra",
-  "togetherai",
-  "fireworks",
-  "cerebras",
-  "perplexity",
-  "moonshotai",
-  "minimax",
-  "azure",
-  "bedrock",
-  "vertex",
-  "gateway",
-  "baseten",
-  "huggingface",
-  "gmicloud",
-  "zai",
-  "anthropic_aws",
-  "openrouter",
-  "siliconflow",
-  "ollama",
-  "compatible",
-]);
+/** Models.dev 厂商 ID，或内置的 ollama / anthropic_aws / compatible。 */
+export const providerKindSchema = z.string().min(1);
+
+export const catalogProviderSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  npm: z.string(),
+  api: z.string().optional(),
+  doc: z.string().optional(),
+  discoverable: z.boolean(),
+});
 
 export const providerConfigSchema = z.object({
   id: z.string(),
@@ -72,6 +51,37 @@ export const providerTestResultSchema = z.object({
 });
 
 export type ProviderKind = z.infer<typeof providerKindSchema>;
+export type CatalogProvider = z.infer<typeof catalogProviderSchema>;
 export type ProviderConfig = z.infer<typeof providerConfigSchema>;
 export type ProviderPayload = z.infer<typeof providerPayloadSchema>;
 export type ProviderTestResult = z.infer<typeof providerTestResultSchema>;
+
+export const catalogModelSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  reasoning: z.boolean(),
+  temperature: z.boolean().optional(),
+  tools: z.boolean().optional(),
+  structured: z.boolean().optional(),
+  contextWindow: z.number(),
+  maxOutputTokens: z.number(),
+  input: z.array(z.string()),
+  releaseDate: z.string(),
+  reasoningOptions: z.array(
+    z.object({
+      type: z.enum(["effort", "toggle", "budget_tokens"]),
+      values: z.array(z.string()).optional(),
+      min: z.number().optional(),
+      max: z.number().optional(),
+    }),
+  ),
+});
+export const discoveredModelSchema = z.object({ id: z.string(), name: z.string() });
+export type CatalogModel = z.infer<typeof catalogModelSchema>;
+export interface DiscoverModelsPayload {
+  kind: ProviderKind;
+  providerId?: string;
+  apiKey?: string;
+  baseUrl?: string;
+  protocol?: string;
+}
