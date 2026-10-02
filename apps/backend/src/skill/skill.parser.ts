@@ -38,6 +38,7 @@ export interface RuntimeSkill {
 const frontmatterPattern = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
 const namePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const metadataTextPattern = /^[a-z0-9]+(?:[-_/][a-z0-9]+)*$/;
+const versionPattern = /^[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*$/;
 const resourcePathPattern = /^[a-zA-Z0-9][a-zA-Z0-9._/-]*$/;
 const skillModes = new Set(["ask", "plan", "outline", "worldbook", "agent"]);
 
@@ -95,12 +96,12 @@ export class SkillParser {
       throw new Error("metadata 必须是对象");
     }
     const value = metadata as Record<string, unknown>;
-    this.optionalText(value.version, "metadata.version", 32);
-    this.optionalText(value.category, "metadata.category", 64);
+    const version = this.optionalText(value.version, "metadata.version", 32, versionPattern);
+    const category = this.optionalText(value.category, "metadata.category", 64);
     return {
       ...value,
-      ...(value.version !== undefined && { version: value.version }),
-      ...(value.category !== undefined && { category: value.category }),
+      ...(version !== undefined && { version }),
+      ...(category !== undefined && { category }),
       ...(value.modes !== undefined && { modes: this.modes(value.modes) }),
       ...(value.resources !== undefined && {
         resources: this.paths(value.resources, "metadata.resources"),
@@ -109,14 +110,20 @@ export class SkillParser {
     };
   }
 
-  private optionalText(value: unknown, label: string, maxLength: number) {
-    if (value === undefined) return;
+  private optionalText(
+    value: unknown,
+    label: string,
+    maxLength: number,
+    pattern = metadataTextPattern,
+  ) {
+    if (value === undefined) return undefined;
     if (typeof value !== "string" || !value.trim() || value.length > maxLength) {
       throw new Error(`${label} 必须是 1-${maxLength} 字符的字符串`);
     }
-    if (!metadataTextPattern.test(value)) {
+    if (!pattern.test(value)) {
       throw new Error(`${label} 只能包含字母、数字、-、_ 或 /`);
     }
+    return value;
   }
 
   private modes(value: unknown) {
