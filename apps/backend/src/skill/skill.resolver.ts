@@ -47,15 +47,13 @@ export class SkillResolver {
       })),
     );
     const catalog = active
+      .filter((skill) => this.supportsMode(skill.manifest, input.mode))
       .sort(
         (left, right) =>
           (right.novels[0]?.priority ?? 0) - (left.novels[0]?.priority ?? 0) ||
           left.id.localeCompare(right.id),
       )
-      .map(
-        (skill) =>
-          `<skill><name>${skill.id}</name><description>${skill.description}</description></skill>`,
-      )
+      .map((skill) => this.catalogItem(skill))
       .join("\n");
     const prompt = [
       "【可用 Skills】下面只提供 Skill 元数据。判断某项专业工作需要 Skill 时，必须先调用 loadSkill 读取完整说明；不要仅凭名称猜测内容。简单任务不必加载。",
@@ -150,6 +148,35 @@ export class SkillResolver {
       checksum: definition.checksum,
       source: definition.source,
     };
+  }
+
+  private catalogItem(skill: { id: string; description: string; manifest: Prisma.JsonValue }) {
+    const metadata = this.metadata(skill.manifest);
+    const modes = metadata.modes?.length ? `<modes>${metadata.modes.join(" ")}</modes>` : "";
+    const related = metadata.related?.length
+      ? `<related>${metadata.related.join(" ")}</related>`
+      : "";
+    return `<skill><name>${skill.id}</name><description>${skill.description}</description>${modes}${related}</skill>`;
+  }
+
+  private supportsMode(manifest: Prisma.JsonValue, mode: SkillMode) {
+    const modes = this.metadata(manifest).modes;
+    return !modes?.length || modes.includes(mode);
+  }
+
+  private metadata(manifest: Prisma.JsonValue) {
+    if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) return {};
+    const metadata = (manifest as { metadata?: unknown }).metadata;
+    if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return {};
+    const modes = this.stringArray((metadata as { modes?: unknown }).modes);
+    const related = this.stringArray((metadata as { related?: unknown }).related);
+    return { modes, related };
+  }
+
+  private stringArray(value: unknown) {
+    return Array.isArray(value)
+      ? value.filter((item): item is string => typeof item === "string")
+      : [];
   }
 
   private async recordRunSkill(

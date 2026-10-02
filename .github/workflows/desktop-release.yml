@@ -75,10 +75,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.os }}
+          # 只取 release/<version>/ 一层的安装包，排除 *-unpacked/ 里的散装可执行文件
           path: |
-            apps/desktop/release/**/*.dmg
-            apps/desktop/release/**/*.exe
-            apps/desktop/release/**/*.AppImage
+            apps/desktop/release/*/*.dmg
+            apps/desktop/release/*/*.exe
+            apps/desktop/release/*/*.AppImage
           if-no-files-found: error
           retention-days: 7
 
