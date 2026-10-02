@@ -343,6 +343,7 @@
     "comingSoon": "Coming soon.",
     "sections": {
       "general": "General",
+      "account": "Account",
       "models": "Models",
       "customize": "Customize",
       "changelog": "Changelog"
@@ -371,6 +372,22 @@
         "title": "Language",
         "description": "Interface display language."
       }
+    },
+    "account": {
+      "title": "Account",
+      "profile": "Profile",
+      "avatar": {
+        "title": "Avatar",
+        "description": "JPG, PNG, WebP or GIF, up to 10 MB.",
+        "upload": "Upload avatar",
+        "remove": "Remove"
+      },
+      "name": {
+        "title": "Display name",
+        "description": "The name shown across your workspace.",
+        "save": "Save"
+      },
+      "email": "Email"
     },
     "models": {
       "title": "Model providers",
@@ -535,6 +552,17 @@
     "deleteVolume": {
       "title": "Delete volume “{title}”?",
       "description": "Chapters in this volume are kept and moved to “No volume”."
+    },
+    "novelDetails": {
+      "title": "Edit novel info",
+      "uploadCover": "Upload cover",
+      "removeCover": "Remove cover",
+      "fields": {
+        "title": "Title",
+        "description": "Description"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
     }
   },
   "chapterEditor": {

@@ -52,6 +52,10 @@ export const createNovelPayloadSchema = z.object({
   tags: z.array(z.string().min(1).max(50)).max(30).default([]),
 });
 
+export const updateNovelPayloadSchema = createNovelPayloadSchema
+  .pick({ title: true, description: true, cover: true })
+  .partial();
+
 export const createVolumePayloadSchema = z.object({
   novel_id: z.string(),
   title: z.string().min(1).max(255),
@@ -154,6 +158,7 @@ export type Volume = z.infer<typeof volumeSchema>;
 export type ChapterSummary = z.infer<typeof chapterSummarySchema>;
 export type Chapter = z.infer<typeof chapterSchema>;
 export type CreateNovelPayload = z.infer<typeof createNovelPayloadSchema>;
+export type UpdateNovelPayload = z.infer<typeof updateNovelPayloadSchema>;
 export type CreateVolumePayload = z.infer<typeof createVolumePayloadSchema>;
 export type OrderItem = z.infer<typeof orderItemSchema>;
 export type ChapterOrderItem = z.infer<typeof chapterOrderItemSchema>;

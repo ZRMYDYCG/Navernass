@@ -35,6 +35,10 @@ export function signUpEmail(input: { name: string; email: string; password: stri
   return authRequest("sign-up/email", { method: "post", body: JSON.stringify(input) });
 }
 
+export function updateUser(input: { name?: string; image?: string | null }) {
+  return authRequest("update-user", { method: "post", body: JSON.stringify(input) });
+}
+
 export function signOut() {
   return authRequest("sign-out", { method: "post" });
 }

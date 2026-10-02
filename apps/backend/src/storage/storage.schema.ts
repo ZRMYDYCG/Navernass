@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE_BYTES } from "./r2.types.js";
+import { ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE_BYTES } from "./storage.types.js";
 
 export const createUploadUrl = z.object({
   /** 期望的文件 MIME 类型，必须在白名单内。 */

@@ -17,6 +17,7 @@ import {
   type CreateVolumePayload,
   type OrderItem,
   type UpdateCharacterPayload,
+  type UpdateNovelPayload,
   type UpdateRelationshipPayload,
 } from "@/lib/http/modules/library.schema";
 
@@ -33,6 +34,10 @@ export function getNovels() {
 
 export function createNovel(payload: CreateNovelPayload) {
   return apiRequest("novels", novelSchema, { method: "post", json: payload });
+}
+
+export function updateNovel(id: string, payload: UpdateNovelPayload) {
+  return apiRequest(`novels/${id}`, novelSchema, { method: "put", json: payload });
 }
 
 export function getNovelVolumes(novelId: string) {

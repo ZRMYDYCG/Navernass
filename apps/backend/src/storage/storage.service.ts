@@ -14,7 +14,7 @@ import { ConfigService } from "@nestjs/config";
 import { AppError } from "../common/app-error.js";
 import { ErrorCode } from "../common/error-codes.js";
 import type { EnvConfig } from "../config/env-schema.js";
-import * as schema from "./r2.schema.js";
+import * as schema from "./storage.schema.js";
 import {
   ALLOWED_CONTENT_TYPES,
   EXTENSIONS_BY_CONTENT_TYPE,
@@ -24,10 +24,10 @@ import {
   type AllowedContentType,
   type ConfirmedUpload,
   type PresignedUpload,
-} from "./r2.types.js";
+} from "./storage.types.js";
 
 @Injectable()
-export class R2Service {
+export class StorageService {
   private readonly client: S3Client;
   private readonly bucket: string;
   /** 去掉尾斜线的公开访问基址，例如 https://files.example.com。 */
@@ -35,28 +35,31 @@ export class R2Service {
 
   constructor(@Inject(ConfigService) config: ConfigService<EnvConfig, true>) {
     this.client = new S3Client({
-      region: "auto",
-      endpoint: `https://${config.get("R2_ACCOUNT_ID", { infer: true })}.r2.cloudflarestorage.com`,
+      region: config.get("S3_REGION", { infer: true }),
+      endpoint: config.get("S3_ENDPOINT", { infer: true }),
       credentials: {
-        accessKeyId: config.get("R2_ACCESS_KEY_ID", { infer: true }),
-        secretAccessKey: config.get("R2_SECRET_ACCESS_KEY", { infer: true }),
+        accessKeyId: config.get("S3_ACCESS_KEY_ID", { infer: true }),
+        secretAccessKey: config.get("S3_SECRET_ACCESS_KEY", { infer: true }),
       },
+      // SDK 默认会把空 body 的 CRC32 写进 Presigned URL，浏览器上传真实内容时校验必然失败。
+      requestChecksumCalculation: "WHEN_REQUIRED",
+      responseChecksumValidation: "WHEN_REQUIRED",
     });
-    this.bucket = config.get("R2_BUCKET", { infer: true });
-    this.publicBaseUrl = config.get("R2_PUBLIC_BASE_URL", { infer: true }).replace(/\/+$/, "");
+    this.bucket = config.get("S3_BUCKET", { infer: true });
+    this.publicBaseUrl = config.get("S3_PUBLIC_BASE_URL", { infer: true }).replace(/\/+$/, "");
   }
 
   /** 生成浏览器直传用的 Presigned PUT URL。类型与大小在服务层再次校验，不信任调用方。 */
   async createPresignedUploadUrl(input: schema.CreateUploadUrlInput): Promise<PresignedUpload> {
     if (!this.isAllowedContentType(input.contentType)) {
-      throw new AppError(ErrorCode.R2_CONTENT_TYPE_NOT_ALLOWED, "不支持的文件类型", 400);
+      throw new AppError(ErrorCode.STORAGE_CONTENT_TYPE_NOT_ALLOWED, "不支持的文件类型", 400);
     }
     if (input.fileSize > MAX_FILE_SIZE_BYTES) {
-      throw new AppError(ErrorCode.R2_FILE_TOO_LARGE, "文件大小超出限制", 400);
+      throw new AppError(ErrorCode.STORAGE_FILE_TOO_LARGE, "文件大小超出限制", 400);
     }
 
     const key = this.buildObjectKey(input.contentType, input.filename);
-    // ContentType 写入签名：浏览器 PUT 时的 Content-Type 必须与之一致，否则 R2 拒绝。
+    // ContentType 写入签名：浏览器 PUT 时的 Content-Type 必须与之一致，否则存储服务拒绝。
     // 不签名 ContentLength：大小以 confirm 时的 HEAD 实测为准，避免签名头与浏览器行为冲突。
     const uploadUrl = await getSignedUrl(
       this.client,
@@ -65,7 +68,7 @@ export class R2Service {
         Key: key,
         ContentType: input.contentType,
       }),
-      { expiresIn: PRESIGN_EXPIRES_SECONDS },
+      { expiresIn: PRESIGN_EXPIRES_SECONDS, signableHeaders: new Set(["content-type"]) },
     );
     return {
       key,
@@ -89,14 +92,18 @@ export class R2Service {
       contentType = head.ContentType ?? "";
     } catch (error) {
       if (error instanceof S3ServiceException && error.$metadata.httpStatusCode === 404) {
-        throw new AppError(ErrorCode.R2_UPLOAD_NOT_FOUND, "上传对象不存在", 404);
+        throw new AppError(ErrorCode.STORAGE_UPLOAD_NOT_FOUND, "上传对象不存在", 404);
       }
       throw error;
     }
 
     if (contentType !== input.contentType || size !== input.fileSize) {
       await this.deleteObject(input.key);
-      throw new AppError(ErrorCode.R2_UPLOAD_INVALID, "上传内容与声明不一致，已删除该对象", 400);
+      throw new AppError(
+        ErrorCode.STORAGE_UPLOAD_INVALID,
+        "上传内容与声明不一致，已删除该对象",
+        400,
+      );
     }
 
     // TODO: 校验当前登录用户是否拥有该文件（需要文件归属模型）。
@@ -130,16 +137,24 @@ export class R2Service {
    */
   validateObjectKey(key: string): void {
     if (key.length === 0) {
-      throw new AppError(ErrorCode.R2_INVALID_OBJECT_KEY, "对象 key 不能为空", 400);
+      throw new AppError(ErrorCode.STORAGE_INVALID_OBJECT_KEY, "对象 key 不能为空", 400);
     }
     if (key.includes("://")) {
-      throw new AppError(ErrorCode.R2_INVALID_OBJECT_KEY, "请提交对象 key 而不是完整 URL", 400);
+      throw new AppError(
+        ErrorCode.STORAGE_INVALID_OBJECT_KEY,
+        "请提交对象 key 而不是完整 URL",
+        400,
+      );
     }
     if (key.includes("..")) {
-      throw new AppError(ErrorCode.R2_INVALID_OBJECT_KEY, "对象 key 不允许路径穿越", 400);
+      throw new AppError(ErrorCode.STORAGE_INVALID_OBJECT_KEY, "对象 key 不允许路径穿越", 400);
     }
     if (!key.startsWith(UPLOADS_PREFIX)) {
-      throw new AppError(ErrorCode.R2_INVALID_OBJECT_KEY, "对象 key 必须位于 uploads/ 前缀下", 400);
+      throw new AppError(
+        ErrorCode.STORAGE_INVALID_OBJECT_KEY,
+        "对象 key 必须位于 uploads/ 前缀下",
+        400,
+      );
     }
   }
 

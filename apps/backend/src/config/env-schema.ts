@@ -38,11 +38,12 @@ export const envSchema = z.object({
   QDRANT_URL: z.url().default("http://localhost:6333"),
   QDRANT_API_KEY: z.string().optional(),
   QDRANT_COLLECTION: z.string().min(1).default("narraverse_memory"),
-  R2_ACCOUNT_ID: z.string().min(1),
-  R2_ACCESS_KEY_ID: z.string().min(1),
-  R2_SECRET_ACCESS_KEY: z.string().min(1),
-  R2_BUCKET: z.string().min(1),
-  R2_PUBLIC_BASE_URL: z.url(),
+  S3_ENDPOINT: z.url(),
+  S3_REGION: z.string().min(1),
+  S3_ACCESS_KEY_ID: z.string().min(1),
+  S3_SECRET_ACCESS_KEY: z.string().min(1),
+  S3_BUCKET: z.string().min(1),
+  S3_PUBLIC_BASE_URL: z.url(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

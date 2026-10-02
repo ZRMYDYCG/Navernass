@@ -2,8 +2,20 @@ import type { ConfigService } from "@nestjs/config";
 import type { EnvConfig } from "../config/env-schema.js";
 import type { PrismaService } from "../database/prisma.service.js";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { APIError } from "better-auth/api";
 import { betterAuth } from "better-auth/minimal";
 import { bearer } from "better-auth/plugins";
+import { z } from "zod";
+
+// better-auth 的 /update-user 不校验字段，客户端可提交的资料在这里收口。
+const userUpdate = z.object({
+  name: z.string().trim().min(1).max(64).optional(),
+  image: z
+    .url({ protocol: /^https?$/ })
+    .max(2_000)
+    .nullable()
+    .optional(),
+});
 
 export function createAuth(prisma: PrismaService, config: ConfigService<EnvConfig, true>) {
   const adminEmail = config.get("SUPER_ADMIN_EMAIL", { infer: true })?.toLowerCase();
@@ -51,6 +63,20 @@ export function createAuth(prisma: PrismaService, config: ConfigService<EnvConfi
                 is_protected: protectedAdmin,
               },
               update: {},
+            });
+          },
+        },
+        update: {
+          before: async (data) => {
+            if (!userUpdate.safeParse({ name: data.name, image: data.image }).success) {
+              throw new APIError("BAD_REQUEST", { message: "用户资料格式不正确" });
+            }
+          },
+          after: async (user) => {
+            await prisma.profile.upsert({
+              where: { id: user.id },
+              create: { id: user.id, full_name: user.name, avatar_url: user.image },
+              update: { full_name: user.name, avatar_url: user.image },
             });
           },
         },

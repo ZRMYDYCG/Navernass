@@ -1,7 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { BoxIcon, HistoryIcon, PuzzleIcon, SettingsIcon, type LucideIcon } from "lucide-react";
+import {
+  BoxIcon,
+  HistoryIcon,
+  PuzzleIcon,
+  SettingsIcon,
+  UserIcon,
+  type LucideIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Fragment, useState, type ComponentType } from "react";
 
@@ -16,13 +22,14 @@ import {
 } from "@/components/ui/empty";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { getSession } from "@/lib/http/modules/auth.api";
+import { useSession } from "@/servers/auth.server";
 
+import { Account } from "./account";
 import { Changelog } from "./changelog";
 import { General } from "./general";
 import { Models } from "./models";
 
-type SettingsSectionId = "general" | "models" | "customize" | "changelog";
+type SettingsSectionId = "general" | "account" | "models" | "customize" | "changelog";
 
 interface SettingsSection {
   id: SettingsSectionId;
@@ -31,7 +38,10 @@ interface SettingsSection {
 }
 
 const sectionGroups: SettingsSection[][] = [
-  [{ id: "general", icon: SettingsIcon, content: General }],
+  [
+    { id: "general", icon: SettingsIcon, content: General },
+    { id: "account", icon: UserIcon, content: Account },
+  ],
   [
     { id: "models", icon: BoxIcon, content: Models },
     { id: "customize", icon: PuzzleIcon },
@@ -44,7 +54,7 @@ function getSection(id: SettingsSectionId): SettingsSection {
 }
 
 function Profile() {
-  const session = useQuery({ queryKey: ["auth", "session"], queryFn: getSession });
+  const session = useSession();
   const user = session.data?.user;
 
   if (!user) return null;

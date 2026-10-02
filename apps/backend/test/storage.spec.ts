@@ -3,9 +3,9 @@ import { ConfigService } from "@nestjs/config";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { EnvConfig } from "../src/config/env-schema.js";
-import * as schema from "../src/r2/r2.schema.js";
-import { R2Service } from "../src/r2/r2.service.js";
-import { MAX_FILE_SIZE_BYTES } from "../src/r2/r2.types.js";
+import * as schema from "../src/storage/storage.schema.js";
+import { StorageService } from "../src/storage/storage.service.js";
+import { MAX_FILE_SIZE_BYTES } from "../src/storage/storage.types.js";
 
 const { getSignedUrlMock, sendMock } = vi.hoisted(() => ({
   getSignedUrlMock: vi.fn(),
@@ -40,17 +40,18 @@ vi.mock("@aws-sdk/s3-request-presigner", () => ({
 
 function createService(overrides: Record<string, string> = {}) {
   const env: Record<string, string> = {
-    R2_ACCOUNT_ID: "account-id",
-    R2_ACCESS_KEY_ID: "access-key",
-    R2_SECRET_ACCESS_KEY: "secret-key",
-    R2_BUCKET: "bucket",
-    R2_PUBLIC_BASE_URL: "https://files.example.com/",
+    S3_ENDPOINT: "https://s3.us-west-004.backblazeb2.com",
+    S3_REGION: "us-west-004",
+    S3_ACCESS_KEY_ID: "access-key",
+    S3_SECRET_ACCESS_KEY: "secret-key",
+    S3_BUCKET: "bucket",
+    S3_PUBLIC_BASE_URL: "https://files.example.com/",
     ...overrides,
   };
   const config = {
     get: (key: string) => env[key],
   } as unknown as ConfigService<EnvConfig, true>;
-  return new R2Service(config);
+  return new StorageService(config);
 }
 
 /** 取第 index 次客户端调用收到的 command 实例。 */
@@ -61,7 +62,7 @@ function sentCommand(index: number): unknown {
 
 const VALID_KEY = "uploads/2026/10/02/9f1c2a1e-1111-4222-8333-444455556666.png";
 
-describe("R2Service", () => {
+describe("StorageService", () => {
   beforeEach(() => {
     sendMock.mockReset();
     getSignedUrlMock.mockReset();
@@ -78,7 +79,7 @@ describe("R2Service", () => {
     ])("拒绝%s", async (_name, key) => {
       const service = createService();
       await expect(service.deleteObject(key)).rejects.toMatchObject({
-        code: "R2_INVALID_OBJECT_KEY",
+        code: "STORAGE_INVALID_OBJECT_KEY",
       });
       expect(sendMock).not.toHaveBeenCalled();
     });
@@ -112,7 +113,7 @@ describe("R2Service", () => {
         fileSize: 1024,
       } as unknown as schema.CreateUploadUrlInput;
       await expect(service.createPresignedUploadUrl(input)).rejects.toMatchObject({
-        code: "R2_CONTENT_TYPE_NOT_ALLOWED",
+        code: "STORAGE_CONTENT_TYPE_NOT_ALLOWED",
       });
       expect(getSignedUrlMock).not.toHaveBeenCalled();
     });
@@ -146,13 +147,14 @@ describe("R2Service", () => {
       const [, command, options] = getSignedUrlMock.mock.calls[0] as [
         unknown,
         PutObjectCommand,
-        { expiresIn: number },
+        { expiresIn: number; signableHeaders: Set<string> },
       ];
       expect(command).toBeInstanceOf(PutObjectCommand);
       expect(command.input.Bucket).toBe("bucket");
       expect(command.input.ContentType).toBe("image/webp");
       expect(command.input.Key).toMatch(/^uploads\//);
       expect(options.expiresIn).toBe(600);
+      expect(options.signableHeaders.has("content-type")).toBe(true);
     });
 
     it("保留与 MIME 匹配的原始扩展名，其余回落到规范扩展名", async () => {
@@ -195,7 +197,7 @@ describe("R2Service", () => {
           contentType: "application/pdf",
           fileSize: MAX_FILE_SIZE_BYTES + 1,
         }),
-      ).rejects.toMatchObject({ code: "R2_FILE_TOO_LARGE" });
+      ).rejects.toMatchObject({ code: "STORAGE_FILE_TOO_LARGE" });
     });
   });
 
@@ -223,7 +225,7 @@ describe("R2Service", () => {
       const service = createService();
       sendMock.mockResolvedValueOnce({ ContentLength: 2048, ContentType: "image/png" });
       await expect(service.confirmUpload(input)).rejects.toMatchObject({
-        code: "R2_UPLOAD_INVALID",
+        code: "STORAGE_UPLOAD_INVALID",
       });
       expect(sendMock).toHaveBeenCalledTimes(2);
       const cleanup = sentCommand(1) as DeleteObjectCommand;
@@ -235,7 +237,7 @@ describe("R2Service", () => {
       const service = createService();
       sendMock.mockResolvedValueOnce({ ContentLength: 1024, ContentType: "image/gif" });
       await expect(service.confirmUpload(input)).rejects.toMatchObject({
-        code: "R2_UPLOAD_INVALID",
+        code: "STORAGE_UPLOAD_INVALID",
       });
       expect(sentCommand(1)).toBeInstanceOf(DeleteObjectCommand);
     });
@@ -250,7 +252,7 @@ describe("R2Service", () => {
         }),
       );
       await expect(service.confirmUpload(input)).rejects.toMatchObject({
-        code: "R2_UPLOAD_NOT_FOUND",
+        code: "STORAGE_UPLOAD_NOT_FOUND",
       });
       expect(sendMock).toHaveBeenCalledTimes(1);
     });
@@ -259,7 +261,7 @@ describe("R2Service", () => {
       const service = createService();
       await expect(
         service.confirmUpload({ ...input, key: "backups/db.sql" }),
-      ).rejects.toMatchObject({ code: "R2_INVALID_OBJECT_KEY" });
+      ).rejects.toMatchObject({ code: "STORAGE_INVALID_OBJECT_KEY" });
       expect(sendMock).not.toHaveBeenCalled();
     });
   });
@@ -270,7 +272,7 @@ describe("R2Service", () => {
         `https://files.example.com/${VALID_KEY}`,
       );
       expect(
-        createService({ R2_PUBLIC_BASE_URL: "https://cdn.example.com" }).getPublicUrl(VALID_KEY),
+        createService({ S3_PUBLIC_BASE_URL: "https://cdn.example.com" }).getPublicUrl(VALID_KEY),
       ).toBe(`https://cdn.example.com/${VALID_KEY}`);
     });
   });
