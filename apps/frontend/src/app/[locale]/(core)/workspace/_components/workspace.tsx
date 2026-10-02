@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTranslations } from "next-intl";
@@ -18,21 +18,20 @@ import { Sidebar } from "./sidebar/sidebar";
 import type { SidebarView } from "./sidebar/types";
 import { Settings } from "./settings";
 
-function usePanelToggle() {
+function usePanelToggle(collapsed: boolean, onCollapsedChange: (collapsed: boolean) => void) {
   const panelRef = useRef<PanelImperativeHandle>(null);
-  const [collapsed, setCollapsed] = useState(false);
 
   const toggle = useCallback(() => {
     const panel = panelRef.current;
     if (!panel) return;
-    if (panel.isCollapsed()) {
-      panel.expand();
-      setCollapsed(false);
-    } else {
+    const nextCollapsed = !panel.isCollapsed();
+    if (nextCollapsed) {
       panel.collapse();
-      setCollapsed(true);
+    } else {
+      panel.expand();
     }
-  }, []);
+    onCollapsedChange(nextCollapsed);
+  }, [onCollapsedChange]);
 
   return { panelRef, collapsed, toggle };
 }
@@ -48,17 +47,35 @@ export function Workspace() {
   const storedChapterId = useWorkspaceStore((state) => state.chapterId);
   const selectNovelInStore = useWorkspaceStore((state) => state.selectNovel);
   const selectChapterInStore = useWorkspaceStore((state) => state.selectChapter);
+  const storedPanelLayout = useWorkspaceStore((state) => state.panelLayout);
+  const storedSidebarCollapsed = useWorkspaceStore((state) => state.sidebarCollapsed);
+  const storedChatPanelCollapsed = useWorkspaceStore((state) => state.chatPanelCollapsed);
+  const savePanelLayout = useWorkspaceStore((state) => state.savePanelLayout);
+  const setSidebarCollapsedInStore = useWorkspaceStore((state) => state.setSidebarCollapsed);
+  const setChatPanelCollapsedInStore = useWorkspaceStore((state) => state.setChatPanelCollapsed);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [graphOpen, setGraphOpen] = useState(false);
   const [activeView, setActiveView] = useState<WorkspaceView>("editor");
-  const sidebar = usePanelToggle();
-  const chatPanel = usePanelToggle();
+  const [hydrated, setHydrated] = useState(false);
+  const sidebar = usePanelToggle(storedSidebarCollapsed, setSidebarCollapsedInStore);
+  const chatPanel = usePanelToggle(storedChatPanelCollapsed, setChatPanelCollapsedInStore);
   const editorRef = useRef<ChapterEditorHandle>(null);
 
   // persist 采用 skipHydration，挂载后再恢复本地缓存，避免 SSR 水合不一致。
+  // 面板布局经 defaultLayout 只在挂载时生效，需等恢复完成后再渲染面板组。
   useEffect(() => {
-    void useWorkspaceStore.persist.rehydrate();
+    void Promise.resolve(useWorkspaceStore.persist.rehydrate()).then(() => setHydrated(true));
   }, []);
+
+  // 收起的面板以 flexGrow 0 参与恢复，保证刷新后仍保持收起状态。
+  const defaultLayout = useMemo(() => {
+    if (!storedPanelLayout) return undefined;
+    return {
+      ...storedPanelLayout,
+      sidebar: storedSidebarCollapsed ? 0 : storedPanelLayout.sidebar,
+      chat: storedChatPanelCollapsed ? 0 : storedPanelLayout.chat,
+    };
+  }, [storedChatPanelCollapsed, storedPanelLayout, storedSidebarCollapsed]);
 
   const effectiveNovelId = storedNovelId ?? novels.data?.[0]?.id;
   const chapters = useNovelChapters(effectiveNovelId);
@@ -121,6 +138,8 @@ export function Workspace() {
     }
   };
 
+  if (!hydrated) return null;
+
   return (
     <div className="flex h-dvh min-h-0 flex-col">
       <AppHeader
@@ -130,8 +149,16 @@ export function Workspace() {
         onToggleChatPanel={chatPanel.toggle}
         onOpenSettings={toggleSettings}
       />
-      <ResizablePanelGroup orientation="horizontal" className="min-h-0 flex-1">
+      <ResizablePanelGroup
+        orientation="horizontal"
+        className="min-h-0 flex-1"
+        defaultLayout={defaultLayout}
+        onLayoutChanged={(layout, meta) => {
+          if (meta.isUserInteraction) savePanelLayout(layout);
+        }}
+      >
         <ResizablePanel
+          id="sidebar"
           panelRef={sidebar.panelRef}
           defaultSize={300}
           minSize={240}
@@ -152,7 +179,7 @@ export function Workspace() {
           ) : null}
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel minSize={480}>
+        <ResizablePanel id="content" minSize={480}>
           <div className="flex h-full min-h-0 flex-col">
             {/* 覆盖视图只是遮住编辑器，编辑器保持挂载以保留状态与滚动位置。 */}
             <div hidden={activeView !== "editor"} className="min-h-0 flex-1">
@@ -181,6 +208,7 @@ export function Workspace() {
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel
+          id="chat"
           panelRef={chatPanel.panelRef}
           defaultSize={400}
           minSize={320}
