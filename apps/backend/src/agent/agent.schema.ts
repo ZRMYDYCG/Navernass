@@ -8,6 +8,29 @@ export const providerKind = z.enum([
   "deepseek",
   "qwen",
   "glm",
+  "xai",
+  "mistral",
+  "groq",
+  "cohere",
+  "deepinfra",
+  "togetherai",
+  "fireworks",
+  "cerebras",
+  "perplexity",
+  "moonshotai",
+  "minimax",
+  "azure",
+  "bedrock",
+  "vertex",
+  "gateway",
+  "baseten",
+  "huggingface",
+  "gmicloud",
+  "zai",
+  "anthropic_aws",
+  "openrouter",
+  "siliconflow",
+  "ollama",
   "compatible",
 ]);
 export const agentRole = z.enum(["main", "character", "plot", "world", "style", "reviewer"]);
@@ -110,20 +133,35 @@ export const contextOptions = z.object({
   blocks: z.array(contextBlock).max(30).default([]),
 });
 
+export const providerSettings = z.object({
+  protocol: z.enum(["chat", "responses", "open-responses", "anthropic", "google"]).optional(),
+  region: z.string().trim().min(1).max(100).optional(),
+  resourceName: z.string().trim().min(1).max(100).optional(),
+  workspaceId: z.string().trim().min(1).max(191).optional(),
+});
+
 export const createProvider = z.object({
   name: z.string().trim().min(1).max(100),
   kind: providerKind,
-  baseUrl: z.url().max(500).optional(),
+  baseUrl: z
+    .url({ protocol: /^https?$/ })
+    .max(500)
+    .nullable()
+    .optional(),
   apiKey: z.string().trim().min(1).max(10_000),
   model: z.string().trim().min(1).max(191),
-  embeddingModel: z.string().trim().max(191).optional(),
+  embeddingModel: z.string().trim().max(191).nullable().optional(),
   supportsTools: z.boolean().default(true),
   supportsStructured: z.boolean().default(true),
   isDefault: z.boolean().default(false),
-  settings: z.record(z.string(), z.unknown()).default({}),
+  settings: providerSettings.default({}),
 });
 
 export const updateProvider = createProvider.partial().extend({
+  supportsTools: createProvider.shape.supportsTools.removeDefault().optional(),
+  supportsStructured: createProvider.shape.supportsStructured.removeDefault().optional(),
+  isDefault: createProvider.shape.isDefault.removeDefault().optional(),
+  settings: createProvider.shape.settings.removeDefault().optional(),
   apiKey: z.string().trim().min(1).max(10_000).optional(),
   isEnabled: z.boolean().optional(),
 });

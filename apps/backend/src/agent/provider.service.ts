@@ -1,5 +1,5 @@
 import type { Prisma } from "../generated/prisma/client.js";
-import type { CreateProvider, UpdateProvider } from "./agent.schema.js";
+import { providerSettings, type CreateProvider, type UpdateProvider } from "./agent.schema.js";
 import { HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { AppError } from "../common/app-error.js";
 import { PrismaService } from "../database/prisma.service.js";
@@ -21,6 +21,7 @@ export class ProviderService {
   }
 
   async create(userId: string, input: CreateProvider) {
+    this.validate(input.kind, input.baseUrl, input.settings);
     return this.prisma.$transaction(async (tx) => {
       if (input.isDefault) {
         await tx.aiProviderConfig.updateMany({
@@ -48,7 +49,12 @@ export class ProviderService {
   }
 
   async update(userId: string, id: string, input: UpdateProvider) {
-    await this.getOwned(userId, id);
+    const current = await this.getOwned(userId, id);
+    this.validate(
+      input.kind ?? current.kind,
+      input.baseUrl === undefined ? current.base_url : input.baseUrl,
+      input.settings ?? current.settings,
+    );
     return this.prisma.$transaction(async (tx) => {
       if (input.isDefault) {
         await tx.aiProviderConfig.updateMany({
@@ -106,6 +112,26 @@ export class ProviderService {
       );
     }
     return { ...provider, apiKey: this.secrets.decrypt(provider.api_key_cipher) };
+  }
+
+  private validate(
+    kind: CreateProvider["kind"],
+    baseUrl: string | null | undefined,
+    value: unknown,
+  ) {
+    const settings = providerSettings.parse(value);
+    if (
+      (kind === "compatible" && !baseUrl) ||
+      (kind === "azure" && !baseUrl && !settings.resourceName) ||
+      ((kind === "bedrock" || kind === "anthropic_aws") && !settings.region) ||
+      (kind === "anthropic_aws" && !settings.workspaceId)
+    ) {
+      throw new AppError(
+        "AI_PROVIDER_INVALID",
+        "请补全厂商所需的服务地址、资源名称或区域配置",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   private async getOwned(userId: string, id: string) {

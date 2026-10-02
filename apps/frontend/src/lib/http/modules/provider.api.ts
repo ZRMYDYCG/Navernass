@@ -9,22 +9,6 @@ import {
 
 const deletedResultSchema = z.object({ deleted: z.boolean() });
 
-function cleanProviderPayload(payload: ProviderPayload) {
-  return {
-    name: payload.name,
-    kind: payload.kind,
-    ...(payload.baseUrl ? { baseUrl: payload.baseUrl } : {}),
-    ...(payload.apiKey ? { apiKey: payload.apiKey } : {}),
-    model: payload.model,
-    ...(payload.embeddingModel ? { embeddingModel: payload.embeddingModel } : {}),
-    supportsTools: payload.supportsTools,
-    supportsStructured: payload.supportsStructured,
-    isDefault: payload.isDefault,
-    ...(payload.isEnabled === undefined ? {} : { isEnabled: payload.isEnabled }),
-    settings: {},
-  };
-}
-
 export function getProviders() {
   return apiRequest("agent/providers", z.array(providerConfigSchema));
 }
@@ -32,14 +16,14 @@ export function getProviders() {
 export function createProvider(payload: ProviderPayload) {
   return apiRequest("agent/providers", providerConfigSchema, {
     method: "post",
-    json: cleanProviderPayload(payload),
+    json: payload,
   });
 }
 
 export function updateProvider(id: string, payload: ProviderPayload) {
   return apiRequest(`agent/providers/${id}`, providerConfigSchema, {
     method: "patch",
-    json: cleanProviderPayload(payload),
+    json: payload,
   });
 }
 

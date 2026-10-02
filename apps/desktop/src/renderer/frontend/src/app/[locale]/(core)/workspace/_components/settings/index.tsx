@@ -64,7 +64,7 @@ function SettingsNav({
     <nav aria-label={t("title")} className="flex w-52 shrink-0 flex-col gap-2 p-3">
       {sectionGroups.map((group, index) => (
         <Fragment key={group[0].id}>
-          {index > 0 ? <Separator /> : null}
+          {index > 0 ? <Separator className="h-px" /> : null}
           <ul className="flex flex-col gap-0.5">
             {group.map((section) => (
               <li key={section.id}>

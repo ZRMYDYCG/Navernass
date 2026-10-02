@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
   BookOpenIcon,
   BotIcon,
@@ -12,6 +13,7 @@ import {
 import { useTranslations } from "next-intl";
 import { Fragment, useState, type ComponentType } from "react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -22,6 +24,7 @@ import {
 } from "@/components/ui/empty";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { getSession } from "@/lib/http/modules/auth.api";
 
 import { General } from "./general";
 import { Models } from "./models";
@@ -51,6 +54,30 @@ function getSection(id: SettingsSectionId): SettingsSection {
   return sectionGroups.flat().find((section) => section.id === id) ?? sectionGroups[0][0];
 }
 
+function Profile() {
+  const session = useQuery({ queryKey: ["auth", "session"], queryFn: getSession });
+  const user = session.data?.user;
+
+  if (!user) return null;
+
+  const displayName = user.name || user.email;
+
+  return (
+    <div className="flex items-center gap-2.5 px-1 py-1">
+      <Avatar size="lg">
+        {user.image ? <AvatarImage src={user.image} alt={displayName} /> : null}
+        <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
+      </Avatar>
+      <div className="flex min-w-0 flex-col">
+        <span className="truncate text-sm font-medium">{displayName}</span>
+        {displayName !== user.email ? (
+          <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function SettingsNav({
   activeId,
   onSelect,
@@ -62,9 +89,11 @@ function SettingsNav({
 
   return (
     <nav aria-label={t("title")} className="flex w-52 shrink-0 flex-col gap-2 p-3">
+      <Profile />
+      <Separator className="h-px" />
       {sectionGroups.map((group, index) => (
         <Fragment key={group[0].id}>
-          {index > 0 ? <Separator /> : null}
+          {index > 0 ? <Separator className="h-px" /> : null}
           <ul className="flex flex-col gap-0.5">
             {group.map((section) => (
               <li key={section.id}>

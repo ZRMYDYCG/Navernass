@@ -1,3 +1,26 @@
+import { createAlibaba } from "@ai-sdk/alibaba";
+import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock";
+import { createAnthropicAws } from "@ai-sdk/anthropic-aws";
+import { createAzure } from "@ai-sdk/azure";
+import { createBaseten } from "@ai-sdk/baseten";
+import { createCerebras } from "@ai-sdk/cerebras";
+import { createCohere } from "@ai-sdk/cohere";
+import { createDeepInfra } from "@ai-sdk/deepinfra";
+import { createDeepSeek } from "@ai-sdk/deepseek";
+import { createFireworks } from "@ai-sdk/fireworks";
+import { createGateway } from "@ai-sdk/gateway";
+import { createGmicloud } from "@ai-sdk/gmicloud";
+import { createGoogleVertex } from "@ai-sdk/google-vertex";
+import { createGroq } from "@ai-sdk/groq";
+import { createHuggingFace } from "@ai-sdk/huggingface";
+import { createMiniMax } from "@ai-sdk/minimax";
+import { createMistral } from "@ai-sdk/mistral";
+import { createMoonshotAI } from "@ai-sdk/moonshotai";
+import { createOpenResponses } from "@ai-sdk/open-responses";
+import { createPerplexity } from "@ai-sdk/perplexity";
+import { createTogetherAI } from "@ai-sdk/togetherai";
+import { createXai } from "@ai-sdk/xai";
+import { createZai } from "@ai-sdk/zai";
 import type { EmbeddingModel, LanguageModel } from "ai";
 import type { EnvConfig } from "../config/env-schema.js";
 import { createAnthropic } from "@ai-sdk/anthropic";
@@ -6,16 +29,13 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { extractReasoningMiddleware, generateText, wrapLanguageModel } from "ai";
+import { extractReasoningMiddleware, generateText, NoSuchModelError, wrapLanguageModel } from "ai";
+import { providerSettings } from "./agent.schema.js";
 import { AppError } from "../common/app-error.js";
 import { ProviderService } from "./provider.service.js";
 import { AgentErrorService } from "./error.service.js";
 
-const compatibleBaseUrls = {
-  deepseek: "https://api.deepseek.com",
-  qwen: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-  glm: "https://open.bigmodel.cn/api/paas/v4",
-} as const;
+type ResolvedProvider = Awaited<ReturnType<ProviderService["resolve"]>>;
 
 @Injectable()
 export class ModelService {
@@ -29,116 +49,176 @@ export class ModelService {
     this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
   }
 
-  async language(
-    userId: string,
-    providerId?: string,
-  ): Promise<{
-    model: LanguageModel;
-    provider: Awaited<ReturnType<ProviderService["resolve"]>>;
-  }> {
-    const provider = await this.providers.resolve(userId, providerId);
+  private sdk(provider: ResolvedProvider) {
+    const settings = providerSettings.parse(provider.settings);
     const options = {
       apiKey: provider.apiKey,
       ...(provider.base_url && { baseURL: provider.base_url }),
     };
     switch (provider.kind) {
       case "openai":
-        if (provider.base_url) {
-          const compatible = createOpenAICompatible({
-            name: provider.kind,
-            apiKey: provider.apiKey,
-            baseURL: provider.base_url,
-            includeUsage: true,
-          });
-          return {
-            provider,
-            model: wrapLanguageModel({
-              model: compatible(provider.model),
-              middleware: extractReasoningMiddleware({ tagName: "think" }),
-            }),
-          };
-        }
-        return { provider, model: createOpenAI(options)(provider.model) };
+        return createOpenAI(options);
       case "anthropic":
-        return { provider, model: createAnthropic(options)(provider.model) };
+        return createAnthropic(options);
       case "google":
-        return { provider, model: createGoogleGenerativeAI(options)(provider.model) };
-      default: {
+        return createGoogleGenerativeAI(options);
+      case "deepseek":
+        return createDeepSeek(options);
+      case "qwen":
+        return createAlibaba({
+          ...options,
+          baseURL: provider.base_url ?? "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        });
+      case "xai":
+        return createXai(options);
+      case "mistral":
+        return createMistral(options);
+      case "groq":
+        return createGroq(options);
+      case "cohere":
+        return createCohere(options);
+      case "deepinfra":
+        return createDeepInfra(options);
+      case "togetherai":
+        return createTogetherAI(options);
+      case "fireworks":
+        return createFireworks(options);
+      case "cerebras":
+        return createCerebras(options);
+      case "perplexity":
+        return createPerplexity(options);
+      case "moonshotai":
+        return createMoonshotAI(options);
+      case "minimax":
+        return createMiniMax(options);
+      case "gateway":
+        return createGateway(options);
+      case "baseten":
+        return createBaseten(options);
+      case "huggingface":
+        return createHuggingFace(options);
+      case "gmicloud":
+        return createGmicloud(options);
+      case "zai":
+        return createZai(options);
+      case "azure":
+        return createAzure({ ...options, resourceName: settings.resourceName });
+      case "bedrock":
+        return createAmazonBedrock({ ...options, region: settings.region });
+      case "anthropic_aws":
+        return createAnthropicAws({
+          ...options,
+          region: settings.region,
+          workspaceId: settings.workspaceId,
+        });
+      case "vertex":
+        return createGoogleVertex(options);
+      case "glm":
+        return createZai({
+          ...options,
+          baseURL: provider.base_url ?? "https://open.bigmodel.cn/api/paas/v4",
+        });
+      case "openrouter":
+      case "siliconflow":
+      case "ollama":
+      case "compatible": {
         const baseURL =
-          provider.base_url ?? compatibleBaseUrls[provider.kind as keyof typeof compatibleBaseUrls];
+          provider.base_url ??
+          {
+            openrouter: "https://openrouter.ai/api/v1",
+            siliconflow: "https://api.siliconflow.cn/v1",
+            ollama: "http://localhost:11434/v1",
+            compatible: "",
+          }[provider.kind];
         if (!baseURL) {
-          throw new AppError(
-            "AI_PROVIDER_INVALID",
-            "兼容 Provider 必须配置 baseUrl",
-            HttpStatus.BAD_REQUEST,
-          );
+          throw new AppError("AI_PROVIDER_INVALID", "请填写服务地址", HttpStatus.BAD_REQUEST);
         }
-        const compatible = createOpenAICompatible({
+        if (provider.kind === "compatible") {
+          switch (settings.protocol) {
+            case "responses":
+              return createOpenAI({ ...options, baseURL });
+            case "open-responses":
+              return createOpenResponses({
+                ...options,
+                name: "custom",
+                url: `${baseURL.replace(/\/$/, "")}/responses`,
+              });
+            case "anthropic":
+              return createAnthropic({ ...options, baseURL });
+            case "google":
+              return createGoogleGenerativeAI({ ...options, baseURL });
+          }
+        }
+        return createOpenAICompatible({
+          ...options,
           name: provider.kind,
-          apiKey: provider.apiKey,
           baseURL,
           includeUsage: true,
         });
-        // MiniMax 等模型把推理以 <think> 标签混在正文里输出，拆成独立的 reasoning 片段。
-        const model = wrapLanguageModel({
-          model: compatible(provider.model),
-          middleware: extractReasoningMiddleware({ tagName: "think" }),
-        });
-        return { provider, model };
       }
     }
+  }
+
+  async language(
+    userId: string,
+    providerId?: string,
+  ): Promise<{ model: LanguageModel; provider: ResolvedProvider }> {
+    const provider = await this.providers.resolve(userId, providerId);
+    const settings = providerSettings.parse(provider.settings);
+    // Preserve the Chat Completions protocol of existing OpenAI proxy configurations.
+    if (
+      provider.kind === "openai" &&
+      (settings.protocol === "chat" || (provider.base_url && !settings.protocol))
+    ) {
+      return {
+        provider,
+        model: createOpenAI({
+          apiKey: provider.apiKey,
+          baseURL: provider.base_url ?? undefined,
+        }).chat(provider.model),
+      };
+    }
+    const model = this.sdk(provider).languageModel(provider.model);
+    return {
+      provider,
+      model:
+        provider.kind === "compatible" ||
+        provider.kind === "ollama" ||
+        provider.kind === "siliconflow" ||
+        provider.kind === "openrouter"
+          ? wrapLanguageModel({
+              model,
+              middleware: extractReasoningMiddleware({ tagName: "think" }),
+            })
+          : model,
+    };
   }
 
   async embedding(
     userId: string,
     providerId?: string,
-  ): Promise<{
-    model: EmbeddingModel;
-    provider: Awaited<ReturnType<ProviderService["resolve"]>>;
-  }> {
+  ): Promise<{ model: EmbeddingModel; provider: ResolvedProvider }> {
     const provider = await this.providers.resolve(userId, providerId);
     if (!provider.embedding_model) {
       throw new AppError(
         "EMBEDDING_NOT_CONFIGURED",
-        "当前 Provider 未配置 embeddingModel",
+        "当前配置未设置嵌入模型",
         HttpStatus.BAD_REQUEST,
       );
     }
-    const options = {
-      apiKey: provider.apiKey,
-      ...(provider.base_url && { baseURL: provider.base_url }),
-    };
-    if (provider.kind === "openai" && !provider.base_url) {
-      return { provider, model: createOpenAI(options).embeddingModel(provider.embedding_model) };
+    const sdk = this.sdk(provider);
+    try {
+      return { provider, model: sdk.embeddingModel(provider.embedding_model) };
+    } catch (error) {
+      if (NoSuchModelError.isInstance(error)) {
+        throw new AppError(
+          "EMBEDDING_NOT_SUPPORTED",
+          "当前厂商不支持此嵌入模型",
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw error;
     }
-    if (provider.kind === "google") {
-      return {
-        provider,
-        model: createGoogleGenerativeAI(options).embeddingModel(provider.embedding_model),
-      };
-    }
-    if (provider.kind === "anthropic") {
-      throw new AppError(
-        "EMBEDDING_NOT_SUPPORTED",
-        "Anthropic 不提供嵌入模型，请选择 OpenAI 或兼容 Provider",
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const baseURL =
-      provider.base_url ?? compatibleBaseUrls[provider.kind as keyof typeof compatibleBaseUrls];
-    if (!baseURL) {
-      throw new AppError(
-        "AI_PROVIDER_INVALID",
-        "兼容 Provider 必须配置 baseUrl",
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const compatible = createOpenAICompatible({
-      name: provider.kind,
-      apiKey: provider.apiKey,
-      baseURL,
-    });
-    return { provider, model: compatible.embeddingModel(provider.embedding_model) };
   }
 
   async test(userId: string, providerId: string) {
@@ -149,7 +229,7 @@ export class ModelService {
         model,
         prompt: "仅回复“Narraverse 模型连接正常”。",
         maxOutputTokens: 30,
-        temperature: 0,
+        abortSignal: AbortSignal.timeout(30_000),
         maxRetries: this.maxRetries,
       });
       return {

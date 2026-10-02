@@ -78,6 +78,29 @@ enum AiProviderKind {
   deepseek
   qwen
   glm
+  xai
+  mistral
+  groq
+  cohere
+  deepinfra
+  togetherai
+  fireworks
+  cerebras
+  perplexity
+  moonshotai
+  minimax
+  azure
+  bedrock
+  vertex
+  gateway
+  baseten
+  huggingface
+  gmicloud
+  zai
+  anthropic_aws
+  openrouter
+  siliconflow
+  ollama
   compatible
 }
 
