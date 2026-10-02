@@ -1,0 +1,544 @@
+{
+  "chat": {
+    "title": "Novel Assistant",
+    "welcome": {
+      "heading": "What do you want to write today?",
+      "description": "I can use the current chapter, characters, and settings to help you continue writing, adjust the plot, or refine details.",
+      "actions": {
+        "continue": {
+          "title": "Continue writing",
+          "description": "Naturally continue the next passage",
+          "prompt": "Based on the current chapter context, continue the next passage while keeping the same style."
+        },
+        "plot": {
+          "title": "Advance the plot",
+          "description": "Explore what happens next",
+          "prompt": "Based on the current plot, suggest reasonable directions for what happens next."
+        },
+        "character": {
+          "title": "Character portrayal",
+          "description": "Check behavior and dialogue",
+          "prompt": "Review whether character behavior and dialogue match their established personalities."
+        },
+        "polish": {
+          "title": "Polish the prose",
+          "description": "Improve expression and style",
+          "prompt": "Polish the current passage, improving expression while preserving the original style."
+        },
+        "lore": {
+          "title": "Organize worldbuilding",
+          "description": "Check consistency and details",
+          "prompt": "Organize the related worldbuilding and check whether details stay consistent."
+        }
+      }
+    },
+    "composer": {
+      "placeholder": "Ask anything about this novel…",
+      "send": "Send message",
+      "stop": "Stop generation",
+      "pause": "Pause generation",
+      "pausing": "Pausing",
+      "paused": "Paused"
+    },
+    "message": {
+      "paused": "Paused",
+      "interrupted": "Interrupted"
+    },
+    "sessions": {
+      "history": "Conversation history",
+      "new": "New conversation",
+      "newConversation": "New conversation",
+      "untitled": "Untitled conversation",
+      "empty": "No conversations yet",
+      "search": "Search sessions…",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "older": "Older",
+      "delete": "Delete session",
+      "noMatch": "No matching sessions",
+      "loading": "Loading conversation"
+    },
+    "error": {
+      "title": "The conversation could not continue"
+    },
+    "askUser": {
+      "title": "Questions",
+      "progress": "{current} of {total}",
+      "previous": "Previous question",
+      "next": "Next question",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "other": "Other...",
+      "otherPlaceholder": "Type your answer",
+      "skip": "Skip",
+      "continue": "Continue"
+    }
+  },
+  "agui": {
+    "failedTool": "Execution failed",
+    "interruptedTool": "Execution interrupted",
+    "duration": {
+      "seconds": "{seconds}s",
+      "milliseconds": "{milliseconds}ms",
+      "live": "Live estimate; server duration shown on completion",
+      "measured": "Server execution time, including retries"
+    },
+    "working": "Working",
+    "connecting": "Connecting to the agent",
+    "reasoning": {
+      "running": "Thinking...",
+      "done": "Reasoning",
+      "duration": "Thought for {seconds, plural, one {# second} other {# seconds}}"
+    },
+    "sources": "Sources",
+    "status": {
+      "streaming": "Preparing",
+      "running": "Running",
+      "waiting": "Waiting",
+      "done": "Done",
+      "error": "Failed",
+      "interrupted": "Interrupted"
+    },
+    "tools": {
+      "loadSkill": { "running": "Loading skill", "done": "Loaded skill" },
+      "readSkillResource": { "running": "Reading skill resource", "done": "Read skill resource" },
+      "getNovelSnapshot": { "running": "Reading novel overview", "done": "Read novel overview" },
+      "getChapter": { "running": "Reading chapter", "done": "Read chapter" },
+      "listArticleFiles": { "running": "Listing chapter files", "done": "Listed chapter files" },
+      "readArticle": { "running": "Reading text", "done": "Read text" },
+      "grepArticle": { "running": "Searching text", "done": "Searched text" },
+      "searchArticle": { "running": "Searching text", "done": "Searched text" },
+      "editArticle": { "running": "Editing text", "done": "Edited text" },
+      "writeArticle": { "running": "Writing text", "done": "Wrote text" },
+      "patchArticle": { "running": "Applying text patch", "done": "Applied text patch" },
+      "proposeArticleEdit": { "running": "Drafting edit proposal", "done": "Edit proposal" },
+      "createVolume": { "running": "Creating volume", "done": "Created volume" },
+      "createChapter": { "running": "Creating chapter", "done": "Created chapter" },
+      "createCharacter": { "running": "Creating character", "done": "Created character" },
+      "updateCharacter": { "running": "Updating character", "done": "Updated character" },
+      "searchMemory": { "running": "Searching memory", "done": "Searched memory" },
+      "saveMemory": { "running": "Saving memory", "done": "Saved memory" },
+      "validateContinuity": { "running": "Checking continuity", "done": "Checked continuity" },
+      "delegateSubagent": {
+        "pending": "Delegating to a subagent",
+        "running": "{role} subagent working",
+        "done": "{role} subagent finished"
+      },
+      "askUser": {
+        "running": "Asking questions",
+        "done": "Questions answered",
+        "skipped": "Questions skipped",
+        "noAnswer": "No answer"
+      },
+      "fallback": { "running": "Calling {name}", "done": "Called {name}" }
+    },
+    "detail": {
+      "input": "Input",
+      "output": "Output",
+      "allowedTools": "Allowed tools",
+      "resources": "Resources",
+      "instructions": "Instructions",
+      "readRange": "{start}–{end} of {total} chars",
+      "revision": "Revision {revision}",
+      "wordCount": "{count} words",
+      "hasMore": "More content not read",
+      "chapters": "Chapters",
+      "volumes": "Volumes",
+      "worldbook": "Lore",
+      "outlines": "Outlines",
+      "timeline": "Timeline",
+      "chapterCount": "{count} chapters",
+      "fileCount": "{count} chapter files",
+      "noFiles": "No chapter files",
+      "matchCount": "{count} matches",
+      "noMatch": "No matches",
+      "truncated": "Showing the first {count} only",
+      "written": "Written",
+      "createdVolume": "Volume created",
+      "createdChapter": "Chapter created",
+      "createdCharacter": "Character created",
+      "updatedCharacter": "Character updated",
+      "revisionChange": "Revision {from} → {to}",
+      "wordDelta": "Word delta {count}",
+      "hitCount": "{count} memories",
+      "noHit": "No related memories",
+      "score": "{score}% relevant",
+      "reviewText": "Text under review",
+      "report": "Review report",
+      "task": "Task",
+      "result": "Result"
+    },
+    "memoryKind": {
+      "chapter": "Chapter",
+      "character": "Character",
+      "worldbook": "Lore",
+      "outline": "Outline",
+      "timeline": "Timeline",
+      "summary": "Summary",
+      "conversation": "Conversation",
+      "custom": "Custom"
+    },
+    "subagent": {
+      "character": "Character",
+      "plot": "Plot",
+      "world": "Worldbuilding",
+      "style": "Style",
+      "reviewer": "Review"
+    },
+    "edit": {
+      "title": "Edit proposal",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "status": {
+        "pending": "Pending review",
+        "applied": "Applied",
+        "rejected": "Rejected",
+        "stale": "Outdated"
+      },
+      "type": {
+        "replace": "Replace",
+        "insert_before": "Insert before anchor",
+        "insert_after": "Insert after anchor",
+        "prepend": "Insert at start",
+        "append": "Append at end"
+      },
+      "reject": "Reject",
+      "apply": "Apply selected {count}/{total}",
+      "staleHint": "The text changed after this proposal. Ask the assistant to reread it and propose again."
+    }
+  },
+  "relationshipGraph": {
+    "toolbar": {
+      "addCharacter": "New character",
+      "newCharacterName": "Character {count}",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "resetZoom": "Reset to 100%",
+      "fitView": "Show all characters",
+      "arrange": "Tidy layout"
+    },
+    "kinds": {
+      "ally": "Ally",
+      "family": "Family",
+      "romance": "Romance",
+      "rival": "Rival",
+      "enemy": "Enemy",
+      "mentor": "Mentor",
+      "secret": "Secret",
+      "custom": "Custom"
+    },
+    "editor": {
+      "emptyCanvas": "No characters yet. Use “New character” below to add the first one."
+    },
+    "explore": {
+      "legendDensity": "Relation density",
+      "legendHint": "Numbers show connection counts"
+    },
+    "world3d": {
+      "unnamed": "Unnamed",
+      "unnamedCharacter": "Unnamed character",
+      "unnamedRelationship": "Relation"
+    },
+    "inspector": {
+      "relationshipTitle": "Edit relationship",
+      "characterTitle": "Edit character",
+      "unknownCharacter": "Unknown character",
+      "closeRelationship": "Close relationship editor",
+      "closeCharacter": "Close character editor",
+      "characterHint": "Only the name and summary are fixed; everything else is up to you.",
+      "relationshipName": "Relationship name",
+      "relationshipKind": "Relationship type",
+      "strength": "Strength {value}",
+      "secretRelationship": "Hidden plot relationship",
+      "relationshipDescription": "Description",
+      "relationshipPlaceholder": "e.g. Cooperating on the surface while testing each other underneath.",
+      "deleteRelationship": "Delete relationship",
+      "characterName": "Character name",
+      "characterSummary": "Summary",
+      "characterPlaceholder": "This character's goals, secrets, and conflicts.",
+      "deleteCharacter": "Delete character",
+      "empty": "Select a character or relationship to edit its details here."
+    },
+    "library": {
+      "selectNovel": "Select a novel to see characters",
+      "loading": "Loading…",
+      "empty": "No characters yet — add them in the relationship graph"
+    },
+    "fields": {
+      "title": "Custom fields",
+      "empty": "No fields yet. Pick a common preset below or add your own.",
+      "addCustom": "Custom field",
+      "type": "Type",
+      "remove": "Delete field",
+      "fieldName": "Field name",
+      "valuePlaceholder": "Enter content",
+      "unnamedField": "Field",
+      "options": "{label} options",
+      "tagPlaceholder": "Type and press Enter to add",
+      "newTag": "New tag for {label}",
+      "removeTag": "Remove tag {tag}",
+      "types": {
+        "text": "Short text",
+        "longText": "Long text",
+        "tags": "Tags"
+      },
+      "presets": {
+        "role": "Role",
+        "faction": "Faction",
+        "tags": "Tags",
+        "age": "Age",
+        "ability": "Abilities",
+        "secret": "Secret",
+        "arc": "Character arc"
+      }
+    }
+  },
+  "appHeader": {
+    "workspace": "Workspace",
+    "toggleSidebar": "Toggle sidebar",
+    "toggleChatPanel": "Toggle chat panel",
+    "back": "Back",
+    "forward": "Forward",
+    "chats": "Chats",
+    "graph": "Character graph",
+    "settings": "Settings",
+    "agentsWindow": "Agents Window"
+  },
+  "agents": {
+    "newChat": "New chat",
+    "newChatIn": "New chat in “{title}”",
+    "novels": "Novels",
+    "noChats": "No chats yet",
+    "untitled": "Untitled chat",
+    "deleteChat": "Delete chat",
+    "editor": "Editor"
+  },
+  "workspaceStarter": {
+    "novelTitle": "My First Novel",
+    "chapterTitle": "Chapter 1"
+  },
+  "auth": {
+    "signOut": "Sign out",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "At least 8 characters.",
+    "error": "Authentication failed. Please try again.",
+    "noAccount": "No account yet?",
+    "hasAccount": "Already have an account?",
+    "goRegister": "Register",
+    "goLogin": "Log in",
+    "login": {
+      "title": "Log in",
+      "description": "Return to your writing workspace.",
+      "submit": "Log in"
+    },
+    "register": {
+      "title": "Register",
+      "description": "Create an account, configure your model, and start writing.",
+      "submit": "Register"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "comingSoon": "Coming soon.",
+    "sections": {
+      "general": "General",
+      "agents": "Agents",
+      "models": "Models",
+      "customize": "Customize",
+      "docs": "Docs",
+      "changelog": "Changelog"
+    },
+    "general": {
+      "title": "General",
+      "preferences": "Preferences",
+      "theme": {
+        "title": "Theme",
+        "description": "Change the interface colors. System follows your OS setting.",
+        "options": {
+          "system": "System",
+          "light": "Light",
+          "dark": "Dark",
+          "dusk": "Dusk"
+        }
+      },
+      "language": {
+        "title": "Language",
+        "description": "Interface display language."
+      }
+    },
+    "models": {
+      "title": "Models",
+      "description": "Save your own provider, URL, API key, and model name. Secrets are encrypted on the server and never shown again.",
+      "new": "New",
+      "newTitle": "New model config",
+      "editTitle": "Edit model config",
+      "availableModels": "Available Models",
+      "apiKeys": "API Keys",
+      "viewAllModels": "Add Model",
+      "secretSaved": "Secret saved",
+      "apiKeyHelp": "You can put in your own API key to use this provider's models.",
+      "overrideBaseUrl": "Relay / Override URL",
+      "advanced": "Advanced options",
+      "toggleModel": "Enable or disable {name}",
+      "deleteModel": "Delete {name}",
+      "formDescription": "Do not include /chat/completions in the Base URL. Compatible services usually end at /v1.",
+      "emptyTitle": "No model configs yet",
+      "emptyDescription": "Add a Provider and the assistant will use your own model settings.",
+      "default": "Default",
+      "disabled": "Disabled",
+      "save": "Save",
+      "test": "Test",
+      "delete": "Delete",
+      "deleteConfirm": "Delete \"{name}\"? Related chats and run records will also be removed.",
+      "apiKeyPlaceholder": "Leave blank to keep the current key",
+      "baseUrlHint": "Put relay or proxy URLs here. Do not include /chat/completions. Leave blank to use the provider default.",
+      "testSuccess": "Connection OK",
+      "testResult": "{latency}ms · {response}",
+      "fields": {
+        "name": "Config name",
+        "kind": "Provider",
+        "baseUrl": "Relay / Override Base URL",
+        "apiKey": "API Key",
+        "model": "Model",
+        "embeddingModel": "Embedding model",
+        "supportsTools": "Tool calls",
+        "supportsStructured": "Structured output",
+        "isDefault": "Set as default",
+        "isEnabled": "Enabled"
+      },
+      "kinds": {
+        "openai": "OpenAI",
+        "anthropic": "Anthropic",
+        "google": "Google",
+        "deepseek": "DeepSeek",
+        "qwen": "Qwen",
+        "glm": "GLM",
+        "compatible": "OpenAI-compatible"
+      },
+      "errors": {
+        "required": "Name and model are required.",
+        "apiKeyRequired": "API key is required for a new config.",
+        "baseUrlRequired": "OpenAI-compatible providers require a Base URL.",
+        "saveFailed": "Save failed. Please try again.",
+        "deleteFailed": "Delete failed. Please try again.",
+        "testFailed": "Test failed. Please check the config."
+      },
+      "placeholders": {
+        "name": "My model config",
+        "apiKey": "Enter API Key",
+        "model": "gpt-5.6-sol / claude-opus-5.5..."
+      }
+    }
+  },
+  "sidebar": {
+    "title": "Contents",
+    "views": {
+      "label": "Sidebar views",
+      "novel": "Novel",
+      "search": "Search",
+      "characters": "Characters"
+    },
+    "search": {
+      "placeholder": "Search chapter titles and text",
+      "matchCase": "Match case",
+      "wholeWord": "Match whole word",
+      "searching": "Searching…",
+      "noResults": "No results found",
+      "error": "Search failed. Please try again.",
+      "summary": "{matches, plural, one {# result} other {# results}} in {chapters, plural, one {# chapter} other {# chapters}}",
+      "truncated": "Only the first {count} matching chapters were searched. Try a more specific keyword.",
+      "moreMatches": "{count} more not shown"
+    },
+    "selectNovel": "Select novel",
+    "loadingNovels": "Loading novels…",
+    "loadNovelsError": "Failed to load novels",
+    "novelStats": "{words} words · {status}",
+    "novelStatus": {
+      "draft": "In progress",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "chapterCount": "{count, plural, one {# chapter} other {# chapters}}",
+    "chapterMeta": "{status} · {count, number} words",
+    "chapterStatus": {
+      "draft": "Draft",
+      "published": "Published"
+    },
+    "ungrouped": "No volume",
+    "empty": "No chapters yet",
+    "loadError": "Failed to load contents",
+    "newVolume": "New volume",
+    "newVolumeTitle": "Volume {index}",
+    "newChapterTitle": "Chapter {index}",
+    "copyTitle": "{title} (copy)",
+    "actions": {
+      "addChapter": "Add chapter",
+      "moveTo": "Move to volume",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "rename": "Rename",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "renameLabel": "Title",
+      "cancel": "Cancel"
+    },
+    "deleteChapter": {
+      "title": "Delete chapter “{title}”?",
+      "description": "The chapter text will be deleted as well."
+    },
+    "deleteVolume": {
+      "title": "Delete volume “{title}”?",
+      "description": "Chapters in this volume are kept and moved to “No volume”."
+    }
+  },
+  "chapterEditor": {
+    "title": "Manuscript editor",
+    "placeholder": "Start writing here…",
+    "wordCount": "{count, number} words",
+    "loadError": "Failed to load chapter",
+    "save": {
+      "saving": "Saving…",
+      "saved": "Autosaved {time}",
+      "error": "Save failed"
+    },
+    "empty": {
+      "title": "Select a chapter",
+      "description": "Open a chapter from the contents to start writing."
+    },
+    "review": {
+      "title": "Review proposed edits",
+      "accept": "Accept",
+      "reject": "Reject",
+      "itemized": "Review each",
+      "previous": "Previous change",
+      "next": "Next change",
+      "removed": "Removed: ",
+      "added": "Added: "
+    },
+    "revisions": {
+      "pending": "{count, plural, one {# revision} other {# revisions}}",
+      "accept": "Accept",
+      "reject": "Reject",
+      "acceptAll": "Accept all",
+      "rejectAll": "Reject all"
+    }
+  },
+  "landing": {
+    "header": {
+      "start": "Start writing",
+      "menu": "Open menu"
+    },
+    "hero": {
+      "title1": "Bring writing back to",
+      "title2": "purity and freedom",
+      "description": "Narraverse is a next-generation intelligent novel writing platform built for novelists. Whether you are drafting your first chapter or managing a long-running series, structure, lore, and prose live in one place — so you can focus on the story only you can write.",
+      "cta": "Start creating"
+    },
+    "footer": {
+      "tagline": "Bring writing back to purity and freedom.",
+      "rights": "All rights reserved."
+    }
+  }
+}

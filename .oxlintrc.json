@@ -50,6 +50,15 @@
         "shadcn/no-arbitrary-values": "off",
         "shadcn/no-inline-styles": "off"
       }
+    },
+    {
+      "files": ["apps/desktop/src/renderer/frontend/src/components/ui/**"],
+      "rules": {
+        "shadcn/no-restyle": "off",
+        "shadcn/no-raw-colors": "off",
+        "shadcn/no-arbitrary-values": "off",
+        "shadcn/no-inline-styles": "off"
+      }
     }
   ]
 }

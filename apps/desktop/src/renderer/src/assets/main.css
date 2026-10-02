@@ -1,9 +1,3 @@
-body {
-  margin: 0;
-  padding: 24px;
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
-  color: #1f2328;
-}
+@import "../../frontend/src/app/globals.css";
+@source "../../frontend/src";
+@source "../";

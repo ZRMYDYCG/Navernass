@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "composite": true,
+    "composite": false,
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -13,8 +13,10 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "paths": {
+      "@/i18n/navigation": ["./src/renderer/src/navigation.tsx"],
+      "@/*": ["./src/renderer/frontend/src/*"]
+    }
   },
   "include": ["src/renderer/src/**/*", "src/preload/index.d.ts"]
 }

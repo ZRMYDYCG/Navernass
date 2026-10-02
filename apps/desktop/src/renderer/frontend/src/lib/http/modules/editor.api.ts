@@ -1,0 +1,36 @@
+import { z } from "zod";
+
+import { apiRequest } from "@/lib/http/request";
+import { editStatusResponseSchema } from "@/lib/http/modules/agent-tool.schema";
+import { applyEditResponseSchema, chapterEditSchema } from "@/lib/http/modules/editor.schema";
+
+export function getEditStatus(id: string) {
+  return apiRequest(`editor/edits/${id}`, editStatusResponseSchema);
+}
+
+export function getEdit(id: string) {
+  return apiRequest(`editor/edits/${id}`, chapterEditSchema);
+}
+
+/** 章节最新的待审阅提案；列表按创建时间倒序。 */
+export async function getPendingEdit(chapterId: string) {
+  const edits = await apiRequest("editor/edits", z.array(chapterEditSchema), {
+    searchParams: { chapterId, status: "pending", pageSize: 1 },
+  });
+  const latest = edits[0];
+  return latest ? getEdit(latest.id) : null;
+}
+
+export function applyEdit(id: string, acceptedEditIds: string[]) {
+  return apiRequest(`editor/edits/${id}/apply`, applyEditResponseSchema, {
+    method: "post",
+    json: { acceptedEditIds },
+  });
+}
+
+export function rejectEdit(id: string) {
+  return apiRequest(`editor/edits/${id}/reject`, editStatusResponseSchema, {
+    method: "post",
+    json: {},
+  });
+}
