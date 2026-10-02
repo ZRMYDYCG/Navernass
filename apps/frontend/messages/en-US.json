@@ -403,7 +403,14 @@
         "protocol": "API protocol",
         "resourceName": "Azure resource name",
         "region": "AWS region",
-        "workspaceId": "Anthropic Workspace ID"
+        "workspaceId": "Anthropic Workspace ID",
+        "reasoning": "Reasoning effort",
+        "thinkingBudget": "Thinking budget (tokens)",
+        "temperature": "Temperature",
+        "maxOutputTokens": "Max output tokens",
+        "topP": "Top P",
+        "presencePenalty": "Presence penalty",
+        "frequencyPenalty": "Frequency penalty"
       },
       "errors": {
         "required": "Name and model are required.",
@@ -411,7 +418,8 @@
         "baseUrlRequired": "OpenAI-compatible providers require a Base URL.",
         "saveFailed": "Save failed. Please try again.",
         "deleteFailed": "Delete failed. Please try again.",
-        "testFailed": "Test failed. Please check the config."
+        "testFailed": "Test failed. Please check the config.",
+        "catalogFailed": "Couldn't load the model catalog. Fetch models from your account or enter a model ID."
       },
       "placeholders": {
         "name": "Name this configuration",
@@ -430,7 +438,30 @@
       "vertexHelp": "Use a Vertex AI Express Mode API key.",
       "bedrockHelp": "Enter a Bedrock API key (bearer token) and its AWS region.",
       "deploymentHelp": "Enter your Azure model deployment name.",
-      "modelHelp": "Enter a model ID available to your account, as listed by your provider.",
+      "modelHelp": "Pick from the public Models.dev catalog, or type any model ID your account can use.",
+      "accountModelHelp": "Showing models available to this account. Pick one or type a model ID.",
+      "fetchModels": "Fetch from account",
+      "loadingModels": "Loading model catalog…",
+      "noModels": "No matching models. The typed ID will be used as is.",
+      "reasoning": "Reasoning",
+      "contextTokens": "Context {count, number, ::compact-short}",
+      "outputTokens": "Max output {count, number, ::compact-short}",
+      "modelParameters": "Model parameters",
+      "modelParametersHelp": "Options follow the selected model's capabilities. Leave blank to use the provider default.",
+      "providerDefault": "Provider default",
+      "budgetRange": "Supported range: {min} – {max}",
+      "reasoningLevels": {
+        "provider-default": "Provider default",
+        "none": "Off",
+        "enabled": "On",
+        "minimal": "Minimal",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "xhigh": "Extra high",
+        "max": "Max",
+        "default": "Model default"
+      },
       "azureHelp": "Enter your Azure resource name, or set a custom URL in advanced options.",
       "ollamaHelp": "The backend connects to this address; localhost means the backend machine. Download the model in Ollama first.",
       "customUrlHelp": "Enter the API base URL without /chat/completions, /responses, or /messages.",

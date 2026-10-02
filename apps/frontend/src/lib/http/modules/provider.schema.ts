@@ -75,3 +75,33 @@ export type ProviderKind = z.infer<typeof providerKindSchema>;
 export type ProviderConfig = z.infer<typeof providerConfigSchema>;
 export type ProviderPayload = z.infer<typeof providerPayloadSchema>;
 export type ProviderTestResult = z.infer<typeof providerTestResultSchema>;
+
+export const catalogModelSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  reasoning: z.boolean(),
+  temperature: z.boolean().optional(),
+  tools: z.boolean().optional(),
+  structured: z.boolean().optional(),
+  contextWindow: z.number(),
+  maxOutputTokens: z.number(),
+  input: z.array(z.string()),
+  releaseDate: z.string(),
+  reasoningOptions: z.array(
+    z.object({
+      type: z.enum(["effort", "toggle", "budget_tokens"]),
+      values: z.array(z.string()).optional(),
+      min: z.number().optional(),
+      max: z.number().optional(),
+    }),
+  ),
+});
+export const discoveredModelSchema = z.object({ id: z.string(), name: z.string() });
+export type CatalogModel = z.infer<typeof catalogModelSchema>;
+export interface DiscoverModelsPayload {
+  kind: ProviderKind;
+  providerId?: string;
+  apiKey?: string;
+  baseUrl?: string;
+  protocol?: string;
+}

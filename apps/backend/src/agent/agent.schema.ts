@@ -134,6 +134,26 @@ export const contextOptions = z.object({
 });
 
 export const providerSettings = z.object({
+  reasoning: z
+    .enum([
+      "provider-default",
+      "none",
+      "enabled",
+      "minimal",
+      "low",
+      "medium",
+      "high",
+      "xhigh",
+      "max",
+      "default",
+    ])
+    .optional(),
+  thinkingBudget: z.number().int().min(0).max(2_000_000).optional(),
+  temperature: z.number().min(0).max(2).optional(),
+  topP: z.number().min(0).max(1).optional(),
+  maxOutputTokens: z.number().int().min(1).max(2_000_000).optional(),
+  presencePenalty: z.number().min(-2).max(2).optional(),
+  frequencyPenalty: z.number().min(-2).max(2).optional(),
   protocol: z.enum(["chat", "responses", "open-responses", "anthropic", "google"]).optional(),
   region: z.string().trim().min(1).max(100).optional(),
   resourceName: z.string().trim().min(1).max(100).optional(),
@@ -165,6 +185,19 @@ export const updateProvider = createProvider.partial().extend({
   apiKey: z.string().trim().min(1).max(10_000).optional(),
   isEnabled: z.boolean().optional(),
 });
+
+export const discoverModels = z.object({
+  kind: providerKind,
+  providerId: z.uuid().optional(),
+  apiKey: z.string().trim().min(1).max(10_000).optional(),
+  baseUrl: z
+    .url({ protocol: /^https?$/ })
+    .max(500)
+    .nullable()
+    .optional(),
+  protocol: providerSettings.shape.protocol,
+});
+export type DiscoverModels = z.infer<typeof discoverModels>;
 
 export const runAgent = z.object({
   requestId: z.uuid().optional(),

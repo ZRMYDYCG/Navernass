@@ -2,12 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   createProvider,
+  getModelCatalog,
+  discoverModels,
   deleteProvider,
   getProviders,
   testProvider,
   updateProvider,
 } from "@/lib/http/modules/provider.api";
-import type { ProviderPayload } from "@/lib/http/modules/provider.schema";
+import type { ProviderKind, ProviderPayload } from "@/lib/http/modules/provider.schema";
 
 /**
  * 模型供应商数据使用的稳定缓存键。
@@ -62,4 +64,16 @@ export function useDeleteProvider() {
  */
 export function useTestProvider() {
   return useMutation({ mutationFn: testProvider });
+}
+
+export function useModelCatalog(kind: ProviderKind) {
+  return useQuery({
+    queryKey: ["agent", "model-catalog", kind],
+    queryFn: () => getModelCatalog(kind),
+    staleTime: 3_600_000,
+    retry: false,
+  });
+}
+export function useDiscoverModels() {
+  return useMutation({ mutationFn: discoverModels });
 }

@@ -68,16 +68,6 @@ const outputSchemas = {
   }),
 } as const;
 
-const reasoningLevel = z.enum([
-  "provider-default",
-  "none",
-  "minimal",
-  "low",
-  "medium",
-  "high",
-  "xhigh",
-]);
-
 interface PrepareOptions {
   retryOfId?: string;
   interactive?: boolean;
@@ -717,7 +707,6 @@ export class RuntimeService {
       policy: harness.policy,
     });
     const stopWhen = stepCountIs(input.maxSteps ?? this.maxSteps);
-    const settings = this.generationSettings(provider.settings);
     const agent = new ToolLoopAgent({
       id: `narraverse-${input.role}`,
       model,
@@ -725,8 +714,7 @@ export class RuntimeService {
       tools: harness.tools,
       stopWhen,
       maxRetries: this.maxRetries,
-      ...settings,
-      temperature: input.temperature ?? settings.temperature,
+      temperature: input.temperature,
     });
     return {
       agent,
@@ -744,8 +732,7 @@ export class RuntimeService {
         tools: harness.tools,
         stopWhen,
         maxRetries: this.maxRetries,
-        ...settings,
-        temperature: input.temperature ?? settings.temperature,
+        temperature: input.temperature,
       },
     };
   }
@@ -761,23 +748,5 @@ export class RuntimeService {
     if (!active) return;
     this.activeStreams.delete(runId);
     active.finish();
-  }
-
-  private generationSettings(value: Prisma.JsonValue) {
-    const settings = typeof value === "object" && value && !Array.isArray(value) ? value : {};
-    const number = (key: string, min: number, max: number) => {
-      const current = key in settings ? settings[key] : undefined;
-      return typeof current === "number" && current >= min && current <= max ? current : undefined;
-    };
-    const reasoning = reasoningLevel.safeParse(settings.reasoning);
-    return {
-      // 由各 Provider 映射为自身参数（Anthropic thinking、OpenAI reasoning_effort 等）。
-      reasoning: reasoning.success ? reasoning.data : undefined,
-      temperature: number("temperature", 0, 2),
-      topP: number("topP", 0, 1),
-      presencePenalty: number("presencePenalty", -2, 2),
-      frequencyPenalty: number("frequencyPenalty", -2, 2),
-      maxOutputTokens: number("maxOutputTokens", 1, 200_000),
-    };
   }
 }

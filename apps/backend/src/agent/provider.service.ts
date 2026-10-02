@@ -91,6 +91,11 @@ export class ProviderService {
     });
   }
 
+  async credentials(userId: string, id: string) {
+    const provider = await this.getOwned(userId, id);
+    return { ...provider, apiKey: this.secrets.decrypt(provider.api_key_cipher) };
+  }
+
   async resolve(userId: string, id?: string) {
     const provider =
       (await this.prisma.aiProviderConfig.findFirst({

@@ -44,10 +44,18 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState, type ComponentType } from "react";
+import { useMemo, useState, type ComponentType } from "react";
+import { Autocomplete } from "@base-ui/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 import {
   Dialog,
   DialogContent,
@@ -68,6 +76,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
   providerKindSchema,
+  type CatalogModel,
   type ProviderConfig,
   type ProviderKind,
   type ProviderPayload,
@@ -75,6 +84,8 @@ import {
 import {
   useCreateProvider,
   useDeleteProvider,
+  useDiscoverModels,
+  useModelCatalog,
   useProviders,
   useTestProvider,
   useUpdateProvider,
@@ -136,6 +147,39 @@ const vendors = {
   { name: string; icon: ComponentType<{ size?: number }>; website: string }
 >;
 
+function settingText(settings: ProviderConfig["settings"] | undefined, key: string) {
+  const value = settings?.[key];
+  return typeof value === "string" || typeof value === "number" ? String(value) : "";
+}
+
+function settingNumber(settings: ProviderConfig["settings"] | undefined, key: string) {
+  const value = settings?.[key];
+  return typeof value === "number" ? String(value) : "";
+}
+
+function toNumber(value: string) {
+  return value.trim() ? Number(value) : undefined;
+}
+
+function reasoningChoices(kind: ProviderKind, model: CatalogModel | undefined, current: string) {
+  const options = model?.reasoningOptions ?? [];
+  const efforts = options.find((option) => option.type === "effort")?.values ?? [];
+  const toggle = options.some((option) => option.type === "toggle");
+  const levels =
+    kind === "qwen"
+      ? toggle || model?.reasoning
+        ? ["enabled", "none"]
+        : []
+      : efforts.length
+        ? [...(toggle ? ["none"] : []), ...efforts]
+        : toggle
+          ? ["enabled", "none"]
+          : model?.reasoning || (!model && (kind === "compatible" || kind === "openrouter"))
+            ? ["none", "low", "medium", "high", "xhigh", "max"]
+            : [];
+  return [...new Set(["provider-default", ...levels, ...(current ? [current] : [])])];
+}
+
 function ProviderForm({
   kind,
   provider,
@@ -152,6 +196,8 @@ function ProviderForm({
   onSave: (payload: ProviderPayload) => void;
 }) {
   const t = useTranslations("settings.models");
+  const catalog = useModelCatalog(kind);
+  const discover = useDiscoverModels();
   const [protocol, setProtocol] = useState(
     String(
       provider?.settings.protocol ??
@@ -164,6 +210,23 @@ function ProviderForm({
   );
   const [supportsStructured, setSupportsStructured] = useState(
     provider?.supports_structured ?? true,
+  );
+  const [model, setModel] = useState(provider?.model ?? "");
+  const [modelQuery, setModelQuery] = useState("");
+  const [reasoning, setReasoning] = useState(settingText(provider?.settings, "reasoning"));
+  const [thinkingBudget, setThinkingBudget] = useState(
+    settingNumber(provider?.settings, "thinkingBudget"),
+  );
+  const [temperature, setTemperature] = useState(settingNumber(provider?.settings, "temperature"));
+  const [topP, setTopP] = useState(settingNumber(provider?.settings, "topP"));
+  const [maxOutputTokens, setMaxOutputTokens] = useState(
+    settingNumber(provider?.settings, "maxOutputTokens"),
+  );
+  const [presencePenalty, setPresencePenalty] = useState(
+    settingNumber(provider?.settings, "presencePenalty"),
+  );
+  const [frequencyPenalty, setFrequencyPenalty] = useState(
+    settingNumber(provider?.settings, "frequencyPenalty"),
   );
   const vendor = vendors[kind];
   const custom = kind === "compatible";
@@ -178,6 +241,76 @@ function ProviderForm({
         ]
       : []),
   ];
+  const models = useMemo(() => {
+    const catalogModels = catalog.data ?? [];
+    if (!discover.data) return catalogModels;
+    const byId = new Map(catalogModels.map((item) => [item.id.toLowerCase(), item]));
+    return discover.data.map(
+      (item) =>
+        byId.get(item.id.toLowerCase()) ?? {
+          id: item.id,
+          name: item.name,
+          reasoning: false,
+          contextWindow: 0,
+          maxOutputTokens: 0,
+          input: [],
+          releaseDate: "",
+          reasoningOptions: [],
+        },
+    );
+  }, [catalog.data, discover.data]);
+  const selectedModel = catalog.data?.find(
+    (item) => item.id.toLowerCase() === model.trim().toLowerCase(),
+  );
+  const shownModels = models.filter((item) =>
+    `${item.name} ${item.id}`.toLowerCase().includes(modelQuery.trim().toLowerCase()),
+  );
+  const choices = reasoningChoices(kind, selectedModel, reasoning);
+  const budget = selectedModel?.reasoningOptions.find((option) => option.type === "budget_tokens");
+  const showBudget =
+    reasoning !== "none" &&
+    (selectedModel
+      ? !!budget
+      : ["anthropic", "anthropic_aws", "bedrock", "fireworks", "google", "qwen", "vertex"].includes(
+          kind,
+        ));
+  const canDiscover =
+    kind === "ollama" ||
+    [
+      "openai",
+      "anthropic",
+      "google",
+      "deepseek",
+      "qwen",
+      "groq",
+      "mistral",
+      "openrouter",
+      "siliconflow",
+      "compatible",
+    ].includes(kind);
+
+  function chooseModel(next: CatalogModel) {
+    setReasoning("");
+    setThinkingBudget("");
+    setTemperature("");
+    setTopP("");
+    setMaxOutputTokens("");
+    if (next.tools !== undefined) setSupportsTools(next.tools);
+    if (next.structured !== undefined) setSupportsStructured(next.structured);
+  }
+
+  function discoverAccountModels(form: HTMLFormElement) {
+    const data = new FormData(form);
+    const value = (key: string) => String(data.get(key) ?? "").trim();
+    discover.mutate({
+      kind,
+      providerId: provider?.id,
+      apiKey: value("apiKey") || undefined,
+      baseUrl: value("baseUrl") || undefined,
+      protocol,
+    });
+  }
+
   return (
     <form
       onSubmit={(event) => {
@@ -187,7 +320,7 @@ function ProviderForm({
         onSave({
           name: value("name"),
           kind,
-          model: value("model"),
+          model,
           apiKey:
             value("apiKey") || (provider ? undefined : kind === "ollama" ? "ollama" : undefined),
           baseUrl: value("baseUrl") || null,
@@ -197,6 +330,13 @@ function ProviderForm({
           supportsStructured,
           settings: {
             ...provider?.settings,
+            reasoning: reasoning || undefined,
+            thinkingBudget: toNumber(thinkingBudget),
+            temperature: toNumber(temperature),
+            topP: toNumber(topP),
+            maxOutputTokens: toNumber(maxOutputTokens),
+            presencePenalty: toNumber(presencePenalty),
+            frequencyPenalty: toNumber(frequencyPenalty),
             ...((custom || kind === "openai") && { protocol }),
             ...((kind === "bedrock" || kind === "anthropic_aws") && { region: value("region") }),
             ...(kind === "azure" && { resourceName: value("resourceName") || undefined }),
@@ -255,20 +395,6 @@ function ProviderForm({
                     ? "bedrockHelp"
                     : "apiKeyHelp",
               )}
-            </FieldDescription>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="provider-model">{t("fields.model")}</FieldLabel>
-            <Input
-              id="provider-model"
-              name="model"
-              defaultValue={provider?.model}
-              required
-              maxLength={191}
-              placeholder={t("placeholders.model")}
-            />
-            <FieldDescription>
-              {t(kind === "azure" ? "deploymentHelp" : "modelHelp")}
             </FieldDescription>
           </Field>
           {(custom || kind === "openai") && (
@@ -346,10 +472,182 @@ function ProviderForm({
               </FieldDescription>
             </Field>
           )}
+          <Field>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <FieldLabel htmlFor="provider-model">{t("fields.model")}</FieldLabel>
+              {canDiscover && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={discover.isPending}
+                  onClick={(event) => {
+                    const form = event.currentTarget.form;
+                    if (form) discoverAccountModels(form);
+                  }}
+                >
+                  {discover.isPending && <Loader2Icon className="animate-spin" />}
+                  {t("fetchModels")}
+                </Button>
+              )}
+            </div>
+            <Autocomplete.Root
+              items={models}
+              filteredItems={shownModels}
+              value={model}
+              onValueChange={(value, details) => {
+                setModel(value);
+                const next =
+                  details.reason === "item-press" && models.find((item) => item.id === value);
+                if (next) chooseModel(next);
+                else setModelQuery(value);
+              }}
+              onOpenChange={(open) => {
+                if (open) setModelQuery("");
+              }}
+              itemToStringValue={(item) => item.id}
+              openOnInputClick={models.length > 0}
+              limit={50}
+            >
+              <ComboboxInput
+                id="provider-model"
+                required
+                maxLength={191}
+                placeholder={t(catalog.isLoading ? "loadingModels" : "placeholders.model")}
+                showTrigger={models.length > 0}
+              />
+              <ComboboxContent>
+                <ComboboxEmpty>{t("noModels")}</ComboboxEmpty>
+                <ComboboxList>
+                  {(item: CatalogModel) => (
+                    <ComboboxItem key={item.id} value={item}>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate">{item.name}</span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {item.id}
+                        </span>
+                      </span>
+                      {item.reasoning && <Badge variant="outline">{t("reasoning")}</Badge>}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Autocomplete.Root>
+            <FieldDescription>
+              {discover.data
+                ? t("accountModelHelp")
+                : t(kind === "azure" ? "deploymentHelp" : "modelHelp")}
+            </FieldDescription>
+            {catalog.isError && <FieldError>{t("errors.catalogFailed")}</FieldError>}
+            {discover.isError && <FieldError>{discover.error.message}</FieldError>}
+            {selectedModel && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {selectedModel.contextWindow > 0 && (
+                  <Badge variant="outline">
+                    {t("contextTokens", { count: selectedModel.contextWindow })}
+                  </Badge>
+                )}
+                {selectedModel.maxOutputTokens > 0 && (
+                  <Badge variant="outline">
+                    {t("outputTokens", { count: selectedModel.maxOutputTokens })}
+                  </Badge>
+                )}
+                {selectedModel.reasoning && <Badge variant="secondary">{t("reasoning")}</Badge>}
+                {selectedModel.tools && (
+                  <Badge variant="outline">{t("fields.supportsTools")}</Badge>
+                )}
+                {selectedModel.structured && (
+                  <Badge variant="outline">{t("fields.supportsStructured")}</Badge>
+                )}
+              </div>
+            )}
+          </Field>
           <Field orientation="horizontal">
             <Switch id="provider-default" checked={isDefault} onCheckedChange={setIsDefault} />
             <FieldLabel htmlFor="provider-default">{t("fields.isDefault")}</FieldLabel>
           </Field>
+          <div className="rounded-lg border border-border p-4">
+            <div className="mb-3">
+              <p className="text-sm font-medium">{t("modelParameters")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("modelParametersHelp")}</p>
+            </div>
+            <div className="grid gap-4">
+              {choices.length > 1 && (
+                <Field>
+                  <FieldLabel>{t("fields.reasoning")}</FieldLabel>
+                  <Select
+                    items={choices.map((choice) => ({
+                      value: choice,
+                      label: t(`reasoningLevels.${choice}`),
+                    }))}
+                    value={reasoning || "provider-default"}
+                    onValueChange={(value) =>
+                      setReasoning(!value || value === "provider-default" ? "" : value)
+                    }
+                  >
+                    <SelectTrigger aria-label={t("fields.reasoning")}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {choices.map((choice) => (
+                        <SelectItem key={choice} value={choice}>
+                          {t(`reasoningLevels.${choice}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+              {showBudget && (
+                <Field>
+                  <FieldLabel htmlFor="provider-budget">{t("fields.thinkingBudget")}</FieldLabel>
+                  <Input
+                    id="provider-budget"
+                    type="number"
+                    value={thinkingBudget}
+                    onChange={(event) => setThinkingBudget(event.target.value)}
+                    min={budget?.min ?? 0}
+                    max={budget?.max}
+                    step={1}
+                    placeholder={t("providerDefault")}
+                  />
+                  {budget && (budget.min !== undefined || budget.max !== undefined) && (
+                    <FieldDescription>
+                      {t("budgetRange", { min: budget.min ?? 0, max: budget.max ?? "∞" })}
+                    </FieldDescription>
+                  )}
+                </Field>
+              )}
+              {selectedModel?.temperature !== false && (
+                <Field>
+                  <FieldLabel htmlFor="provider-temperature">{t("fields.temperature")}</FieldLabel>
+                  <Input
+                    id="provider-temperature"
+                    type="number"
+                    value={temperature}
+                    onChange={(event) => setTemperature(event.target.value)}
+                    min={0}
+                    max={2}
+                    step="0.1"
+                    placeholder={t("providerDefault")}
+                  />
+                </Field>
+              )}
+              <Field>
+                <FieldLabel htmlFor="provider-output">{t("fields.maxOutputTokens")}</FieldLabel>
+                <Input
+                  id="provider-output"
+                  type="number"
+                  value={maxOutputTokens}
+                  onChange={(event) => setMaxOutputTokens(event.target.value)}
+                  min={1}
+                  max={selectedModel?.maxOutputTokens || undefined}
+                  step={1}
+                  placeholder={t("providerDefault")}
+                />
+              </Field>
+            </div>
+          </div>
           <details className="group/details">
             <summary className="flex cursor-pointer list-none items-center gap-2 text-sm text-muted-foreground">
               <ChevronDownIcon className="size-4 group-open/details:rotate-180" />
@@ -379,6 +677,49 @@ function ProviderForm({
                 />
                 <FieldDescription>{t("embeddingHelp")}</FieldDescription>
               </Field>
+              <Field>
+                <FieldLabel htmlFor="provider-top-p">{t("fields.topP")}</FieldLabel>
+                <Input
+                  id="provider-top-p"
+                  type="number"
+                  value={topP}
+                  onChange={(event) => setTopP(event.target.value)}
+                  min={0}
+                  max={1}
+                  step="0.05"
+                  placeholder={t("providerDefault")}
+                />
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field>
+                  <FieldLabel htmlFor="provider-presence">{t("fields.presencePenalty")}</FieldLabel>
+                  <Input
+                    id="provider-presence"
+                    type="number"
+                    value={presencePenalty}
+                    onChange={(event) => setPresencePenalty(event.target.value)}
+                    min={-2}
+                    max={2}
+                    step="0.1"
+                    placeholder={t("providerDefault")}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="provider-frequency">
+                    {t("fields.frequencyPenalty")}
+                  </FieldLabel>
+                  <Input
+                    id="provider-frequency"
+                    type="number"
+                    value={frequencyPenalty}
+                    onChange={(event) => setFrequencyPenalty(event.target.value)}
+                    min={-2}
+                    max={2}
+                    step="0.1"
+                    placeholder={t("providerDefault")}
+                  />
+                </Field>
+              </div>
               <Field orientation="horizontal">
                 <Switch
                   id="provider-tools"
@@ -401,7 +742,7 @@ function ProviderForm({
           </details>
           <FieldError>{error}</FieldError>
           <div className="flex justify-end">
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving || !model.trim()}>
               {saving && <Loader2Icon className="animate-spin" />}
               {t("save")}
             </Button>

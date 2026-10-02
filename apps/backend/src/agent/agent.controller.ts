@@ -163,6 +163,27 @@ export class AgentController {
     };
   }
 
+  @Get("providers/catalog/:kind")
+  @ApiDoc({ summary: "查询厂商公开模型目录", type: ResourceResult, array: true })
+  modelCatalog(
+    @Param(new ZodPipe(schema.discoverModels.pick({ kind: true }))) params: Pick<
+      schema.DiscoverModels,
+      "kind"
+    >,
+  ) {
+    return this.models.catalog(params.kind);
+  }
+
+  @Post("providers/models")
+  @HttpCode(200)
+  @ApiDoc({ summary: "从用户账号获取模型列表", type: ResourceResult, array: true })
+  discoverModels(
+    @CurrentUser() user: AuthUser,
+    @Body(new ZodPipe(schema.discoverModels)) body: schema.DiscoverModels,
+  ) {
+    return this.models.discover(user.id, body);
+  }
+
   @Get("providers")
   @ApiDoc({ summary: "查询当前用户模型配置", type: ResourceResult, array: true })
   listProviders(@CurrentUser() user: AuthUser) {
