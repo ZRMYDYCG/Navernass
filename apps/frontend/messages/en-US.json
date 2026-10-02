@@ -481,6 +481,37 @@
       "embeddingHelp": "Optional. For knowledge retrieval, enter an embedding model supported by this provider.",
       "retry": "Retry",
       "editDescription": "Update this configuration. Leave the API key blank to keep the saved key."
+    },
+    "customize": {
+      "title": "Customize",
+      "description": "Manage extensible agent capabilities.",
+      "modules": {
+        "skills": "Skills",
+        "hooks": "Hooks",
+        "subagents": "Subagents",
+        "workflows": "Workflows"
+      },
+      "skills": {
+        "search": "Search skills...",
+        "new": "New",
+        "customTitle": "Custom {count}",
+        "builtinTitle": "Built-in {count}",
+        "emptyCustomTitle": "No custom skills yet",
+        "emptyCustomDescription": "Create a skill to turn a stable writing workflow into a reusable capability.",
+        "emptyBuiltinTitle": "No matching built-in skills",
+        "emptyBuiltinDescription": "Try another search term.",
+        "disabled": "Disabled",
+        "toggle": "Enable or disable skill",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleteTitle": "Delete skill?",
+        "deleteDescription": "This will delete “{name}”. This action cannot be undone.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "enabled": "Enabled",
+        "newTitle": "New skill",
+        "editTitle": "Edit skill"
+      }
     }
   },
   "sidebar": {

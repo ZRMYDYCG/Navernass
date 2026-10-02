@@ -1,6 +1,42 @@
 "use client";
 
 import {
+  AgnesAI,
+  Ai21,
+  Ai302,
+  AiHubMix,
+  Alibaba,
+  AMDRadeonCloud,
+  Arcee,
+  Chutes,
+  Cloudflare,
+  Crusoe,
+  DigitalOcean,
+  Friendli,
+  GithubCopilot,
+  IBM,
+  Inception,
+  Kimi,
+  LongCat,
+  Meta,
+  Morph,
+  Nebius,
+  Novita,
+  OpenCode,
+  Poe,
+  Poolside,
+  Qiniu,
+  SenseNova,
+  Snowflake,
+  SubModel,
+  Tencent,
+  Upstage,
+  V0,
+  Venice,
+  Wafer,
+  Wandb,
+  WorkersAI,
+  ZenMux,
   Anthropic,
   Aws,
   Azure,
@@ -51,7 +87,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState, type ComponentType, type CSSProperties } from "react";
+import { useMemo, useState, type ComponentType } from "react";
 import { Autocomplete } from "@base-ui/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -99,8 +135,13 @@ import {
   useUpdateProvider,
 } from "@/servers/provider.server";
 
-/** 常用厂商的彩色图标与密钥页；顺序即厂商列表默认展示顺序，其余厂商使用 Models.dev 图标。 */
-const brands: Record<string, { icon: ComponentType<{ size?: number }>; website?: string }> = {
+/** 厂商图标：使用 @lobehub/icons 自带 Avatar 配色。 */
+type BrandIcon = ComponentType<{ size?: number }> & {
+  Avatar: ComponentType<{ className?: string; size: number }>;
+};
+
+/** 常用厂商的品牌色图标与密钥页；顺序即厂商列表默认展示顺序，其余厂商使用 Models.dev 图标。 */
+const brands: Record<string, { icon: BrandIcon; website?: string }> = {
   openai: { icon: OpenAI, website: "https://platform.openai.com/api-keys" },
   anthropic: { icon: Anthropic, website: "https://console.anthropic.com/" },
   google: { icon: Gemini, website: "https://aistudio.google.com/apikey" },
@@ -143,19 +184,83 @@ const brands: Record<string, { icon: ComponentType<{ size?: number }>; website?:
 };
 const featured = Object.keys(brands);
 
+// 图标映射独立于首批展示顺序，加载更多和搜索结果使用同一套品牌图标。
+const catalogIcons: Record<string, BrandIcon> = {
+  "302ai": Ai302,
+  agnes: AgnesAI,
+  ai21: Ai21,
+  aihubmix: AiHubMix,
+  alibaba: Alibaba,
+  "alibaba-coding-plan": Alibaba,
+  "alibaba-coding-plan-cn": Alibaba,
+  "alibaba-token-plan": Alibaba,
+  "alibaba-token-plan-cn": Alibaba,
+  amd: AMDRadeonCloud,
+  arcee: Arcee,
+  "azure-cognitive-services": Azure,
+  chutes: Chutes,
+  "cloudflare-ai-gateway": Cloudflare,
+  "cloudflare-workers-ai": WorkersAI,
+  crusoe: Crusoe,
+  digitalocean: DigitalOcean,
+  friendli: Friendli,
+  "github-copilot": GithubCopilot,
+  "google-vertex-anthropic": Anthropic,
+  inception: Inception,
+  "kimi-code-plan-cn": Kimi,
+  "kimi-code-plan-global": Kimi,
+  longcat: LongCat,
+  meta: Meta,
+  "minimax-coding-plan": Minimax,
+  "minimax-cn-coding-plan": Minimax,
+  morph: Morph,
+  nebius: Nebius,
+  "novita-ai": Novita,
+  "ollama-cloud": Ollama,
+  opencode: OpenCode,
+  "opencode-go": OpenCode,
+  poe: Poe,
+  poolside: Poolside,
+  "perplexity-agent": Perplexity,
+  "qiniu-ai": Qiniu,
+  sensenova: SenseNova,
+  "snowflake-cortex": Snowflake,
+  "stepfun-ai": Stepfun,
+  "stepfun-ai-step-plan": Stepfun,
+  "stepfun-step-plan": Stepfun,
+  submodel: SubModel,
+  "tencent-coding-plan": Tencent,
+  "tencent-token-plan": Tencent,
+  upstage: Upstage,
+  v0: V0,
+  venice: Venice,
+  "volcengine-coding-plan": Volcengine,
+  "wafer.ai": Wafer,
+  wandb: Wandb,
+  watsonx: IBM,
+  "xiaomi-token-plan-cn": XiaomiMiMo,
+  "xiaomi-token-plan-ams": XiaomiMiMo,
+  "xiaomi-token-plan-sgp": XiaomiMiMo,
+  "zai-coding-plan": ZAI,
+  zenmux: ZenMux,
+  "zhipuai-coding-plan": Zhipu,
+};
+
 function ProviderLogo({ id, size }: { id: string; size: number }) {
-  const Icon = id === "compatible" ? GlobeIcon : brands[id]?.icon;
-  if (Icon) return <Icon size={size} />;
+  if (id === "compatible") return <GlobeIcon size={size} className="shrink-0" />;
+  const Icon = brands[id]?.icon ?? catalogIcons[id];
+  if (Icon) {
+    return <Icon.Avatar aria-hidden className="shrink-0" size={size} />;
+  }
   return (
-    <span
+    // oxlint-disable-next-line next/no-img-element -- models.dev 提供的是固定远程 SVG 图标，直接渲染才能保留原始品牌配色。
+    <img
       aria-hidden
-      className="size-(--logo-size) shrink-0 bg-foreground mask-(--logo) mask-contain mask-center mask-no-repeat"
-      style={
-        {
-          "--logo": `url(https://models.dev/logos/${encodeURIComponent(id)}.svg)`,
-          "--logo-size": `${size}px`,
-        } as CSSProperties
-      }
+      alt=""
+      className="shrink-0"
+      height={size}
+      src={`https://models.dev/logos/${encodeURIComponent(id)}.svg`}
+      width={size}
     />
   );
 }

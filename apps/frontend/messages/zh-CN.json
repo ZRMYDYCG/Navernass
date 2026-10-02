@@ -481,6 +481,37 @@
       "embeddingHelp": "可选。用于知识检索，请填写该厂商支持的嵌入模型 ID。",
       "retry": "重试",
       "editDescription": "修改此模型配置；API Key 留空则保留已保存的密钥。"
+    },
+    "customize": {
+      "title": "自定义",
+      "description": "管理 Agent 的可扩展能力。",
+      "modules": {
+        "skills": "Skills",
+        "hooks": "Hooks",
+        "subagents": "Subagents",
+        "workflows": "Workflows"
+      },
+      "skills": {
+        "search": "搜索 Skills…",
+        "new": "新建",
+        "customTitle": "自定义 {count}",
+        "builtinTitle": "内置 {count}",
+        "emptyCustomTitle": "还没有自定义 Skill",
+        "emptyCustomDescription": "新建一个 Skill，把稳定的创作流程沉淀成可复用能力。",
+        "emptyBuiltinTitle": "没有匹配的内置 Skill",
+        "emptyBuiltinDescription": "换个关键词试试。",
+        "disabled": "已停用",
+        "toggle": "启用或停用 Skill",
+        "edit": "编辑",
+        "delete": "删除",
+        "deleteTitle": "删除 Skill？",
+        "deleteDescription": "将删除「{name}」，这个操作不能撤销。",
+        "cancel": "取消",
+        "save": "保存",
+        "enabled": "启用",
+        "newTitle": "新建 Skill",
+        "editTitle": "编辑 Skill"
+      }
     }
   },
   "sidebar": {

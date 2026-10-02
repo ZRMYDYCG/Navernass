@@ -89,8 +89,8 @@ export class SkillService {
     const id = randomUUID();
     const metadata = parsed.frontmatter.metadata;
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        const skill = await tx.skillDef.create({
+      await this.prisma.$transaction(async (tx) => {
+        await tx.skillDef.create({
           data: {
             id,
             slug: parsed.frontmatter.name,
@@ -115,8 +115,8 @@ export class SkillService {
         await tx.skillInstall.create({
           data: { user_id: userId, skill_id: id, enabled: input.enabled, config: {} },
         });
-        return skill;
       });
+      return this.detail(userId, id);
     } catch (error) {
       if (this.isUniqueError(error))
         throw new AppError("CONFLICT", `自定义 Skill 名称已存在：${parsed.frontmatter.name}`, 409);
@@ -130,8 +130,8 @@ export class SkillService {
     const parsed = this.parser.parse(skillMd);
     const metadata = parsed.frontmatter.metadata;
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        const skill = await tx.skillDef.update({
+      await this.prisma.$transaction(async (tx) => {
+        await tx.skillDef.update({
           where: { id },
           data: {
             slug: parsed.frontmatter.name,
@@ -157,8 +157,8 @@ export class SkillService {
             update: { enabled: input.enabled },
           });
         }
-        return skill;
       });
+      return this.detail(userId, id);
     } catch (error) {
       if (this.isUniqueError(error))
         throw new AppError("CONFLICT", `自定义 Skill 名称已存在：${parsed.frontmatter.name}`, 409);
