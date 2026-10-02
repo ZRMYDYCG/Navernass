@@ -1,0 +1,47 @@
+appId: com.narraverse.desktop
+productName: Narraverse
+directories:
+  buildResources: build
+  output: release/${version}
+
+# electron-vite 已把 main / preload / renderer 全量打包进 out/，
+# 运行时不依赖 node_modules，因此只收集产物目录。
+files:
+  - out/**
+  - resources/**
+
+asarUnpack:
+  - resources/**
+
+# 无原生模块，跳过 electron 重建
+npmRebuild: false
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  artifactName: ${productName}-${version}-${arch}-setup.${ext}
+
+mac:
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+  category: public.app-category.productivity
+  # TODO: 配置开发者证书后移除，当前输出未签名应用
+  identity: null
+
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+  category: Utility
+  maintainer: Narraverse
+  artifactName: ${productName}-${version}-${arch}.${ext}

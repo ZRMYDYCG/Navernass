@@ -28,6 +28,9 @@ out/
 build
 dist
 
+# electron-builder
+release/
+
 # misc
 .DS_Store
 *.pem

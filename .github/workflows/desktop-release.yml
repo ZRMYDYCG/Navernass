@@ -1,0 +1,95 @@
+name: Desktop Release
+
+# 推送 desktop-v* 标签发布正式版；也可手动触发产出测试构建（不发布）。
+on:
+  push:
+    tags:
+      - "desktop-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: "--mac"
+          - os: windows-latest
+            target: "--win"
+          - os: ubuntu-latest
+            target: "--linux"
+    runs-on: ${{ matrix.os }}
+    env:
+      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.cache/electron
+            ${{ github.workspace }}/.cache/electron-builder
+          key: electron-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --filter @narraverse/desktop
+
+      # 正式版取 desktop-vX.Y.Z 中的 X.Y.Z；手动触发用递增的开发版本号。
+      - name: Resolve version
+        id: version
+        run: |
+          if [[ "$GITHUB_REF_NAME" == desktop-v* ]]; then
+            echo "version=${GITHUB_REF_NAME#desktop-v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0-dev.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
+          fi
+        shell: bash
+
+      - name: Typecheck
+        run: pnpm --filter @narraverse/desktop typecheck
+
+      - name: Package
+        run: >
+          pnpm --filter @narraverse/desktop exec electron-builder
+          ${{ matrix.target }}
+          -c.extraMetadata.version=${{ steps.version.outputs.version }}
+          --publish never
+        shell: bash
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          path: |
+            apps/desktop/release/**/*.dmg
+            apps/desktop/release/**/*.exe
+            apps/desktop/release/**/*.AppImage
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**
+          generate_release_notes: true

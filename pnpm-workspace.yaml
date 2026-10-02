@@ -23,6 +23,7 @@ allowBuilds:
   prisma: true
   sharp: true
   unrs-resolver: false
+  electron-winstaller: false
 minimumReleaseAgeExclude:
   - '@ai-sdk/anthropic@4.0.58'
   - '@ai-sdk/gateway@4.0.87'
