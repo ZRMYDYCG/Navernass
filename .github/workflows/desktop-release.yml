@@ -60,6 +60,9 @@ jobs:
       - name: Typecheck
         run: pnpm --filter @narraverse/desktop typecheck
 
+      - name: Build
+        run: pnpm --filter @narraverse/desktop build
+
       - name: Package
         run: >
           pnpm --filter @narraverse/desktop exec electron-builder
