@@ -20,6 +20,7 @@ import { HealthModule } from "./health/health.module.js";
 import { EditorModule } from "./editor/editor.module.js";
 import { LibraryModule } from "./library/library.module.js";
 import { PlanningModule } from "./planning/planning.module.js";
+import { R2Module } from "./r2/r2.module.js";
 import { SkillModule } from "./skill/skill.module.js";
 
 @Module({
@@ -55,6 +56,7 @@ import { SkillModule } from "./skill/skill.module.js";
     AccountModule,
     LibraryModule,
     PlanningModule,
+    R2Module,
     ContentModule,
     AdminModule,
     SkillModule,
