@@ -343,7 +343,6 @@
     "comingSoon": "Coming soon.",
     "sections": {
       "general": "General",
-      "account": "Account",
       "models": "Models",
       "customize": "Customize",
       "changelog": "Changelog"
@@ -358,6 +357,13 @@
     "general": {
       "title": "General",
       "preferences": "Preferences",
+      "account": {
+        "title": "Account",
+        "avatar": "Avatar",
+        "name": "Name",
+        "email": "Email",
+        "remove": "Remove avatar"
+      },
       "theme": {
         "title": "Theme",
         "description": "Change the interface colors. System follows your OS setting.",
@@ -372,22 +378,6 @@
         "title": "Language",
         "description": "Interface display language."
       }
-    },
-    "account": {
-      "title": "Account",
-      "profile": "Profile",
-      "avatar": {
-        "title": "Avatar",
-        "description": "JPG, PNG, WebP or GIF, up to 10 MB.",
-        "upload": "Upload avatar",
-        "remove": "Remove"
-      },
-      "name": {
-        "title": "Display name",
-        "description": "The name shown across your workspace.",
-        "save": "Save"
-      },
-      "email": "Email"
     },
     "models": {
       "title": "Model providers",

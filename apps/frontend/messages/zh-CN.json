@@ -343,7 +343,6 @@
     "comingSoon": "即将推出，敬请期待。",
     "sections": {
       "general": "通用",
-      "account": "账号",
       "models": "模型",
       "customize": "自定义",
       "changelog": "更新日志"
@@ -358,6 +357,13 @@
     "general": {
       "title": "通用",
       "preferences": "偏好",
+      "account": {
+        "title": "账号",
+        "avatar": "头像",
+        "name": "昵称",
+        "email": "邮箱",
+        "remove": "移除头像"
+      },
       "theme": {
         "title": "主题",
         "description": "切换界面配色，跟随系统时随操作系统自动切换。",
@@ -372,22 +378,6 @@
         "title": "语言",
         "description": "界面显示语言。"
       }
-    },
-    "account": {
-      "title": "账号",
-      "profile": "个人资料",
-      "avatar": {
-        "title": "头像",
-        "description": "支持 JPG、PNG、WebP、GIF，不超过 10 MB。",
-        "upload": "上传头像",
-        "remove": "移除"
-      },
-      "name": {
-        "title": "昵称",
-        "description": "显示在工作台中的名字。",
-        "save": "保存"
-      },
-      "email": "邮箱"
     },
     "models": {
       "title": "模型服务",
