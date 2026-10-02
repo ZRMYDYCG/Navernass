@@ -38,6 +38,8 @@ mac:
   identity: null
 
 linux:
+  # 包名 @narraverse/desktop 不能直接用作可执行文件名，显式指定
+  executableName: narraverse
   target:
     - target: AppImage
       arch:
