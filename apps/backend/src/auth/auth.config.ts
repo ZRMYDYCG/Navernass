@@ -7,11 +7,19 @@ import { bearer } from "better-auth/plugins";
 
 export function createAuth(prisma: PrismaService, config: ConfigService<EnvConfig, true>) {
   const adminEmail = config.get("SUPER_ADMIN_EMAIL", { infer: true })?.toLowerCase();
+  const trustedOrigins = [
+    config.get("APP_URL", { infer: true }),
+    ...config
+      .get("CORS_ORIGINS", { infer: true })
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  ];
   return betterAuth({
     baseURL: config.get("BETTER_AUTH_URL", { infer: true }),
     basePath: "/api/auth",
     secret: config.get("BETTER_AUTH_SECRET", { infer: true }),
-    trustedOrigins: [config.get("APP_URL", { infer: true })],
+    trustedOrigins: Array.from(new Set(trustedOrigins)),
     plugins: [bearer()],
     database: prismaAdapter(prisma, { provider: "mysql" }),
     emailAndPassword: {

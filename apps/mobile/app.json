@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Narraverse",
+    "slug": "narraverse-mobile",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "scheme": "narraverse",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
