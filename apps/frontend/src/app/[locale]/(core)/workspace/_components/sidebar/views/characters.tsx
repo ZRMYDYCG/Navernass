@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type {
   CharacterProfile,
   CharacterRelationship,
@@ -58,9 +59,15 @@ function CharacterItem({
       <CollapsibleTrigger className="group/trigger flex w-full min-w-0">
         <span className="flex w-full min-w-0 items-center gap-1.5 rounded-md px-2 py-1.5 text-sm transition-colors group-hover/trigger:bg-accent group-data-panel-open/trigger:bg-accent">
           <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground transition-transform group-data-panel-open/trigger:rotate-90" />
-          <span className="min-w-0 flex-1 truncate text-start font-medium">{character.name}</span>
+          <Avatar size="sm">
+            {character.avatar ? <AvatarImage src={character.avatar} alt={character.name} /> : null}
+            <AvatarFallback>{character.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <span className="max-w-1/2 shrink-0 truncate text-start font-medium">
+            {character.name}
+          </span>
           {character.description ? (
-            <span className="min-w-0 truncate text-xs font-normal text-muted-foreground">
+            <span className="min-w-0 flex-1 truncate text-start text-xs font-normal text-muted-foreground">
               {character.description}
             </span>
           ) : null}

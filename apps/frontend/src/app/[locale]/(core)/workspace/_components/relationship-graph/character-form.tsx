@@ -1,14 +1,18 @@
 "use client";
 
-import { Trash2Icon, UserRoundIcon, XIcon } from "lucide-react";
+import { CameraIcon, Trash2Icon, UserRoundIcon, XIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { useMutation } from "@tanstack/react-query";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DrawerClose } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { uploadFile } from "@/lib/http/modules/storage.api";
+import { imageContentTypes } from "@/lib/http/modules/storage.schema";
 import { useDeleteCharacter, useUpdateCharacter } from "@/servers/library.server";
 import { useRelationshipGraphStore } from "@/stores";
 
@@ -36,10 +40,16 @@ export function CharacterForm({ novelId, character }: CharacterFormProps) {
   const deleteCharacter = useDeleteCharacter(novelId);
   const selectCharacter = useRelationshipGraphStore((state) => state.selectCharacter);
   const closeInspector = useRelationshipGraphStore((state) => state.closeInspector);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const uploadAvatar = useMutation({
+    mutationFn: uploadFile,
+    onSuccess: (avatar) => updateCharacter(character.id, { avatar }),
+  });
 
   const patchCharacter = (patch: Partial<Omit<Character, "id">>) => {
     updateCharacter(character.id, {
       ...(patch.name !== undefined && { name: patch.name }),
+      ...(patch.avatar !== undefined && { avatar: patch.avatar }),
       ...(patch.summary !== undefined && { description: patch.summary }),
       ...(patch.customFields !== undefined && { custom_fields: patch.customFields }),
       ...(patch.position && {
@@ -69,6 +79,57 @@ export function CharacterForm({ novelId, character }: CharacterFormProps) {
       </div>
       <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-5 md:grid-cols-5">
         <div className="space-y-4 md:col-span-2">
+          <Field label={t("inspector.characterAvatar")}>
+            <div className="flex items-center gap-3">
+              <div className="group relative">
+                <button
+                  type="button"
+                  disabled={uploadAvatar.isPending}
+                  aria-label={t("inspector.uploadAvatar")}
+                  className="block cursor-pointer rounded-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => fileInput.current?.click()}
+                >
+                  <Avatar size="lg">
+                    {character.avatar ? (
+                      <AvatarImage src={character.avatar} alt={character.name} />
+                    ) : null}
+                    <AvatarFallback>{character.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="absolute inset-0 flex items-center justify-center rounded-full bg-foreground/60 text-background opacity-0 transition-opacity group-hover:opacity-100">
+                    <CameraIcon className="size-3.5" />
+                  </span>
+                </button>
+                {character.avatar ? (
+                  <button
+                    type="button"
+                    disabled={uploadAvatar.isPending}
+                    aria-label={t("inspector.removeAvatar")}
+                    className="absolute -top-1 -right-1 flex size-4.5 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground focus-visible:opacity-100 focus-visible:outline-hidden"
+                    onClick={() => patchCharacter({ avatar: "" })}
+                  >
+                    <XIcon className="size-2.5" />
+                  </button>
+                ) : null}
+                <input
+                  ref={fileInput}
+                  type="file"
+                  accept={imageContentTypes.join(",")}
+                  hidden
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (file) uploadAvatar.mutate(file);
+                  }}
+                />
+              </div>
+              <div className="min-w-0 text-xs text-muted-foreground">
+                <p>{t("inspector.avatarHint")}</p>
+                {uploadAvatar.isError ? (
+                  <p className="mt-1 text-destructive">{t("inspector.avatarUploadError")}</p>
+                ) : null}
+              </div>
+            </div>
+          </Field>
           <Field label={t("inspector.characterName")}>
             <Input
               value={character.name}

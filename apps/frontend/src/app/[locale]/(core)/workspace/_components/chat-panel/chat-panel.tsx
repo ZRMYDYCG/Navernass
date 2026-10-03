@@ -122,7 +122,7 @@ export function ChatPanel({
   );
   const agentDrafts = useWorkspaceStore((state) => state.agentDrafts);
   const upsertAgentDraft = useWorkspaceStore((state) => state.upsertAgentDraft);
-  const updateAgentDraftText = useWorkspaceStore((state) => state.updateAgentDraftText);
+  const updateAgentDraftContent = useWorkspaceStore((state) => state.updateAgentDraftContent);
   const removeAgentDraft = useWorkspaceStore((state) => state.removeAgentDraft);
   const [state, dispatch] = useReducer(chatReducer, {
     ...initialChatState,
@@ -302,6 +302,14 @@ export function ChatPanel({
           continue;
         }
 
+        if (toolName === "createCharacter" || toolName === "updateCharacter") {
+          void queryClient.invalidateQueries({
+            queryKey: libraryKeys.characters(novelId),
+            exact: true,
+          });
+          continue;
+        }
+
         if (chapterWritingTools.has(toolName)) {
           const parsed = articleWriteOutputSchema.safeParse(part.output);
           if (!parsed.success) continue;
@@ -466,11 +474,11 @@ export function ChatPanel({
     syncSelectedSession(undefined);
   }, [streamStore, syncSelectedSession]);
 
-  const updateActiveDraft = (text: string) => {
+  const updateActiveDraft = (text: string, activationBlocks: ActivationBlock[] = []) => {
     if (!novelId || state.sessionId) return;
     const existing = agentDrafts[activeAgentId];
     if (existing) {
-      updateAgentDraftText(activeAgentId, text);
+      updateAgentDraftContent(activeAgentId, text, activationBlocks);
       return;
     }
     if (!text.trim()) return;
@@ -479,6 +487,7 @@ export function ChatPanel({
       id: activeAgentId,
       novelId,
       text,
+      activationBlocks,
       createdAt: now,
       updatedAt: now,
     });
@@ -506,13 +515,21 @@ export function ChatPanel({
     syncSelectedSession(undefined);
   }, [agentDrafts, openDraftRequest, streamStore, syncSelectedSession]);
 
-  const closeAgentTab = (id: string) => {
+  const closeAgentTabs = (ids: string[]) => {
+    const closingIds = new Set(ids);
+    if (closingIds.size === 0) return;
     setAgentTabs((tabs) => {
       if (tabs.length === 1) return tabs;
-      const index = tabs.findIndex((tab) => tab.id === id);
-      const next = tabs.filter((tab) => tab.id !== id);
-      if (id === activeAgentId) {
-        const target = next[Math.max(0, index - 1)] ?? next[0];
+      const next = tabs.filter((tab) => !closingIds.has(tab.id));
+      if (next.length === 0) return tabs;
+      if (closingIds.has(activeAgentId)) {
+        const activeIndex = orderedAgentTabs.findIndex((tab) => tab.id === activeAgentId);
+        const target =
+          orderedAgentTabs
+            .slice(0, activeIndex)
+            .reverse()
+            .find((tab) => !closingIds.has(tab.id)) ??
+          orderedAgentTabs.slice(activeIndex + 1).find((tab) => !closingIds.has(tab.id));
         if (target) {
           setActiveAgentId(target.id);
           streamStore.set(undefined);
@@ -593,6 +610,7 @@ export function ChatPanel({
   const composerProps = {
     novelId,
     value: state.sessionId ? undefined : (activeDraft?.text ?? ""),
+    activationBlocks: state.sessionId ? undefined : activeDraft?.activationBlocks,
     onChange: updateActiveDraft,
     busy,
     pausing: state.phase === "pausing",
@@ -616,7 +634,7 @@ export function ChatPanel({
           onSelectAgentTab={selectAgentTab}
           onSelect={(sessionId) => selectSession(sessionId)}
           onNew={newAgentTab}
-          onCloseAgentTab={closeAgentTab}
+          onCloseAgentTabs={closeAgentTabs}
           onDelete={deleteSession}
           agentSidebarOpen={agentSidebarOpen}
           onToggleAgentSidebar={onToggleAgentSidebar}

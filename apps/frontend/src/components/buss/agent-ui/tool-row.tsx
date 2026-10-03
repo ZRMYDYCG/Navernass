@@ -65,7 +65,7 @@ export function ToolRow({
         <span className="shrink-0 text-muted-foreground/60">· {t("interrupted")}</span>
       ) : null}
       {trailing ? (
-        <span className="shrink-0 text-xs text-muted-foreground/60 tabular-nums">{trailing}</span>
+        <span className="shrink-0 text-xs text-muted-foreground/60 tabular-nums">· {trailing}</span>
       ) : null}
     </span>
   );

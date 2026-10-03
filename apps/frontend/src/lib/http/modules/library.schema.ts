@@ -104,6 +104,7 @@ export const relationshipKindSchema = z.enum([
 export const characterProfileSchema = z.object({
   id: z.string(),
   name: z.string(),
+  avatar: z.string().default(""),
   description: z.string(),
   overview_x: z.number().nullish(),
   overview_y: z.number().nullish(),
@@ -126,6 +127,7 @@ export const characterRelationshipSchema = z.object({
 export const createCharacterPayloadSchema = z.object({
   novel_id: z.string(),
   name: z.string().min(1).max(100),
+  avatar: z.string().max(2_000).optional(),
   description: z.string().optional(),
   overview_x: z.number().optional(),
   overview_y: z.number().optional(),

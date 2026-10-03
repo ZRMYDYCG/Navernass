@@ -162,6 +162,20 @@ export function useCreateStarterWorkspace() {
 }
 
 /**
+ * 新建小说；后端把新小说排在末尾，列表缓存同步追加，切换过去时无需等待重新拉取。
+ */
+export function useCreateNovel() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createNovelApi,
+    onSuccess: (novel) => {
+      queryClient.setQueryData(libraryKeys.novel(novel.id), novel);
+      queryClient.setQueryData<Novel[]>(libraryKeys.novels, (list) => [...(list ?? []), novel]);
+    },
+  });
+}
+
+/**
  * 更新小说标题、简介或封面，并同步详情与列表缓存。
  */
 export function useUpdateNovel(novelId: string) {
@@ -441,6 +455,7 @@ function useEntityUpdate<TEntity extends { id: string }, TPatch extends Partial<
   novelId: string | undefined;
   listKey: (novelId: string) => readonly unknown[];
   updateApi: (id: string, patch: TPatch) => Promise<TEntity>;
+  shouldSave?: (patch: TPatch) => boolean;
 }) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
@@ -451,7 +466,7 @@ function useEntityUpdate<TEntity extends { id: string }, TPatch extends Partial<
     scope: { id: `entity-update:${config.novelId ?? "none"}` },
     onSuccess: (entity) => {
       queryClient.setQueryData<TEntity[]>(config.listKey(config.novelId ?? "none"), (list) =>
-        list?.map((item) => (item.id === entity.id ? entity : item)),
+        list?.map((item) => (item.id === entity.id ? { ...entity, ...item } : item)),
       );
     },
     onError: () => {
@@ -468,6 +483,13 @@ function useEntityUpdate<TEntity extends { id: string }, TPatch extends Partial<
         list?.map((item) => (item.id === id ? { ...item, ...patch } : item)),
       );
       const mergeKey = `${config.novelId}:${id}`;
+      if (config.shouldSave && !config.shouldSave(patch)) {
+        const timer = updateTimers.get(mergeKey);
+        if (timer) clearTimeout(timer);
+        updateTimers.delete(mergeKey);
+        pendingUpdatePatches.delete(mergeKey);
+        return;
+      }
       const merged = { ...pendingUpdatePatches.get(mergeKey), ...patch };
       pendingUpdatePatches.set(mergeKey, merged);
       const timer = updateTimers.get(mergeKey);
@@ -494,6 +516,7 @@ export function useUpdateCharacter(novelId: string | undefined) {
     novelId,
     listKey: libraryKeys.characters,
     updateApi: (id, payload) => updateCharacterApi(id, payload),
+    shouldSave: (payload) => payload.name === undefined || payload.name.trim().length > 0,
   });
 }
 
@@ -505,6 +528,10 @@ export function useUpdateRelationship(novelId: string | undefined) {
     novelId,
     listKey: libraryKeys.relationships,
     updateApi: (id, payload) => updateRelationshipApi(id, payload),
+    shouldSave: (payload) =>
+      (payload.sourceToTargetLabel === undefined ||
+        payload.sourceToTargetLabel.trim().length > 0) &&
+      (payload.targetToSourceLabel === undefined || payload.targetToSourceLabel.trim().length > 0),
   });
 }
 

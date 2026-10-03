@@ -4,6 +4,7 @@ import { getToolName } from "ai";
 import type { DynamicToolUIPart, ToolUIPart } from "ai";
 import type { LucideIcon } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { z } from "zod";
 
 import { cn } from "cn";
@@ -136,6 +137,8 @@ export function defineMaterial<I, O>(material: ToolMaterial<I, O>): MaterialEntr
           <ToolExcerpt tone="error">{call.errorText}</ToolExcerpt>
         ) : Detail && hasData ? (
           <Detail {...ctx} />
+        ) : hasData ? (
+          <RawToolDetail {...ctx} />
         ) : undefined,
         card:
           Card && ctx.output !== undefined ? <Card call={call} output={ctx.output} /> : undefined,
@@ -173,6 +176,66 @@ export function ToolExcerpt({
     >
       {children}
     </div>
+  );
+}
+
+function ToolValue({ value }: { value: unknown }) {
+  if (Array.isArray(value)) {
+    if (!value.length) return <span className="text-muted-foreground">—</span>;
+    if (value.every((item) => item === null || typeof item !== "object"))
+      return <span className="wrap-break-word">{value.map(String).join("、")}</span>;
+    return (
+      <div className="flex min-w-0 flex-col gap-2">
+        {value.map((item, index) => (
+          <div key={index} className="min-w-0">
+            <ToolValue value={item} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (value !== null && typeof value === "object") {
+    const entries = Object.entries(value);
+    if (!entries.length) return <span className="text-muted-foreground">—</span>;
+    return (
+      <dl className="min-w-0 divide-y overflow-hidden rounded-md border">
+        {entries.map(([key, item]) => (
+          <div key={key} className="flex min-w-0 gap-3 px-2.5 py-1.5">
+            <dt className="w-28 shrink-0 truncate font-mono text-xs text-muted-foreground">
+              {key}
+            </dt>
+            <dd className="min-w-0 flex-1 text-foreground">
+              <ToolValue value={item} />
+            </dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
+
+  return (
+    <span className="wrap-break-word whitespace-pre-wrap text-foreground">
+      {value === null || value === "" ? "—" : String(value)}
+    </span>
+  );
+}
+
+export function RawToolDetail({ input, output }: MaterialContext<unknown, unknown>) {
+  const t = useTranslations("agui.detail");
+  return (
+    <>
+      {input === undefined ? null : (
+        <ToolField label={t("input")}>
+          <ToolValue value={input} />
+        </ToolField>
+      )}
+      {output === undefined ? null : (
+        <ToolField label={t("output")}>
+          <ToolValue value={output} />
+        </ToolField>
+      )}
+    </>
   );
 }
 

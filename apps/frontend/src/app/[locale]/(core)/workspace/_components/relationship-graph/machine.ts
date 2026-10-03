@@ -22,6 +22,7 @@ export interface GraphPosition {
 export interface Character {
   id: string;
   name: string;
+  avatar: string;
   summary: string;
   customFields: CharacterCustomField[];
   position: GraphPosition;
@@ -61,6 +62,7 @@ function toCharacter(profile: CharacterProfile): Character {
   return {
     id: profile.id,
     name: profile.name,
+    avatar: profile.avatar,
     summary: profile.description,
     customFields: profile.custom_fields,
     position:

@@ -1,6 +1,6 @@
 "use client";
 
-import { BookIcon, CheckIcon, ChevronDownIcon, PencilIcon } from "lucide-react";
+import { BookIcon, CheckIcon, ChevronDownIcon, PencilIcon, PlusIcon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useNovel, useNovels } from "@/servers/library.server";
 import type { Novel } from "@/lib/http/modules/library.schema";
 
-import { NovelDetails } from "./novel-details";
+import { NewNovel, NovelDetails } from "./novel-details";
 
 function NovelCover({ novel, size }: { novel: Novel; size: "sm" | "lg" }) {
   const sizeClass = size === "lg" ? "size-16 rounded-lg" : "size-9 rounded-md";
@@ -49,6 +49,7 @@ export function NovelSelector({ novelId, onSelectNovel }: NovelSelectorProps) {
   const { data: novel } = useNovel(novelId);
   const novels = useNovels();
   const [editing, setEditing] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   if (!novel) {
     return (
@@ -115,6 +116,10 @@ export function NovelSelector({ novelId, onSelectNovel }: NovelSelectorProps) {
             <DropdownMenuItem disabled>{t("loadNovelsError")}</DropdownMenuItem>
           ) : null}
           <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setCreating(true)}>
+            <PlusIcon />
+            {t("novelDetails.createTitle")}
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setEditing(true)}>
             <PencilIcon />
             {t("novelDetails.title")}
@@ -122,6 +127,11 @@ export function NovelSelector({ novelId, onSelectNovel }: NovelSelectorProps) {
         </DropdownMenuContent>
       </DropdownMenu>
       <NovelDetails novel={novel} open={editing} onOpenChange={setEditing} />
+      <NewNovel
+        open={creating}
+        onOpenChange={setCreating}
+        onCreated={(created) => onSelectNovel(created.id)}
+      />
     </>
   );
 }

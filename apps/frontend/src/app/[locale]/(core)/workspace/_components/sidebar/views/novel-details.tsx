@@ -21,7 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Novel } from "@/lib/http/modules/library.schema";
 import { uploadFile } from "@/lib/http/modules/storage.api";
 import { imageContentTypes } from "@/lib/http/modules/storage.schema";
-import { useUpdateNovel } from "@/servers/library.server";
+import { useCreateNovel, useUpdateNovel } from "@/servers/library.server";
 
 interface NovelDetailsProps {
   novel: Novel;
@@ -31,6 +31,7 @@ interface NovelDetailsProps {
 
 export function NovelDetails({ novel, open, onOpenChange }: NovelDetailsProps) {
   const t = useTranslations("sidebar.novelDetails");
+  const updateNovel = useUpdateNovel(novel.id);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -38,34 +39,87 @@ export function NovelDetails({ novel, open, onOpenChange }: NovelDetailsProps) {
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
-        <NovelForm novel={novel} onSaved={() => onOpenChange(false)} />
+        <NovelForm
+          novel={novel}
+          pending={updateNovel.isPending}
+          error={updateNovel.error}
+          submitLabel={t("save")}
+          onSubmit={(payload) =>
+            updateNovel.mutate(payload, { onSuccess: () => onOpenChange(false) })
+          }
+        />
       </DialogContent>
     </Dialog>
   );
 }
 
-/** 弹窗每次打开都会重新挂载，表单状态从当前小说初始化。 */
-function NovelForm({ novel, onSaved }: { novel: Novel; onSaved: () => void }) {
+interface NewNovelProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreated: (novel: Novel) => void;
+}
+
+export function NewNovel({ open, onOpenChange, onCreated }: NewNovelProps) {
   const t = useTranslations("sidebar.novelDetails");
-  const [cover, setCover] = useState(novel.cover ?? "");
+  const createNovel = useCreateNovel();
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("createTitle")}</DialogTitle>
+        </DialogHeader>
+        <NovelForm
+          pending={createNovel.isPending}
+          error={createNovel.error}
+          submitLabel={t("create")}
+          onSubmit={(payload) =>
+            createNovel.mutate(
+              { ...payload, tags: [] },
+              {
+                onSuccess: (novel) => {
+                  onOpenChange(false);
+                  onCreated(novel);
+                },
+              },
+            )
+          }
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** 弹窗每次打开都会重新挂载，表单状态从传入的小说初始化；不传则为空白表单。 */
+function NovelForm({
+  novel,
+  pending,
+  error,
+  submitLabel,
+  onSubmit,
+}: {
+  novel?: Novel;
+  pending: boolean;
+  error: Error | null;
+  submitLabel: string;
+  onSubmit: (payload: { title: string; description: string; cover: string }) => void;
+}) {
+  const t = useTranslations("sidebar.novelDetails");
+  const [cover, setCover] = useState(novel?.cover ?? "");
   const fileInput = useRef<HTMLInputElement>(null);
   const uploadCover = useMutation({ mutationFn: uploadFile, onSuccess: setCover });
-  const updateNovel = useUpdateNovel(novel.id);
-  const error = uploadCover.error ?? updateNovel.error;
+  const shownError = uploadCover.error ?? error;
 
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        updateNovel.mutate(
-          {
-            title: String(data.get("title") ?? "").trim(),
-            description: String(data.get("description") ?? "").trim(),
-            cover,
-          },
-          { onSuccess: onSaved },
-        );
+        onSubmit({
+          title: String(data.get("title") ?? "").trim(),
+          description: String(data.get("description") ?? "").trim(),
+          cover,
+        });
       }}
     >
       <FieldGroup>
@@ -113,7 +167,7 @@ function NovelForm({ novel, onSaved }: { novel: Novel; onSaved: () => void }) {
           <Input
             id="novel-title"
             name="title"
-            defaultValue={novel.title}
+            defaultValue={novel?.title}
             required
             maxLength={255}
           />
@@ -123,18 +177,18 @@ function NovelForm({ novel, onSaved }: { novel: Novel; onSaved: () => void }) {
           <Textarea
             id="novel-description"
             name="description"
-            defaultValue={novel.description ?? ""}
+            defaultValue={novel?.description ?? ""}
             maxLength={20_000}
             rows={4}
           />
         </Field>
-        {error ? <FieldError>{error.message}</FieldError> : null}
+        {shownError ? <FieldError>{shownError.message}</FieldError> : null}
       </FieldGroup>
       <DialogFooter className="mt-4">
         <DialogClose render={<Button type="button" variant="outline" />}>{t("cancel")}</DialogClose>
-        <Button type="submit" disabled={uploadCover.isPending || updateNovel.isPending}>
-          {updateNovel.isPending ? <Spinner /> : null}
-          {t("save")}
+        <Button type="submit" disabled={uploadCover.isPending || pending}>
+          {pending ? <Spinner /> : null}
+          {submitLabel}
         </Button>
       </DialogFooter>
     </form>

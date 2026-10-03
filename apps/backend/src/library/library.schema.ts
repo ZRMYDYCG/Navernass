@@ -89,24 +89,36 @@ export const characterCustomField = z.object({
   type: z.enum(["text", "longText", "tags"]).default("text"),
 });
 
-export const createCharacter = z.object({
-  novel_id: uuidSchema,
+const characterFields = z.object({
   name: z.string().trim().min(1).max(100),
-  role: z.string().max(100).default(""),
-  avatar: z.string().max(2_000).default(""),
+  role: z.string().max(100),
+  avatar: z.string().max(2_000),
   color: z.string().max(32).nullable().optional(),
-  description: z.string().max(20_000).default(""),
-  traits: z.array(z.string().max(100)).max(100).default([]),
-  keywords: z.array(z.string().max(100)).max(100).default([]),
-  first_appearance: z.string().max(255).default(""),
-  note: z.string().max(20_000).default(""),
+  description: z.string().max(20_000),
+  traits: z.array(z.string().max(100)).max(100),
+  keywords: z.array(z.string().max(100)).max(100),
+  first_appearance: z.string().max(255),
+  note: z.string().max(20_000),
   order_index: z.number().int().min(0).optional(),
   overview_x: z.number().finite().nullable().optional(),
   overview_y: z.number().finite().nullable().optional(),
-  custom_fields: z.array(characterCustomField).max(200).default([]),
+  custom_fields: z.array(characterCustomField).max(200),
 });
 
-export const updateCharacter = createCharacter.omit({ novel_id: true }).partial();
+export const createCharacter = characterFields.extend({
+  novel_id: uuidSchema,
+  role: characterFields.shape.role.default(""),
+  avatar: characterFields.shape.avatar.default(""),
+  description: characterFields.shape.description.default(""),
+  traits: characterFields.shape.traits.default([]),
+  keywords: characterFields.shape.keywords.default([]),
+  first_appearance: characterFields.shape.first_appearance.default(""),
+  note: characterFields.shape.note.default(""),
+  custom_fields: characterFields.shape.custom_fields.default([]),
+});
+
+// Zod 4 的 partial() 仍会填充字段 default，补丁必须基于无默认值的字段，否则未传字段（如头像）会被重置。
+export const updateCharacter = characterFields.partial();
 
 const relationshipKinds = z.enum([
   "ally",

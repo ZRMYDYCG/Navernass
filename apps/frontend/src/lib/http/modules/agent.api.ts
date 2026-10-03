@@ -50,8 +50,14 @@ export function startAgentStream(
       ...(context.chapterId && { chapterId: context.chapterId }),
       ...(sessionId && { sessionId }),
       skillIds: context.activationBlocks
-        ?.filter((block) => block.kind === "skill")
-        .map((block) => block.id),
+        ? [
+            ...new Set(
+              context.activationBlocks
+                .filter((block) => block.kind === "skill")
+                .map((block) => block.id),
+            ),
+          ]
+        : undefined,
       prompt,
       context: { activationBlocks: context.activationBlocks ?? [] },
     },

@@ -1,9 +1,17 @@
 import type { WorkspaceSliceCreator } from "../types";
 
+export interface AgentDraftActivation {
+  kind: "skill" | "novel" | "chapter" | "character";
+  id: string;
+  label: string;
+  avatar?: string;
+}
+
 export interface AgentDraft {
   id: string;
   novelId: string;
   text: string;
+  activationBlocks?: AgentDraftActivation[];
   createdAt: number;
   updatedAt: number;
   pinned?: boolean;
@@ -15,7 +23,7 @@ export interface AgentDraftState {
 
 export interface AgentDraftActions {
   upsertAgentDraft: (draft: AgentDraft) => void;
-  updateAgentDraftText: (id: string, text: string) => void;
+  updateAgentDraftContent: (id: string, text: string, blocks: AgentDraftActivation[]) => void;
   removeAgentDraft: (id: string) => void;
   setAgentDraftPinned: (id: string, pinned: boolean) => void;
 }
@@ -30,11 +38,12 @@ export const createAgentDraftSlice: WorkspaceSliceCreator<AgentDraftSlice> = (se
       state.agentDrafts[draft.id] = draft;
     }),
 
-  updateAgentDraftText: (id, text) =>
+  updateAgentDraftContent: (id, text, blocks) =>
     set((state) => {
       const draft = state.agentDrafts[id];
       if (!draft) return;
       draft.text = text;
+      draft.activationBlocks = blocks;
       draft.updatedAt = Date.now();
     }),
 

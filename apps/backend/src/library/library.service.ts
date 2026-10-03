@@ -498,27 +498,44 @@ export class LibraryService {
   }
 
   async createCharacter(userId: string, input: CreateCharacterInput) {
-    const novel = await this.getNovel(userId, input.novel_id);
-    const list = jsonList<Character>(novel.characters);
     const { novel_id: _novelId, ...fields } = input;
-    const character: Character = {
-      ...fields,
-      id: crypto.randomUUID(),
-      order_index: input.order_index ?? list.length,
-    };
-    await this.prisma.novel.update({
-      where: { id: novel.id },
-      data: { characters: [...list, character] },
-    });
-    return character;
+    const id = crypto.randomUUID();
+
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const novel = await this.getNovel(userId, input.novel_id);
+      const list = jsonList<Character>(novel.characters);
+      const character: Character = {
+        ...fields,
+        id,
+        order_index: input.order_index ?? list.length,
+      };
+      const updated = await this.prisma.novel.updateMany({
+        where: { id: novel.id, user_id: userId, characters: { equals: list } },
+        data: { characters: [...list, character] },
+      });
+      if (updated.count === 1) return character;
+    }
+
+    throw new AppError("CONFLICT", "角色列表正在被修改，请重试", 409);
   }
 
   async updateCharacter(userId: string, id: string, input: UpdateCharacterInput) {
-    const located = await this.findCharacter(userId, id);
-    const updated = { ...located.character, ...input, id };
-    const list = located.characters.map((item) => (item.id === id ? updated : item));
-    await this.prisma.novel.update({ where: { id: located.novelId }, data: { characters: list } });
-    return updated;
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const located = await this.findCharacter(userId, id);
+      const updated = { ...located.character, ...input, id };
+      const list = located.characters.map((item) => (item.id === id ? updated : item));
+      const result = await this.prisma.novel.updateMany({
+        where: {
+          id: located.novelId,
+          user_id: userId,
+          characters: { equals: located.characters },
+        },
+        data: { characters: list },
+      });
+      if (result.count === 1) return updated;
+    }
+
+    throw new AppError("CONFLICT", "角色列表正在被修改，请重试", 409);
   }
 
   async deleteCharacter(userId: string, id: string) {

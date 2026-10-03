@@ -1,6 +1,6 @@
 "use client";
 
-import { FileCodeIcon, SparklesIcon } from "lucide-react";
+import { FileCodeIcon, FileIcon, SparklesIcon, WrenchIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { z } from "zod";
 
@@ -19,6 +19,44 @@ type LoadSkillProps = MaterialContext<
   z.infer<typeof loadSkillOutputSchema>
 >;
 
+function SkillInstructions({ value }: { value: string }) {
+  const lines = value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return (
+    <div className="flex flex-col gap-1.5 rounded-md bg-muted/50 px-3 py-2.5">
+      {lines.map((line, index) => {
+        const heading = line.match(/^#{1,6}\s+(.+)$/)?.[1];
+        if (heading)
+          return (
+            <p key={`${index}-${line}`} className="text-sm font-medium text-foreground">
+              {heading}
+            </p>
+          );
+
+        const item = line.match(/^[-*]\s+(.+)$/)?.[1];
+        if (item)
+          return (
+            <div
+              key={`${index}-${line}`}
+              className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground"
+            >
+              <span className="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground" />
+              <span>{item}</span>
+            </div>
+          );
+
+        return (
+          <p key={`${index}-${line}`} className="text-sm leading-relaxed text-muted-foreground">
+            {line}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 function LoadSkillDetail({ output }: LoadSkillProps) {
   const t = useTranslations("agui.detail");
   if (!output) return null;
@@ -26,9 +64,10 @@ function LoadSkillDetail({ output }: LoadSkillProps) {
     <>
       {output.allowedTools.length ? (
         <ToolField label={t("allowedTools")}>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {output.allowedTools.map((name) => (
-              <Badge key={name} variant="outline">
+              <Badge key={name} variant="secondary">
+                <WrenchIcon data-icon="inline-start" />
                 {name}
               </Badge>
             ))}
@@ -37,17 +76,21 @@ function LoadSkillDetail({ output }: LoadSkillProps) {
       ) : null}
       {output.resources.length ? (
         <ToolField label={t("resources")}>
-          <ul className="flex flex-col gap-0.5 font-mono text-xs text-foreground/80">
+          <ul className="flex flex-col overflow-hidden rounded-md border">
             {output.resources.map((path) => (
-              <li key={path} className="truncate">
-                {path}
+              <li
+                key={path}
+                className="flex min-w-0 items-center gap-2 border-b px-2.5 py-1.5 text-xs last:border-b-0"
+              >
+                <FileIcon className="size-3.5 shrink-0 text-muted-foreground" />
+                <span className="truncate font-mono text-foreground/80">{path}</span>
               </li>
             ))}
           </ul>
         </ToolField>
       ) : null}
       <ToolField label={t("instructions")}>
-        <ToolExcerpt>{output.instructions}</ToolExcerpt>
+        <SkillInstructions value={output.instructions} />
       </ToolField>
     </>
   );
@@ -60,7 +103,7 @@ const loadSkill = defineMaterial({
   output: loadSkillOutputSchema,
   summary: (_, { input, output }) =>
     output
-      ? [output.id, output.version && `v${output.version}`].filter(Boolean).join(" ")
+      ? [output.id, output.version && `v${output.version}`].filter(Boolean).join(" · ")
       : input?.skillId,
   detail: LoadSkillDetail,
 });

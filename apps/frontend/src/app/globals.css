@@ -28,6 +28,8 @@
   --border: oklch(0.88 0.012 75);
   --input: oklch(0.88 0.012 75);
   --ring: oklch(0.55 0.04 60);
+  --composer-glow-start: oklch(0.72 0.15 245 / 55%);
+  --composer-glow-end: oklch(0.82 0.13 190 / 55%);
   --radius: 0.625rem;
 }
 
@@ -110,49 +112,13 @@
   }
 }
 
-@keyframes send-glow-rotate {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes send-glow-breathe {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* 输入框操作按钮外围的旋转炫光，颜色跟随主题；时长可通过变量覆盖以区分状态。 */
+/* 输入框操作按钮外围的蓝青柔光。 */
 @utility send-glow {
-  --send-glow-spin: 4s;
-  --send-glow-breathe: 2.8s;
-
   position: absolute;
-  inset: -30%;
+  inset: -55%;
   border-radius: 9999px;
-  background: conic-gradient(
-    from 0deg,
-    transparent,
-    var(--color-primary) 25%,
-    var(--color-accent) 40%,
-    transparent 55%,
-    transparent 65%,
-    var(--color-ring) 85%,
-    transparent
-  );
-  filter: blur(10px);
-  animation:
-    send-glow-rotate var(--send-glow-spin) linear infinite,
-    send-glow-breathe var(--send-glow-breathe) ease-in-out infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-    opacity: 0.5;
-  }
+  background: linear-gradient(120deg, var(--composer-glow-start), var(--composer-glow-end));
+  filter: blur(12px);
 }
 
 /* 流式状态文案的流光效果，颜色跟随主题。 */

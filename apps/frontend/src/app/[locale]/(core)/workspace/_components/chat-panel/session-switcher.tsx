@@ -15,6 +15,13 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ChatSession } from "@/lib/http/modules/agent.schema";
@@ -32,7 +39,7 @@ interface SessionSwitcherProps {
   onSelectAgentTab: (tab: AgentTab) => void;
   onSelect: (sessionId: string) => void;
   onNew: () => void;
-  onCloseAgentTab: (id: string) => void;
+  onCloseAgentTabs: (ids: string[]) => void;
   onDelete: (sessionId: string) => void;
   agentSidebarOpen?: boolean;
   onToggleAgentSidebar?: () => void;
@@ -85,7 +92,7 @@ export function SessionSwitcher({
   onSelectAgentTab,
   onSelect,
   onNew,
-  onCloseAgentTab,
+  onCloseAgentTabs,
   onDelete,
   agentSidebarOpen = false,
   onToggleAgentSidebar,
@@ -95,6 +102,9 @@ export function SessionSwitcher({
   const [keyword, setKeyword] = useState("");
 
   const closeHistory = () => setHistoryOpen(false);
+  const activeTabIndex = agentTabs.findIndex((tab) => tab.id === activeAgentId);
+  const leftTabIds = agentTabs.slice(0, activeTabIndex).map((tab) => tab.id);
+  const rightTabIds = agentTabs.slice(activeTabIndex + 1).map((tab) => tab.id);
 
   const groups = useMemo(() => {
     const text = keyword.trim().toLowerCase();
@@ -110,7 +120,7 @@ export function SessionSwitcher({
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-1 border-b px-3">
-      <div className="flex min-w-0 flex-1 items-end gap-1 self-stretch overflow-x-auto overflow-y-hidden">
+      <div className="scrollbar-none flex min-w-0 flex-1 items-end gap-1 self-stretch overflow-x-auto overflow-y-hidden">
         {agentTabs.map((tab) => {
           const session = sessions.find((item) => item.id === tab.sessionId);
           const active = tab.id === activeAgentId;
@@ -118,7 +128,7 @@ export function SessionSwitcher({
             <div
               key={tab.id}
               className={[
-                "group flex h-11 w-48 shrink-0 items-center gap-2 border-b-2 px-3 text-sm",
+                "group flex h-11 min-w-0 max-w-48 shrink-0 items-center gap-2 border-b-2 px-3 text-sm",
                 active
                   ? "border-primary text-foreground"
                   : "border-transparent text-muted-foreground",
@@ -137,7 +147,7 @@ export function SessionSwitcher({
                   type="button"
                   className="shrink-0 opacity-60 hover:opacity-100"
                   aria-label={t("close")}
-                  onClick={() => onCloseAgentTab(tab.id)}
+                  onClick={() => onCloseAgentTabs([tab.id])}
                 >
                   <XIcon className="size-3.5" />
                 </button>
@@ -158,9 +168,40 @@ export function SessionSwitcher({
         <PlusIcon />
       </Button>
 
-      <Button type="button" size="icon-sm" variant="ghost" aria-label={t("more")}>
-        <MoreHorizontalIcon />
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={<Button type="button" size="icon-sm" variant="ghost" aria-label={t("more")} />}
+        >
+          <MoreHorizontalIcon />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuItem
+            disabled={agentTabs.length <= 1}
+            onClick={() => onCloseAgentTabs([activeAgentId])}
+          >
+            {t("closeCurrent")}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={agentTabs.length <= 1}
+            onClick={() => onCloseAgentTabs([...leftTabIds, ...rightTabIds])}
+          >
+            {t("closeOthers")}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            disabled={leftTabIds.length === 0}
+            onClick={() => onCloseAgentTabs(leftTabIds)}
+          >
+            {t("closeLeft")}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={rightTabIds.length === 0}
+            onClick={() => onCloseAgentTabs(rightTabIds)}
+          >
+            {t("closeRight")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <Popover open={historyOpen} onOpenChange={setHistoryOpen}>
         <PopoverTrigger

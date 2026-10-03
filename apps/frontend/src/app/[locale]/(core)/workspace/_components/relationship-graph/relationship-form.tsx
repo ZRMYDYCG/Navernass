@@ -49,11 +49,9 @@ export function RelationshipForm({
 
   const patchRelationship = (patch: Partial<Omit<Relationship, "id">>) => {
     const next = { ...relationship, ...patch };
-    // label 为空时回退到当前类型的默认文案。
-    const label = next.label.trim() || t(`kinds.${next.kind}`);
     updateRelationship(relationship.id, {
-      sourceToTargetLabel: label,
-      targetToSourceLabel: label,
+      sourceToTargetLabel: next.label,
+      targetToSourceLabel: next.label,
       note: next.description,
       kind: next.kind,
       strength: next.strength,

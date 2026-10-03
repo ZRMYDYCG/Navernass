@@ -5,6 +5,7 @@ import { immer } from "zustand/middleware/immer";
 import { createLayoutSlice } from "./slices/layout.slice";
 import { createSelectionSlice, type WorkspaceView } from "./slices/selection.slice";
 import { createAgentDraftSlice } from "./slices/agent-drafts.slice";
+import { createComposerCharactersSlice } from "./slices/composer-characters.slice";
 import type { WorkspaceStore } from "./types";
 
 export type { WorkspaceView };
@@ -21,6 +22,7 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
       ...createSelectionSlice(...a),
       ...createLayoutSlice(...a),
       ...createAgentDraftSlice(...a),
+      ...createComposerCharactersSlice(...a),
     })),
     {
       name: "narraverse:workspace",
@@ -33,6 +35,7 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
         sidebarCollapsed: state.sidebarCollapsed,
         chatPanelCollapsed: state.chatPanelCollapsed,
         agentDrafts: state.agentDrafts,
+        composerCharacterIds: state.composerCharacterIds,
       }),
       skipHydration: true,
     },

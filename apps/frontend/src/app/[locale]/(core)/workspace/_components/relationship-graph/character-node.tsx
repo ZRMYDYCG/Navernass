@@ -4,6 +4,8 @@ import { memo } from "react";
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import { cn } from "cn";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import type { Character } from "./machine";
 
 export interface CharacterNodeData extends Record<string, unknown> {
@@ -60,8 +62,14 @@ export const CharacterNode = memo(function CharacterNode({
     >
       <Handle type="target" position={Position.Left} className={handleClassName} />
       <Handle type="source" position={Position.Right} className={handleClassName} />
-      <div className="truncate font-serif text-base leading-snug font-semibold">
-        {character.name}
+      <div className="flex min-w-0 items-center gap-2.5">
+        <Avatar size="sm">
+          {character.avatar ? <AvatarImage src={character.avatar} alt={character.name} /> : null}
+          <AvatarFallback>{character.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div className="truncate font-serif text-base leading-snug font-semibold">
+          {character.name}
+        </div>
       </div>
       {meta ? <div className="mt-0.5 truncate text-xs text-muted-foreground">{meta}</div> : null}
       {character.summary || tags.length > 0 ? (
