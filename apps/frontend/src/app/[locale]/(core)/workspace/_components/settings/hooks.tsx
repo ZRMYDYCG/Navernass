@@ -1,8 +1,8 @@
 "use client";
 
-import { ChevronDownIcon, LoaderCircleIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react";
+import { ChevronDownIcon, GitBranchIcon, LoaderCircleIcon, PlusIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { Fragment, useId, useMemo, useState, type ReactNode } from "react";
 
 import {
   AlertDialog,
@@ -24,11 +24,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -38,13 +40,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type {
-  CreateHookPayload,
-  HookDefinition,
-  HookDispatch,
-  HookEventName,
-  HookHandler,
+import {
+  hookEventNameSchema,
+  type CreateHookPayload,
+  type HookDefinition,
+  type HookEventName,
+  type HookHandler,
 } from "@/lib/http/modules/hook.schema";
 import {
   useCreateHook,
@@ -57,49 +67,42 @@ import {
 
 const failedStatuses = new Set(["blocked", "denied", "failed", "timed_out", "invalid_output"]);
 
+const eventFilters = ["all", ...hookEventNameSchema.options] as const;
+type EventFilter = (typeof eventFilters)[number];
+
+const scopeFilters = ["all", "system", "user", "novel"] as const;
+type ScopeFilter = (typeof scopeFilters)[number];
+
+const enabledFilters = ["all", "enabled", "disabled"] as const;
+type EnabledFilter = (typeof enabledFilters)[number];
+
+const dispatchStatusFilters = [
+  "all",
+  "running",
+  "completed",
+  "blocked",
+  "partial",
+  "failed",
+] as const;
+type DispatchStatusFilter = (typeof dispatchStatusFilters)[number];
+
 export function Hooks() {
   const t = useTranslations("settings.customize.hooks");
-  const hooks = useHooks();
   const handlers = useHookHandlers();
-  const dispatches = useHookDispatches();
   const createHook = useCreateHook();
-  const updateHook = useUpdateHook();
-  const deleteHook = useDeleteHook();
   const [creating, setCreating] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<HookDefinition | null>(null);
 
   return (
-    <Tabs defaultValue="installed">
-      <div className="flex items-end justify-between gap-6 border-b border-border">
-        <TabsList variant="line">
-          <TabsTrigger value="installed">{t("tabs.installed")}</TabsTrigger>
-          <TabsTrigger value="logs">{t("tabs.logs")}</TabsTrigger>
-        </TabsList>
-        <div className="mb-2">
-          <Button type="button" size="sm" onClick={() => setCreating(true)}>
-            <PlusIcon />
-            {t("new")}
-          </Button>
-        </div>
-      </div>
-
-      <TabsContent value="installed" className="m-0">
-        <HookList
-          hooks={hooks.data ?? []}
-          loading={hooks.isLoading}
-          failed={hooks.isError}
-          onRetry={() => hooks.refetch()}
-          onToggle={(hook, enabled) => updateHook.mutate({ id: hook.id, payload: { enabled } })}
-          onDelete={setDeleteTarget}
-        />
+    <Tabs defaultValue="installed" className="flex-col">
+      <TabsList variant="line">
+        <TabsTrigger value="installed">{t("tabs.installed")}</TabsTrigger>
+        <TabsTrigger value="logs">{t("tabs.logs")}</TabsTrigger>
+      </TabsList>
+      <TabsContent value="installed">
+        <InstalledHooks onCreate={() => setCreating(true)} />
       </TabsContent>
-      <TabsContent value="logs" className="m-0">
-        <ExecutionLogs
-          dispatches={dispatches.data ?? []}
-          loading={dispatches.isLoading}
-          failed={dispatches.isError}
-          onRetry={() => dispatches.refetch()}
-        />
+      <TabsContent value="logs">
+        <ExecutionLogs />
       </TabsContent>
 
       <CreateHookDialog
@@ -109,6 +112,182 @@ export function Hooks() {
         onOpenChange={setCreating}
         onSubmit={(payload) => createHook.mutate(payload, { onSuccess: () => setCreating(false) })}
       />
+    </Tabs>
+  );
+}
+
+function InstalledHooks({ onCreate }: { onCreate: () => void }) {
+  const t = useTranslations("settings.customize.hooks");
+  const keywordId = useId();
+  const hooks = useHooks();
+  const updateHook = useUpdateHook();
+  const deleteHook = useDeleteHook();
+  const [keyword, setKeyword] = useState("");
+  const [event, setEvent] = useState<EventFilter>("all");
+  const [scope, setScope] = useState<ScopeFilter>("all");
+  const [enabled, setEnabled] = useState<EnabledFilter>("all");
+  const [deleteTarget, setDeleteTarget] = useState<HookDefinition | null>(null);
+
+  const rows = useMemo(() => {
+    const normalized = keyword.trim().toLowerCase();
+    return (hooks.data ?? []).filter(
+      (hook) =>
+        (event === "all" || hook.eventName === event) &&
+        (scope === "all" || hook.scopeType === scope) &&
+        (enabled === "all" || (enabled === "enabled") === hook.enabled) &&
+        (!normalized || `${hook.name} ${hook.handlerKey}`.toLowerCase().includes(normalized)),
+    );
+  }, [enabled, event, hooks.data, keyword, scope]);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <form
+        className="flex items-end gap-3 rounded-lg border border-border p-4"
+        onSubmit={(formEvent) => formEvent.preventDefault()}
+        onReset={() => {
+          setKeyword("");
+          setEvent("all");
+          setScope("all");
+          setEnabled("all");
+        }}
+      >
+        <Field className="min-w-0 flex-1">
+          <FieldLabel htmlFor={keywordId}>{t("filters.keyword")}</FieldLabel>
+          <Input
+            id={keywordId}
+            value={keyword}
+            onChange={(inputEvent) => setKeyword(inputEvent.target.value)}
+            placeholder={t("filters.keywordPlaceholder")}
+          />
+        </Field>
+        <FilterSelect
+          label={t("filters.event")}
+          value={event}
+          items={eventFilters.map((value) => ({
+            value,
+            label: value === "all" ? t("filters.all") : value,
+          }))}
+          onValueChange={setEvent}
+        />
+        <FilterSelect
+          label={t("filters.scope")}
+          value={scope}
+          items={scopeFilters.map((value) => ({
+            value,
+            label: value === "all" ? t("filters.all") : t(`scopes.${value}`),
+          }))}
+          onValueChange={setScope}
+        />
+        <FilterSelect
+          label={t("filters.status")}
+          value={enabled}
+          items={enabledFilters.map((value) => ({
+            value,
+            label: value === "all" ? t("filters.all") : t(`filters.${value}`),
+          }))}
+          onValueChange={setEnabled}
+        />
+        <Button type="reset" variant="outline">
+          {t("filters.reset")}
+        </Button>
+      </form>
+
+      <section className="overflow-hidden rounded-lg border border-border">
+        <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+          <h2 className="text-sm font-medium">{t("listTitle")}</h2>
+          <span className="text-xs text-muted-foreground">
+            {t("total", { count: rows.length })}
+          </span>
+          {hooks.isLoading ? (
+            <LoaderCircleIcon className="size-3.5 animate-spin text-muted-foreground" />
+          ) : null}
+          <Button type="button" size="sm" className="ml-auto" onClick={onCreate}>
+            <PlusIcon />
+            {t("new")}
+          </Button>
+        </header>
+        <div className="px-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("columns.hook")}</TableHead>
+                <TableHead>{t("columns.event")}</TableHead>
+                <TableHead>{t("columns.scope")}</TableHead>
+                <TableHead>{t("columns.status")}</TableHead>
+                <TableHead>
+                  <span className="flex justify-end">{t("columns.actions")}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.length ? (
+                rows.map((hook) => (
+                  <TableRow key={hook.id}>
+                    <TableCell>
+                      <div className="flex max-w-64 min-w-0 flex-col">
+                        <span className="truncate font-medium">{hook.name}</span>
+                        <span className="truncate text-xs text-muted-foreground">
+                          {hook.handlerKey} · {t(`effects.${hook.effect}`)} · {hook.timeoutMs}ms
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <code className="text-xs text-muted-foreground">{hook.eventName}</code>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-muted-foreground">{t(`scopes.${hook.scopeType}`)}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Switch
+                        size="sm"
+                        checked={hook.enabled}
+                        aria-label={t("toggle", { name: hook.name })}
+                        onCheckedChange={(checked) =>
+                          updateHook.mutate({ id: hook.id, payload: { enabled: checked } })
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end">
+                        {hook.builtin ? (
+                          <span className="text-xs text-muted-foreground">{t("builtin")}</span>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="xs"
+                            onClick={() => setDeleteTarget(hook)}
+                          >
+                            {t("delete")}
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableMessage colSpan={5}>
+                  {hooks.isLoading ? (
+                    <span className="text-sm text-muted-foreground">{t("loading")}</span>
+                  ) : hooks.isError ? (
+                    <LoadFailed onRetry={() => hooks.refetch()} />
+                  ) : (
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <GitBranchIcon />
+                        </EmptyMedia>
+                        <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
+                        <EmptyDescription>{t("emptyDescription")}</EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  )}
+                </TableMessage>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
 
       <AlertDialog
         open={Boolean(deleteTarget)}
@@ -135,193 +314,230 @@ export function Hooks() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Tabs>
-  );
-}
-
-function HookList({
-  hooks,
-  loading,
-  failed,
-  onRetry,
-  onToggle,
-  onDelete,
-}: {
-  hooks: HookDefinition[];
-  loading: boolean;
-  failed: boolean;
-  onRetry: () => void;
-  onToggle: (hook: HookDefinition, enabled: boolean) => void;
-  onDelete: (hook: HookDefinition) => void;
-}) {
-  const t = useTranslations("settings.customize.hooks");
-
-  if (loading) return <Loading />;
-  if (failed) return <LoadFailed onRetry={onRetry} />;
-  if (!hooks.length) {
-    return (
-      <div className="border-b border-border py-10 text-center">
-        <p className="text-sm font-medium">{t("emptyTitle")}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{t("emptyDescription")}</p>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <div className="flex items-center gap-4 border-b border-border px-1 pb-2 text-xs text-muted-foreground">
-        <span className="min-w-0 flex-1">{t("columns.hook")}</span>
-        <span className="w-40">{t("columns.event")}</span>
-        <span className="w-28">{t("columns.scope")}</span>
-        <span className="w-16 text-end">{t("columns.status")}</span>
-      </div>
-      {hooks.map((hook) => (
-        <div
-          key={hook.id}
-          className="flex min-h-14 items-center gap-4 border-b border-border px-1 py-2.5"
-        >
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="truncate text-sm font-medium">{hook.name}</span>
-              {hook.builtin ? (
-                <span className="text-xs text-muted-foreground">{t("builtin")}</span>
-              ) : null}
-            </div>
-            <p className="truncate text-xs text-muted-foreground">
-              {hook.handlerKey} · {t(`effects.${hook.effect}`)} · {hook.timeoutMs}ms
-            </p>
-          </div>
-          <code className="w-40 truncate text-xs text-muted-foreground">{hook.eventName}</code>
-          <span className="w-28 text-xs text-muted-foreground">
-            {t(`scopes.${hook.scopeType}`)}
-          </span>
-          <div className="flex w-16 items-center justify-end gap-1">
-            <Switch
-              size="sm"
-              checked={hook.enabled}
-              aria-label={t("toggle", { name: hook.name })}
-              onCheckedChange={(checked) => onToggle(hook, checked)}
-            />
-            {!hook.builtin ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-                  <MoreHorizontalIcon />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem variant="destructive" onClick={() => onDelete(hook)}>
-                    {t("delete")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : null}
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
 
-function ExecutionLogs({
-  dispatches,
-  loading,
-  failed,
-  onRetry,
-}: {
-  dispatches: HookDispatch[];
-  loading: boolean;
-  failed: boolean;
-  onRetry: () => void;
-}) {
+function ExecutionLogs() {
   const t = useTranslations("settings.customize.hooks");
   const locale = useLocale();
+  const keywordId = useId();
+  const dispatches = useHookDispatches();
+  const [keyword, setKeyword] = useState("");
+  const [event, setEvent] = useState<EventFilter>("all");
+  const [status, setStatus] = useState<DispatchStatusFilter>("all");
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  if (loading) return <Loading />;
-  if (failed) return <LoadFailed onRetry={onRetry} />;
-  if (!dispatches.length) {
-    return (
-      <div className="border-b border-border py-10 text-center">
-        <p className="text-sm font-medium">{t("emptyLogsTitle")}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{t("emptyLogsDescription")}</p>
-      </div>
+  const rows = useMemo(() => {
+    const normalized = keyword.trim().toLowerCase();
+    return (dispatches.data ?? []).filter(
+      (dispatch) =>
+        (event === "all" || dispatch.event_name === event) &&
+        (status === "all" || dispatch.status === status) &&
+        (!normalized || dispatch.trace_id.toLowerCase().includes(normalized)),
     );
-  }
+  }, [dispatches.data, event, keyword, status]);
+
+  const formatTime = new Intl.DateTimeFormat(locale, {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   return (
-    <div>
-      <div className="flex items-center gap-4 border-b border-border px-1 pb-2 text-xs text-muted-foreground">
-        <span className="min-w-0 flex-1">{t("columns.event")}</span>
-        <span className="w-28">{t("columns.status")}</span>
-        <span className="w-32">{t("columns.time")}</span>
-        <span className="w-20 text-end">{t("columns.duration")}</span>
-        <span className="w-5" />
-      </div>
-      {dispatches.map((dispatch) => {
-        const open = expanded === dispatch.id;
-        return (
-          <div key={dispatch.id} className="border-b border-border">
-            <button
-              type="button"
-              className="flex min-h-12 w-full items-center gap-4 px-1 py-2 text-start hover:bg-muted/40"
-              onClick={() => setExpanded(open ? null : dispatch.id)}
-            >
-              <div className="min-w-0 flex-1">
-                <code className="text-xs">{dispatch.event_name}</code>
-                <p className="truncate text-xs text-muted-foreground">trace {dispatch.trace_id}</p>
-              </div>
-              <div className="w-28">
-                <StatusText status={dispatch.status} />
-              </div>
-              <span className="w-32 text-xs text-muted-foreground">
-                {new Intl.DateTimeFormat(locale, {
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                }).format(new Date(dispatch.started_at))}
-              </span>
-              <span className="w-20 text-end text-xs tabular-nums text-muted-foreground">
-                {dispatch.duration_ms ?? 0}ms
-              </span>
-              <ChevronDownIcon
-                className={open ? "rotate-180 transition-transform" : "transition-transform"}
-              />
-            </button>
-            {open ? (
-              <div className="border-t border-border bg-muted/20 px-4 py-2">
-                {dispatch.executions.length ? (
-                  dispatch.executions.map((execution) => (
-                    <div
-                      key={execution.id}
-                      className="flex items-center gap-4 border-b border-border py-2 last:border-b-0"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <span className="block truncate font-mono text-xs">
-                          {execution.hook_definition_id}
-                        </span>
-                        {execution.error_message ? (
-                          <span className="block truncate text-xs text-destructive">
-                            {execution.error_message}
+    <div className="flex flex-col gap-4">
+      <form
+        className="flex items-end gap-3 rounded-lg border border-border p-4"
+        onSubmit={(formEvent) => formEvent.preventDefault()}
+        onReset={() => {
+          setKeyword("");
+          setEvent("all");
+          setStatus("all");
+        }}
+      >
+        <Field className="min-w-0 flex-1">
+          <FieldLabel htmlFor={keywordId}>{t("filters.trace")}</FieldLabel>
+          <Input
+            id={keywordId}
+            value={keyword}
+            onChange={(inputEvent) => setKeyword(inputEvent.target.value)}
+            placeholder={t("filters.tracePlaceholder")}
+          />
+        </Field>
+        <FilterSelect
+          label={t("filters.event")}
+          value={event}
+          items={eventFilters.map((value) => ({
+            value,
+            label: value === "all" ? t("filters.all") : value,
+          }))}
+          onValueChange={setEvent}
+        />
+        <FilterSelect
+          label={t("filters.status")}
+          value={status}
+          items={dispatchStatusFilters.map((value) => ({
+            value,
+            label: value === "all" ? t("filters.all") : t(`statuses.${value}`),
+          }))}
+          onValueChange={setStatus}
+        />
+        <Button type="reset" variant="outline">
+          {t("filters.reset")}
+        </Button>
+      </form>
+
+      <section className="overflow-hidden rounded-lg border border-border">
+        <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+          <h2 className="text-sm font-medium">{t("logsTitle")}</h2>
+          <span className="text-xs text-muted-foreground">
+            {t("total", { count: rows.length })}
+          </span>
+          {dispatches.isFetching ? (
+            <LoaderCircleIcon className="size-3.5 animate-spin text-muted-foreground" />
+          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="ml-auto"
+            onClick={() => dispatches.refetch()}
+          >
+            {t("refresh")}
+          </Button>
+        </header>
+        <div className="px-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("columns.event")}</TableHead>
+                <TableHead>{t("columns.status")}</TableHead>
+                <TableHead>{t("columns.result")}</TableHead>
+                <TableHead>{t("columns.time")}</TableHead>
+                <TableHead>{t("columns.duration")}</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.length ? (
+                rows.map((dispatch) => {
+                  const open = expanded === dispatch.id;
+                  return (
+                    <Fragment key={dispatch.id}>
+                      <TableRow
+                        aria-expanded={open}
+                        onClick={() => setExpanded(open ? null : dispatch.id)}
+                      >
+                        <TableCell>
+                          <div className="flex max-w-56 min-w-0 flex-col">
+                            <code className="truncate text-xs">{dispatch.event_name}</code>
+                            <span className="truncate text-xs text-muted-foreground">
+                              trace {dispatch.trace_id}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <StatusText status={dispatch.status} />
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {dispatch.success_count}/{dispatch.matched_count}
                           </span>
-                        ) : null}
-                      </div>
-                      <div className="w-28">
-                        <StatusText status={execution.status} />
-                      </div>
-                      <span className="w-20 text-end text-xs tabular-nums text-muted-foreground">
-                        {execution.duration_ms ?? 0}ms
-                      </span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">{t("noMatchedHooks")}</p>
-                )}
-              </div>
-            ) : null}
-          </div>
-        );
-      })}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {formatTime.format(new Date(dispatch.started_at))}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {dispatch.duration_ms ?? 0}ms
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-xs"
+                            aria-label={t("toggleDetails")}
+                            onClick={(clickEvent) => {
+                              clickEvent.stopPropagation();
+                              setExpanded(open ? null : dispatch.id);
+                            }}
+                          >
+                            <ChevronDownIcon
+                              className={
+                                open ? "rotate-180 transition-transform" : "transition-transform"
+                              }
+                            />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                      {open ? (
+                        <TableRow>
+                          <TableCell colSpan={6}>
+                            <div className="rounded-md border border-border bg-muted/30">
+                              {dispatch.executions.length ? (
+                                dispatch.executions.map((execution) => (
+                                  <div
+                                    key={execution.id}
+                                    className="flex items-center gap-4 border-b border-border px-3 py-2 last:border-b-0"
+                                  >
+                                    <div className="min-w-0 flex-1">
+                                      <span className="block truncate font-mono text-xs">
+                                        {execution.hook_definition_id}
+                                      </span>
+                                      {execution.error_message ? (
+                                        <span className="block truncate text-xs text-destructive">
+                                          {execution.error_message}
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                    <div className="w-28">
+                                      <StatusText status={execution.status} />
+                                    </div>
+                                    <span className="w-16 text-end text-xs text-muted-foreground tabular-nums">
+                                      {execution.duration_ms ?? 0}ms
+                                    </span>
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="px-3 py-2 text-sm text-muted-foreground">
+                                  {t("noMatchedHooks")}
+                                </p>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : null}
+                    </Fragment>
+                  );
+                })
+              ) : (
+                <TableMessage colSpan={6}>
+                  {dispatches.isLoading ? (
+                    <span className="text-sm text-muted-foreground">{t("loading")}</span>
+                  ) : dispatches.isError ? (
+                    <LoadFailed onRetry={() => dispatches.refetch()} />
+                  ) : (
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <GitBranchIcon />
+                        </EmptyMedia>
+                        <EmptyTitle>{t("emptyLogsTitle")}</EmptyTitle>
+                        <EmptyDescription>{t("emptyLogsDescription")}</EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  )}
+                </TableMessage>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
     </div>
   );
 }
@@ -427,6 +643,56 @@ function CreateHookDialog({
   );
 }
 
+function FilterSelect<T extends string>({
+  label,
+  value,
+  items,
+  onValueChange,
+}: {
+  label: string;
+  value: T;
+  items: { value: T; label: string }[];
+  onValueChange: (value: T) => void;
+}) {
+  const id = useId();
+  return (
+    <Field className="min-w-0 flex-1">
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <Select
+        items={items}
+        value={value}
+        onValueChange={(next) => {
+          const item = items.find((candidate) => candidate.value === next);
+          if (item) onValueChange(item.value);
+        }}
+      >
+        <SelectTrigger id={id} className="w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {items.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
+  );
+}
+
+function TableMessage({ colSpan, children }: { colSpan: number; children: ReactNode }) {
+  return (
+    <TableRow>
+      <TableCell colSpan={colSpan}>
+        <div className="flex min-h-40 items-center justify-center whitespace-normal">
+          {children}
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 function StatusText({ status }: { status: string }) {
   const t = useTranslations("settings.customize.hooks");
   const failed = failedStatuses.has(status);
@@ -450,20 +716,10 @@ function StatusText({ status }: { status: string }) {
   );
 }
 
-function Loading() {
-  const t = useTranslations("settings.customize.hooks");
-  return (
-    <div className="flex min-h-48 items-center justify-center gap-2 text-sm text-muted-foreground">
-      <LoaderCircleIcon className="animate-spin" />
-      {t("loading")}
-    </div>
-  );
-}
-
 function LoadFailed({ onRetry }: { onRetry: () => void }) {
   const t = useTranslations("settings.customize.hooks");
   return (
-    <div className="flex min-h-48 flex-col items-center justify-center gap-3 text-center">
+    <div className="flex flex-col items-center gap-3 text-center">
       <p className="text-sm text-destructive">{t("loadFailed")}</p>
       <Button type="button" variant="outline" size="sm" onClick={onRetry}>
         {t("retry")}

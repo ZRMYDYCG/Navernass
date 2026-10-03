@@ -2,19 +2,15 @@
 
 import {
   BotIcon,
-  FileCodeIcon,
   GitBranchIcon,
-  MoreHorizontalIcon,
   LoaderCircleIcon,
   PlusIcon,
   RouteIcon,
   SparklesIcon,
   UsersIcon,
-  type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
-import { cn } from "cn";
+import { useId, useMemo, useState, type ReactNode } from "react";
 
 import {
   AlertDialog,
@@ -29,22 +25,32 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { CustomSkill, Skill } from "@/lib/http/modules/skill.schema";
-import type { CustomSubagent } from "@/lib/http/modules/subagent.schema";
+import type { BuiltinSubagent, CustomSubagent } from "@/lib/http/modules/subagent.schema";
 import {
   useCustomSkills,
   useDeleteCustomSkill,
@@ -81,6 +87,21 @@ const modules = [
 ] as const;
 
 type ModuleId = (typeof modules)[number]["id"];
+
+const statusFilters = ["all", "enabled", "disabled"] as const;
+type StatusFilter = (typeof statusFilters)[number];
+
+const skillSourceFilters = ["all", "builtin", "community", "custom"] as const;
+type SkillSourceFilter = (typeof skillSourceFilters)[number];
+
+const subagentKindFilters = ["all", "builtin", "custom"] as const;
+type SubagentKindFilter = (typeof subagentKindFilters)[number];
+
+type SkillEntry = { kind: "custom"; skill: CustomSkill } | { kind: "catalog"; skill: Skill };
+
+type SubagentEntry =
+  | { kind: "custom"; subagent: CustomSubagent }
+  | { kind: "builtin"; subagent: BuiltinSubagent };
 
 export interface SkillEditorState {
   id?: string;
@@ -145,204 +166,201 @@ export function Customize({
   );
 }
 
-function Subagents({ onOpen }: { onOpen: (target: SubagentEditorTarget) => void }) {
-  const t = useTranslations("settings.customize.subagents");
-  const subagents = useSubagents();
-  const updateSubagent = useUpdateSubagent();
-  const deleteSubagent = useDeleteSubagent();
-  const [deleteTarget, setDeleteTarget] = useState<CustomSubagent | null>(null);
-  const custom = subagents.data?.custom ?? [];
-  const builtin = subagents.data?.builtin ?? [];
-
-  return (
-    <div className="flex flex-col gap-6">
-      <Group
-        title={t("customTitle", { count: custom.length })}
-        icon={BotIcon}
-        loading={subagents.isLoading}
-        emptyTitle={t("emptyCustomTitle")}
-        emptyDescription={t("emptyCustomDescription")}
-        action={
-          <Button type="button" variant="ghost" size="xs" onClick={() => onOpen({ kind: "new" })}>
-            <PlusIcon />
-            {t("new")}
-          </Button>
-        }
-      >
-        {custom.map((subagent) => (
-          <SubagentRow
-            key={subagent.id}
-            name={subagent.name}
-            description={subagent.description}
-            enabled={subagent.enabled}
-            onOpen={() => onOpen({ kind: "custom", subagent })}
-            onToggle={(enabled) => updateSubagent.mutate({ id: subagent.id, payload: { enabled } })}
-            onDelete={() => setDeleteTarget(subagent)}
-          />
-        ))}
-      </Group>
-
-      <Group
-        title={t("builtinTitle", { count: builtin.length })}
-        icon={BotIcon}
-        loading={subagents.isLoading}
-        emptyTitle={t("emptyBuiltinTitle")}
-        emptyDescription={t("emptyBuiltinDescription")}
-      >
-        {builtin.map((subagent) => (
-          <SubagentRow
-            key={subagent.name}
-            name={subagent.name}
-            description={subagent.description}
-            enabled
-            onOpen={() => onOpen({ kind: "builtin", subagent })}
-          />
-        ))}
-      </Group>
-
-      <AlertDialog
-        open={Boolean(deleteTarget)}
-        onOpenChange={(open) => !open && setDeleteTarget(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteTarget ? t("deleteDescription", { name: deleteTarget.name }) : null}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={deleteSubagent.isPending}
-              onClick={() => {
-                if (!deleteTarget) return;
-                deleteSubagent.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
-              }}
-            >
-              {t("delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-}
-
-interface SubagentRowProps {
-  name: string;
-  description: string;
-  enabled: boolean;
-  onOpen: () => void;
-  onToggle?: (enabled: boolean) => void;
-  onDelete?: () => void;
-}
-
-function SubagentRow({ name, description, enabled, onOpen, onToggle, onDelete }: SubagentRowProps) {
-  const t = useTranslations("settings.customize.subagents");
-  return (
-    <div className="group flex min-h-14 items-center gap-3 border-b border-border px-3 py-2 last:border-b-0 hover:bg-muted/50">
-      <button
-        type="button"
-        onClick={onOpen}
-        className="min-w-0 flex-1 cursor-default rounded-sm text-start outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-sm font-medium">{name}</span>
-          {!enabled ? <Badge variant="secondary">{t("disabled")}</Badge> : null}
-        </div>
-        <p className="truncate text-sm text-muted-foreground">{description}</p>
-      </button>
-      <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-          <MoreHorizontalIcon />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onOpen}>{t("open")}</DropdownMenuItem>
-          {onToggle ? (
-            <DropdownMenuItem onClick={() => onToggle(!enabled)}>
-              {enabled ? t("disable") : t("enable")}
-            </DropdownMenuItem>
-          ) : null}
-          {onDelete ? (
-            <DropdownMenuItem variant="destructive" onClick={onDelete}>
-              {t("delete")}
-            </DropdownMenuItem>
-          ) : null}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-}
-
 function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditorState) => void }) {
   const t = useTranslations("settings.customize.skills");
+  const keywordId = useId();
   const skills = useSkills();
   const customSkills = useCustomSkills();
   const updateSkill = useUpdateCustomSkill();
   const deleteSkill = useDeleteCustomSkill();
-  const [query, setQuery] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [source, setSource] = useState<SkillSourceFilter>("all");
+  const [status, setStatus] = useState<StatusFilter>("all");
   const [deleteTarget, setDeleteTarget] = useState<CustomSkill | null>(null);
+  const loading = skills.isLoading || customSkills.isLoading;
 
-  const builtins = useMemo(
-    () => filterSkills(skills.data?.filter((skill) => skill.source !== "custom") ?? [], query),
-    [query, skills.data],
-  );
-  const customs = useMemo(
-    () => filterSkills(customSkills.data ?? [], query),
-    [customSkills.data, query],
-  );
+  const entries = useMemo(() => {
+    const all = [
+      ...(customSkills.data ?? []).map((skill): SkillEntry => ({ kind: "custom", skill })),
+      ...(skills.data ?? [])
+        .filter((skill) => skill.source !== "custom")
+        .map((skill): SkillEntry => ({ kind: "catalog", skill })),
+    ];
+    return all.filter(
+      ({ skill }) =>
+        (source === "all" || skill.source === source) &&
+        matchesStatus(skill.enabled, status) &&
+        matchesKeyword([skill.displayName, skill.description, skill.category, skill.slug], keyword),
+    );
+  }, [customSkills.data, keyword, skills.data, source, status]);
+
   return (
-    <div className="flex flex-col gap-6">
-      <header className="flex items-center gap-2">
-        <div className="relative min-w-0 flex-1">
-          <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t("search")}
-            className="h-8"
-          />
-        </div>
-        <Button type="button" size="sm" onClick={() => onOpenSkillEditor?.(newSkill())}>
-          <PlusIcon />
-          {t("new")}
-        </Button>
-      </header>
-      <Group
-        title={t("customTitle", { count: customs.length })}
-        icon={SparklesIcon}
-        loading={customSkills.isLoading}
-        emptyTitle={t("emptyCustomTitle")}
-        emptyDescription={t("emptyCustomDescription")}
+    <div className="flex flex-col gap-4">
+      <form
+        className="flex items-end gap-3 rounded-lg border border-border p-4"
+        onSubmit={(event) => event.preventDefault()}
+        onReset={() => {
+          setKeyword("");
+          setSource("all");
+          setStatus("all");
+        }}
       >
-        {customs.map((skill) => (
-          <SkillRow
-            key={skill.id}
-            skill={skill}
-            onOpen={() => onOpenSkillEditor?.(editSkill(skill))}
-            onToggle={(enabled) => updateSkill.mutate({ id: skill.id, payload: { enabled } })}
-            onDelete={() => setDeleteTarget(skill)}
+        <Field className="min-w-0 flex-1">
+          <FieldLabel htmlFor={keywordId}>{t("keyword")}</FieldLabel>
+          <Input
+            id={keywordId}
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            placeholder={t("search")}
           />
-        ))}
-      </Group>
+        </Field>
+        <FilterSelect
+          label={t("source")}
+          value={source}
+          items={skillSourceFilters.map((value) => ({
+            value,
+            label: value === "all" ? t("all") : t(`sources.${value}`),
+          }))}
+          onValueChange={setSource}
+        />
+        <FilterSelect
+          label={t("status")}
+          value={status}
+          items={statusFilters.map((value) => ({
+            value,
+            label: value === "all" ? t("all") : t(`statuses.${value}`),
+          }))}
+          onValueChange={setStatus}
+        />
+        <Button type="reset" variant="outline">
+          {t("reset")}
+        </Button>
+      </form>
 
-      <ScrollArea className="max-h-96">
-        <Group
-          title={t("builtinTitle", { count: builtins.length })}
-          icon={SparklesIcon}
-          loading={skills.isLoading}
-          emptyTitle={t("emptyBuiltinTitle")}
-          emptyDescription={t("emptyBuiltinDescription")}
-        >
-          {builtins.map((skill) => (
-            <SkillRow
-              key={skill.id}
-              skill={skill}
-              onOpen={() => onOpenSkillEditor?.(previewSkill(skill))}
-            />
-          ))}
-        </Group>
-      </ScrollArea>
+      <section className="overflow-hidden rounded-lg border border-border">
+        <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+          <h2 className="text-sm font-medium">{t("listTitle")}</h2>
+          <span className="text-xs text-muted-foreground">
+            {t("total", { count: entries.length })}
+          </span>
+          {loading ? (
+            <LoaderCircleIcon className="size-3.5 animate-spin text-muted-foreground" />
+          ) : null}
+          <Button
+            type="button"
+            size="sm"
+            className="ml-auto"
+            onClick={() => onOpenSkillEditor?.(newSkill())}
+          >
+            <PlusIcon />
+            {t("new")}
+          </Button>
+        </header>
+        <div className="px-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("columns.name")}</TableHead>
+                <TableHead>{t("columns.source")}</TableHead>
+                <TableHead>{t("columns.version")}</TableHead>
+                <TableHead>{t("columns.status")}</TableHead>
+                <TableHead>
+                  <span className="flex justify-end">{t("columns.actions")}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {entries.length ? (
+                entries.map((entry) => (
+                  <TableRow key={entry.skill.id}>
+                    <TableCell>
+                      <NameCell title={entry.skill.displayName} detail={entry.skill.description} />
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={entry.kind === "custom" ? "secondary" : "outline"}>
+                        {t(`sources.${entry.skill.source}`)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-muted-foreground tabular-nums">
+                        v{entry.skill.version}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {entry.kind === "custom" ? (
+                        <Switch
+                          size="sm"
+                          checked={entry.skill.enabled}
+                          aria-label={t("toggle", { name: entry.skill.displayName })}
+                          onCheckedChange={(enabled) =>
+                            updateSkill.mutate({ id: entry.skill.id, payload: { enabled } })
+                          }
+                        />
+                      ) : (
+                        <Switch
+                          size="sm"
+                          checked={entry.skill.enabled}
+                          disabled
+                          aria-label={t("toggle", { name: entry.skill.displayName })}
+                        />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        {entry.kind === "custom" ? (
+                          <>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="xs"
+                              onClick={() => onOpenSkillEditor?.(editSkill(entry.skill))}
+                            >
+                              {t("edit")}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="xs"
+                              onClick={() => setDeleteTarget(entry.skill)}
+                            >
+                              {t("delete")}
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => onOpenSkillEditor?.(previewSkill(entry.skill))}
+                          >
+                            {t("open")}
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableMessage colSpan={5}>
+                  {loading ? (
+                    <span className="text-sm text-muted-foreground">{t("loading")}</span>
+                  ) : (
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <SparklesIcon />
+                        </EmptyMedia>
+                        <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
+                        <EmptyDescription>{t("emptyDescription")}</EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  )}
+                </TableMessage>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
 
       <AlertDialog
         open={Boolean(deleteTarget)}
@@ -373,103 +391,287 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
   );
 }
 
-interface GroupProps {
-  title: string;
-  icon: LucideIcon;
-  loading: boolean;
-  emptyTitle: string;
-  emptyDescription: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}
+function Subagents({ onOpen }: { onOpen: (target: SubagentEditorTarget) => void }) {
+  const t = useTranslations("settings.customize.subagents");
+  const keywordId = useId();
+  const subagents = useSubagents();
+  const updateSubagent = useUpdateSubagent();
+  const deleteSubagent = useDeleteSubagent();
+  const [keyword, setKeyword] = useState("");
+  const [kind, setKind] = useState<SubagentKindFilter>("all");
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [deleteTarget, setDeleteTarget] = useState<CustomSubagent | null>(null);
 
-function Group({
-  title,
-  icon: Icon,
-  loading,
-  emptyTitle,
-  emptyDescription,
-  action,
-  children,
-}: GroupProps) {
-  const empty = !loading && (!Array.isArray(children) || children.length === 0);
+  const entries = useMemo(() => {
+    const all = [
+      ...(subagents.data?.custom ?? []).map((subagent): SubagentEntry => ({
+        kind: "custom",
+        subagent,
+      })),
+      ...(subagents.data?.builtin ?? []).map((subagent): SubagentEntry => ({
+        kind: "builtin",
+        subagent,
+      })),
+    ];
+    return all.filter(
+      (entry) =>
+        (kind === "all" || entry.kind === kind) &&
+        matchesStatus(entry.kind === "builtin" || entry.subagent.enabled, status) &&
+        matchesKeyword([entry.subagent.name, entry.subagent.description], keyword),
+    );
+  }, [keyword, kind, status, subagents.data]);
+
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        <h2 className="text-sm font-medium">{title}</h2>
-        {loading ? (
-          <LoaderCircleIcon className="size-3.5 animate-spin text-muted-foreground" />
-        ) : null}
-        {action ? <div className="ml-auto">{action}</div> : null}
-      </div>
-      <div className="overflow-hidden rounded-lg border border-border bg-background">
-        {empty ? (
-          <Empty className="min-h-40">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <Icon />
-              </EmptyMedia>
-              <EmptyTitle>{emptyTitle}</EmptyTitle>
-              <EmptyDescription>{emptyDescription}</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : (
-          children
-        )}
-      </div>
-    </section>
+    <div className="flex flex-col gap-4">
+      <form
+        className="flex items-end gap-3 rounded-lg border border-border p-4"
+        onSubmit={(event) => event.preventDefault()}
+        onReset={() => {
+          setKeyword("");
+          setKind("all");
+          setStatus("all");
+        }}
+      >
+        <Field className="min-w-0 flex-1">
+          <FieldLabel htmlFor={keywordId}>{t("keyword")}</FieldLabel>
+          <Input
+            id={keywordId}
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            placeholder={t("search")}
+          />
+        </Field>
+        <FilterSelect
+          label={t("kind")}
+          value={kind}
+          items={subagentKindFilters.map((value) => ({
+            value,
+            label: value === "all" ? t("all") : t(`kinds.${value}`),
+          }))}
+          onValueChange={setKind}
+        />
+        <FilterSelect
+          label={t("status")}
+          value={status}
+          items={statusFilters.map((value) => ({
+            value,
+            label: value === "all" ? t("all") : t(`statuses.${value}`),
+          }))}
+          onValueChange={setStatus}
+        />
+        <Button type="reset" variant="outline">
+          {t("reset")}
+        </Button>
+      </form>
+
+      <section className="overflow-hidden rounded-lg border border-border">
+        <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+          <h2 className="text-sm font-medium">{t("listTitle")}</h2>
+          <span className="text-xs text-muted-foreground">
+            {t("total", { count: entries.length })}
+          </span>
+          {subagents.isLoading ? (
+            <LoaderCircleIcon className="size-3.5 animate-spin text-muted-foreground" />
+          ) : null}
+          <Button
+            type="button"
+            size="sm"
+            className="ml-auto"
+            onClick={() => onOpen({ kind: "new" })}
+          >
+            <PlusIcon />
+            {t("new")}
+          </Button>
+        </header>
+        <div className="px-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("columns.name")}</TableHead>
+                <TableHead>{t("columns.kind")}</TableHead>
+                <TableHead>{t("columns.status")}</TableHead>
+                <TableHead>
+                  <span className="flex justify-end">{t("columns.actions")}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {entries.length ? (
+                entries.map((entry) => (
+                  <TableRow
+                    key={
+                      entry.kind === "custom" ? entry.subagent.id : `builtin:${entry.subagent.name}`
+                    }
+                  >
+                    <TableCell>
+                      <NameCell title={entry.subagent.name} detail={entry.subagent.description} />
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={entry.kind === "custom" ? "secondary" : "outline"}>
+                        {t(`kinds.${entry.kind}`)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {entry.kind === "custom" ? (
+                        <Switch
+                          size="sm"
+                          checked={entry.subagent.enabled}
+                          aria-label={t("toggle", { name: entry.subagent.name })}
+                          onCheckedChange={(enabled) =>
+                            updateSubagent.mutate({ id: entry.subagent.id, payload: { enabled } })
+                          }
+                        />
+                      ) : (
+                        <Switch
+                          size="sm"
+                          checked
+                          disabled
+                          aria-label={t("toggle", { name: entry.subagent.name })}
+                        />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        {entry.kind === "custom" ? (
+                          <>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="xs"
+                              onClick={() => onOpen({ kind: "custom", subagent: entry.subagent })}
+                            >
+                              {t("edit")}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="xs"
+                              onClick={() => setDeleteTarget(entry.subagent)}
+                            >
+                              {t("delete")}
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => onOpen({ kind: "builtin", subagent: entry.subagent })}
+                          >
+                            {t("open")}
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableMessage colSpan={4}>
+                  {subagents.isLoading ? (
+                    <span className="text-sm text-muted-foreground">{t("loading")}</span>
+                  ) : (
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <BotIcon />
+                        </EmptyMedia>
+                        <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
+                        <EmptyDescription>{t("emptyDescription")}</EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  )}
+                </TableMessage>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+
+      <AlertDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget ? t("deleteDescription", { name: deleteTarget.name }) : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteSubagent.isPending}
+              onClick={() => {
+                if (!deleteTarget) return;
+                deleteSubagent.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
+              }}
+            >
+              {t("delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }
 
-interface SkillRowProps {
-  skill: Skill;
-  onOpen?: () => void;
-  onToggle?: (enabled: boolean) => void;
-  onDelete?: () => void;
+function FilterSelect<T extends string>({
+  label,
+  value,
+  items,
+  onValueChange,
+}: {
+  label: string;
+  value: T;
+  items: { value: T; label: string }[];
+  onValueChange: (value: T) => void;
+}) {
+  const id = useId();
+  return (
+    <Field className="min-w-0 flex-1">
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <Select
+        items={items}
+        value={value}
+        onValueChange={(next) => {
+          const item = items.find((candidate) => candidate.value === next);
+          if (item) onValueChange(item.value);
+        }}
+      >
+        <SelectTrigger id={id} className="w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {items.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
+  );
 }
 
-function SkillRow({ skill, onOpen, onToggle, onDelete }: SkillRowProps) {
-  const t = useTranslations("settings.customize.skills");
-  const metadata = skillMetadata(skill);
+function NameCell({ title, detail }: { title: string; detail: string }) {
   return (
-    <div className="group flex min-h-16 items-center gap-3 border-b border-border px-3 py-2 last:border-b-0 hover:bg-muted/50">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-        <FileCodeIcon className="size-4" />
-      </div>
-      <button
-        type="button"
-        onClick={onOpen}
-        className={cn(
-          "min-w-0 flex-1 text-start outline-none",
-          "cursor-default rounded-sm focus-visible:ring-2 focus-visible:ring-ring",
-        )}
-      >
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-sm font-medium">{skill.displayName}</span>
-          {!skill.enabled ? <Badge variant="secondary">{t("disabled")}</Badge> : null}
-        </div>
-        <p className="truncate text-sm text-muted-foreground">{skill.description}</p>
-        {metadata ? <p className="truncate text-xs text-muted-foreground">{metadata}</p> : null}
-      </button>
-      <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-          <MoreHorizontalIcon />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {onOpen ? <DropdownMenuItem onClick={onOpen}>{t("open")}</DropdownMenuItem> : null}
-          {onToggle ? (
-            <DropdownMenuItem onClick={() => onToggle(!skill.enabled)}>
-              {skill.enabled ? t("disable") : t("enable")}
-            </DropdownMenuItem>
-          ) : null}
-          {onDelete ? (
-            <DropdownMenuItem variant="destructive" onClick={onDelete}>
-              {t("delete")}
-            </DropdownMenuItem>
-          ) : null}
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex max-w-80 min-w-0 flex-col">
+      <span className="truncate font-medium">{title}</span>
+      <span className="truncate text-xs text-muted-foreground">{detail}</span>
     </div>
+  );
+}
+
+function TableMessage({ colSpan, children }: { colSpan: number; children: ReactNode }) {
+  return (
+    <TableRow>
+      <TableCell colSpan={colSpan}>
+        <div className="flex min-h-40 items-center justify-center whitespace-normal">
+          {children}
+        </div>
+      </TableCell>
+    </TableRow>
   );
 }
 
@@ -505,17 +707,11 @@ function previewSkill(skill: Skill): SkillEditorState {
   };
 }
 
-function filterSkills<T extends Skill>(skills: T[], query: string) {
-  const keyword = query.trim().toLowerCase();
-  if (!keyword) return skills;
-  return skills.filter((skill) =>
-    [skill.displayName, skill.description, skill.category, skill.slug]
-      .join(" ")
-      .toLowerCase()
-      .includes(keyword),
-  );
+function matchesStatus(enabled: boolean, status: StatusFilter) {
+  return status === "all" || (status === "enabled") === enabled;
 }
 
-function skillMetadata(skill: Skill) {
-  return [`v${skill.version}`, skill.source].filter(Boolean).join(" · ");
+function matchesKeyword(fields: string[], keyword: string) {
+  const normalized = keyword.trim().toLowerCase();
+  return !normalized || fields.join(" ").toLowerCase().includes(normalized);
 }
