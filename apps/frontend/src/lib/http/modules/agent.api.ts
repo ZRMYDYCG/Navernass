@@ -12,6 +12,7 @@ import { ApiError } from "@/lib/http/error";
 import { apiRequest } from "@/lib/http/request";
 import {
   chatSessionListSchema,
+  chatSessionSchema,
   pauseRunResultSchema,
   sessionMessagePageSchema,
   type AskUserOutput,
@@ -107,6 +108,16 @@ export async function getChatSessions(novelId: string) {
 
 export async function deleteChatSession(sessionId: string) {
   return apiRequest(`agent/sessions/${sessionId}`, sessionDeletedSchema, { method: "delete" });
+}
+
+export async function updateChatSession(
+  sessionId: string,
+  payload: { pinned?: boolean; title?: string },
+) {
+  return apiRequest(`agent/sessions/${sessionId}`, chatSessionSchema, {
+    method: "patch",
+    json: payload,
+  });
 }
 
 export async function getSessionMessages(sessionId: string): Promise<ChatMessage[]> {

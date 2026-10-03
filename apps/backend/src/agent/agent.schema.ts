@@ -284,9 +284,15 @@ export const messageQuery = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 
-export const updateSession = z.object({
-  title: z.string().trim().min(1).max(255),
-});
+export const updateSession = z
+  .object({
+    title: z.string().trim().min(1).max(255).optional(),
+    pinned: z.boolean().optional(),
+  })
+  .refine(
+    (value) => value.title !== undefined || value.pinned !== undefined,
+    "至少需要一个更新字段",
+  );
 
 export const saveMemory = z.object({
   novelId: z.uuid(),

@@ -2,12 +2,13 @@ import type { StateCreator } from "zustand";
 
 import type { LayoutSlice } from "./slices/layout.slice";
 import type { SelectionSlice } from "./slices/selection.slice";
+import type { AgentDraftSlice } from "./slices/agent-drafts.slice";
 
 /**
  * workspace store 的完整状态：按 slice 交叉组合。
  * 新增功能 slice 时在此登记。
  */
-export type WorkspaceStore = SelectionSlice & LayoutSlice;
+export type WorkspaceStore = SelectionSlice & LayoutSlice & AgentDraftSlice;
 
 /**
  * 与 index.ts 的 middleware 组合保持一致：

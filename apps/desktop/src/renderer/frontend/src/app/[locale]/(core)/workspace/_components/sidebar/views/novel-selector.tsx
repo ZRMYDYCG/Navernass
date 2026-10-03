@@ -1,7 +1,8 @@
 "use client";
 
-import { BookIcon, CheckIcon, ChevronDownIcon } from "lucide-react";
+import { BookIcon, CheckIcon, ChevronDownIcon, PencilIcon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { useState } from "react";
 
 import {
   DropdownMenu,
@@ -9,11 +10,14 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNovel, useNovels } from "@/servers/library.server";
 import type { Novel } from "@/lib/http/modules/library.schema";
+
+import { NovelDetails } from "./novel-details";
 
 function NovelCover({ novel, size }: { novel: Novel; size: "sm" | "lg" }) {
   const sizeClass = size === "lg" ? "size-16 rounded-lg" : "size-9 rounded-md";
@@ -44,6 +48,7 @@ export function NovelSelector({ novelId, onSelectNovel }: NovelSelectorProps) {
   const format = useFormatter();
   const { data: novel } = useNovel(novelId);
   const novels = useNovels();
+  const [editing, setEditing] = useState(false);
 
   if (!novel) {
     return (
@@ -58,57 +63,65 @@ export function NovelSelector({ novelId, onSelectNovel }: NovelSelectorProps) {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="group w-full" aria-label={t("selectNovel")}>
-        <span className="flex w-full items-center gap-3 rounded-lg p-2 text-start transition-colors group-hover:bg-accent group-focus-visible:ring-2 group-focus-visible:ring-ring">
-          <NovelCover novel={novel} size="lg" />
-          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span className="truncate font-serif text-lg font-bold">{novel.title}</span>
-            {novel.description ? (
-              <span className="truncate text-sm text-muted-foreground">{novel.description}</span>
-            ) : null}
-            <span className="text-xs text-muted-foreground">
-              {t("novelStats", {
-                words: format.number(novel.word_count, {
-                  notation: "compact",
-                  maximumFractionDigits: 1,
-                }),
-                status: t(`novelStatus.${novel.status}`),
-              })}
-            </span>
-          </span>
-          <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
-        </span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" sideOffset={8}>
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>{t("selectNovel")}</DropdownMenuLabel>
-        </DropdownMenuGroup>
-        {novels.data?.map((item) => (
-          <DropdownMenuItem key={item.id} onClick={() => onSelectNovel(item.id)}>
-            <NovelCover novel={item} size="sm" />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-medium">{item.title}</span>
-              <span className="block truncate text-xs text-muted-foreground">
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger className="group w-full" aria-label={t("selectNovel")}>
+          <span className="flex w-full items-center gap-3 rounded-lg p-2 text-start transition-colors group-hover:bg-accent group-focus-visible:ring-2 group-focus-visible:ring-ring">
+            <NovelCover novel={novel} size="lg" />
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="truncate font-serif text-lg font-bold">{novel.title}</span>
+              {novel.description ? (
+                <span className="truncate text-sm text-muted-foreground">{novel.description}</span>
+              ) : null}
+              <span className="text-xs text-muted-foreground">
                 {t("novelStats", {
-                  words: format.number(item.word_count, {
+                  words: format.number(novel.word_count, {
                     notation: "compact",
                     maximumFractionDigits: 1,
                   }),
-                  status: t(`novelStatus.${item.status}`),
+                  status: t(`novelStatus.${novel.status}`),
                 })}
               </span>
             </span>
-            {item.id === novelId ? <CheckIcon /> : null}
+            <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+          </span>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" sideOffset={8}>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>{t("selectNovel")}</DropdownMenuLabel>
+          </DropdownMenuGroup>
+          {novels.data?.map((item) => (
+            <DropdownMenuItem key={item.id} onClick={() => onSelectNovel(item.id)}>
+              <NovelCover novel={item} size="sm" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-medium">{item.title}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {t("novelStats", {
+                    words: format.number(item.word_count, {
+                      notation: "compact",
+                      maximumFractionDigits: 1,
+                    }),
+                    status: t(`novelStatus.${item.status}`),
+                  })}
+                </span>
+              </span>
+              {item.id === novelId ? <CheckIcon /> : null}
+            </DropdownMenuItem>
+          ))}
+          {novels.isLoading ? (
+            <DropdownMenuItem disabled>{t("loadingNovels")}</DropdownMenuItem>
+          ) : null}
+          {novels.isError ? (
+            <DropdownMenuItem disabled>{t("loadNovelsError")}</DropdownMenuItem>
+          ) : null}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setEditing(true)}>
+            <PencilIcon />
+            {t("novelDetails.title")}
           </DropdownMenuItem>
-        ))}
-        {novels.isLoading ? (
-          <DropdownMenuItem disabled>{t("loadingNovels")}</DropdownMenuItem>
-        ) : null}
-        {novels.isError ? (
-          <DropdownMenuItem disabled>{t("loadNovelsError")}</DropdownMenuItem>
-        ) : null}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <NovelDetails novel={novel} open={editing} onOpenChange={setEditing} />
+    </>
   );
 }

@@ -2,17 +2,17 @@
   "chat": {
     "title": "Novel Assistant",
     "welcome": {
-      "heading": "What do you want to write today?",
-      "description": "I can use the current chapter, characters, and settings to help you continue writing, adjust the plot, or refine details.",
+      "heading": "Welcome back",
+      "description": "Start by scripting a task, and let the chat take over. Not sure where to start?",
       "actions": {
         "continue": {
-          "title": "Continue writing",
-          "description": "Naturally continue the next passage",
+          "title": "Continue prose",
+          "description": "Naturally continue the next passage from the current chapter.",
           "prompt": "Based on the current chapter context, continue the next passage while keeping the same style."
         },
         "plot": {
           "title": "Advance the plot",
-          "description": "Explore what happens next",
+          "description": "Shape the conflict, pacing, and next story beat.",
           "prompt": "Based on the current plot, suggest reasonable directions for what happens next."
         },
         "character": {
@@ -22,7 +22,7 @@
         },
         "polish": {
           "title": "Polish the prose",
-          "description": "Improve expression and style",
+          "description": "Improve expression, tone, and paragraph rhythm.",
           "prompt": "Polish the current passage, improving expression while preserving the original style."
         },
         "lore": {
@@ -50,10 +50,13 @@
       "newConversation": "New conversation",
       "untitled": "Untitled conversation",
       "empty": "No conversations yet",
+      "loadFailed": "Failed to load. Click to retry",
       "search": "Search sessions…",
       "today": "Today",
       "yesterday": "Yesterday",
       "older": "Older",
+      "close": "Close agent",
+      "more": "More",
       "delete": "Delete session",
       "noMatch": "No matching sessions",
       "loading": "Loading conversation"
@@ -311,7 +314,25 @@
     "noChats": "No chats yet",
     "untitled": "Untitled chat",
     "deleteChat": "Delete chat",
-    "editor": "Editor"
+    "editor": "Editor",
+    "skills": "Skills",
+    "closeSkills": "Close skills"
+  },
+  "agentSidebar": {
+    "search": "Search Agents...",
+    "newAgent": "New Agent",
+    "customize": "Customize",
+    "drafts": "Drafts",
+    "today": "Today",
+    "older": "Older",
+    "untitled": "Untitled chat",
+    "close": "Close agents sidebar",
+    "anonymous": "Anonymous",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "rename": "Rename",
+    "delete": "Delete",
+    "more": "More actions"
   },
   "workspaceStarter": {
     "novelTitle": "My First Novel",
@@ -482,6 +503,40 @@
       "embeddingHelp": "Optional. For knowledge retrieval, enter an embedding model supported by this provider.",
       "retry": "Retry",
       "editDescription": "Update this configuration. Leave the API key blank to keep the saved key."
+    },
+    "customize": {
+      "title": "Customize",
+      "description": "Manage extensible agent capabilities.",
+      "modules": {
+        "skills": "Skills",
+        "hooks": "Hooks",
+        "subagents": "Subagents",
+        "workflows": "Workflows"
+      },
+      "skills": {
+        "search": "Search skills...",
+        "new": "New",
+        "customTitle": "Custom {count}",
+        "builtinTitle": "Built-in {count}",
+        "emptyCustomTitle": "No custom skills yet",
+        "emptyCustomDescription": "Create a skill to turn a stable writing workflow into a reusable capability.",
+        "emptyBuiltinTitle": "No matching built-in skills",
+        "emptyBuiltinDescription": "Try another search term.",
+        "disabled": "Disabled",
+        "open": "Open",
+        "enable": "Enable",
+        "disable": "Disable",
+        "toggle": "Enable or disable skill",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleteTitle": "Delete skill?",
+        "deleteDescription": "This will delete “{name}”. This action cannot be undone.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "enabled": "Enabled",
+        "newTitle": "New skill",
+        "editTitle": "Edit skill"
+      }
     }
   },
   "sidebar": {
@@ -543,6 +598,17 @@
     "deleteVolume": {
       "title": "Delete volume “{title}”?",
       "description": "Chapters in this volume are kept and moved to “No volume”."
+    },
+    "novelDetails": {
+      "title": "Edit novel info",
+      "uploadCover": "Upload cover",
+      "removeCover": "Remove cover",
+      "fields": {
+        "title": "Title",
+        "description": "Description"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
     }
   },
   "chapterEditor": {

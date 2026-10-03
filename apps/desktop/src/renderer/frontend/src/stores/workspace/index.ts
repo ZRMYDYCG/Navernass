@@ -2,7 +2,9 @@ import { create } from "zustand/react";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import { createLayoutSlice } from "./slices/layout.slice";
 import { createSelectionSlice } from "./slices/selection.slice";
+import { createAgentDraftSlice } from "./slices/agent-drafts.slice";
 import type { WorkspaceStore } from "./types";
 
 /**
@@ -15,6 +17,8 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
   persist(
     immer((...a) => ({
       ...createSelectionSlice(...a),
+      ...createLayoutSlice(...a),
+      ...createAgentDraftSlice(...a),
     })),
     {
       name: "narraverse:workspace",
@@ -23,6 +27,10 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
         novelId: state.novelId,
         chapterId: state.chapterId,
         sessionIds: state.sessionIds,
+        panelLayout: state.panelLayout,
+        sidebarCollapsed: state.sidebarCollapsed,
+        chatPanelCollapsed: state.chatPanelCollapsed,
+        agentDrafts: state.agentDrafts,
       }),
       skipHydration: true,
     },

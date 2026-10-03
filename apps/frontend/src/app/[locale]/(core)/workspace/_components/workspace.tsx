@@ -9,17 +9,16 @@ import { FileTextIcon, SettingsIcon, SparklesIcon, XIcon } from "lucide-react";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { RelationshipGraphWorkspace } from "./relationship-graph";
 import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/servers/library.server";
-import { useCreateCustomSkill, useUpdateCustomSkill } from "@/servers/skill.server";
 import { useWorkspaceStore } from "@/stores";
 
 import { AppHeader } from "./app-header";
-import { ChapterEditor, EmptyChapterEditor } from "./editor";
-import type { ChapterEditorHandle, SerializedChapter } from "./editor";
-import { EditorComposer } from "./editor/composer";
+import { ChapterEditor, EmptyChapterEditor, type ChapterEditorHandle } from "./editor";
+import { AgentSidebar } from "./chat-panel/agent-sidebar";
 import { ChatPanel } from "./chat-panel/chat-panel";
 import { Sidebar } from "./sidebar/sidebar";
 import type { SidebarView } from "./sidebar/types";
 import { Settings } from "./settings";
+import { SkillEditor } from "./settings/skill-editor";
 import type { SkillEditorState } from "./settings/customize";
 
 function usePanelToggle(collapsed: boolean, onCollapsedChange: (collapsed: boolean) => void) {
@@ -61,6 +60,9 @@ export function Workspace() {
   const [settingsTitle, setSettingsTitle] = useState("设置");
   const [graphOpen, setGraphOpen] = useState(false);
   const [skillEditor, setSkillEditor] = useState<SkillEditorState | null>(null);
+  const [agentSidebarOpen, setAgentSidebarOpen] = useState(false);
+  const [newAgentRequest, setNewAgentRequest] = useState(0);
+  const [openDraftRequest, setOpenDraftRequest] = useState<{ id: string; count: number }>();
   const [activeView, setActiveView] = useState<WorkspaceView>("editor");
   const [hydrated, setHydrated] = useState(false);
   const sidebar = usePanelToggle(storedSidebarCollapsed, setSidebarCollapsedInStore);
@@ -236,10 +238,10 @@ export function Workspace() {
             ) : null}
             {skillEditor ? (
               <div hidden={activeView !== "skill"} className="min-h-0 flex-1">
-                <WorkspaceSkillEditor
+                <SkillEditor
+                  key={skillEditor.id ?? "new-skill"}
                   state={skillEditor}
                   onChange={setSkillEditor}
-                  novelId={effectiveNovelId ?? "skill"}
                 />
               </div>
             ) : null}
@@ -261,8 +263,35 @@ export function Workspace() {
             novelId={effectiveNovelId}
             chapterId={effectiveChapterId}
             onBeforeSend={saveCurrentChapter}
+            agentSidebarOpen={agentSidebarOpen}
+            onToggleAgentSidebar={() => setAgentSidebarOpen((open) => !open)}
+            newAgentRequest={newAgentRequest}
+            openDraftRequest={openDraftRequest}
           />
         </ResizablePanel>
+        {agentSidebarOpen ? (
+          <>
+            <ResizableHandle />
+            <ResizablePanel
+              id="agent-sidebar"
+              defaultSize={340}
+              minSize={280}
+              maxSize={460}
+              groupResizeBehavior="preserve-pixel-size"
+            >
+              <AgentSidebar
+                novelId={effectiveNovelId}
+                onClose={() => setAgentSidebarOpen(false)}
+                onNewAgent={() => setNewAgentRequest((count) => count + 1)}
+                onOpenDraft={(id) => setOpenDraftRequest({ id, count: Date.now() })}
+                onCustomize={() => {
+                  setSettingsOpen(true);
+                  setActiveView("settings");
+                }}
+              />
+            </ResizablePanel>
+          </>
+        ) : null}
       </ResizablePanelGroup>
     </div>
   );
@@ -351,52 +380,5 @@ function WorkspaceTab({
         </button>
       ) : null}
     </div>
-  );
-}
-
-function WorkspaceSkillEditor({
-  state,
-  onChange,
-  novelId,
-}: {
-  state: SkillEditorState;
-  onChange: (state: SkillEditorState | null) => void;
-  novelId: string;
-}) {
-  const createSkill = useCreateCustomSkill();
-  const updateSkill = useUpdateCustomSkill();
-
-  const save = async (content: SerializedChapter) => {
-    if (state.readonly) return;
-    const payload = { skillMd: content.text, enabled: state.enabled };
-    if (state.id) {
-      const skill = await updateSkill.mutateAsync({ id: state.id, payload });
-      onChange({
-        ...state,
-        ...payload,
-        title: skill.displayName,
-        description: skill.description,
-      });
-    } else {
-      const skill = await createSkill.mutateAsync(payload);
-      onChange({
-        id: skill.id,
-        title: skill.displayName,
-        description: skill.description,
-        skillMd: skill.skillMd,
-        enabled: skill.enabled,
-        readonly: false,
-      });
-    }
-  };
-
-  return (
-    <EditorComposer
-      novelId={novelId}
-      chapterId={`skill:${state.id ?? "new"}`}
-      initialContent={state.skillMd}
-      readonly={state.readonly}
-      onSave={save}
-    />
   );
 }

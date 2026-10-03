@@ -66,7 +66,7 @@ function Desktop({ pathname, onSignedOut }: { pathname: string; onSignedOut: () 
   const session = useQuery({ queryKey: authKeys.session, queryFn: getSession });
   const user = session.data?.user;
   const t = useTranslations("workspaceStarter");
-  const novels = useNovels(Boolean(user));
+  const novels = useNovels();
   const starter = useCreateStarterWorkspace();
   const startedFor = useRef<string | undefined>(undefined);
 
@@ -77,17 +77,12 @@ function Desktop({ pathname, onSignedOut }: { pathname: string; onSignedOut: () 
   }, [user, novels.isSuccess, novels.data, starter, t]);
 
   return (
-    <AuthDialogProvider
-      onAuthenticated={() => {
-        void queryClient.invalidateQueries();
-      }}
-    >
-      {pathname === "/workspace" && user && novels.data?.length ? (
+    <AuthDialogProvider>
+      {pathname === "/workspace" && user ? (
         <Workspace key={user.id} />
       ) : (
         <Agents
           key={user?.id ?? "guest"}
-          guest={!user}
           sidebarFooter={
             <Account
               name={user?.name || user?.email}
@@ -98,10 +93,7 @@ function Desktop({ pathname, onSignedOut }: { pathname: string; onSignedOut: () 
                   sessionIds: {},
                 });
                 startedFor.current = undefined;
-                queryClient.setQueryData(authKeys.session, null);
-                queryClient.removeQueries({
-                  predicate: (query) => query.queryKey[0] !== "desktop",
-                });
+                queryClient.clear();
                 onSignedOut();
                 void session.refetch();
               }}

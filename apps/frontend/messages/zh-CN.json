@@ -2,17 +2,17 @@
   "chat": {
     "title": "小说助手",
     "welcome": {
-      "heading": "今天想写点什么？",
-      "description": "我可以结合当前章节、人物和设定，帮你继续写、调整剧情或完善细节。",
+      "heading": "欢迎回来",
+      "description": "写下任务，让对话接手。还不知道从哪里开始？",
       "actions": {
         "continue": {
-          "title": "续写当前内容",
-          "description": "根据上下文自然续写下一段",
+          "title": "续写正文",
+          "description": "根据当前章节自然延续下一段内容。",
           "prompt": "根据当前章节上下文，自然续写下一段，保持文风一致。"
         },
         "plot": {
           "title": "推进剧情",
-          "description": "一起想想下一步发展",
+          "description": "梳理冲突、节奏和下一步发展。",
           "prompt": "基于当前剧情，帮我构思接下来合理的发展方向。"
         },
         "character": {
@@ -22,7 +22,7 @@
         },
         "polish": {
           "title": "润色文字",
-          "description": "优化表达与文风",
+          "description": "优化表达、语气和段落节奏。",
           "prompt": "润色当前段落，优化表达并保持原有文风。"
         },
         "lore": {
@@ -50,10 +50,13 @@
       "newConversation": "新对话",
       "untitled": "未命名对话",
       "empty": "还没有历史对话",
+      "loadFailed": "加载失败，点击重试",
       "search": "搜索对话…",
       "today": "今天",
       "yesterday": "昨天",
       "older": "更早",
+      "close": "关闭 Agent",
+      "more": "更多",
       "delete": "删除对话",
       "noMatch": "没有匹配的对话",
       "loading": "正在载入对话"
@@ -311,7 +314,38 @@
     "noChats": "还没有对话",
     "untitled": "未命名对话",
     "deleteChat": "删除对话",
-    "editor": "编辑器"
+    "editor": "编辑器",
+    "search": "搜索",
+    "searchPlaceholder": "搜索对话…",
+    "noResults": "没有匹配的对话",
+    "customize": "Customize",
+    "settings": "设置",
+    "closePanel": "关闭面板",
+    "hideSidebar": "收起侧栏",
+    "showSidebar": "展开侧栏",
+    "more": "More",
+    "moreActions": "更多操作",
+    "noNovel": "选择小说",
+    "noChapter": "不指定章节",
+    "anonymous": "未登录用户"
+  },
+  "agentSidebar": {
+    "search": "搜索 Agents…",
+    "newAgent": "New Agent",
+    "customize": "Customize",
+    "pinned": "Pinned",
+    "drafts": "Drafts",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "older": "Older",
+    "untitled": "未命名对话",
+    "close": "关闭 Agents 侧栏",
+    "anonymous": "未登录用户",
+    "pin": "置顶",
+    "unpin": "取消置顶",
+    "rename": "重命名",
+    "delete": "删除",
+    "more": "更多操作"
   },
   "workspaceStarter": {
     "novelTitle": "我的第一本小说",
@@ -501,6 +535,9 @@
         "emptyBuiltinTitle": "没有匹配的内置 Skill",
         "emptyBuiltinDescription": "换个关键词试试。",
         "disabled": "已停用",
+        "open": "打开",
+        "enable": "启用",
+        "disable": "停用",
         "toggle": "启用或停用 Skill",
         "edit": "编辑",
         "delete": "删除",

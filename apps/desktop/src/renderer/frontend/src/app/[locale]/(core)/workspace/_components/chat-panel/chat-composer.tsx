@@ -17,6 +17,9 @@ interface ComposerProps {
   onSubmit: (prompt: string) => void;
   onPause: () => void;
   className?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  onSent?: () => void;
 }
 
 export function Composer({
@@ -27,16 +30,26 @@ export function Composer({
   onSubmit,
   onPause,
   className,
+  value,
+  onChange,
+  onSent,
 }: ComposerProps) {
   const t = useTranslations("chat");
-  const [draft, setDraft] = useState("");
+  const [localDraft, setLocalDraft] = useState("");
   const inputRef = useRef<PromptInputHandle>(null);
+  const draft = value ?? localDraft;
+
+  const updateDraft = (next: string) => {
+    if (value === undefined) setLocalDraft(next);
+    onChange?.(next);
+  };
 
   const send = () => {
     if (!draft.trim() || !canSend) return;
     onSubmit(draft);
-    setDraft("");
+    updateDraft("");
     inputRef.current?.clear();
+    onSent?.();
   };
 
   return (
@@ -46,7 +59,8 @@ export function Composer({
         placeholder={t("composer.placeholder")}
         disabled={busy}
         ariaLabel={t("composer.placeholder")}
-        onChange={setDraft}
+        initialValue={draft}
+        onChange={updateDraft}
         onSubmit={send}
         addon={
           busy ? (

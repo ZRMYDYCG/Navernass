@@ -1,9 +1,10 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   deleteChatSession,
   getChatSessions,
   getSessionMessages,
+  updateChatSession,
 } from "@/lib/http/modules/agent.api";
 
 /**
@@ -26,6 +27,19 @@ export function useChatSessions(novelId: string | undefined) {
 }
 
 /**
+ * 批量获取多部小说的聊天会话，结果顺序与 novelIds 一致。
+ */
+export function useChatSessionsByNovels(novelIds: string[], enabled: boolean) {
+  return useQueries({
+    queries: novelIds.map((novelId) => ({
+      queryKey: agentKeys.sessions(novelId),
+      queryFn: () => getChatSessions(novelId),
+      enabled,
+    })),
+  });
+}
+
+/**
  * 获取指定会话的历史消息。
  */
 export function useSessionMessages(sessionId: string | undefined) {
@@ -41,4 +55,14 @@ export function useSessionMessages(sessionId: string | undefined) {
  */
 export function useDeleteChatSession() {
   return useMutation({ mutationFn: deleteChatSession });
+}
+
+export function useUpdateChatSession() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { pinned?: boolean; title?: string } }) =>
+      updateChatSession(id, payload),
+    onSuccess: (session) =>
+      queryClient.invalidateQueries({ queryKey: agentKeys.sessions(session.novel_id) }),
+  });
 }

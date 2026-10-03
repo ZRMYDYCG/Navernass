@@ -35,6 +35,7 @@ import {
   searchChapters,
   updateCharacter as updateCharacterApi,
   updateChapterContent,
+  updateNovel as updateNovelApi,
   updateRelationship as updateRelationshipApi,
 } from "@/lib/http/modules/library.api";
 import {
@@ -47,7 +48,9 @@ import {
   type CreateCharacterPayload,
   type CreateRelationshipPayload,
   type OrderItem,
+  type Novel,
   type UpdateCharacterPayload,
+  type UpdateNovelPayload,
   type UpdateRelationshipPayload,
   type Volume,
 } from "@/lib/http/modules/library.schema";
@@ -72,8 +75,8 @@ export const libraryKeys = {
 /**
  * 获取小说列表。
  */
-export function useNovels(enabled = true) {
-  return useQuery({ queryKey: libraryKeys.novels, queryFn: getNovels, enabled });
+export function useNovels() {
+  return useQuery({ queryKey: libraryKeys.novels, queryFn: getNovels });
 }
 
 /**
@@ -146,6 +149,22 @@ export function useCreateStarterWorkspace() {
       ]);
       queryClient.setQueryData(libraryKeys.chapter(chapter.id), chapter);
       queryClient.setQueryData(libraryKeys.novel(novel.id), novel);
+    },
+  });
+}
+
+/**
+ * 更新小说标题、简介或封面，并同步详情与列表缓存。
+ */
+export function useUpdateNovel(novelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateNovelPayload) => updateNovelApi(novelId, payload),
+    onSuccess: (novel) => {
+      queryClient.setQueryData(libraryKeys.novel(novelId), novel);
+      queryClient.setQueryData<Novel[]>(libraryKeys.novels, (list) =>
+        list?.map((item) => (item.id === novelId ? novel : item)),
+      );
     },
   });
 }

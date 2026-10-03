@@ -102,7 +102,7 @@ export class ChatService {
     const [data, total] = await this.prisma.$transaction([
       this.prisma.agentSession.findMany({
         where,
-        orderBy: { updated_at: "desc" },
+        orderBy: [{ pinned: "desc" }, { updated_at: "desc" }],
         skip: (query.page - 1) * query.pageSize,
         take: query.pageSize,
         include: {
@@ -164,9 +164,17 @@ export class ChatService {
     };
   }
 
-  async updateSession(userId: string, sessionId: string, title: string) {
-    await this.requireSession(userId, sessionId);
-    return this.prisma.agentSession.update({ where: { id: sessionId }, data: { title } });
+  async updateSession(
+    userId: string,
+    sessionId: string,
+    input: { title?: string; pinned?: boolean },
+  ) {
+    const session = await this.requireSession(userId, sessionId);
+    // 置顶、重命名不算会话活动，保留 updated_at，取消置顶后列表位置不变。
+    return this.prisma.agentSession.update({
+      where: { id: sessionId },
+      data: { ...input, updated_at: session.updated_at },
+    });
   }
 
   async removeSession(userId: string, sessionId: string) {

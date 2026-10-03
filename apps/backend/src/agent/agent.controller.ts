@@ -458,7 +458,7 @@ export class AgentController {
     @Param(new ZodPipe(idParam)) params: { id: string },
     @Body(new ZodPipe(schema.updateSession)) body: schema.UpdateSession,
   ) {
-    return this.chats.updateSession(user.id, params.id, body.title);
+    return this.chats.updateSession(user.id, params.id, body);
   }
 
   @Delete("sessions/:id")

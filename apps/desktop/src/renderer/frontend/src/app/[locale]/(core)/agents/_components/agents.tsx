@@ -7,8 +7,10 @@ import {
   ChevronRightIcon,
   LoaderCircleIcon,
   PlusIcon,
+  SparklesIcon,
   SquarePenIcon,
   Trash2Icon,
+  XIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
@@ -23,22 +25,20 @@ import { useNovels } from "@/servers/library.server";
 import { useWorkspaceStore } from "@/stores";
 
 import { ChatPanel } from "../../workspace/_components/chat-panel/chat-panel";
+import { Customize, type SkillEditorState } from "../../workspace/_components/settings/customize";
+import { SkillEditor } from "../../workspace/_components/settings/skill-editor";
 
 /** Agents 窗口：以对话为中心的小说模式，左侧按小说分组切换对话，与工作台共享当前小说与会话。 */
-export function Agents({
-  sidebarFooter,
-  guest = false,
-}: {
-  sidebarFooter?: ReactNode;
-  guest?: boolean;
-}) {
+export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
   const t = useTranslations("agents");
   const router = useRouter();
-  const novels = useNovels(!guest);
+  const novels = useNovels();
   const storedNovelId = useWorkspaceStore((state) => state.novelId);
   const chapterId = useWorkspaceStore((state) => state.chapterId);
   const sessionIds = useWorkspaceStore((state) => state.sessionIds);
   const [hydrated, setHydrated] = useState(false);
+  const [skillsOpen, setSkillsOpen] = useState(false);
+  const [skillEditor, setSkillEditor] = useState<SkillEditorState | null>(null);
   // ChatPanel 只在挂载时读取会话；侧栏切换对话时换 key 让它重建，流式中新建的会话不会触发重建。
   const [chatKey, setChatKey] = useState(0);
 
@@ -98,19 +98,25 @@ export function Agents({
           <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
             {activeSession?.title || t("newChat")}
           </span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={guest}
-            onClick={() => router.push("/workspace")}
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={() => router.push("/workspace")}>
             {t("editor")}
             <ArrowUpRightIcon />
           </Button>
+          <Button
+            type="button"
+            variant={skillsOpen ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => {
+              setSkillsOpen((open) => !open);
+              if (skillsOpen) setSkillEditor(null);
+            }}
+          >
+            <SparklesIcon />
+            {t("skills")}
+          </Button>
         </header>
         <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col">
-          {hydrated && (guest || novels.isSuccess) ? (
+          {hydrated && novels.isSuccess ? (
             <ChatPanel
               key={`${novelId ?? "none"}:${chatKey}`}
               novelId={novelId}
@@ -120,6 +126,42 @@ export function Agents({
           ) : null}
         </div>
       </main>
+      {skillsOpen ? (
+        <aside className="flex w-160 shrink-0 flex-col border-l border-border bg-background">
+          {skillEditor ? (
+            <SkillEditor
+              key={skillEditor.id ?? "new-skill"}
+              state={skillEditor}
+              onChange={setSkillEditor}
+              onBack={() => setSkillEditor(null)}
+              onClose={() => {
+                setSkillEditor(null);
+                setSkillsOpen(false);
+              }}
+            />
+          ) : (
+            <>
+              <header className="flex h-11 shrink-0 items-center justify-between border-b border-border px-4">
+                <span className="text-sm font-medium">{t("skills")}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t("closeSkills")}
+                  onClick={() => setSkillsOpen(false)}
+                >
+                  <XIcon />
+                </Button>
+              </header>
+              <ScrollArea className="min-h-0 flex-1">
+                <div className="p-5">
+                  <Customize onOpenSkillEditor={setSkillEditor} />
+                </div>
+              </ScrollArea>
+            </>
+          )}
+        </aside>
+      ) : null}
     </div>
   );
 }

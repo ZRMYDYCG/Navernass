@@ -115,13 +115,7 @@ function AuthDialogForm({
 /**
  * 全局登录/注册弹窗。未登录用户点击入口按钮时在当前页弹出，不再跳转独立页面。
  */
-export function AuthDialogProvider({
-  children,
-  onAuthenticated,
-}: {
-  children: ReactNode;
-  onAuthenticated?: () => void;
-}) {
+export function AuthDialogProvider({ children }: { children: ReactNode }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -136,11 +130,8 @@ export function AuthDialogProvider({
 
   function handleSuccess() {
     setOpen(false);
-    if (onAuthenticated) onAuthenticated();
-    else {
-      router.push("/workspace");
-      router.refresh();
-    }
+    router.push("/workspace");
+    router.refresh();
   }
 
   return (

@@ -2,7 +2,7 @@
 
 import { BoxIcon, HistoryIcon, PuzzleIcon, SettingsIcon, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Fragment, useState, type ComponentType } from "react";
+import { Fragment, useEffect, useState, type ComponentType } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { useSession } from "@/servers/auth.server";
 
 import { Changelog } from "./changelog";
+import { Customize, type SkillEditorState } from "./customize";
 import { General } from "./general";
 import { Models } from "./models";
 
@@ -26,14 +27,19 @@ type SettingsSectionId = "general" | "models" | "customize" | "changelog";
 interface SettingsSection {
   id: SettingsSectionId;
   icon: LucideIcon;
-  content?: ComponentType;
+  content?: ComponentType<SettingsContentProps>;
+}
+
+interface SettingsContentProps {
+  onOpenSkillEditor?: (state: SkillEditorState) => void;
+  onTitleChange?: (title: string) => void;
 }
 
 const sectionGroups: SettingsSection[][] = [
   [{ id: "general", icon: SettingsIcon, content: General }],
   [
     { id: "models", icon: BoxIcon, content: Models },
-    { id: "customize", icon: PuzzleIcon },
+    { id: "customize", icon: PuzzleIcon, content: Customize },
   ],
   [{ id: "changelog", icon: HistoryIcon, content: Changelog }],
 ];
@@ -121,11 +127,15 @@ function ComingSoonSection({ section }: { section: SettingsSection }) {
   );
 }
 
-export function Settings() {
+export function Settings({ onOpenSkillEditor, onTitleChange }: SettingsContentProps) {
   const t = useTranslations("settings");
   const [activeId, setActiveId] = useState<SettingsSectionId>("general");
   const active = getSection(activeId);
   const Content = active.content;
+
+  useEffect(() => {
+    onTitleChange?.(t(`sections.${activeId}`));
+  }, [activeId, onTitleChange, t]);
 
   return (
     <section aria-label={t("title")} className="flex h-full min-h-0 bg-background">
@@ -133,7 +143,11 @@ export function Settings() {
       <Separator orientation="vertical" />
       <ScrollArea className="min-h-0 flex-1">
         <div className="mx-auto w-full max-w-3xl px-10 py-8">
-          {Content ? <Content /> : <ComingSoonSection section={active} />}
+          {Content ? (
+            <Content onOpenSkillEditor={onOpenSkillEditor} />
+          ) : (
+            <ComingSoonSection section={active} />
+          )}
         </div>
       </ScrollArea>
     </section>

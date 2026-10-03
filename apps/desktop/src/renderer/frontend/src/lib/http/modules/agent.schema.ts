@@ -39,6 +39,7 @@ export const chatSessionSchema = z.object({
   novel_id: z.string(),
   chapter_id: z.string().nullable(),
   title: z.string().nullable(),
+  pinned: z.boolean().default(false),
   created_at: z.string(),
   updated_at: z.string(),
   messageCount: z.number().int().nonnegative(),

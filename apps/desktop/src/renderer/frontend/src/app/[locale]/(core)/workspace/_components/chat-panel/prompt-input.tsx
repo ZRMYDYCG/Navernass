@@ -1,6 +1,13 @@
 "use client";
 
-import { $getRoot, COMMAND_PRIORITY_NORMAL, KEY_ENTER_COMMAND, type EditorState } from "lexical";
+import {
+  $createTextNode,
+  $createParagraphNode,
+  $getRoot,
+  COMMAND_PRIORITY_NORMAL,
+  KEY_ENTER_COMMAND,
+  type EditorState,
+} from "lexical";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { LexicalComposer, type InitialConfigType } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -33,6 +40,7 @@ interface PromptInputProps {
   className?: string;
   /** 编辑区底部的操作行（发送、停止等按钮）。 */
   addon?: ReactNode;
+  initialValue?: string;
   onChange?: (text: string) => void;
   /** Enter 发送，Shift+Enter 换行，输入法组合中的 Enter 不触发。 */
   onSubmit?: () => void;
@@ -54,6 +62,7 @@ function PromptInputEditor({
   onChange,
   onSubmit,
   handleRef,
+  initialValue,
 }: {
   placeholder?: string;
   disabled?: boolean;
@@ -61,6 +70,7 @@ function PromptInputEditor({
   onChange?: (text: string) => void;
   onSubmit?: () => void;
   handleRef?: Ref<PromptInputHandle>;
+  initialValue?: string;
 }) {
   const [editor] = useLexicalComposerContext();
   const onChangeRef = useLatest(onChange);
@@ -69,6 +79,19 @@ function PromptInputEditor({
   useEffect(() => {
     editor.setEditable(!disabled);
   }, [disabled, editor]);
+
+  useEffect(() => {
+    editor.update(() => {
+      const root = $getRoot();
+      if (root.getTextContent() === (initialValue ?? "")) return;
+      root.clear();
+      if (initialValue) {
+        const paragraph = $createParagraphNode();
+        paragraph.append($createTextNode(initialValue));
+        root.append(paragraph);
+      }
+    });
+  }, [editor, initialValue]);
 
   useEffect(() => {
     return editor.registerCommand(
@@ -141,6 +164,7 @@ export function PromptInput({
   onChange,
   onSubmit,
   ref,
+  initialValue,
 }: PromptInputProps) {
   return (
     <div
@@ -161,6 +185,7 @@ export function PromptInput({
           onChange={onChange}
           onSubmit={onSubmit}
           handleRef={ref}
+          initialValue={initialValue}
         />
       </LexicalComposer>
       {addon ? <div className="flex items-center justify-end px-2 pb-2">{addon}</div> : null}

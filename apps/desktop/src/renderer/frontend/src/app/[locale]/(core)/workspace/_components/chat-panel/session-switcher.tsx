@@ -5,8 +5,11 @@ import {
   HistoryIcon,
   LoaderCircleIcon,
   MessageSquareIcon,
+  MoreHorizontalIcon,
+  PanelRightIcon,
   PlusIcon,
   Trash2Icon,
+  XIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -19,11 +22,25 @@ import type { ChatSession } from "@/lib/http/modules/agent.schema";
 interface SessionSwitcherProps {
   sessions: ChatSession[];
   activeSessionId?: string;
+  activeAgentId: string;
+  agentTabs: AgentTab[];
   disabled: boolean;
   loading: boolean;
+  /** 会话列表加载失败的提示文案；非空时展示重试入口。 */
+  error?: string;
+  onRetry?: () => void;
+  onSelectAgentTab: (tab: AgentTab) => void;
   onSelect: (sessionId: string) => void;
   onNew: () => void;
+  onCloseAgentTab: (id: string) => void;
   onDelete: (sessionId: string) => void;
+  agentSidebarOpen?: boolean;
+  onToggleAgentSidebar?: () => void;
+}
+
+interface AgentTab {
+  id: string;
+  sessionId?: string;
 }
 
 type SessionGroupKey = "today" | "yesterday" | "older";
@@ -35,7 +52,6 @@ interface SessionGroup {
 
 const GROUP_KEYS: SessionGroupKey[] = ["today", "yesterday", "older"];
 
-/** 按 updated_at 把会话分到 今天 / 昨天 / 更早。 */
 function groupSessionsByTime(sessions: ChatSession[], now: Date): SessionGroup[] {
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
@@ -60,16 +76,23 @@ function groupSessionsByTime(sessions: ChatSession[], now: Date): SessionGroup[]
 export function SessionSwitcher({
   sessions,
   activeSessionId,
+  activeAgentId,
+  agentTabs,
   disabled,
   loading,
+  error,
+  onRetry,
+  onSelectAgentTab,
   onSelect,
   onNew,
+  onCloseAgentTab,
   onDelete,
+  agentSidebarOpen = false,
+  onToggleAgentSidebar,
 }: SessionSwitcherProps) {
   const t = useTranslations("chat.sessions");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
-  const activeSession = sessions.find((session) => session.id === activeSessionId);
 
   const closeHistory = () => setHistoryOpen(false);
 
@@ -87,9 +110,41 @@ export function SessionSwitcher({
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-1 border-b px-3">
-      <div className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
-        <MessageSquareIcon className="size-4 shrink-0 text-muted-foreground" />
-        <span className="truncate">{activeSession?.title || t("newConversation")}</span>
+      <div className="flex min-w-0 flex-1 items-end gap-1 self-stretch overflow-x-auto overflow-y-hidden">
+        {agentTabs.map((tab) => {
+          const session = sessions.find((item) => item.id === tab.sessionId);
+          const active = tab.id === activeAgentId;
+          return (
+            <div
+              key={tab.id}
+              className={[
+                "group flex h-11 w-48 shrink-0 items-center gap-2 border-b-2 px-3 text-sm",
+                active
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground",
+              ].join(" ")}
+            >
+              <button
+                type="button"
+                className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                onClick={() => onSelectAgentTab(tab)}
+              >
+                <MessageSquareIcon className="size-4 shrink-0" />
+                <span className="truncate">{session?.title || t("newConversation")}</span>
+              </button>
+              {agentTabs.length > 1 ? (
+                <button
+                  type="button"
+                  className="shrink-0 opacity-60 hover:opacity-100"
+                  aria-label={t("close")}
+                  onClick={() => onCloseAgentTab(tab.id)}
+                >
+                  <XIcon className="size-3.5" />
+                </button>
+              ) : null}
+            </div>
+          );
+        })}
       </div>
 
       <Button
@@ -98,12 +153,13 @@ export function SessionSwitcher({
         variant="ghost"
         disabled={disabled}
         aria-label={t("new")}
-        onClick={() => {
-          onNew();
-          closeHistory();
-        }}
+        onClick={onNew}
       >
         <PlusIcon />
+      </Button>
+
+      <Button type="button" size="icon-sm" variant="ghost" aria-label={t("more")}>
+        <MoreHorizontalIcon />
       </Button>
 
       <Popover open={historyOpen} onOpenChange={setHistoryOpen}>
@@ -129,7 +185,6 @@ export function SessionSwitcher({
               autoComplete="off"
               className="w-full shrink-0 bg-transparent px-2 py-1.5 text-sm outline-none placeholder:text-muted-foreground/70"
             />
-            {/* 弹层只有 max-height，视口的 height:100% 无法解析；让 Root 也成为 flex 列，视口作为 flex 子项被压缩后才能滚动。 */}
             <ScrollArea className="flex min-h-0 flex-1 flex-col">
               <div>
                 {groups.map((group, index) => (
@@ -158,7 +213,16 @@ export function SessionSwitcher({
                     ))}
                   </div>
                 ))}
-                {!loading && sessions.length === 0 ? (
+                {!loading && error ? (
+                  <button
+                    type="button"
+                    onClick={onRetry}
+                    className="block w-full px-3 py-6 text-center text-sm text-muted-foreground outline-none hover:text-foreground"
+                  >
+                    {t("loadFailed")}
+                  </button>
+                ) : null}
+                {!loading && !error && sessions.length === 0 ? (
                   <p className="px-3 py-6 text-center text-sm text-muted-foreground">
                     {t("empty")}
                   </p>
@@ -173,6 +237,19 @@ export function SessionSwitcher({
           </div>
         </PopoverContent>
       </Popover>
+
+      {onToggleAgentSidebar && !agentSidebarOpen ? (
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="ghost"
+          aria-label={t("history")}
+          aria-pressed={agentSidebarOpen}
+          onClick={onToggleAgentSidebar}
+        >
+          <PanelRightIcon />
+        </Button>
+      ) : null}
     </header>
   );
 }

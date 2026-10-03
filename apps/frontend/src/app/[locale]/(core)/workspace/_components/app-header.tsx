@@ -6,7 +6,6 @@ import {
   ArrowUpRightIcon,
   MessageSquareIcon,
   PanelLeftIcon,
-  PanelRightIcon,
   SettingsIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -70,13 +69,10 @@ export function AppHeader({
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("toggleChatPanel")}
+          aria-label={t("chats")}
           aria-pressed={!chatPanelCollapsed}
           onClick={onToggleChatPanel}
         >
-          <PanelRightIcon />
-        </Button>
-        <Button variant="ghost" size="icon-sm" aria-label={t("chats")}>
           <MessageSquareIcon />
         </Button>
         <Button variant="ghost" size="icon-sm" aria-label={t("settings")} onClick={onOpenSettings}>
