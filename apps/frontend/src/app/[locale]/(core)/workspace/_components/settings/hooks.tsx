@@ -142,7 +142,7 @@ function InstalledHooks({ onCreate }: { onCreate: () => void }) {
   return (
     <div className="flex flex-col gap-4">
       <form
-        className="flex items-end gap-3 rounded-lg border border-border p-4"
+        className="flex items-end gap-3"
         onSubmit={(formEvent) => formEvent.preventDefault()}
         onReset={() => {
           setKeyword("");
@@ -192,8 +192,8 @@ function InstalledHooks({ onCreate }: { onCreate: () => void }) {
         </Button>
       </form>
 
-      <section className="overflow-hidden rounded-lg border border-border">
-        <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+      <section className="flex flex-col gap-2">
+        <header className="flex items-center gap-2">
           <h2 className="text-sm font-medium">{t("listTitle")}</h2>
           <span className="text-xs text-muted-foreground">
             {t("total", { count: rows.length })}
@@ -206,7 +206,7 @@ function InstalledHooks({ onCreate }: { onCreate: () => void }) {
             {t("new")}
           </Button>
         </header>
-        <div className="px-2">
+        <div className="-mx-2">
           <Table>
             <TableHeader>
               <TableRow>
@@ -349,7 +349,7 @@ function ExecutionLogs() {
   return (
     <div className="flex flex-col gap-4">
       <form
-        className="flex items-end gap-3 rounded-lg border border-border p-4"
+        className="flex items-end gap-3"
         onSubmit={(formEvent) => formEvent.preventDefault()}
         onReset={() => {
           setKeyword("");
@@ -389,8 +389,8 @@ function ExecutionLogs() {
         </Button>
       </form>
 
-      <section className="overflow-hidden rounded-lg border border-border">
-        <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+      <section className="flex flex-col gap-2">
+        <header className="flex items-center gap-2">
           <h2 className="text-sm font-medium">{t("logsTitle")}</h2>
           <span className="text-xs text-muted-foreground">
             {t("total", { count: rows.length })}
@@ -408,7 +408,7 @@ function ExecutionLogs() {
             {t("refresh")}
           </Button>
         </header>
-        <div className="px-2">
+        <div className="-mx-2">
           <Table>
             <TableHeader>
               <TableRow>
@@ -478,12 +478,12 @@ function ExecutionLogs() {
                       {open ? (
                         <TableRow>
                           <TableCell colSpan={6}>
-                            <div className="rounded-md border border-border bg-muted/30">
+                            <div className="rounded-md bg-muted/30">
                               {dispatch.executions.length ? (
                                 dispatch.executions.map((execution) => (
                                   <div
                                     key={execution.id}
-                                    className="flex items-center gap-4 border-b border-border px-3 py-2 last:border-b-0"
+                                    className="flex items-center gap-4 px-3 py-2"
                                   >
                                     <div className="min-w-0 flex-1">
                                       <span className="block truncate font-mono text-xs">

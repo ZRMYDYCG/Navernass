@@ -197,7 +197,7 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
   return (
     <div className="flex flex-col gap-4">
       <form
-        className="flex items-end gap-3 rounded-lg border border-border p-4"
+        className="flex items-end gap-3"
         onSubmit={(event) => event.preventDefault()}
         onReset={() => {
           setKeyword("");
@@ -237,8 +237,8 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
         </Button>
       </form>
 
-      <section className="overflow-hidden rounded-lg border border-border">
-        <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+      <section className="flex flex-col gap-2">
+        <header className="flex items-center gap-2">
           <h2 className="text-sm font-medium">{t("listTitle")}</h2>
           <span className="text-xs text-muted-foreground">
             {t("total", { count: entries.length })}
@@ -256,7 +256,7 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
             {t("new")}
           </Button>
         </header>
-        <div className="px-2">
+        <div className="-mx-2">
           <Table>
             <TableHeader>
               <TableRow>
@@ -424,7 +424,7 @@ function Subagents({ onOpen }: { onOpen: (target: SubagentEditorTarget) => void 
   return (
     <div className="flex flex-col gap-4">
       <form
-        className="flex items-end gap-3 rounded-lg border border-border p-4"
+        className="flex items-end gap-3"
         onSubmit={(event) => event.preventDefault()}
         onReset={() => {
           setKeyword("");
@@ -464,8 +464,8 @@ function Subagents({ onOpen }: { onOpen: (target: SubagentEditorTarget) => void 
         </Button>
       </form>
 
-      <section className="overflow-hidden rounded-lg border border-border">
-        <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+      <section className="flex flex-col gap-2">
+        <header className="flex items-center gap-2">
           <h2 className="text-sm font-medium">{t("listTitle")}</h2>
           <span className="text-xs text-muted-foreground">
             {t("total", { count: entries.length })}
@@ -483,7 +483,7 @@ function Subagents({ onOpen }: { onOpen: (target: SubagentEditorTarget) => void 
             {t("new")}
           </Button>
         </header>
-        <div className="px-2">
+        <div className="-mx-2">
           <Table>
             <TableHeader>
               <TableRow>
