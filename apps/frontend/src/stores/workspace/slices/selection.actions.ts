@@ -14,6 +14,17 @@ export const createSelectionActions: WorkspaceSliceCreator<SelectionActions> = (
       state.chapterId = id;
     }),
 
+  setActiveView: (view) =>
+    set((state) => {
+      state.activeView = view;
+    }),
+
+  openChapter: (id) =>
+    set((state) => {
+      if (id) state.chapterId = id;
+      state.activeView = "editor";
+    }),
+
   selectSession: (novelId, sessionId) =>
     set((state) => {
       if (state.sessionIds[novelId] === sessionId) return;

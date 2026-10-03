@@ -169,6 +169,7 @@
       "score": "{score}% relevant",
       "reviewText": "Text under review",
       "report": "Review report",
+      "openReport": "View review report",
       "task": "Task",
       "result": "Result"
     },

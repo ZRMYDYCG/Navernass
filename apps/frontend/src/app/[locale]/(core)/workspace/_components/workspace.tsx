@@ -9,7 +9,7 @@ import { FileTextIcon, SettingsIcon, SparklesIcon, XIcon } from "lucide-react";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { RelationshipGraphWorkspace } from "./relationship-graph";
 import { useCreateStarterWorkspace, useNovelChapters, useNovels } from "@/servers/library.server";
-import { useWorkspaceStore } from "@/stores";
+import { useWorkspaceStore, type WorkspaceView } from "@/stores";
 
 import { AppHeader } from "./app-header";
 import { ChapterEditor, EmptyChapterEditor, type ChapterEditorHandle } from "./editor";
@@ -39,8 +39,6 @@ function usePanelToggle(collapsed: boolean, onCollapsedChange: (collapsed: boole
   return { panelRef, collapsed, toggle };
 }
 
-type WorkspaceView = "editor" | "graph" | "settings" | "skill";
-
 export function Workspace() {
   const t = useTranslations("workspaceStarter");
   const novels = useNovels();
@@ -49,7 +47,9 @@ export function Workspace() {
   const storedNovelId = useWorkspaceStore((state) => state.novelId);
   const storedChapterId = useWorkspaceStore((state) => state.chapterId);
   const selectNovelInStore = useWorkspaceStore((state) => state.selectNovel);
-  const selectChapterInStore = useWorkspaceStore((state) => state.selectChapter);
+  const openChapterInStore = useWorkspaceStore((state) => state.openChapter);
+  const activeView = useWorkspaceStore((state) => state.activeView);
+  const setActiveView = useWorkspaceStore((state) => state.setActiveView);
   const storedPanelLayout = useWorkspaceStore((state) => state.panelLayout);
   const storedSidebarCollapsed = useWorkspaceStore((state) => state.sidebarCollapsed);
   const storedChatPanelCollapsed = useWorkspaceStore((state) => state.chatPanelCollapsed);
@@ -63,7 +63,6 @@ export function Workspace() {
   const [agentSidebarOpen, setAgentSidebarOpen] = useState(false);
   const [newAgentRequest, setNewAgentRequest] = useState(0);
   const [openDraftRequest, setOpenDraftRequest] = useState<{ id: string; count: number }>();
-  const [activeView, setActiveView] = useState<WorkspaceView>("editor");
   const [hydrated, setHydrated] = useState(false);
   const sidebar = usePanelToggle(storedSidebarCollapsed, setSidebarCollapsedInStore);
   const chatPanel = usePanelToggle(storedChatPanelCollapsed, setChatPanelCollapsedInStore);
@@ -101,9 +100,9 @@ export function Workspace() {
   useEffect(() => {
     if (!effectiveNovelId || chapters.isLoading || !chapters.data) return;
     if (storedChapterId && !chapters.data.some((chapter) => chapter.id === storedChapterId)) {
-      selectChapterInStore(chapters.data[0]?.id);
+      openChapterInStore(chapters.data[0]?.id);
     }
-  }, [chapters.data, chapters.isLoading, effectiveNovelId, selectChapterInStore, storedChapterId]);
+  }, [chapters.data, chapters.isLoading, effectiveNovelId, openChapterInStore, storedChapterId]);
 
   useEffect(() => {
     if (storedNovelId || novels.isLoading || novels.isError || novels.data?.length) return;
@@ -118,8 +117,7 @@ export function Workspace() {
   };
 
   const selectChapter = (id: string) => {
-    selectChapterInStore(id);
-    setActiveView("editor");
+    openChapterInStore(id);
   };
 
   const openSkillEditor = (state: SkillEditorState) => {

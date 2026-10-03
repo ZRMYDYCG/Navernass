@@ -3,9 +3,11 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { createLayoutSlice } from "./slices/layout.slice";
-import { createSelectionSlice } from "./slices/selection.slice";
+import { createSelectionSlice, type WorkspaceView } from "./slices/selection.slice";
 import { createAgentDraftSlice } from "./slices/agent-drafts.slice";
 import type { WorkspaceStore } from "./types";
+
+export type { WorkspaceView };
 
 /**
  * workspace 的独立 store。

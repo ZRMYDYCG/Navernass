@@ -1,9 +1,16 @@
 "use client";
 
-import { BotIcon, ShieldCheckIcon } from "lucide-react";
+import { BotIcon, FileSearchIcon, ShieldCheckIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { z } from "zod";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   delegateSubagentInputSchema,
   delegateSubagentOutputSchema,
@@ -37,11 +44,27 @@ function ValidateDetail({ input, output }: ValidateProps) {
         </ToolField>
       ) : null}
       {output ? (
-        <ToolField label={t("report")}>
-          <ToolMarkdown>
-            <StreamText text={output.report} />
-          </ToolMarkdown>
-        </ToolField>
+        <Dialog>
+          <DialogTrigger
+            render={
+              <button
+                type="button"
+                className="flex items-center gap-1 self-start text-xs font-medium text-foreground underline-offset-2 hover:underline"
+              />
+            }
+          >
+            <FileSearchIcon className="size-3 shrink-0 text-muted-foreground" />
+            {t("openReport")}
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{t("report")}</DialogTitle>
+            </DialogHeader>
+            <ToolMarkdown>
+              <StreamText text={output.report} />
+            </ToolMarkdown>
+          </DialogContent>
+        </Dialog>
       ) : null}
     </>
   );

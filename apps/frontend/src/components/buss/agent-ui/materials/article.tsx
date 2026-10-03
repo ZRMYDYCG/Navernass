@@ -1,6 +1,12 @@
 "use client";
 
-import { BookOpenTextIcon, FilePenLineIcon, FilesIcon, TextSearchIcon } from "lucide-react";
+import {
+  BookOpenTextIcon,
+  FilePenLineIcon,
+  FilesIcon,
+  SquareArrowOutUpRightIcon,
+  TextSearchIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { z } from "zod";
 
@@ -11,6 +17,7 @@ import {
   searchArticleInputSchema,
   searchArticleOutputSchema,
 } from "@/lib/http/modules/agent-tool.schema";
+import { useWorkspaceStore } from "@/stores";
 
 import {
   defineMaterial,
@@ -140,15 +147,25 @@ type ArticleWriteProps = MaterialContext<unknown, z.infer<typeof articleWriteOut
 
 function ArticleWriteDetail({ output }: ArticleWriteProps) {
   const t = useTranslations("agui.detail");
+  const openChapter = useWorkspaceStore((state) => state.openChapter);
   if (!output) return null;
   return (
-    <ToolMeta
-      items={[
-        output.chapterTitle,
-        t("revisionChange", { from: output.baseRevision, to: output.revision }),
-        t("wordDelta", { count: output.wordDelta }),
-      ]}
-    />
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <button
+        type="button"
+        className="flex items-center gap-1 text-xs font-medium text-foreground underline-offset-2 hover:underline"
+        onClick={() => openChapter(output.chapterId)}
+      >
+        {output.chapterTitle}
+        <SquareArrowOutUpRightIcon className="size-3 shrink-0 text-muted-foreground" />
+      </button>
+      <ToolMeta
+        items={[
+          t("revisionChange", { from: output.baseRevision, to: output.revision }),
+          t("wordDelta", { count: output.wordDelta }),
+        ]}
+      />
+    </div>
   );
 }
 

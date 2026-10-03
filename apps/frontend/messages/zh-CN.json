@@ -169,6 +169,7 @@
       "score": "相关度 {score}%",
       "reviewText": "待审核文本",
       "report": "审核报告",
+      "openReport": "查看审核报告",
       "task": "任务",
       "result": "结果"
     },
