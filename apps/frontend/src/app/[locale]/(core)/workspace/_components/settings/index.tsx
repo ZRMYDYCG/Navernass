@@ -22,9 +22,9 @@ import { Customize, type SkillEditorState } from "./customize";
 import { General } from "./general";
 import { Models } from "./models";
 
-type SettingsSectionId = "general" | "models" | "customize" | "changelog";
+export type SettingsSectionId = "general" | "models" | "customize" | "changelog";
 
-interface SettingsSection {
+export interface SettingsSection {
   id: SettingsSectionId;
   icon: LucideIcon;
   content?: ComponentType<SettingsContentProps>;
@@ -35,7 +35,7 @@ interface SettingsContentProps {
   onTitleChange?: (title: string) => void;
 }
 
-const sectionGroups: SettingsSection[][] = [
+export const settingsSectionGroups: SettingsSection[][] = [
   [{ id: "general", icon: SettingsIcon, content: General }],
   [
     { id: "models", icon: BoxIcon, content: Models },
@@ -45,7 +45,9 @@ const sectionGroups: SettingsSection[][] = [
 ];
 
 function getSection(id: SettingsSectionId): SettingsSection {
-  return sectionGroups.flat().find((section) => section.id === id) ?? sectionGroups[0][0];
+  return (
+    settingsSectionGroups.flat().find((section) => section.id === id) ?? settingsSectionGroups[0][0]
+  );
 }
 
 function Profile() {
@@ -85,7 +87,7 @@ function SettingsNav({
     <nav aria-label={t("title")} className="flex w-52 shrink-0 flex-col gap-2 p-3">
       <Profile />
       <Separator className="h-px" />
-      {sectionGroups.map((group, index) => (
+      {settingsSectionGroups.map((group, index) => (
         <Fragment key={group[0].id}>
           {index > 0 ? <Separator className="h-px" /> : null}
           <ul className="flex flex-col gap-0.5">
@@ -127,11 +129,26 @@ function ComingSoonSection({ section }: { section: SettingsSection }) {
   );
 }
 
+/** 单个设置分区的内容，未实现的分区显示「即将推出」。 */
+export function SettingsContent({
+  sectionId,
+  onOpenSkillEditor,
+}: {
+  sectionId: SettingsSectionId;
+  onOpenSkillEditor?: (state: SkillEditorState) => void;
+}) {
+  const section = getSection(sectionId);
+  const Content = section.content;
+  return Content ? (
+    <Content onOpenSkillEditor={onOpenSkillEditor} />
+  ) : (
+    <ComingSoonSection section={section} />
+  );
+}
+
 export function Settings({ onOpenSkillEditor, onTitleChange }: SettingsContentProps) {
   const t = useTranslations("settings");
   const [activeId, setActiveId] = useState<SettingsSectionId>("general");
-  const active = getSection(activeId);
-  const Content = active.content;
 
   useEffect(() => {
     onTitleChange?.(t(`sections.${activeId}`));
@@ -143,11 +160,7 @@ export function Settings({ onOpenSkillEditor, onTitleChange }: SettingsContentPr
       <Separator orientation="vertical" />
       <ScrollArea className="min-h-0 flex-1">
         <div className="mx-auto w-full max-w-3xl px-10 py-8">
-          {Content ? (
-            <Content onOpenSkillEditor={onOpenSkillEditor} />
-          ) : (
-            <ComingSoonSection section={active} />
-          )}
+          <SettingsContent sectionId={activeId} onOpenSkillEditor={onOpenSkillEditor} />
         </div>
       </ScrollArea>
     </section>

@@ -2,6 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  ArrowLeftIcon,
   ArrowUpRightIcon,
   BookIcon,
   BookOpenIcon,
@@ -38,6 +39,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRouter } from "@/i18n/navigation";
 import type { ChatSession } from "@/lib/http/modules/agent.schema";
@@ -53,11 +55,13 @@ import { useNovelChapters, useNovels } from "@/servers/library.server";
 import { useWorkspaceStore } from "@/stores";
 
 import { ChatPanel } from "../../workspace/_components/chat-panel/chat-panel";
-import { Settings } from "../../workspace/_components/settings";
+import {
+  SettingsContent,
+  settingsSectionGroups,
+  type SettingsSectionId,
+} from "../../workspace/_components/settings";
 import { Customize, type SkillEditorState } from "../../workspace/_components/settings/customize";
 import { SkillEditor } from "../../workspace/_components/settings/skill-editor";
-
-type Panel = "customize" | "settings";
 
 /** 每部小说默认展示的最近对话数，其余收进 More。 */
 const RECENT_CHAT_LIMIT = 5;
@@ -73,7 +77,9 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [panel, setPanel] = useState<Panel | null>(null);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  // 非空时进入设置模式：侧栏换成设置导航，主区域显示该分区内容。
+  const [settingsSection, setSettingsSection] = useState<SettingsSectionId | null>(null);
   const [skillEditor, setSkillEditor] = useState<SkillEditorState | null>(null);
   // ChatPanel 只在挂载时读取会话；侧栏切换对话时换 key 让它重建，流式中新建的会话不会触发重建。
   const [chatKey, setChatKey] = useState(0);
@@ -96,72 +102,113 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
     setChatKey((key) => key + 1);
   };
 
-  const togglePanel = (next: Panel) => {
+  const toggleCustomize = () => {
     setSkillEditor(null);
-    setPanel((current) => (current === next ? null : next));
+    setCustomizeOpen((open) => !open);
   };
 
-  const closePanel = () => {
+  const closeCustomize = () => {
     setSkillEditor(null);
-    setPanel(null);
+    setCustomizeOpen(false);
+  };
+
+  const toggleSettings = () => {
+    setSkillEditor(null);
+    setCustomizeOpen(false);
+    setSettingsSection((current) => (current ? null : "general"));
   };
 
   return (
     <div className="flex h-dvh min-h-0 bg-card">
       {sidebarOpen ? (
         <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-background">
-          <div className="flex h-10 shrink-0 items-center px-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("hideSidebar")}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <PanelLeftIcon />
-            </Button>
-          </div>
-          <nav className="flex flex-col gap-0.5 px-2">
-            <NavItem
-              icon={SquarePenIcon}
-              label={t("newChat")}
-              active={!sessionId && !panel}
-              disabled={!novelId}
-              onClick={() => novelId && openChat(novelId)}
+          {settingsSection ? (
+            <SettingsNav
+              activeId={settingsSection}
+              onSelect={(id) => {
+                setSkillEditor(null);
+                setSettingsSection(id);
+              }}
+              onBack={toggleSettings}
             />
-            <NavItem icon={SearchIcon} label={t("search")} onClick={() => setSearchOpen(true)} />
-            <NavItem
-              icon={SparklesIcon}
-              label={t("customize")}
-              active={panel === "customize"}
-              onClick={() => togglePanel("customize")}
-            />
-          </nav>
-          <p className="px-4 pt-5 pb-1 text-xs text-muted-foreground">{t("novels")}</p>
-          <ScrollArea className="min-h-0 flex-1">
-            <div className="flex flex-col gap-0.5 px-2 pb-2">
-              {(hydrated ? novels.data : undefined)?.map((novel) => (
-                <Novel
-                  key={novel.id}
-                  novelId={novel.id}
-                  title={novel.title}
-                  current={novel.id === novelId}
-                  activeSessionId={novel.id === novelId ? sessionId : undefined}
-                  onOpenChat={(targetSessionId) => openChat(novel.id, targetSessionId)}
+          ) : (
+            <>
+              <div className="flex h-10 shrink-0 items-center px-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t("hideSidebar")}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <PanelLeftIcon />
+                </Button>
+              </div>
+              <nav className="flex flex-col gap-0.5 px-2">
+                <NavItem
+                  icon={SquarePenIcon}
+                  label={t("newChat")}
+                  active={!sessionId && !customizeOpen}
+                  disabled={!novelId}
+                  onClick={() => novelId && openChat(novelId)}
                 />
-              ))}
-            </div>
-          </ScrollArea>
+                <NavItem
+                  icon={SearchIcon}
+                  label={t("search")}
+                  onClick={() => setSearchOpen(true)}
+                />
+                <NavItem
+                  icon={SparklesIcon}
+                  label={t("customize")}
+                  active={customizeOpen}
+                  onClick={toggleCustomize}
+                />
+              </nav>
+              <p className="px-4 pt-5 pb-1 text-xs text-muted-foreground">{t("novels")}</p>
+              <ScrollArea className="min-h-0 flex-1">
+                <div className="flex flex-col gap-0.5 px-2 pb-2">
+                  {(hydrated ? novels.data : undefined)?.map((novel) => (
+                    <Novel
+                      key={novel.id}
+                      novelId={novel.id}
+                      title={novel.title}
+                      current={novel.id === novelId}
+                      activeSessionId={novel.id === novelId ? sessionId : undefined}
+                      onOpenChat={(targetSessionId) => openChat(novel.id, targetSessionId)}
+                    />
+                  ))}
+                </div>
+              </ScrollArea>
+            </>
+          )}
           {sidebarFooter ?? (
-            <Account
-              settingsActive={panel === "settings"}
-              onOpenSettings={() => togglePanel("settings")}
-            />
+            <Account settingsActive={Boolean(settingsSection)} onOpenSettings={toggleSettings} />
           )}
         </aside>
       ) : null}
 
-      <main className="flex min-w-0 flex-1 flex-col">
+      {settingsSection ? (
+        <main className="flex min-w-0 flex-1 flex-col">
+          {skillEditor ? (
+            <SkillEditor
+              key={skillEditor.id ?? "new-skill"}
+              state={skillEditor}
+              onChange={setSkillEditor}
+              onBack={() => setSkillEditor(null)}
+              onClose={() => setSkillEditor(null)}
+            />
+          ) : (
+            <ScrollArea className="min-h-0 flex-1">
+              <div className="mx-auto w-full max-w-2xl px-6 py-10">
+                <SettingsContent sectionId={settingsSection} onOpenSkillEditor={setSkillEditor} />
+              </div>
+            </ScrollArea>
+          )}
+        </main>
+      ) : null}
+
+      {/* 设置模式下只隐藏不卸载，避免中断进行中的对话流。 */}
+      <main className={cn("flex min-w-0 flex-1 flex-col", settingsSection && "hidden")}>
         <header className="flex h-10 shrink-0 items-center gap-1 px-2">
           {sidebarOpen ? null : (
             <Button
@@ -202,7 +249,7 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
         </div>
       </main>
 
-      {panel ? (
+      {customizeOpen ? (
         <aside className="flex w-160 shrink-0 flex-col border-l border-border bg-background">
           {skillEditor ? (
             <SkillEditor
@@ -210,35 +257,27 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
               state={skillEditor}
               onChange={setSkillEditor}
               onBack={() => setSkillEditor(null)}
-              onClose={closePanel}
+              onClose={closeCustomize}
             />
           ) : (
             <>
               <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
-                <span className="text-sm font-medium">
-                  {panel === "customize" ? t("customize") : t("settings")}
-                </span>
+                <span className="text-sm font-medium">{t("customize")}</span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon-sm"
                   aria-label={t("closePanel")}
-                  onClick={closePanel}
+                  onClick={closeCustomize}
                 >
                   <XIcon />
                 </Button>
               </header>
-              {panel === "customize" ? (
-                <ScrollArea className="min-h-0 flex-1">
-                  <div className="p-5">
-                    <Customize onOpenSkillEditor={setSkillEditor} />
-                  </div>
-                </ScrollArea>
-              ) : (
-                <div className="min-h-0 flex-1">
-                  <Settings onOpenSkillEditor={setSkillEditor} />
+              <ScrollArea className="min-h-0 flex-1">
+                <div className="p-5">
+                  <Customize onOpenSkillEditor={setSkillEditor} />
                 </div>
-              )}
+              </ScrollArea>
             </>
           )}
         </aside>
@@ -279,6 +318,63 @@ function NavItem({ icon: Icon, label, active = false, disabled, onClick }: NavIt
       <Icon className="size-4 shrink-0" />
       <span className="truncate">{label}</span>
     </button>
+  );
+}
+
+interface SettingsNavProps {
+  activeId: SettingsSectionId;
+  onSelect: (id: SettingsSectionId) => void;
+  onBack: () => void;
+}
+
+/** 设置模式下替换侧栏的导航：返回、按名称过滤分区、分组列出分区。 */
+function SettingsNav({ activeId, onSelect, onBack }: SettingsNavProps) {
+  const t = useTranslations("agents");
+  const tSettings = useTranslations("settings");
+  const [query, setQuery] = useState("");
+  const keyword = query.trim().toLowerCase();
+  const groups = settingsSectionGroups
+    .map((group) =>
+      group.filter((section) =>
+        tSettings(`sections.${section.id}`).toLowerCase().includes(keyword),
+      ),
+    )
+    .filter((group) => group.length > 0);
+
+  return (
+    <>
+      <div className="flex shrink-0 flex-col gap-2 px-2 pt-2 pb-3">
+        <NavItem icon={ArrowLeftIcon} label={t("back")} onClick={onBack} />
+        <InputGroup>
+          <InputGroupAddon>
+            <SearchIcon />
+          </InputGroupAddon>
+          <InputGroupInput
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t("searchSettings")}
+            aria-label={t("searchSettings")}
+          />
+        </InputGroup>
+      </div>
+      <ScrollArea className="min-h-0 flex-1">
+        <nav aria-label={tSettings("title")} className="flex flex-col gap-4 px-2 pb-2">
+          {groups.map((group) => (
+            <div key={group[0].id} className="flex flex-col gap-0.5">
+              {group.map((section) => (
+                <NavItem
+                  key={section.id}
+                  icon={section.icon}
+                  label={tSettings(`sections.${section.id}`)}
+                  active={section.id === activeId}
+                  onClick={() => onSelect(section.id)}
+                />
+              ))}
+            </div>
+          ))}
+        </nav>
+      </ScrollArea>
+    </>
   );
 }
 
