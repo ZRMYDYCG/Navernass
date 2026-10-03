@@ -305,6 +305,16 @@ export class LibraryController {
     return this.library.getChapterReview(user.id, params.id);
   }
 
+  @Get("chapters/:id/revisions/:revision")
+  @ApiDoc({ summary: "获取 Agent 改写前保存的章节版本快照", type: ResourceResult })
+  @ApiUuidParam()
+  getChapterRevision(
+    @CurrentUser() user: AuthUser,
+    @Param(new ZodPipe(schema.chapterRevisionParams)) params: { id: string; revision: number },
+  ) {
+    return this.library.getChapterRevision(user.id, params.id, params.revision);
+  }
+
   @Delete("chapters/:id/review")
   @ApiDoc({ summary: "完成 Agent 改写的审阅", type: ResourceResult })
   @ApiUuidParam()

@@ -10,6 +10,7 @@ import {
   LoaderCircleIcon,
   MoreHorizontalIcon,
   PanelLeftIcon,
+  PanelRightIcon,
   PlusIcon,
   SearchIcon,
   SettingsIcon,
@@ -61,6 +62,7 @@ import {
 } from "../../workspace/_components/settings";
 import { Customize, type SkillEditorState } from "../../workspace/_components/settings/customize";
 import { SkillEditor } from "../../workspace/_components/settings/skill-editor";
+import { ToolLauncher, Tools, type ToolKind } from "./tools";
 
 /** 每部小说默认展示的最近对话数，其余收进 More。 */
 const RECENT_CHAT_LIMIT = 5;
@@ -75,6 +77,8 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
   const sessionIds = useWorkspaceStore((state) => state.sessionIds);
   const [hydrated, setHydrated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // 非空时展开右侧小说工具面板，值为展开时先打开的工具。
+  const [openTool, setOpenTool] = useState<ToolKind | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   // 非空时进入设置模式：侧栏换成设置导航，主区域显示该分区内容。
@@ -90,6 +94,9 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
   const novelId = novels.data?.some((novel) => novel.id === storedNovelId)
     ? storedNovelId
     : novels.data?.[0]?.id;
+  const novel = novels.data?.find((item) => item.id === novelId);
+  const toolsVisible =
+    novel !== undefined && openTool !== null && !settingsSection && !customizeOpen;
   const sessionId = novelId ? sessionIds[novelId] : undefined;
   const sessions = useChatSessions(novelId);
   const activeSession = sessions.data?.find((session) => session.id === sessionId);
@@ -209,6 +216,18 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
             {t("editor")}
             <ArrowUpRightIcon />
           </Button>
+          {toolsVisible ? null : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("tools.open")}
+              disabled={!novel || customizeOpen}
+              onClick={() => setOpenTool("changes")}
+            >
+              <PanelRightIcon />
+            </Button>
+          )}
         </header>
         {customizeOpen ? (
           skillEditor ? (
@@ -229,28 +248,56 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
         ) : null}
         <div
           className={cn(
-            "mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col",
+            "@container relative flex min-h-0 flex-1 flex-col",
             customizeOpen && "hidden",
           )}
         >
-          {hydrated && novels.isSuccess ? (
-            <ChatPanel
-              key={`${novelId ?? "none"}:${chatKey}`}
-              novelId={novelId}
-              chapterId={chapterId}
-              sessionSwitcher={false}
-              welcomeHeader={
-                <ContextPicker
-                  novels={novels.data}
+          {/* 两侧留出与入口等宽的空白，对话列保持居中且不被入口遮挡；空间不足时隐藏入口。 */}
+          {novel && !toolsVisible ? (
+            <div className="absolute top-1 right-2 hidden w-52 @5xl:block">
+              <ToolLauncher
+                novelId={novel.id}
+                novelTitle={novel.title}
+                sessionId={sessionId}
+                onOpen={setOpenTool}
+              />
+            </div>
+          ) : null}
+          <div
+            className={cn("flex min-h-0 flex-1 flex-col", novel && !toolsVisible && "@5xl:px-60")}
+          >
+            <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col">
+              {hydrated && novels.isSuccess ? (
+                <ChatPanel
+                  key={`${novelId ?? "none"}:${chatKey}`}
                   novelId={novelId}
                   chapterId={chapterId}
-                  onSelectNovel={(targetNovelId) => openChat(targetNovelId)}
+                  sessionSwitcher={false}
+                  welcomeHeader={
+                    <ContextPicker
+                      novels={novels.data}
+                      novelId={novelId}
+                      chapterId={chapterId}
+                      onSelectNovel={(targetNovelId) => openChat(targetNovelId)}
+                    />
+                  }
                 />
-              }
-            />
-          ) : null}
+              ) : null}
+            </div>
+          </div>
         </div>
       </main>
+
+      {toolsVisible ? (
+        <Tools
+          key={novel.id}
+          novelId={novel.id}
+          novelTitle={novel.title}
+          sessionId={sessionId}
+          initialTool={openTool}
+          onClose={() => setOpenTool(null)}
+        />
+      ) : null}
 
       <ChatSearch
         open={searchOpen}

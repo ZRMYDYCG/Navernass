@@ -328,7 +328,30 @@
     "moreActions": "更多操作",
     "noNovel": "选择小说",
     "noChapter": "不指定章节",
-    "anonymous": "未登录用户"
+    "anonymous": "未登录用户",
+    "tools": {
+      "open": "打开小说工具",
+      "close": "收起小说工具",
+      "on": "《{title}》",
+      "changes": "改动",
+      "chapters": "章节",
+      "graph": "人物关系",
+      "noSession": "开始对话后，Agent 在这个对话里改写的章节会显示在这里",
+      "noChanges": "这个对话还没有改写章节",
+      "untitledChapter": "未命名章节",
+      "newTab": "打开其他工具",
+      "closeTab": "关闭标签",
+      "sessionChapters": "本对话改写了 {count} 章",
+      "review": "逐处审阅",
+      "openChapter": "打开章节",
+      "reviewed": "已审阅",
+      "acceptAll": "全部接受",
+      "undo": "撤销本对话的改动，恢复对话前的原文",
+      "expand": "展开",
+      "collapse": "收起",
+      "loading": "正在加载改动…",
+      "unchanged": "{count} 段未修改"
+    }
   },
   "agentSidebar": {
     "search": "搜索 Agents…",

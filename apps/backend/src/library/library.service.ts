@@ -281,6 +281,16 @@ export class LibraryService {
     return base;
   }
 
+  async getChapterRevision(userId: string, id: string, revision: number) {
+    await this.getChapter(userId, id);
+    const snapshot = await this.prisma.chapterRevision.findUnique({
+      where: { chapter_id_revision: { chapter_id: id, revision } },
+      select: { revision: true, content: true },
+    });
+    if (!snapshot) throw AppError.notFound("CHAPTER_REVISION_NOT_FOUND", "章节版本");
+    return snapshot;
+  }
+
   async resolveChapterReview(userId: string, id: string) {
     await this.getChapter(userId, id);
     return this.prisma.chapter.update({ where: { id }, data: { review_base_revision: null } });

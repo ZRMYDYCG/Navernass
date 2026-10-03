@@ -328,7 +328,30 @@
     "moreActions": "More actions",
     "noNovel": "Select novel",
     "noChapter": "No chapter",
-    "anonymous": "Anonymous"
+    "anonymous": "Anonymous",
+    "tools": {
+      "open": "Open novel tools",
+      "close": "Collapse novel tools",
+      "on": "On {title}",
+      "changes": "Changes",
+      "chapters": "Chapters",
+      "graph": "Relationships",
+      "noSession": "Chapters the agent rewrites in this chat will show up here",
+      "noChanges": "This chat hasn't changed any chapters yet",
+      "untitledChapter": "Untitled chapter",
+      "newTab": "Open another tool",
+      "closeTab": "Close tab",
+      "sessionChapters": "{count, plural, one {# chapter} other {# chapters}} changed in this chat",
+      "review": "Review",
+      "openChapter": "Open chapter",
+      "reviewed": "Reviewed",
+      "acceptAll": "Accept all",
+      "undo": "Undo this chat's changes and restore the original text",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "loading": "Loading changes...",
+      "unchanged": "{count, plural, one {# unmodified paragraph} other {# unmodified paragraphs}}"
+    }
   },
   "agentSidebar": {
     "search": "Search Agents...",

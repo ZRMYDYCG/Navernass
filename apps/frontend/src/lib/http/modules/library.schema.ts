@@ -31,12 +31,13 @@ export const chapterSummarySchema = z.object({
   word_count: z.number(),
   status: chapterStatusSchema,
   updated_at: z.coerce.date(),
+  /** 非空表示 Agent 改写后待审阅，值为改写前的版本号。 */
+  review_base_revision: z.number().nullable(),
 });
 
 export const chapterSchema = chapterSummarySchema.extend({
   content: z.string(),
   revision: z.number(),
-  review_base_revision: z.number().nullable(),
 });
 
 export const chapterReviewSchema = z.object({

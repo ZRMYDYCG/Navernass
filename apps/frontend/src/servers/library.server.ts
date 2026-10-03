@@ -1,6 +1,7 @@
 import {
   keepPreviousData,
   useMutation,
+  useQueries,
   useQuery,
   useQueryClient,
   type QueryClient,
@@ -21,6 +22,7 @@ import {
   duplicateVolume as duplicateVolumeApi,
   getChapter,
   getChapterReview,
+  getChapterRevision,
   getNovel,
   getNovelChapters,
   getNovels,
@@ -66,6 +68,8 @@ export const libraryKeys = {
   chapter: (id: string) => ["library", "chapters", id] as const,
   chapterReview: (id: string, revision: number) =>
     ["library", "chapters", id, "review", revision] as const,
+  chapterRevision: (id: string, revision: number) =>
+    ["library", "chapters", id, "revisions", revision] as const,
   chapterSearch: (novelId: string, keyword: string) =>
     ["library", "novels", novelId, "chapter-search", keyword] as const,
   characters: (novelId: string) => ["library", "novels", novelId, "characters"] as const,
@@ -189,6 +193,33 @@ export function useChapterReview(id: string, revision: number | null) {
 }
 
 /**
+ * 批量获取章节的当前内容与指定版本快照，结果顺序与 edits 一致；章节已删除时 missing 为 true。
+ */
+export function useChapterRevisionDiffs<T extends { chapterId: string; baseRevision: number }>(
+  edits: T[],
+) {
+  const current = useQueries({
+    queries: edits.map(({ chapterId }) => ({
+      queryKey: libraryKeys.chapter(chapterId),
+      queryFn: () => getChapter(chapterId),
+    })),
+  });
+  const base = useQueries({
+    queries: edits.map(({ chapterId, baseRevision }) => ({
+      queryKey: libraryKeys.chapterRevision(chapterId, baseRevision),
+      queryFn: () => getChapterRevision(chapterId, baseRevision),
+      staleTime: Infinity,
+    })),
+  });
+  return edits.map((edit, index) => ({
+    ...edit,
+    chapter: current[index]?.data,
+    before: base[index]?.data?.content,
+    missing: Boolean(current[index]?.isError || base[index]?.isError),
+  }));
+}
+
+/**
  * 完成审阅：乐观清除审阅标记。只改标记不动正文，撤销后紧跟的正文保存不会被这里的响应覆盖。
  */
 export function useResolveChapterReview(id: string) {
@@ -197,9 +228,14 @@ export function useResolveChapterReview(id: string) {
     mutationFn: () => resolveChapterReview(id),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: libraryKeys.chapter(id), exact: true });
-      queryClient.setQueryData<Chapter>(libraryKeys.chapter(id), (chapter) =>
-        chapter ? { ...chapter, review_base_revision: null } : chapter,
+      const chapter = queryClient.setQueryData<Chapter>(libraryKeys.chapter(id), (current) =>
+        current ? { ...current, review_base_revision: null } : current,
       );
+      if (chapter) {
+        queryClient.setQueryData<ChapterSummary[]>(libraryKeys.chapters(chapter.novel_id), (list) =>
+          list?.map((item) => (item.id === id ? { ...item, review_base_revision: null } : item)),
+        );
+      }
     },
     onError: () => {
       void queryClient.invalidateQueries({ queryKey: libraryKeys.chapter(id), exact: true });

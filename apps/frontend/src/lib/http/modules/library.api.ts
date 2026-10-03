@@ -92,6 +92,10 @@ export function getChapterReview(id: string) {
   return apiRequest(`chapters/${id}/review`, chapterReviewSchema);
 }
 
+export function getChapterRevision(id: string, revision: number) {
+  return apiRequest(`chapters/${id}/revisions/${revision}`, chapterReviewSchema);
+}
+
 export function resolveChapterReview(id: string) {
   return apiRequest(`chapters/${id}/review`, chapterSchema, { method: "delete" });
 }

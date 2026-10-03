@@ -3,6 +3,10 @@ import { z } from "zod";
 export const uuidSchema = z.uuid();
 export const idParams = z.object({ id: uuidSchema });
 export const novelParams = z.object({ id: uuidSchema });
+export const chapterRevisionParams = z.object({
+  id: uuidSchema,
+  revision: z.coerce.number().int().min(1),
+});
 
 export const pageQuery = z.object({
   page: z.coerce.number().int().min(1).default(1),

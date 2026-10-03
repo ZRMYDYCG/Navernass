@@ -90,7 +90,7 @@ function findPendingQuestion(messages: ChatMessage[]) {
   return undefined;
 }
 
-const chapterWritingTools = new Set(["editArticle", "writeArticle", "patchArticle"]);
+export const chapterWritingTools = new Set(["editArticle", "writeArticle", "patchArticle"]);
 const emptySessions: ChatSession[] = [];
 
 export interface AgentTab {
