@@ -266,7 +266,9 @@
     "library": {
       "selectNovel": "Select a novel to see characters",
       "loading": "Loading…",
-      "empty": "No characters yet — add them in the relationship graph"
+      "empty": "No characters yet — add them in the relationship graph",
+      "relationships": "Relationships",
+      "noRelationships": "No relationships yet"
     },
     "fields": {
       "title": "Custom fields",

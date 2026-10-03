@@ -266,7 +266,9 @@
     "library": {
       "selectNovel": "选择小说后查看角色",
       "loading": "加载中…",
-      "empty": "还没有角色，可在关系图谱中添加"
+      "empty": "还没有角色，可在关系图谱中添加",
+      "relationships": "人物关系",
+      "noRelationships": "暂无人物关系"
     },
     "fields": {
       "title": "自定义属性",

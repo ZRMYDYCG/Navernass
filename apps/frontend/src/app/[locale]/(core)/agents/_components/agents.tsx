@@ -631,6 +631,7 @@ function ChatSearch({ open, novels, onOpenChange, onSelect }: ChatSearchProps) {
                   <CommandItem
                     key={session.id}
                     value={`${session.title || t("untitled")} ${session.id}`}
+                    className="mb-0.5 last:mb-0"
                     onSelect={() => onSelect(novel.id, session.id)}
                   >
                     <span className="min-w-0 flex-1 truncate">
