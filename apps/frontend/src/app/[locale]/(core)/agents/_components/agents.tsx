@@ -15,7 +15,6 @@ import {
   SettingsIcon,
   SparklesIcon,
   SquarePenIcon,
-  XIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
@@ -99,22 +98,17 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
     const store = useWorkspaceStore.getState();
     if (targetNovelId !== storedNovelId) store.selectNovel(targetNovelId);
     store.selectSession(targetNovelId, targetSessionId);
+    setCustomizeOpen(false);
+    setSkillEditor(null);
     setChatKey((key) => key + 1);
   };
 
-  const toggleCustomize = () => {
+  const openCustomize = () => {
     setSkillEditor(null);
-    setCustomizeOpen((open) => !open);
-  };
-
-  const closeCustomize = () => {
-    setSkillEditor(null);
-    setCustomizeOpen(false);
+    setCustomizeOpen(true);
   };
 
   const toggleSettings = () => {
-    setSkillEditor(null);
-    setCustomizeOpen(false);
     setSettingsSection((current) => (current ? null : "general"));
   };
 
@@ -125,10 +119,7 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
           {settingsSection ? (
             <SettingsNav
               activeId={settingsSection}
-              onSelect={(id) => {
-                setSkillEditor(null);
-                setSettingsSection(id);
-              }}
+              onSelect={setSettingsSection}
               onBack={toggleSettings}
             />
           ) : (
@@ -161,7 +152,7 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
                   icon={SparklesIcon}
                   label={t("customize")}
                   active={customizeOpen}
-                  onClick={toggleCustomize}
+                  onClick={openCustomize}
                 />
               </nav>
               <p className="px-4 pt-5 pb-1 text-xs text-muted-foreground">{t("novels")}</p>
@@ -189,25 +180,15 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
 
       {settingsSection ? (
         <main className="flex min-w-0 flex-1 flex-col">
-          {skillEditor ? (
-            <SkillEditor
-              key={skillEditor.id ?? "new-skill"}
-              state={skillEditor}
-              onChange={setSkillEditor}
-              onBack={() => setSkillEditor(null)}
-              onClose={() => setSkillEditor(null)}
-            />
-          ) : (
-            <ScrollArea className="min-h-0 flex-1">
-              <div className="mx-auto w-full max-w-2xl px-6 py-10">
-                <SettingsContent sectionId={settingsSection} onOpenSkillEditor={setSkillEditor} />
-              </div>
-            </ScrollArea>
-          )}
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="mx-auto w-full max-w-2xl px-6 py-10">
+              <SettingsContent sectionId={settingsSection} />
+            </div>
+          </ScrollArea>
         </main>
       ) : null}
 
-      {/* 设置模式下只隐藏不卸载，避免中断进行中的对话流。 */}
+      {/* 设置与 Customize 视图下只隐藏不卸载，避免中断进行中的对话流。 */}
       <main className={cn("flex min-w-0 flex-1 flex-col", settingsSection && "hidden")}>
         <header className="flex h-10 shrink-0 items-center gap-1 px-2">
           {sidebarOpen ? null : (
@@ -222,14 +203,36 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
             </Button>
           )}
           <span className="min-w-0 flex-1 truncate px-2 text-sm text-muted-foreground">
-            {activeSession ? activeSession.title || t("untitled") : null}
+            {activeSession && !customizeOpen ? activeSession.title || t("untitled") : null}
           </span>
           <Button type="button" variant="ghost" size="xs" onClick={() => router.push("/workspace")}>
             {t("editor")}
             <ArrowUpRightIcon />
           </Button>
         </header>
-        <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col">
+        {customizeOpen ? (
+          skillEditor ? (
+            <SkillEditor
+              key={skillEditor.id ?? "new-skill"}
+              state={skillEditor}
+              onChange={setSkillEditor}
+              onBack={() => setSkillEditor(null)}
+              onClose={() => setSkillEditor(null)}
+            />
+          ) : (
+            <ScrollArea className="min-h-0 flex-1">
+              <div className="mx-auto w-full max-w-2xl px-6 pt-4 pb-10">
+                <Customize onOpenSkillEditor={setSkillEditor} />
+              </div>
+            </ScrollArea>
+          )
+        ) : null}
+        <div
+          className={cn(
+            "mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col",
+            customizeOpen && "hidden",
+          )}
+        >
           {hydrated && novels.isSuccess ? (
             <ChatPanel
               key={`${novelId ?? "none"}:${chatKey}`}
@@ -248,40 +251,6 @@ export function Agents({ sidebarFooter }: { sidebarFooter?: ReactNode }) {
           ) : null}
         </div>
       </main>
-
-      {customizeOpen ? (
-        <aside className="flex w-160 shrink-0 flex-col border-l border-border bg-background">
-          {skillEditor ? (
-            <SkillEditor
-              key={skillEditor.id ?? "new-skill"}
-              state={skillEditor}
-              onChange={setSkillEditor}
-              onBack={() => setSkillEditor(null)}
-              onClose={closeCustomize}
-            />
-          ) : (
-            <>
-              <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
-                <span className="text-sm font-medium">{t("customize")}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={t("closePanel")}
-                  onClick={closeCustomize}
-                >
-                  <XIcon />
-                </Button>
-              </header>
-              <ScrollArea className="min-h-0 flex-1">
-                <div className="p-5">
-                  <Customize onOpenSkillEditor={setSkillEditor} />
-                </div>
-              </ScrollArea>
-            </>
-          )}
-        </aside>
-      ) : null}
 
       <ChatSearch
         open={searchOpen}
@@ -333,10 +302,13 @@ function SettingsNav({ activeId, onSelect, onBack }: SettingsNavProps) {
   const tSettings = useTranslations("settings");
   const [query, setQuery] = useState("");
   const keyword = query.trim().toLowerCase();
+  // Customize 在 Agents 侧栏有独立入口，不在设置里重复出现。
   const groups = settingsSectionGroups
     .map((group) =>
-      group.filter((section) =>
-        tSettings(`sections.${section.id}`).toLowerCase().includes(keyword),
+      group.filter(
+        (section) =>
+          section.id !== "customize" &&
+          tSettings(`sections.${section.id}`).toLowerCase().includes(keyword),
       ),
     )
     .filter((group) => group.length > 0);
