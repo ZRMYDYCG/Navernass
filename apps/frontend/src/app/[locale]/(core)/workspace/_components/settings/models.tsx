@@ -75,19 +75,16 @@ import {
   Zhipu,
 } from "@lobehub/icons";
 import {
+  BoxIcon,
   CheckCircle2Icon,
   ChevronDownIcon,
   ExternalLinkIcon,
   GlobeIcon,
   Loader2Icon,
-  PencilIcon,
-  PlugZapIcon,
   PlusIcon,
-  StarIcon,
-  Trash2Icon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState, type ComponentType } from "react";
+import { useId, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { Autocomplete } from "@base-ui/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -106,6 +103,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -115,8 +119,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   type CatalogModel,
   type CatalogProvider,
@@ -134,6 +146,8 @@ import {
   useTestProvider,
   useUpdateProvider,
 } from "@/servers/provider.server";
+
+import { FilterSelect } from "./filter-select";
 
 /** 厂商图标：使用 @lobehub/icons 自带 Avatar 配色。 */
 type BrandIcon = ComponentType<{ size?: number }> & {
@@ -183,6 +197,10 @@ const brands: Record<string, { icon: BrandIcon; website?: string }> = {
   lmstudio: { icon: LmStudio, website: "https://lmstudio.ai/" },
 };
 const featured = Object.keys(brands);
+
+const enabledFilters = ["all", "enabled", "disabled"] as const;
+const vendorScopes = ["featured", "all"] as const;
+const vendorStatuses = ["all", "configured", "unconfigured"] as const;
 
 // 图标映射独立于首批展示顺序，加载更多和搜索结果使用同一套品牌图标。
 const catalogIcons: Record<string, BrandIcon> = {
@@ -873,22 +891,10 @@ export function Models() {
   const test = useTestProvider();
   const catalog = useProviderCatalog();
   const [editor, setEditor] = useState<{ vendor: CatalogProvider; provider?: ProviderConfig }>();
-  const [search, setSearch] = useState("");
-  const [showAll, setShowAll] = useState(false);
   const [error, setError] = useState<string>();
   const [formError, setFormError] = useState<string>();
   const busy = create.isPending || update.isPending || remove.isPending || test.isPending;
   const configured = providers.data ?? [];
-  const query = search.trim().toLowerCase();
-  const rank = (id: string) => (featured.includes(id) ? featured.indexOf(id) : featured.length);
-  const vendors = (catalog.data ?? [])
-    .filter((vendor) => vendor.id !== "compatible")
-    .sort((a, b) => rank(a.id) - rank(b.id) || a.name.localeCompare(b.name));
-  const matched = query
-    ? vendors.filter((vendor) => `${vendor.name} ${vendor.id}`.toLowerCase().includes(query))
-    : vendors;
-  const shown =
-    query || showAll ? matched : matched.filter((vendor) => featured.includes(vendor.id));
   function vendorOf(kind: ProviderKind): CatalogProvider {
     return (
       catalog.data?.find((vendor) => vendor.id === kind) ?? {
@@ -979,152 +985,38 @@ export function Models() {
           </AlertDescription>
         </Alert>
       )}
-      <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-medium">{t("configured")}</h3>
-        {providers.isLoading ? (
-          <Skeleton className="h-24 w-full" />
-        ) : configured.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border p-6 text-center">
-            <p className="text-sm font-medium">{t("emptyTitle")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t("emptyDescription")}</p>
-          </div>
-        ) : (
-          configured.map((provider) => {
-            return (
-              <div
-                key={provider.id}
-                className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4"
-              >
-                <ProviderLogo id={provider.kind} size={28} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium">{provider.name}</span>
-                    {provider.is_default && <Badge variant="secondary">{t("default")}</Badge>}
-                    {!provider.is_enabled && <Badge variant="outline">{t("disabled")}</Badge>}
-                  </div>
-                  <p className="mt-1 truncate text-xs text-muted-foreground">
-                    {provider.model} ·{" "}
-                    {provider.kind === "compatible" ? t("custom") : vendorOf(provider.kind).name}
-                  </p>
-                </div>
-                <Switch
-                  checked={provider.is_enabled}
-                  disabled={busy}
-                  aria-label={t("toggleModel", { name: provider.name })}
-                  onCheckedChange={(isEnabled) => void change(provider, { isEnabled })}
-                />
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    disabled={busy || provider.is_default || !provider.is_enabled}
-                    title={t("fields.isDefault")}
-                    aria-label={t("fields.isDefault")}
-                    onClick={() => void change(provider, { isDefault: true })}
-                  >
-                    <StarIcon />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    disabled={busy || !provider.is_enabled}
-                    title={t("test")}
-                    aria-label={t("test")}
-                    onClick={() => void testConnection(provider)}
-                  >
-                    {test.isPending && test.variables === provider.id ? (
-                      <Loader2Icon className="animate-spin" />
-                    ) : (
-                      <PlugZapIcon />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    disabled={busy}
-                    title={t("editTitle")}
-                    aria-label={t("editTitle")}
-                    onClick={() => edit(vendorOf(provider.kind), provider)}
-                  >
-                    <PencilIcon />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    disabled={busy}
-                    title={t("delete")}
-                    aria-label={t("deleteModel", { name: provider.name })}
-                    onClick={() => void deleteProvider(provider)}
-                  >
-                    <Trash2Icon />
-                  </Button>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </section>
-      <section className="flex flex-col gap-3">
-        <div>
-          <h3 className="text-sm font-medium">{t("addProvider")}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">{t("catalogHelp")}</p>
-        </div>
-        <Input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder={t("search")}
-          aria-label={t("search")}
-        />
-        {catalog.isLoading ? (
-          <Skeleton className="h-40 w-full" />
-        ) : catalog.isError ? (
-          <Alert variant="destructive">
-            <AlertDescription>{catalog.error.message}</AlertDescription>
-            <Button variant="outline" onClick={() => void catalog.refetch()}>
-              {t("retry")}
-            </Button>
-          </Alert>
-        ) : (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {shown.map((vendor) => (
-              <button
-                key={vendor.id}
-                type="button"
-                disabled={busy || !providers.data}
-                onClick={() => edit(vendor)}
-                className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-              >
-                <ProviderLogo id={vendor.id} size={24} />
-                <span className="min-w-0 flex-1 truncate text-sm font-medium">{vendor.name}</span>
-                {configured.some((provider) => provider.kind === vendor.id) && (
-                  <CheckCircle2Icon className="size-3.5 shrink-0 text-muted-foreground" />
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-        {catalog.isSuccess && shown.length === 0 && (
-          <p className="py-3 text-sm text-muted-foreground">{t("noResults")}</p>
-        )}
-        {!query && vendors.length > shown.length && (
-          <Button variant="ghost" onClick={() => setShowAll(true)}>
-            {t("showAllProviders", { count: vendors.length })}
-          </Button>
-        )}
-      </section>
-      <button
-        type="button"
-        disabled={busy || !providers.data}
-        onClick={() => edit(vendorOf("compatible"))}
-        className="flex items-center gap-4 rounded-lg border border-dashed border-border p-4 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-      >
-        <GlobeIcon className="size-6 shrink-0" />
-        <span className="flex-1">
-          <span className="block text-sm font-medium">{t("custom")}</span>
-          <span className="mt-1 block text-xs text-muted-foreground">{t("customHelp")}</span>
-        </span>
-        <PlusIcon className="size-4" />
-      </button>
+      <Tabs defaultValue="configured">
+        <TabsList>
+          <TabsTrigger value="configured">{t("configured")}</TabsTrigger>
+          <TabsTrigger value="catalog">{t("addProvider")}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="configured">
+          <ConfiguredProviders
+            providers={configured}
+            loading={providers.isLoading}
+            busy={busy}
+            testingId={test.isPending ? test.variables : undefined}
+            vendorName={(kind) => (kind === "compatible" ? t("custom") : vendorOf(kind).name)}
+            onToggle={(provider, isEnabled) => void change(provider, { isEnabled })}
+            onSetDefault={(provider) => void change(provider, { isDefault: true })}
+            onTest={(provider) => void testConnection(provider)}
+            onEdit={(provider) => edit(vendorOf(provider.kind), provider)}
+            onDelete={(provider) => void deleteProvider(provider)}
+          />
+        </TabsContent>
+        <TabsContent value="catalog">
+          <ProviderCatalog
+            vendors={catalog.data ?? []}
+            configuredKinds={new Set(configured.map((provider) => provider.kind))}
+            loading={catalog.isLoading}
+            failed={catalog.isError}
+            disabled={busy || !providers.data}
+            onRetry={() => void catalog.refetch()}
+            onAdd={edit}
+            onAddCustom={() => edit(vendorOf("compatible"))}
+          />
+        </TabsContent>
+      </Tabs>
       <Dialog
         open={!!editor}
         onOpenChange={(open) => {
@@ -1158,5 +1050,351 @@ export function Models() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function ConfiguredProviders({
+  providers,
+  loading,
+  busy,
+  testingId,
+  vendorName,
+  onToggle,
+  onSetDefault,
+  onTest,
+  onEdit,
+  onDelete,
+}: {
+  providers: ProviderConfig[];
+  loading: boolean;
+  busy: boolean;
+  testingId?: string;
+  vendorName: (kind: ProviderKind) => string;
+  onToggle: (provider: ProviderConfig, isEnabled: boolean) => void;
+  onSetDefault: (provider: ProviderConfig) => void;
+  onTest: (provider: ProviderConfig) => void;
+  onEdit: (provider: ProviderConfig) => void;
+  onDelete: (provider: ProviderConfig) => void;
+}) {
+  const t = useTranslations("settings.models");
+  const keywordId = useId();
+  const [keyword, setKeyword] = useState("");
+  const [status, setStatus] = useState<(typeof enabledFilters)[number]>("all");
+  const normalized = keyword.trim().toLowerCase();
+  const rows = providers.filter(
+    (provider) =>
+      (status === "all" || (status === "enabled") === provider.is_enabled) &&
+      (!normalized || `${provider.name} ${provider.model}`.toLowerCase().includes(normalized)),
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-end gap-3">
+        <Field className="min-w-0 flex-1">
+          <FieldLabel htmlFor={keywordId}>{t("filters.keyword")}</FieldLabel>
+          <Input
+            id={keywordId}
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            placeholder={t("filters.configuredPlaceholder")}
+          />
+        </Field>
+        <FilterSelect
+          label={t("filters.status")}
+          value={status}
+          items={enabledFilters.map((value) => ({ value, label: t(`filters.${value}`) }))}
+          onValueChange={setStatus}
+        />
+      </div>
+
+      <section className="flex flex-col gap-2">
+        <header className="flex items-center gap-2">
+          <h2 className="text-sm font-medium">{t("configuredTitle")}</h2>
+          <span className="text-xs text-muted-foreground">
+            {t("total", { count: rows.length })}
+          </span>
+          {loading ? <Loader2Icon className="size-3.5 animate-spin text-muted-foreground" /> : null}
+        </header>
+        <div className="-mx-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("columns.name")}</TableHead>
+                <TableHead>{t("columns.model")}</TableHead>
+                <TableHead>{t("columns.enabled")}</TableHead>
+                <TableHead>
+                  <span className="flex justify-end">{t("columns.actions")}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.length ? (
+                rows.map((provider) => (
+                  <TableRow key={provider.id}>
+                    <TableCell>
+                      <div className="flex max-w-56 min-w-0 items-center gap-2.5">
+                        <ProviderLogo id={provider.kind} size={24} />
+                        <div className="flex min-w-0 flex-col">
+                          <span className="flex min-w-0 items-center gap-1.5">
+                            <span className="truncate font-medium">{provider.name}</span>
+                            {provider.is_default && (
+                              <Badge variant="secondary">{t("default")}</Badge>
+                            )}
+                          </span>
+                          <span className="truncate text-xs text-muted-foreground">
+                            {vendorName(provider.kind)}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <code className="block max-w-48 truncate text-xs text-muted-foreground">
+                        {provider.model}
+                      </code>
+                    </TableCell>
+                    <TableCell>
+                      <Switch
+                        size="sm"
+                        checked={provider.is_enabled}
+                        disabled={busy}
+                        aria-label={t("toggleModel", { name: provider.name })}
+                        onCheckedChange={(isEnabled) => onToggle(provider, isEnabled)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="xs"
+                          disabled={busy || provider.is_default || !provider.is_enabled}
+                          onClick={() => onSetDefault(provider)}
+                        >
+                          {t("setDefault")}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="xs"
+                          disabled={busy || !provider.is_enabled}
+                          onClick={() => onTest(provider)}
+                        >
+                          {testingId === provider.id && <Loader2Icon className="animate-spin" />}
+                          {t("test")}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="xs"
+                          disabled={busy}
+                          onClick={() => onEdit(provider)}
+                        >
+                          {t("edit")}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="xs"
+                          disabled={busy}
+                          aria-label={t("deleteModel", { name: provider.name })}
+                          onClick={() => onDelete(provider)}
+                        >
+                          {t("delete")}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableMessage colSpan={4}>
+                  {loading ? (
+                    <span className="text-sm text-muted-foreground">{t("loading")}</span>
+                  ) : (
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <BoxIcon />
+                        </EmptyMedia>
+                        <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
+                        <EmptyDescription>{t("emptyDescription")}</EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  )}
+                </TableMessage>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProviderCatalog({
+  vendors,
+  configuredKinds,
+  loading,
+  failed,
+  disabled,
+  onRetry,
+  onAdd,
+  onAddCustom,
+}: {
+  vendors: CatalogProvider[];
+  configuredKinds: Set<ProviderKind>;
+  loading: boolean;
+  failed: boolean;
+  disabled: boolean;
+  onRetry: () => void;
+  onAdd: (vendor: CatalogProvider) => void;
+  onAddCustom: () => void;
+}) {
+  const t = useTranslations("settings.models");
+  const keywordId = useId();
+  const [keyword, setKeyword] = useState("");
+  const [scope, setScope] = useState<(typeof vendorScopes)[number]>("featured");
+  const [status, setStatus] = useState<(typeof vendorStatuses)[number]>("all");
+  const normalized = keyword.trim().toLowerCase();
+  const rank = (id: string) => (featured.includes(id) ? featured.indexOf(id) : featured.length);
+  const rows = vendors
+    .filter(
+      (vendor) =>
+        vendor.id !== "compatible" &&
+        (scope === "all" || normalized || featured.includes(vendor.id)) &&
+        (status === "all" || (status === "configured") === configuredKinds.has(vendor.id)) &&
+        (!normalized || `${vendor.name} ${vendor.id}`.toLowerCase().includes(normalized)),
+    )
+    .sort((a, b) => rank(a.id) - rank(b.id) || a.name.localeCompare(b.name));
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-end gap-3">
+        <Field className="min-w-0 flex-1">
+          <FieldLabel htmlFor={keywordId}>{t("filters.keyword")}</FieldLabel>
+          <Input
+            id={keywordId}
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            placeholder={t("filters.vendorPlaceholder")}
+          />
+        </Field>
+        <FilterSelect
+          label={t("filters.scope")}
+          value={scope}
+          items={vendorScopes.map((value) => ({ value, label: t(`filters.${value}`) }))}
+          onValueChange={setScope}
+        />
+        <FilterSelect
+          label={t("filters.status")}
+          value={status}
+          items={vendorStatuses.map((value) => ({ value, label: t(`filters.${value}`) }))}
+          onValueChange={setStatus}
+        />
+      </div>
+
+      <section className="flex flex-col gap-2">
+        <header className="flex items-center gap-2">
+          <h2 className="text-sm font-medium">{t("catalogTitle")}</h2>
+          <span className="text-xs text-muted-foreground">
+            {t("total", { count: rows.length })}
+          </span>
+          {loading ? <Loader2Icon className="size-3.5 animate-spin text-muted-foreground" /> : null}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="ml-auto"
+            disabled={disabled}
+            title={t("customHelp")}
+            onClick={onAddCustom}
+          >
+            <GlobeIcon />
+            {t("custom")}
+          </Button>
+        </header>
+        <div className="-mx-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("columns.vendor")}</TableHead>
+                <TableHead>{t("columns.status")}</TableHead>
+                <TableHead>
+                  <span className="flex justify-end">{t("columns.actions")}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.length ? (
+                rows.map((vendor) => (
+                  <TableRow key={vendor.id}>
+                    <TableCell>
+                      <div className="flex max-w-72 min-w-0 items-center gap-2.5">
+                        <ProviderLogo id={vendor.id} size={24} />
+                        <div className="flex min-w-0 flex-col">
+                          <span className="truncate font-medium">{vendor.name}</span>
+                          <span className="truncate text-xs text-muted-foreground">
+                            {vendor.id}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {configuredKinds.has(vendor.id) ? (
+                        <Badge variant="secondary">{t("filters.configured")}</Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          {t("filters.unconfigured")}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="xs"
+                          disabled={disabled}
+                          onClick={() => onAdd(vendor)}
+                        >
+                          <PlusIcon />
+                          {t("add")}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableMessage colSpan={3}>
+                  {loading ? (
+                    <span className="text-sm text-muted-foreground">{t("loading")}</span>
+                  ) : failed ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <p className="text-sm text-destructive">{t("errors.catalogLoadFailed")}</p>
+                      <Button type="button" variant="outline" size="sm" onClick={onRetry}>
+                        {t("retry")}
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">{t("noResults")}</span>
+                  )}
+                </TableMessage>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function TableMessage({ colSpan, children }: { colSpan: number; children: ReactNode }) {
+  return (
+    <TableRow>
+      <TableCell colSpan={colSpan}>
+        <div className="flex min-h-40 items-center justify-center whitespace-normal">
+          {children}
+        </div>
+      </TableCell>
+    </TableRow>
   );
 }
