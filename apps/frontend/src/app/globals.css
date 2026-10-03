@@ -5,6 +5,9 @@
 @source "../../node_modules/streamdown/dist/*.js";
 
 @custom-variant dark (&:is(.dark *, .dusk *));
+/* Base UI 只输出 data-orientation，shadcn base-nova 组件使用 data-horizontal / data-vertical 变体。 */
+@custom-variant data-horizontal (&[data-orientation="horizontal"]);
+@custom-variant data-vertical (&[data-orientation="vertical"]);
 
 :root {
   --background: oklch(0.978 0.008 80);

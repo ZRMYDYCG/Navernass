@@ -556,7 +556,6 @@
         "source": "Source",
         "status": "Status",
         "all": "All",
-        "reset": "Reset",
         "listTitle": "Skills",
         "total": "{count} total",
         "loading": "Loading…",
@@ -592,8 +591,7 @@
           "status": "Status",
           "all": "All",
           "enabled": "Enabled",
-          "disabled": "Disabled",
-          "reset": "Reset"
+          "disabled": "Disabled"
         },
         "columns": {
           "hook": "Hook",
@@ -664,7 +662,6 @@
         "kind": "Type",
         "status": "Status",
         "all": "All",
-        "reset": "Reset",
         "listTitle": "Subagents",
         "total": "{count} total",
         "loading": "Loading…",

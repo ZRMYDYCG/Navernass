@@ -556,7 +556,6 @@
         "source": "来源",
         "status": "状态",
         "all": "全部",
-        "reset": "重置",
         "listTitle": "Skill 列表",
         "total": "共 {count} 项",
         "loading": "正在加载…",
@@ -592,8 +591,7 @@
           "status": "状态",
           "all": "全部",
           "enabled": "已启用",
-          "disabled": "已停用",
-          "reset": "重置"
+          "disabled": "已停用"
         },
         "columns": {
           "hook": "Hook",
@@ -664,7 +662,6 @@
         "kind": "类型",
         "status": "状态",
         "all": "全部",
-        "reset": "重置",
         "listTitle": "Subagent 列表",
         "total": "共 {count} 项",
         "loading": "正在加载…",

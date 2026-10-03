@@ -196,15 +196,7 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
 
   return (
     <div className="flex flex-col gap-4">
-      <form
-        className="flex items-end gap-3"
-        onSubmit={(event) => event.preventDefault()}
-        onReset={() => {
-          setKeyword("");
-          setSource("all");
-          setStatus("all");
-        }}
-      >
+      <div className="flex items-end gap-3">
         <Field className="min-w-0 flex-1">
           <FieldLabel htmlFor={keywordId}>{t("keyword")}</FieldLabel>
           <Input
@@ -232,10 +224,7 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
           }))}
           onValueChange={setStatus}
         />
-        <Button type="reset" variant="outline">
-          {t("reset")}
-        </Button>
-      </form>
+      </div>
 
       <section className="flex flex-col gap-2">
         <header className="flex items-center gap-2">
@@ -423,15 +412,7 @@ function Subagents({ onOpen }: { onOpen: (target: SubagentEditorTarget) => void 
 
   return (
     <div className="flex flex-col gap-4">
-      <form
-        className="flex items-end gap-3"
-        onSubmit={(event) => event.preventDefault()}
-        onReset={() => {
-          setKeyword("");
-          setKind("all");
-          setStatus("all");
-        }}
-      >
+      <div className="flex items-end gap-3">
         <Field className="min-w-0 flex-1">
           <FieldLabel htmlFor={keywordId}>{t("keyword")}</FieldLabel>
           <Input
@@ -459,10 +440,7 @@ function Subagents({ onOpen }: { onOpen: (target: SubagentEditorTarget) => void 
           }))}
           onValueChange={setStatus}
         />
-        <Button type="reset" variant="outline">
-          {t("reset")}
-        </Button>
-      </form>
+      </div>
 
       <section className="flex flex-col gap-2">
         <header className="flex items-center gap-2">
