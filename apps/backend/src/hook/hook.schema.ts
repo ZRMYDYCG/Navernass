@@ -26,39 +26,39 @@ export const hookMatcher = z.object({
     .optional(),
 });
 
-export const createHook = z
-  .object({
-    name: z.string().trim().min(1).max(100),
-    novelId: z.uuid().optional(),
-    scopeType: hookScopeType,
-    eventName: hookEventName,
-    effect: hookEffect,
-    handlerKey: z.string().trim().min(1).max(100),
-    matcher: hookMatcher.default({}),
-    config: z.record(z.string(), z.unknown()).default({}),
-    priority: z.number().int().min(0).max(1000).default(500),
-    timeoutMs: z.number().int().min(50).max(30_000).default(3000),
-    failureMode: hookFailureMode.default("open"),
-    enabled: z.boolean().default(true),
-  })
-  .superRefine((value, context) => {
-    if (value.scopeType === "novel" && !value.novelId) {
-      context.addIssue({
-        code: "custom",
-        message: "novel scope 必须提供 novelId",
-        path: ["novelId"],
-      });
-    }
-    if (value.scopeType === "user" && value.novelId) {
-      context.addIssue({
-        code: "custom",
-        message: "user scope 不能提供 novelId",
-        path: ["novelId"],
-      });
-    }
-  });
+const hookFields = z.object({
+  name: z.string().trim().min(1).max(100),
+  novelId: z.uuid().optional(),
+  scopeType: hookScopeType,
+  eventName: hookEventName,
+  effect: hookEffect,
+  handlerKey: z.string().trim().min(1).max(100),
+  matcher: hookMatcher.default({}),
+  config: z.record(z.string(), z.unknown()).default({}),
+  priority: z.number().int().min(0).max(1000).default(500),
+  timeoutMs: z.number().int().min(50).max(30_000).default(3000),
+  failureMode: hookFailureMode.default("open"),
+  enabled: z.boolean().default(true),
+});
 
-export const updateHook = createHook
+export const createHook = hookFields.superRefine((value, context) => {
+  if (value.scopeType === "novel" && !value.novelId) {
+    context.addIssue({
+      code: "custom",
+      message: "novel scope 必须提供 novelId",
+      path: ["novelId"],
+    });
+  }
+  if (value.scopeType === "user" && value.novelId) {
+    context.addIssue({
+      code: "custom",
+      message: "user scope 不能提供 novelId",
+      path: ["novelId"],
+    });
+  }
+});
+
+export const updateHook = hookFields
   .omit({ scopeType: true, novelId: true })
   .partial()
   .refine((value) => Object.keys(value).length > 0, "至少提供一个更新字段");

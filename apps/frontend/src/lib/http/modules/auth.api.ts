@@ -44,7 +44,11 @@ export function signOut() {
 }
 
 export async function getSession() {
-  const response = await fetch(`${authBaseUrl}/get-session`, { credentials: "include" });
-  if (!response.ok) return null;
-  return authSessionSchema.parse(await response.json().catch(() => null));
+  try {
+    const response = await fetch(`${authBaseUrl}/get-session`, { credentials: "include" });
+    if (!response.ok) return null;
+    return authSessionSchema.parse(await response.json().catch(() => null));
+  } catch {
+    return null;
+  }
 }
