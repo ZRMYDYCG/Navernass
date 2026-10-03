@@ -25,6 +25,7 @@ function runtime(status: string, started_at?: Date) {
     {} as never,
     {} as never,
     {} as never,
+    {} as never,
   );
   return { prisma, service, traces };
 }

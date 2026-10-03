@@ -17,6 +17,7 @@ import { validateEnv } from "./config/env-schema.js";
 import { ContentModule } from "./content/content.module.js";
 import { DatabaseModule } from "./database/database.module.js";
 import { HealthModule } from "./health/health.module.js";
+import { HookModule } from "./hook/hook.module.js";
 import { EditorModule } from "./editor/editor.module.js";
 import { LibraryModule } from "./library/library.module.js";
 import { PlanningModule } from "./planning/planning.module.js";
@@ -51,6 +52,7 @@ import { SkillModule } from "./skill/skill.module.js";
     DatabaseModule,
     AuthCoreModule,
     HealthModule,
+    HookModule,
     ChangelogModule,
     EditorModule,
     AccountModule,

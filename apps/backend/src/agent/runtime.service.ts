@@ -16,6 +16,7 @@ import {
 import { z } from "zod";
 import { AppError } from "../common/app-error.js";
 import { PrismaService } from "../database/prisma.service.js";
+import { HookDispatcher } from "../hook/hook.dispatcher.js";
 import { SkillResolver } from "../skill/skill.resolver.js";
 import {
   assertValidAnswer,
@@ -122,6 +123,7 @@ export class RuntimeService {
     @Inject(SkillResolver) private readonly skills: SkillResolver,
     @Inject(AgentErrorService) private readonly errors: AgentErrorService,
     @Inject(SubagentService) private readonly subagents: SubagentService,
+    @Inject(HookDispatcher) private readonly hooks: HookDispatcher,
   ) {
     this.maxSteps = config.get("AGENT_MAX_STEPS", { infer: true });
     this.timeoutMs = config.get("AGENT_TIMEOUT_MS", { infer: true });
@@ -653,6 +655,21 @@ export class RuntimeService {
           },
         });
     const finalInput = { ...resolvedInput, sessionId: session.id };
+    if (!currentSession) {
+      const hookResult = await this.hooks.dispatch({
+        eventId: randomUUID(),
+        eventName: "session.start",
+        traceId: session.id,
+        userId,
+        novelId: input.novelId,
+        payload: { mode: input.mode, role: input.role, sessionId: session.id },
+      });
+      if (hookResult.decision === "deny") {
+        throw new AppError("HOOK_EXECUTION_FAILED", "会话启动被 Hook 阻止", 403, {
+          dispatchId: hookResult.dispatchId,
+        });
+      }
+    }
     const run = await this.traces.createRun({
       session_id: session.id,
       user_id: userId,

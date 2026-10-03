@@ -118,6 +118,53 @@ enum SkillStatus {
   disabled
 }
 
+enum HookScopeType {
+  system
+  user
+  novel
+}
+
+enum HookEventName {
+  session_start
+  prompt_before_submit
+  tool_before_use
+  tool_after_use
+  tool_use_failed
+  content_after_edit
+  agent_before_stop
+  session_end
+}
+
+enum HookEffect {
+  observe
+  enrich
+  guard
+  follow_up
+}
+
+enum HookFailureMode {
+  open
+  closed
+}
+
+enum HookDispatchStatus {
+  running
+  completed
+  blocked
+  partial
+  failed
+}
+
+enum HookExecutionStatus {
+  running
+  succeeded
+  denied
+  timed_out
+  failed
+  invalid_output
+  skipped
+}
+
 model User {
   id                String             @id @default(uuid()) @db.VarChar(36)
   name              String             @db.VarChar(191)
@@ -144,6 +191,8 @@ model User {
   subagent_defs     SubagentDef[]
   chapter_edits     ChapterEdit[]
   chapter_revisions ChapterRevision[]
+  hook_definitions  HookDefinition[]
+  hook_dispatches   HookDispatch[]
 
   @@map("auth_users")
 }
@@ -244,6 +293,8 @@ model Novel {
   novel_skills      NovelSkill[]
   chapter_edits     ChapterEdit[]
   chapter_revisions ChapterRevision[]
+  hook_definitions  HookDefinition[]
+  hook_dispatches   HookDispatch[]
 
   @@index([user_id, status, order_index])
   @@map("novels")
@@ -527,6 +578,7 @@ model AgentRun {
   stream_events     AgentStreamEvent[]
   retry_of          AgentRun?          @relation("AgentRunRetries", fields: [retry_of_id], references: [id], onDelete: SetNull)
   retries           AgentRun[]         @relation("AgentRunRetries")
+  hook_dispatches   HookDispatch[]
 
   @@unique([user_id, client_request_id])
   @@index([user_id, created_at])
@@ -535,6 +587,88 @@ model AgentRun {
   @@index([status, created_at])
   @@index([retry_of_id])
   @@map("agent_runs")
+}
+
+/// 声明式 Hook 定义。MVP 只允许平台注册的 internal handler，不执行任意代码。
+model HookDefinition {
+  id           String          @id @default(uuid()) @db.VarChar(36)
+  user_id      String          @db.VarChar(36)
+  novel_id     String?         @db.VarChar(36)
+  name         String          @db.VarChar(100)
+  scope_type   HookScopeType
+  event_name   HookEventName
+  effect       HookEffect
+  handler_key  String          @db.VarChar(100)
+  matcher      Json
+  config       Json
+  priority     Int             @default(500)
+  timeout_ms   Int             @default(3000)
+  failure_mode HookFailureMode @default(open)
+  enabled      Boolean         @default(true)
+  revision     Int             @default(1)
+  created_at   DateTime        @default(now()) @db.DateTime(3)
+  updated_at   DateTime        @updatedAt @db.DateTime(3)
+  user         User            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel        Novel?          @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  executions   HookExecution[]
+
+  @@index([user_id, event_name, enabled])
+  @@index([novel_id, event_name, enabled])
+  @@map("hook_definitions")
+}
+
+/// 一次领域事件的 Hook 分发，trace_id 可串起整个 Agent Run。
+model HookDispatch {
+  id            String             @id @default(uuid()) @db.VarChar(36)
+  user_id       String             @db.VarChar(36)
+  novel_id      String?            @db.VarChar(36)
+  run_id        String?            @db.VarChar(36)
+  trace_id      String             @db.VarChar(64)
+  event_id      String             @db.VarChar(36)
+  event_name    HookEventName
+  status        HookDispatchStatus @default(running)
+  matched_count Int                @default(0)
+  success_count Int                @default(0)
+  failure_count Int                @default(0)
+  decision      String?            @db.VarChar(16)
+  duration_ms   Int?
+  input_summary Json
+  result_summary Json?
+  started_at    DateTime           @default(now()) @db.DateTime(3)
+  finished_at   DateTime?          @db.DateTime(3)
+  user          User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  novel         Novel?             @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+  run           AgentRun?          @relation(fields: [run_id], references: [id], onDelete: SetNull)
+  executions    HookExecution[]
+
+  @@index([user_id, started_at])
+  @@index([novel_id, started_at])
+  @@index([trace_id, started_at])
+  @@index([run_id])
+  @@map("hook_dispatches")
+}
+
+/// 单个 Hook handler 的执行记录。输入输出只保存脱敏摘要。
+model HookExecution {
+  id                 String              @id @default(uuid()) @db.VarChar(36)
+  dispatch_id        String              @db.VarChar(36)
+  hook_definition_id String              @db.VarChar(36)
+  hook_revision      Int
+  status             HookExecutionStatus @default(running)
+  decision           String?             @db.VarChar(16)
+  input_redacted     Json
+  output_redacted    Json?
+  error_code         String?             @db.VarChar(100)
+  error_message      String?             @db.Text
+  duration_ms        Int?
+  started_at         DateTime            @default(now()) @db.DateTime(3)
+  finished_at        DateTime?           @db.DateTime(3)
+  dispatch           HookDispatch        @relation(fields: [dispatch_id], references: [id], onDelete: Cascade)
+  hook_definition    HookDefinition       @relation(fields: [hook_definition_id], references: [id], onDelete: Restrict)
+
+  @@unique([dispatch_id, hook_definition_id])
+  @@index([hook_definition_id, started_at])
+  @@map("hook_executions")
 }
 
 /// 按小说和会话保存的完整聊天消息，parts 保留 AI SDK UIMessagePart 原始结构。

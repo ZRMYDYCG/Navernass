@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { SkillModule } from "../skill/skill.module.js";
 import { EditorModule } from "../editor/editor.module.js";
 import { LibraryModule } from "../library/library.module.js";
+import { HookModule } from "../hook/hook.module.js";
 import { AgentController } from "./agent.controller.js";
 import { CatalogService } from "./catalog.service.js";
 import { ChatService } from "./chat.service.js";
@@ -21,7 +22,7 @@ import { TraceService } from "./trace.service.js";
 import { VectorService } from "./vector.service.js";
 
 @Module({
-  imports: [SkillModule, EditorModule, LibraryModule],
+  imports: [SkillModule, EditorModule, LibraryModule, HookModule],
   controllers: [AgentController],
   providers: [
     SecretService,

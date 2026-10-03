@@ -21,6 +21,7 @@ async function setup() {
     {} as never,
     new AgentErrorService(),
     {} as never,
+    {} as never,
   );
   let source!: ReadableStreamDefaultController;
   let signal!: AbortSignal;
@@ -84,6 +85,7 @@ describe("stream idle timeout", () => {
         {} as never,
         {} as never,
         new AgentErrorService(),
+        {} as never,
         {} as never,
       );
       const controller = new AbortController();
