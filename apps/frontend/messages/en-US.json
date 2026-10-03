@@ -117,6 +117,7 @@
       "proposeArticleEdit": { "running": "Drafting edit proposal", "done": "Edit proposal" },
       "createVolume": { "running": "Creating volume", "done": "Created volume" },
       "createChapter": { "running": "Creating chapter", "done": "Created chapter" },
+      "renameChapter": { "running": "Renaming chapter", "done": "Renamed chapter" },
       "createCharacter": { "running": "Creating character", "done": "Created character" },
       "updateCharacter": { "running": "Updating character", "done": "Updated character" },
       "searchMemory": { "running": "Searching memory", "done": "Searched memory" },

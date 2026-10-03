@@ -117,6 +117,7 @@
       "proposeArticleEdit": { "running": "正在生成修改提案", "done": "修改提案" },
       "createVolume": { "running": "正在创建卷", "done": "已创建卷" },
       "createChapter": { "running": "正在创建章节", "done": "已创建章节" },
+      "renameChapter": { "running": "正在重命名章节", "done": "已重命名章节" },
       "createCharacter": { "running": "正在创建角色", "done": "已创建角色" },
       "updateCharacter": { "running": "正在更新角色", "done": "已更新角色" },
       "searchMemory": { "running": "正在检索记忆", "done": "已检索记忆" },

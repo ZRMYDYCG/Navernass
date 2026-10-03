@@ -1,6 +1,12 @@
 "use client";
 
-import { BookPlusIcon, ContactRoundIcon, FileTextIcon, LibraryBigIcon } from "lucide-react";
+import {
+  BookPlusIcon,
+  ContactRoundIcon,
+  FileTextIcon,
+  LibraryBigIcon,
+  PencilLineIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { z } from "zod";
 
@@ -74,6 +80,13 @@ const createChapter = defineMaterial({
   detail: ChapterDetail,
 });
 
+const renameChapter = defineMaterial({
+  tool: "renameChapter",
+  icon: PencilLineIcon,
+  output: chapterOutputSchema,
+  summary: (_, { output }) => output?.title,
+});
+
 const createVolume = defineMaterial({
   tool: "createVolume",
   icon: BookPlusIcon,
@@ -102,6 +115,7 @@ export default [
   getNovelSnapshot,
   getChapter,
   createChapter,
+  renameChapter,
   createVolume,
   createCharacter,
   updateCharacter,

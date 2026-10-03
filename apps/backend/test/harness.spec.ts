@@ -64,6 +64,12 @@ describe("novel agent harness", () => {
     expect(plan.instructions).toContain("baseRevision 和 baseHash");
   });
 
+  it("lets structure-editing modes rename chapters but not read-only ask mode", () => {
+    expect(setup("agent").plan.tools).toHaveProperty("renameChapter");
+    expect(setup("plan").plan.policy.allowedTools).toContain("renameChapter");
+    expect(setup("ask").plan.policy.allowedTools).not.toContain("renameChapter");
+  });
+
   it("only exposes askUser when interactive", () => {
     expect(setup("ask").plan.policy.allowedTools).not.toContain("askUser");
     expect(setup("ask", true).plan.policy.allowedTools).toContain("askUser");

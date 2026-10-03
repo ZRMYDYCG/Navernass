@@ -279,6 +279,20 @@ export function ChatPanel({
           continue;
         }
 
+        if (toolName === "renameChapter") {
+          const parsed = chapterOutputSchema.safeParse(part.output);
+          if (!parsed.success) continue;
+          void queryClient.invalidateQueries({
+            queryKey: libraryKeys.chapters(novelId),
+            exact: true,
+          });
+          void queryClient.invalidateQueries({
+            queryKey: libraryKeys.chapter(parsed.data.id),
+            exact: true,
+          });
+          continue;
+        }
+
         if (toolName === "createVolume") {
           void queryClient.invalidateQueries({
             queryKey: libraryKeys.volumes(novelId),

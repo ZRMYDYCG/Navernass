@@ -281,6 +281,13 @@ export class LibraryService {
     return base;
   }
 
+  /** 只改标题，供 Agent 在当前小说范围内重命名章节。 */
+  async renameChapter(userId: string, novelId: string, id: string, title: string) {
+    const chapter = await this.getChapter(userId, id);
+    if (chapter.novel_id !== novelId) throw AppError.notFound("CHAPTER_NOT_FOUND", "章节");
+    return this.prisma.chapter.update({ where: { id }, data: { title } });
+  }
+
   async getChapterRevision(userId: string, id: string, revision: number) {
     await this.getChapter(userId, id);
     const snapshot = await this.prisma.chapterRevision.findUnique({

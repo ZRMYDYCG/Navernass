@@ -380,6 +380,25 @@ export class ToolService {
             { abortSignal: options.abortSignal },
           ),
       }),
+      renameChapter: tool({
+        description:
+          "修改当前小说中某一章的标题，不改动正文。改名前先读取小说快照确认章节 id 和现有标题。",
+        inputSchema: z.object({ chapterId: z.uuid(), title: createChapter.shape.title }),
+        execute: (input, options) =>
+          observed(
+            options.toolCallId,
+            "renameChapter",
+            input,
+            () =>
+              this.library.renameChapter(
+                context.userId,
+                context.input.novelId,
+                input.chapterId,
+                input.title,
+              ),
+            { abortSignal: options.abortSignal },
+          ),
+      }),
       createCharacter: tool({
         description:
           "在当前小说中创建角色资料。适合从大纲、章节或用户设定里抽取角色卡；不要重复创建已有角色，先读小说快照。",
@@ -563,6 +582,7 @@ export class ToolService {
         "searchMemory",
         "createVolume",
         "createChapter",
+        "renameChapter",
         "createCharacter",
         "updateCharacter",
         "saveMemory",
@@ -581,6 +601,7 @@ export class ToolService {
         "searchMemory",
         "createVolume",
         "createChapter",
+        "renameChapter",
         "createCharacter",
         "updateCharacter",
         "saveMemory",
@@ -599,6 +620,7 @@ export class ToolService {
         "searchMemory",
         "createVolume",
         "createChapter",
+        "renameChapter",
         "createCharacter",
         "updateCharacter",
         "saveMemory",
