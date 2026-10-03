@@ -44,6 +44,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AskUserPanel } from "./ask-user-panel";
 import { Composer } from "./chat-composer";
 import { Messages, StreamingMessageStore } from "./chat-messages";
+import type { ActivationBlock } from "@/components/buss/prompt-input";
 import { chatReducer, initialChatState } from "./machine";
 import { SessionSwitcher } from "./session-switcher";
 import type { ChatMessage } from "./types";
@@ -532,7 +533,7 @@ export function ChatPanel({
     });
   };
 
-  const sendPrompt = async (prompt: string) => {
+  const sendPrompt = async (prompt: string, activationBlocks: ActivationBlock[]) => {
     const text = prompt.trim();
     if (!text || !canSend || !novelId) return;
     await onBeforeSend?.();
@@ -541,6 +542,7 @@ export function ChatPanel({
     const message: ChatMessage = {
       id: crypto.randomUUID(),
       role: "user",
+      metadata: { activationBlocks },
       parts: [{ type: "text", text }],
     };
     const viewKey = state.viewKey;
@@ -548,7 +550,7 @@ export function ChatPanel({
     void consumeStream(
       (signal) =>
         startAgentStream(
-          { novelId, ...(chapterId && { chapterId }) },
+          { novelId, ...(chapterId && { chapterId }), activationBlocks },
           text,
           state.sessionId,
           signal,
@@ -589,6 +591,7 @@ export function ChatPanel({
 
   const showWelcome = state.messages.length === 0 && state.phase === "idle";
   const composerProps = {
+    novelId,
     value: state.sessionId ? undefined : (activeDraft?.text ?? ""),
     onChange: updateActiveDraft,
     busy,

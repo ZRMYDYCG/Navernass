@@ -4,6 +4,7 @@ import { memo, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 
 import { AgentConnecting, AssistantParts } from "@/components/buss/agent-ui/message";
+import { ActivationText } from "@/components/buss/prompt-input/activation";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import {
   MessageScroller,
@@ -91,7 +92,9 @@ function MessageBody({
       <Message align="end">
         <MessageContent>
           <Bubble align="end">
-            <BubbleContent>{text}</BubbleContent>
+            <BubbleContent>
+              <ActivationText text={text} blocks={message.metadata?.activationBlocks ?? []} />
+            </BubbleContent>
           </Bubble>
         </MessageContent>
       </Message>

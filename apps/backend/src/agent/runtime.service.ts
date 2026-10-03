@@ -706,6 +706,7 @@ export class RuntimeService {
           providerId: provider.id,
           requestId: input.requestId,
           skillIds: skillSet.ids,
+          activationBlocks: input.context.activationBlocks ?? [],
         },
       });
     }

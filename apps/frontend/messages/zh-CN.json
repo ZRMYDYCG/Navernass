@@ -38,7 +38,17 @@
       "stop": "停止生成",
       "pause": "暂停生成",
       "pausing": "正在暂停",
-      "paused": "已暂停"
+      "paused": "已暂停",
+      "skills": {
+        "button": "技能",
+        "search": "搜索技能…",
+        "empty": "没有匹配的技能",
+        "enabled": "已启用技能 {count}",
+        "builtin": "内置技能",
+        "custom": "自定义技能",
+        "add": "添加技能",
+        "explore": "探索技能"
+      }
     },
     "message": {
       "paused": "已暂停",

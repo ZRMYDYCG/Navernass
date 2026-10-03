@@ -49,8 +49,11 @@ export function startAgentStream(
       novelId: context.novelId,
       ...(context.chapterId && { chapterId: context.chapterId }),
       ...(sessionId && { sessionId }),
+      skillIds: context.activationBlocks
+        ?.filter((block) => block.kind === "skill")
+        .map((block) => block.id),
       prompt,
-      context: {},
+      context: { activationBlocks: context.activationBlocks ?? [] },
     },
     signal,
   );

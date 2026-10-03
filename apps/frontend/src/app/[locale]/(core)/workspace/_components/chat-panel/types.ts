@@ -1,4 +1,5 @@
 import type { UIMessage } from "ai";
+import type { ActivationBlock } from "@/components/buss/prompt-input";
 
 export interface TraceNode {
   id: string;
@@ -44,6 +45,7 @@ export interface ChatMessageMetadata {
   paused?: boolean;
   toolTimings?: Record<string, { startedAt: number; durationMs?: number }>;
   executionTrace?: ExecutionTrace;
+  activationBlocks?: ActivationBlock[];
 }
 
 export type ChatMessage = UIMessage<ChatMessageMetadata>;
@@ -51,4 +53,5 @@ export type ChatMessage = UIMessage<ChatMessageMetadata>;
 export interface ChatContext {
   novelId: string;
   chapterId?: string;
+  activationBlocks?: ActivationBlock[];
 }

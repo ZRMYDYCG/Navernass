@@ -38,7 +38,17 @@
       "stop": "Stop generation",
       "pause": "Pause generation",
       "pausing": "Pausing",
-      "paused": "Paused"
+      "paused": "Paused",
+      "skills": {
+        "button": "Skills",
+        "search": "Search skills…",
+        "empty": "No matching skills",
+        "enabled": "Enabled skills {count}",
+        "builtin": "Built-in skill",
+        "custom": "Custom skill",
+        "add": "Add skill",
+        "explore": "Explore skills"
+      }
     },
     "message": {
       "paused": "Paused",

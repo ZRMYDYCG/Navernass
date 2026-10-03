@@ -86,8 +86,12 @@ export function useNovels() {
 /**
  * 获取指定小说的详情。
  */
-export function useNovel(id: string) {
-  return useQuery({ queryKey: libraryKeys.novel(id), queryFn: () => getNovel(id) });
+export function useNovel(id: string | undefined) {
+  return useQuery({
+    queryKey: libraryKeys.novel(id ?? ""),
+    queryFn: () => getNovel(id!),
+    enabled: Boolean(id),
+  });
 }
 
 /**
