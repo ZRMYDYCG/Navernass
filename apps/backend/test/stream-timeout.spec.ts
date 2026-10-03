@@ -20,6 +20,7 @@ async function setup() {
     { attach: (_id: string, stream: ReadableStream<UIMessageChunk>) => stream } as never,
     {} as never,
     new AgentErrorService(),
+    {} as never,
   );
   let source!: ReadableStreamDefaultController;
   let signal!: AbortSignal;
@@ -83,6 +84,7 @@ describe("stream idle timeout", () => {
         {} as never,
         {} as never,
         new AgentErrorService(),
+        {} as never,
       );
       const controller = new AbortController();
       if (active) {

@@ -160,12 +160,13 @@ export const validateContinuityInputSchema = z.object({
 });
 export const validateContinuityOutputSchema = z.object({ report: z.string() });
 
+// role 是内置 Subagent 或用户自定义 Subagent 的名称。
 export const delegateSubagentInputSchema = z.object({
-  role: subagentRoleSchema,
+  role: z.string(),
   task: z.string(),
 });
 export const delegateSubagentOutputSchema = z.object({
-  role: subagentRoleSchema,
+  role: z.string(),
   result: z.string(),
 });
 

@@ -7,6 +7,7 @@ import type { z } from "zod";
 import {
   delegateSubagentInputSchema,
   delegateSubagentOutputSchema,
+  subagentRoleSchema,
   validateContinuityInputSchema,
   validateContinuityOutputSchema,
 } from "@/lib/http/modules/agent-tool.schema";
@@ -87,7 +88,11 @@ const delegateSubagent = defineMaterial({
   output: delegateSubagentOutputSchema,
   title: (t, { call, input }) =>
     input
-      ? t(`tools.delegateSubagent.${toolPhase(call)}`, { role: t(`subagent.${input.role}`) })
+      ? t(`tools.delegateSubagent.${toolPhase(call)}`, {
+          role: subagentRoleSchema.safeParse(input.role).success
+            ? t(`subagent.${input.role}`)
+            : input.role,
+        })
       : t(`tools.delegateSubagent.pending`),
   summary: (_, { input }) => input?.task,
   detail: DelegateDetail,

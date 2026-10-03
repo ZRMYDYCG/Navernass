@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BotIcon,
   FileCodeIcon,
   GitBranchIcon,
   MoreHorizontalIcon,
@@ -9,6 +10,7 @@ import {
   RouteIcon,
   SparklesIcon,
   UsersIcon,
+  type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -42,12 +44,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { CustomSkill, Skill } from "@/lib/http/modules/skill.schema";
+import type { CustomSubagent } from "@/lib/http/modules/subagent.schema";
 import {
   useCustomSkills,
   useDeleteCustomSkill,
   useSkills,
   useUpdateCustomSkill,
 } from "@/servers/skill.server";
+import { useDeleteSubagent, useSubagents, useUpdateSubagent } from "@/servers/subagent.server";
+
+import { SubagentEditor, type SubagentEditorTarget } from "./subagent-editor";
 
 const defaultSkillMd = `---
 name: custom-skill
@@ -69,9 +75,11 @@ metadata:
 const modules = [
   { id: "skills", icon: SparklesIcon },
   { id: "hooks", icon: GitBranchIcon, disabled: true },
-  { id: "subagents", icon: UsersIcon, disabled: true },
+  { id: "subagents", icon: UsersIcon },
   { id: "workflows", icon: RouteIcon, disabled: true },
 ] as const;
+
+type ModuleId = (typeof modules)[number]["id"];
 
 export interface SkillEditorState {
   id?: string;
@@ -88,6 +96,25 @@ export function Customize({
   onOpenSkillEditor?: (state: SkillEditorState) => void;
 }) {
   const t = useTranslations("settings.customize");
+  const [activeModule, setActiveModule] = useState<ModuleId>("skills");
+  const [subagentEditor, setSubagentEditor] = useState<SubagentEditorTarget | null>(null);
+
+  if (subagentEditor) {
+    return (
+      <SubagentEditor
+        key={
+          subagentEditor.kind === "custom"
+            ? subagentEditor.subagent.id
+            : subagentEditor.kind === "builtin"
+              ? subagentEditor.subagent.name
+              : "new-subagent"
+        }
+        target={subagentEditor}
+        onBack={() => setSubagentEditor(null)}
+        onSaved={(subagent) => setSubagentEditor({ kind: "custom", subagent })}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -100,16 +127,151 @@ export function Customize({
           <Button
             key={module.id}
             type="button"
-            variant={module.id === "skills" ? "secondary" : "ghost"}
+            variant={module.id === activeModule ? "secondary" : "ghost"}
             size="sm"
             disabled={"disabled" in module && module.disabled}
+            onClick={() => setActiveModule(module.id)}
           >
             <module.icon />
             {t(`modules.${module.id}`)}
           </Button>
         ))}
       </div>
-      <Skills onOpenSkillEditor={onOpenSkillEditor} />
+      {activeModule === "subagents" ? (
+        <Subagents onOpen={setSubagentEditor} />
+      ) : (
+        <Skills onOpenSkillEditor={onOpenSkillEditor} />
+      )}
+    </div>
+  );
+}
+
+function Subagents({ onOpen }: { onOpen: (target: SubagentEditorTarget) => void }) {
+  const t = useTranslations("settings.customize.subagents");
+  const subagents = useSubagents();
+  const updateSubagent = useUpdateSubagent();
+  const deleteSubagent = useDeleteSubagent();
+  const [deleteTarget, setDeleteTarget] = useState<CustomSubagent | null>(null);
+  const custom = subagents.data?.custom ?? [];
+  const builtin = subagents.data?.builtin ?? [];
+
+  return (
+    <div className="flex flex-col gap-6">
+      <Group
+        title={t("customTitle", { count: custom.length })}
+        icon={BotIcon}
+        loading={subagents.isLoading}
+        emptyTitle={t("emptyCustomTitle")}
+        emptyDescription={t("emptyCustomDescription")}
+        action={
+          <Button type="button" variant="ghost" size="xs" onClick={() => onOpen({ kind: "new" })}>
+            <PlusIcon />
+            {t("new")}
+          </Button>
+        }
+      >
+        {custom.map((subagent) => (
+          <SubagentRow
+            key={subagent.id}
+            name={subagent.name}
+            description={subagent.description}
+            enabled={subagent.enabled}
+            onOpen={() => onOpen({ kind: "custom", subagent })}
+            onToggle={(enabled) => updateSubagent.mutate({ id: subagent.id, payload: { enabled } })}
+            onDelete={() => setDeleteTarget(subagent)}
+          />
+        ))}
+      </Group>
+
+      <Group
+        title={t("builtinTitle", { count: builtin.length })}
+        icon={BotIcon}
+        loading={subagents.isLoading}
+        emptyTitle={t("emptyBuiltinTitle")}
+        emptyDescription={t("emptyBuiltinDescription")}
+      >
+        {builtin.map((subagent) => (
+          <SubagentRow
+            key={subagent.name}
+            name={subagent.name}
+            description={subagent.description}
+            enabled
+            onOpen={() => onOpen({ kind: "builtin", subagent })}
+          />
+        ))}
+      </Group>
+
+      <AlertDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget ? t("deleteDescription", { name: deleteTarget.name }) : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteSubagent.isPending}
+              onClick={() => {
+                if (!deleteTarget) return;
+                deleteSubagent.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
+              }}
+            >
+              {t("delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+interface SubagentRowProps {
+  name: string;
+  description: string;
+  enabled: boolean;
+  onOpen: () => void;
+  onToggle?: (enabled: boolean) => void;
+  onDelete?: () => void;
+}
+
+function SubagentRow({ name, description, enabled, onOpen, onToggle, onDelete }: SubagentRowProps) {
+  const t = useTranslations("settings.customize.subagents");
+  return (
+    <div className="group flex min-h-14 items-center gap-3 border-b border-border px-3 py-2 last:border-b-0 hover:bg-muted/50">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="min-w-0 flex-1 cursor-default rounded-sm text-start outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-sm font-medium">{name}</span>
+          {!enabled ? <Badge variant="secondary">{t("disabled")}</Badge> : null}
+        </div>
+        <p className="truncate text-sm text-muted-foreground">{description}</p>
+      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
+          <MoreHorizontalIcon />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={onOpen}>{t("open")}</DropdownMenuItem>
+          {onToggle ? (
+            <DropdownMenuItem onClick={() => onToggle(!enabled)}>
+              {enabled ? t("disable") : t("enable")}
+            </DropdownMenuItem>
+          ) : null}
+          {onDelete ? (
+            <DropdownMenuItem variant="destructive" onClick={onDelete}>
+              {t("delete")}
+            </DropdownMenuItem>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
@@ -147,8 +309,9 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
           {t("new")}
         </Button>
       </header>
-      <SkillGroup
+      <Group
         title={t("customTitle", { count: customs.length })}
+        icon={SparklesIcon}
         loading={customSkills.isLoading}
         emptyTitle={t("emptyCustomTitle")}
         emptyDescription={t("emptyCustomDescription")}
@@ -162,11 +325,12 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
             onDelete={() => setDeleteTarget(skill)}
           />
         ))}
-      </SkillGroup>
+      </Group>
 
       <ScrollArea className="max-h-96">
-        <SkillGroup
+        <Group
           title={t("builtinTitle", { count: builtins.length })}
+          icon={SparklesIcon}
           loading={skills.isLoading}
           emptyTitle={t("emptyBuiltinTitle")}
           emptyDescription={t("emptyBuiltinDescription")}
@@ -178,7 +342,7 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
               onOpen={() => onOpenSkillEditor?.(previewSkill(skill))}
             />
           ))}
-        </SkillGroup>
+        </Group>
       </ScrollArea>
 
       <AlertDialog
@@ -210,15 +374,25 @@ function Skills({ onOpenSkillEditor }: { onOpenSkillEditor?: (state: SkillEditor
   );
 }
 
-interface SkillGroupProps {
+interface GroupProps {
   title: string;
+  icon: LucideIcon;
   loading: boolean;
   emptyTitle: string;
   emptyDescription: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
 }
 
-function SkillGroup({ title, loading, emptyTitle, emptyDescription, children }: SkillGroupProps) {
+function Group({
+  title,
+  icon: Icon,
+  loading,
+  emptyTitle,
+  emptyDescription,
+  action,
+  children,
+}: GroupProps) {
   const empty = !loading && (!Array.isArray(children) || children.length === 0);
   return (
     <section className="flex flex-col gap-3">
@@ -227,13 +401,14 @@ function SkillGroup({ title, loading, emptyTitle, emptyDescription, children }: 
         {loading ? (
           <LoaderCircleIcon className="size-3.5 animate-spin text-muted-foreground" />
         ) : null}
+        {action ? <div className="ml-auto">{action}</div> : null}
       </div>
       <div className="overflow-hidden rounded-lg border border-border bg-background">
         {empty ? (
           <Empty className="min-h-40">
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <SparklesIcon />
+                <Icon />
               </EmptyMedia>
               <EmptyTitle>{emptyTitle}</EmptyTitle>
               <EmptyDescription>{emptyDescription}</EmptyDescription>

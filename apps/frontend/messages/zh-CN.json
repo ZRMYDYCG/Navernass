@@ -573,6 +573,40 @@
         "enabled": "启用",
         "newTitle": "新建 Skill",
         "editTitle": "编辑 Skill"
+      },
+      "subagents": {
+        "new": "新建",
+        "customTitle": "自定义 {count}",
+        "builtinTitle": "内置 {count}",
+        "emptyCustomTitle": "还没有自定义 Subagent",
+        "emptyCustomDescription": "新建一个 Subagent，主 Agent 会在合适的时候把任务委派给它。",
+        "emptyBuiltinTitle": "暂无内置 Subagent",
+        "emptyBuiltinDescription": "内置 Subagent 加载后会显示在这里。",
+        "disabled": "已停用",
+        "open": "打开",
+        "enable": "启用",
+        "disable": "停用",
+        "delete": "删除",
+        "deleteTitle": "删除 Subagent？",
+        "deleteDescription": "将删除「{name}」，这个操作不能撤销。",
+        "cancel": "取消",
+        "back": "返回",
+        "breadcrumb": "Subagents",
+        "newTitle": "新建 Subagent",
+        "builtinBadge": "内置 · 只读",
+        "save": "保存",
+        "saving": "保存中",
+        "inheritModel": "沿用主 Agent 模型",
+        "fields": {
+          "name": "名称",
+          "nameHelp": "小写字母、数字和连字符，主 Agent 委派时用它指定 Subagent。",
+          "model": "模型",
+          "modelHelp": "不指定时沿用主 Agent 当前使用的模型。",
+          "description": "描述",
+          "descriptionPlaceholder": "例如：打磨人物对白，让每个角色的说话方式更有辨识度。",
+          "descriptionHelp": "主 Agent 根据描述判断什么时候委派给它，写清楚适用场景。",
+          "instructions": "指令"
+        }
       }
     }
   },

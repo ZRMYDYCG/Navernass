@@ -15,6 +15,7 @@ import { RuntimeService } from "./runtime.service.js";
 import { RetryService } from "./retry.service.js";
 import { SecretService } from "./secret.service.js";
 import { StreamService } from "./stream.service.js";
+import { SubagentService } from "./subagent.service.js";
 import { ToolService } from "./tool.service.js";
 import { TraceService } from "./trace.service.js";
 import { VectorService } from "./vector.service.js";
@@ -35,6 +36,7 @@ import { VectorService } from "./vector.service.js";
     RetryService,
     ChatService,
     TraceService,
+    SubagentService,
     ToolService,
     HarnessService,
     RuntimeService,

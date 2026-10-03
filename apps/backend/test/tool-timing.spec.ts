@@ -29,6 +29,7 @@ function setup(model: Parameters<ToolService["build"]>[0]["model"] = {} as never
     {} as never,
     { toAppError: (error: unknown) => error } as never,
     { execute: (execute: () => Promise<unknown>) => execute() } as never,
+    {} as never,
   );
   const tools = service.build({
     runId: "run",
@@ -99,6 +100,7 @@ describe("subagent execution timing", () => {
       {} as never,
       { toAppError: (error: unknown) => error } as never,
       { execute: (execute: () => Promise<unknown>) => execute() } as never,
+      {} as never,
     );
     const interactiveTools = service.build(
       {
@@ -187,6 +189,55 @@ describe("subagent execution timing", () => {
       "run",
       expect.objectContaining({ id: "delegate", durationMs: 1350, status: "completed" }),
     );
+  });
+
+  it("delegates to a custom subagent with its own instructions and model", async () => {
+    const customModel = { id: "custom" };
+    const language = vi.fn().mockResolvedValue({ model: customModel });
+    const service = new ToolService(
+      { get: () => 0 } as never,
+      {} as never,
+      {} as never,
+      { saveTool: vi.fn(), addUsage: vi.fn() } as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      { toAppError: (error: unknown) => error } as never,
+      { execute: (execute: () => Promise<unknown>) => execute() } as never,
+      { language } as never,
+    );
+    const tools = service.build({
+      runId: "run",
+      userId: "user",
+      model: {} as never,
+      contextText: "",
+      input: runAgent.parse({ novelId: "00000000-0000-4000-8000-000000000001", prompt: "test" }),
+      subagents: [
+        {
+          name: "dialogue-coach",
+          description: "打磨台词",
+          instructions: "你是台词教练。",
+          providerId: "provider-1",
+        },
+      ],
+    });
+    vi.mocked(streamText).mockReturnValueOnce({
+      text: Promise.resolve("coached"),
+      totalUsage: Promise.resolve({}),
+      fullStream: [],
+    } as never);
+
+    const result = await tools.delegateSubagent!.execute!(
+      { role: "dialogue-coach", task: "polish" },
+      { toolCallId: "custom", messages: [], context: {} },
+    );
+
+    expect(language).toHaveBeenCalledWith("user", "provider-1");
+    expect(vi.mocked(streamText).mock.lastCall?.[0]).toMatchObject({
+      model: customModel,
+      instructions: expect.stringContaining("你是台词教练。"),
+    });
+    expect(result).toMatchObject({ role: "dialogue-coach", result: "coached" });
   });
 
   it("retains elapsed time when a subagent fails", async () => {

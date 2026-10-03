@@ -1,6 +1,7 @@
 import type { LanguageModel, ToolSet } from "ai";
 import type { RunAgent } from "./agent.schema.js";
 import type { ContextSnapshot } from "./context.service.js";
+import type { SubagentDefinition } from "./subagent.service.js";
 import type { ToolTiming } from "./tool.service.js";
 import { Inject, Injectable } from "@nestjs/common";
 import type { ExecutionTrace } from "./execution-trace.js";
@@ -16,6 +17,7 @@ interface HarnessBuildInput {
   context: ContextSnapshot;
   contextText: string;
   skillPrompt?: string;
+  subagents?: SubagentDefinition[];
   interactive: boolean;
 }
 
@@ -160,6 +162,7 @@ export class HarnessService {
         input: input.input,
         model: input.model,
         contextText: input.contextText,
+        subagents: input.subagents,
         toolTimings,
         traceRecorder: recorder,
       },

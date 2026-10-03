@@ -141,6 +141,7 @@ model User {
   skill_defs        SkillDef[]
   skill_installs    SkillInstall[]
   novel_skills      NovelSkill[]
+  subagent_defs     SubagentDef[]
   chapter_edits     ChapterEdit[]
   chapter_revisions ChapterRevision[]
 
@@ -457,6 +458,7 @@ model AiProviderConfig {
   user                User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
   sessions            AgentSession[]
   runs                AgentRun[]
+  subagents           SubagentDef[]
 
   @@unique([user_id, name])
   @@index([user_id, is_default, is_enabled])
@@ -573,6 +575,28 @@ model AgentStreamEvent {
   @@unique([run_id, sequence])
   @@index([run_id, created_at])
   @@map("agent_stream_events")
+}
+
+/// 用户自定义 Subagent：只保存声明式提示词，由主 Agent 通过 delegateSubagent 委派。
+model SubagentDef {
+  id           String            @id @default(uuid()) @db.VarChar(36)
+  user_id      String            @db.VarChar(36)
+  /// 委派时使用的标识，同一用户内唯一，且不能与内置 Subagent 重名。
+  name         String            @db.VarChar(64)
+  /// 告诉主 Agent 什么时候该委派给它。
+  description  String            @db.VarChar(1024)
+  instructions String            @db.LongText
+  /// 为空时沿用主 Agent 当前使用的模型。
+  provider_id  String?           @db.VarChar(36)
+  enabled      Boolean           @default(true)
+  created_at   DateTime          @default(now()) @db.DateTime(3)
+  updated_at   DateTime          @updatedAt @db.DateTime(3)
+  user         User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  provider     AiProviderConfig? @relation(fields: [provider_id], references: [id], onDelete: SetNull)
+
+  @@unique([user_id, name])
+  @@index([provider_id])
+  @@map("subagent_defs")
 }
 
 /// Skill 定义只保存声明式 SKILL.md，不允许持久化或执行任意代码。

@@ -5,6 +5,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { streamText, tool } from "ai";
 import { z } from "zod";
+import { AppError } from "../common/app-error.js";
 import { PrismaService } from "../database/prisma.service.js";
 import { EditorService } from "../editor/editor.service.js";
 import {
@@ -26,7 +27,9 @@ import { askUserInput, askUserOutput } from "./agent.schema.js";
 import { MemoryService } from "./memory.service.js";
 import { AgentErrorService } from "./error.service.js";
 import type { ExecutionTraceRecorder } from "./execution-trace.js";
+import { ModelService } from "./model.service.js";
 import { RetryService, type RetryEvent } from "./retry.service.js";
+import { builtinSubagents, type SubagentDefinition } from "./subagent.service.js";
 import { TraceService } from "./trace.service.js";
 
 interface ToolContext {
@@ -35,6 +38,8 @@ interface ToolContext {
   input: RunAgent;
   model: LanguageModel;
   contextText: string;
+  /** 缺省时只有内置 Subagent 可委派。 */
+  subagents?: SubagentDefinition[];
   toolTimings?: Record<string, ToolTiming>;
   traceRecorder?: ExecutionTraceRecorder;
 }
@@ -44,13 +49,9 @@ export interface ToolTiming {
   durationMs?: number;
 }
 
-const subagentPrompts = {
-  character: "你是角色塑造 Subagent，专注人物动机、弧光、行为一致性和关系张力。",
-  plot: "你是剧情创作 Subagent，专注因果链、冲突升级、伏笔回收和章节节奏。",
-  world: "你是世界观 Subagent，专注规则自洽、势力、地点、物件与历史设定。",
-  style: "你是文风润色 Subagent，专注叙事视角、语言质感、节奏与可读性。",
-  reviewer: "你是校验审核 Subagent，专注逻辑、事实、时间线、人物和设定一致性。",
-} as const;
+const reviewerInstructions = builtinSubagents.find(
+  (subagent) => subagent.name === "reviewer",
+)?.instructions;
 
 @Injectable()
 export class ToolService {
@@ -67,6 +68,7 @@ export class ToolService {
     @Inject(LibraryService) private readonly library: LibraryService,
     @Inject(AgentErrorService) private readonly errors: AgentErrorService,
     @Inject(RetryService) private readonly retries: RetryService,
+    @Inject(ModelService) private readonly models: ModelService,
   ) {
     this.timeoutMs = config.get("AGENT_TIMEOUT_MS", { infer: true });
     this.maxRetries = config.get("AGENT_MAX_RETRIES", { infer: true });
@@ -77,6 +79,9 @@ export class ToolService {
     mode: RunAgent["mode"] = "agent",
     options: { interactive?: boolean; allowedTools?: Iterable<string> } = {},
   ): ToolSet {
+    const subagents =
+      context.subagents ?? builtinSubagents.map((subagent) => ({ ...subagent, providerId: null }));
+    const subagentNames = subagents.map((subagent) => subagent.name);
     const observed = async <T>(
       toolCallId: string,
       name: string,
@@ -497,7 +502,7 @@ export class ToolService {
           observed(options.toolCallId, "validateContinuity", input, async () => {
             const result = streamText({
               model: context.model,
-              instructions: subagentPrompts.reviewer,
+              instructions: reviewerInstructions,
               prompt: `${context.contextText}\n\n待审核文本：\n${input.text}\n\n审核重点：${input.focus ?? "全部一致性维度"}`,
               temperature: 0.1,
               maxRetries: this.maxRetries,
@@ -523,16 +528,24 @@ export class ToolService {
           }),
       }),
       delegateSubagent: tool({
-        description: "把边界清晰的创作任务委派给角色、剧情、世界观、文风或审核 Subagent。",
+        description: [
+          "把边界清晰的任务委派给 Subagent，role 填 Subagent 名称。可委派：",
+          ...subagents.map((subagent) => `- ${subagent.name}：${subagent.description}`),
+        ].join("\n"),
         inputSchema: z.object({
-          role: z.enum(["character", "plot", "world", "style", "reviewer"]),
+          role: z.enum(subagentNames),
           task: z.string().min(1).max(20_000),
         }),
         execute: (input, options) =>
           observed(options.toolCallId, "delegateSubagent", input, async () => {
+            const subagent = subagents.find((item) => item.name === input.role);
+            if (!subagent) throw AppError.notFound("SUBAGENT_NOT_FOUND", "Subagent");
+            const model = subagent.providerId
+              ? (await this.models.language(context.userId, subagent.providerId)).model
+              : context.model;
             const result = streamText({
-              model: context.model,
-              instructions: `${subagentPrompts[input.role]} 只处理被委派任务，输出可供主 Agent 合并的明确结果。`,
+              model,
+              instructions: `${subagent.instructions}\n\n只处理被委派任务，输出可供主 Agent 合并的明确结果。`,
               prompt: `${context.contextText}\n\n委派任务：${input.task}`,
               temperature: context.input.temperature,
               maxRetries: this.maxRetries,

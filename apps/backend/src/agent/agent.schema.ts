@@ -325,6 +325,36 @@ export const syncMemory = z.object({
     .default(["chapter", "worldbook", "outline", "timeline"]),
 });
 
+export const builtinSubagentName = agentRole.exclude(["main"]);
+
+const subagentFields = {
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(64)
+    .regex(/^[a-z0-9][a-z0-9-]*$/, "名称只能包含小写字母、数字和连字符")
+    .refine((name) => !builtinSubagentName.safeParse(name).success, "名称与内置 Subagent 重名"),
+  description: z.string().trim().min(1).max(1024),
+  instructions: z.string().trim().min(1).max(100_000),
+  providerId: z.uuid().nullable(),
+  enabled: z.boolean(),
+};
+
+export const createSubagent = z.object({
+  ...subagentFields,
+  providerId: subagentFields.providerId.default(null),
+  enabled: subagentFields.enabled.default(true),
+});
+
+export const updateSubagent = z
+  .object(subagentFields)
+  .partial()
+  .refine(
+    (value) => Object.values(value).some((field) => field !== undefined),
+    "至少需要一个更新字段",
+  );
+
 export type CreateProvider = z.infer<typeof createProvider>;
 export type UpdateProvider = z.infer<typeof updateProvider>;
 export type RunAgent = z.infer<typeof runAgent>;
@@ -344,3 +374,5 @@ export type UpdateSession = z.infer<typeof updateSession>;
 export type SaveMemory = z.infer<typeof saveMemory>;
 export type SearchMemory = z.infer<typeof searchMemory>;
 export type SyncMemory = z.infer<typeof syncMemory>;
+export type CreateSubagent = z.infer<typeof createSubagent>;
+export type UpdateSubagent = z.infer<typeof updateSubagent>;

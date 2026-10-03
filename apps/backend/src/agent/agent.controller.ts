@@ -33,6 +33,7 @@ import { MutationResult, ResourceResult } from "../openapi/api-model.js";
 import {
   AnswerToolDto,
   CreateProviderDto,
+  CreateSubagentDto,
   PreviewContextDto,
   RetryRunDto,
   RunAgentDto,
@@ -42,6 +43,7 @@ import {
   SyncMemoryDto,
   UpdateProviderDto,
   UpdateSessionDto,
+  UpdateSubagentDto,
 } from "./agent.dto.js";
 import * as schema from "./agent.schema.js";
 import { ChatService } from "./chat.service.js";
@@ -52,6 +54,7 @@ import { ModelService } from "./model.service.js";
 import { ProviderService } from "./provider.service.js";
 import { RuntimeService } from "./runtime.service.js";
 import { StreamService } from "./stream.service.js";
+import { SubagentService } from "./subagent.service.js";
 import { TraceService } from "./trace.service.js";
 import { VectorService } from "./vector.service.js";
 
@@ -78,6 +81,7 @@ export class AgentController {
     @Inject(TraceService) private readonly traces: TraceService,
     @Inject(VectorService) private readonly vectors: VectorService,
     @Inject(CatalogService) private readonly catalog: CatalogService,
+    @Inject(SubagentService) private readonly subagents: SubagentService,
   ) {}
 
   @Get("manifest")
@@ -233,6 +237,45 @@ export class AgentController {
     @Param(new ZodPipe(idParam)) params: { id: string },
   ) {
     await this.providers.remove(user.id, params.id);
+    return { deleted: true };
+  }
+
+  @Get("subagents")
+  @ApiDoc({ summary: "获取内置与自定义 Subagent", type: ResourceResult })
+  listSubagents(@CurrentUser() user: AuthUser) {
+    return this.subagents.list(user.id);
+  }
+
+  @Post("subagents")
+  @ApiDoc({ summary: "新建自定义 Subagent", type: ResourceResult, status: 201 })
+  @ApiZodBody(CreateSubagentDto)
+  createSubagent(
+    @CurrentUser() user: AuthUser,
+    @Body(new ZodPipe(schema.createSubagent)) body: schema.CreateSubagent,
+  ) {
+    return this.subagents.create(user.id, body);
+  }
+
+  @Patch("subagents/:id")
+  @ApiDoc({ summary: "更新自定义 Subagent", type: ResourceResult })
+  @ApiUuidParam("id", "Subagent UUID")
+  @ApiZodBody(UpdateSubagentDto)
+  updateSubagent(
+    @CurrentUser() user: AuthUser,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+    @Body(new ZodPipe(schema.updateSubagent)) body: schema.UpdateSubagent,
+  ) {
+    return this.subagents.update(user.id, params.id, body);
+  }
+
+  @Delete("subagents/:id")
+  @ApiDoc({ summary: "删除自定义 Subagent", type: MutationResult })
+  @ApiUuidParam("id", "Subagent UUID")
+  async deleteSubagent(
+    @CurrentUser() user: AuthUser,
+    @Param(new ZodPipe(idParam)) params: { id: string },
+  ) {
+    await this.subagents.remove(user.id, params.id);
     return { deleted: true };
   }
 

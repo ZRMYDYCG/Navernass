@@ -29,6 +29,7 @@ import { AgentErrorService } from "./error.service.js";
 import { HarnessService } from "./harness.service.js";
 import { ModelService } from "./model.service.js";
 import { StreamService } from "./stream.service.js";
+import { SubagentService } from "./subagent.service.js";
 import { TraceService } from "./trace.service.js";
 
 const outputSchemas = {
@@ -120,6 +121,7 @@ export class RuntimeService {
     @Inject(StreamService) private readonly streams: StreamService,
     @Inject(SkillResolver) private readonly skills: SkillResolver,
     @Inject(AgentErrorService) private readonly errors: AgentErrorService,
+    @Inject(SubagentService) private readonly subagents: SubagentService,
   ) {
     this.maxSteps = config.get("AGENT_MAX_STEPS", { infer: true });
     this.timeoutMs = config.get("AGENT_TIMEOUT_MS", { infer: true });
@@ -697,6 +699,7 @@ export class RuntimeService {
       context,
       contextText,
       skillPrompt: skillSet.prompt,
+      subagents: await this.subagents.forRun(userId),
       interactive,
     });
     await this.traces.saveHarnessPlan(run.id, finalInput as unknown as Prisma.InputJsonValue, {

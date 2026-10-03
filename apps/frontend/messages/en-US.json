@@ -573,6 +573,40 @@
         "enabled": "Enabled",
         "newTitle": "New skill",
         "editTitle": "Edit skill"
+      },
+      "subagents": {
+        "new": "New",
+        "customTitle": "Custom {count}",
+        "builtinTitle": "Built-in {count}",
+        "emptyCustomTitle": "No custom subagents yet",
+        "emptyCustomDescription": "Create a subagent and the main agent will delegate matching tasks to it.",
+        "emptyBuiltinTitle": "No built-in subagents",
+        "emptyBuiltinDescription": "Built-in subagents appear here once loaded.",
+        "disabled": "Disabled",
+        "open": "Open",
+        "enable": "Enable",
+        "disable": "Disable",
+        "delete": "Delete",
+        "deleteTitle": "Delete subagent?",
+        "deleteDescription": "\"{name}\" will be deleted. This cannot be undone.",
+        "cancel": "Cancel",
+        "back": "Back",
+        "breadcrumb": "Subagents",
+        "newTitle": "New subagent",
+        "builtinBadge": "Built-in · Read-only",
+        "save": "Save",
+        "saving": "Saving",
+        "inheritModel": "Inherit from parent",
+        "fields": {
+          "name": "Name",
+          "nameHelp": "Lowercase letters, numbers and hyphens. The main agent uses it to pick this subagent.",
+          "model": "Model",
+          "modelHelp": "When unset, the main agent's current model is used.",
+          "description": "Description",
+          "descriptionPlaceholder": "e.g. Polish dialogue so every character has a distinct voice.",
+          "descriptionHelp": "The main agent reads this to decide when to delegate. Describe when it applies.",
+          "instructions": "Instructions"
+        }
       }
     }
   },

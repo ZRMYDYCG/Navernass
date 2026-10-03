@@ -2,6 +2,7 @@ import { createZodDto } from "nestjs-zod";
 import {
   answerTool,
   createProvider,
+  createSubagent,
   messageQuery,
   previewContext,
   replayStream,
@@ -15,6 +16,7 @@ import {
   syncMemory,
   updateProvider,
   updateSession,
+  updateSubagent,
 } from "./agent.schema.js";
 
 export class CreateProviderDto extends createZodDto(createProvider) {}
@@ -32,3 +34,5 @@ export class UpdateSessionDto extends createZodDto(updateSession) {}
 export class SaveMemoryDto extends createZodDto(saveMemory) {}
 export class SearchMemoryDto extends createZodDto(searchMemory) {}
 export class SyncMemoryDto extends createZodDto(syncMemory) {}
+export class CreateSubagentDto extends createZodDto(createSubagent) {}
+export class UpdateSubagentDto extends createZodDto(updateSubagent) {}
