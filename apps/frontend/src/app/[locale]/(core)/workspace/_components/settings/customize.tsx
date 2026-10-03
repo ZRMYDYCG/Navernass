@@ -53,6 +53,7 @@ import {
 } from "@/servers/skill.server";
 import { useDeleteSubagent, useSubagents, useUpdateSubagent } from "@/servers/subagent.server";
 
+import { Hooks } from "./hooks";
 import { SubagentEditor, type SubagentEditorTarget } from "./subagent-editor";
 
 const defaultSkillMd = `---
@@ -74,7 +75,7 @@ metadata:
 
 const modules = [
   { id: "skills", icon: SparklesIcon },
-  { id: "hooks", icon: GitBranchIcon, disabled: true },
+  { id: "hooks", icon: GitBranchIcon },
   { id: "subagents", icon: UsersIcon },
   { id: "workflows", icon: RouteIcon, disabled: true },
 ] as const;
@@ -137,11 +138,9 @@ export function Customize({
           </Button>
         ))}
       </div>
-      {activeModule === "subagents" ? (
-        <Subagents onOpen={setSubagentEditor} />
-      ) : (
-        <Skills onOpenSkillEditor={onOpenSkillEditor} />
-      )}
+      {activeModule === "subagents" ? <Subagents onOpen={setSubagentEditor} /> : null}
+      {activeModule === "hooks" ? <Hooks /> : null}
+      {activeModule === "skills" ? <Skills onOpenSkillEditor={onOpenSkillEditor} /> : null}
     </div>
   );
 }

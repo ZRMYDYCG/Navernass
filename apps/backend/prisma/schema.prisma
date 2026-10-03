@@ -608,12 +608,13 @@ model HookDefinition {
   revision     Int             @default(1)
   created_at   DateTime        @default(now()) @db.DateTime(3)
   updated_at   DateTime        @updatedAt @db.DateTime(3)
+  deleted_at   DateTime?       @db.DateTime(3)
   user         User            @relation(fields: [user_id], references: [id], onDelete: Cascade)
   novel        Novel?          @relation(fields: [novel_id], references: [id], onDelete: Cascade)
   executions   HookExecution[]
 
-  @@index([user_id, event_name, enabled])
-  @@index([novel_id, event_name, enabled])
+  @@index([user_id, event_name, enabled, deleted_at])
+  @@index([novel_id, event_name, enabled, deleted_at])
   @@map("hook_definitions")
 }
 

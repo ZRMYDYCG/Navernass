@@ -574,6 +574,53 @@
         "newTitle": "新建 Skill",
         "editTitle": "编辑 Skill"
       },
+      "hooks": {
+        "tabs": { "installed": "已安装", "logs": "执行日志" },
+        "new": "新建 Hook",
+        "emptyTitle": "还没有 Hook",
+        "emptyDescription": "创建 Hook，让能力在 Agent 生命周期的指定时机自动运行。",
+        "emptyLogsTitle": "暂无执行日志",
+        "emptyLogsDescription": "Hook 被触发后，执行状态和耗时会显示在这里。",
+        "disabled": "已停用",
+        "toggle": "启用或停用 {name}",
+        "metadata": "{scope} · 优先级 {priority} · 超时 {timeout}ms",
+        "executionSummary": "{success}/{total} 成功 · {duration}ms",
+        "noMatchedHooks": "该事件没有匹配到 Hook。",
+        "delete": "删除",
+        "deleteTitle": "删除 Hook？",
+        "deleteDescription": "将删除「{name}」，历史执行日志会保留。",
+        "cancel": "取消",
+        "create": "创建",
+        "saving": "创建中",
+        "loading": "正在加载…",
+        "createTitle": "新建 Hook",
+        "createDescription": "选择平台注册的 Handler 和允许的生命周期事件。Hook 不会执行任意脚本。",
+        "fields": {
+          "name": "名称",
+          "namePlaceholder": "例如：会话审计",
+          "handler": "Handler",
+          "event": "生命周期事件"
+        },
+        "scopes": { "system": "系统", "user": "用户", "novel": "小说" },
+        "effects": {
+          "observe": "观察",
+          "enrich": "补充上下文",
+          "guard": "守卫",
+          "follow_up": "继续执行"
+        },
+        "statuses": {
+          "running": "执行中",
+          "completed": "完成",
+          "blocked": "已阻断",
+          "partial": "部分成功",
+          "failed": "失败",
+          "succeeded": "成功",
+          "denied": "已拒绝",
+          "timed_out": "超时",
+          "invalid_output": "输出无效",
+          "skipped": "已跳过"
+        }
+      },
       "subagents": {
         "new": "新建",
         "customTitle": "自定义 {count}",

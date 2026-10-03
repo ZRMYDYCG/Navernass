@@ -37,6 +37,7 @@ export class HookRegistry {
         user_id: event.userId,
         event_name: serializeEventName(event.eventName),
         enabled: true,
+        deleted_at: null,
         OR: [
           { scope_type: "user" },
           ...(event.novelId ? [{ scope_type: "novel" as const, novel_id: event.novelId }] : []),

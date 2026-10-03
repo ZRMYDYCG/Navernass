@@ -22,6 +22,7 @@ export class HookService {
         novel_id: query.novelId,
         event_name: query.eventName ? serializeEventName(query.eventName) : undefined,
         enabled: query.enabled,
+        deleted_at: null,
       },
       orderBy: [{ scope_type: "asc" }, { priority: "asc" }, { id: "asc" }],
     });
@@ -78,7 +79,10 @@ export class HookService {
 
   async remove(userId: string, id: string) {
     await this.findOwned(userId, id);
-    await this.prisma.hookDefinition.delete({ where: { id } });
+    await this.prisma.hookDefinition.update({
+      where: { id },
+      data: { enabled: false, deleted_at: new Date(), revision: { increment: 1 } },
+    });
   }
 
   async dispatches(userId: string, query: DispatchQuery) {
@@ -113,7 +117,7 @@ export class HookService {
 
   private async findOwned(userId: string, id: string) {
     const definition = await this.prisma.hookDefinition.findFirst({
-      where: { id, user_id: userId },
+      where: { id, user_id: userId, deleted_at: null },
     });
     if (!definition) throw AppError.notFound("HOOK_NOT_FOUND", "Hook");
     return definition;

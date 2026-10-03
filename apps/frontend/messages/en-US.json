@@ -574,6 +574,53 @@
         "newTitle": "New skill",
         "editTitle": "Edit skill"
       },
+      "hooks": {
+        "tabs": { "installed": "Installed", "logs": "Execution logs" },
+        "new": "New hook",
+        "emptyTitle": "No hooks yet",
+        "emptyDescription": "Create a hook to run a capability at a specific point in the agent lifecycle.",
+        "emptyLogsTitle": "No execution logs",
+        "emptyLogsDescription": "Status and duration appear here after a hook is triggered.",
+        "disabled": "Disabled",
+        "toggle": "Enable or disable {name}",
+        "metadata": "{scope} · priority {priority} · timeout {timeout}ms",
+        "executionSummary": "{success}/{total} succeeded · {duration}ms",
+        "noMatchedHooks": "No hooks matched this event.",
+        "delete": "Delete",
+        "deleteTitle": "Delete hook?",
+        "deleteDescription": "“{name}” will be deleted. Historical execution logs are retained.",
+        "cancel": "Cancel",
+        "create": "Create",
+        "saving": "Creating",
+        "loading": "Loading…",
+        "createTitle": "New hook",
+        "createDescription": "Choose a registered handler and one of its lifecycle events. Hooks cannot run arbitrary scripts.",
+        "fields": {
+          "name": "Name",
+          "namePlaceholder": "e.g. Session audit",
+          "handler": "Handler",
+          "event": "Lifecycle event"
+        },
+        "scopes": { "system": "System", "user": "User", "novel": "Novel" },
+        "effects": {
+          "observe": "Observe",
+          "enrich": "Enrich",
+          "guard": "Guard",
+          "follow_up": "Follow up"
+        },
+        "statuses": {
+          "running": "Running",
+          "completed": "Completed",
+          "blocked": "Blocked",
+          "partial": "Partial",
+          "failed": "Failed",
+          "succeeded": "Succeeded",
+          "denied": "Denied",
+          "timed_out": "Timed out",
+          "invalid_output": "Invalid output",
+          "skipped": "Skipped"
+        }
+      },
       "subagents": {
         "new": "New",
         "customTitle": "Custom {count}",

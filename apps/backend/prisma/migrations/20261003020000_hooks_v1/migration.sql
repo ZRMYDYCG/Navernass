@@ -16,8 +16,9 @@ CREATE TABLE `hook_definitions` (
   `revision` INTEGER NOT NULL DEFAULT 1,
   `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `updated_at` DATETIME(3) NOT NULL,
-  INDEX `hook_definitions_user_id_event_name_enabled_idx`(`user_id`, `event_name`, `enabled`),
-  INDEX `hook_definitions_novel_id_event_name_enabled_idx`(`novel_id`, `event_name`, `enabled`),
+  `deleted_at` DATETIME(3) NULL,
+  INDEX `hook_definitions_user_id_event_name_enabled_deleted_at_idx`(`user_id`, `event_name`, `enabled`, `deleted_at`),
+  INDEX `hook_definitions_novel_id_event_name_enabled_deleted_at_idx`(`novel_id`, `event_name`, `enabled`, `deleted_at`),
   PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
