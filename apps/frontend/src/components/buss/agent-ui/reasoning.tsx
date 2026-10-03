@@ -1,11 +1,18 @@
 "use client";
 
-import { BrainIcon, ChevronDownIcon } from "lucide-react";
+import { BrainIcon } from "lucide-react";
+import { AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { cn } from "cn";
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  TreeExpander,
+  TreeNode,
+  TreeNodeContent,
+  TreeNodeTrigger,
+  TreeProvider,
+} from "@/components/ui/tree";
 
 import { StreamText } from "./stream-text";
 
@@ -19,6 +26,7 @@ const autoCloseDelayMs = 1_000;
 /** 生成时自动展开，结束后显示思考时长并自动收起；历史消息默认收起。 */
 export function Reasoning({ text, active }: ReasoningProps) {
   const t = useTranslations("agui.reasoning");
+  const nodeId = useId();
   // 只有在生成中挂载的推理才计时；从历史加载的没有时长。
   const [startedAt] = useState(() => (active ? Date.now() : undefined));
   const [seconds, setSeconds] = useState<number>();
@@ -48,29 +56,39 @@ export function Reasoning({ text, active }: ReasoningProps) {
       : t("done");
 
   return (
-    <Collapsible open={open} onOpenChange={setUserOpen}>
-      <CollapsibleTrigger
-        render={
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-md text-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
-          />
-        }
+    // 流式结束后消息会整体重新挂载，关闭入场动画，避免推理行重播。
+    <AnimatePresence initial={false}>
+      <TreeProvider
+        expandedIds={open ? [nodeId] : []}
+        onExpandedChange={(ids) => setUserOpen(ids.includes(nodeId))}
+        selectable={false}
+        showLines={false}
       >
-        <BrainIcon className="size-4 shrink-0" />
-        <span className={cn(active && "text-shimmer")}>{label}</span>
-        <ChevronDownIcon
-          className={cn(
-            "size-4 shrink-0 transition-transform motion-reduce:transition-none",
-            open && "rotate-180",
-          )}
-        />
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          <StreamText text={text} streaming={active} />
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
+        <TreeNode nodeId={nodeId}>
+          <TreeNodeTrigger
+            role="button"
+            tabIndex={0}
+            aria-expanded={open}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              event.currentTarget.click();
+            }}
+            className="mx-0 -ml-2 w-fit max-w-full min-w-0"
+          >
+            <span className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground">
+              <BrainIcon className="size-4 shrink-0" />
+              <span className={cn(active && "text-shimmer")}>{label}</span>
+            </span>
+            <TreeExpander hasChildren className="ml-1" />
+          </TreeNodeTrigger>
+          <TreeNodeContent hasChildren>
+            <div className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              <StreamText text={text} streaming={active} />
+            </div>
+          </TreeNodeContent>
+        </TreeNode>
+      </TreeProvider>
+    </AnimatePresence>
   );
 }
