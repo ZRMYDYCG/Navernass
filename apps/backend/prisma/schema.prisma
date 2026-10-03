@@ -594,6 +594,7 @@ model HookDefinition {
   id           String          @id @default(uuid()) @db.VarChar(36)
   user_id      String          @db.VarChar(36)
   novel_id     String?         @db.VarChar(36)
+  builtin_key  String?         @db.VarChar(100)
   name         String          @db.VarChar(100)
   scope_type   HookScopeType
   event_name   HookEventName
@@ -615,6 +616,7 @@ model HookDefinition {
 
   @@index([user_id, event_name, enabled, deleted_at])
   @@index([novel_id, event_name, enabled, deleted_at])
+  @@unique([user_id, builtin_key])
   @@map("hook_definitions")
 }
 

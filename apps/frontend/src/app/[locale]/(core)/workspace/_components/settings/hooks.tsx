@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  ActivityIcon,
-  ChevronDownIcon,
-  GitBranchIcon,
-  LoaderCircleIcon,
-  MoreHorizontalIcon,
-  PlusIcon,
-} from "lucide-react";
+import { ChevronDownIcon, LoaderCircleIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -21,7 +14,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -37,13 +29,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -70,18 +55,7 @@ import {
   useUpdateHook,
 } from "@/servers/hook.server";
 
-const statusVariants = {
-  completed: "secondary",
-  succeeded: "secondary",
-  running: "outline",
-  blocked: "destructive",
-  denied: "destructive",
-  failed: "destructive",
-  timed_out: "destructive",
-  invalid_output: "destructive",
-  partial: "outline",
-  skipped: "outline",
-} as const;
+const failedStatuses = new Set(["blocked", "denied", "failed", "timed_out", "invalid_output"]);
 
 export function Hooks() {
   const t = useTranslations("settings.customize.hooks");
@@ -96,27 +70,36 @@ export function Hooks() {
 
   return (
     <Tabs defaultValue="installed">
-      <div className="flex items-center justify-between gap-3">
-        <TabsList>
+      <div className="flex items-end justify-between gap-6 border-b border-border">
+        <TabsList variant="line">
           <TabsTrigger value="installed">{t("tabs.installed")}</TabsTrigger>
           <TabsTrigger value="logs">{t("tabs.logs")}</TabsTrigger>
         </TabsList>
-        <Button type="button" size="sm" onClick={() => setCreating(true)}>
-          <PlusIcon />
-          {t("new")}
-        </Button>
+        <div className="mb-2">
+          <Button type="button" size="sm" onClick={() => setCreating(true)}>
+            <PlusIcon />
+            {t("new")}
+          </Button>
+        </div>
       </div>
 
-      <TabsContent value="installed">
+      <TabsContent value="installed" className="m-0">
         <HookList
           hooks={hooks.data ?? []}
           loading={hooks.isLoading}
+          failed={hooks.isError}
+          onRetry={() => hooks.refetch()}
           onToggle={(hook, enabled) => updateHook.mutate({ id: hook.id, payload: { enabled } })}
           onDelete={setDeleteTarget}
         />
       </TabsContent>
-      <TabsContent value="logs">
-        <ExecutionLogs dispatches={dispatches.data ?? []} loading={dispatches.isLoading} />
+      <TabsContent value="logs" className="m-0">
+        <ExecutionLogs
+          dispatches={dispatches.data ?? []}
+          loading={dispatches.isLoading}
+          failed={dispatches.isError}
+          onRetry={() => dispatches.refetch()}
+        />
       </TabsContent>
 
       <CreateHookDialog
@@ -159,153 +142,176 @@ export function Hooks() {
 function HookList({
   hooks,
   loading,
+  failed,
+  onRetry,
   onToggle,
   onDelete,
 }: {
   hooks: HookDefinition[];
   loading: boolean;
+  failed: boolean;
+  onRetry: () => void;
   onToggle: (hook: HookDefinition, enabled: boolean) => void;
   onDelete: (hook: HookDefinition) => void;
 }) {
   const t = useTranslations("settings.customize.hooks");
 
   if (loading) return <Loading />;
+  if (failed) return <LoadFailed onRetry={onRetry} />;
   if (!hooks.length) {
     return (
-      <div className="rounded-lg border border-border">
-        <Empty className="min-h-64">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <GitBranchIcon />
-            </EmptyMedia>
-            <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
-            <EmptyDescription>{t("emptyDescription")}</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+      <div className="border-b border-border py-10 text-center">
+        <p className="text-sm font-medium">{t("emptyTitle")}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("emptyDescription")}</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-background">
+    <div>
+      <div className="flex items-center gap-4 border-b border-border px-1 pb-2 text-xs text-muted-foreground">
+        <span className="min-w-0 flex-1">{t("columns.hook")}</span>
+        <span className="w-40">{t("columns.event")}</span>
+        <span className="w-28">{t("columns.scope")}</span>
+        <span className="w-16 text-end">{t("columns.status")}</span>
+      </div>
       {hooks.map((hook) => (
         <div
           key={hook.id}
-          className="flex min-h-16 items-center gap-3 border-b border-border px-3 py-2 last:border-b-0"
+          className="flex min-h-14 items-center gap-4 border-b border-border px-1 py-2.5"
         >
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="truncate text-sm font-medium">{hook.name}</span>
-              <Badge variant="outline">{t(`effects.${hook.effect}`)}</Badge>
-              {!hook.enabled ? <Badge variant="secondary">{t("disabled")}</Badge> : null}
+              {hook.builtin ? (
+                <span className="text-xs text-muted-foreground">{t("builtin")}</span>
+              ) : null}
             </div>
-            <p className="truncate text-sm text-muted-foreground">
-              {hook.eventName} · {hook.handlerKey}
-            </p>
             <p className="truncate text-xs text-muted-foreground">
-              {t("metadata", {
-                scope: t(`scopes.${hook.scopeType}`),
-                priority: hook.priority,
-                timeout: hook.timeoutMs,
-              })}
+              {hook.handlerKey} · {t(`effects.${hook.effect}`)} · {hook.timeoutMs}ms
             </p>
           </div>
-          <Switch
-            size="sm"
-            checked={hook.enabled}
-            aria-label={t("toggle", { name: hook.name })}
-            onCheckedChange={(checked) => onToggle(hook, checked)}
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-              <MoreHorizontalIcon />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem variant="destructive" onClick={() => onDelete(hook)}>
-                {t("delete")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <code className="w-40 truncate text-xs text-muted-foreground">{hook.eventName}</code>
+          <span className="w-28 text-xs text-muted-foreground">
+            {t(`scopes.${hook.scopeType}`)}
+          </span>
+          <div className="flex w-16 items-center justify-end gap-1">
+            <Switch
+              size="sm"
+              checked={hook.enabled}
+              aria-label={t("toggle", { name: hook.name })}
+              onCheckedChange={(checked) => onToggle(hook, checked)}
+            />
+            {!hook.builtin ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
+                  <MoreHorizontalIcon />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem variant="destructive" onClick={() => onDelete(hook)}>
+                    {t("delete")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
+          </div>
         </div>
       ))}
     </div>
   );
 }
 
-function ExecutionLogs({ dispatches, loading }: { dispatches: HookDispatch[]; loading: boolean }) {
+function ExecutionLogs({
+  dispatches,
+  loading,
+  failed,
+  onRetry,
+}: {
+  dispatches: HookDispatch[];
+  loading: boolean;
+  failed: boolean;
+  onRetry: () => void;
+}) {
   const t = useTranslations("settings.customize.hooks");
   const locale = useLocale();
   const [expanded, setExpanded] = useState<string | null>(null);
 
   if (loading) return <Loading />;
+  if (failed) return <LoadFailed onRetry={onRetry} />;
   if (!dispatches.length) {
     return (
-      <div className="rounded-lg border border-border">
-        <Empty className="min-h-64">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <ActivityIcon />
-            </EmptyMedia>
-            <EmptyTitle>{t("emptyLogsTitle")}</EmptyTitle>
-            <EmptyDescription>{t("emptyLogsDescription")}</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+      <div className="border-b border-border py-10 text-center">
+        <p className="text-sm font-medium">{t("emptyLogsTitle")}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("emptyLogsDescription")}</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-background">
+    <div>
+      <div className="flex items-center gap-4 border-b border-border px-1 pb-2 text-xs text-muted-foreground">
+        <span className="min-w-0 flex-1">{t("columns.event")}</span>
+        <span className="w-28">{t("columns.status")}</span>
+        <span className="w-32">{t("columns.time")}</span>
+        <span className="w-20 text-end">{t("columns.duration")}</span>
+        <span className="w-5" />
+      </div>
       {dispatches.map((dispatch) => {
         const open = expanded === dispatch.id;
         return (
-          <div key={dispatch.id} className="border-b border-border last:border-b-0">
+          <div key={dispatch.id} className="border-b border-border">
             <button
               type="button"
-              className="flex w-full items-center gap-3 px-3 py-3 text-start hover:bg-muted/50"
+              className="flex min-h-12 w-full items-center gap-4 px-1 py-2 text-start hover:bg-muted/40"
               onClick={() => setExpanded(open ? null : dispatch.id)}
             >
+              <div className="min-w-0 flex-1">
+                <code className="text-xs">{dispatch.event_name}</code>
+                <p className="truncate text-xs text-muted-foreground">trace {dispatch.trace_id}</p>
+              </div>
+              <div className="w-28">
+                <StatusText status={dispatch.status} />
+              </div>
+              <span className="w-32 text-xs text-muted-foreground">
+                {new Intl.DateTimeFormat(locale, {
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                }).format(new Date(dispatch.started_at))}
+              </span>
+              <span className="w-20 text-end text-xs tabular-nums text-muted-foreground">
+                {dispatch.duration_ms ?? 0}ms
+              </span>
               <ChevronDownIcon
                 className={open ? "rotate-180 transition-transform" : "transition-transform"}
               />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="truncate text-sm font-medium">{dispatch.event_name}</span>
-                  <StatusBadge status={dispatch.status} />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {new Intl.DateTimeFormat(locale, {
-                    dateStyle: "short",
-                    timeStyle: "medium",
-                  }).format(new Date(dispatch.started_at))}
-                  {" · "}
-                  {t("executionSummary", {
-                    success: dispatch.success_count,
-                    total: dispatch.matched_count,
-                    duration: dispatch.duration_ms ?? 0,
-                  })}
-                </p>
-              </div>
             </button>
             {open ? (
-              <div className="flex flex-col gap-3 border-t border-border bg-muted/30 px-4 py-3">
-                <p className="font-mono text-xs text-muted-foreground">trace {dispatch.trace_id}</p>
+              <div className="border-t border-border bg-muted/20 px-4 py-2">
                 {dispatch.executions.length ? (
                   dispatch.executions.map((execution) => (
                     <div
                       key={execution.id}
-                      className="rounded-md border border-border bg-background p-3"
+                      className="flex items-center gap-4 border-b border-border py-2 last:border-b-0"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs">{execution.hook_definition_id}</span>
-                        <StatusBadge status={execution.status} />
-                        <span className="ml-auto text-xs text-muted-foreground">
-                          {execution.duration_ms ?? 0}ms
+                      <div className="min-w-0 flex-1">
+                        <span className="block truncate font-mono text-xs">
+                          {execution.hook_definition_id}
                         </span>
+                        {execution.error_message ? (
+                          <span className="block truncate text-xs text-destructive">
+                            {execution.error_message}
+                          </span>
+                        ) : null}
                       </div>
-                      {execution.error_message ? (
-                        <p className="mt-2 text-sm text-destructive">{execution.error_message}</p>
-                      ) : null}
+                      <div className="w-28">
+                        <StatusText status={execution.status} />
+                      </div>
+                      <span className="w-20 text-end text-xs tabular-nums text-muted-foreground">
+                        {execution.duration_ms ?? 0}ms
+                      </span>
                     </div>
                   ))
                 ) : (
@@ -421,9 +427,27 @@ function CreateHookDialog({
   );
 }
 
-function StatusBadge({ status }: { status: keyof typeof statusVariants }) {
+function StatusText({ status }: { status: string }) {
   const t = useTranslations("settings.customize.hooks");
-  return <Badge variant={statusVariants[status]}>{t(`statuses.${status}`)}</Badge>;
+  const failed = failedStatuses.has(status);
+  return (
+    <span
+      className={
+        failed
+          ? "flex items-center gap-1.5 text-xs text-destructive"
+          : "flex items-center gap-1.5 text-xs text-muted-foreground"
+      }
+    >
+      <span
+        className={
+          failed
+            ? "size-1.5 rounded-full bg-destructive"
+            : "size-1.5 rounded-full bg-muted-foreground"
+        }
+      />
+      {t(`statuses.${status}`)}
+    </span>
+  );
 }
 
 function Loading() {
@@ -432,6 +456,18 @@ function Loading() {
     <div className="flex min-h-48 items-center justify-center gap-2 text-sm text-muted-foreground">
       <LoaderCircleIcon className="animate-spin" />
       {t("loading")}
+    </div>
+  );
+}
+
+function LoadFailed({ onRetry }: { onRetry: () => void }) {
+  const t = useTranslations("settings.customize.hooks");
+  return (
+    <div className="flex min-h-48 flex-col items-center justify-center gap-3 text-center">
+      <p className="text-sm text-destructive">{t("loadFailed")}</p>
+      <Button type="button" variant="outline" size="sm" onClick={onRetry}>
+        {t("retry")}
+      </Button>
     </div>
   );
 }

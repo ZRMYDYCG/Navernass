@@ -2,6 +2,7 @@ CREATE TABLE `hook_definitions` (
   `id` VARCHAR(36) NOT NULL,
   `user_id` VARCHAR(36) NOT NULL,
   `novel_id` VARCHAR(36) NULL,
+  `builtin_key` VARCHAR(100) NULL,
   `name` VARCHAR(100) NOT NULL,
   `scope_type` ENUM('system', 'user', 'novel') NOT NULL,
   `event_name` ENUM('session_start', 'prompt_before_submit', 'tool_before_use', 'tool_after_use', 'tool_use_failed', 'content_after_edit', 'agent_before_stop', 'session_end') NOT NULL,
@@ -19,6 +20,7 @@ CREATE TABLE `hook_definitions` (
   `deleted_at` DATETIME(3) NULL,
   INDEX `hook_definitions_user_id_event_name_enabled_deleted_at_idx`(`user_id`, `event_name`, `enabled`, `deleted_at`),
   INDEX `hook_definitions_novel_id_event_name_enabled_deleted_at_idx`(`novel_id`, `event_name`, `enabled`, `deleted_at`),
+  UNIQUE INDEX `hook_definitions_user_id_builtin_key_key`(`user_id`, `builtin_key`),
   PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

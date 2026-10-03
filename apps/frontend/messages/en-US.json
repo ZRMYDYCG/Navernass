@@ -560,6 +560,7 @@
         "emptyBuiltinTitle": "No matching built-in skills",
         "emptyBuiltinDescription": "Try another search term.",
         "disabled": "Disabled",
+        "builtin": "Built-in",
         "open": "Open",
         "enable": "Enable",
         "disable": "Disable",
@@ -576,6 +577,14 @@
       },
       "hooks": {
         "tabs": { "installed": "Installed", "logs": "Execution logs" },
+        "columns": {
+          "hook": "Hook",
+          "event": "Event",
+          "scope": "Scope",
+          "status": "Status",
+          "time": "Time",
+          "duration": "Duration"
+        },
         "new": "New hook",
         "emptyTitle": "No hooks yet",
         "emptyDescription": "Create a hook to run a capability at a specific point in the agent lifecycle.",
@@ -593,6 +602,8 @@
         "create": "Create",
         "saving": "Creating",
         "loading": "Loading…",
+        "loadFailed": "Failed to load hooks. Check that the backend and database migrations are up to date.",
+        "retry": "Retry",
         "createTitle": "New hook",
         "createDescription": "Choose a registered handler and one of its lifecycle events. Hooks cannot run arbitrary scripts.",
         "fields": {

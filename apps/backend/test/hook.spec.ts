@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { HookDispatcher } from "../src/hook/hook.dispatcher.js";
+import { HookHandlers } from "../src/hook/hook.handlers.js";
 import { HookRegistry } from "../src/hook/hook.registry.js";
 import type { HookEvent, ResolvedHook } from "../src/hook/hook.types.js";
 
@@ -63,6 +64,7 @@ describe("Hook 基础设施", () => {
   it("按 scope、priority 和 id 生成确定性顺序并应用 matcher", async () => {
     const prisma = {
       hookDefinition: {
+        upsert: vi.fn().mockResolvedValue({}),
         findMany: vi.fn().mockResolvedValue([
           {
             id: "novel-late",
@@ -114,6 +116,27 @@ describe("Hook 基础设施", () => {
     const result = await registry.resolve(event);
 
     expect(result.map((item) => item.id)).toEqual(["user-first", "novel-late"]);
+  });
+
+  it("内置长期记忆 Hook 返回可注入的小说记忆", async () => {
+    const prisma = {
+      semanticMemory: {
+        findMany: vi
+          .fn()
+          .mockResolvedValue([
+            { kind: "summary", title: "上一章", content: "主角已经拿到了银色钥匙。" },
+          ]),
+      },
+    };
+    const handlers = new HookHandlers(prisma as never);
+    const handler = handlers.get("novel.long-term-memory");
+
+    const result = await handler!.execute(event, {}, new AbortController().signal);
+
+    expect(result).toEqual({
+      effect: "enrich",
+      additions: [{ kind: "memory", content: "[summary] 上一章\n主角已经拿到了银色钥匙。" }],
+    });
   });
 
   it("执行成功并对日志中的正文类字段脱敏", async () => {

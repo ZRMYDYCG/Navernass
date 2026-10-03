@@ -32,6 +32,7 @@ export class HookRegistry {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async resolve(event: HookEvent): Promise<ResolvedHook[]> {
+    await this.ensureBuiltins(event.userId);
     const definitions = await this.prisma.hookDefinition.findMany({
       where: {
         user_id: event.userId,
@@ -65,6 +66,57 @@ export class HookRegistry {
         const scope = this.scopeRank(left.scopeType) - this.scopeRank(right.scopeType);
         return scope || left.priority - right.priority || left.id.localeCompare(right.id);
       });
+  }
+
+  async ensureBuiltins(userId: string) {
+    const builtins = [
+      {
+        builtinKey: "novel.long-term-memory",
+        name: "小说长期记忆",
+        eventName: "session_start" as const,
+        effect: "enrich" as const,
+        handlerKey: "novel.long-term-memory",
+        priority: 200,
+      },
+      {
+        builtinKey: "audit.session-start",
+        name: "会话启动审计",
+        eventName: "session_start" as const,
+        effect: "observe" as const,
+        handlerKey: "audit.session",
+        priority: 900,
+      },
+      {
+        builtinKey: "audit.session-end",
+        name: "会话结束审计",
+        eventName: "session_end" as const,
+        effect: "observe" as const,
+        handlerKey: "audit.session",
+        priority: 900,
+      },
+    ];
+    await Promise.all(
+      builtins.map((builtin) =>
+        this.prisma.hookDefinition.upsert({
+          where: { user_id_builtin_key: { user_id: userId, builtin_key: builtin.builtinKey } },
+          create: {
+            user_id: userId,
+            builtin_key: builtin.builtinKey,
+            name: builtin.name,
+            scope_type: "user",
+            event_name: builtin.eventName,
+            effect: builtin.effect,
+            handler_key: builtin.handlerKey,
+            matcher: {},
+            config: {},
+            priority: builtin.priority,
+            timeout_ms: 3000,
+            failure_mode: "open",
+          },
+          update: {},
+        }),
+      ),
+    );
   }
 
   async assertNovelOwner(userId: string, novelId: string) {

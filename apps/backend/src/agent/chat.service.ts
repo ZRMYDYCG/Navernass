@@ -1,9 +1,11 @@
 import type { Prisma } from "../generated/prisma/client.js";
 import type { MessageQuery, SessionQuery } from "./agent.schema.js";
 import { Buffer } from "node:buffer";
+import { randomUUID } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
 import { AppError } from "../common/app-error.js";
 import { PrismaService } from "../database/prisma.service.js";
+import { HookDispatcher } from "../hook/hook.dispatcher.js";
 import { describeAskUserParts } from "./ask-user.js";
 
 interface MessageInput {
@@ -25,7 +27,10 @@ interface MessageCursor {
 
 @Injectable()
 export class ChatService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(HookDispatcher) private readonly hooks: HookDispatcher,
+  ) {}
 
   async saveUser(input: MessageInput) {
     return this.save("user", input);
@@ -178,7 +183,15 @@ export class ChatService {
   }
 
   async removeSession(userId: string, sessionId: string) {
-    await this.requireSession(userId, sessionId);
+    const session = await this.requireSession(userId, sessionId);
+    await this.hooks.dispatch({
+      eventId: randomUUID(),
+      eventName: "session.end",
+      traceId: session.id,
+      userId,
+      novelId: session.novel_id,
+      payload: { sessionId },
+    });
     await this.prisma.agentSession.delete({ where: { id: sessionId } });
   }
 

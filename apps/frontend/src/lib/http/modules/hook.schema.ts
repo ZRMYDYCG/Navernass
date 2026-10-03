@@ -15,6 +15,7 @@ export const hookEffectSchema = z.enum(["observe", "enrich", "guard", "follow_up
 
 export const hookDefinitionSchema = z.object({
   id: z.string(),
+  builtin: z.boolean(),
   name: z.string(),
   novelId: z.string().nullable(),
   scopeType: z.enum(["system", "user", "novel"]),

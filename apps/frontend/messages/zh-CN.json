@@ -560,6 +560,7 @@
         "emptyBuiltinTitle": "没有匹配的内置 Skill",
         "emptyBuiltinDescription": "换个关键词试试。",
         "disabled": "已停用",
+        "builtin": "内置",
         "open": "打开",
         "enable": "启用",
         "disable": "停用",
@@ -576,6 +577,14 @@
       },
       "hooks": {
         "tabs": { "installed": "已安装", "logs": "执行日志" },
+        "columns": {
+          "hook": "Hook",
+          "event": "事件",
+          "scope": "范围",
+          "status": "状态",
+          "time": "时间",
+          "duration": "耗时"
+        },
         "new": "新建 Hook",
         "emptyTitle": "还没有 Hook",
         "emptyDescription": "创建 Hook，让能力在 Agent 生命周期的指定时机自动运行。",
@@ -593,6 +602,8 @@
         "create": "创建",
         "saving": "创建中",
         "loading": "正在加载…",
+        "loadFailed": "Hooks 加载失败，请确认后端服务和数据库迁移已更新。",
+        "retry": "重试",
         "createTitle": "新建 Hook",
         "createDescription": "选择平台注册的 Handler 和允许的生命周期事件。Hook 不会执行任意脚本。",
         "fields": {

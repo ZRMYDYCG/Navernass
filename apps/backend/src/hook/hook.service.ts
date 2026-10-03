@@ -16,6 +16,7 @@ export class HookService {
   ) {}
 
   async list(userId: string, query: HookQuery) {
+    await this.registry.ensureBuiltins(userId);
     const definitions = await this.prisma.hookDefinition.findMany({
       where: {
         user_id: userId,
@@ -78,7 +79,8 @@ export class HookService {
   }
 
   async remove(userId: string, id: string) {
-    await this.findOwned(userId, id);
+    const definition = await this.findOwned(userId, id);
+    if (definition.builtin_key) throw AppError.forbidden("内置 Hook 只能停用，不能删除");
     await this.prisma.hookDefinition.update({
       where: { id },
       data: { enabled: false, deleted_at: new Date(), revision: { increment: 1 } },
@@ -140,6 +142,7 @@ export class HookService {
 
   private toDefinition(definition: {
     id: string;
+    builtin_key: string | null;
     name: string;
     novel_id: string | null;
     scope_type: "system" | "user" | "novel";
@@ -158,6 +161,7 @@ export class HookService {
   }) {
     return {
       id: definition.id,
+      builtin: Boolean(definition.builtin_key),
       name: definition.name,
       novelId: definition.novel_id,
       scopeType: definition.scope_type,
